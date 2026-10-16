@@ -26,3 +26,62 @@ python3 validation/performance/shared_provider/run_physical.py \
   --output-dir target/performance/shared-physical-control \
   --maximum-integrated-batch 32
 ```
+
+## Explicit reduction-kernel controls
+
+Reduction selection is independent of physical coefficient preparation. The
+latter remains factored SymJIT O2 heads with the shared interpreted
+`PolynomialNumerator<f64>` direct/Mu/T3/T2 callbacks. The default reduction
+selection remains `symbolica`; no option changes the shared numerator or master
+policy.
+
+`run_physical.py --reduction-kernels native-denominators|native` enables the
+optional standalone `native-kernels` feature and selects the corresponding
+public amplitude factory at session creation. `--native-catalog` compiles that
+feature while retaining interpreted execution. For a single-artifact numerical
+comparison, use:
+
+```sh
+python validation/performance/shared_provider/run_physical.py \
+  --output-dir target/shared-kernel-parity --maximum-integrated-batch 8 \
+  --all-reduction-kernels
+```
+
+This compares all three selectors using the same physical provider, numerical
+inputs and frozen union of master requests. Each retained candidate session
+is constructed before its reduction calls. The selected baseline is interpreted;
+all five result components are compared to it, while the existing independent
+MadLoop controls check the total Laurent coefficients. Empty/single/tail and
+permuted batches remain covered. Frozen master backend counts and misses are
+checked again after catalog comparisons.
+
+The compatibility C ABI `sp_session_create` delegates to interpreted selection.
+`sp_session_create_with_kernels` accepts only setup-time IDs 0/1/2, and errors
+leave the caller's output slot unchanged. `sp_session_kernel_info` reports the
+compiled feature and actual public-library selection for every family,
+including interpreted integration and accumulation. The current report has ten
+ABI cells: selection, compiled-feature flag, and eight family flags. The added
+`tadpole_source_projection` family is native only for the full `native` selector;
+`native-denominators` retains interpreted tadpole projections. Geometry and
+tadpole subtraction remain independent interpreted stages. C++ and Python both reject
+coverage inconsistent with the requested mode. There is no timed selector
+mutation or rebuilding of the session during a reduction call. A normal batch
+reset preserves the selected factory.
+
+These are correctness controls. The partial native catalog does not change
+geometry, master execution, other reduction kernels or numerator callbacks;
+no timing or performance acceptance follows from this comparison.
+
+The seven-family selector checkpoint is recorded in
+`validation/evidence/shared-provider-kernel-selection.json`. One native-enabled
+artifact checked all three selections at widths 0, 1, 3, and 8 against the same
+frozen master union and numerator. The largest scaled difference across all
+five complex output components was `3.50e-18`; this is a correctness control,
+not a timing result. The compressed companion report retains source hashes,
+commands, actual coverage, independent MadLoop checks and artifact identities.
+
+The subsequent eight-family checkpoint is in
+`validation/evidence/shared-provider-tadpole-selection.json`. It retains the
+same widths, fixed provider and frozen master union, now reporting tadpole
+source projections explicitly. All three selectors pass again, with a maximum
+scaled difference of `3.50e-18`; the prior seven-family evidence is preserved.

@@ -1,0 +1,66 @@
+{
+  "schema": "ninjars-reduction-jit-probe-v1",
+  "base_commit": "73c02c1146fd27fb32ad7d6bf523e177edea92bd",
+  "scope": "Test-only scalar-JIT-per-row compilation of existing exact reduction plans; production unaffected",
+  "plans": 17,
+  "batch_widths": [
+    0,
+    1,
+    3,
+    8,
+    31,
+    32,
+    128
+  ],
+  "complex_components": 48720,
+  "max_scaled_error": 4.643260276654372e-15,
+  "tolerance": 1e-12,
+  "lane_permutation_reuse": true,
+  "dimension_rejection_preserves_output": true,
+  "carrier": "Complex<f64>",
+  "settings": {
+    "optimization_level": 2,
+    "direct_translation": false,
+    "fastmath": false,
+    "fast_complex": true,
+    "use_threads": false,
+    "use_simd": false,
+    "simd_branch": false,
+    "enable_simd512": false
+  },
+  "source_sha256": {
+    "crates/ninjars-symbolica/src/kernel.rs": "e1505c85e6370cab6ef4c48e91dec8dc16ee812ee51994f13b9471dbca559da2",
+    "crates/ninjars-symbolica/src/kernel_jit_probe.rs": "523858ecbf15fd566badcb77488cca4cb9d2e5b0c755a3f18a9cb07ce97e4b20",
+    "docs/reduction-jit-probe.md": "2ce8e391b0cea8a553b7bb3e3349ad46d4cf437a43884c21a93bde9f95af5614"
+  },
+  "dependencies": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc"
+  },
+  "validation": {
+    "correctness": "pass",
+    "clippy_all_features_all_targets": "pass",
+    "format": "pass",
+    "independent_read_only_review": "pass; API, scalar row execution, repeated matrix, setup boundary and finite-domain limitations documented"
+  },
+  "logs": {
+    "test": {
+      "path": "validation/evidence/reduction-jit-probe-test.log",
+      "sha256": "560060d99d692039677be7aeb60e865059c07dacb1691e44d1f860579aced08a"
+    },
+    "clippy": {
+      "path": "validation/evidence/reduction-jit-probe-clippy.log",
+      "sha256": "930d14d78b6cdfdb3afc11a1748d9009daab32358f3108b8c510f638799ac2a1"
+    },
+    "fmt": {
+      "path": "validation/evidence/reduction-jit-probe-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "microbenchmark_executed": false,
+  "performance_acceptance": false,
+  "limitations": [
+    "Finite moderate synthetic inputs; no extreme-range or near-singular JIT validation.",
+    "No physical-kernel captures, Dual JIT, whole amplitude JIT or instruction-major JIT batch claim.",
+    "Ignored release diagnostic compiled but not timed; prioritizing native production catalog measurement."
+  ]
+}

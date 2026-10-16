@@ -12,6 +12,10 @@ use symbolica::{
 
 use crate::PolynomialNumerator;
 
+#[cfg(test)]
+#[path = "kernel_jit_probe.rs"]
+mod jit_probe;
+
 pub(crate) trait KernelExecutor<V> {
     fn evaluate(&mut self, input: &[V], output: &mut [V], rows: usize) -> Result<()>;
 }

@@ -1435,3 +1435,117 @@ connects the existing kernels into integrated amplitudes and a standalone
   the first contiguous-block baseline. The new catalog will be measured using
   an explicit validation-harness selector with identical numerator and master
   providers; it must not be silently substituted into baseline results.
+
+### CLI accounting, further exact plans and release controls (2026-10-16)
+
+- Integrated `962fc1c`: CLI `bench` now records integer same-pass stage
+  durations, explicitly separates actual direct master execution and inclusive
+  reduction excluding masters/coefficient preparation, and checks additivity.
+  An inconsistent remainder is an error rather than a zero clamp. Primary
+  timing is unchanged. Six CLI controls cover three precisions, workload/tail
+  behavior and exactly zero master work when cuts stop before integration; a
+  separate regression rejects overlapping stage intervals. Strict Clippy and
+  formatting pass; evidence is `cli-stage-accounting.json`.
+- Integrated `57506f9` as `1699401`: extracted existing tadpole source-axis
+  projection plans (24→6 and 28→9) and the complementary-shift reference probe
+  (8→28). Shared FeynKit Weyl bases and Symbolica expressions are unchanged.
+  Ordinary/five-component Dual Rust bodies regenerate exactly. Fifteen focused
+  tests pass; native runtime selection for these exports remains deferred.
+  Corrected the earlier profiler's 8→28 label to probe; the separate geometry
+  finish is 5→30. Immutable raw profile evidence remains unchanged.
+- Root verified all nineteen committed extraction source hashes. Eighteen
+  combined adapter/CLI tests pass after merging the exact plans and CLI
+  accounting with existing native bubble kernels and static checks. Strict
+  adapter/CLI Clippy and formatting pass. Evidence is
+  `tadpole-plan-extraction.json` and `tadpole-cli-combined.json`.
+- Immutable `0c77597` passes the optimized physical controls: 210 raw numerator
+  samples, Float256 coefficient arithmetic, and 3,681 Laurent components at
+  widths 0/1/3/8/31/32/128/1024. Maximum raw error is 3.77e-15, coefficient
+  error 2.36e-15, shared integrated error 2.15e-16 and MadLoop integrated error
+  1.17e-16. The coefficient oracle starts after f64 wavefunction evaluation;
+  it does not validate high-precision wavefunctions.
+- Twelve optimized frozen-master correctness cases and sixteen independently
+  instrumented execution cases pass. Every frozen case has zero actual master
+  calls/rows/time and zero misses. Root verified all three lossless archives,
+  identical runtime manifests and exact same-pass/source-specific accounting.
+  Evidence is `shared-reduction-methodology-release-0c77597.json`. These
+  controls contain no primary timing samples; paired contiguous measurements
+  follow under a coordinated pause of our builds. Host/SMT isolation remains
+  unverified, so performance acceptance stays false.
+
+### Paired interpreted reduction baseline (2026-10-16)
+
+- Integrated `84cabc2`: immutable `0c77597` was measured with matched
+  numerator callbacks and frozen master requests at widths 1/8/32/128/1024/31,
+  for repeated and changing physical inputs. Each record has eight balanced
+  paired blocks; all 192 individual blocks exceed 20 ms. Team builds paused,
+  but unrelated host jobs and the unreserved SMT sibling prevent acceptance.
+- Changing-input median NinjaRS/original time ratios are
+  3.004/2.638/2.864/2.745/3.303/2.768. Width-one medians are 309.73/103.17
+  microseconds per point. Reduction performance parity remains unmet. These
+  measurements establish a new baseline, not a gain versus older methodology.
+- Actual master backend calls/rows/time and coefficient preparation remain
+  zero in this frozen scope; lookup and contraction are included in reduction.
+  Both implementations have identical numerator sample counts. Live/production
+  master timing is retained in the separate same-pass execution report.
+- Root verified all six lossless archive hashes, recomputed twelve statistical
+  summaries and 192 block normalizations, and checked source guards and counter
+  equivalence. Evidence is `shared-reduction-timing-0c77597.json`; detailed
+  boundaries and confidence intervals are in `BASELINE-0c77597.md`.
+- Native-catalog comparisons remain next. A separate test-only probe is being
+  prepared for Symbolica's existing complex SymJIT compiler on unchanged exact
+  reduction plans; no production backend or generic carrier behavior changes.
+
+### Explicit catalog controls and compiler probe (2026-10-16)
+
+- Integrated `24b01c8`: the shared-provider harness now selects interpreted,
+  native denominators, or the current native catalog at session construction.
+  Compatibility defaults stay interpreted. Reports verify actual family
+  coverage independently of numerator and master selection; invalid choices
+  preserve the caller's handle.
+- All three selections pass same-artifact frozen-master physical controls at
+  widths 0/1/3/8. The native catalog's maximum scaled difference is 3.50e-18;
+  its 85-entry union has no misses or backend execution during replay. The
+  existing 210 raw MadLoop and integrated controls also pass. Constructor
+  feature-on/off tests, nineteen Python tests, four C++ configurations, strict
+  Clippy and formatting pass. Root verified the archived report/log hashes and
+  all 1,933 runtime/dependency hashes against the measured worktree. Evidence:
+  `shared-provider-kernel-selection.json`. This seven-family checkpoint still
+  predates the pending tadpole runtime/coverage extension and has no timings.
+- Integrated `071e291`: a test-only probe compiles seventeen unchanged exact
+  reduction plans with Symbolica's complex SymJIT O2 API. 48,720 moderate finite
+  complex component comparisons pass, including empty/tail/permuted batches;
+  maximum scaled error is 4.65e-15. Strict adapter Clippy and formatting pass.
+  Evidence: `reduction-jit-probe.json`; independent review found no blocker.
+- This compiler setting executes scalar JIT programs per row. It is explicitly
+  not a production batched backend. Extreme-range/near-singular division, Dual
+  JIT and full physical JIT remain unvalidated. Its ignored microbenchmark has
+  not been timed; native reduction measurement retains priority.
+
+### Native tadpole source dispatch and atomic harness update (2026-10-16)
+
+- Integrated `8727132` as `97dbfd9` together with `decc970` as `e48051a`:
+  the native catalog includes triangle/bubble parent-axis tadpole projections
+  and reports eight families through the validation bridge's ten-cell ABI.
+  The denominator-only selection remains narrow; geometry stays interpreted.
+- f64, DoubleFloat and Float ordinary kernels use the existing emitted Rust
+  instruction batches. The supported ordered five-component Dual shape uses
+  the existing Dualizer export; unsupported/reordered shapes keep the full
+  interpreter. Full shape validation and all-component checks remain intact.
+- Eighteen adapter checks, eleven CLI checks and one feature-disabled check
+  passed on the dispatch branch. Warmed f64 projection evaluation allocates
+  zero times. Dual shape checks retain their existing allocations. The named
+  n3 Dual test preserves the existing C0 unsupported-derivative status; it is
+  not a claim of integrated triangle Dual support.
+- The eight-family harness passes feature-on/off constructors, nineteen
+  Python tests, four C++ configurations, strict Clippy and formatting. All
+  three selections agree on the physical frozen-master control through width
+  eight (maximum scaled difference 3.50e-18, no misses/backend execution).
+  Root verified all fourteen dispatch source hashes and 1,946 measured
+  runtime/dependency hashes plus archive/log hashes.
+- Twenty-five combined adapter/CLI tests pass on the integrated checkpoint,
+  including all six exact-stage-accounting benchmark controls. Adapter/CLI
+  all-target/all-feature strict Clippy and formatting pass. Evidence:
+  `tadpole-native-dispatch.json`, `shared-provider-tadpole-selection.json`,
+  and `tadpole-native-combined.json`. Optimized same-artifact measurements of
+  all three selections are next; no speedup or acceptance is inferred yet.

@@ -1,6 +1,13 @@
 //! Warmed Rust measurements. Reference performance acceptance is a separate gate.
 
-use std::{error::Error, fs, hint::black_box, num::NonZeroUsize, path::PathBuf, time::Instant};
+use std::{
+    error::Error,
+    fs,
+    hint::black_box,
+    num::NonZeroUsize,
+    path::PathBuf,
+    time::{Duration, Instant},
+};
 
 use clap::{Args as ClapArgs, ValueEnum};
 use ninjars::Complex;
@@ -101,6 +108,24 @@ fn timing(timing: &CallTiming) -> Value {
     json!({"nanoseconds":timing.elapsed.as_secs_f64()*1e9,"calls":timing.calls,"rows":timing.rows})
 }
 
+fn stage_accounting(total: Duration, diagnostic: &DiagnosticTimings) -> Result<Value> {
+    let coefficients = diagnostic.numerator_coefficients.elapsed;
+    let callbacks =
+        diagnostic.numerator_evaluation.elapsed + diagnostic.numerator_expansion.elapsed;
+    let masters = diagnostic.masters.elapsed;
+    let residual = total
+        .checked_sub(coefficients + callbacks + masters)
+        .ok_or("diagnostic stage intervals exceed their containing elapsed interval")?;
+    Ok(json!({
+        "total": total.as_nanos(),
+        "numerator_coefficients": coefficients.as_nanos(),
+        "numerator_callbacks": callbacks.as_nanos(),
+        "actual_master_provider": masters.as_nanos(),
+        "residual_reduction": residual.as_nanos(),
+        "reduction_excluding_masters_and_coefficients": (residual + callbacks).as_nanos(),
+    }))
+}
+
 fn quantile(sorted: &[f64], fraction: f64) -> f64 {
     let position = fraction * (sorted.len() - 1) as f64;
     let lower = position.floor() as usize;
@@ -192,13 +217,13 @@ where
             // A separate pass measures attribution. Its timer/counter overhead
             // cannot enter the primary measurements above.
             let mut diagnostic = DiagnosticTimings::default();
-            let mut diagnostic_ns = 0.;
+            let mut diagnostic_elapsed = Duration::ZERO;
             let mut failed_lanes = 0;
             let mut failure_kinds = std::collections::BTreeMap::<String, usize>::new();
             for batch in &mut batches {
                 let start = Instant::now();
                 session.evaluate_diagnostic(batch, &mut diagnostic)?;
-                diagnostic_ns += start.elapsed().as_secs_f64() * 1e9;
+                diagnostic_elapsed += start.elapsed();
                 for lane in 0..batch.lanes {
                     if !session.successful(batch, lane) {
                         failed_lanes += 1;
@@ -212,12 +237,7 @@ where
                 }
             }
             success &= failed_lanes == 0 && warmup_failed_lanes == 0;
-            let callback_ns = (diagnostic.numerator_evaluation.elapsed
-                + diagnostic.numerator_expansion.elapsed)
-                .as_secs_f64()
-                * 1e9;
-            let master_ns = diagnostic.masters.elapsed.as_secs_f64() * 1e9;
-            let coefficient_ns = diagnostic.numerator_coefficients.elapsed.as_secs_f64() * 1e9;
+            let stages = stage_accounting(diagnostic_elapsed, &diagnostic)?;
             let mut sorted = samples_ns.clone();
             sorted.sort_by(f64::total_cmp);
             let median = quantile(&sorted, 0.5);
@@ -243,10 +263,12 @@ where
                 "median_ns_per_point":median/timed_points as f64,"median_points_per_second":timed_points as f64*1e9/median,
                 "uncertainty_policy":"raw round samples and observed quantiles; no confidence-interval claim",
                 "warmup_final_pass_failed_lanes":warmup_failed_lanes,
-                "diagnostic":{"total_ns":diagnostic_ns,"points":args.points.get(),
+                "diagnostic":{"total_ns":diagnostic_elapsed.as_secs_f64()*1e9,"points":args.points.get(),
                     "numerator_coefficients":timing(&diagnostic.numerator_coefficients),
                     "numerator_evaluation":timing(&diagnostic.numerator_evaluation),"numerator_expansion":timing(&diagnostic.numerator_expansion),
-                    "masters":timing(&diagnostic.masters),"residual_reduction_ns":(diagnostic_ns-coefficient_ns-callback_ns-master_ns).max(0.),
+                    "masters":timing(&diagnostic.masters),"residual_reduction_ns":stages["residual_reduction"],
+                    "same_pass_nanoseconds":stages,"additivity_checked":true,
+                    "master_scope":"Actual direct SymbolicaMasters execution, including provider validation and conversion; no numerical result cache or shared frozen-master lookup",
                     "residual_scope":"scale selection, parameter binding, reset, geometry, reduction, contraction, bookkeeping and timer overhead",
                     "successful_lanes":args.points.get()-failed_lanes,"failed_lanes":failed_lanes,"failure_kinds":failure_kinds},
                 "precision_rescue":{"enabled":false,"attempts":0,"successful":0},
@@ -330,4 +352,17 @@ pub(crate) fn run(args: Args) -> Result<()> {
         );
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod accounting_tests {
+    use super::*;
+
+    #[test]
+    fn overlapping_stage_intervals_are_rejected() {
+        let mut diagnostic = DiagnosticTimings::default();
+        diagnostic.masters.elapsed = Duration::from_nanos(7);
+        diagnostic.numerator_expansion.elapsed = Duration::from_nanos(4);
+        assert!(stage_accounting(Duration::from_nanos(10), &diagnostic).is_err());
+    }
 }
