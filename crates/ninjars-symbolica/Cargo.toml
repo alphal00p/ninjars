@@ -31,6 +31,10 @@ required-features = ["rust-codegen"]
 name = "generate_native_tadpoles"
 required-features = ["rust-codegen"]
 
+[[example]]
+name = "inventory_laurent_catalog"
+required-features = ["rust-codegen"]
+
 [dependencies]
 ninjars.workspace = true
 symbolica.workspace = true
