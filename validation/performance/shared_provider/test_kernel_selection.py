@@ -5,7 +5,7 @@ from kernel_selection import add_arguments, native_enabled, validate_report, FAM
 
 
 def coverage(selection, compiled=True):
-    count = {'symbolica': 0, 'native-denominators': 2, 'native': 4}[selection]
+    count = {'symbolica': 0, 'native-denominators': 2, 'native': 5}[selection]
     return {'selection': selection, 'native_feature_enabled': compiled,
             'families': {key: 'native-rust' if i < count else 'symbolica-interpreter' for i, key in enumerate(FAMILIES)}}
 
@@ -33,6 +33,7 @@ class KernelSelectionTests(unittest.TestCase):
             for mutation in [lambda c: c.update(native_feature_enabled=False),
                              lambda c: c.update(selection='unknown'),
                              lambda c: c['families'].pop('integration'),
+                             lambda c: c['families'].pop('tadpole_source_projection'),
                              lambda c: c['families'].update(unexpected='native-rust')]:
                 bad = copy.deepcopy(good)
                 mutation(bad['reduction_kernels'])

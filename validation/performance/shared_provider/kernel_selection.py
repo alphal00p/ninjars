@@ -3,7 +3,7 @@ import math
 
 SELECTIONS = ('symbolica', 'native-denominators', 'native')
 FAMILIES = ('t2_denominators', 't3_denominators', 'bubble_source_projection',
-            'triangle_bubble_correction', 'other_reduction', 'integration', 'accumulation')
+            'triangle_bubble_correction', 'tadpole_source_projection', 'other_reduction', 'integration', 'accumulation')
 
 
 def add_arguments(parser, *, all_catalog=False):
@@ -22,7 +22,7 @@ def native_enabled(args):
 def validate_coverage(coverage, selection, compiled):
     if selection not in SELECTIONS:
         raise ValueError('unknown reduction selection')
-    count = {'symbolica': 0, 'native-denominators': 2, 'native': 4}[selection]
+    count = {'symbolica': 0, 'native-denominators': 2, 'native': 5}[selection]
     expected = {name: 'native-rust' if i < count else 'symbolica-interpreter'
                 for i, name in enumerate(FAMILIES)}
     if (coverage.get('selection') != selection

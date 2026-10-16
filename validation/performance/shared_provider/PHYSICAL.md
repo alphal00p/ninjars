@@ -59,7 +59,11 @@ The compatibility C ABI `sp_session_create` delegates to interpreted selection.
 `sp_session_create_with_kernels` accepts only setup-time IDs 0/1/2, and errors
 leave the caller's output slot unchanged. `sp_session_kernel_info` reports the
 compiled feature and actual public-library selection for every family,
-including interpreted integration and accumulation. C++ and Python both reject
+including interpreted integration and accumulation. The current report has ten
+ABI cells: selection, compiled-feature flag, and eight family flags. The added
+`tadpole_source_projection` family is native only for the full `native` selector;
+`native-denominators` retains interpreted tadpole projections. Geometry and
+tadpole subtraction remain independent interpreted stages. C++ and Python both reject
 coverage inconsistent with the requested mode. There is no timed selector
 mutation or rebuilding of the session during a reduction call. A normal batch
 reset preserves the selected factory.
@@ -75,3 +79,9 @@ frozen master union and numerator. The largest scaled difference across all
 five complex output components was `3.50e-18`; this is a correctness control,
 not a timing result. The compressed companion report retains source hashes,
 commands, actual coverage, independent MadLoop checks and artifact identities.
+
+The subsequent eight-family checkpoint is in
+`validation/evidence/shared-provider-tadpole-selection.json`. It retains the
+same widths, fixed provider and frozen master union, now reporting tadpole
+source projections explicitly. All three selectors pass again, with a maximum
+scaled difference of `3.50e-18`; the prior seven-family evidence is preserved.
