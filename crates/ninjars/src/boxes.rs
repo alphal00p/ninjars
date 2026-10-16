@@ -117,6 +117,26 @@ pub struct BoxReducer<T, K> {
     numerator: Vec<T>,
     quotients: Vec<T>,
     coefficients: Vec<T>,
+    staged: Vec<CutOutcome<BoxResidue<T>>>,
+    rows: Vec<usize>,
+    geometry_output: Vec<CutOutcome<BoxCut<T>>>,
+    active: Vec<usize>,
+    cut_geometries: Vec<BoxCut<T>>,
+    scales: Vec<T>,
+    mus: Vec<T>,
+    samples: Vec<CutOutcome<[FourMomentum<T>; 2]>>,
+    viable: Vec<usize>,
+    parents_flat: Vec<T>,
+    division_stable: Vec<bool>,
+    final_rows: Vec<(usize, usize)>,
+    mu_coefficients: Vec<[T; 2]>,
+    mu_stable: Vec<bool>,
+    vectors: Vec<[FourMomentum<T>; 2]>,
+    mu_values: Vec<T>,
+    projection_pairs: Vec<[FourMomentum<T>; 2]>,
+    projection_rows: Vec<usize>,
+    projection_stable: Vec<bool>,
+    computed: Vec<bool>,
 }
 impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
     pub fn new(kernels: K, prototype: T) -> Result<Self> {
@@ -165,6 +185,26 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
             numerator: Vec::new(),
             quotients: Vec::new(),
             coefficients: Vec::new(),
+            staged: Vec::new(),
+            rows: Vec::new(),
+            geometry_output: Vec::new(),
+            active: Vec::new(),
+            cut_geometries: Vec::new(),
+            scales: Vec::new(),
+            mus: Vec::new(),
+            samples: Vec::new(),
+            viable: Vec::new(),
+            parents_flat: Vec::new(),
+            division_stable: Vec::new(),
+            final_rows: Vec::new(),
+            mu_coefficients: Vec::new(),
+            mu_stable: Vec::new(),
+            vectors: Vec::new(),
+            mu_values: Vec::new(),
+            projection_pairs: Vec::new(),
+            projection_rows: Vec::new(),
+            projection_stable: Vec::new(),
+            computed: Vec::new(),
         })
     }
     pub fn topology(&self) -> &Topology {
@@ -248,9 +288,15 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
         if output.is_empty() {
             return Ok(());
         }
-        let mut staged = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); output.len()];
-        let mut rows = Vec::new();
-        let mut requests = Vec::new();
+        let staged = &mut self.staged;
+        staged.resize(
+            output.len(),
+            CutOutcome::Unstable(CutFailure::NonFiniteResult),
+        );
+        staged.fill(CutOutcome::Unstable(CutFailure::NonFiniteResult));
+        let rows = &mut self.rows;
+        rows.clear();
+        let mut requests = Vec::with_capacity(output.len());
         for (cut_row, &index) in self.cuts.iter().enumerate() {
             for (lane, scale) in sampling_scales.iter().enumerate() {
                 let row = cut_row * lanes + lane;
@@ -298,11 +344,18 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
                 });
             }
         }
-        let mut cut_output = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); rows.len()];
-        geometry.box_batch(&requests, &mut cut_output)?;
-        let mut active = Vec::new();
-        let mut cuts = Vec::new();
-        for (i, cut) in cut_output.into_iter().enumerate() {
+        let cut_output = &mut self.geometry_output;
+        cut_output.resize(
+            rows.len(),
+            CutOutcome::Unstable(CutFailure::NonFiniteResult),
+        );
+        cut_output.fill(CutOutcome::Unstable(CutFailure::NonFiniteResult));
+        geometry.box_batch(&requests, cut_output)?;
+        let active = &mut self.active;
+        active.clear();
+        let cuts = &mut self.cut_geometries;
+        cuts.clear();
+        for (i, cut) in cut_output.drain(..).enumerate() {
             match cut {
                 CutOutcome::Stable(cut) => {
                     active.push(rows[i]);
@@ -311,13 +364,17 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
                 CutOutcome::Unstable(f) => staged[rows[i]] = CutOutcome::Unstable(f),
             }
         }
-        let scales: Vec<_> = active
-            .iter()
-            .map(|&row| sampling_scales[row % lanes].clone())
-            .collect();
-        let mut mus = vec![self.zero.clone(); active.len() * levels];
-        self.kernels.sampling_mu_batch(&scales, &mut mus)?;
-        let mut sample_requests = Vec::new();
+        let scales = &mut self.scales;
+        scales.clear();
+        scales.extend(
+            active
+                .iter()
+                .map(|&row| sampling_scales[row % lanes].clone()),
+        );
+        let mus = &mut self.mus;
+        mus.resize(active.len() * levels, self.zero.clone());
+        self.kernels.sampling_mu_batch(scales, mus)?;
+        let mut sample_requests = Vec::with_capacity(active.len() * levels);
         for (i, &row) in active.iter().enumerate() {
             for level in 0..levels {
                 sample_requests.push(BoxSampleRequest {
@@ -330,10 +387,15 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
                 });
             }
         }
-        let mut samples =
-            vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); sample_requests.len()];
-        geometry.sample_box_batch(&sample_requests, &mut samples)?;
-        let mut viable = Vec::new();
+        let samples = &mut self.samples;
+        samples.resize(
+            sample_requests.len(),
+            CutOutcome::Unstable(CutFailure::NonFiniteResult),
+        );
+        samples.fill(CutOutcome::Unstable(CutFailure::NonFiniteResult));
+        geometry.sample_box_batch(&sample_requests, samples)?;
+        let viable = &mut self.viable;
+        viable.clear();
         for (i, &row) in active.iter().enumerate() {
             if let Some(f) = samples[i * levels..(i + 1) * levels]
                 .iter()
@@ -347,25 +409,22 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
                 viable.push(i);
             }
         }
-        let parents: Vec<Vec<T>> = viable
-            .iter()
-            .map(|&i| {
+        let parents = &mut self.parents_flat;
+        parents.clear();
+        let parent_count = if need_parents { n - 4 } else { 0 };
+        if need_parents {
+            for &i in viable.iter() {
                 let row = active[i];
-                if need_parents {
-                    self.parents[row / lanes]
-                        .iter()
-                        .map(|&p| match &pentagons[p * lanes + row % lanes] {
-                            CutOutcome::Stable(p) => p.coefficient.clone(),
-                            _ => unreachable!(),
-                        })
-                        .collect()
-                } else {
-                    Vec::new()
-                }
-            })
-            .collect();
-        let mut eval_requests = Vec::new();
-        let mut division_requests = Vec::new();
+                parents.extend(self.parents[row / lanes].iter().map(|&p| {
+                    let CutOutcome::Stable(parent) = &pentagons[p * lanes + row % lanes] else {
+                        unreachable!()
+                    };
+                    parent.coefficient.clone()
+                }));
+            }
+        }
+        let mut eval_requests = Vec::with_capacity(viable.len() * levels * 2);
+        let mut division_requests = Vec::with_capacity(viable.len() * levels * 2);
         for (v, &i) in viable.iter().enumerate() {
             let row = active[i];
             let lane = row % lanes;
@@ -394,7 +453,7 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
                         momentum: q,
                         mu_squared: mu,
                         pentagon_coefficients: (level > 0 && need_parents)
-                            .then_some(parents[v].as_slice()),
+                            .then_some(&parents[v * parent_count..(v + 1) * parent_count]),
                     });
                 }
             }
@@ -404,14 +463,17 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
         numerator.evaluate_batch(&eval_requests, &mut self.numerator)?;
         self.quotients
             .resize(eval_requests.len(), self.zero.clone());
-        let mut stable = vec![false; eval_requests.len()];
+        let stable = &mut self.division_stable;
+        stable.resize(eval_requests.len(), false);
+        stable.fill(false);
         self.kernels.divide_samples_batch(
             &division_requests,
             &self.numerator,
             &mut self.quotients,
-            &mut stable,
+            stable,
         )?;
-        let mut final_rows = Vec::new();
+        let final_rows = &mut self.final_rows;
+        final_rows.clear();
         for (v, &i) in viable.iter().enumerate() {
             if stable[v * levels * 2..(v + 1) * levels * 2]
                 .iter()
@@ -422,15 +484,22 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
                 staged[active[i]] = CutOutcome::Unstable(CutFailure::SingularParameter);
             }
         }
-        let mut mu_coefficients = vec![[self.zero.clone(), self.zero.clone()]; final_rows.len()];
-        let mut mu_stable = vec![true; final_rows.len()];
-        if let Some(kind) = self.kernels.numerator_mu_expansion().cloned() {
-            let vectors: Vec<_> = final_rows
-                .iter()
-                .map(|&(_, i)| [cuts[i].v_orth.clone(), cuts[i].a.clone()])
-                .collect();
-            let mut expansions = Vec::new();
-            let mut divisions = Vec::new();
+        let mu_coefficients = &mut self.mu_coefficients;
+        mu_coefficients.resize(final_rows.len(), [self.zero.clone(), self.zero.clone()]);
+        mu_coefficients.fill([self.zero.clone(), self.zero.clone()]);
+        let mu_stable = &mut self.mu_stable;
+        mu_stable.resize(final_rows.len(), true);
+        mu_stable.fill(true);
+        if let Some(kind) = self.kernels.numerator_mu_expansion() {
+            let vectors = &mut self.vectors;
+            vectors.clear();
+            vectors.extend(
+                final_rows
+                    .iter()
+                    .map(|&(_, i)| [cuts[i].v_orth.clone(), cuts[i].a.clone()]),
+            );
+            let mut expansions = Vec::with_capacity(final_rows.len());
+            let mut divisions = Vec::with_capacity(final_rows.len());
             for (j, &(_, i)) in final_rows.iter().enumerate() {
                 let row = active[i];
                 let lane = row % lanes;
@@ -453,38 +522,26 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
                     geometry: &cuts[i],
                 });
             }
-            let mut values = vec![self.zero.clone(); kind.len() * final_rows.len()];
-            numerator.expansion_batch(&kind, &expansions, &mut values)?;
-            self.kernels.divide_mu_batch(
-                &divisions,
-                &values,
-                &mut mu_coefficients,
-                &mut mu_stable,
-            )?;
+            let values = &mut self.mu_values;
+            values.resize(kind.len() * final_rows.len(), self.zero.clone());
+            numerator.expansion_batch(kind, &expansions, values)?;
+            self.kernels
+                .divide_mu_batch(&divisions, values, mu_coefficients, mu_stable)?;
         }
-        let pairs: Vec<Vec<_>> = final_rows
-            .iter()
-            .map(|&(_, i)| {
-                (0..levels)
-                    .map(|level| match &samples[i * levels + level] {
-                        CutOutcome::Stable(pair) => pair.clone(),
-                        _ => unreachable!(),
-                    })
-                    .collect()
-            })
-            .collect();
-        let quotients: Vec<Vec<_>> = final_rows
-            .iter()
-            .map(|&(v, _)| {
-                self.quotients[v * levels * 2..(v + 1) * levels * 2]
-                    .as_chunks::<2>()
-                    .0
-                    .to_vec()
-            })
-            .collect();
-        let mut projection_rows = Vec::new();
-        let mut projection_requests = Vec::new();
-        for (j, &(_, i)) in final_rows.iter().enumerate() {
+        let pairs = &mut self.projection_pairs;
+        pairs.clear();
+        for &(_, i) in final_rows.iter() {
+            pairs.extend((0..levels).map(|level| {
+                let CutOutcome::Stable(pair) = &samples[i * levels + level] else {
+                    unreachable!()
+                };
+                pair.clone()
+            }));
+        }
+        let projection_rows = &mut self.projection_rows;
+        projection_rows.clear();
+        let mut projection_requests = Vec::with_capacity(final_rows.len());
+        for (j, &(v, i)) in final_rows.iter().enumerate() {
             let row = active[i];
             if !mu_stable[j] {
                 staged[row] = CutOutcome::Unstable(CutFailure::SingularParameter);
@@ -496,8 +553,10 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
             projection_requests.push(BoxProjectionRequest {
                 geometry: &cuts[i],
                 shift: &shifts[lane * n + cut.partition[0]],
-                momenta: &pairs[j],
-                quotients: &quotients[j],
+                momenta: &pairs[j * levels..(j + 1) * levels],
+                quotients: self.quotients[v * levels * 2..(v + 1) * levels * 2]
+                    .as_chunks::<2>()
+                    .0,
                 sampling_scale: &sampling_scales[lane],
                 mu_coefficients: &mu_coefficients[j],
             });
@@ -505,12 +564,17 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
         let width = self.kernels.coefficient_count();
         self.coefficients
             .resize(projection_requests.len() * width, self.zero.clone());
-        let mut stable = vec![false; projection_requests.len()];
+        let stable = &mut self.projection_stable;
+        stable.resize(projection_requests.len(), false);
+        stable.fill(false);
         self.kernels
-            .project_batch(&projection_requests, &mut self.coefficients, &mut stable)?;
-        let computed: Vec<_> = (0..width)
-            .map(|i| options.coefficients == BoxCoefficientMode::Full || i == 0 || i == 4)
-            .collect();
+            .project_batch(&projection_requests, &mut self.coefficients, stable)?;
+        let computed = &mut self.computed;
+        computed.clear();
+        computed.extend(
+            (0..width)
+                .map(|i| options.coefficients == BoxCoefficientMode::Full || i == 0 || i == 4),
+        );
         for (j, &i) in projection_rows.iter().enumerate() {
             let row = active[i];
             let coefficients = &self.coefficients[j * width..(j + 1) * width];
@@ -529,7 +593,7 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
                 CutOutcome::Unstable(CutFailure::NonFiniteResult)
             };
         }
-        output.swap_with_slice(&mut staged);
+        output.swap_with_slice(staged);
         Ok(())
     }
 }

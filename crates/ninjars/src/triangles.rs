@@ -67,6 +67,12 @@ pub struct TriangleReducer<T, K> {
     quotients: Vec<T>,
     coefficients: Vec<T>,
     stable: Vec<bool>,
+    geometry_output: Vec<CutOutcome<TriangleCut<T>>>,
+    active: Vec<usize>,
+    staged: Vec<CutOutcome<TriangleResidue<T>>>,
+    swapped: Vec<FourMomentum<T>>,
+    vectors: Vec<[FourMomentum<T>; 3]>,
+    e12: Vec<T>,
 }
 
 impl<T: FloatLike, K: TriangleReductionKernels<T>> TriangleReducer<T, K> {
@@ -92,6 +98,12 @@ impl<T: FloatLike, K: TriangleReductionKernels<T>> TriangleReducer<T, K> {
             cuts,
             kernels,
             zero: prototype.zero(),
+            geometry_output: Vec::new(),
+            active: Vec::new(),
+            staged: Vec::new(),
+            swapped: Vec::new(),
+            vectors: Vec::new(),
+            e12: Vec::new(),
             numerator_values: Vec::new(),
             quotients: Vec::new(),
             coefficients: Vec::new(),
@@ -156,13 +168,20 @@ impl<T: FloatLike, K: TriangleReductionKernels<T>> TriangleReducer<T, K> {
                 });
             }
         }
-        let mut cuts = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); output.len()];
-        geometry.triangle_batch(&requests, &mut cuts)?;
-        let active: Vec<_> = cuts
-            .iter()
-            .enumerate()
-            .filter_map(|(i, c)| matches!(c, CutOutcome::Stable(_)).then_some(i))
-            .collect();
+        let cuts = &mut self.geometry_output;
+        cuts.resize(
+            output.len(),
+            CutOutcome::Unstable(CutFailure::NonFiniteResult),
+        );
+        cuts.fill(CutOutcome::Unstable(CutFailure::NonFiniteResult));
+        geometry.triangle_batch(&requests, cuts)?;
+        let active = &mut self.active;
+        active.clear();
+        active.extend(
+            cuts.iter()
+                .enumerate()
+                .filter_map(|(i, c)| matches!(c, CutOutcome::Stable(_)).then_some(i)),
+        );
         let active_cuts: Vec<_> = active
             .iter()
             .map(|&i| {
@@ -172,19 +191,20 @@ impl<T: FloatLike, K: TriangleReductionKernels<T>> TriangleReducer<T, K> {
                 c
             })
             .collect();
-        let mut swapped = vec![
+        let swapped = &mut self.swapped;
+        swapped.resize_with(active.len(), || {
             FourMomentum::from_args(
                 self.zero.clone(),
                 self.zero.clone(),
                 self.zero.clone(),
-                self.zero.clone()
-            );
-            active.len()
-        ];
+                self.zero.clone(),
+            )
+        });
         self.kernels
-            .swapped_effective_batch(&active_cuts, &mut swapped)?;
-        let mut vectors = Vec::with_capacity(2 * active.len());
-        for (cut, effective) in active_cuts.iter().zip(swapped) {
+            .swapped_effective_batch(&active_cuts, swapped)?;
+        let vectors = &mut self.vectors;
+        vectors.clear();
+        for (cut, effective) in active_cuts.iter().zip(swapped.drain(..)) {
             vectors.push([
                 cut.a.clone(),
                 cut.basis.e3.clone(),
@@ -231,19 +251,20 @@ impl<T: FloatLike, K: TriangleReductionKernels<T>> TriangleReducer<T, K> {
             &mut self.quotients,
             &mut self.stable,
         )?;
-        let e12: Vec<_> = active_cuts.iter().map(|c| c.basis.e12.clone()).collect();
+        let e12 = &mut self.e12;
+        e12.clear();
+        e12.extend(active_cuts.iter().map(|c| c.basis.e12.clone()));
         let coefficients = self.kernels.coefficient_count();
         self.coefficients
             .resize(active.len() * coefficients, self.zero.clone());
         self.kernels
-            .project_batch(&self.quotients, &e12, &mut self.coefficients)?;
-        let mut staged: Vec<_> = cuts
-            .iter()
-            .map(|c| match c {
-                CutOutcome::Unstable(f) => CutOutcome::Unstable(*f),
-                CutOutcome::Stable(_) => CutOutcome::Unstable(CutFailure::NonFiniteResult),
-            })
-            .collect();
+            .project_batch(&self.quotients, e12, &mut self.coefficients)?;
+        let staged = &mut self.staged;
+        staged.clear();
+        staged.extend(cuts.iter().map(|c| match c {
+            CutOutcome::Unstable(f) => CutOutcome::Unstable(*f),
+            CutOutcome::Stable(_) => CutOutcome::Unstable(CutFailure::NonFiniteResult),
+        }));
         for (index, &row) in active.iter().enumerate() {
             let values = &self.coefficients[index * coefficients..(index + 1) * coefficients];
             if self.stable[2 * index]
@@ -258,7 +279,7 @@ impl<T: FloatLike, K: TriangleReductionKernels<T>> TriangleReducer<T, K> {
                 });
             }
         }
-        output.swap_with_slice(&mut staged);
+        output.swap_with_slice(staged);
         Ok(())
     }
 }
