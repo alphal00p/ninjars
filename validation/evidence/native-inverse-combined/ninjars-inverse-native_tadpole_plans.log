@@ -1,0 +1,8 @@
+
+running 3 tests
+test emitted_plans_match_interpreter_for_precisions_batches_and_every_dual_component ... ok
+test float_tracked_precision_and_malformed_duals_are_preserved ... ok
+test generated_catalog_and_constant_indices_regenerate_exactly ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.39s
+

@@ -1,0 +1,26 @@
+
+running 9 tests
+test checked_in_catalog_matches_the_named_exact_plans ... ok
+test exact_ordered_shape_dispatch_and_malformed_dual_transactionality ... ok
+test float_inputs_keep_their_own_precision ... ok
+test malformed_dual_prototypes_are_rejected_before_output_reconstruction ... ok
+test native_feature_preserves_send_sync_for_standard_evaluators ... ok
+test native_warm_f64_storage_and_width_one_do_not_allocate ... ok
+test scalar_precision_batches_and_transactionality ... ok
+test static_and_dynamic_higher_mixed_components ... ok
+test warm_dual_native_dispatch_adds_no_allocations_to_existing_shape_validation ... cut=1,rows=1,native_allocations=27,interpreted_allocations=27
+cut=1,rows=32,native_allocations=864,interpreted_allocations=864
+cut=1,rows=8,native_allocations=216,interpreted_allocations=216
+cut=1,rows=1,native_allocations=27,interpreted_allocations=27
+cut=2,rows=1,native_allocations=36,interpreted_allocations=36
+cut=2,rows=32,native_allocations=1152,interpreted_allocations=1152
+cut=2,rows=8,native_allocations=288,interpreted_allocations=288
+cut=2,rows=1,native_allocations=36,interpreted_allocations=36
+cut=3,rows=1,native_allocations=27,interpreted_allocations=27
+cut=3,rows=32,native_allocations=864,interpreted_allocations=864
+cut=3,rows=8,native_allocations=216,interpreted_allocations=216
+cut=3,rows=1,native_allocations=27,interpreted_allocations=27
+ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.49s
+

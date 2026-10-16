@@ -1,0 +1,184 @@
+{
+  "recorded_utc": "2026-10-16T22:49:17.372068+00:00",
+  "ninjars_base": "0451d1739a228e78c2f448421e9a8a2bb1558509",
+  "scope": "Integrated regression of oneloopmaster native inverse guard; no performance acceptance. Geometry option91add1c and algorithm experiments remain isolated.",
+  "dependencies": {
+    "schema_version": 1,
+    "dependencies": [
+      {
+        "name": "symbolica",
+        "path": "references/symbolica",
+        "url": "https://github.com/symbolica-dev/symbolica.git",
+        "revision": "c78cffc20f318df1fce50539a587cbe8ffc717c0",
+        "patches": [
+          {
+            "path": "dependencies/patches/symbolica-batch-dual.patch",
+            "sha256": "ffb7b301038b02ffa4c653995aa7fd93fe0106d106b378bf81f87b833ef68a16"
+          }
+        ],
+        "patched_revisions": [
+          "2c06f245835d57535418b5d78f711fe191db49cc"
+        ]
+      },
+      {
+        "name": "feynkit",
+        "path": "references/gammaloop_ninja_shared",
+        "url": "https://github.com/alphal00p/gammaloop.git",
+        "revision": "d3b91d31461e50d91dce4702d68c45294faca350",
+        "patches": [
+          {
+            "path": "dependencies/patches/feynkit-shared-types.patch",
+            "sha256": "7bc15975562034a01a5eb1d1ebe662f9c5c44697ebac3ecf5935e992118e39d6"
+          }
+        ],
+        "patched_revisions": [
+          "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+        ]
+      },
+      {
+        "name": "oneloopmaster",
+        "path": "references/oneloopmaster",
+        "url": "https://github.com/alphal00p/oneloopmaster.git",
+        "revision": "53106429b849e5bcf843f111429be76227b4e0ce"
+      },
+      {
+        "name": "ninja-reference",
+        "path": "references/ninja",
+        "url": "https://github.com/peraro/ninja.git",
+        "revision": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0"
+      }
+    ]
+  },
+  "test_count": 35,
+  "tests": [
+    {
+      "name": "cuts",
+      "executable": "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/cuts-e4eba678792481eb",
+      "log": "validation/evidence/native-inverse-combined/ninjars-inverse-cuts.log",
+      "exit_code": 0,
+      "summary": [
+        "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.61s"
+      ],
+      "elapsed_seconds": 0.6147516799974255,
+      "log_sha256": "af08627ee52844a1d1fa39308a5969dec7e98659f0f3c542e0f0813eeba86d5c",
+      "executable_sha256": "ae2c70b94d30ce91b973767634bd735a329d65904909b7929a826315ad21f981"
+    },
+    {
+      "name": "native_denominators",
+      "executable": "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/native_denominators-497899476ffd6bc2",
+      "log": "validation/evidence/native-inverse-combined/ninjars-inverse-native_denominators.log",
+      "exit_code": 0,
+      "summary": [
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.49s"
+      ],
+      "elapsed_seconds": 2.4925710310053546,
+      "log_sha256": "a7203626cce3ae3b2e42515b1f6d25791ab71914e8b302198c68bf1122011163",
+      "executable_sha256": "039c2a3d1c93da227a590d1ebcea1a9118063696a9ab6420c37d4f026592400e"
+    },
+    {
+      "name": "native_tadpole_dispatch",
+      "executable": "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/native_tadpole_dispatch-e7f1cf62ebf9266e",
+      "log": "validation/evidence/native-inverse-combined/ninjars-inverse-native_tadpole_dispatch.log",
+      "exit_code": 0,
+      "summary": [
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.67s"
+      ],
+      "elapsed_seconds": 1.6771138899785,
+      "log_sha256": "a8c9e10db98f3107e109adeb1469cb2fb2a52a062fef6f939e1c7ab6b1208166",
+      "executable_sha256": "75d6953cce14d9b149f5e67fe2345f84e0b6b2e0935b0d4c798fc43ab7f8d472"
+    },
+    {
+      "name": "native_bubbles",
+      "executable": "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/native_bubbles-e0f5492c99468a33",
+      "log": "validation/evidence/native-inverse-combined/ninjars-inverse-native_bubbles.log",
+      "exit_code": 0,
+      "summary": [
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.92s"
+      ],
+      "elapsed_seconds": 3.9260130359907635,
+      "log_sha256": "0799a2deb4bcaab97a0b77f32d5fe5b95b9dbaa0b7cb1b009c2d84784ae8d69b",
+      "executable_sha256": "1fa43260a6e4bc3dc57b04526e47489f1a153c389d7455641bc53e42fcd1d9ef"
+    },
+    {
+      "name": "native_tadpole_plans",
+      "executable": "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/native_tadpole_plans-44ba4aa5671e5a4a",
+      "log": "validation/evidence/native-inverse-combined/ninjars-inverse-native_tadpole_plans.log",
+      "exit_code": 0,
+      "summary": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.39s"
+      ],
+      "elapsed_seconds": 12.398255141015397,
+      "log_sha256": "6125ce6374f8a3c24c3ee291bc595d7ef405e4528d41cd80c3e8fc7238f34ebf",
+      "executable_sha256": "c67b513a00af2be6daba9d48acec17f821d4cae8071f92ec13c2142c58a71b44"
+    },
+    {
+      "name": "native_amplitude",
+      "executable": "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/native_amplitude-b29120e262eff61e",
+      "log": "validation/evidence/native-inverse-combined/ninjars-inverse-native_amplitude.log",
+      "exit_code": 0,
+      "summary": [
+        "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.92s"
+      ],
+      "elapsed_seconds": 7.94688471200061,
+      "log_sha256": "fe5caee7c0b4fbf73e8bd8715d0f328d5290fd2c3498ad1496b7517dc791a9a1",
+      "executable_sha256": "a01f72cc746ef462ca3cf3eb38427138342a4044843e9a44d49f90e5ce18c82c"
+    },
+    {
+      "name": "native_domain",
+      "executable": "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/native_domain-781c46d840f0338c",
+      "executable_sha256": "5b751f16d36c27006da2c2ea372bcc833412f604ba048f630041e25b835f5a21",
+      "log": "validation/evidence/native-inverse-combined/ninjars-inverse-native_domain.log",
+      "log_sha256": "598c1ce42adc47799a0bd49f37d55bcc28d966bdb4931b13483ffba83a24bd0a",
+      "exit_code": 0,
+      "summary": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s"
+      ]
+    }
+  ],
+  "checks": {
+    "adapter_cli_all_target_all_feature_strict_clippy": "pass",
+    "new_domain_test_strict_clippy": "pass",
+    "workspace_fmt": "pass"
+  },
+  "logs": {
+    "combined-build": {
+      "path": "validation/evidence/native-inverse-combined/ninjars-inverse-combined-build.log",
+      "sha256": "2c5436de39b43e267e8fd774d8022428ac4a11b4965c5607ab183b76a200068a"
+    },
+    "combined-clippy": {
+      "path": "validation/evidence/native-inverse-combined/ninjars-inverse-combined-clippy.log",
+      "sha256": "1c73794c1fe9a78fae1a856e57c35ca8766965470cbf338b181db19be9909b68"
+    },
+    "domain-build": {
+      "path": "validation/evidence/native-inverse-combined/ninjars-inverse-domain-build.log",
+      "sha256": "a6a8545a8145d435c3013ba01716e74fb7fe882f3ec3274aebd3cdd7174cf4ff"
+    },
+    "domain-clippy": {
+      "path": "validation/evidence/native-inverse-combined/ninjars-inverse-domain-clippy.log",
+      "sha256": "0254f24d3cde9406ee426eac45721c32377ab0d9a44bc322cff2c1d218942ba0"
+    },
+    "fmt": {
+      "path": "validation/evidence/native-inverse-combined/ninjars-inverse-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "upstream_evidence": "validation/evidence/native-domain/summary.json",
+  "review": {
+    "verified_native_domain_file_hashes": 84,
+    "production_change": "Only oneloopmaster inverse() guard; core and adapter runtime sources unchanged from preceding main.",
+    "upstream_main": "53106429b849e5bcf843f111429be76227b4e0ce"
+  },
+  "commands": [
+    "cargo test --locked -j4 -p ninjars-symbolica --features native-kernels --test native_denominators --test native_bubbles --test native_amplitude --test native_tadpole_dispatch --test native_tadpole_plans --test cuts --no-run --message-format=json",
+    "Run each produced test executable serially with flock /tmp/ninjars-symbolica-tests.lock --test-threads=1 --nocapture",
+    "cargo test --locked -j4 -p ninjars-symbolica --features native-kernels --test native_domain --no-run --message-format=json",
+    "cargo clippy --locked -j4 -p ninjars-symbolica -p ninjars-cli --all-targets --all-features -- -D warnings",
+    "cargo clippy --locked -j4 -p ninjars-symbolica --features native-kernels --test native_domain -- -D warnings",
+    "cargo fmt --all --check"
+  ],
+  "limitations": [
+    "Fixed-precision intermediate overflow remains an unstable numerical result; guard does not extend arithmetic range or provide precision rescue.",
+    "Fresh same-artifact release oracle and execution controls must pass before native timing.",
+    "Upstream strict Clippy baseline exceptions remain documented in native-domain/summary.json."
+  ]
+}

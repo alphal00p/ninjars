@@ -1586,3 +1586,36 @@ connects the existing kernels into integrated amplitudes and a standalone
   numerical stability, batching and generic/Dual support. The audit must
   distinguish arithmetic savings from execution overhead and propose bounded,
   falsifiable experiments before any production algorithm change.
+- Integrated the report as `d1f932d`, in
+  `docs/audits/reduction-algorithm-audit.md`. It identifies unused swapped
+  bubble heads (already avoided by original Ninja), within-evaluation
+  denominator reuse, rank-structural zeros, joint-orientation expressions,
+  and an experimental transposed lower-cut projection. No speedup is inferred.
+- Separate experiments now target denominator reuse with explicit same-call
+  provenance and Symbolica operation counts after rank specialization. For
+  stable n5/r4 cuts, denominator rows should fall from 120 to 60 for bubbles
+  and from 100 to 20 for tadpoles. Tests must verify every residue coefficient,
+  complete Dual components, failures/retries and changing phase-space inputs.
+
+### Native reciprocal correction integrated (2026-10-16)
+
+- Reviewed and pushed `53106429b849e5bcf843f111429be76227b4e0ce` directly to
+  oneloopmaster main, following the user's direct-push instruction. NinjaRS's
+  dependency manifest now pins it. The production patch is a five-line guard
+  delegating nonfinite reciprocal operands to Symbolica's existing operation.
+- Integrated permanent regression/evidence `d132d767` as `0451d17`. The exact
+  degree-zero correction's archived 48 case/width configurations change from
+  12 incorrect finite outputs to zero. f64/DoubleFloat overflow is exposed as
+  nonfinite; Float256 controls remain accurate. This does not implement range
+  extension or precision rescue. Root verified all 84 recorded artifact/source
+  hashes. See `docs/native-domain-audit.md` and `native-domain/summary.json`.
+- Twenty-four upstream tests pass. Strict upstream Clippy retains four existing
+  warnings in untouched files; the focused run allows only the two documented
+  baseline lints. Thirty-five integrated NinjaRS tests pass, as do strict
+  adapter/CLI all-target/all-feature Clippy, focused new-test Clippy and format
+  checks. Evidence: `native-inverse-combined.json` and its retained logs.
+- Fresh optimized same-artifact oracle and execution controls will precede
+  native timing. Superseded `ee1f152` controls remain archived. The library-only
+  native geometry patch `91add1c` remains isolated; its 22 tests and 29 verified
+  file hashes do not change this measurement checkpoint. Algorithm experiments
+  likewise remain separate until independently validated.
