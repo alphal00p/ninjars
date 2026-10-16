@@ -1,5 +1,6 @@
 //! Batched quadruple-cut reduction with both rational extraction modes.
 
+use crate::residue_storage::VecPool;
 use crate::{
     BatchShape, BoxCut, BoxCutRequest, BoxSampleRequest, CutFailure, CutOutcome, Error,
     ExpansionKind, ExpansionRequest, FloatLike, FourMomentum, HighCutProvider, Numerator,
@@ -118,6 +119,8 @@ pub struct BoxReducer<T, K> {
     quotients: Vec<T>,
     coefficients: Vec<T>,
     staged: Vec<CutOutcome<BoxResidue<T>>>,
+    coefficient_pool: VecPool<T>,
+    mask_pool: VecPool<bool>,
     rows: Vec<usize>,
     geometry_output: Vec<CutOutcome<BoxCut<T>>>,
     active: Vec<usize>,
@@ -186,6 +189,8 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
             quotients: Vec::new(),
             coefficients: Vec::new(),
             staged: Vec::new(),
+            coefficient_pool: VecPool::default(),
+            mask_pool: VecPool::default(),
             rows: Vec::new(),
             geometry_output: Vec::new(),
             active: Vec::new(),
@@ -213,6 +218,21 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
     pub fn cut_count(&self) -> usize {
         self.cuts.len()
     }
+
+    /// Recycle an explicitly discarded suffix; live caller outputs are never borrowed.
+    pub(crate) fn discard_outcomes(
+        &mut self,
+        outcomes: &mut Vec<CutOutcome<BoxResidue<T>>>,
+        keep: usize,
+    ) {
+        for outcome in outcomes.drain(keep..) {
+            if let CutOutcome::Stable(residue) = outcome {
+                self.coefficient_pool.recycle(residue.coefficients);
+                self.mask_pool.recycle(residue.computed);
+            }
+        }
+    }
+
     pub fn options(&self) -> BoxReductionOptions {
         self.kernels.options()
     }
@@ -287,6 +307,13 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
         }
         if output.is_empty() {
             return Ok(());
+        }
+        // These are old outputs from a completed prior swap, never the live output.
+        for outcome in self.staged.drain(..) {
+            if let CutOutcome::Stable(residue) = outcome {
+                self.coefficient_pool.recycle(residue.coefficients);
+                self.mask_pool.recycle(residue.computed);
+            }
         }
         let staged = &mut self.staged;
         staged.resize(
@@ -586,8 +613,8 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
                         sample: self.cuts[row / lanes],
                     },
                     geometry: cuts[i].clone(),
-                    coefficients: coefficients.to_vec(),
-                    computed: computed.clone(),
+                    coefficients: self.coefficient_pool.take_from_slice(coefficients),
+                    computed: self.mask_pool.take_from_slice(computed),
                 })
             } else {
                 CutOutcome::Unstable(CutFailure::NonFiniteResult)

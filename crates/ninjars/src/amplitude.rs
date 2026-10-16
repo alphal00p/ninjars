@@ -263,11 +263,27 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
             .fill(std::array::from_fn(|_| self.zero.clone()));
         self.statuses.resize(lanes, EvaluationStatus::NotEvaluated);
         self.statuses.fill(EvaluationStatus::NotEvaluated);
-        self.triangles.clear();
-        self.boxes.clear();
+        if let Some(stage) = &mut self.triangle {
+            stage.discard_outcomes(&mut self.triangles, 0);
+        } else {
+            self.triangles.clear();
+        }
+        if let Some(stage) = &mut self.box_stage {
+            stage.discard_outcomes(&mut self.boxes, 0);
+        } else {
+            self.boxes.clear();
+        }
         self.pentagons.clear();
-        self.bubbles.clear();
-        self.tadpoles.clear();
+        if let Some(stage) = &mut self.bubble {
+            stage.discard_outcomes(&mut self.bubbles, 0);
+        } else {
+            self.bubbles.clear();
+        }
+        if let Some(stage) = &mut self.tadpole {
+            stage.discard_outcomes(&mut self.tadpoles, 0);
+        } else {
+            self.tadpoles.clear();
+        }
     }
 
     pub fn evaluate_batch<N: Numerator<T>, C: CutProvider<T>, M: MasterProvider<T>>(
@@ -441,16 +457,32 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
             self.pentagons.clear();
         }
         if self.minimum_cut > 4 {
-            self.boxes.clear();
+            if let Some(stage) = &mut self.box_stage {
+                stage.discard_outcomes(&mut self.boxes, 0);
+            } else {
+                self.boxes.clear();
+            }
         }
         if self.minimum_cut > 3 {
-            self.triangles.clear();
+            if let Some(stage) = &mut self.triangle {
+                stage.discard_outcomes(&mut self.triangles, 0);
+            } else {
+                self.triangles.clear();
+            }
         }
         if self.minimum_cut > 2 {
-            self.bubbles.clear();
+            if let Some(stage) = &mut self.bubble {
+                stage.discard_outcomes(&mut self.bubbles, 0);
+            } else {
+                self.bubbles.clear();
+            }
         }
         if self.minimum_cut > 1 {
-            self.tadpoles.clear();
+            if let Some(stage) = &mut self.tadpole {
+                stage.discard_outcomes(&mut self.tadpoles, 0);
+            } else {
+                self.tadpoles.clear();
+            }
         }
         if self.minimum_cut <= 5
             && let Some(stage) = &mut self.pentagon
@@ -471,10 +503,12 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
         if self.minimum_cut <= 4
             && let Some(stage) = &mut self.box_stage
         {
-            self.boxes.resize(
-                stage.cut_count() * lanes,
-                CutOutcome::Unstable(CutFailure::NonFiniteResult),
-            );
+            let rows = stage.cut_count() * lanes;
+            if self.boxes.len() > rows {
+                stage.discard_outcomes(&mut self.boxes, rows);
+            }
+            self.boxes
+                .resize(rows, CutOutcome::Unstable(CutFailure::NonFiniteResult));
             stage.evaluate_batch(
                 shifts,
                 masses_squared,
@@ -490,10 +524,12 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
         if self.minimum_cut <= 3
             && let Some(stage) = &mut self.triangle
         {
-            self.triangles.resize(
-                stage.cut_count() * lanes,
-                CutOutcome::Unstable(CutFailure::NonFiniteResult),
-            );
+            let rows = stage.cut_count() * lanes;
+            if self.triangles.len() > rows {
+                stage.discard_outcomes(&mut self.triangles, rows);
+            }
+            self.triangles
+                .resize(rows, CutOutcome::Unstable(CutFailure::NonFiniteResult));
             stage.evaluate_batch(
                 shifts,
                 masses_squared,
@@ -506,10 +542,12 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
         if self.minimum_cut <= 2
             && let Some(stage) = &mut self.bubble
         {
-            self.bubbles.resize(
-                stage.cut_count() * lanes,
-                CutOutcome::Unstable(CutFailure::NonFiniteResult),
-            );
+            let rows = stage.cut_count() * lanes;
+            if self.bubbles.len() > rows {
+                stage.discard_outcomes(&mut self.bubbles, rows);
+            }
+            self.bubbles
+                .resize(rows, CutOutcome::Unstable(CutFailure::NonFiniteResult));
             stage.evaluate_batch(
                 shifts,
                 masses_squared,
@@ -524,10 +562,12 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
         if self.minimum_cut <= 1
             && let Some(stage) = &mut self.tadpole
         {
-            self.tadpoles.resize(
-                stage.cut_count() * lanes,
-                CutOutcome::Unstable(CutFailure::NonFiniteResult),
-            );
+            let rows = stage.cut_count() * lanes;
+            if self.tadpoles.len() > rows {
+                stage.discard_outcomes(&mut self.tadpoles, rows);
+            }
+            self.tadpoles
+                .resize(rows, CutOutcome::Unstable(CutFailure::NonFiniteResult));
             stage.evaluate_batch(
                 shifts,
                 masses_squared,

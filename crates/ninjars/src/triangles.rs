@@ -1,5 +1,6 @@
 //! Batched triple-cut reduction, independent of numerator preparation.
 
+use crate::residue_storage::VecPool;
 use crate::{
     BatchShape, CutFailure, CutOutcome, CutProvider, Error, ExpansionKind, ExpansionRequest,
     FloatLike, FourMomentum, Numerator, Result, SampleId, Topology, TriangleCut,
@@ -70,6 +71,7 @@ pub struct TriangleReducer<T, K> {
     geometry_output: Vec<CutOutcome<TriangleCut<T>>>,
     active: Vec<usize>,
     staged: Vec<CutOutcome<TriangleResidue<T>>>,
+    coefficient_pool: VecPool<T>,
     swapped: Vec<FourMomentum<T>>,
     vectors: Vec<[FourMomentum<T>; 3]>,
     e12: Vec<T>,
@@ -101,6 +103,7 @@ impl<T: FloatLike, K: TriangleReductionKernels<T>> TriangleReducer<T, K> {
             geometry_output: Vec::new(),
             active: Vec::new(),
             staged: Vec::new(),
+            coefficient_pool: VecPool::default(),
             swapped: Vec::new(),
             vectors: Vec::new(),
             e12: Vec::new(),
@@ -115,6 +118,19 @@ impl<T: FloatLike, K: TriangleReductionKernels<T>> TriangleReducer<T, K> {
     }
     pub fn cut_count(&self) -> usize {
         self.cuts.len()
+    }
+
+    /// Recycle an explicitly discarded suffix; live caller outputs are never borrowed.
+    pub(crate) fn discard_outcomes(
+        &mut self,
+        outcomes: &mut Vec<CutOutcome<TriangleResidue<T>>>,
+        keep: usize,
+    ) {
+        for outcome in outcomes.drain(keep..) {
+            if let CutOutcome::Stable(residue) = outcome {
+                self.coefficient_pool.recycle(residue.coefficients);
+            }
+        }
     }
 
     pub fn evaluate_batch<N: Numerator<T>, C: CutProvider<T>>(
@@ -259,6 +275,12 @@ impl<T: FloatLike, K: TriangleReductionKernels<T>> TriangleReducer<T, K> {
             .resize(active.len() * coefficients, self.zero.clone());
         self.kernels
             .project_batch(&self.quotients, e12, &mut self.coefficients)?;
+        // These are old outputs from a completed prior swap, never the live output.
+        for outcome in self.staged.drain(..) {
+            if let CutOutcome::Stable(residue) = outcome {
+                self.coefficient_pool.recycle(residue.coefficients);
+            }
+        }
         let staged = &mut self.staged;
         staged.clear();
         staged.extend(cuts.iter().map(|c| match c {
@@ -275,7 +297,7 @@ impl<T: FloatLike, K: TriangleReductionKernels<T>> TriangleReducer<T, K> {
                     cut_index: requests[row].id.sample,
                     id: requests[row].id,
                     geometry: (*active_cuts[index]).clone(),
-                    coefficients: values.to_vec(),
+                    coefficients: self.coefficient_pool.take_from_slice(values),
                 });
             }
         }
