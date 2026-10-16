@@ -7,8 +7,10 @@ through numerator callbacks, reduction, and master integrals.
 
 This is an initial development version. It includes topology interfaces, generic
 batched polynomial and Dual callbacks, master-integral adapters, DOT preparation,
-a `prepare` CLI, and an original Ninja reference harness. The reduction kernels
-and remaining CLI commands are not yet implemented. No numerical
+a `prepare` CLI, and an original Ninja reference harness. Triple-cut reduction,
+cut geometry, Laurent division, residue subtraction and master-contraction
+kernels are implemented; the complete reduction pipeline and remaining CLI
+commands are still in development. No integrated numerical
 parity or performance acceptance claim is made for the Rust reducer.
 The complete specification and evidence ledger are in [the plan](references/PLAN.md).
 

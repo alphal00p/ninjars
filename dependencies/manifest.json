@@ -9,11 +9,11 @@
       "patches": [
         {
           "path": "dependencies/patches/symbolica-batch-dual.patch",
-          "sha256": "e79141ed9b0181618ba5107f920b672494a0922029af613f8d38a756e1c9f762"
+          "sha256": "c512826dea66151acc15fc14ffe9149d9d03d53ee70ca536407b4a29a3a9d397"
         }
       ],
       "patched_revisions": [
-        "c0a4aaf27ba3e037c8cd07a80ea995b5dc52a21b"
+        "b6edbce2d9b805b481b85a8699bb061e93cd83fb"
       ]
     },
     {
@@ -24,11 +24,11 @@
       "patches": [
         {
           "path": "dependencies/patches/feynkit-shared-types.patch",
-          "sha256": "aef50a0cc83738b5eda035ebe11a639826266878a47916e991eb211e0348369f"
+          "sha256": "6b43c6c42c70e684c1748cc992ffd9c9c311e7868fd839cc5f557e7f2fc71f55"
         }
       ],
       "patched_revisions": [
-        "1cdae7cad7ad6384b789a68ca969020256191558"
+        "66f59dd98c67a0b905145cad5ace1585df41fd72"
       ]
     },
     {

@@ -41,6 +41,41 @@ derivative regions. These restrictions are tracked in the project plan. Invalid
 master requests leave the entire output buffer unchanged; per-lane rescue is
 still part of the future reduction engine.
 
+## Laurent reduction stages
+
+The core `TriangleReducer` connects `SymbolicaCuts`, numerator callbacks and
+`SymbolicaTriangleKernels`. Inputs are lane-major shared `FourMomentum` shifts
+and squared masses. Outputs are cut-major triangle residues with original Ninja
+coefficient ordering and per-cut/lane stability. This is the triple-cut stage;
+it does not return an integrated amplitude. `SymbolicaDualTriangleKernels` uses
+the same coordinator with static or dynamic Dual carriers.
+
+Run a standalone residue-stage example with
+`cargo run -p ninjars-symbolica --example triangle`; it returns `c0=c7=1`
+for `1+mu_squared` and the three specified unit-mass propagators.
+
+`SymbolicaCuts` supplies triangle, bubble and tadpole parameterizations and
+batched cut sampling. Complex square roots and lane-local reference charts
+support spatial and null kinematics. Chart decisions use primal values, while
+the selected arithmetic propagates every derivative component. Degenerate Gram
+determinants and singular sampling parameters produce per-lane failures.
+
+`LaurentDivision`, `DenominatorExpansion`, `ResidueProjection`,
+`TriangleBubbleSubtraction` and `TadpoleSubtraction` expose the constituent
+arithmetic kernels. Their plans contain coefficient layouts, while all
+substitution, series expansion, coefficient extraction and differentiation use
+Symbolica. `MasterContraction` produces tensor-master weights and contracts
+Laurent results while retaining the explicit rational part. Its decomposition
+depends on the selected residue basis, as in original Ninja.
+
+Kernel inputs and preconditions are documented on their public types. Low-level
+division and projection expect nonsingular active rows. The triangle coordinator
+compacts invalid rows and restores cut/lane order. A scaled small-denominator
+test, precision rescue, full reconstruction diagnostics, bubble/tadpole
+coordination, and integrated amplitude accumulation remain unfinished. The
+current coordinator still allocates request/geometry buffers and is not the
+final performance implementation.
+
 Run adapter probes serially with a larger test-thread stack for oneloopmaster's
 expression construction:
 

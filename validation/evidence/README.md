@@ -20,3 +20,11 @@ checks the mu-free polynomial, and analytic rational controls check the explicit
 mu terms. Exact prepared expressions are retained in the export bundles; the
 reference's binary64 conversion is explicit. This is preparation/reference
 validation and does not add an integrated Rust-reducer claim.
+
+## Laurent-stage evidence
+
+`laurent-stage.json` records the 66-test workspace milestone, independent
+subtraction comparisons, upstream dependency regressions and reproduction
+commands. It validates triple-cut residues and constituent kernels; it is not
+integrated amplitude or performance acceptance evidence. The corresponding
+scope and remaining work are recorded in `references/PLAN.md`.

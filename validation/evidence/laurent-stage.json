@@ -1,0 +1,56 @@
+{
+  "milestone": "Laurent kernels and batched triple-cut reduction",
+  "date": "2026-10-16",
+  "complete_integrated_reducer": false,
+  "performance_acceptance": false,
+  "dependencies": {
+    "symbolica": "b6edbce2d9b805b481b85a8699bb061e93cd83fb",
+    "feynkit": "66f59dd98c67a0b905145cad5ace1585df41fd72",
+    "oneloopmaster": "45cf79e6c8d1e052f655ca4e26ff299b661986a6",
+    "ninja_reference": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0"
+  },
+  "workspace": {
+    "command": "RUST_MIN_STACK=134217728 cargo test --workspace --all-features --locked -- --include-ignored --test-threads=1",
+    "passed": 66,
+    "failed": 0,
+    "ignored": 0,
+    "suites": {
+      "topology": 1,
+      "cli_prepare": 5,
+      "cli_reference_export": 6,
+      "graph_preparation": 5,
+      "master_contraction": 6,
+      "cut_geometry_and_sampling": 4,
+      "denominator_reconstruction": 2,
+      "dual_polynomial": 2,
+      "laurent_division": 4,
+      "masters": 10,
+      "polynomial": 5,
+      "residue_projection": 2,
+      "reference_callbacks": 2,
+      "residue_subtraction": 6,
+      "triangle_validation": 2,
+      "triangle_reduction": 4
+    }
+  },
+  "independent_subtraction_reference_cases": 14,
+  "upstream_regressions": {
+    "feynkit_complex_null_weyl": 3,
+    "numerica_dual": 9,
+    "dual_zero_power_regression_failed_before_fix": true
+  },
+  "strict_clippy": "cargo clippy --workspace --all-targets --all-features --locked -- -D warnings",
+  "dependency_patch_trees_match_pinned_commits": true,
+  "example": {
+    "command": "cargo run -p ninjars-symbolica --example triangle",
+    "output": "lane 0: c0=(1+0i), c7=(1+0i)"
+  },
+  "remaining": [
+    "Bubble/tadpole coordination and integrated CLI parity",
+    "Full amplitude API, accumulation, diagnostics and higher cuts",
+    "Scaled small-denominator conditioning and precision rescue",
+    "Derivative continuation and removable-limit neighborhoods",
+    "Physical FeynKit/MadLoop validation",
+    "Allocation removal, generated native Rust and performance acceptance"
+  ]
+}
