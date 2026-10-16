@@ -20,7 +20,9 @@ use symbolica::{
 };
 use thiserror::Error;
 
-use crate::{CoefficientEvaluator, PolynomialCoefficientPlan, PreparedIntegrand, symbols};
+use crate::{
+    CoefficientError, CoefficientEvaluator, PolynomialCoefficientPlan, PreparedIntegrand, symbols,
+};
 
 static NEXT_PLAN: AtomicU64 = AtomicU64::new(0);
 
@@ -343,6 +345,40 @@ impl PhysicalInputPlan {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        self.compile_with(prototype, relative_tolerance, |prototype| {
+            self.coefficients
+                .compile(prototype.clone())
+                .map(Box::new)
+                .map(PhysicalCoefficientExecutor::Symbolica)
+                .map_err(error)
+        })
+    }
+
+    /// Compile binary64 coefficient heads with the existing explicit SymJIT O2
+    /// policy. Physical propagation and wavefunction preparation retain the same
+    /// validation and batch path as `compile`; no numerical carrier is converted.
+    #[cfg(feature = "numerator-jit")]
+    pub fn compile_symjit_o2(
+        &self,
+        relative_tolerance: f64,
+    ) -> Result<PhysicalInputEvaluator<f64>> {
+        self.compile_with(0., relative_tolerance, |_| {
+            let mut evaluator = self.coefficients.compile_symjit_o2().map_err(error)?;
+            Ok(PhysicalCoefficientExecutor::Compiled(Box::new(
+                move |input, output, rows| evaluator.evaluate_batch(input, output, rows),
+            )))
+        })
+    }
+
+    fn compile_with<T: PhysicalScalar>(
+        &self,
+        prototype: T,
+        relative_tolerance: T,
+        coefficients: impl FnOnce(&T) -> Result<PhysicalCoefficientExecutor<T>>,
+    ) -> Result<PhysicalInputEvaluator<T>>
+    where
+        Complex<T>: Real + EvaluationDomain,
+    {
         if !relative_tolerance.is_finite() || relative_tolerance <= prototype.zero() {
             return Err(error(
                 "physical input tolerance must be finite and positive",
@@ -363,10 +399,7 @@ impl PhysicalInputPlan {
             )
             .into_batch_evaluator();
         Ok(PhysicalInputEvaluator {
-            coefficients: self
-                .coefficients
-                .compile(prototype.clone())
-                .map_err(error)?,
+            coefficients: coefficients(&prototype)?,
             propagation,
             external_legs: self.external_legs.clone(),
             momentum_sources: self.momentum_sources.clone(),
@@ -383,6 +416,36 @@ impl PhysicalInputPlan {
             staging: PhysicalInputValues::default(),
             committed: PhysicalInputValues::default(),
         })
+    }
+}
+
+#[cfg(feature = "numerator-jit")]
+type CompiledCoefficients<T> =
+    dyn FnMut(&[Complex<T>], &mut [Complex<T>], usize) -> std::result::Result<(), CoefficientError>;
+
+// The compiled variant is constructed only for f64. One setup allocation and
+// one dispatch per batch keep the preparation body independent of this policy.
+enum PhysicalCoefficientExecutor<T> {
+    Symbolica(Box<CoefficientEvaluator<T>>),
+    #[cfg(feature = "numerator-jit")]
+    Compiled(Box<CompiledCoefficients<T>>),
+}
+
+impl<T: PhysicalScalar> PhysicalCoefficientExecutor<T>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    fn evaluate_batch(
+        &mut self,
+        input: &[Complex<T>],
+        output: &mut [Complex<T>],
+        rows: usize,
+    ) -> std::result::Result<(), CoefficientError> {
+        match self {
+            Self::Symbolica(evaluator) => evaluator.evaluate_batch(input, output, rows),
+            #[cfg(feature = "numerator-jit")]
+            Self::Compiled(evaluator) => evaluator(input, output, rows),
+        }
     }
 }
 
@@ -428,7 +491,7 @@ impl<T: FloatLike> Default for PhysicalInputValues<T> {
 }
 
 pub struct PhysicalInputEvaluator<T: FloatLike> {
-    coefficients: CoefficientEvaluator<T>,
+    coefficients: PhysicalCoefficientExecutor<T>,
     propagation: BatchExpressionEvaluator<Complex<T>>,
     external_legs: Vec<PhysicalExternalLeg>,
     momentum_sources: Vec<usize>,

@@ -65,13 +65,14 @@ explicit binary64 boundary and records that conversion. The first parser should
 reject explicit polarization and S-matrix overrides in the physical branch until
 their interaction with physical validation is designed and tested.
 
-Before CLI integration, the raw plan also needs an explicit f64 SymJIT selector.
-The proposed `compile_symjit_o2(relative_tolerance)` will reuse the existing
-`SymJitCoefficientEvaluator` behind a coefficient-executor variant. The ordinary
-generic `compile` continues to use `CoefficientEvaluator<T>`. Packing physical
-inputs, model propagation, wavefunction calls, validations and transactional
-commit must remain one shared implementation; only coefficient execution changes.
-The optional `numerator-jit` feature and explicit f64 boundary remain visible.
-Tests must compare both executors on the same changing physical rows and verify
-unchanged committed outputs after a failing row. This extension is not yet part
-of the current graph-only prototype.
+The raw plan also exposes `compile_symjit_o2(relative_tolerance)` under the
+optional `numerator-jit` feature. This f64-only constructor reuses the existing
+`SymJitCoefficientEvaluator` behind a private coefficient-executor variant. The
+ordinary generic `compile` continues to use `CoefficientEvaluator<T>`. Packing
+physical inputs, model propagation, wavefunction calls, validations and
+transactional commit share one implementation; only coefficient execution
+changes. The executor allocates once at setup and dispatches once per batch. No
+numerical carrier is converted. Both executors pass the changing physical-row
+controls, independent pentagon raw-numerator grid and unchanged-output failure
+checks; this is correctness evidence, not a throughput claim. CLI integration is
+still a separate stage.

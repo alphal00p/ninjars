@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "scope": "Graph-only f64 SymJIT coefficient executor for physical numerical preparation; no CLI or performance acceptance",
+  "base_commit": "992d6ca668387c1f66fabc36d55206a9b15bc299",
+  "actual_dependency_heads": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93",
+    "oneloopmaster": "bf7632a916528073464870f1b515d3e62f4e0060"
+  },
+  "dependency_note": "Actual dependency checkout heads used through isolated worktree references symlinks; this change does not modify dependency pins.",
+  "source_sha256": {
+    "Cargo.lock": "ef7b569bf076af5910bace287694a50bbef92af9819017953da23f4c53b1d332",
+    "crates/ninjars-graph/Cargo.toml": "551840629e11a0f63e349aba82e2473971c8c2a502bde28d645d3546e0acb792",
+    "crates/ninjars-graph/src/lib.rs": "2fe39e879b6a96b218f860faac0eda21260b6c7170ae00a89f42cc6d55dcecc1",
+    "crates/ninjars-graph/src/coefficients.rs": "1b5cd9a311ba995da7b6f571614e4022c77ae264adacae5d014928c11ac4f426",
+    "crates/ninjars-graph/src/physical_input.rs": "b5019ba7f541386a826eb5b926451f90c4ed1ad1bb40ddc4fae21782db9233dd",
+    "crates/ninjars-graph/tests/physical_input.rs": "d8cfd728c6fc8ac14a1249c59b3bfcfdea29f1a4758e6ebf358345eb849a8c9e",
+    "docs/physical-input-preparation.md": "28f9410fc11101e2145d6d33dd89ddd2ab54c1dcdaac42ffa30b073c5a1d168b"
+  },
+  "compiler": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8",
+  "checks": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-j8",
+        "-p",
+        "ninjars-graph",
+        "--all-features",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "passed": 25,
+      "failed": 0,
+      "log": "physical-input-jit/graph-all-features.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "-j8",
+        "-p",
+        "ninjars-graph",
+        "--all-features",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "log": "physical-input-jit/clippy-all-features.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "check",
+        "--locked",
+        "-j8",
+        "-p",
+        "ninjars-graph",
+        "--no-default-features"
+      ],
+      "exit_code": 0,
+      "log": "physical-input-jit/feature-disabled.log"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "log_sha256": {
+    "graph-all-features.log": "1dac8bb1e0d83813d255b500e29d7f3b438136f73bb882b7f7b0bb454a644062",
+    "clippy-all-features.log": "ac7a628fde40f72d1d2f9eb6ccbd7aa307cb471871f807511e75c5a6e1517467",
+    "feature-disabled.log": "030ecef5b2c2bff520408d345ce7622d72e86669eae818b2c0a6c99fbb0db0c3"
+  },
+  "focused_controls": [
+    "Both physical coefficient executors use one preparation implementation and return the same public numerical buffer type",
+    "SymJIT Hgg changing-model and mass rebinding, single/permuted/empty batches, linear Yukawa scaling and unchanged committed values after invalid shape, conservation or scalar helicity",
+    "SymJIT pentagon matches all 210 independent MadLoop raw samples at three physical points with fixed 1e-9 scaled criterion",
+    "Existing f64/DoubleFloat/Float256 generic controls retained"
+  ],
+  "limitations": [
+    "SymJIT constructor supports f64 only",
+    "No Dual physical preparation",
+    "Wavefunction construction remains scalar per lane",
+    "No throughput or full-pipeline batching acceptance claim",
+    "CLI raw-physical schema remains proposed, not implemented"
+  ]
+}

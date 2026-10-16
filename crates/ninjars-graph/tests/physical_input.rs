@@ -2,8 +2,8 @@ use std::{collections::BTreeMap, fs, path::PathBuf};
 
 use feynkit_kinematics::{Helicity, WavefunctionKind};
 use ninjars_graph::{
-    FourMomentum, Kinematics, Model, NumeratorMode, PhysicalInputBatch, PhysicalInputPlan,
-    PhysicalScalar, PreparedIntegrand, prepare_dot,
+    FourMomentum, Kinematics, Model, NumeratorMode, PhysicalInputBatch, PhysicalInputEvaluator,
+    PhysicalInputPlan, PhysicalScalar, PreparedIntegrand, prepare_dot,
 };
 use symbolica::{
     atom::{Atom, AtomCore},
@@ -64,12 +64,15 @@ where
     assert!(result.im.is_zero());
     result.re
 }
-fn hgg<T: PhysicalScalar>(plan: &PhysicalInputPlan, prototype: T, tolerance: &str)
-where
+fn hgg<T: PhysicalScalar>(
+    plan: &PhysicalInputPlan,
+    prototype: T,
+    tolerance: &str,
+    mut evaluator: PhysicalInputEvaluator<T>,
+) where
     Complex<T>: Real + EvaluationDomain,
 {
     let tol = exact(tolerance, &prototype);
-    let mut evaluator = plan.compile(prototype.clone(), tol.clone()).unwrap();
     let zero = prototype.zero();
     let mut momenta = Vec::new();
     let mut parameters = Vec::new();
@@ -206,9 +209,29 @@ fn hgg_raw_physical_batch_rebinding_precision_and_transactional_errors() {
             .iter()
             .all(|leg| leg.wavefunction == WavefunctionKind::EpsilonBar)
     );
-    hgg(&plan, 0_f64, "1e-11");
-    hgg(&plan, DoubleFloat::from(0.), "1e-26");
-    hgg(&plan, Float::new(256), "1e-65");
+    hgg(&plan, 0_f64, "1e-11", plan.compile(0_f64, 1e-11).unwrap());
+    let dd = DoubleFloat::from(0.);
+    hgg(
+        &plan,
+        dd,
+        "1e-26",
+        plan.compile(dd, exact("1e-26", &dd)).unwrap(),
+    );
+    let high = Float::new(256);
+    let evaluator = plan.compile(high.clone(), exact("1e-65", &high)).unwrap();
+    hgg(&plan, high, "1e-65", evaluator);
+}
+
+#[cfg(feature = "numerator-jit")]
+#[test]
+fn symjit_hgg_rebinding_and_transactional_errors_share_preparation() {
+    let plan = plan("examples/graphs/physical/hgg/top-triangle-0.dot");
+    hgg(
+        &plan,
+        0_f64,
+        "1e-11",
+        plan.compile_symjit_o2(1e-11).unwrap(),
+    );
 }
 
 #[test]
@@ -239,6 +262,16 @@ fn model_scalar_names_are_known_distinct_and_disjoint() {
 
 #[test]
 fn pentagon_changing_physical_points_match_independent_madloop_raw_grid() {
+    pentagon_raw_grid(|plan| plan.compile(0_f64, 1e-10).unwrap());
+}
+
+#[cfg(feature = "numerator-jit")]
+#[test]
+fn symjit_pentagon_changing_points_match_independent_madloop_raw_grid() {
+    pentagon_raw_grid(|plan| plan.compile_symjit_o2(1e-10).unwrap());
+}
+
+fn pentagon_raw_grid(compile: impl FnOnce(&PhysicalInputPlan) -> PhysicalInputEvaluator<f64>) {
     let plan = plan("examples/graphs/physical/gg-hhh/top-pentagon-26.dot");
     assert_eq!(plan.propagator_edges().len(), 5);
     assert_eq!(plan.external_legs().len(), 5);
@@ -276,7 +309,7 @@ fn pentagon_changing_physical_points_match_independent_madloop_raw_grid() {
         );
         scales.push(point["scale_squared"].as_f64().unwrap());
     }
-    let mut evaluator = plan.compile(0_f64, 1e-10).unwrap();
+    let mut evaluator = compile(&plan);
     let prepared = evaluator
         .evaluate_batch(PhysicalInputBatch {
             lanes: points.len(),
