@@ -1,12 +1,12 @@
 //! Named tadpole source-axis projections; geometry selection is independent.
-use super::{BatchWorkspace, C, ConstantSpec, Context, DUAL_SHAPE, NativeFloat, batch, primitives};
+use super::{
+    BatchWorkspace, C, Context, DUAL_SHAPE, NativeFloat, batch, primitives,
+    tadpole_constants as constants,
+};
 use crate::kernel::{CompiledDualKernel, CompiledKernel, KernelExecutor};
 use ninjars::{Complex, Error, Real, Result};
 use symbolica::{domains::dual::DualNumber, evaluate::EvaluationDomain};
 
-#[rustfmt::skip]
-#[path = "generated/tadpole_constants.rs"]
-mod constants;
 #[allow(clippy::deref_addrof, clippy::identity_op, clippy::erasing_op)]
 #[rustfmt::skip]
 #[path = "generated/tadpole_triangle_projection.rs"]

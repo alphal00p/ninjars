@@ -14,8 +14,13 @@ parent's own shift and ordered basis axes, independently of the tadpole origin.
 probe for all six exact Weyl reference bases. Its output does not contain the
 finished tadpole geometry. The separate 5→30 finish, candidate scoring and
 failure policy are unchanged.
-The geometry reference probe is still interpreted by the independently selected
-cut provider; selecting the native reduction catalog does not replace it.
+The cut provider selects geometry independently: `SymbolicaCuts` and
+`SymbolicaDualCuts` expose `with_native_kernels() -> Result<Self>` to opt into
+this named 8→28 probe. `tadpole_probe_backend()` reports the actual selection,
+including interpreter fallback for uncatalogued Dual shapes. The default stays
+interpreted. Candidate scores, primal chart choices, the 5→30 finish and every
+other geometry kernel stay unchanged. Selecting the amplitude's native
+reduction catalog does not select native geometry.
 
 These expressions were moved from their owning `tadpole_kernels` and `cuts`
 constructors without a formula change. FeynKit's `FourMomentum<Atom>` and
@@ -43,7 +48,9 @@ cargo run --locked -p ninjars-symbolica --features rust-codegen \
 The example accepts an optional output directory for independent regeneration.
 `tadpole_metadata.json` records dimensions, instruction counts and source sizes.
 The four source-projection modules are available through the native selector.
-The two geometry-probe modules remain generation/test artifacts only.
+The two geometry-probe modules execute only when the separately constructed
+cut provider explicitly selects them. The CLI and shared-provider harness do
+not select this new library option yet.
 
 Validation compares projection values to shared momentum arithmetic at complex
 parent origins, checks all six reference bases against the public Weyl API,
@@ -66,3 +73,12 @@ propagator regression preserves the existing `C0`
 `UnsupportedDerivativeDomain` status; this catalog extension does not expand
 the master provider's derivative domain. Triangle-source higher and mixed
 components are compared directly, independently of integrated masters.
+
+The native geometry controls compare every returned momentum, mass coefficient
+and basis component for f64, DoubleFloat and Float, plus static/runtime
+higher/mixed Dual carriers. Mixed stable, degenerate, nonfinite and malformed
+shape lanes retain their status and order; empty, permuted and tail batches
+reuse the same provider. Full amplitude controls vary only the geometry
+provider and retain the same numerator, masters and reduction backend. Warm
+f64 provider allocations are checked independently of setup. These are
+correctness and storage checks, with no timing or performance-acceptance claim.

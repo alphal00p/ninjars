@@ -74,7 +74,7 @@
     }
   ],
   "production_dispatch": {
-    "geometry_probe": "deferred",
+    "geometry_probe": "opt-in native geometry provider; ordinary and supported ordered Dual shape",
     "source_projections": "opt-in native ordinary and supported ordered Dual shape"
   },
   "runtime": "oneloopmaster RustEmitter instruction-major batches; width-one scalar path"

@@ -1,0 +1,199 @@
+{
+  "recorded_utc": "2026-10-16T22:42:45.738000+00:00",
+  "base_revision": "fb073c3917806d3a1c60dd506ce689983cdaa021",
+  "primary_reference_revision": "ee1f15214271caa2af5da2f234938aa7e7fa1a39",
+  "scope": "Explicit library-only native 8->28 tadpole geometry reference probe. Other geometry, chart scoring, finishes, and reduction selection remain unchanged.",
+  "dependencies": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "oneloopmaster": "bf7632a916528073464870f1b515d3e62f4e0060",
+    "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+  },
+  "source_sha256": {
+    "crates/ninjars-symbolica/examples/generate_native_tadpoles.rs": "495da4d8c515a141b7a9b5bdd0799ada3c967205a24cc52a425f6b1ac2e611bc",
+    "crates/ninjars-symbolica/src/cuts.rs": "7c9ca81c8eb2c6615fb3f1551542545f799b29546b65654228ba81e411d8637b",
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_metadata.json": "7a311ea53e501a30ec3a62f9c30a6e6a08a296095cee9d16ec2199d0e6a0f256",
+    "crates/ninjars-symbolica/src/native_kernels/geometry.rs": "620200507b1c691eb42c9b3e42de6cb40786cd6cf2b345ea6299c55bad3aeb49",
+    "crates/ninjars-symbolica/src/native_kernels/mod.rs": "002275dffa7039ac96d3e4f78cc15d8b01199395d8efed8ca68c6fc0e2201a29",
+    "crates/ninjars-symbolica/src/native_kernels/tadpoles.rs": "a8f2dd2fcbbe85e725fe7173994e89c6a6298b0f00bcd5f1c4080c37d8c43d21",
+    "crates/ninjars-symbolica/src/tadpole_plans.rs": "4fce524998c69e91ed224098d28507fd37c5cb057ab24656f41990a97a1eb09d",
+    "crates/ninjars-symbolica/tests/native_tadpole_geometry.rs": "988417b0902533d52e3efa832628878ad363b686db303b98c22c714a247df559",
+    "docs/native-reduction-catalog.md": "3abcdf1a580812417e4483399b8267a9c09259addf7409402d17bbd452a3fe31",
+    "docs/tadpole-kernel-plans.md": "596c012c6dd282353fb7417ddce3e8b6bc86055354a73c3bf78023528573d6c8"
+  },
+  "generated_unchanged_sha256": {
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_bubble_projection.rs": "37e5a6b46e5220b678f116d68af522afb2a0a88db022d7b7049e9d5878ec4d7e",
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_bubble_projection_dual.rs": "723ee1a35d2c9028e6bb71c381ad74a99048f5e0ae7b72eef08f852b9efbfa02",
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_constants.rs": "dc3143df42388804afbacb2a86d0f3b3c0308934437394f5a906025418062266",
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_geometry_probe.rs": "9c8ae06eed788a147a97b06461785f2cef33861b174e7808e010d8df80e418bf",
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_geometry_probe_dual.rs": "ea086814f28b38e035c9e4396ffccb1014c07546e2eba3c458d8e22bbbd1bea4",
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_triangle_projection.rs": "616c1c0dc83e9de7f05007276b90ede2b68e256a9553e1f139e3ec2174f4cfd4",
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_triangle_projection_dual.rs": "5bc005d63eb281f443f6e5bc3a2d5374b05363f866c493ba9d3128c87e780c0d"
+  },
+  "api": [
+    "SymbolicaCuts::with_native_kernels() -> Result<Self>",
+    "SymbolicaDualCuts::with_native_kernels() -> Result<Self>",
+    "SymbolicaCuts/SymbolicaDualCuts::tadpole_probe_backend()",
+    "TadpoleGeometryProbe::compile_native / compile_dual_native"
+  ],
+  "coverage": [
+    "f64, DoubleFloat, Float256; all returned basis/momentum/coefficient components compared to the existing interpreter",
+    "Static and dynamic five-component higher/mixed Dual; unsupported univariate and reordered shapes retain interpreter fallback",
+    "Empty/single/tail/permuted/changing-width batches; multiple selected charts; mixed stable/degenerate/nonfinite/malformed-shape lanes",
+    "Working-precision constants; input Float tracked precision53/128/512 preserved; malformed dimensions/output transactionality",
+    "Malformed dynamic Dual prototypes with missing/extra/empty values reject before evaluator construction",
+    "Integrated n1/n2/n3/n5/n6 parity with only geometry provider varied, accumulation/failure isolation; integrated mixed Dual n2",
+    "Exact generated-source regeneration and existing native tadpole source-projection and geometry regressions"
+  ],
+  "warmed_f64_provider_allocations": {
+    "rows_in_sequence": [
+      1,
+      32,
+      8,
+      1
+    ],
+    "allocations_each": 0,
+    "method": "Thread-local alloc/alloc_zeroed/realloc counting after same-width warm-up; request/output construction outside measured closure",
+    "scope": "Complete tadpole_batch call with native reference probe"
+  },
+  "tests": [
+    {
+      "name": "native_tadpole_dispatch",
+      "executable": "/common/build-cache/external/75/8f9e7ed5ac9e03/debug/deps/native_tadpole_dispatch-e7f1cf62ebf9266e",
+      "log": "/tmp/ninjars-native-geometry-native_tadpole_dispatch.log",
+      "exit_code": 0,
+      "summary": "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.69s",
+      "tests_passed": 9,
+      "log_sha256": "abf742b5ec3763cf8c957093d6eacf62848ebf06cb382150347c8974b3cc05b8",
+      "executable_sha256": "8905cce97a479927e89137c28fc40375455ec7fc361d926640e3f0e442d259c9",
+      "test_names": [
+        "exact_ordered_shape_dispatch_and_malformed_dual_transactionality",
+        "float_inputs_keep_their_own_precision",
+        "geometry_probe_and_denominator_only_selection_remain_independent",
+        "malformed_dual_prototypes_are_rejected_before_output_reconstruction",
+        "native_feature_preserves_send_sync_for_standard_evaluators",
+        "native_warm_f64_storage_and_width_one_do_not_allocate",
+        "scalar_precision_batches_and_transactionality",
+        "static_and_dynamic_higher_mixed_components"
+      ],
+      "elapsed_seconds_includes_runtime_lock": 1.6943496789899655
+    },
+    {
+      "name": "native_tadpole_plans",
+      "executable": "/common/build-cache/external/75/8f9e7ed5ac9e03/debug/deps/native_tadpole_plans-44ba4aa5671e5a4a",
+      "log": "/tmp/ninjars-native-geometry-native_tadpole_plans.log",
+      "exit_code": 0,
+      "summary": "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.55s",
+      "tests_passed": 3,
+      "log_sha256": "ea81b903d2f63909e7ee7c144c90505f7f72eb262fb248aeccce72a4f2b10b6e",
+      "executable_sha256": "d6c6ccb7293fa8673efe5e9eaaf67f7dfd37683b3853335d8ccfcfb71df2a945",
+      "test_names": [
+        "emitted_plans_match_interpreter_for_precisions_batches_and_every_dual_component",
+        "float_tracked_precision_and_malformed_duals_are_preserved",
+        "generated_catalog_and_constant_indices_regenerate_exactly"
+      ],
+      "elapsed_seconds_includes_runtime_lock": 12.5545515959966
+    },
+    {
+      "name": "cuts",
+      "executable": "/common/build-cache/external/75/8f9e7ed5ac9e03/debug/deps/cuts-e4eba678792481eb",
+      "log": "/tmp/ninjars-native-geometry-cuts.log",
+      "exit_code": 0,
+      "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.63s",
+      "tests_passed": 4,
+      "log_sha256": "54ab7430fe28d4ef92ed50bf7f45938ccf7bf24ca4601e150043cabf156e56a5",
+      "executable_sha256": "2c51aca660f56a9dd1ddcd62f8969fc97d9c3810a8bbe5f54f9e90f098e8d398",
+      "test_names": [
+        "cut_geometry_keeps_double_double_and_arbitrary_precision",
+        "higher_mixed_duals_preserve_null_shell_transverse_derivatives",
+        "mixed_cut_batches_preserve_lane_order_and_isolate_failures",
+        "reordered_dual_components_are_rejected_per_lane"
+      ],
+      "elapsed_seconds_includes_runtime_lock": 0.6310000389930792
+    },
+    {
+      "name": "native_tadpole_geometry",
+      "executable": "/common/build-cache/external/75/8f9e7ed5ac9e03/debug/deps/native_tadpole_geometry-e06c691543951871",
+      "log": "/tmp/ninjars-native-geometry-native_tadpole_geometry.log",
+      "exit_code": 0,
+      "summary": "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.40s",
+      "tests_passed": 6,
+      "log_sha256": "eb4430cf3639e836e35c09acb803dc06570a81a891c55ff000a2eddfd9b2135c",
+      "executable_sha256": "e09552861e0b7a8dd17aade6cc6a39eb521f03c231027ddb522bc39c5a4d3e4b",
+      "test_names": [
+        "dual_shape_and_nonprimal_failures_remain_lane_local",
+        "full_dual_geometry_and_unknown_ordered_shape_fallback",
+        "integrated_amplitudes_change_only_the_selected_geometry_provider",
+        "integrated_mixed_dual_bubble_changes_only_geometry",
+        "native_probe_dimensions_precision_and_warm_allocations",
+        "ordinary_geometry_batches_precision_charts_and_failures"
+      ],
+      "elapsed_seconds_includes_runtime_lock": 10.426979121024488
+    }
+  ],
+  "tests_passed": 22,
+  "check_logs": {
+    "clippy": {
+      "path": "/tmp/ninjars-native-geometry-clippy.log",
+      "sha256": "23c78dfeaf0dbacc3ed6e998ca6deebb292f24b2258a9a0a7e5fc559d07e29d0",
+      "tail": [
+        "",
+        "warning: `symbolica` (lib) generated 1 warning",
+        "warning: `symbolica` (lib) generated 1 warning (1 duplicate)",
+        "    Checking ninjars-symbolica v0.1.0 (/shared/external/ninja/references/ninjars_workspace_reuse/crates/ninjars-symbolica)",
+        "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.18s"
+      ]
+    },
+    "featureoff": {
+      "path": "/tmp/ninjars-native-geometry-featureoff.log",
+      "sha256": "8ae32f9fc609818d64dbb696a282309eab696f3c2cd9b19fc41396b68160bb8d",
+      "tail": [
+        "",
+        "warning: `symbolica` (lib) generated 1 warning",
+        "warning: `symbolica` (lib) generated 1 warning (1 duplicate)",
+        "    Checking ninjars-symbolica v0.1.0 (/shared/external/ninja/references/ninjars_workspace_reuse/crates/ninjars-symbolica)",
+        "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.57s"
+      ]
+    },
+    "generate": {
+      "path": "/tmp/ninjars-native-geometry-generate.log",
+      "sha256": "10000ed081ecd39a18d067af7902526162a6ef9881c154aa5475066062656971",
+      "tail": [
+        "warning: `symbolica` (lib) generated 1 warning",
+        "warning: `symbolica` (lib) generated 1 warning (1 duplicate)",
+        "   Compiling ninjars-symbolica v0.1.0 (/shared/external/ninja/references/ninjars_workspace_reuse/crates/ninjars-symbolica)",
+        "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.59s",
+        "     Running `target/debug/examples/generate_native_tadpoles`"
+      ]
+    },
+    "final-build": {
+      "path": "/tmp/ninjars-native-geometry-final-build.log",
+      "sha256": "47a574902f1e5a7fd78581e687846412c98ebe05e9d5d59ce4ee951d2541f8c8",
+      "tail": [
+        "      with the dependency requirements. If the patch has a different version from",
+        "      what is locked in the Cargo.lock file, run `cargo update` to use the new",
+        "      version. This may also occur with an optional dependency that is not enabled.",
+        "   Compiling ninjars-symbolica v0.1.0 (/shared/external/ninja/references/ninjars_workspace_reuse/crates/ninjars-symbolica)",
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.20s"
+      ]
+    }
+  },
+  "format_check": "cargo fmt --all --check: pass",
+  "diff_check": "git diff --check: pass",
+  "reproduction": [
+    "source /tmp/ninjars-build-env-paths; source /tmp/ninjars-symbolica-env; export CC CXX PKG_CONFIG RUST_MIN_STACK=134217728 CARGO_BUILD_JOBS=4; ulimit -Sn 65536",
+    "cargo run --locked -p ninjars-symbolica --features rust-codegen --example generate_native_tadpoles",
+    "cargo test -p ninjars-symbolica --features native-kernels --locked --test native_tadpole_geometry --test native_tadpole_dispatch --test cuts --test native_tadpole_plans --no-run --message-format=json",
+    "Run the resulting test executables serially under flock /tmp/ninjars-symbolica-tests.lock, with --test-threads=1 --nocapture; compilation occurs outside the lock",
+    "cargo clippy -p ninjars-symbolica --features native-kernels --locked --lib --test native_tadpole_geometry --example generate_native_tadpoles -- -D warnings",
+    "cargo check -p ninjars-symbolica --locked --no-default-features --lib",
+    "cargo fmt --all --check; git diff --check"
+  ],
+  "limitations": [
+    "No CLI/harness geometry selector wiring; amplitude native selection remains independent and retains eight reduction reporting families.",
+    "No timing or performance-acceptance claim; zero warmed f64 allocations does not establish speed or Float/Dual allocation reductions.",
+    "Existing full ordered Dual shape validation remains allocating; no derivative components are skipped.",
+    "The separate known bf7632a native inverse overflow defect is not fixed by this patch. No extreme-value or whole-native-backend acceptance is claimed; root is validating its upstream correction separately.",
+    "Master derivative domains are unchanged; integrated Dual coverage here is n2, not new C0/D0 derivative support."
+  ],
+  "performance_acceptance": false
+}

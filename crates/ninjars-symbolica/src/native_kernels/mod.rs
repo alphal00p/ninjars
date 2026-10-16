@@ -2,7 +2,12 @@
 //! No dimension-based or carrier-type inference selects generated arithmetic.
 
 pub(crate) mod bubbles;
+pub(crate) mod geometry;
 pub(crate) mod tadpoles;
+
+#[rustfmt::skip]
+#[path = "generated/tadpole_constants.rs"]
+mod tadpole_constants;
 
 use ninjars::{Complex, Error, Real, Result};
 use oneloop::rust_codegen::runtime::{

@@ -24,9 +24,12 @@ available families. Reports identify source-projection/correction families separ
 other interpreted reduction, integration and accumulation. Numerator callbacks,
 cut geometry and master providers are independently selected objects.
 `TadpoleSourceProjection` is one reporting family with two variants selected
-by the parent cut's identity. Its geometry reference probe remains interpreted
-and outside this reduction selector. Unsupported Dual shapes retain the
-interpreter for all newly available source projections.
+by the parent cut's identity. The geometry reference probe remains outside
+this reduction selector and defaults to the interpreter. Separately constructed
+`SymbolicaCuts` and `SymbolicaDualCuts` providers can opt into their native
+8→28 tadpole probe with their own `with_native_kernels()` method; the CLI and
+shared-provider harness do not select that library option yet. Unsupported Dual
+shapes retain the interpreter for these source projections and geometry probe.
 
 The projection's ordered row is `[a0,a1,e3,e4_effective,V_triangle,E3,E4]`,
 using shared FeynKit four-momenta, and outputs projections of

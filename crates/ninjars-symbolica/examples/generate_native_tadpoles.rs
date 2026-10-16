@@ -81,7 +81,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             "runtime":"oneloopmaster RustEmitter instruction-major batches; width-one scalar path",
             "production_dispatch":{
                 "source_projections":"opt-in native ordinary and supported ordered Dual shape",
-                "geometry_probe":"deferred"
+                "geometry_probe":"opt-in native geometry provider; ordinary and supported ordered Dual shape"
             }
         }))? + "\n",
     )?;

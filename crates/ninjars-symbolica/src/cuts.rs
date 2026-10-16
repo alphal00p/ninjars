@@ -45,6 +45,10 @@ pub struct SymbolicaDualCuts<T, D> {
 }
 
 struct Kernel<T> {
+    #[cfg(feature = "native-kernels")]
+    native: Option<Box<dyn crate::kernel::KernelExecutor<Complex<T>> + Send + Sync>>,
+    #[cfg(feature = "native-kernels")]
+    input_columns: usize,
     evaluator: BatchExpressionEvaluator<Complex<T>>,
     inputs: Vec<Complex<T>>,
     outputs: Vec<Complex<T>>,
@@ -80,6 +84,10 @@ where
             exact
         };
         Ok(Self {
+            #[cfg(feature = "native-kernels")]
+            native: None,
+            #[cfg(feature = "native-kernels")]
+            input_columns: parameters.len(),
             evaluator: PolynomialNumerator::map_evaluator(exact, prototype),
             inputs: Vec::new(),
             outputs: Vec::new(),
@@ -91,6 +99,10 @@ where
     fn evaluate(&mut self, rows: usize) -> Result<()> {
         self.outputs
             .resize_with(rows * self.columns * self.width, || self.zero.clone());
+        #[cfg(feature = "native-kernels")]
+        if let Some(executor) = &mut self.native {
+            return executor.evaluate(&self.inputs, &mut self.outputs, rows);
+        }
         self.evaluator
             .evaluate_batch(&self.inputs, &mut self.outputs, rows)
             .map_err(|e| Error::Symbolic(e.to_string()))
@@ -98,6 +110,14 @@ where
     fn component(&self, row: usize, column: usize) -> &[Complex<T>] {
         let start = (row * self.columns + column) * self.width;
         &self.outputs[start..start + self.width]
+    }
+    #[cfg(feature = "native-kernels")]
+    fn backend(&self) -> crate::KernelBackend {
+        if self.native.is_some() {
+            crate::KernelBackend::NativeRust
+        } else {
+            crate::KernelBackend::SymbolicaInterpreter
+        }
     }
 }
 
@@ -877,6 +897,43 @@ where
             engine: CutEngine::new(prototype, None)?,
         })
     }
+
+    /// Actual backend of the tadpole reference probe. Other geometry kernels
+    /// remain interpreted, independently of amplitude reduction selection.
+    #[cfg(feature = "native-kernels")]
+    pub fn tadpole_probe_backend(&self) -> crate::KernelBackend {
+        self.engine.tadpole_probe.backend()
+    }
+}
+
+#[cfg(feature = "native-kernels")]
+impl<T: oneloop::NativeFloat> Kernel<T> {
+    fn install_tadpole_probe(&mut self, prototype: &T, dual: bool) -> Result<()> {
+        let width = if dual { 5 } else { 1 };
+        if (self.input_columns, self.columns, self.width) != (8, 28, width) {
+            return Err(Error::Unsupported(
+                "native tadpole probe plan differs".into(),
+            ));
+        }
+        self.native = Some(crate::native_kernels::geometry::executor(prototype, dual)?);
+        Ok(())
+    }
+}
+
+#[cfg(feature = "native-kernels")]
+impl<T: oneloop::NativeFloat> SymbolicaCuts<T>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    /// Opt into the generated 8→28 tadpole reference probe. This cut-provider
+    /// option leaves scoring, all geometry finishes, and bubble/triangle cut
+    /// kernels unchanged. Amplitude kernel selection is independent.
+    pub fn with_native_kernels(mut self) -> Result<Self> {
+        self.engine
+            .tadpole_probe
+            .install_tadpole_probe(&self.engine.prototype, false)?;
+        Ok(self)
+    }
 }
 
 impl<T: Real + SingleFloat> CutProvider<Complex<T>> for SymbolicaCuts<T>
@@ -958,6 +1015,11 @@ where
             .into_iter()
             .map(<[usize]>::to_vec)
             .collect();
+        if shape.is_empty() || dual.values().len() != shape.len() {
+            return Err(Error::Unsupported(
+                "cut Dual prototype shape and values differ".into(),
+            ));
+        }
         Ok(Self {
             engine: CutEngine::new(prototype, Some(&shape))?,
             prototype: dual,
@@ -968,6 +1030,30 @@ where
         let mut value = self.prototype.zero();
         value.values_mut().clone_from_slice(values);
         value
+    }
+
+    /// Actual probe selection, including complete ordered-shape fallback.
+    #[cfg(feature = "native-kernels")]
+    pub fn tadpole_probe_backend(&self) -> crate::KernelBackend {
+        self.engine.tadpole_probe.backend()
+    }
+}
+
+#[cfg(feature = "native-kernels")]
+impl<T: oneloop::NativeFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualCuts<T, D>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    /// Use the generated reference probe for the supported ordered five-
+    /// component shape. Other shapes retain the complete interpreter path.
+    /// Candidate selection remains primal-only and every input is validated.
+    pub fn with_native_kernels(mut self) -> Result<Self> {
+        if crate::native_kernels::supported_shape(&self.prototype.get_shape()) {
+            self.engine
+                .tadpole_probe
+                .install_tadpole_probe(&self.engine.prototype, true)?;
+        }
+        Ok(self)
     }
 }
 

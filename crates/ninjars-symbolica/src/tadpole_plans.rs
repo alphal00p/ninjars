@@ -248,6 +248,37 @@ impl TadpoleSourceProjection {
 }
 
 #[cfg(feature = "native-kernels")]
+impl TadpoleGeometryProbe {
+    /// Compile the named reference probe; cut scoring and finishing are separate.
+    pub fn compile_native<T: oneloop::NativeFloat>(
+        &self,
+        prototype: &T,
+    ) -> Result<TadpolePlanEvaluator<T>>
+    where
+        Complex<T>: Real + EvaluationDomain,
+    {
+        let mut evaluator = self.compile(prototype)?;
+        crate::native_kernels::geometry::install(&mut evaluator.kernel, prototype, false)?;
+        Ok(evaluator)
+    }
+
+    /// Compile the ordered native Dual probe where catalogued, with interpreter
+    /// fallback for every other complete shape.
+    pub fn compile_dual_native<T: oneloop::NativeFloat, D: Real + DualNumber<Complex<T>>>(
+        &self,
+        prototype: &T,
+        dual: &D,
+    ) -> Result<DualTadpolePlanEvaluator<T, D>>
+    where
+        Complex<T>: Real + EvaluationDomain,
+    {
+        let mut evaluator = self.compile_dual(prototype, dual)?;
+        crate::native_kernels::geometry::install_dual(&mut evaluator.kernel, prototype)?;
+        Ok(evaluator)
+    }
+}
+
+#[cfg(feature = "native-kernels")]
 impl<T: Real + SingleFloat> TadpolePlanEvaluator<T>
 where
     Complex<T>: Real + EvaluationDomain,
