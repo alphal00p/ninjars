@@ -14,7 +14,8 @@ top-quark H→gg orientations, six four-photon boxes and eight gg→HH graphs.
 Their physical integrated comparisons pass in all three scalar precisions.
 Some generic-polarization and Ward diagnostics remain outside the fixed gates,
 as recorded in the evidence ledger. All 50 top-quark gg→HHH graphs pass raw
-numerator matching; their full integrated matrix is being validated separately.
+numerator matching and the 2,400-row integrated matrix, including independent
+analytic pole controls and exact cancellation of the summed poles.
 Full reconstruction controls, derivative continuation and performance acceptance
 remain in development.
 The complete specification and evidence ledger are in [the plan](references/PLAN.md).

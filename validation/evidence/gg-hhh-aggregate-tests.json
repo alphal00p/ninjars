@@ -1,0 +1,144 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "case": "lossless matrix archive identity and coverage",
+      "passed": true
+    },
+    {
+      "case": "truncated matrix archive",
+      "rejected": true
+    },
+    {
+      "case": "corrupted matrix archive",
+      "rejected": true
+    },
+    {
+      "case": "missing physical row",
+      "rejected_by": [
+        "complete_matrix",
+        "physical_row_count_1200",
+        "complete_independent_pole_sums"
+      ]
+    },
+    {
+      "case": "duplicate row replaces another sample",
+      "rejected_by": [
+        "complete_matrix",
+        "complete_independent_pole_sums"
+      ]
+    },
+    {
+      "case": "unsuccessful process with readable output",
+      "rejected_by": [
+        "process_success"
+      ]
+    },
+    {
+      "case": "mu-mode mismatch",
+      "rejected_by": [
+        "physical_mu_mode_equivalence"
+      ]
+    },
+    {
+      "case": "missing all mu-mode controls",
+      "rejected_by": [
+        "complete_mu_mode_controls"
+      ]
+    },
+    {
+      "case": "summed-graph mismatch",
+      "rejected_by": [
+        "physical_summed_graphs_mode4"
+      ]
+    },
+    {
+      "case": "missing independent pole row",
+      "rejected_by": [
+        "complete_integrated_pole_controls"
+      ]
+    },
+    {
+      "case": "DoubleFloat misses fixed accuracy target",
+      "rejected_by": [
+        "physical_integrated_pole_accuracy"
+      ]
+    },
+    {
+      "case": "altered pole output despite stale comparison flags",
+      "rejected_by": [
+        "physical_mode4_laurents_and_decomposition",
+        "physical_independent_pole_sum_accuracy",
+        "physical_recomputed_individual_pole_accuracy"
+      ]
+    },
+    {
+      "case": "altered finite output despite stale flags",
+      "rejected_by": [
+        "physical_mode4_laurents_and_decomposition"
+      ]
+    },
+    {
+      "case": "balanced pole corruption hidden by exact graph sum",
+      "rejected_by": [
+        "physical_mode4_laurents_and_decomposition",
+        "physical_recomputed_individual_pole_accuracy"
+      ]
+    },
+    {
+      "case": "corrupt exact pole control value",
+      "rejected_by": [
+        "physical_recomputed_individual_pole_accuracy"
+      ]
+    },
+    {
+      "case": "relaxed precision target",
+      "rejected_by": [
+        "fixed_precision_targets"
+      ]
+    },
+    {
+      "case": "changed runtime source",
+      "rejected_by": [
+        "unchanged_runtime_sources"
+      ]
+    },
+    {
+      "case": "changed exact-pole source",
+      "rejected_by": [
+        "unchanged_exact_pole_sources"
+      ]
+    },
+    {
+      "case": "changed exact-pole library",
+      "rejected_by": [
+        "unchanged_exact_pole_libraries"
+      ]
+    },
+    {
+      "case": "Float result at wrong working precision",
+      "rejected_by": [
+        "working_precision"
+      ]
+    },
+    {
+      "case": "generic mismatch remains diagnostic",
+      "physical_gate_passed": true,
+      "diagnostic_passed": false
+    },
+    {
+      "case": "Ward mismatch remains diagnostic",
+      "physical_gate_passed": true,
+      "diagnostic_passed": false
+    },
+    {
+      "case": "mode1 mismatch remains diagnostic",
+      "physical_gate_passed": true,
+      "diagnostic_passed": false
+    }
+  ],
+  "matrix_sha256": "cb986f01f8f41fb0427f002d7c30950b30282fa7019e575f4e44a8b5660511fb",
+  "poles_sha256": "cfa81069cd9fa20f29a8459662f2bdafdd1a838afb58587f16af89736d81606e",
+  "test_source_sha256": "a76a9e3ab6d8bd18211a9a3f96339dc49f8135f161cdf5171c069167a5aa01a4",
+  "aggregator_sha256": "3a810e9e2c73981433547e926383f18ea973ab631c15f9cb9235b9efe432517a"
+}

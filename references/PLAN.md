@@ -1125,6 +1125,7 @@ connects the existing kernels into integrated amplitudes and a standalone
 - The upstream push was a verified fast-forward, without a new oneloopmaster
   PR. Primary dependency checkouts remain on `fd7bced5/e9d14f7` until the frozen
   physical matrix completes; adopting these tested changes is the next step.
+
 ### Optional factored coefficient provider (2026-10-16)
 
 - Added `PolynomialCoefficientPlan::factor_coefficients` using only Symbolica's
@@ -1153,3 +1154,28 @@ connects the existing kernels into integrated amplitudes and a standalone
   worktree while the fixed gg→HHH matrix guarded primary runtime sources.
   These checks establish correctness of the optional provider, not performance
   acceptance or complete large-graph end-to-end timing.
+
+### gg→HHH integrated physical milestone (2026-10-16)
+
+- The frozen `fd7bced5/e9d14f7` CLI passes all **2,400 integrated rows**:
+  50 graphs, eight states, three precisions and both mu-extraction modes.
+  All 1,200 physical rows and 1,200 generic/Ward diagnostic rows pass fixed
+  reference modes one and four. Finite decomposition, mu-mode agreement and
+  summed-graph controls pass. Maximum physical mode-four error is `1.10e-15`;
+  all runtime source and process guards pass.
+- Independent Symbolica differentiation computes 400 per-graph poles. Rank
+  bounds are checked for every topology; harmonic higher-degree negative
+  controls guard the Laplacian formula's domain. All eight exact graph sums
+  vanish. Physical individual pole errors are at most `1.76e-16`, `4.58e-32`
+  and `5.54e-77` for f64, DoubleFloat and Float256. The summed numerical poles
+  also meet the unchanged `1e-9`, `1e-25` and `1e-65` targets. Generic/Ward
+  diagnostic gates pass for this process.
+- The complete 9,480,296-byte matrix is archived losslessly as a deterministic
+  603,164-byte gzip, with both identities in `gg-hhh-integrated-archive.json`.
+  Plain `gg-hhh-integrated-aggregate.json` and `gg-hhh-uv-poles.json` retain
+  independent checks. All 23 aggregation/archive mutation regressions and 15
+  reference/pool controls pass; source, CLI and linked-library guards pass.
+  Reproduction is documented in `validation/madloop/gg_hhh/INTEGRATED.md`.
+- This establishes the fixed physical correctness suite through pentagons.
+  Finite-part MadLoop inputs remain binary64, performance acceptance is still
+  pending, and previously recorded four-photon/gg→HH diagnostics are unchanged.
