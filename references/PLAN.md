@@ -1678,8 +1678,9 @@ connects the existing kernels into integrated amplitudes and a standalone
   formatting and whitespace checks. Evidence: `denominator-reuse-integrated.json`.
 - An isolated implementation now tests guarded n5/r4 rank specialization with
   complete-component zero checks and a generic fallback. Another isolated
-  probe examines bounded native instruction batches: current native temporary
-  arenas can retain about 240 MiB at phase-space width 1024 for the n5/r4 case.
+  probe examines bounded native instruction batches: the pre-reuse native
+  baseline can retain about 240 MiB of temporary arenas at phase-space width
+  1024 for the n5/r4 case.
   These experiments have no accepted timing result or production integration.
   The more ambitious transposed reduction-map experiment remains research.
 
