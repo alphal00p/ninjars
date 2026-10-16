@@ -58,6 +58,11 @@ struct ProjectionExecutor<T: NativeFloat> {
 }
 
 impl<T: NativeFloat> KernelExecutor<Complex<T>> for ProjectionExecutor<T> {
+    #[cfg(test)]
+    fn probe_workspace(&self) -> Option<(usize, usize)> {
+        Some((self.workspace.capacity(), self.workspace.storage_len()))
+    }
+
     fn evaluate(&mut self, input: &[C<T>], output: &mut [C<T>], rows: usize) -> Result<()> {
         let evaluate = match (self.plan, self.dual) {
             (TadpoleSourcePlan::Triangle, false) => triangle::evaluate_batch,

@@ -76,6 +76,11 @@ struct BubbleExecutor<T: NativeFloat> {
     workspace: BatchWorkspace<T>,
 }
 impl<T: NativeFloat> KernelExecutor<Complex<T>> for BubbleExecutor<T> {
+    #[cfg(test)]
+    fn probe_workspace(&self) -> Option<(usize, usize)> {
+        Some((self.workspace.capacity(), self.workspace.storage_len()))
+    }
+
     fn evaluate(&mut self, input: &[C<T>], output: &mut [C<T>], rows: usize) -> Result<()> {
         let evaluate = match self.plan {
             BubblePlan::SourceProjection => source_projection::evaluate_batch,
