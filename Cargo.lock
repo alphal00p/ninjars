@@ -1566,6 +1566,7 @@ dependencies = [
 name = "ninjars-graph"
 version = "0.1.0"
 dependencies = [
+ "feynkit-amplitude",
  "feynkit-generator",
  "feynkit-graph",
  "feynkit-kinematics",

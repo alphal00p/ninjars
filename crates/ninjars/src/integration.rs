@@ -17,6 +17,9 @@ pub struct ResidueIntegrationRequest<'a, T> {
     /// Required for cuts of size 1–3; box contraction is independent of a basis.
     pub basis: Option<&'a CutBasis<T>>,
     pub scale_squared: &'a T,
+    /// Optional row-major n×n invariants (V_i−V_j)² for this lane.
+    /// Values can retain exact known zeros lost in rounded momentum components.
+    pub s_matrix: Option<&'a [T]>,
 }
 
 impl<T> ResidueIntegrationRequest<'_, T> {
@@ -250,6 +253,13 @@ pub(crate) fn validate_request<T>(
     cut_size: usize,
     coefficients: usize,
 ) -> Result<()> {
+    if let Some(matrix) = request.s_matrix {
+        BatchShape {
+            rows: request.shifts.len(),
+            columns: request.shifts.len(),
+        }
+        .validate("integration S-matrix", matrix.len())?;
+    }
     if cut_size <= 3 && request.basis.is_none() {
         return Err(Error::Expansion(
             "cuts of size 1–3 require their extraction basis".into(),

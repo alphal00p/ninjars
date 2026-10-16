@@ -387,3 +387,88 @@ connects the existing kernels into integrated amplitudes and a standalone
   FeynKit/MadLoop preparation/validation through pentagons; CLI compare/bench
   and derivative controls; generated native Rust execution, workspace
   allocation removal and every performance acceptance gate.
+
+### Sampling scales, API controls and comparison CLI milestone (2026-10-16)
+
+- Added scalar and static/dynamic Dual automatic sampling-scale providers.
+  Batched invariant/magnitude arithmetic uses shared FeynKit momenta and
+  Symbolica evaluators; selection preserves working precision. Only all-zero
+  kinematics use a unit fallback. Auxiliary scales are constant in the original
+  Dual shape. Four library and three CLI test groups pass, including mixed
+  invalid lanes, tails, exact overrides and DoubleFloat/Float mixed derivatives.
+  The rank-seven six-line control improves from scaled error 2.59e-9 with scale
+  3 to at most 2.66e-11 with automatic scale 247 across all four box modes.
+- Added `AmplitudeInput` with an optional lane-major S-matrix of `(Vi-Vj)^2`,
+  used for both master arguments and rational weights. Numerical matrix
+  validation includes every Dual component. Added Ninja-compatible cut stopping
+  without changing existing accumulated results. Six library regression groups
+  pass, checking exact overrides, mixed derivatives, API transactionality,
+  omitted callbacks, accumulation, noncontiguous cut partitions and failed
+  pentagon lanes when stopping at five cuts. Five CLI control groups pass.
+- Added an optional Rust `compare` command, under `reference-codegen`, which
+  prepares common inputs, exports Symbolica-generated reference callbacks,
+  builds original Ninja runners and records all Laurent comparisons against
+  the fixed 1e-9 gate. Reference runners accept the same S-matrix, cut-stop and
+  mu-extraction controls. Generated inputs, source/library hashes and logs are
+  retained. Reference processes are fresh per sample; timing output is diagnostic
+  and not performance acceptance evidence. All eight complete comparisons in
+  four configurations pass, including supplied invariants and cut stopping in
+  DoubleFloat. Large finite-magnitude error controls and artifact/build-directory
+  concurrency tests prevent false successes or mixed generated inputs.
+- Published and attached [oneloopmaster PR #4](https://github.com/alphal00p/oneloopmaster/pull/4),
+  commit `606974150011332cfea677f70940f9228e24c9e3`. Minimal analytic-argument
+  fixes preserve imaginary and higher/mixed Dual seeds in real-axis log/sqrt
+  helpers. Five new regression instances fail before the fix and pass after;
+  all 52 upstream unit tests pass, with one existing diagnostic ignored.
+  Formatting/diff checks pass; upstream Clippy completes with existing unrelated
+  warnings. The main dependency checkout is fast-forwarded to that commit,
+  with a consolidated reproducible patch in the dependency manifest. The
+  pre-existing formatting-only `epsilon.rs` change remains untouched.
+- C0/D0 Dual domains remain gated: scalar-specialized removable limits in
+  log ratios, divided differences and dilogarithm helpers still need complete
+  generated neighborhoods. The continuation patch does not establish those
+  derivative domains. FeynKit H→gg preparation and a separate original MadLoop
+  graph harness are in progress; neither is physical acceptance evidence yet.
+- Published and attached [FeynKit/gammaloop PR #144](https://github.com/alphal00p/gammaloop/pull/144),
+  stacked on PR #143, at `474478a7a80bc9f9f21bead0e1cde6acbcffbe93`.
+  Explicit one-thread graph generation now keeps coloring, graph construction
+  and grouping on the caller. Parallel generation remains available. All 104
+  upstream generator tests pass, including caller-thread callbacks, determinism, cancellation,
+  filtering and two/four-worker execution; strict upstream Clippy passes.
+  The tested integration checkout and consolidated dependency patch are updated.
+  Two Rust physical-preparation regression groups pass: both top-loop
+  orientations, resolved graph sign, three MT² propagators, four-dimensional
+  SU(3)-projected component polynomial, chirality zero and invalid-model/dimension
+  handling. The graph weight uses FeynKit's existing resolver; explicit physical
+  color normalization uses Idenso. `prepare_hgg` exports graph/model sources and
+  prepared symbolic numerators. Both MadLoop top orientations are independently
+  exported with multiplier one and a fixed backend. Raw numerical numerator and
+  integrated physical comparisons remain pending; `docs/physical-preparation.md`
+  records the exact convention and remaining work.
+- The user supplied a Symbolica runtime license for development and validation.
+  It is sourced from a local file outside the repository and is not embedded in
+  code, dependency patches, logs or published artifacts.
+- Published and attached [oneloopmaster PR #5](https://github.com/alphal00p/oneloopmaster/pull/5),
+  stacked on PR #4 at `fe2a8d4ac363998ea557d596be57aa10b5bbd013`. A shape-derived
+  Dual evaluator generates the removable sheet-log-ratio neighborhood using
+  Symbolica series before specialization/vectorization. Degree-eight,
+  higher/mixed, near-unit high-precision and wound-sheet-pole controls pass;
+  the upstream suite reports 56 passed plus one existing ignored diagnostic,
+  and eight function-definition integration tests pass. This is prepared
+  upstream work for the next milestone; NinjaRS remains pinned to PR #4 here.
+  Other removable dilogarithm/divided-difference neighborhoods and C0/D0 domain
+  validation are still required.
+- All **155 workspace tests pass**, with all features and ignored reference
+  controls enabled, no failures and no skips. Strict all-target workspace
+  Clippy, formatting and diff checks pass. All five streaming reference
+  protocol tests pass after rebuilding the runner. The physical `prepare_hgg`
+  example runs successfully, and both updated dependency bundles pass bootstrap
+  verification. `validation/evidence/controls-stage.json` records dependency
+  revisions, comparison coefficients/errors and the sampling-scale diagnostic;
+  `validation/record_controls.py` extracts it from the complete workspace log.
+- The goal remains active. Next work includes physical CLI bindings and raw
+  FeynKit/MadLoop numerator/amplitude matching, remaining C0/D0 Dual neighborhoods,
+  reconstruction/stability/rescue, reusable timed CLI sessions and matching
+  reference cache policies, native Rust arithmetic generation and allocation
+  removal. Physical validation through pentagons and every performance gate
+  remain unfulfilled.

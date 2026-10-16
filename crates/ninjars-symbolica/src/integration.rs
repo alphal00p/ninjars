@@ -19,6 +19,7 @@ struct Engine<V, K> {
     zero: V,
     finite: fn(&V) -> bool,
     compatible: fn(&V, &V) -> bool,
+    equal: fn(&V, &V) -> bool,
     is_zero: fn(&V) -> bool,
     valid_scale: fn(&V) -> bool,
     active: Vec<usize>,
@@ -36,6 +37,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
         mut compile: impl FnMut(&ExactKernel) -> Result<K>,
         finite: fn(&V) -> bool,
         compatible: fn(&V, &V) -> bool,
+        equal: fn(&V, &V) -> bool,
         is_zero: fn(&V) -> bool,
         valid_scale: fn(&V) -> bool,
     ) -> Result<Self> {
@@ -76,6 +78,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             zero: prototype.zero(),
             finite,
             compatible,
+            equal,
             is_zero,
             valid_scale,
             active: Vec::new(),
@@ -117,8 +120,16 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
                         .chain(std::iter::once(&basis.e12))
                 }))
                 .chain([request.scale_squared])
+                .chain(request.s_matrix.into_iter().flatten())
                 .all(|v| (self.compatible)(v, &self.zero) && (self.finite)(v))
                 && (self.valid_scale)(request.scale_squared);
+            if let Some(matrix) = request.s_matrix {
+                let n = request.shifts.len();
+                valid[row] &= (0..n).all(|i| {
+                    (self.is_zero)(&matrix[i * n + i])
+                        && (0..i).all(|j| (self.equal)(&matrix[i * n + j], &matrix[j * n + i]))
+                });
+            }
             if !valid[row] {
                 continue;
             }
@@ -147,6 +158,20 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
         self.arguments.clear();
         for (index, &row) in self.active.iter().enumerate() {
             let request = &requests[row];
+            if let Some(matrix) = request.s_matrix {
+                let pairs: &[(usize, usize)] = match self.size {
+                    2 => &[(0, 1)],
+                    3 => &[(0, 1), (1, 2), (2, 0)],
+                    4 => &[(0, 1), (1, 2), (2, 3), (3, 0), (0, 2), (1, 3)],
+                    _ => &[],
+                };
+                for (column, &(first, second)) in pairs.iter().enumerate() {
+                    self.kinematics[index * kinematic_columns + column] =
+                        matrix[request.partition[first] * request.shifts.len()
+                            + request.partition[second]]
+                            .clone();
+                }
+            }
             self.arguments.extend_from_slice(request.coefficients);
             let kin = &self.kinematics[index * kinematic_columns..(index + 1) * kinematic_columns];
             self.arguments.extend_from_slice(&kin[..inv]);
@@ -237,6 +262,7 @@ where
                 // Float tracks significant bits per component. Cancellation
                 // changes that count; it does not change the scalar carrier.
                 |_, _| true,
+                |a, b| a == b,
                 |v| v.re.is_zero() && v.im.is_zero(),
                 |v| {
                     v.im.is_zero()
@@ -269,6 +295,7 @@ where
                         .all(|v| v.re.is_finite() && v.im.is_finite())
                 },
                 |v, p| v.values().len() == p.values().len() && v.get_shape() == p.get_shape(),
+                |a, b| a.get_shape() == b.get_shape() && a.values() == b.values(),
                 |v| v.values().iter().all(|v| v.re.is_zero() && v.im.is_zero()),
                 |v| {
                     v.values()[0].im.is_zero()

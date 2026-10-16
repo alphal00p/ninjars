@@ -31,3 +31,33 @@ original Ninja's generated and tensor callbacks. The Euclidean triangle remains
 useful for preparation and future complex-basis tests, but original Ninja's real
 basis can produce nonfinite higher-rank results there. See the documented
 reproducer under `validation/reference`.
+
+## Reduction controls and supplied invariants
+
+`reduce --cut-stop 2` retains bubbles and higher cuts, assuming tadpoles contribute
+zero. Values `0` and `1` perform the full reduction; values above the available
+cut sizes produce zero contributions. Output reports both `requested_cut_stop`
+and the effective `cut_stop`. Use `--diagnostics` to inspect the retained cut
+counts. A partial reduction changes the computed amplitude unless the omitted
+contributions vanish.
+
+Each sample may optionally supply `s_matrix` as an `n` by `n` nested array of
+exact-expression strings, in the `propagator_edges` order shown by `prepare`:
+
+```json
+"s_matrix": [["0", "-1-1/10^40"], ["-1-1/10^40", "0"]]
+```
+
+Entries represent `(V_i-V_j)^2`. The matrix must be symmetric with a zero diagonal.
+Expressions can use the fixture's model parameter bindings. Supplied values
+control master-integral invariants and rational weights; the cut geometry still
+uses the supplied momenta. This permits exact invariants to accompany rounded
+momentum components. Omitted matrices are derived from momenta, including in
+batches mixing supplied and omitted matrices. Per-lane `s_matrix_source` reports
+`supplied` or `momenta`. An invalid numerical matrix fails its lane without
+discarding valid neighboring results; malformed dimensions reject the fixture.
+
+The automatic auxiliary mu sampling scale continues to use masses and momentum
+invariants, independently of the optional matrix and squared renormalization
+scale. `--mu-sampling-scale` accepts an exact manual override. Sampling-scale
+failures affect reduction only when box cuts are active.

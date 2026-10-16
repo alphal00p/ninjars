@@ -1,3 +1,5 @@
+#[cfg(feature = "reference-codegen")]
+mod compare;
 mod prepare;
 mod reduce;
 #[cfg(feature = "reference-codegen")]
@@ -17,8 +19,11 @@ struct Cli {
 enum Command {
     /// Prepare a FeynKit DOT graph or a JSON fixture using exact symbolic inputs.
     Prepare(prepare::Args),
-    /// Reduce one-, two-, or three-propagator graphs with fully specified samples.
+    /// Reduce graphs through six propagators with fully specified samples.
     Reduce(reduce::Args),
+    /// Compare prepared samples against original Ninja and OneLOop.
+    #[cfg(feature = "reference-codegen")]
+    Compare(compare::Args),
 }
 
 fn main() {
@@ -37,6 +42,14 @@ fn main() {
             .expect("cannot start reduction worker")
             .join()
             .unwrap_or_else(|_| Err("reduction worker panicked".into())),
+        #[cfg(feature = "reference-codegen")]
+        Command::Compare(args) => std::thread::Builder::new()
+            .name("ninjars-compare".into())
+            .stack_size(128 * 1024 * 1024)
+            .spawn(move || compare::run(args).map_err(|error| error.to_string()))
+            .expect("cannot start comparison worker")
+            .join()
+            .unwrap_or_else(|_| Err("comparison worker panicked".into())),
     };
     if let Err(error) = result {
         eprintln!("ninjars: {error}");

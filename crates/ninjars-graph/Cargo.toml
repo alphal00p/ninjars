@@ -6,6 +6,7 @@ license.workspace = true
 description = "Independent FeynKit graph and numerator preparation for one-loop reduction"
 
 [dependencies]
+feynkit-amplitude.workspace = true
 feynkit-generator.workspace = true
 feynkit-graph.workspace = true
 feynkit-kinematics.workspace = true

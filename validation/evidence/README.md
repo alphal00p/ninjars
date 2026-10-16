@@ -52,3 +52,14 @@ scaled difference is 2.58e-11 at a fixed 1e-9 gate. An observed small-scale
 cancellation failure is retained explicitly; automatic scale selection and
 precision rescue remain outstanding. These records establish neither physical
 validation nor performance acceptance.
+
+`controls-stage.json` records the subsequent 155-test milestone: automatic
+sampling scales, cut stopping, supplied S-matrices, the comparison CLI and the
+first physical-preparation controls. Eight complete CLI comparisons cover
+bubbles/triangles/boxes and DoubleFloat with supplied invariants/cut stopping.
+Reproduce the full workspace command stored in the JSON with `--nocapture`,
+then run `python3 validation/record_controls.py TEST_LOG`. The automatic-scale
+regression retains the previous scale-three failure and its corrected scale-247
+result. This record does not establish physical integrated or performance
+acceptance. The comparison test removes temporary build artifacts after success;
+standalone `ninjars compare` retains its artifacts for inspection.

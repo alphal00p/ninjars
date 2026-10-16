@@ -1,0 +1,565 @@
+{
+  "dependencies": {
+    "symbolica": "b6edbce2d9b805b481b85a8699bb061e93cd83fb",
+    "feynkit": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93",
+    "oneloopmaster": "606974150011332cfea677f70940f9228e24c9e3",
+    "ninja-reference": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0"
+  },
+  "workspace_tests": {
+    "passed": 155,
+    "failed": 0,
+    "ignored": 0
+  },
+  "command": "RUST_MIN_STACK=134217728 cargo test --workspace --all-features --locked -- --include-ignored --test-threads=1 --nocapture",
+  "comparisons": [
+    {
+      "comparison": {
+        "backend": "original Ninja with OneLOop",
+        "checks": [
+          {
+            "artifact": {
+              "MG5_aMC_v3_7_0": {
+                "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd",
+                "source": "release directory"
+              },
+              "compiler": "g++ (GCC) 15.3.0",
+              "generated_numerator_sha256": "d204bfeb3018ad91e5356e40cdbb5d861739d13685722f2b44993ee4168cbe96",
+              "libraries_sha256": {
+                "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b",
+                "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066"
+              },
+              "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+              "runner_sha256": "4e83946c3906a92cef4fc0fb6e0e3c2fd0fa0bbbf2698aeec267cbba36d2ed4c"
+            },
+            "eligible": true,
+            "lane": 0,
+            "laurent_scaled_errors": [
+              2.3229140262924753e-16,
+              0.0,
+              0.0
+            ],
+            "passed": true,
+            "reference": {
+              "cut_constructible": [
+                -0.42155698335425806,
+                0
+              ],
+              "epsilon": [
+                [
+                  0.9117763499790752,
+                  0
+                ],
+                [
+                  1.5,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ]
+              ],
+              "nanoseconds_per_evaluation": 740,
+              "rational": [
+                1.3333333333333333,
+                0
+              ],
+              "repetitions": 1,
+              "status": 0
+            },
+            "split_scaled_errors": [
+              3.5144589132296354e-16,
+              0.0
+            ]
+          }
+        ],
+        "error_definition": "complex absolute difference / (1 + reference complex magnitude)",
+        "reference_cache_policy": "fresh process per phase-space sample",
+        "reference_coefficient_mode": "integrated-only; --full-box-coefficients controls NinjaRS and does not enable original Ninja reconstruction tests",
+        "reference_precision": "binary64",
+        "reference_sampling_scale_policy": "Original Ninja's native per-cut scale; --mu-sampling-scale controls only NinjaRS.",
+        "scaled_tolerance": 1e-09,
+        "split_order": [
+          "cut_constructible_finite",
+          "rational"
+        ],
+        "split_policy": "Reported separately; different cut bases can transfer terms between the rational and cut-constructible pieces. Acceptance compares every total Laurent coefficient.",
+        "timings_are_acceptance_evidence": false
+      },
+      "cut_stop": 2,
+      "fixture": "bubble with supplied s=-2 and cut_stop=2",
+      "precision": {
+        "bits": 106,
+        "carrier": "double-float"
+      }
+    },
+    {
+      "comparison": {
+        "backend": "original Ninja with OneLOop",
+        "checks": [
+          {
+            "artifact": {
+              "MG5_aMC_v3_7_0": {
+                "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd",
+                "source": "release directory"
+              },
+              "compiler": "g++ (GCC) 15.3.0",
+              "generated_numerator_sha256": "d204bfeb3018ad91e5356e40cdbb5d861739d13685722f2b44993ee4168cbe96",
+              "libraries_sha256": {
+                "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b",
+                "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066"
+              },
+              "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+              "runner_sha256": "4e83946c3906a92cef4fc0fb6e0e3c2fd0fa0bbbf2698aeec267cbba36d2ed4c"
+            },
+            "eligible": true,
+            "lane": 0,
+            "laurent_scaled_errors": [
+              6.297743845506234e-16,
+              8.275113844157577e-17,
+              0.0
+            ],
+            "passed": true,
+            "reference": {
+              "cut_constructible": [
+                -1.2280670572300303,
+                0
+              ],
+              "epsilon": [
+                [
+                  -0.06140039056336355,
+                  0
+                ],
+                [
+                  0.4999999999999999,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ]
+              ],
+              "nanoseconds_per_evaluation": 1710,
+              "rational": [
+                1.1666666666666667,
+                0
+              ],
+              "repetitions": 1,
+              "status": 0
+            },
+            "split_scaled_errors": [
+              1.8526289244278485e-16,
+              1.1956247957501685e-16
+            ]
+          },
+          {
+            "artifact": {
+              "MG5_aMC_v3_7_0": {
+                "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd",
+                "source": "release directory"
+              },
+              "compiler": "g++ (GCC) 15.3.0",
+              "generated_numerator_sha256": "d204bfeb3018ad91e5356e40cdbb5d861739d13685722f2b44993ee4168cbe96",
+              "libraries_sha256": {
+                "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b",
+                "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066"
+              },
+              "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+              "runner_sha256": "4e83946c3906a92cef4fc0fb6e0e3c2fd0fa0bbbf2698aeec267cbba36d2ed4c"
+            },
+            "eligible": true,
+            "lane": 1,
+            "laurent_scaled_errors": [
+              7.354040034125921e-16,
+              9.596989709928466e-18,
+              0.0
+            ],
+            "passed": true,
+            "reference": {
+              "cut_constructible": [
+                -2.4787028816827665,
+                1.035393514156478e-18
+              ],
+              "epsilon": [
+                [
+                  -0.8120362150160998,
+                  1.035393514156478e-18
+                ],
+                [
+                  1.9999999999999998,
+                  1.035393514156478e-18
+                ],
+                [
+                  0,
+                  0
+                ]
+              ],
+              "nanoseconds_per_evaluation": 1751,
+              "rational": [
+                1.6666666666666667,
+                0
+              ],
+              "repetitions": 1,
+              "status": 0
+            },
+            "split_scaled_errors": [
+              3.9562381006720125e-16,
+              6.938893903907228e-17
+            ]
+          },
+          {
+            "artifact": {
+              "MG5_aMC_v3_7_0": {
+                "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd",
+                "source": "release directory"
+              },
+              "compiler": "g++ (GCC) 15.3.0",
+              "generated_numerator_sha256": "d204bfeb3018ad91e5356e40cdbb5d861739d13685722f2b44993ee4168cbe96",
+              "libraries_sha256": {
+                "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b",
+                "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066"
+              },
+              "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+              "runner_sha256": "4e83946c3906a92cef4fc0fb6e0e3c2fd0fa0bbbf2698aeec267cbba36d2ed4c"
+            },
+            "eligible": true,
+            "lane": 2,
+            "laurent_scaled_errors": [
+              1.1170717768621388e-16,
+              2.460443691850983e-16,
+              0.0
+            ],
+            "passed": true,
+            "reference": {
+              "cut_constructible": [
+                -1.6164773310144098,
+                -5.551115123125783e-17
+              ],
+              "epsilon": [
+                [
+                  -0.28760828339536215,
+                  -5.551115123125783e-17
+                ],
+                [
+                  1.114583333333333,
+                  -5.551115123125783e-17
+                ],
+                [
+                  0,
+                  0
+                ]
+              ],
+              "nanoseconds_per_evaluation": 1680,
+              "rational": [
+                1.3288690476190477,
+                0
+              ],
+              "repetitions": 1,
+              "status": 0
+            },
+            "split_scaled_errors": [
+              0.006903871299477086,
+              0.007756478523251679
+            ]
+          }
+        ],
+        "error_definition": "complex absolute difference / (1 + reference complex magnitude)",
+        "reference_cache_policy": "fresh process per phase-space sample",
+        "reference_coefficient_mode": "integrated-only; --full-box-coefficients controls NinjaRS and does not enable original Ninja reconstruction tests",
+        "reference_precision": "binary64",
+        "reference_sampling_scale_policy": "Original Ninja's native per-cut scale; --mu-sampling-scale controls only NinjaRS.",
+        "scaled_tolerance": 1e-09,
+        "split_order": [
+          "cut_constructible_finite",
+          "rational"
+        ],
+        "split_policy": "Reported separately; different cut bases can transfer terms between the rational and cut-constructible pieces. Acceptance compares every total Laurent coefficient.",
+        "timings_are_acceptance_evidence": false
+      },
+      "cut_stop": 1,
+      "fixture": "bubble",
+      "precision": {
+        "bits": 53,
+        "carrier": "f64"
+      }
+    },
+    {
+      "comparison": {
+        "backend": "original Ninja with OneLOop",
+        "checks": [
+          {
+            "artifact": {
+              "MG5_aMC_v3_7_0": {
+                "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd",
+                "source": "release directory"
+              },
+              "compiler": "g++ (GCC) 15.3.0",
+              "generated_numerator_sha256": "4002c0839dc21e2f14dc9c7288a866331fea237fe59298d4b8d48e09798e5198",
+              "libraries_sha256": {
+                "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b",
+                "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066"
+              },
+              "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+              "runner_sha256": "4e83946c3906a92cef4fc0fb6e0e3c2fd0fa0bbbf2698aeec267cbba36d2ed4c"
+            },
+            "eligible": true,
+            "lane": 0,
+            "laurent_scaled_errors": [
+              2.4047675645103638e-15,
+              1.6802286291942307e-14,
+              0.0
+            ],
+            "passed": true,
+            "reference": {
+              "cut_constructible": [
+                -0.3741843631761322,
+                -1.5871595069646447
+              ],
+              "epsilon": [
+                [
+                  -0.24681539497804234,
+                  -1.5871595069646447
+                ],
+                [
+                  -0.5000000000000009,
+                  8.731441495749936e-17
+                ],
+                [
+                  0,
+                  0
+                ]
+              ],
+              "nanoseconds_per_evaluation": 6700,
+              "rational": [
+                0.12736896819808985,
+                0
+              ],
+              "repetitions": 1,
+              "status": 0
+            },
+            "split_scaled_errors": [
+              0.02970981010187247,
+              0.06932668021957707
+            ]
+          }
+        ],
+        "error_definition": "complex absolute difference / (1 + reference complex magnitude)",
+        "reference_cache_policy": "fresh process per phase-space sample",
+        "reference_coefficient_mode": "integrated-only; --full-box-coefficients controls NinjaRS and does not enable original Ninja reconstruction tests",
+        "reference_precision": "binary64",
+        "reference_sampling_scale_policy": "Original Ninja's native per-cut scale; --mu-sampling-scale controls only NinjaRS.",
+        "scaled_tolerance": 1e-09,
+        "split_order": [
+          "cut_constructible_finite",
+          "rational"
+        ],
+        "split_policy": "Reported separately; different cut bases can transfer terms between the rational and cut-constructible pieces. Acceptance compares every total Laurent coefficient.",
+        "timings_are_acceptance_evidence": false
+      },
+      "cut_stop": 1,
+      "fixture": "triangle-reference",
+      "precision": {
+        "bits": 53,
+        "carrier": "f64"
+      }
+    },
+    {
+      "comparison": {
+        "backend": "original Ninja with OneLOop",
+        "checks": [
+          {
+            "artifact": {
+              "MG5_aMC_v3_7_0": {
+                "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd",
+                "source": "release directory"
+              },
+              "compiler": "g++ (GCC) 15.3.0",
+              "generated_numerator_sha256": "54377e485b63bdb9dd9770a9c59e2b900874a6782ca42eda8dcef17575244488",
+              "libraries_sha256": {
+                "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b",
+                "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066"
+              },
+              "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+              "runner_sha256": "4e83946c3906a92cef4fc0fb6e0e3c2fd0fa0bbbf2698aeec267cbba36d2ed4c"
+            },
+            "eligible": true,
+            "lane": 0,
+            "laurent_scaled_errors": [
+              9.401420363012052e-15,
+              3.5988718893570183e-16,
+              0.0
+            ],
+            "passed": true,
+            "reference": {
+              "cut_constructible": [
+                -0.019969261038359234,
+                0.051470313674944
+              ],
+              "epsilon": [
+                [
+                  -0.18663592770502596,
+                  0.051470313674944
+                ],
+                [
+                  -3.122502256758253e-16,
+                  -5.551115123125783e-17
+                ],
+                [
+                  0,
+                  0
+                ]
+              ],
+              "nanoseconds_per_evaluation": 17040,
+              "rational": [
+                -0.16666666666666674,
+                0
+              ],
+              "repetitions": 1,
+              "status": 0
+            },
+            "split_scaled_errors": [
+              1.0707298699407628e-14,
+              9.516197353929913e-17
+            ]
+          },
+          {
+            "artifact": {
+              "MG5_aMC_v3_7_0": {
+                "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd",
+                "source": "release directory"
+              },
+              "compiler": "g++ (GCC) 15.3.0",
+              "generated_numerator_sha256": "54377e485b63bdb9dd9770a9c59e2b900874a6782ca42eda8dcef17575244488",
+              "libraries_sha256": {
+                "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b",
+                "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066"
+              },
+              "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+              "runner_sha256": "4e83946c3906a92cef4fc0fb6e0e3c2fd0fa0bbbf2698aeec267cbba36d2ed4c"
+            },
+            "eligible": true,
+            "lane": 1,
+            "laurent_scaled_errors": [
+              3.7897319323896835e-15,
+              4.0193209768272013e-16,
+              0.0
+            ],
+            "passed": true,
+            "reference": {
+              "cut_constructible": [
+                -0.0243445007993097,
+                0.04743571124960891
+              ],
+              "epsilon": [
+                [
+                  -0.19101116746597635,
+                  0.04743571124960891
+                ],
+                [
+                  -3.400058012914542e-16,
+                  2.914335439641036e-16
+                ],
+                [
+                  0,
+                  0
+                ]
+              ],
+              "nanoseconds_per_evaluation": 17920,
+              "rational": [
+                -0.16666666666666666,
+                0
+              ],
+              "repetitions": 1,
+              "status": 0
+            },
+            "split_scaled_errors": [
+              4.288867490061583e-15,
+              0.0
+            ]
+          },
+          {
+            "artifact": {
+              "MG5_aMC_v3_7_0": {
+                "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd",
+                "source": "release directory"
+              },
+              "compiler": "g++ (GCC) 15.3.0",
+              "generated_numerator_sha256": "54377e485b63bdb9dd9770a9c59e2b900874a6782ca42eda8dcef17575244488",
+              "libraries_sha256": {
+                "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b",
+                "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066"
+              },
+              "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+              "runner_sha256": "4e83946c3906a92cef4fc0fb6e0e3c2fd0fa0bbbf2698aeec267cbba36d2ed4c"
+            },
+            "eligible": true,
+            "lane": 2,
+            "laurent_scaled_errors": [
+              1.3209909905195563e-14,
+              1.1704538084398069e-15,
+              0.0
+            ],
+            "passed": true,
+            "reference": {
+              "cut_constructible": [
+                -0.018328590336448448,
+                0.009053134046865169
+              ],
+              "epsilon": [
+                [
+                  -0.18499525700311517,
+                  0.009053134046865169
+                ],
+                [
+                  -1.3183898417423734e-16,
+                  8.326672684688674e-16
+                ],
+                [
+                  0,
+                  0
+                ]
+              ],
+              "nanoseconds_per_evaluation": 16780,
+              "rational": [
+                -0.1666666666666667,
+                0
+              ],
+              "repetitions": 1,
+              "status": 0
+            },
+            "split_scaled_errors": [
+              1.524437365437968e-14,
+              2.3790493384824782e-17
+            ]
+          }
+        ],
+        "error_definition": "complex absolute difference / (1 + reference complex magnitude)",
+        "reference_cache_policy": "fresh process per phase-space sample",
+        "reference_coefficient_mode": "integrated-only; --full-box-coefficients controls NinjaRS and does not enable original Ninja reconstruction tests",
+        "reference_precision": "binary64",
+        "reference_sampling_scale_policy": "Original Ninja's native per-cut scale; --mu-sampling-scale controls only NinjaRS.",
+        "scaled_tolerance": 1e-09,
+        "split_order": [
+          "cut_constructible_finite",
+          "rational"
+        ],
+        "split_policy": "Reported separately; different cut bases can transfer terms between the rational and cut-constructible pieces. Acceptance compares every total Laurent coefficient.",
+        "timings_are_acceptance_evidence": false
+      },
+      "cut_stop": 1,
+      "fixture": "box",
+      "precision": {
+        "bits": 53,
+        "carrier": "f64"
+      }
+    }
+  ],
+  "sampling_scale_regression": {
+    "automatic_scale": 247,
+    "automatic_max_scaled_error": 2.6531004073664003e-11,
+    "fixed_scale": 3,
+    "fixed_scaled_error": 2.5867550256356953e-09
+  },
+  "timings_are_acceptance_evidence": false,
+  "physical_integrated_acceptance": false,
+  "full_goal_complete": false
+}

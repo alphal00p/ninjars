@@ -64,6 +64,7 @@ pub(crate) fn export(
     ];
     let mut files = Vec::new();
     let mut entries = Vec::new();
+    let has_s_matrix = samples.iter().any(|sample| sample.s_matrix.is_some());
     for sample in samples {
         let n = sample.shifts.len();
         if !(1..=6).contains(&n) || n != sample.mass_squared.len() {
@@ -116,6 +117,58 @@ pub(crate) fn export(
         }
         let header_name = format!("sample-{:06}.hh", sample.lane);
         let input_name = format!("sample-{:06}.inputs", sample.lane);
+        let mut matrix_name = None;
+        let mut numeric_matrix = None;
+        let derived_matrix = if has_s_matrix && sample.s_matrix.is_none() {
+            Some(
+                sample
+                    .shifts
+                    .iter()
+                    .flat_map(|first| {
+                        sample.shifts.iter().map(move |second| {
+                            let difference = first.clone() - second.clone();
+                            difference.dot(&difference)
+                        })
+                    })
+                    .collect::<Vec<_>>(),
+            )
+        } else {
+            None
+        };
+        if let Some(matrix) = sample.s_matrix.as_ref().or(derived_matrix.as_ref()) {
+            if matrix.len() != n * n {
+                return Err("reference S-matrix has the wrong shape".into());
+            }
+            let values = matrix
+                .iter()
+                .enumerate()
+                .map(|(index, atom)| {
+                    numerical(
+                        atom,
+                        &format!("sample {} S-matrix {index}", sample.lane),
+                        true,
+                    )
+                    .map(|value| value.re)
+                })
+                .collect::<Result<Vec<_>>>()?;
+            for i in 0..n {
+                if values[i * n + i] != 0. || (0..i).any(|j| values[i * n + j] != values[j * n + i])
+                {
+                    return Err("reference S-matrix must be symmetric with a zero diagonal".into());
+                }
+            }
+            let name = format!("sample-{:06}.s-matrix", sample.lane);
+            let mut data = format!("{n}\n");
+            for row in values.chunks(n) {
+                for value in row {
+                    write!(data, "{value:.17e} ")?;
+                }
+                data.push('\n');
+            }
+            files.push((name.clone(), data));
+            matrix_name = Some(name);
+            numeric_matrix = Some(values);
+        }
         entries.push(json!({
             "lane": sample.lane,
             "header": header_name,
@@ -126,6 +179,9 @@ pub(crate) fn export(
             "full_numerator": full_numerator.to_canonical_string(),
             "shifts_binary64": numeric_shifts,
             "mass_squared_binary64": numeric_masses,
+            "s_matrix_input": matrix_name,
+            "s_matrix_binary64": numeric_matrix,
+            "s_matrix_source": if sample.s_matrix.is_some() {"supplied"} else if has_s_matrix {"derived_exact"} else {"momentum_components"},
         }));
         files.push((header_name, header));
         files.push((input_name, input));

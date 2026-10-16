@@ -16,7 +16,7 @@
     devShells.${system}.default = pkgs.mkShell {
       packages = [ rust ] ++ (with pkgs; [
         gcc gfortran gnumake pkg-config gmp mpfr libmpc
-        autoconf automake libtool perl m4 python3 gh git
+        autoconf automake libtool perl m4 (python3.withPackages (ps: [ ps.six ])) gh git
       ]);
       RUST_BACKTRACE = "1";
     };

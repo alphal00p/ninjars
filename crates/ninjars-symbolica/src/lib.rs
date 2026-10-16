@@ -11,6 +11,7 @@ mod dual_polynomial;
 mod high_cuts;
 mod integration;
 mod kernel;
+mod kinematics;
 mod laurent;
 mod masters;
 mod pentagon_kernels;
@@ -34,6 +35,7 @@ pub use denominators::{DenominatorEvaluator, DenominatorExpansion, DualDenominat
 pub use dual_polynomial::DualPolynomialNumerator;
 pub use high_cuts::{SymbolicaDualHighCuts, SymbolicaHighCuts};
 pub use integration::{SymbolicaDualIntegrationKernels, SymbolicaIntegrationKernels};
+pub use kinematics::{SymbolicaDualSamplingScales, SymbolicaSamplingScales};
 pub use laurent::{DualLaurentDivisionEvaluator, LaurentDivision, LaurentDivisionEvaluator};
 pub use masters::{SymbolicaDualMasters, SymbolicaMasters};
 pub use pentagon_kernels::{SymbolicaDualPentagonKernels, SymbolicaPentagonKernels};

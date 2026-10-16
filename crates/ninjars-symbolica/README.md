@@ -65,12 +65,24 @@ provider's validated domains.
 For four or more propagators, use `evaluate_batch_with_high_cuts` with a
 `SymbolicaHighCuts` provider and one nonzero mu-squared sampling scale per lane.
 The scale should be comparable to the largest squared mass or invariant.
+`SymbolicaSamplingScales` and `SymbolicaDualSamplingScales` select that magnitude
+in batches without reducing precision; the Dual provider returns a constant in
+the supplied shape because this is an auxiliary sampling choice.
 `with_box_options(BoxReductionOptions { coefficients, mu_extraction })` selects
 integrated or full box coefficients, and expansion or finite-mu sampling.
 The default is integrated coefficients with mu expansion; it avoids pentagons.
 Other modes construct pentagons only when needed for subtraction. Box integration
 is `c0*D0-c4/6`; pentagon residues have no direct master contribution. Box requests
 to `ResidueIntegrator` use `basis: None`; lower cuts require their extraction basis.
+
+`set_cut_stop(N)` omits cuts smaller than N and preserves accumulated results;
+0/1 request full reduction. `AmplitudeInput` accepts an optional lane-major n×n
+S-matrix through `evaluate_batch_with_inputs`, or `evaluate_batch_with_low_cuts`
+when high cuts are absent. Its entries are `(V_i-V_j)^2`, with zero diagonal and
+symmetry in every Dual component. The supplied invariants enter both master
+arguments and rational weights; cut geometry still uses the momenta. Shape
+errors leave all results/statuses unchanged. Invalid numerical matrices isolate
+the affected lanes and preserve their accumulated results.
 
 Run `cargo run -p ninjars-symbolica --example bubble` for a complete batched
 rank-three example. The example provides a 128 MiB worker stack for master
@@ -117,7 +129,7 @@ depends on the selected residue basis, as in original Ninja.
 Kernel inputs and preconditions are documented on their public types. Low-level
 division and projection expect nonsingular active rows. The triangle coordinator
 compacts invalid rows and restores cut/lane order. A scaled small-denominator
-test, precision rescue, full reconstruction diagnostics and S-matrix/cut controls
+test, precision rescue and full reconstruction diagnostics
 remain unfinished. Bubble coordination
 subtracts every containing triangle; tadpole coordination subtracts triangle and
 corrected bubble parents. Tadpoles expose an explicit mask for the integrated

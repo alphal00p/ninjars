@@ -55,6 +55,17 @@ pub enum EvaluationStatus {
     NonFiniteResult,
 }
 
+/// Borrowed lane-major numerical inputs, including an optional exact S-matrix.
+pub struct AmplitudeInput<'a, T> {
+    pub shifts: &'a [FourMomentum<T>],
+    pub masses_squared: &'a [T],
+    pub scales_squared: &'a [T],
+    pub sampling_scales: &'a [T],
+    /// Lane-major n×n matrices of (V_i−V_j)². Symmetry/zero diagonals
+    /// include every Dual component. Rounded momenta need not reproduce them.
+    pub s_matrix: Option<&'a [T]>,
+}
+
 /// Ninja-style accumulation over a fixed phase-space batch.
 ///
 /// This implementation accepts up to six propagators and rank n+1.
@@ -66,6 +77,7 @@ pub enum EvaluationStatus {
 pub struct Amplitude<T, K: AmplitudeKernels<T>> {
     topology: Topology,
     lanes: usize,
+    minimum_cut: usize,
     kernels: K,
     zero: T,
     box_stage: Option<BoxReducer<T, K::Boxes>>,
@@ -151,6 +163,7 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
         Ok(Self {
             topology,
             lanes,
+            minimum_cut: 1,
             kernels,
             box_stage,
             pentagon,
@@ -177,6 +190,14 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
     }
     pub fn lanes(&self) -> usize {
         self.lanes
+    }
+    /// Stop after this cut size, assuming all lower cuts contribute zero.
+    /// Values 0/1 retain the full reduction. Existing accumulated values remain.
+    pub fn set_cut_stop(&mut self, minimum_cut: usize) {
+        self.minimum_cut = minimum_cut.max(1);
+    }
+    pub fn cut_stop(&self) -> usize {
+        self.minimum_cut
     }
     /// `[finite, single pole, double pole, cut-constructible finite, rational]`.
     pub fn results(&self) -> &[IntegratedContribution<T>] {
@@ -239,16 +260,42 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
         geometry: &mut C,
         masters: &mut M,
     ) -> Result<()> {
-        if self.topology.propagators() > 3 {
+        self.evaluate_batch_with_low_cuts(
+            AmplitudeInput {
+                shifts,
+                masses_squared,
+                scales_squared,
+                sampling_scales: &[],
+                s_matrix: None,
+            },
+            numerator,
+            geometry,
+            masters,
+        )
+    }
+
+    /// Borrowed-input variant for evaluations requiring no four/five-cut stages.
+    /// This also accepts a supplied S-matrix without constructing a high-cut provider.
+    pub fn evaluate_batch_with_low_cuts<
+        N: Numerator<T>,
+        C: CutProvider<T>,
+        M: MasterProvider<T>,
+    >(
+        &mut self,
+        input: AmplitudeInput<'_, T>,
+        numerator: &mut N,
+        geometry: &mut C,
+        masters: &mut M,
+    ) -> Result<()> {
+        if (self.minimum_cut <= 4 && self.box_stage.is_some())
+            || (self.minimum_cut <= 5 && self.pentagon.is_some())
+        {
             return Err(Error::Unsupported(
                 "four or more propagators require evaluate_batch_with_high_cuts".into(),
             ));
         }
-        self.evaluate_batch_with_high_cuts(
-            shifts,
-            masses_squared,
-            scales_squared,
-            &[],
+        self.evaluate_batch_with_inputs(
+            input,
             numerator,
             geometry,
             &mut UnavailableHighCuts,
@@ -275,6 +322,43 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
         high_geometry: &mut H,
         masters: &mut M,
     ) -> Result<()> {
+        self.evaluate_batch_with_inputs(
+            AmplitudeInput {
+                shifts,
+                masses_squared,
+                scales_squared,
+                sampling_scales,
+                s_matrix: None,
+            },
+            numerator,
+            geometry,
+            high_geometry,
+            masters,
+        )
+    }
+
+    /// Evaluate with borrowed invariant overrides. The matrix feeds both master
+    /// arguments and rational-weight kernels; geometry still uses the momenta.
+    pub fn evaluate_batch_with_inputs<
+        N: Numerator<T>,
+        C: CutProvider<T>,
+        H: HighCutProvider<T>,
+        M: MasterProvider<T>,
+    >(
+        &mut self,
+        input: AmplitudeInput<'_, T>,
+        numerator: &mut N,
+        geometry: &mut C,
+        high_geometry: &mut H,
+        masters: &mut M,
+    ) -> Result<()> {
+        let AmplitudeInput {
+            shifts,
+            masses_squared,
+            scales_squared,
+            sampling_scales,
+            s_matrix,
+        } = input;
         let n = self.topology.propagators();
         let lanes = self.lanes;
         BatchShape {
@@ -292,7 +376,14 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
             columns: 1,
         }
         .validate("amplitude scales", scales_squared.len())?;
-        if self.box_stage.is_some() {
+        if let Some(matrix) = s_matrix {
+            BatchShape {
+                rows: lanes,
+                columns: n * n,
+            }
+            .validate("amplitude S-matrix", matrix.len())?;
+        }
+        if self.minimum_cut <= 4 && self.box_stage.is_some() {
             BatchShape {
                 rows: lanes,
                 columns: 1,
@@ -327,7 +418,24 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                 }
             }
         }
-        if let Some(stage) = &mut self.pentagon {
+        if self.minimum_cut > 5 {
+            self.pentagons.clear();
+        }
+        if self.minimum_cut > 4 {
+            self.boxes.clear();
+        }
+        if self.minimum_cut > 3 {
+            self.triangles.clear();
+        }
+        if self.minimum_cut > 2 {
+            self.bubbles.clear();
+        }
+        if self.minimum_cut > 1 {
+            self.tadpoles.clear();
+        }
+        if self.minimum_cut <= 5
+            && let Some(stage) = &mut self.pentagon
+        {
             self.pentagons.resize(
                 stage.cut_count() * lanes,
                 CutOutcome::Unstable(CutFailure::NonFiniteResult),
@@ -341,7 +449,9 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                 &mut self.pentagons,
             )?;
         }
-        if let Some(stage) = &mut self.box_stage {
+        if self.minimum_cut <= 4
+            && let Some(stage) = &mut self.box_stage
+        {
             self.boxes.resize(
                 stage.cut_count() * lanes,
                 CutOutcome::Unstable(CutFailure::NonFiniteResult),
@@ -358,7 +468,9 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                 &mut self.boxes,
             )?;
         }
-        if let Some(stage) = &mut self.triangle {
+        if self.minimum_cut <= 3
+            && let Some(stage) = &mut self.triangle
+        {
             self.triangles.resize(
                 stage.cut_count() * lanes,
                 CutOutcome::Unstable(CutFailure::NonFiniteResult),
@@ -372,7 +484,9 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                 &mut self.triangles,
             )?;
         }
-        if let Some(stage) = &mut self.bubble {
+        if self.minimum_cut <= 2
+            && let Some(stage) = &mut self.bubble
+        {
             self.bubbles.resize(
                 stage.cut_count() * lanes,
                 CutOutcome::Unstable(CutFailure::NonFiniteResult),
@@ -388,7 +502,9 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                 &mut self.bubbles,
             )?;
         }
-        if let Some(stage) = &mut self.tadpole {
+        if self.minimum_cut <= 1
+            && let Some(stage) = &mut self.tadpole
+        {
             self.tadpoles.resize(
                 stage.cut_count() * lanes,
                 CutOutcome::Unstable(CutFailure::NonFiniteResult),
@@ -407,12 +523,35 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
             )?;
         }
         let mut statuses = vec![EvaluationStatus::Success; lanes];
+        // Five-cuts have no direct master contribution, but an executed failed
+        // five-cut must still invalidate its lane, including when stopping at 5.
+        if lanes != 0 {
+            for ((cut_index, _), outcomes) in self
+                .topology
+                .cuts()
+                .iter()
+                .enumerate()
+                .filter(|(_, cut)| cut.partition.len() == 5)
+                .zip(self.pentagons.chunks_exact(lanes))
+            {
+                for (lane, outcome) in outcomes.iter().enumerate() {
+                    if let CutOutcome::Unstable(failure) = outcome
+                        && statuses[lane] == EvaluationStatus::Success
+                    {
+                        statuses[lane] = EvaluationStatus::CutFailed {
+                            cut_index,
+                            failure: *failure,
+                        };
+                    }
+                }
+            }
+        }
         let cuts = self.topology.cuts().len();
         self.contributions
             .resize_with(cuts * lanes, || std::array::from_fn(|_| self.zero.clone()));
         self.contributions
             .fill(std::array::from_fn(|_| self.zero.clone()));
-        for size in (1..=4).rev() {
+        for size in (self.minimum_cut..=4).rev() {
             let Some(integration) = &mut self.integration[size - 1] else {
                 continue;
             };
@@ -423,6 +562,7 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                     shifts,
                     masses_squared,
                     scales_squared,
+                    s_matrix,
                     &self.boxes,
                     integration,
                     masters,
@@ -436,6 +576,7 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                     shifts,
                     masses_squared,
                     scales_squared,
+                    s_matrix,
                     &self.triangles,
                     integration,
                     masters,
@@ -449,6 +590,7 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                     shifts,
                     masses_squared,
                     scales_squared,
+                    s_matrix,
                     &self.bubbles,
                     integration,
                     masters,
@@ -462,6 +604,7 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                     shifts,
                     masses_squared,
                     scales_squared,
+                    s_matrix,
                     &self.tadpoles,
                     integration,
                     masters,
@@ -583,6 +726,7 @@ fn integrate_stage<
     shifts: &[FourMomentum<T>],
     masses: &[T],
     scales: &[T],
+    s_matrix: Option<&[T]>,
     residues: &[CutOutcome<R>],
     integration: &mut ResidueIntegrator<T, K>,
     provider: &mut M,
@@ -623,6 +767,7 @@ fn integrate_stage<
                     coefficients: residue.coefficients(),
                     basis: residue.basis(),
                     scale_squared: &scales[lane],
+                    s_matrix: s_matrix.map(|matrix| &matrix[lane * n * n..(lane + 1) * n * n]),
                 }),
             _ => (),
         }

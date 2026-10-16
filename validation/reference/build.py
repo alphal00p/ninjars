@@ -98,6 +98,8 @@ def main():
          "-o", executable], build)
     metadata["libraries_sha256"] = {path.name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for path in libraries}
+    metadata["runner_sha256"] = hashlib.sha256(
+        (ROOT / "validation/reference/tensor_runner.cc").read_bytes()).hexdigest()
     executable.with_suffix(".json").write_text(json.dumps(metadata, indent=2) + "\n")
     print(executable)
 

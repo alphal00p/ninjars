@@ -82,7 +82,8 @@ pub fn prepare_diagram(
     }
     let full_family = diagram.propagator_family(kinematics)?;
     let ordered = diagram.ordered_propagators(kinematics)?;
-    let mut overall_factor = diagram.overall_factor().clone();
+    let mut overall_factor =
+        feynkit_graph::expressions::evaluate_overall_factor(diagram.overall_factor().as_view());
     let mut propagator_edges = Vec::new();
     let mut quadratics = Vec::new();
     let mut denominators = Vec::new();

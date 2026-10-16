@@ -5,6 +5,7 @@
 
 mod components;
 mod numerator;
+mod physical;
 mod prepare;
 
 pub use feynkit_graph::symbols;
@@ -12,4 +13,5 @@ pub use feynkit_graph::{EdgeId, FeynmanDiagram, IntegralFamily, QuadraticMomentu
 pub use feynkit_kinematics::{FourMomentum, Kinematics};
 pub use feynkit_model::Model;
 pub use numerator::{NumeratorMode, contract_numerator};
+pub use physical::{PhysicalPreparationError, prepare_top_higgs_gluons};
 pub use prepare::{PreparationError, PreparedIntegrand, prepare_diagram, prepare_dot};

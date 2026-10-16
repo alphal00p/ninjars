@@ -12,6 +12,7 @@ mod bubbles;
 mod cuts;
 mod high_cuts;
 mod integration;
+mod kinematics;
 mod masters;
 mod numerator;
 mod pentagons;
@@ -19,7 +20,7 @@ mod tadpoles;
 mod topology;
 mod triangles;
 
-pub use amplitude::{Amplitude, AmplitudeKernels, EvaluationStatus};
+pub use amplitude::{Amplitude, AmplitudeInput, AmplitudeKernels, EvaluationStatus};
 pub use batch::{BatchShape, SampleId};
 pub use boxes::{
     BoxCoefficientMode, BoxDivisionRequest, BoxMuDivisionRequest, BoxMuMode, BoxProjectionRequest,
@@ -42,6 +43,7 @@ pub use integration::{
     IntegratedContribution, IntegrationKernels, IntegrationStatus, ResidueIntegrationRequest,
     ResidueIntegrator,
 };
+pub use kinematics::{SamplingScaleProvider, SamplingScaleSource, SamplingScaleStatus};
 pub use masters::{MasterFailure, MasterIntegral, MasterProvider, MasterRequest, MasterStatus};
 pub use numerator::{ExpansionKind, ExpansionRequest, Numerator, NumeratorRequest};
 pub use pentagons::{

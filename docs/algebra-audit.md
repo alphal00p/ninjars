@@ -35,3 +35,20 @@ including the sum over all cuts and the previous accumulated result. Core Rust
 code schedules rows, copies values and checks statuses; numerical sums and
 products execute in Symbolica evaluators. A master weight is skipped only when
 every scalar or Dual component is zero.
+
+## Automatic sampling scales and supplied invariants
+
+The public FeynKit `FourMomentum::dot` API, its `momentum.rs` implementation,
+and existing graph/cut usages supply invariant construction. Symbolica's public
+`AtomCore::abs`, evaluator implementation and Numerica complex norm/`hypot`
+implementation supply magnitudes without overflow-prone squaring in NinjaRS.
+Sampling providers compile these exact expressions through the existing
+`ExactKernel` and `BatchExpressionEvaluator`. Selecting the greatest magnitude
+is numerical control flow; it uses the primal at working precision and returns
+a constant with the original Dual shape. No derivative algebra is introduced.
+Only an all-zero kinematic scale receives the unit fallback.
+
+An optional supplied S-matrix replaces the generated invariant columns before
+both master arguments and rational weights are evaluated. Copying those columns
+adds no algebra. Matrix symmetry, zero diagonals and finiteness include all Dual
+components; primal-only equality is deliberately insufficient.

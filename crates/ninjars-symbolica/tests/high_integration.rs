@@ -175,6 +175,7 @@ fn ordered_d0_arguments_scales_and_failed_tail_rows_preserve_history() {
                 coefficients: &coefficients[lane],
                 basis: None,
                 scale_squared: &scales[lane],
+                s_matrix: None,
             })
             .collect();
         let expected = (0..lanes)
@@ -345,6 +346,7 @@ fn rational_box_integrates_all_mixed_components_without_dual_d0() {
                 coefficients: &coefficients[lane],
                 basis: None,
                 scale_squared: &scale,
+                s_matrix: None,
             })
             .collect();
         let sentinel = dual([c(77.); 5]);
@@ -389,6 +391,7 @@ fn rational_box_integrates_all_mixed_components_without_dual_d0() {
         coefficients: &coefficients,
         basis: None,
         scale_squared: &scale,
+        s_matrix: None,
     };
     assert!(invalid.validate(3, 15).is_err());
 }

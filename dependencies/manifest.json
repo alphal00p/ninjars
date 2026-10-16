@@ -24,18 +24,27 @@
       "patches": [
         {
           "path": "dependencies/patches/feynkit-shared-types.patch",
-          "sha256": "6b43c6c42c70e684c1748cc992ffd9c9c311e7868fd839cc5f557e7f2fc71f55"
+          "sha256": "7bc15975562034a01a5eb1d1ebe662f9c5c44697ebac3ecf5935e992118e39d6"
         }
       ],
       "patched_revisions": [
-        "66f59dd98c67a0b905145cad5ace1585df41fd72"
+        "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
       ]
     },
     {
       "name": "oneloopmaster",
       "path": "references/oneloopmaster",
       "url": "https://github.com/alphal00p/oneloopmaster.git",
-      "revision": "45cf79e6c8d1e052f655ca4e26ff299b661986a6"
+      "revision": "45cf79e6c8d1e052f655ca4e26ff299b661986a6",
+      "patches": [
+        {
+          "path": "dependencies/patches/oneloopmaster-complex-seeds.patch",
+          "sha256": "cea5c3056339811250951efe07ea011f28cc24beda845b1c9028a7b28f8b4610"
+        }
+      ],
+      "patched_revisions": [
+        "606974150011332cfea677f70940f9228e24c9e3"
+      ]
     },
     {
       "name": "ninja-reference",

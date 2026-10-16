@@ -47,6 +47,9 @@ pub struct ExpansionRequest<'a, T> {
 ///
 /// Implementations must use each request's lane to select external coefficients.
 /// Output is request-major; expansion columns follow `ExpansionKind` exactly.
+/// A callback cache must include lane, partition, expansion kind and sample,
+/// together with the current inputs/parameter generation. `SampleId` alone is
+/// not globally unique across reduction stages or successive evaluations.
 pub trait Numerator<T> {
     fn rank(&self) -> usize;
     fn evaluate_batch(

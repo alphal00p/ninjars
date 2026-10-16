@@ -56,6 +56,7 @@ fn bubble_null_moments_match_original_ninja_integrals() {
             coefficients,
             basis: Some(&basis),
             scale_squared: &scale,
+            s_matrix: None,
         })
         .collect();
     let mut output = [[c(99.); 5]; 3];
@@ -126,6 +127,7 @@ fn explicit_mu_terms_skip_zero_master_weights_and_keep_rational_separation() {
             coefficients,
             basis: Some(&basis),
             scale_squared: &scale,
+            s_matrix: None,
         })
         .collect();
     let mut output = [[c(99.); 5]; 2];
@@ -202,6 +204,7 @@ fn compact_master_batches_and_transactional_failed_rows() {
                 coefficients: &coefficients[lane],
                 basis: Some(&basis),
                 scale_squared: &scales[lane],
+                s_matrix: None,
             })
             .collect();
         let mut output = vec![[c(77.); 5]; lanes];
@@ -289,6 +292,7 @@ fn derivative_only_weights_retain_higher_mixed_master_products() {
         coefficients: &coefficients,
         basis: Some(&basis),
         scale_squared: &one,
+        s_matrix: None,
     }];
     let kernels = SymbolicaDualIntegrationKernels::new(1, false, 0., &zero).unwrap();
     let mut integration = ResidueIntegrator::new(kernels, zero.clone());

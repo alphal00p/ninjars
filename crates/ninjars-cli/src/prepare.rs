@@ -27,6 +27,8 @@ pub(crate) struct PreparedSample {
     pub overall_factor: Atom,
     pub shifts: Vec<FourMomentum<Atom>>,
     pub mass_squared: Vec<Atom>,
+    /// Optional row-major n×n matrix in prepared propagator order.
+    pub s_matrix: Option<Vec<Atom>>,
     pub parameters: Vec<Atom>,
 }
 
@@ -80,6 +82,8 @@ struct Fixture {
 #[serde(deny_unknown_fields)]
 struct Sample {
     external_momenta: BTreeMap<usize, [String; 4]>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    s_matrix: Option<Vec<Vec<String>>>,
 }
 
 fn one() -> String {
@@ -315,12 +319,20 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
                 .map(&specialize)
                 .collect::<Vec<_>>();
             let overall_factor = specialize(&prepared.overall_factor);
+            let s_matrix = sample.s_matrix.as_ref().map(|matrix| -> Result<Vec<Atom>> {
+                let n = shifts.len();
+                if matrix.len() != n || matrix.iter().any(|row| row.len() != n) {
+                    return Err(format!("sample {lane}: s_matrix must contain exactly {n} rows of {n} entries in prepared propagator order").into());
+                }
+                matrix.iter().flatten().map(|expression| parse(expression).map(|atom| specialize(&atom))).collect()
+            }).transpose()?;
             let exact = PreparedSample {
                 lane,
                 numerator,
                 overall_factor,
                 shifts,
                 mass_squared,
+                s_matrix,
                 parameters: prepared
                     .family
                     .external_momenta()
@@ -333,6 +345,7 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
                 "numerator": canonical(&exact.numerator),
                 "shifts": exact.shifts.iter().map(|vector| vector.components().map(canonical)).collect::<Vec<_>>(),
                 "mass_squared": exact.mass_squared.iter().map(canonical).collect::<Vec<_>>(),
+                "s_matrix": exact.s_matrix.as_ref().map(|matrix| matrix.chunks(exact.shifts.len()).map(|row| row.iter().map(canonical).collect::<Vec<_>>()).collect::<Vec<_>>()),
                 "overall_factor": canonical(&exact.overall_factor),
             }));
             exact_samples.push(exact);

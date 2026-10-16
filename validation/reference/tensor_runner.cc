@@ -4,6 +4,8 @@
 #include <ninja/avholo.hh>
 #include <chrono>
 #include <cmath>
+#include <cstdlib>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -27,7 +29,40 @@ void complex_json(const ninja::Complex &value) {
 }
 }
 
-int main() {
+int main(int argc, char **argv) {
+  int cut_stop = 1;
+  bool mu_expansion = true;
+  unsigned matrix_size = 0;
+  std::vector<ninja::Real> matrix;
+  for (int arg = 1; arg < argc; ++arg) {
+    const std::string option(argv[arg]);
+    if (option == "--cut-stop" && arg + 1 < argc) {
+      char *end = 0;
+      const long value = std::strtol(argv[++arg], &end, 10);
+      if (!*argv[arg] || *end || value < 0 || value > 6) return 2;
+      cut_stop = static_cast<int>(value);
+    } else if (option == "--mu-sampling") {
+      mu_expansion = false;
+    } else if (option == "--s-matrix" && arg + 1 < argc) {
+      std::ifstream input(argv[++arg]);
+      if (!(input >> matrix_size) || matrix_size == 0 || matrix_size > 6) return 2;
+      matrix.resize(matrix_size * matrix_size);
+      for (unsigned i = 0; i < matrix.size(); ++i) {
+        if (!(input >> matrix[i]) || !std::isfinite(matrix[i])) return 2;
+      }
+      std::string extra;
+      if (input >> extra) return 2;
+      for (unsigned i = 0; i < matrix_size; ++i) {
+        if (matrix[i * matrix_size + i] != 0) return 2;
+        for (unsigned j = 0; j < i; ++j) {
+          if (matrix[i * matrix_size + j] != matrix[j * matrix_size + i]) return 2;
+        }
+      }
+    } else {
+      std::cerr << "invalid runner option\n";
+      return 2;
+    }
+  }
   ninja::setVerbosity(ninja::Verbose::NONE);
   ninja::setTest(ninja::Test::NONE);
   std::cout << std::setprecision(std::numeric_limits<double>::max_digits10);
@@ -80,6 +115,11 @@ int main() {
 #endif
     ninja::Amplitude<ninja::ComplexMasses> amplitude(n, rank, shifts.data(), masses.data());
     amplitude.setRenormalizationScale(scale);
+    amplitude.setCutStop(cut_stop).useMuExpansion(mu_expansion);
+    if (matrix_size) {
+      if (matrix_size != n) return 2;
+      amplitude.setSMatrix(matrix.data());
+    }
     const int warm_status = amplitude.evaluate(numerator);
     int status = warm_status;
     const auto start = std::chrono::steady_clock::now();
