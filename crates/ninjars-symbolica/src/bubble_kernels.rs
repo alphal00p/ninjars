@@ -3,6 +3,7 @@
 use crate::{
     DenominatorExpansion, LaurentDivision, ResidueProjection, TriangleBubbleSubtraction,
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor},
+    value_checks::{DualChecks, OrdinaryChecks, ValueChecks},
 };
 use ninjars::{
     BatchShape, BubbleCut, BubbleDivisionRequest, BubbleReductionKernels,
@@ -11,7 +12,7 @@ use ninjars::{
 };
 use symbolica::{atom::Atom, domains::dual::DualNumber, evaluate::EvaluationDomain, symbol};
 
-struct Engine<V, K> {
+struct Engine<V, K, Checks> {
     n: usize,
     rank: usize,
     layout: LaurentDivision,
@@ -25,9 +26,7 @@ struct Engine<V, K> {
     correction: K,
     subtraction: K,
     zero: V,
-    finite: fn(&V) -> bool,
-    nonzero: fn(&V) -> bool,
-    shape_matches: fn(&V, &V) -> bool,
+    checks: std::marker::PhantomData<fn() -> Checks>,
     input: Vec<V>,
     denominators: Vec<V>,
     projections: Vec<V>,
@@ -70,15 +69,16 @@ fn append_denominator<V: Clone>(
     output.push(masses[line].clone());
 }
 
-impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
+impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Checks> {
+    fn values_are_finite(&self, values: &[V]) -> bool {
+        values.iter().all(Checks::finite)
+    }
+
     fn new(
         n: usize,
         rank: usize,
         prototype: &V,
         mut compile: impl FnMut(&ExactKernel) -> Result<K>,
-        finite: fn(&V) -> bool,
-        nonzero: fn(&V) -> bool,
-        shape_matches: fn(&V, &V) -> bool,
     ) -> Result<Self> {
         let layout = LaurentDivision::new(n, rank, 2)?;
         let denominator = compile(&DenominatorExpansion::new(2)?.exact)?;
@@ -154,9 +154,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             correction,
             subtraction,
             zero: prototype.zero(),
-            finite,
-            nonzero,
-            shape_matches,
+            checks: std::marker::PhantomData,
             input: Vec::new(),
             denominators: Vec::new(),
             projections: Vec::new(),
@@ -167,7 +165,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
     }
 
     fn valid(&self, value: &V) -> bool {
-        (self.shape_matches)(value, &self.zero) && (self.finite)(value)
+        Checks::shape_matches(value, &self.zero) && Checks::finite(value)
     }
 
     fn swapped(&mut self, cuts: &[&BubbleCut<V>], output: &mut [FourMomentum<V>]) -> Result<()> {
@@ -268,8 +266,12 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
         self.active.clear();
         for (index, &row) in self.eligible.iter().enumerate() {
             let den = &self.denominators[index * uncut * 7..(index + 1) * uncut * 7];
-            stable[row] = den.iter().all(self.finite)
-                && den.as_chunks::<7>().0.iter().all(|d| (self.nonzero)(&d[0]));
+            stable[row] = den.iter().all(Checks::finite)
+                && den
+                    .as_chunks::<7>()
+                    .0
+                    .iter()
+                    .all(|d| Checks::nonzero(&d[0]));
             if stable[row] {
                 self.active.push(row);
                 self.input
@@ -283,7 +285,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             .evaluate(&self.input, &mut self.values, self.active.len())?;
         for (index, &row) in self.active.iter().enumerate() {
             let values = &self.values[index * width..(index + 1) * width];
-            stable[row] = values.iter().all(self.finite);
+            stable[row] = values.iter().all(Checks::finite);
             if stable[row] {
                 output[row * width..(row + 1) * width].clone_from_slice(values);
             }
@@ -388,7 +390,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
         for (index, &row) in self.eligible.iter().enumerate() {
             let den = &self.denominators[index * 7..(index + 1) * 7];
             let proj = &self.projections[index * 8..(index + 1) * 8];
-            stable[row] = den.iter().chain(proj).all(self.finite) && (self.nonzero)(&den[0]);
+            stable[row] = den.iter().chain(proj).all(Checks::finite) && Checks::nonzero(&den[0]);
             if stable[row] {
                 self.active.push(row);
                 self.input
@@ -404,7 +406,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             .evaluate(&self.input, &mut self.values, self.active.len())?;
         for (index, &row) in self.active.iter().enumerate() {
             let values = &self.values[index * width..(index + 1) * width];
-            stable[row] = values.iter().all(self.finite);
+            stable[row] = values.iter().all(Checks::finite);
             if stable[row] {
                 output[row * width..(row + 1) * width].clone_from_slice(values);
             }
@@ -468,7 +470,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
 /// Bubble reduction arithmetic, with exact-zero/nonfinite isolation. Scaled
 /// conditioning checks and precision rescue remain separate acceptance work.
 pub struct SymbolicaBubbleKernels<T> {
-    engine: Engine<Complex<T>, CompiledKernel<T>>,
+    engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks>,
 }
 impl<T: Real + SingleFloat> SymbolicaBubbleKernels<T>
 where
@@ -477,22 +479,14 @@ where
     pub fn new(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
         let zero = Complex::new(prototype.zero(), prototype.zero());
         Ok(Self {
-            engine: Engine::new(
-                propagators,
-                rank,
-                &zero,
-                |exact| exact.compile(&prototype),
-                |v| v.is_finite(),
-                |v| !v.is_fully_zero(),
-                |_, _| true,
-            )?,
+            engine: Engine::new(propagators, rank, &zero, |exact| exact.compile(&prototype))?,
         })
     }
 }
 
 /// Static/dynamic Dual execution of the same exact bubble graphs.
 pub struct SymbolicaDualBubbleKernels<T, D> {
-    engine: Engine<D, CompiledDualKernel<T, D>>,
+    engine: Engine<D, CompiledDualKernel<T, D>, DualChecks<T>>,
 }
 impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualBubbleKernels<T, D>
 where
@@ -500,15 +494,9 @@ where
 {
     pub fn new(propagators: usize, rank: usize, prototype: T, dual: &D) -> Result<Self> {
         Ok(Self {
-            engine: Engine::new(
-                propagators,
-                rank,
-                dual,
-                |exact| exact.compile_dual(&prototype, dual),
-                |v| v.values().iter().all(|x| x.is_finite()),
-                |v| !v.values()[0].is_fully_zero(),
-                |v, p| v.values().len() == p.values().len() && v.get_shape() == p.get_shape(),
-            )?,
+            engine: Engine::new(propagators, rank, dual, |exact| {
+                exact.compile_dual(&prototype, dual)
+            })?,
         })
     }
 }
@@ -526,7 +514,7 @@ macro_rules! implementation {
             fn triangle_corrections_batch(&mut self,requests:&[BubbleTriangleCorrectionRequest<'_,$value>],output:&mut[$value],stable:&mut[bool])->Result<()> {self.engine.corrections(requests,output,stable)}
             fn subtract_batch(&mut self,quotients:&[$value],corrections:&[$value],output:&mut[$value],rows:usize)->Result<()> {self.engine.subtract(quotients,corrections,output,rows)}
             fn project_batch(&mut self,quotients:&[$value],e12:&[$value],output:&mut[$value])->Result<()> {self.engine.project(quotients,e12,output)}
-            fn values_are_finite(&self,values:&[$value])->bool {values.iter().all(self.engine.finite)}
+            fn values_are_finite(&self,values:&[$value])->bool {self.engine.values_are_finite(values)}
         }
     };
 }

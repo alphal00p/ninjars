@@ -3,6 +3,7 @@
 use crate::{
     DenominatorExpansion, LaurentDivision, TadpoleSubtraction,
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor},
+    value_checks::{DualChecks, OrdinaryChecks, ValueChecks},
 };
 use ninjars::{
     BatchShape, Complex, CutFailure, Error, ExpansionKind, FloatLike, FourMomentum, Real, Result,
@@ -11,7 +12,7 @@ use ninjars::{
 };
 use symbolica::{atom::Atom, domains::dual::DualNumber, evaluate::EvaluationDomain, symbol};
 
-struct Engine<V, K> {
+struct Engine<V, K, Checks> {
     topology: Topology,
     layout: LaurentDivision,
     mask: Vec<bool>,
@@ -26,9 +27,7 @@ struct Engine<V, K> {
     correction_map: Vec<usize>,
     extras: Vec<Vec<usize>>,
     zero: V,
-    finite: fn(&V) -> bool,
-    nonzero: fn(&V) -> bool,
-    shape_matches: fn(&V, &V) -> bool,
+    checks: std::marker::PhantomData<fn() -> Checks>,
     input: Vec<V>,
     denominators: Vec<V>,
     projections: Vec<V>,
@@ -51,16 +50,12 @@ fn momentum(p: &[Atom], start: usize) -> FourMomentum<Atom> {
     )
 }
 
-impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
-    #[allow(clippy::too_many_arguments)]
+impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Checks> {
     fn new(
         n: usize,
         rank: usize,
         prototype: &V,
         mut compile: impl FnMut(&ExactKernel) -> Result<K>,
-        finite: fn(&V) -> bool,
-        nonzero: fn(&V) -> bool,
-        shape_matches: fn(&V, &V) -> bool,
     ) -> Result<Self> {
         let topology = Topology::new(n, rank)?;
         let layout = LaurentDivision::new(n, rank, 1)?;
@@ -194,9 +189,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             correction_map,
             extras,
             zero: prototype.zero(),
-            finite,
-            nonzero,
-            shape_matches,
+            checks: std::marker::PhantomData,
             input: Vec::new(),
             denominators: Vec::new(),
             projections: Vec::new(),
@@ -207,9 +200,9 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
     }
 
     fn status(&self, values: &[V]) -> Option<CutFailure> {
-        if values.iter().any(|v| !(self.shape_matches)(v, &self.zero)) {
+        if values.iter().any(|v| !Checks::shape_matches(v, &self.zero)) {
             Some(CutFailure::DerivativeShape)
-        } else if values.iter().any(|v| !(self.finite)(v)) {
+        } else if values.iter().any(|v| !Checks::finite(v)) {
             Some(CutFailure::NonFiniteInput)
         } else {
             None
@@ -266,7 +259,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
                 .chain(r.masses_squared)
                 .chain([r.beta])
                 .chain(&numerator[row * columns..(row + 1) * columns])
-                .all(|v| (self.shape_matches)(v, &self.zero) && (self.finite)(v));
+                .all(|v| Checks::shape_matches(v, &self.zero) && Checks::finite(v));
             if !stable[row] {
                 continue;
             }
@@ -295,12 +288,12 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
         self.input.clear();
         for (index, &row) in self.eligible.iter().enumerate() {
             let denominator = &self.denominators[index * uncut * 4..(index + 1) * uncut * 4];
-            stable[row] = denominator.iter().all(self.finite)
+            stable[row] = denominator.iter().all(Checks::finite)
                 && denominator
                     .as_chunks::<4>()
                     .0
                     .iter()
-                    .all(|d| (self.nonzero)(&d[0]));
+                    .all(|d| Checks::nonzero(&d[0]));
             if stable[row] {
                 self.active.push(row);
                 self.input
@@ -314,7 +307,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             .evaluate(&self.input, &mut self.values, self.active.len())?;
         for (i, &row) in self.active.iter().enumerate() {
             let values = &self.values[i * width..(i + 1) * width];
-            stable[row] = values.iter().all(self.finite);
+            stable[row] = values.iter().all(Checks::finite);
             if stable[row] {
                 output[row * width..(row + 1) * width].clone_from_slice(values);
             }
@@ -400,7 +393,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
                             .into_iter()
                             .flat_map(FourMomentum::components),
                     )
-                    .all(|v| (self.shape_matches)(v, &self.zero) && (self.finite)(v));
+                    .all(|v| Checks::shape_matches(v, &self.zero) && Checks::finite(v));
                 if !valid {
                     continue;
                 }
@@ -463,8 +456,12 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             for (index, &row) in self.eligible.iter().enumerate() {
                 let den = &self.denominators[index * uncut * 4..(index + 1) * uncut * 4];
                 let projections = &self.projections[index * axes * 3..(index + 1) * axes * 3];
-                if !den.iter().chain(projections).all(self.finite)
-                    || !den.as_chunks::<4>().0.iter().all(|d| (self.nonzero)(&d[0]))
+                if !den.iter().chain(projections).all(Checks::finite)
+                    || !den
+                        .as_chunks::<4>()
+                        .0
+                        .iter()
+                        .all(|d| Checks::nonzero(&d[0]))
                 {
                     continue;
                 }
@@ -491,7 +488,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             for (index, &row) in self.active.iter().enumerate() {
                 let values = &self.values
                     [index * self.correction_columns..(index + 1) * self.correction_columns];
-                stable[row] = values.iter().all(self.finite);
+                stable[row] = values.iter().all(Checks::finite);
                 if stable[row] {
                     for (column, &source) in self.correction_map.iter().enumerate() {
                         output[row * width + column] = values[source].clone();
@@ -566,7 +563,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
 
 /// Minimal tadpole integration coefficients; no full residue reconstruction.
 pub struct SymbolicaTadpoleKernels<T> {
-    engine: Engine<Complex<T>, CompiledKernel<T>>,
+    engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks>,
 }
 impl<T: Real + SingleFloat> SymbolicaTadpoleKernels<T>
 where
@@ -575,22 +572,14 @@ where
     pub fn new(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
         let zero = Complex::new(prototype.zero(), prototype.zero());
         Ok(Self {
-            engine: Engine::new(
-                propagators,
-                rank,
-                &zero,
-                |exact| exact.compile(&prototype),
-                |v| v.is_finite(),
-                |v| !v.is_fully_zero(),
-                |_, _| true,
-            )?,
+            engine: Engine::new(propagators, rank, &zero, |exact| exact.compile(&prototype))?,
         })
     }
 }
 
 /// The same tadpole coefficients through shared static or runtime Dual bodies.
 pub struct SymbolicaDualTadpoleKernels<T, D> {
-    engine: Engine<D, CompiledDualKernel<T, D>>,
+    engine: Engine<D, CompiledDualKernel<T, D>, DualChecks<T>>,
 }
 impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualTadpoleKernels<T, D>
 where
@@ -598,15 +587,9 @@ where
 {
     pub fn new(propagators: usize, rank: usize, prototype: T, dual: &D) -> Result<Self> {
         Ok(Self {
-            engine: Engine::new(
-                propagators,
-                rank,
-                dual,
-                |exact| exact.compile_dual(&prototype, dual),
-                |v| v.values().iter().all(|c| c.is_finite()),
-                |v| !v.values()[0].is_fully_zero(),
-                |v, p| v.values().len() == p.values().len() && v.get_shape() == p.get_shape(),
-            )?,
+            engine: Engine::new(propagators, rank, dual, |exact| {
+                exact.compile_dual(&prototype, dual)
+            })?,
         })
     }
 }
