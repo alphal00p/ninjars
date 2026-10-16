@@ -1372,3 +1372,30 @@ connects the existing kernels into integrated amplitudes and a standalone
 - Fresh optimized reduction measurements remain pending. Actual one-loop
   master computation, cached lookup/transport, numerator callbacks and full
   preparation are being separated in the validation harness before timing.
+
+### Independent master execution accounting (2026-10-16)
+
+- Integrated `036067f`: a separate execution-diagnostic build reports actual
+  master calls, evaluated rows and time by family and backend. Original
+  OneLOop's combined tensor-bubble calls remain grouped; initialization has its
+  own record. Shared master lookup/transport excludes its nested backend time.
+- Preparation, numerator callbacks, actual masters, shared transport and the
+  reduction/staging remainder form an exact same-call additive breakdown.
+  The report also provides total time excluding masters and full preparation.
+  No stage is inferred from differences between independently timed runs.
+  Primary aggregate builds contain none of these diagnostic timers.
+- Aggregate sampling now uses one clock pair per contiguous block, counters
+  outside the interval, complete three-point cycles, and one retained reducer
+  per implementation. Both paths switch immutable prepared coefficient/input
+  states for reduction-only timing; complete scopes include preparation.
+  The standalone release profile matches workspace thin LTO/codegen settings.
+- All sixteen development-profile correctness cases and sixteen execution
+  cases pass, with maximum scaled error 2.24e-16. Frozen reduction has exactly
+  zero actual backend calls/rows/time and zero table misses. Nine Rust and
+  sixteen parser/statistics tests, strict Clippy and formatting pass. Root
+  independently checked archive hashes, all additive/source-identity records,
+  and reran the sixteen Python tests. Evidence is
+  `shared-workload-methodology-validation.json` and its two lossless archives.
+- These development runs validate accounting only and identify their earlier
+  core revision explicitly. Optimized measurements on the combined workspace
+  and static-check checkpoint remain pending; performance acceptance is false.
