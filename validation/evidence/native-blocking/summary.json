@@ -1,0 +1,201 @@
+{
+  "created_utc": "2026-10-16T23:30:49.806011+00:00",
+  "tested_source_revision": "7e68928099b1027f8694f9c7627431d59a566a78",
+  "base_revision": "dc0100f64c8ead3e2fcb2190db57862132d23024",
+  "production_execution_policy_changed": false,
+  "existing_reduction_generated_bodies_unchanged": true,
+  "dependency_modifications": false,
+  "block_rows": [
+    null,
+    8,
+    16,
+    32,
+    64
+  ],
+  "tail_policy": "natural contiguous chunks; singleton tails invoke existing generated scalar body",
+  "fresh_dedicated_workspaces_per_variant": true,
+  "tests": {
+    "passed": 8,
+    "failed": 0,
+    "ignored": 1,
+    "ignored_test": "native_blocking_microbenchmark",
+    "exact_complex_components_per_numeric_domain": 421872,
+    "numeric_domains": [
+      "f64",
+      "DoubleFloat",
+      "Float192"
+    ],
+    "mixed_input_float_precision_bits": [
+      53,
+      96,
+      160,
+      256
+    ],
+    "dual_shape": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "covers": [
+      "native family heads and all four bubble correction degrees",
+      "empty, single, tail, reversed, growing and shrinking rows",
+      "signed zero and nonfinite classification",
+      "all supported native Dual components",
+      "independent Float192 Symbolica oracle",
+      "complete ordinary and Dual reducer residues and failure statuses",
+      "failed mixed-derivative input and retry",
+      "mixed lazy branches with exactly one reciprocal helper invocation per row",
+      "JSONL archive and provenance metadata"
+    ],
+    "command": "/common/build-cache/external/f8/1c519ec9193fe0/debug/deps/ninjars_symbolica-52abd48e56d8c3c7 kernel::blocking_probe --test-threads=1 --nocapture",
+    "numerical_lock": "/tmp/ninjars-symbolica-tests.lock"
+  },
+  "profile": "debug correctness; optimized benchmark remains unrun",
+  "performance_measurements_run": false,
+  "performance_acceptance": false,
+  "actual_master_computation": "none; reducer controls use deterministic contraction stub",
+  "validation": {
+    "strict_package_clippy": true,
+    "package_format_check": true,
+    "feature_off_library_check": true
+  },
+  "harness_corrections": "Initial ordinary n5 fixture used the low-cut-only API, then a degenerate higher-cut routing. It now uses evaluate_batch_with_high_cuts and the established native_amplitude n5 routing; no production numerical fix was required.",
+  "limitations": [
+    "No timing result or production block-size decision",
+    "Conditional fixture covers ordinary f64/DD/Float; native Dual reduction graphs covered here are straight-line",
+    "Native Dual coverage is the existing ordered five-component shape",
+    "Whole-reduction and physical throughput comparisons remain separate acceptance work"
+  ],
+  "dependencies": [
+    {
+      "path": "references/symbolica",
+      "revision": "2c06f245835d57535418b5d78f711fe191db49cc",
+      "clean": true
+    },
+    {
+      "path": "references/oneloopmaster",
+      "revision": "53106429b849e5bcf843f111429be76227b4e0ce",
+      "clean": true
+    },
+    {
+      "path": "references/gammaloop_ninja_shared",
+      "revision": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93",
+      "clean": true
+    }
+  ],
+  "source_hashes": [
+    {
+      "path": "crates/ninjars-symbolica/Cargo.toml",
+      "sha256": "8a96e690d3cbb549139f35626b2aa04457970616d94458cdc9a6ccc22db647b6"
+    },
+    {
+      "path": "crates/ninjars-symbolica/examples/generate_blocking_fixture.rs",
+      "sha256": "91c66907c35f8d66e3652d2d68cf36727da53bd8dea98e32297003dc25712a1c"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/kernel.rs",
+      "sha256": "4c4544f31dd88b0c4ef6211b8014aeaba71e8ca3ad0b0d9fa54fa04a2246b7aa"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_blocking_fixture/body.rs",
+      "sha256": "b849905063e275023cf6dfb6904709f8863ae0494a72a71b66454021e2cb7d89"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_blocking_fixture/constants.rs",
+      "sha256": "de0bd94a3fba2b72ff91a43643f740278f84fea0303ddebef15f606612cec6e0"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_blocking_fixture/mod.rs",
+      "sha256": "9715a73838a3e94c8e3571aec1fbda5c3c3c5af9f4ef0b5c19375f154b2c934c"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_blocking_probe.rs",
+      "sha256": "5228f06034dca70b492038b0b8b806d2a205ca82fd1bf49dfc0e3b26ef03604f"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/bubbles.rs",
+      "sha256": "0b59466d90b2e55007bea5658111a50a9949f46b1949e79e9b4f164992020dd5"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/mod.rs",
+      "sha256": "3bb88b25408ecac263dcc5ee5dcd44eb3f38fcb6572a3a48ac000f5e0eba471b"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/tadpoles.rs",
+      "sha256": "a6d9e0ad1a98b18a93bdb6d6d345f38ee405246d11c67f4202d7cf54b931a92c"
+    },
+    {
+      "path": "docs/native-blocking-probe.md",
+      "sha256": "1378189d87d46363cb7542e2d9ffdfef94628f5c594fcf2e38003b13ec024cac"
+    }
+  ],
+  "logs": [
+    {
+      "path": "validation/evidence/native-blocking/build.log",
+      "sha256": "eada3f21276464e4b543fc5309b4a14ac975570b140f93c08c77e2f6bef63b29",
+      "bytes": 2750
+    },
+    {
+      "path": "validation/evidence/native-blocking/controls.log",
+      "sha256": "f46b690ea6df4d83ed8fcc1c0bbee98d53b1faf59c0bf6bc9e262f87cf0f7adf",
+      "bytes": 1562
+    },
+    {
+      "path": "validation/evidence/native-blocking/clippy.log",
+      "sha256": "fb8c5717a8b6f59c355b8892d541781d06cb40056d03a6919d9feee8f550e2c2",
+      "bytes": 2620
+    },
+    {
+      "path": "validation/evidence/native-blocking/feature-off.log",
+      "sha256": "f49c43d91fdaa89d149fa856e5a1598f9f74d0a18a71a44b7025149fad8f4642",
+      "bytes": 2834
+    },
+    {
+      "path": "validation/evidence/native-blocking/format.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "validation/evidence/native-blocking/fixture-build.log",
+      "sha256": "ea3b8e3e085545ab90fa07c299e16e2f9e1214d91f2c0f1bb7393900d778b290",
+      "bytes": 2620
+    },
+    {
+      "path": "validation/evidence/native-blocking/fixture-generation.log",
+      "sha256": "63e387702ec855b13be79abcba6e3f36acb0263071fa862cae10974bc686bef1",
+      "bytes": 55
+    },
+    {
+      "path": "validation/evidence/native-blocking/initial-harness-controls.log",
+      "sha256": "49658b1927e308aaa028a9a51c8b02d821a6b0186bcdca6ec4f4325148f41a71",
+      "bytes": 1971
+    },
+    {
+      "path": "validation/evidence/native-blocking/ordinary-reducer-control.log",
+      "sha256": "d28ff8bac407175cd3ac2ea8280193dc28c3a99de8c1dca58e0018674769e859",
+      "bytes": 211
+    }
+  ],
+  "test_artifact": {
+    "path": "/common/build-cache/external/f8/1c519ec9193fe0/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+    "sha256": "246c416bfd87faf1d759e9ff9fd13cd2471b73a435d8a56f75453b26bdecd2ae",
+    "bytes": 511589408
+  }
+}

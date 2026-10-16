@@ -1,0 +1,25 @@
+
+running 8 tests
+test kernel::blocking_probe::native_blocking_finite_heads_match_symbolica_oracle ... ok
+test kernel::blocking_probe::native_blocking_full_dual_reducer_and_failed_mixed_component ... ok
+test kernel::blocking_probe::native_blocking_microbenchmark ... ignored, requires a coordinated quiet window and NINJARS_BLOCKING_QUIET_WINDOW=approved
+test kernel::blocking_probe::native_blocking_natural_scalar_tails_preserve_exceptional_values ... ok
+test kernel::blocking_probe::native_blocking_preserves_all_components_and_precision ... NATIVE_BLOCKING_EXACT {"complex_components_compared":421872,"derivative_shape":[[0,0],[1,0],[0,1],[2,0],[1,1]],"precision_bits":53,"signed_zero_bits_checked":true,"timing":false}
+NATIVE_BLOCKING_EXACT {"complex_components_compared":421872,"derivative_shape":[[0,0],[1,0],[0,1],[2,0],[1,1]],"precision_bits":106,"signed_zero_bits_checked":true,"timing":false}
+NATIVE_BLOCKING_EXACT {"complex_components_compared":421872,"derivative_shape":[[0,0],[1,0],[0,1],[2,0],[1,1]],"precision_bits":192,"signed_zero_bits_checked":true,"timing":false}
+ok
+test kernel::blocking_probe::native_blocking_preserves_lazy_branches_and_shared_helper_calls ... ok
+test kernel::blocking_probe::native_blocking_preserves_reducer_statuses_residues_and_retry ... 
+thread 'kernel::blocking_probe::native_blocking_preserves_reducer_statuses_residues_and_retry' (3099614) panicked at crates/ninjars-symbolica/src/native_blocking_probe.rs:685:22:
+called `Result::unwrap()` on an `Err` value: Unsupported("four or more propagators require evaluate_batch_with_high_cuts")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+test kernel::blocking_probe::native_blocking_retains_mixed_input_significant_bits ... ok
+
+failures:
+
+failures:
+    kernel::blocking_probe::native_blocking_preserves_reducer_statuses_residues_and_retry
+
+test result: FAILED. 6 passed; 1 failed; 1 ignored; 0 measured; 11 filtered out; finished in 12.44s
+
