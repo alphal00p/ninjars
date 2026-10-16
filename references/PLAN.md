@@ -889,3 +889,54 @@ connects the existing kernels into integrated amplitudes and a standalone
   real-invariant contract through unchecked exact expressions. The tested local
   complex derivatives do not require arbitrary complex scalar invariants.
   No NinjaRS master domain gate is broadened by these fixed-point controls.
+
+### CLI coefficient provider and physical end-to-end scope (2026-10-16)
+
+- Added `--numerator-evaluator symbolica|symjit-o2` to reduction and benchmark
+  commands. The optional `numerator-jit` feature compiles all distinct physical
+  polynomial coefficients into one Symbolica/SymJIT O2 evaluator, using the
+  existing polynomial and evaluator APIs. The plan lives in `ninjars-graph`;
+  typed numerical binding and dispatch live in `ninjars-cli`. No reduction-core
+  API, generic bound or algebra representation changes.
+- Each complete evaluation computes coefficient heads for all current samples
+  before binding the existing polynomial numerator. The benchmark's timed loop
+  includes this work; diagnostic coefficient timing is reported separately and
+  removed from the residual attribution. Exact preparation and compilation are
+  recorded as setup. Raw external parameters remain in the numerical pool;
+  coefficient values are not precomputed outside end-to-end timing.
+- SymJIT mode supports f64 only and rejects higher-precision requests before
+  graph preparation. The existing Symbolica mode remains the default. The new
+  generic coefficient interpreter preserves DoubleFloat/Float precision for
+  controls. A nonfinite coefficient rejects the whole preparation binding
+  transaction before reduction; compacting valid preparation rows remains
+  outstanding and is documented in `docs/numerator-coefficients.md`.
+- Focused controls pass for exact reconstruction, graph factor application,
+  complex/lazy coefficient heads, registered constants, zero/constant plans,
+  permutations/tails, transactional errors, and direct/Mu/T3/T2 callback parity.
+  CLI integration checks also pass for synthetic and physical box reductions,
+  both mu modes, timing attribution and precision rejection. Full workspace
+  verification passes **185 tests across 51 suites**, with zero failures or
+  ignored tests; strict Clippy, formatting, and the feature-disabled rejection
+  control also pass. Commands, logs and source hashes are retained in
+  `validation/evidence/numerator-symjit-workspace-checks.json`.
+- The compiled provider also passes the complete f64 six-box four-photon
+  matrix: **36 physical rows** and **12 generic diagnostic rows**, both mu
+  modes, fixed MadLoop mode four, the unchanged scaled `1e-9` criterion,
+  finite decomposition, physical graph sums and independent exact pole
+  controls. Prepared input hashes match the earlier Symbolica-provider
+  oracle exactly. `validation/evidence/four-photon-symjit-o2.json` records
+  the gates and links the immutable matrix/build records. Aggregator mutation
+  controls reject incomplete or corrupted evidence. These are correctness
+  controls; no new performance acceptance is claimed.
+- The matched reference harness still exports the original physical numerator
+  and evaluates its external coefficients inside C++ callbacks. Supplying
+  precomputed coefficients only to Rust would change the measurement boundary.
+  The next harness work must share the coefficient basis/provider for isolated
+  reduction and include coefficient execution for both complete physical
+  evaluations. A shared master-provider reference adapter is also outstanding.
+- A complete physical numerical boundary starts from momenta, helicities and
+  model parameters. Timing only prebound polarization/component fixtures omits
+  wavefunction and dependent-parameter evaluation. Both boundaries must be
+  labeled explicitly; the full benchmark must include the latter operations
+  before coefficient evaluation. The validation-only bridge and detailed
+  measurement design are being developed separately from the reduction core.

@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "gates": {
+    "symjit_o2_selected": true,
+    "complete_matrix": true,
+    "f64_states": true,
+    "process_success": true,
+    "unchanged_sources": true,
+    "identical_prepared_inputs": true,
+    "physical_laurents_and_decomposition": true,
+    "complete_mu_controls": true,
+    "physical_mu_equivalence": true,
+    "complete_sums": true,
+    "physical_summed_graphs": true,
+    "complete_pole_controls": true,
+    "physical_exact_poles": true,
+    "independent_exact_sum_zero": true
+  },
+  "physical_rows": 36,
+  "generic_rows": 12,
+  "criterion": "scaled 1e-9 per complex coefficient",
+  "generic_mode4_passed": true,
+  "independent_pole_max_error": "2.92374964873350565693814179768586999901971747722332338317566926666766194771439164070675027753149814715675023225636742778E-12",
+  "performance_acceptance": false,
+  "scope": "f64 SymJIT O2 coefficient preparation followed by ordinary NinjaRS reduction; six boxes, both mu modes, three physical helicities and generic complex diagnostics",
+  "source_sha256": {
+    "validation/evidence/four-photon-symjit-o2-matrix.json": "593cb755507d3af5222fc552eec801357fa90f629aad0fc0e02220943cb89687",
+    "validation/evidence/four-photon-uv.json": "f5863365c2d055e7d77fac70fa5e15a48ee119bf0ee4c0ffa1f346c1a9df96be",
+    "/shared/external/ninja/validation/madloop/four_photon/check_provider.py": "eccc7e94a05f6c238fc5b95c1c80c833391662f9c0d612e06fdc078377855a04",
+    "/shared/external/ninja/validation/madloop/four_photon/aggregate.py": "a1e4e8820ba15efc60be68188954c8b850588ff9e5542f72901317d7a4d97c4f",
+    "/shared/external/ninja/validation/madloop/four_photon/compare.py": "1225016fa2406587c6696a5e1015a626ea371f6a0841c2a9d435407cb7d09b01"
+  }
+}

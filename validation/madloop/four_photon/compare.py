@@ -76,9 +76,12 @@ def main():
     parser.add_argument('--orientations', type=int, nargs='+', default=list(range(6)))
     parser.add_argument('--precisions', choices=CARRIERS, nargs='+', default=list(CARRIERS))
     parser.add_argument('--mu-modes', choices=MU_MODES, nargs='+', default=list(MU_MODES))
+    parser.add_argument('--numerator-evaluator', choices=('symbolica', 'symjit-o2'), default='symbolica')
     parser.add_argument('--batch-size', type=int, default=3,
                         help='Four samples with width3 exercise an incomplete final batch.')
     args = parser.parse_args()
+    if args.numerator_evaluator == 'symjit-o2' and args.precisions != ['f64']:
+        parser.error('symjit-o2 requires --precisions f64')
     if args.batch_size < 1 or len(set(args.orientations)) != len(args.orientations) or any(i not in range(6) for i in args.orientations):
         parser.error('positive batch size and distinct orientations in0..5 required')
     out = args.output_dir.resolve()
@@ -129,6 +132,8 @@ def main():
                            '--batch-size',str(args.batch_size),'--mu-extraction',mu_mode,'--diagnostics']
                 if precision == 'float':
                     command += ['--bits','256']
+                if args.numerator_evaluator != 'symbolica':
+                    command += ['--numerator-evaluator', args.numerator_evaluator]
                 started=time.monotonic()
                 completed = subprocess.run(command,cwd=ROOT,capture_output=True,text=True)
                 elapsed=time.monotonic()-started
@@ -139,6 +144,8 @@ def main():
                                                'stdout_sha256':digest(out/f'{stem}.json')})
                 actual = json.loads(completed.stdout) if completed.stdout.strip() else None
                 if actual is not None:
+                    if args.numerator_evaluator != 'symbolica' and actual['numerator_provider']['evaluator'] != args.numerator_evaluator:
+                        raise ValueError('requested numerator evaluator was not used')
                     if actual['rank'] != 4 or actual['box_reduction']['mu_extraction'] != mu_mode or actual['cut_stop'] != 1:
                         raise ValueError('unexpected rank, extraction mode or cut stopping in reduction output')
                     if len(actual['results']) != 4:
@@ -213,6 +220,7 @@ def main():
     diagnostics=[c for c in checks if c['diagnostic_only']]
     gate=lambda rows,mode: all(next(c for c in r['comparisons'] if c['reference_mode']==mode)['passed'] for r in rows)
     summary={'schema_version':1,'physical_passed':gate(physical,4) and not changed,
+             'numerator_evaluator':args.numerator_evaluator,
              'physical_mode1_passed':gate(physical,1) and not changed,
              'generic_diagnostic_passed':gate(diagnostics,4) and not changed,
              'physical_rows':len(physical),'generic_rows':len(diagnostics),

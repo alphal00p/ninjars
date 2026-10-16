@@ -1,6 +1,7 @@
 mod bench;
 #[cfg(feature = "reference-codegen")]
 mod compare;
+mod numerator_coefficients;
 mod prepare;
 mod reduce;
 #[cfg(feature = "reference-codegen")]

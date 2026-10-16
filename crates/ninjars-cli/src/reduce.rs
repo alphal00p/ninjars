@@ -1,12 +1,12 @@
 //! Standalone orchestration over graph preparation and the batched reduction API.
 
 use crate::{
+    numerator_coefficients::CoefficientScalar,
     prepare::{self, PreparedDocument},
     runtime::{EvaluationSession, NumericalPool},
 };
 use clap::{Args as ClapArgs, ValueEnum};
 use ninjars::{Complex, EvaluationStatus, SamplingScaleSource, SamplingScaleStatus};
-use oneloop::NativeFloat;
 use serde_json::{Value, json};
 use std::{error::Error, fs, num::NonZeroUsize, path::PathBuf};
 use symbolica::{
@@ -31,6 +31,33 @@ pub enum MuExtraction {
     Sampling,
 }
 
+#[derive(Clone, Copy, ValueEnum)]
+pub enum NumeratorEvaluator {
+    Symbolica,
+    SymjitO2,
+}
+
+impl NumeratorEvaluator {
+    pub(crate) fn name(self) -> &'static str {
+        match self {
+            Self::Symbolica => "symbolica",
+            Self::SymjitO2 => "symjit-o2",
+        }
+    }
+
+    pub(crate) fn validate(self, precision: Precision) -> Result<()> {
+        if matches!(self, Self::SymjitO2) {
+            if !matches!(precision, Precision::F64) {
+                return Err("--numerator-evaluator symjit-o2 requires --precision f64; use symbolica to preserve higher precision".into());
+            }
+            if !cfg!(feature = "numerator-jit") {
+                return Err("--numerator-evaluator symjit-o2 requires a build with --features numerator-jit".into());
+            }
+        }
+        Ok(())
+    }
+}
+
 #[derive(ClapArgs)]
 pub struct Args {
     /// DOT graph with --samples, or a schema-version-1 JSON fixture.
@@ -44,6 +71,9 @@ pub struct Args {
     /// Numerical carrier; all input expressions are evaluated directly at this precision.
     #[arg(long, value_enum, default_value = "f64")]
     pub precision: Precision,
+    /// Evaluate the physical numerator directly, or compile its coefficient heads once with SymJIT O2.
+    #[arg(long, value_enum, default_value = "symbolica")]
+    pub numerator_evaluator: NumeratorEvaluator,
     /// Working precision in bits for --precision float (default 256).
     #[arg(long)]
     pub bits: Option<u32>,
@@ -84,7 +114,7 @@ fn status_json(status: EvaluationStatus) -> Value {
     }
 }
 
-fn evaluate<T: NativeFloat>(
+fn evaluate<T: CoefficientScalar>(
     prepared: &mut PreparedDocument,
     args: &Args,
     prototype: T,
@@ -184,6 +214,7 @@ where
     prepared.document["cut_stop"] = session.amplitude.cut_stop().into();
     prepared.document["requested_cut_stop"] = args.cut_stop.into();
     prepared.document["rank"] = rank.into();
+    prepared.document["numerator_provider"] = session.numerator_provider_info();
     prepared.document["box_reduction"] = json!({"mu_extraction":match args.mu_extraction {MuExtraction::Expansion=>"expansion",MuExtraction::Sampling=>"sampling"},"coefficient_mode":if args.full_box_coefficients {"full"}else{"integrated"},"mu_sampling_scale":args.mu_sampling_scale});
     prepared.document["box_reduction"]["mu_sampling_scale_mode"] =
         if args.mu_sampling_scale.is_some() {
@@ -217,6 +248,7 @@ where
 }
 
 pub(crate) fn evaluate_prepared(prepared: &mut PreparedDocument, args: &Args) -> Result<bool> {
+    args.numerator_evaluator.validate(args.precision)?;
     if args.bits.is_some() && !matches!(args.precision, Precision::Float) {
         return Err("--bits applies only to --precision float".into());
     }
@@ -231,6 +263,7 @@ pub(crate) fn evaluate_prepared(prepared: &mut PreparedDocument, args: &Args) ->
 }
 
 pub fn run(args: Args) -> Result<()> {
+    args.numerator_evaluator.validate(args.precision)?;
     let mut prepared = prepare::prepare(&prepare::Args {
         input: args.input.clone(),
         samples: args.samples.clone(),

@@ -25,8 +25,9 @@ use symbolica::{
 };
 
 use crate::{
+    numerator_coefficients::{CoefficientBatch, CoefficientScalar},
     prepare::PreparedDocument,
-    reduce::{Args, MuExtraction},
+    reduce::{Args, MuExtraction, NumeratorEvaluator},
 };
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
@@ -271,6 +272,7 @@ impl CallTiming {
 
 #[derive(Default)]
 pub(crate) struct DiagnosticTimings {
+    pub numerator_coefficients: CallTiming,
     pub numerator_evaluation: CallTiming,
     pub numerator_expansion: CallTiming,
     pub masters: CallTiming,
@@ -344,6 +346,8 @@ where
 {
     pub amplitude: NumericalAmplitude<T>,
     numerator: PolynomialNumerator<T>,
+    coefficients: Option<Box<dyn CoefficientBatch<T>>>,
+    numerator_info: serde_json::Value,
     geometry: SymbolicaCuts<T>,
     high_geometry: Option<SymbolicaHighCuts<T>>,
     masters: SymbolicaMasters<T>,
@@ -373,19 +377,52 @@ where
     }
 }
 
-impl<T: NativeFloat> EvaluationSession<T>
+impl<T: CoefficientScalar> EvaluationSession<T>
 where
     Complex<T>: EvaluationDomain,
 {
     pub(crate) fn new(prepared: &PreparedDocument, args: &Args, prototype: T) -> Result<Self> {
         let variables = ["q0", "q1", "q2", "q3", "mu2"]
             .map(|name| Atom::var(symbol!(format!("ninjars::{name}"))));
-        let numerator = PolynomialNumerator::new(
-            prepared.numerator_template.clone(),
-            variables,
-            prepared.parameters.clone(),
-            prototype.clone(),
-        )?;
+        let (expression, parameters, coefficients, numerator_info) = match args.numerator_evaluator
+        {
+            NumeratorEvaluator::Symbolica => (
+                prepared.numerator_template.clone(),
+                prepared.parameters.clone(),
+                None,
+                serde_json::json!({"evaluator":args.numerator_evaluator.name(), "coefficient_outputs":null,
+                        "coefficient_preparation_ns":0, "coefficient_compilation_ns":0,
+                        "coefficient_policy":"external coefficients evaluated within existing cut callbacks"}),
+            ),
+            NumeratorEvaluator::SymjitO2 => {
+                let start = Instant::now();
+                let plan = ninjars_graph::PolynomialCoefficientPlan::new(
+                    prepared.numerator_template.clone(),
+                    variables.clone(),
+                    prepared.parameters.clone(),
+                )?;
+                let preparation_ns = start.elapsed().as_secs_f64() * 1e9;
+                let start = Instant::now();
+                let evaluator = T::compile_symjit_coefficients(&plan)?;
+                let compilation_ns = start.elapsed().as_secs_f64() * 1e9;
+                let info = serde_json::json!({"evaluator":args.numerator_evaluator.name(),
+                        "external_inputs":prepared.parameters.len(),
+                        "coefficient_outputs":plan.coefficient_expressions().len(),
+                        "coefficient_preparation_ns":preparation_ns,
+                        "coefficient_compilation_ns":compilation_ns,
+                        "coefficient_error_policy":"reject_binding_batch_before_reduction",
+                        "optimization_level":2,
+                        "coefficient_policy":"all heads evaluated once per sample in every batch; compiled evaluator retained; coefficient values not cached"});
+                (
+                    plan.template().clone(),
+                    plan.coefficient_symbols().to_vec(),
+                    Some(evaluator),
+                    info,
+                )
+            }
+        };
+        let numerator =
+            PolynomialNumerator::new(expression, variables, parameters, prototype.clone())?;
         let n = prepared.propagators;
         let rank = numerator.rank();
         let box_options = BoxReductionOptions {
@@ -422,6 +459,8 @@ where
             boxes_active: n >= 4 && amplitude.cut_stop() <= 4,
             amplitude,
             numerator,
+            coefficients,
+            numerator_info,
             geometry: SymbolicaCuts::new(prototype.clone())?,
             high_geometry: if n >= 4 {
                 Some(SymbolicaHighCuts::new(prototype.clone())?)
@@ -440,9 +479,34 @@ where
         })
     }
 
-    fn begin_batch(&mut self, batch: &mut NumericalBatch<T>) -> Result<()> {
-        self.numerator
-            .set_parameter_batch(&batch.parameters, batch.lanes)?;
+    pub(crate) fn numerator_provider_info(&self) -> serde_json::Value {
+        self.numerator_info.clone()
+    }
+
+    fn bind_numerator(&mut self, batch: &NumericalBatch<T>) -> Result<()> {
+        if let Some(evaluator) = &mut self.coefficients {
+            let coefficients = evaluator.evaluate_batch(&batch.parameters, batch.lanes)?;
+            self.numerator
+                .set_parameter_batch(coefficients, batch.lanes)?;
+        } else {
+            self.numerator
+                .set_parameter_batch(&batch.parameters, batch.lanes)?;
+        }
+        Ok(())
+    }
+
+    fn begin_batch(
+        &mut self,
+        batch: &mut NumericalBatch<T>,
+        timing: Option<&mut CallTiming>,
+    ) -> Result<()> {
+        if let Some(timing) = timing.filter(|_| self.coefficients.is_some()) {
+            let start = Instant::now();
+            self.bind_numerator(batch)?;
+            timing.record(start, batch.lanes);
+        } else {
+            self.bind_numerator(batch)?;
+        }
         if let Some(scale) = &self.manual_scale {
             batch.sampling_scales.fill(scale.clone());
         } else if let Some(provider) = self.auto_scales.as_mut() {
@@ -460,7 +524,7 @@ where
 
     /// Rebind numeric parameters, select scales, reset and reduce without parsing or formatting.
     pub(crate) fn evaluate(&mut self, batch: &mut NumericalBatch<T>) -> Result<()> {
-        self.begin_batch(batch)?;
+        self.begin_batch(batch, None)?;
         execute(
             &mut self.amplitude,
             &mut self.numerator,
@@ -478,7 +542,7 @@ where
         batch: &mut NumericalBatch<T>,
         timings: &mut DiagnosticTimings,
     ) -> Result<()> {
-        self.begin_batch(batch)?;
+        self.begin_batch(batch, Some(&mut timings.numerator_coefficients))?;
         let mut numerator = TimedNumerator {
             inner: &mut self.numerator,
             evaluation: &mut timings.numerator_evaluation,

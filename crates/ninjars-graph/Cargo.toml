@@ -5,6 +5,9 @@ edition.workspace = true
 license.workspace = true
 description = "Independent FeynKit graph and numerator preparation for one-loop reduction"
 
+[features]
+numerator-jit = ["symbolica/native_code_generation"]
+
 [dependencies]
 feynkit-amplitude.workspace = true
 feynkit-generator.workspace = true

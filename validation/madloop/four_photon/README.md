@@ -127,4 +127,25 @@ The exact graph mapping is:
 | 4 | 1,2,3,4 | 185 | q |
 | 5 | 1,3,2,4 | 186 | q |
 
-All source-to-CutTools denominator permutations are `[3,0,2,1]`. The three-helicity archive contains **1,260 independent FeynKit/MadLoop checks**. MadLoop's separate raw/wrapper comparisons at both fixed modes total **2,520**. With the generic case these counts are **1,680** and **3,360**, respectively. Maximum independent scaled error is `1.1697742660401556e-14` for both archives. Integrated NinjaRS comparisons and physical Ward/summed-amplitude checks remain pending.
+All source-to-CutTools denominator permutations are `[3,0,2,1]`. The three-helicity archive contains **1,260 independent FeynKit/MadLoop checks**. MadLoop's separate raw/wrapper comparisons at both fixed modes total **2,520**. With the generic case these counts are **1,680** and **3,360**, respectively. Maximum independent scaled error is `1.1697742660401556e-14` for both archives. Integrated comparisons and graph sums pass as described above; physical Ward controls for this process remain pending.
+
+The optional compiled coefficient provider has a separate f64 matrix. Build the
+CLI with `--features numerator-jit`, retain an immutable binary, then run:
+
+```sh
+python3 validation/madloop/four_photon/compare.py \
+  --ninjars target/physical/four-photon/symjit-binary/ninjars \
+  --precisions f64 --numerator-evaluator symjit-o2 \
+  --output-dir target/physical/four-photon/symjit-matrix
+python3 validation/madloop/four_photon/check_provider.py \
+  --matrix validation/evidence/four-photon-symjit-o2-matrix.json \
+  --poles validation/evidence/four-photon-uv.json \
+  --output validation/evidence/four-photon-symjit-o2.json
+python3 validation/madloop/four_photon/test_provider.py
+```
+
+All **36 physical rows** and **12 generic mode-four diagnostic rows** pass the
+same `1e-9` criterion. The gate also checks successful processes, both mu modes,
+decomposition, physical graph sums, exact poles, and byte-identical prepared
+input hashes against the independent pole oracle. SymJIT remains f64-only;
+this evidence makes no performance or higher-precision coefficient claim.

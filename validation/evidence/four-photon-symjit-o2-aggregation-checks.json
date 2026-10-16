@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "tests": 2,
+  "corruption_mutations": 9,
+  "command": "python3 validation/madloop/four_photon/test_provider.py",
+  "log": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.047s\n\nOK\n",
+  "log_sha256": "e216ebf78f8797adfe7d66b4abf55dfc592b31a5d1aa0c67bcd14bca48d6e4fd",
+  "source_sha256": {
+    "validation/madloop/four_photon/check_provider.py": "eccc7e94a05f6c238fc5b95c1c80c833391662f9c0d612e06fdc078377855a04",
+    "validation/madloop/four_photon/test_provider.py": "660694c6ebea1db421b5be8ffe3be2091906946e1edcf4297def43fab36148fd"
+  }
+}

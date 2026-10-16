@@ -4,7 +4,6 @@ use std::{error::Error, fs, hint::black_box, num::NonZeroUsize, path::PathBuf, t
 
 use clap::{Args as ClapArgs, ValueEnum};
 use ninjars::Complex;
-use oneloop::NativeFloat;
 use serde_json::{Value, json};
 use symbolica::{
     domains::float::{DoubleFloat, Float},
@@ -12,8 +11,9 @@ use symbolica::{
 };
 
 use crate::{
+    numerator_coefficients::CoefficientScalar,
     prepare::{self, PreparedDocument},
-    reduce::{self, MuExtraction, Precision},
+    reduce::{self, MuExtraction, NumeratorEvaluator, Precision},
     runtime::{CallTiming, DiagnosticTimings, EvaluationSession, NumericalPool},
 };
 
@@ -38,6 +38,9 @@ pub struct Args {
     pub feynman_rules: bool,
     #[arg(long, value_enum, default_value = "f64")]
     pub precision: Precision,
+    /// Numerator preparation provider; coefficient evaluation stays inside every timed iteration.
+    #[arg(long, value_enum, default_value = "symbolica")]
+    pub numerator_evaluator: NumeratorEvaluator,
     #[arg(long)]
     pub bits: Option<u32>,
     /// Phase-space batch widths; the default 1025-point round includes tails.
@@ -77,6 +80,7 @@ impl Args {
             model: self.model.clone(),
             feynman_rules: self.feynman_rules,
             precision: self.precision,
+            numerator_evaluator: self.numerator_evaluator,
             bits: self.bits,
             batch_size: self.batch_sizes[0],
             cut_stop: self.cut_stop,
@@ -100,7 +104,7 @@ fn quantile(sorted: &[f64], fraction: f64) -> f64 {
     sorted[lower] + (sorted[upper] - sorted[lower]) * (position - lower as f64)
 }
 
-fn evaluate<T: NativeFloat>(
+fn evaluate<T: CoefficientScalar>(
     prepared: &PreparedDocument,
     args: &Args,
     prototype: T,
@@ -209,6 +213,7 @@ where
                 .as_secs_f64()
                 * 1e9;
             let master_ns = diagnostic.masters.elapsed.as_secs_f64() * 1e9;
+            let coefficient_ns = diagnostic.numerator_coefficients.elapsed.as_secs_f64() * 1e9;
             let mut sorted = samples_ns.clone();
             sorted.sort_by(f64::total_cmp);
             let median = quantile(&sorted, 0.5);
@@ -235,8 +240,9 @@ where
                 "uncertainty_policy":"raw round samples and observed quantiles; no confidence-interval claim",
                 "warmup_final_pass_failed_lanes":warmup_failed_lanes,
                 "diagnostic":{"total_ns":diagnostic_ns,"points":args.points.get(),
+                    "numerator_coefficients":timing(&diagnostic.numerator_coefficients),
                     "numerator_evaluation":timing(&diagnostic.numerator_evaluation),"numerator_expansion":timing(&diagnostic.numerator_expansion),
-                    "masters":timing(&diagnostic.masters),"residual_reduction_ns":(diagnostic_ns-callback_ns-master_ns).max(0.),
+                    "masters":timing(&diagnostic.masters),"residual_reduction_ns":(diagnostic_ns-coefficient_ns-callback_ns-master_ns).max(0.),
                     "residual_scope":"scale selection, parameter binding, reset, geometry, reduction, contraction, bookkeeping and timer overhead",
                     "successful_lanes":args.points.get()-failed_lanes,"failed_lanes":failed_lanes,"failure_kinds":failure_kinds},
                 "precision_rescue":{"enabled":false,"attempts":0,"successful":0},
@@ -248,11 +254,12 @@ where
         json!({"schema_version":1,"operation":"bench","success":success,"performance_acceptance":false,
         "acceptance_limitations":["Rust-only measurements; original Ninja no-result-cache baseline is not measured", "shared-master reduction comparison is not measured"],
         "cache_policy":{"compiled_evaluators":"retained and warmed","numerical_master_results":"not cached","reference":"not run"},
-        "measurement_scope":"numeric parameter rebinding, automatic scales, reset, all cut geometry/callbacks/reduction/masters/integration; no graph preparation, exact numeric parsing, batch packing or JSON",
+        "measurement_scope":"per-sample numerator coefficient evaluation when selected, numeric parameter rebinding, automatic scales, reset, all cut geometry/callbacks/reduction/masters/integration; no graph preparation, exact numeric parsing, batch packing or JSON",
         "diagnostic_scope":"separate instrumented pass; excluded from primary round timings",
         "precision":{"carrier":match args.precision {Precision::F64=>"f64",Precision::DoubleFloat=>"double-float",Precision::Float=>"float"},"bits":prototype.get_precision()},
         "build_profile":if cfg!(debug_assertions) {"debug"} else {"release"},"thread_policy":"one reduction worker; no benchmark parallelism",
         "inputs":prepared.document,"source_pool_rows":prepared.samples.len(),"propagators":prepared.propagators,"rank":session.rank,"cut_stop":session.amplitude.cut_stop(),
+        "numerator_provider":session.numerator_provider_info(),
         "requested_cut_stop":args.cut_stop,
         "box_reduction":{"mu_extraction":match args.mu_extraction {MuExtraction::Expansion=>"expansion",MuExtraction::Sampling=>"sampling"},
             "coefficient_mode":if args.full_box_coefficients {"full"}else{"integrated"},"mu_sampling_scale":args.mu_sampling_scale},
@@ -265,6 +272,7 @@ where
 }
 
 pub(crate) fn run(args: Args) -> Result<()> {
+    args.numerator_evaluator.validate(args.precision)?;
     if args.bits.is_some() && !matches!(args.precision, Precision::Float) {
         return Err("--bits applies only to --precision float".into());
     }

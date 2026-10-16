@@ -94,14 +94,18 @@ well before comparing timings from separate runs.
 The acceptance suite must include a large physical graph, in addition to
 reduction-only comparisons using the same supplied numerator provider. Report
 both cold preparation/compilation and warmed end-to-end evaluation. Warmed
-evaluation must include physical numerator coefficient evaluation for every
-phase-space point, cut callbacks, reduction and masters. Precomputed fixture
-coefficients alone cannot establish this end-to-end result.
+evaluation must include wavefunction and dependent-model-parameter evaluation
+from the supplied momenta, helicities and model bindings, physical numerator
+coefficient evaluation for every phase-space point, cut callbacks, reduction
+and masters. Prebound polarization fixtures measure a narrower boundary;
+precomputed coefficients alone cannot establish this end-to-end result.
 
-A planned CLI provider will collect the loop polynomial's coefficient Atoms
-with Symbolica and compile all coefficient outputs into one SymJIT evaluator at
-O2. One call per sample will populate the existing reduction callback's
-coefficient parameters. This belongs to the CLI's numerator-preparation package;
+The optional `--numerator-evaluator symjit-o2` provider collects the loop
+polynomial's coefficient Atoms with Symbolica and compiles all coefficient
+outputs into one SymJIT evaluator at O2. Enable it with the `numerator-jit`
+feature. Each batch evaluates every sample's coefficient heads once and
+populates the existing reduction callback's parameters. This belongs to the
+CLI's numerator-preparation package;
 the NinjaRS reduction engine remains independent of graphs, models and JIT
 compilation. The ordinary provider remains a correctness and timing control,
 with precision-preserving evaluation for carriers unsupported by SymJIT.
@@ -111,5 +115,9 @@ the existing provider on the same physical inputs. Record the compilation and
 cache policy, coefficient evaluation, callback, reduction, master and total
 times separately. Compare f64 with original Ninja under matching accuracy,
 cache and thread settings; report higher precision and Dual workloads
-separately. The compiled coefficient mode and this large-graph benchmark are
-not implemented or accepted by the existing timing evidence.
+separately. The compiled coefficient mode is validated on synthetic inputs and
+all six physical four-photon boxes, with both mu modes and the independent
+exact pole controls. Controlled large-graph end-to-end performance
+acceptance remains outstanding; the existing timing evidence predates this
+mode. See [coefficient provider details](numerator-coefficients.md) for its
+precision and preparation-error policy.
