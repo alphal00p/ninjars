@@ -124,3 +124,20 @@ exact pole controls. Controlled large-graph end-to-end performance
 acceptance remains outstanding; the existing timing evidence predates this
 mode. See [coefficient provider details](numerator-coefficients.md) for its
 precision and preparation-error policy.
+
+## Optional generated denominator kernels
+
+Build with `--features native-kernels` and select
+`--reduction-kernels native-denominators` on `reduce`, `compare` or `bench`
+to execute T2/T3 denominator expansions with Rust arithmetic generated from
+the existing Symbolica instruction graphs. The default is `symbolica`.
+The JSON `reduction_kernels` record identifies this partial selection: other
+reduction kernels, integration and accumulation still use the interpreter.
+Numerator callbacks, geometry and masters retain their separate providers.
+
+This option supports f64, DoubleFloat and arbitrary precision in the CLI.
+It is independent of `--numerator-evaluator`; for example, build with
+`--features native-kernels,numerator-jit` to combine generated denominator
+execution with `--numerator-evaluator symjit-o2-factored`. Record both choices
+when comparing timings. Numerical parity tests do not establish a speedup;
+controlled performance comparisons for this selection remain outstanding.

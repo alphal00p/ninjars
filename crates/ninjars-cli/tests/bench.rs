@@ -105,6 +105,53 @@ fn default_widths_cover_full_batches_and_incomplete_tails() {
     assert_eq!(cases.len(), 5);
 }
 
+#[cfg(feature = "native-kernels")]
+#[test]
+fn benchmark_honors_partial_native_selection() {
+    let fixture = "examples/graphs/bubble.json";
+    let reduced = value(run("reduce", &[fixture]));
+    let report = value(run(
+        "bench",
+        &[
+            fixture,
+            "--reduction-kernels",
+            "native-denominators",
+            "--batch-sizes",
+            "2",
+            "--points",
+            "3",
+            "--rounds",
+            "1",
+        ],
+    ));
+    assert_eq!(
+        report["reduction_kernels"]["selection"],
+        "native-denominators"
+    );
+    assert_eq!(
+        report["reduction_kernels"]["other_reduction"],
+        "symbolica-interpreter"
+    );
+    assert_eq!(report["performance_acceptance"], false);
+    for case in report["cases"].as_array().unwrap() {
+        assert_eq!(case["diagnostic"]["failed_lanes"], 0);
+        assert_eq!(case["tail_lanes"], 1);
+        let lane = case["representative_source_lane"].as_u64().unwrap() as usize;
+        for (actual, expected) in case["representative_result"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .zip(reduced["results"][lane]["values"].as_array().unwrap())
+        {
+            for part in 0..2 {
+                let a: f64 = actual[part].as_str().unwrap().parse().unwrap();
+                let b: f64 = expected[part].as_str().unwrap().parse().unwrap();
+                assert!((a - b).abs() <= 1e-9 * (1. + b.abs()));
+            }
+        }
+    }
+}
+
 #[test]
 fn failed_lanes_are_reported_without_claiming_acceptance_or_rescue() {
     let directory =

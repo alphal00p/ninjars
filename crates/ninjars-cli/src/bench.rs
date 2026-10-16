@@ -13,7 +13,7 @@ use symbolica::{
 use crate::{
     numerator_coefficients::CoefficientScalar,
     prepare::{self, PreparedDocument},
-    reduce::{self, MuExtraction, NumeratorEvaluator, Precision},
+    reduce::{self, MuExtraction, NumeratorEvaluator, Precision, ReductionKernels},
     runtime::{CallTiming, DiagnosticTimings, EvaluationSession, NumericalPool},
 };
 
@@ -41,6 +41,9 @@ pub struct Args {
     /// Numerator preparation provider; coefficient evaluation stays inside every timed iteration.
     #[arg(long, value_enum, default_value = "symbolica")]
     pub numerator_evaluator: NumeratorEvaluator,
+    /// Reduction execution, independently of the numerator preparation provider.
+    #[arg(long, value_enum, default_value = "symbolica")]
+    pub reduction_kernels: ReductionKernels,
     #[arg(long)]
     pub bits: Option<u32>,
     /// Phase-space batch widths; the default 1025-point round includes tails.
@@ -81,6 +84,7 @@ impl Args {
             feynman_rules: self.feynman_rules,
             precision: self.precision,
             numerator_evaluator: self.numerator_evaluator,
+            reduction_kernels: self.reduction_kernels,
             bits: self.bits,
             batch_size: self.batch_sizes[0],
             cut_stop: self.cut_stop,
@@ -260,6 +264,7 @@ where
         "build_profile":if cfg!(debug_assertions) {"debug"} else {"release"},"thread_policy":"one reduction worker; no benchmark parallelism",
         "inputs":prepared.document,"source_pool_rows":prepared.samples.len(),"propagators":prepared.propagators,"rank":session.rank,"cut_stop":session.amplitude.cut_stop(),
         "numerator_provider":session.numerator_provider_info(),
+        "reduction_kernels":session.kernel_provider_info(),
         "requested_cut_stop":args.cut_stop,
         "box_reduction":{"mu_extraction":match args.mu_extraction {MuExtraction::Expansion=>"expansion",MuExtraction::Sampling=>"sampling"},
             "coefficient_mode":if args.full_box_coefficients {"full"}else{"integrated"},"mu_sampling_scale":args.mu_sampling_scale},
@@ -272,6 +277,7 @@ where
 }
 
 pub(crate) fn run(args: Args) -> Result<()> {
+    args.reduction_kernels.validate()?;
     args.numerator_evaluator.validate(args.precision)?;
     if args.bits.is_some() && !matches!(args.precision, Precision::Float) {
         return Err("--bits applies only to --precision float".into());
