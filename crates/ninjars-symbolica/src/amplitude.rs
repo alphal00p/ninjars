@@ -58,6 +58,7 @@ pub struct SymbolicaAmplitudeKernels<T> {
 
     n: usize,
     rank: usize,
+    rank_specialized_corrections: bool,
     prototype: T,
     box_options: BoxReductionOptions,
     accumulation: CompiledKernel<T>,
@@ -81,6 +82,7 @@ where
             native_tadpole: None,
             n: propagators,
             rank,
+            rank_specialized_corrections: false,
             prototype,
             box_options: BoxReductionOptions {
                 coefficients: BoxCoefficientMode::Integrated,
@@ -96,6 +98,20 @@ where
     pub fn with_box_options(mut self, options: BoxReductionOptions) -> Self {
         self.box_options = options;
         self
+    }
+
+    /// Opt into guarded n=5/r=4 correction bodies in the bubble/tadpole stages.
+    /// These alternates use the Symbolica interpreter; native selections remain
+    /// available as generic fallbacks. Either builder order preserves both.
+    /// With `native-kernels`, consult both backend reports when enabling this.
+    pub fn with_rank_specialized_corrections(mut self) -> Result<Self> {
+        crate::rank_specialization::require_supported(self.n, self.rank)?;
+        self.rank_specialized_corrections = true;
+        Ok(self)
+    }
+
+    pub fn rank_specialized_corrections_enabled(&self) -> bool {
+        self.rank_specialized_corrections
     }
 }
 impl<T: Real + SingleFloat> AmplitudeKernels<Complex<T>> for SymbolicaAmplitudeKernels<T>
@@ -132,17 +148,33 @@ where
     }
     fn bubble_kernels(&self) -> Result<Self::Bubbles> {
         #[cfg(feature = "native-kernels")]
-        if let Some(factory) = self.native_bubble {
-            return factory(self.n, self.rank, self.prototype.clone());
+        let kernels = if let Some(factory) = self.native_bubble {
+            factory(self.n, self.rank, self.prototype.clone())?
+        } else {
+            SymbolicaBubbleKernels::new(self.n, self.rank, self.prototype.clone())?
+        };
+        #[cfg(not(feature = "native-kernels"))]
+        let kernels = SymbolicaBubbleKernels::new(self.n, self.rank, self.prototype.clone())?;
+        if self.rank_specialized_corrections {
+            kernels.with_rank_specialized_corrections()
+        } else {
+            Ok(kernels)
         }
-        SymbolicaBubbleKernels::new(self.n, self.rank, self.prototype.clone())
     }
     fn tadpole_kernels(&self) -> Result<Self::Tadpoles> {
         #[cfg(feature = "native-kernels")]
-        if let Some(factory) = self.native_tadpole {
-            return factory(self.n, self.rank, self.prototype.clone());
+        let kernels = if let Some(factory) = self.native_tadpole {
+            factory(self.n, self.rank, self.prototype.clone())?
+        } else {
+            SymbolicaTadpoleKernels::new(self.n, self.rank, self.prototype.clone())?
+        };
+        #[cfg(not(feature = "native-kernels"))]
+        let kernels = SymbolicaTadpoleKernels::new(self.n, self.rank, self.prototype.clone())?;
+        if self.rank_specialized_corrections {
+            kernels.with_rank_specialized_corrections()
+        } else {
+            Ok(kernels)
         }
-        SymbolicaTadpoleKernels::new(self.n, self.rank, self.prototype.clone())
     }
     fn integration_kernels(&self, cut_size: usize) -> Result<Self::Integration> {
         SymbolicaIntegrationKernels::new(cut_size, self.rank > self.n, self.prototype.clone())
@@ -176,6 +208,7 @@ pub struct SymbolicaDualAmplitudeKernels<T, D> {
 
     n: usize,
     rank: usize,
+    rank_specialized_corrections: bool,
     prototype: T,
     dual: D,
     box_options: BoxReductionOptions,
@@ -198,6 +231,7 @@ where
             native_tadpole: None,
             n: propagators,
             rank,
+            rank_specialized_corrections: false,
             prototype,
             dual: dual.zero(),
             box_options: BoxReductionOptions {
@@ -214,6 +248,18 @@ where
     pub fn with_box_options(mut self, options: BoxReductionOptions) -> Self {
         self.box_options = options;
         self
+    }
+
+    /// See [`SymbolicaAmplitudeKernels::with_rank_specialized_corrections`].
+    /// The guard checks every higher/mixed derivative component.
+    pub fn with_rank_specialized_corrections(mut self) -> Result<Self> {
+        crate::rank_specialization::require_supported(self.n, self.rank)?;
+        self.rank_specialized_corrections = true;
+        Ok(self)
+    }
+
+    pub fn rank_specialized_corrections_enabled(&self) -> bool {
+        self.rank_specialized_corrections
     }
 }
 impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> AmplitudeKernels<D>
@@ -257,17 +303,39 @@ where
     }
     fn bubble_kernels(&self) -> Result<Self::Bubbles> {
         #[cfg(feature = "native-kernels")]
-        if let Some(factory) = self.native_bubble {
-            return factory(self.n, self.rank, self.prototype.clone(), &self.dual);
+        let kernels = if let Some(factory) = self.native_bubble {
+            factory(self.n, self.rank, self.prototype.clone(), &self.dual)?
+        } else {
+            SymbolicaDualBubbleKernels::new(self.n, self.rank, self.prototype.clone(), &self.dual)?
+        };
+        #[cfg(not(feature = "native-kernels"))]
+        let kernels =
+            SymbolicaDualBubbleKernels::new(self.n, self.rank, self.prototype.clone(), &self.dual)?;
+        if self.rank_specialized_corrections {
+            kernels.with_rank_specialized_corrections()
+        } else {
+            Ok(kernels)
         }
-        SymbolicaDualBubbleKernels::new(self.n, self.rank, self.prototype.clone(), &self.dual)
     }
     fn tadpole_kernels(&self) -> Result<Self::Tadpoles> {
         #[cfg(feature = "native-kernels")]
-        if let Some(factory) = self.native_tadpole {
-            return factory(self.n, self.rank, self.prototype.clone(), &self.dual);
+        let kernels = if let Some(factory) = self.native_tadpole {
+            factory(self.n, self.rank, self.prototype.clone(), &self.dual)?
+        } else {
+            SymbolicaDualTadpoleKernels::new(self.n, self.rank, self.prototype.clone(), &self.dual)?
+        };
+        #[cfg(not(feature = "native-kernels"))]
+        let kernels = SymbolicaDualTadpoleKernels::new(
+            self.n,
+            self.rank,
+            self.prototype.clone(),
+            &self.dual,
+        )?;
+        if self.rank_specialized_corrections {
+            kernels.with_rank_specialized_corrections()
+        } else {
+            Ok(kernels)
         }
-        SymbolicaDualTadpoleKernels::new(self.n, self.rank, self.prototype.clone(), &self.dual)
     }
     fn integration_kernels(&self, cut_size: usize) -> Result<Self::Integration> {
         SymbolicaDualIntegrationKernels::new(
@@ -327,13 +395,22 @@ impl<T: Real + SingleFloat> SymbolicaAmplitudeKernels<T>
 where
     Complex<T>: Real + EvaluationDomain,
 {
-    /// Per-family selection; this does not claim a fully native amplitude.
+    /// Generic/fallback per-family selection, not the conditional alternate.
+    /// When specialization is enabled, also consult
+    /// [`Self::rank_specialized_correction_backend`].
     pub fn kernel_backends(&self) -> [crate::KernelBackendSelection; 8] {
         crate::native_kernels::coverage(
             self.native_triangle.is_some(),
             self.native_bubble_corrections,
             self.native_tadpole_projections,
         )
+    }
+
+    /// Backend of guarded correction alternates; generic fallback selections
+    /// remain in [`Self::kernel_backends`]. Actual selection depends on inputs.
+    pub fn rank_specialized_correction_backend(&self) -> Option<crate::KernelBackend> {
+        self.rank_specialized_corrections
+            .then_some(crate::KernelBackend::SymbolicaInterpreter)
     }
 }
 
@@ -368,7 +445,9 @@ impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualAmpli
 where
     Complex<T>: Real + EvaluationDomain,
 {
-    /// Per-family selection; this does not claim a fully native amplitude.
+    /// Generic/fallback per-family selection, not the conditional alternate.
+    /// When specialization is enabled, also consult
+    /// [`Self::rank_specialized_correction_backend`].
     pub fn kernel_backends(&self) -> [crate::KernelBackendSelection; 8] {
         let supported = crate::native_kernels::supported_shape(&self.dual.get_shape());
         crate::native_kernels::coverage(
@@ -376,5 +455,12 @@ where
             false,
             self.native_tadpole_projections && supported,
         )
+    }
+
+    /// Backend of guarded correction alternates; see [`Self::kernel_backends`]
+    /// for the separate generic fallback selections.
+    pub fn rank_specialized_correction_backend(&self) -> Option<crate::KernelBackend> {
+        self.rank_specialized_corrections
+            .then_some(crate::KernelBackend::SymbolicaInterpreter)
     }
 }

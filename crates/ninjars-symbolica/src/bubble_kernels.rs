@@ -4,7 +4,8 @@ use crate::{
     BubbleSourceProjection, DenominatorExpansion, LaurentDivision, ResidueProjection,
     TriangleBubbleSubtraction,
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor},
-    value_checks::{DualChecks, OrdinaryChecks, ValueChecks},
+    rank_specialization::{self, GuardedCorrection},
+    value_checks::{DualChecks, IntegrationChecks, OrdinaryChecks},
 };
 use ninjars::{
     BatchShape, BubbleCut, BubbleDivisionRequest, BubbleReductionKernels,
@@ -30,6 +31,7 @@ struct Engine<V, K, Checks> {
     swap: K,
     source_projection: K,
     correction: K,
+    specialized_correction: Option<GuardedCorrection<K>>,
     subtraction: K,
     zero: V,
     checks: std::marker::PhantomData<fn() -> Checks>,
@@ -67,7 +69,7 @@ fn append_denominator<V: Clone>(
     output.push(masses[line].clone());
 }
 
-impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Checks> {
+impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V, K, Checks> {
     fn values_are_finite(&self, values: &[V]) -> bool {
         values.iter().all(Checks::finite)
     }
@@ -117,6 +119,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             swap,
             source_projection,
             correction,
+            specialized_correction: None,
             subtraction,
             zero: prototype.zero(),
             checks: std::marker::PhantomData,
@@ -132,6 +135,27 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
 
     fn valid(&self, value: &V) -> bool {
         Checks::shape_matches(value, &self.zero) && Checks::finite(value)
+    }
+
+    fn specialize_correction(
+        &mut self,
+        mut compile: impl FnMut(&ExactKernel) -> Result<K>,
+    ) -> Result<()> {
+        rank_specialization::require_supported(self.n, self.rank)?;
+        let zero_slots = rank_specialization::zero_slots(self.n, self.rank, 3)?;
+        let plan = TriangleBubbleSubtraction::for_quotient(&self.layout)?;
+        let heads: Vec<_> = (0..plan.exact.expressions.len()).collect();
+        let exact = rank_specialization::specialize(
+            &plan.exact,
+            &heads,
+            plan.input_layout().residue.clone(),
+            &zero_slots,
+        );
+        self.specialized_correction = Some(GuardedCorrection {
+            kernel: compile(&exact)?,
+            zero_slots,
+        });
+        Ok(())
     }
 
     fn swapped(&mut self, cuts: &[&BubbleCut<V>], output: &mut [FourMomentum<V>]) -> Result<()> {
@@ -422,8 +446,24 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         }
         self.values
             .resize(self.active.len() * width, self.zero.clone());
-        self.correction
-            .evaluate(&self.input, &mut self.values, self.active.len())?;
+        // An arbitrary public stage caller may supply coefficients outside the
+        // rank subspace. Test every derivative component of every active row;
+        // a single violation keeps the entire batch on its generic backend.
+        let specialized = self.specialized_correction.as_ref().is_some_and(|plan| {
+            self.active.iter().all(|&row| {
+                plan.zero_slots
+                    .iter()
+                    .all(|&slot| Checks::is_zero(&requests[row].source.coefficients[slot]))
+            })
+        });
+        let correction = if specialized {
+            &mut self.specialized_correction.as_mut().unwrap().kernel
+        } else {
+            &mut self.correction
+        };
+        #[cfg(test)]
+        rank_specialization::record(0, specialized, self.active.len());
+        correction.evaluate(&self.input, &mut self.values, self.active.len())?;
         for (index, &row) in self.active.iter().enumerate() {
             let values = &self.values[index * width..(index + 1) * width];
             stable[row] = values.iter().all(Checks::finite);
@@ -542,6 +582,21 @@ where
             engine: Engine::new(propagators, rank, &zero, |exact| exact.compile(&prototype))?,
         })
     }
+
+    /// Opt into interpreted rank-specialized triangle corrections for n=5/r=4.
+    /// Every active parent's structural zeros are checked exactly, including
+    /// all Dual components in the Dual variant. Any violation selects the
+    /// existing generic batch backend. Both bubble orientations stay complete.
+    pub fn with_rank_specialized_corrections(mut self) -> Result<Self> {
+        let prototype = self.engine.zero.re.clone();
+        self.engine
+            .specialize_correction(|exact| exact.compile(&prototype))?;
+        Ok(self)
+    }
+
+    pub fn rank_specialized_corrections_enabled(&self) -> bool {
+        self.engine.specialized_correction.is_some()
+    }
 }
 
 /// Static/dynamic Dual execution of the same exact bubble graphs.
@@ -558,6 +613,19 @@ where
                 exact.compile_dual(&prototype, dual)
             })?,
         })
+    }
+
+    /// See [`SymbolicaBubbleKernels::with_rank_specialized_corrections`].
+    pub fn with_rank_specialized_corrections(mut self) -> Result<Self> {
+        let dual = self.engine.zero.clone();
+        let prototype = dual.values()[0].re.clone();
+        self.engine
+            .specialize_correction(|exact| exact.compile_dual(&prototype, &dual))?;
+        Ok(self)
+    }
+
+    pub fn rank_specialized_corrections_enabled(&self) -> bool {
+        self.engine.specialized_correction.is_some()
     }
 }
 

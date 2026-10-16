@@ -139,7 +139,7 @@ fn near_zero(value: Complex<f64>, context: &str) {
     );
 }
 
-fn check_lower_stages(n: usize, rank: usize, expression: Atom, label: &str) {
+fn check_lower_stages(n: usize, rank: usize, expression: Atom, label: &str, specialized: bool) {
     let topology = Topology::new(n, rank).unwrap();
     let lanes = 2;
     let routing = routing();
@@ -192,8 +192,13 @@ fn check_lower_stages(n: usize, rank: usize, expression: Atom, label: &str) {
             );
         }
     }
-    let mut bubble =
-        BubbleReducer::new(SymbolicaBubbleKernels::new(n, rank, 0.).unwrap(), c(0.)).unwrap();
+    let bubble_kernels = SymbolicaBubbleKernels::new(n, rank, 0.).unwrap();
+    let bubble_kernels = if specialized {
+        bubble_kernels.with_rank_specialized_corrections().unwrap()
+    } else {
+        bubble_kernels
+    };
+    let mut bubble = BubbleReducer::new(bubble_kernels, c(0.)).unwrap();
     let mut bubbles =
         vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); bubble.cut_count() * lanes];
     bubble
@@ -222,8 +227,13 @@ fn check_lower_stages(n: usize, rank: usize, expression: Atom, label: &str) {
             );
         }
     }
-    let mut tadpole =
-        TadpoleReducer::new(SymbolicaTadpoleKernels::new(n, rank, 0.).unwrap(), c(0.)).unwrap();
+    let tadpole_kernels = SymbolicaTadpoleKernels::new(n, rank, 0.).unwrap();
+    let tadpole_kernels = if specialized {
+        tadpole_kernels.with_rank_specialized_corrections().unwrap()
+    } else {
+        tadpole_kernels
+    };
+    let mut tadpole = TadpoleReducer::new(tadpole_kernels, c(0.)).unwrap();
     let mut tadpoles =
         vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); tadpole.cut_count() * lanes];
     tadpole
@@ -271,7 +281,7 @@ fn exact_box_residues_cancel_from_all_lower_stages_without_parent_subtraction() 
         (6, vec![1, 2, 4, 5]),
     ] {
         for rank in [n, n + 1] {
-            check_lower_stages(n, rank, box_numerator(n, rank, &partition), "box");
+            check_lower_stages(n, rank, box_numerator(n, rank, &partition), "box", false);
         }
     }
 }
@@ -280,7 +290,33 @@ fn exact_box_residues_cancel_from_all_lower_stages_without_parent_subtraction() 
 fn exact_pentagon_residues_cancel_from_all_lower_stages_without_parent_subtraction() {
     for (n, partition) in [(5, vec![0, 1, 2, 3, 4]), (6, vec![1, 2, 3, 4, 5])] {
         for rank in [n, n + 1] {
-            check_lower_stages(n, rank, pentagon_numerator(n, &partition), "pentagon");
+            check_lower_stages(
+                n,
+                rank,
+                pentagon_numerator(n, &partition),
+                "pentagon",
+                false,
+            );
         }
+    }
+}
+
+#[test]
+fn rank_specialization_preserves_independent_exact_n5_r4_parent_cancellation() {
+    for specialized in [false, true] {
+        check_lower_stages(
+            5,
+            4,
+            box_numerator(5, 4, &[1, 2, 3, 4]),
+            "n5/r4 exact box",
+            specialized,
+        );
+        check_lower_stages(
+            5,
+            4,
+            pentagon_numerator(5, &[0, 1, 2, 3, 4]),
+            "n5/r4 exact pentagon",
+            specialized,
+        );
     }
 }

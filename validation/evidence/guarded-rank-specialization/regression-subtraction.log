@@ -1,0 +1,10 @@
+
+running 6 tests
+test higher_and_mixed_dual_subtraction_matches_symbolic_derivatives ... ok
+test subtraction_layout_scalar_batch_permutation_and_failed_shape ... ok
+test tadpole_coefficients_match_original_generated_subtractions ... ignored, requires C++ compiler and validation/reference/build.py artifacts
+test tadpole_dual_retains_mu_terms_and_mixed_parameter_derivatives ... ok
+test tadpole_subtractions_preserve_offsets_and_full_layout ... ok
+test triangle_bubble_matches_original_subtractions_with_offset_origins ... ignored, requires C++ compiler and validation/reference/build.py artifacts
+
+test result: ok. 4 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.09s

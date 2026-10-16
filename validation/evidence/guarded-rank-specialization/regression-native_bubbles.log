@@ -1,0 +1,9 @@
+
+running 5 tests
+test checked_in_bubble_catalog_is_the_exact_plan_export ... ok
+test empty_quotient_and_dual_corrections_keep_interpreter_fallback ... ok
+test every_semantic_degree_precision_batch_and_transactional_shape ... ok
+test tracked_precision_inputs_are_not_promoted_to_working_precision ... ok
+test warmed_native_bubble_storage_has_no_f64_allocations ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.94s

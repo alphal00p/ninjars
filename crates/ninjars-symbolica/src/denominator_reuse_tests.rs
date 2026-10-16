@@ -111,6 +111,89 @@ fn vars() -> [Atom; 5] {
         parse!("mu2"),
     ]
 }
+
+#[test]
+fn rank_specialization_full_lower_stage_coefficient_parity() {
+    let zero = Complex::new(0., 0.);
+    let (n, rank) = (5, 4);
+    let mut numerator = PolynomialNumerator::new(expression(rank), vars(), vec![], 0.).unwrap();
+    let mut cuts = SymbolicaCuts::new(0.).unwrap();
+    let mut triangle =
+        TriangleReducer::new(SymbolicaTriangleKernels::new(n, rank, 0.).unwrap(), zero).unwrap();
+    let make_b = || SymbolicaBubbleKernels::new(n, rank, 0.).unwrap();
+    let make_t = || SymbolicaTadpoleKernels::new(n, rank, 0.).unwrap();
+    let mut b =
+        BubbleReducer::new(make_b().with_rank_specialized_corrections().unwrap(), zero).unwrap();
+    let mut old_b = BubbleReducer::new(Separate(make_b()), zero).unwrap();
+    let mut t =
+        TadpoleReducer::new(make_t().with_rank_specialized_corrections().unwrap(), zero).unwrap();
+    let mut old_t = TadpoleReducer::new(Separate(make_t()), zero).unwrap();
+    let topology = Topology::new(n, rank).unwrap();
+    for (lanes, bad, reverse) in [
+        (1, false, false),
+        (3, false, true),
+        (3, true, false),
+        (0, false, false),
+        (1, false, false),
+    ] {
+        numerator.set_parameter_batch(&[], lanes).unwrap();
+        let (mut shifts, mut masses) = kinematics(&zero, n, lanes);
+        if reverse {
+            shifts = shifts.chunks(n).rev().flatten().cloned().collect();
+            masses = masses.chunks(n).rev().flatten().cloned().collect();
+        }
+        if bad {
+            masses[n].re = f64::NAN;
+        }
+        let mut triangles =
+            vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); triangle.cut_count() * lanes];
+        triangle
+            .evaluate_batch(
+                &shifts,
+                &masses,
+                lanes,
+                &mut numerator,
+                &mut cuts,
+                &mut triangles,
+            )
+            .unwrap();
+        crate::rank_specialization::ROWS.with(|c| c.set([0; 6]));
+        let (_, _, stable) = compare(
+            &mut b,
+            &mut old_b,
+            &mut t,
+            &mut old_t,
+            &topology,
+            &triangles,
+            &shifts,
+            &masses,
+            lanes,
+            &mut numerator,
+            &mut cuts,
+            |a, b| {
+                assert!(
+                    (a - b).norm().re <= 1e-9 * (1. + a.norm().re + b.norm().re),
+                    "{a} != {b}"
+                );
+            },
+        );
+        let good = lanes - usize::from(bad);
+        assert_eq!(stable, 15 * good);
+        let dispatched = crate::rank_specialization::ROWS.with(|c| c.get());
+        // Both bubble orientations and all parent source kinds remain present.
+        assert_eq!(
+            dispatched,
+            [
+                60 * good,
+                60 * good,
+                30 * good,
+                30 * good,
+                20 * good,
+                20 * good
+            ]
+        );
+    }
+}
 fn expression(rank: usize) -> Atom {
     match rank {
         2 => parse!("q0^2+q1+3*mu2+2"),

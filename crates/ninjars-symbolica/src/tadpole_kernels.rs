@@ -3,7 +3,8 @@
 use crate::{
     DenominatorExpansion, LaurentDivision, TadpoleSourceProjection, TadpoleSubtraction,
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor},
-    value_checks::{DualChecks, OrdinaryChecks, ValueChecks},
+    rank_specialization::{self, GuardedCorrection},
+    value_checks::{DualChecks, IntegrationChecks, OrdinaryChecks},
 };
 use ninjars::{
     BatchShape, Complex, CutFailure, Error, ExpansionKind, FloatLike, FourMomentum, Real, Result,
@@ -28,6 +29,7 @@ struct Engine<V, K, Checks> {
     sum: K,
     source_projection: [Option<K>; 2],
     subtraction: [Option<K>; 2],
+    specialized_subtraction: [Option<GuardedCorrection<K>>; 2],
     correction_columns: usize,
     correction_map: Vec<usize>,
     extras: Vec<Vec<usize>>,
@@ -47,7 +49,7 @@ fn vars(n: usize, scope: &str) -> Vec<Atom> {
         .map(|i| Atom::var(symbol!(format!("ninjars_tadpole_{scope}::p{i}"))))
         .collect()
 }
-impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Checks> {
+impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V, K, Checks> {
     fn new(
         n: usize,
         rank: usize,
@@ -161,6 +163,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             sum,
             source_projection,
             subtraction,
+            specialized_subtraction: [None, None],
             correction_columns,
             correction_map,
             extras,
@@ -174,6 +177,47 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             eligible: Vec::new(),
             active: Vec::new(),
         })
+    }
+
+    fn specialize_corrections(
+        &mut self,
+        mut compile: impl FnMut(&ExactKernel) -> Result<K>,
+    ) -> Result<()> {
+        let n = self.topology.propagators();
+        let rank = self.topology.rank();
+        rank_specialization::require_supported(n, rank)?;
+        if self.layout.quotient_expansion()
+            != &(ExpansionKind::T3 {
+                powers: vec![(0, 0)],
+            })
+        {
+            return Err(Error::Unsupported(
+                "guarded tadpole specialization requires the constant-only T3 quotient".into(),
+            ));
+        }
+        let mut specialized = [None, None];
+        for (kind, source_size) in [3, 2].into_iter().enumerate() {
+            let zero_slots = rank_specialization::zero_slots(n, rank, source_size)?;
+            let plan = TadpoleSubtraction::new(source_size, false)?;
+            let ExpansionKind::T3 { powers } = plan.output_expansion() else {
+                unreachable!()
+            };
+            let constant = powers.iter().position(|&p| p == (0, 0)).ok_or_else(|| {
+                Error::Expansion("tadpole correction has no constant head".into())
+            })?;
+            let exact = rank_specialization::specialize(
+                &plan.exact,
+                &[constant],
+                plan.input_layout().residue.clone(),
+                &zero_slots,
+            );
+            specialized[kind] = Some(GuardedCorrection {
+                kernel: compile(&exact)?,
+                zero_slots,
+            });
+        }
+        self.specialized_subtraction = specialized;
+        Ok(())
     }
 
     fn status(&self, values: &[V]) -> Option<CutFailure> {
@@ -519,22 +563,48 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
                     self.input.extend_from_slice(den);
                 }
             }
-            self.values.resize(
-                self.active.len() * self.correction_columns,
-                self.zero.clone(),
-            );
-            self.subtraction[kind].as_mut().unwrap().evaluate(
-                &self.input,
-                &mut self.values,
-                self.active.len(),
-            )?;
+            // Keep all rows of a source kind together. Shape/finite checks
+            // above precede the all-component structural-zero guard.
+            let specialized = self.specialized_subtraction[kind]
+                .as_ref()
+                .is_some_and(|plan| {
+                    self.active.iter().all(|&row| {
+                        let coefficients = match &requests[row].source {
+                            TadpoleSource::Triangle(r) => &r.coefficients,
+                            TadpoleSource::Bubble(r) => &r.coefficients,
+                        };
+                        plan.zero_slots
+                            .iter()
+                            .all(|&slot| Checks::is_zero(&coefficients[slot]))
+                    })
+                });
+            let columns = if specialized {
+                1
+            } else {
+                self.correction_columns
+            };
+            self.values
+                .resize(self.active.len() * columns, self.zero.clone());
+            let kernel = if specialized {
+                &mut self.specialized_subtraction[kind].as_mut().unwrap().kernel
+            } else {
+                self.subtraction[kind].as_mut().unwrap()
+            };
+            #[cfg(test)]
+            rank_specialization::record(1 + kind, specialized, self.active.len());
+            kernel.evaluate(&self.input, &mut self.values, self.active.len())?;
             for (index, &row) in self.active.iter().enumerate() {
-                let values = &self.values
-                    [index * self.correction_columns..(index + 1) * self.correction_columns];
+                let values = &self.values[index * columns..(index + 1) * columns];
+                // The generic path still evaluates and checks BOTH heads,
+                // even though only its constant is copied to the quotient.
                 stable[row] = values.iter().all(Checks::finite);
                 if stable[row] {
-                    for (column, &source) in self.correction_map.iter().enumerate() {
-                        output[row * width + column] = values[source].clone();
+                    if specialized {
+                        output[row] = values[0].clone();
+                    } else {
+                        for (column, &source) in self.correction_map.iter().enumerate() {
+                            output[row * width + column] = values[source].clone();
+                        }
                     }
                 }
             }
@@ -664,6 +734,24 @@ where
             engine: Engine::new(propagators, rank, &zero, |exact| exact.compile(&prototype))?,
         })
     }
+
+    /// Opt into interpreted rank-specialized constant corrections for n=5/r=4.
+    /// A whole source-kind batch uses the alternate only when every active
+    /// parent's structural-zero coefficients are exactly zero. The generic
+    /// fallback retains its full output and finite checks.
+    pub fn with_rank_specialized_corrections(mut self) -> Result<Self> {
+        let prototype = self.engine.zero.re.clone();
+        self.engine
+            .specialize_corrections(|exact| exact.compile(&prototype))?;
+        Ok(self)
+    }
+
+    pub fn rank_specialized_corrections_enabled(&self) -> bool {
+        self.engine
+            .specialized_subtraction
+            .iter()
+            .all(Option::is_some)
+    }
 }
 
 /// The same tadpole coefficients through shared static or runtime Dual bodies.
@@ -680,6 +768,23 @@ where
                 exact.compile_dual(&prototype, dual)
             })?,
         })
+    }
+
+    /// See [`SymbolicaTadpoleKernels::with_rank_specialized_corrections`].
+    /// Structural zeros are checked across every higher/mixed Dual component.
+    pub fn with_rank_specialized_corrections(mut self) -> Result<Self> {
+        let dual = self.engine.zero.clone();
+        let prototype = dual.values()[0].re.clone();
+        self.engine
+            .specialize_corrections(|exact| exact.compile_dual(&prototype, &dual))?;
+        Ok(self)
+    }
+
+    pub fn rank_specialized_corrections_enabled(&self) -> bool {
+        self.engine
+            .specialized_subtraction
+            .iter()
+            .all(Option::is_some)
     }
 }
 
