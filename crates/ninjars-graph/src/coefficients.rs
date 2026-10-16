@@ -146,6 +146,21 @@ impl PolynomialCoefficientPlan {
     pub fn polynomial(&self) -> &MultivariatePolynomial<AtomField, i32> {
         &self.polynomial
     }
+
+    /// Factor external coefficients exactly with Symbolica before compiling.
+    /// This is an optional setup operation: it can change floating-point
+    /// evaluation order and does not guarantee improved conditioning. Rebuild
+    /// the template because previously distinct heads may become identical.
+    pub fn factor_coefficients(self) -> Result<Self> {
+        // Algebra audit: AtomCore::factor and its documented exact identity;
+        // poly/factor.rs and examples/factorization.rs; FeynKit's installed
+        // FeynCalc WW/Higgs/Z controls. Mapping/flattening also uses Symbolica.
+        let expression = self
+            .polynomial
+            .map_coeff(|coefficient| coefficient.factor(), field())
+            .flatten(false);
+        Self::new(expression, self.variables, self.parameters)
+    }
     pub fn variables(&self) -> &[Atom; 5] {
         &self.variables
     }
