@@ -1,115 +1,93 @@
 # Matched numerator and master benchmark boundary
 
-The current complete-evaluation harness correctly keeps process setup, input
-parsing, compilation, packing, JSON and IPC outside its timers. It does not yet
-provide the strict matched-provider comparison requested for reduction.
+The validation harness in `validation/performance/shared_provider` compares
+original Ninja and NinjaRS with the same numerator provider and an explicitly
+selected master provider. It covers synthetic bubbles and a verified top-quark
+gg→HHH pentagon (graph 26). It is separate from the production Rust workspace.
+The executable scopes, commands, retained measurements and limitations are
+documented in [`TIMING.md`](../validation/performance/shared_provider/TIMING.md).
 
-`reference_bench.rs:54` exports the complete physical expression with raw external
-parameters. `benchmark_runner.cc:100` rebinds those parameters and invokes compiled
-C++ numerator callbacks. The new Rust SymJIT mode instead computes physical
-coefficient heads once in `runtime.rs::begin_batch`, then calls the Symbolica
-polynomial adapter. Passing only the new Rust flag through `compare.py` would
-compare different numerator preparation scopes and different callback backends.
+## What each measurement includes
 
-The original harness had no in-process shared-provider bridge.
-Symbolica's C++ API exposes polynomial simplification, not its JIT evaluator;
-the pinned SymJIT package is an rlib. The smallest strict control is a validation
-bridge around existing public Rust providers, kept outside the production Cargo
-workspace. Both reducers must use the same out-of-line provider functions if
-bridge overhead is included in an eventual latency claim. A Rust-native call on
-one side and an FFI call on the other is a correctness probe, not a matched
-latency control.
+| Scope | Work inside the measured region |
+|---|---|
+| `preparation` | Raw momentum/model staging, FeynKit wavefunctions, dependent parameters, factored multi-output SymJIT O2 coefficient evaluation, propagators and numerator binding |
+| `shared-reduction` | Prepared-input staging, reduction, the common numerator callbacks, frozen master lookup, contraction and output staging |
+| `shared-live-complete` | Preparation and reduction with the common numerator and live Symbolica master providers |
+| `production-complete` | Preparation and reduction with the common numerator, using original Ninja/OneLOop or NinjaRS/SymbolicaMasters |
 
-The first probe under `validation/performance/shared_provider` covers the
-numerator boundary. A C++ `ninja::Numerator` subclass calls the same Rust
-`PolynomialNumerator<f64>` implementation through explicit dimensioned arrays of
-`{double re, double im}`. No `std::complex`/Rust layout cast is permitted. Handles
-own their provider and scratch; callers retain input buffers only for a call.
-Errors and caught Rust panics become status codes, with no unwinding across the
-ABI. The probe compares the direct, mu, T3 and T2 responses with safe Rust calls,
-including both ordinary and higher-rank mu layouts, then lets original Ninja
-reduce an analytic triangle control. A second correctness probe captures the
-actual master-request union of both reducers for ordinary/higher-rank bubbles,
-then freezes and replays it without executing master expressions. Neither is a
-timed benchmark. The first integrated Rust control constructs its topology and
-geometry for each call and uses direct Rust providers. A separate retained
-session now calls the same non-inlined provider entry points as C++, retaining
-its numerical wire buffers and topology/geometry. It is checked against that
-direct control. Remaining descriptor/master staging allocations and the
-underlying providers must be measured before accepting its warmed cost.
+The reduction scope excludes master expression execution. Frozen master lookup
+and transport remain timed work and must not be described as computing masters.
+Complete evaluation bypasses the frozen table, including for repeated points.
+Original OneLOop's result cache must be disabled. Ordinary allocations, copies,
+descriptor construction and callback transport are included in every applicable
+scope; graph import, symbolic preparation, evaluator compilation and topology
+construction are setup.
 
-The audited original virtual interface is `ninja/num_defs.hh`: direct receives
-`q,mu_squared,cut,partition`; mu receives one vector for ordinary rank and two for
-rank n+1 and has no cut-count argument; T3 receives three vectors and beta; T2
-receives four vectors and three betas. T3 `mindeg=0..4` output counts are
-`1,2,4,6,9`, and T2 `mindeg=0..3` counts are `1,3,7,13`. The existing reference
-exporter is the authoritative adapter-order control. The probe carries lane and
-sample identity explicitly and binds coefficient rows before invoking callbacks.
+Master computation and reduction require separate reported times. Primary
+aggregate timings stay uninstrumented. A separate diagnostic pass must measure
+actual backend execution and identifies numerator/preparation/transport spans;
+inclusive master transport must not be added to its nested backend duration.
+Time outside master execution still includes lookup and transport. Do not infer
+master cost by subtracting measurements from different runs or confuse a cached
+lookup with an actual backend call. Diagnostic instrumentation overhead is not
+removed from primary timings, because those builds contain no such timers.
 
-The next reduction-only mode will bind identical precomputed coefficient rows
-and query an immutable master table populated outside timing. Its scope must be
-named **reduction, contraction and shared master lookup**, since lookup overhead
-is still included. Original Ninja's public `Amplitude::setIntegralLibrary`
-accepts an `IntegralLibrary` subclass. Override real and complex A0, B0,
-rank-two/rank-three bubbles, C0 and D0; rank-three must be overridden rather than
-falling back to the original lower-rank derivation. Preserve `[finite,single
-pole,double pole]`, B1/B11/B111 conventions and the D0 invariant order.
+## Identical provider boundaries
 
-The correctness prototype builds the table from the union of both reducers' requests, using the shared
-provider to evaluate all entries once before timing. Keys contain the integral
-kind, scale, ordered invariant and squared-mass values. Use the same explicit
-S-matrix rows to avoid independently rounded invariant keys, and fail on a miss
-rather than computing or approximating a missing value. Do not cache by cut
-number alone, drop scale, or reorder masses. Replay is an explicit reduction
-experiment; neither production master backend may silently acquire result
-caching. The initial prototype uses exact f64 component bits, including signed
-zero, reports source-specific and shared key counts, and explicitly rejects
-unknown replay keys. Its integrated controls cover A0/B0/B1/B11/B111; integrated
-C0/D0 controls, live-master timing and allocation measurements are still
-required. Separate frozen-key checks
-cover C0/D0 real/complex-mass virtual argument order and scale propagation.
+Both reducers invoke the same out-of-line Rust numerator entry points. The
+validation ABI uses dimensioned arrays of `{double re, double im}`, with explicit
+lane and sample identity; there are no `std::complex`/Rust layout casts. Retained
+handles own providers and scratch, while input borrows last only for a call.
+Errors and caught Rust panics become status codes without unwinding across the
+ABI. No production core FFI or additional algebra is introduced.
 
-For complete physical evaluation, retain the raw phase-space parameter pool and
-invoke the same multi-output SymJIT coefficient evaluator inside every timed
-point/batch in both pipelines. Compilation remains setup. The retained physical
-bridge deliberately gives both pipelines the same preparation batch width:
-wavefunctions, parameter bindings and coefficient heads are prepared together
-for all rows. Original Ninja then reduces those rows one at a time; NinjaRS
-receives the complete reduction batch. Thus original preparation is batched,
-even though its reduction callbacks are scalar. Bind the result once per phase-space lane, then perform all callbacks, reduction and
-production master evaluation. Keep each production master backend named in the
-report; a shared live-master mode can be added separately. Precomputed
-coefficients are permitted only in the explicitly reduction-only mode.
+Original Ninja's `Numerator` callbacks and Rust callbacks retain their distinct
+batch widths while sharing the arithmetic provider. The original interface has
+one vector for ordinary-rank mu expansion and two for rank n+1; T3 takes three
+vectors and beta, and T2 takes four vectors and three betas. The reference
+exporter and direct callback probes check coefficient ordering and expansion
+depths separately from integrated results.
 
-The existing four-photon fixture rows vary helicities/polarizations at one
-momentum point. They must not be called changing phase space. A physical timing
-pool must include distinct momentum/invariant points at fixed helicity, generated
-with shared FeynKit wavefunction APIs and independently checked against the
-reference. Separate repeated-point, changing-phase-space, and helicity-variation
-workloads; record distinct kinematic and polarization hashes. Static graph/rule
-construction and parsing are setup, while the numerical coefficient evaluation
-is mandatory timed work. The full physical acceptance boundary starts with momenta plus helicities and
-model bindings: per-point wavefunction/polarization and numerical parameter
-evaluation must also occur inside timing on both sides. The initial existing
-fixture benchmark starts later, with prebound component vectors and couplings,
-and must be labeled accordingly. Static graph generation stays outside either
-timer; prebound wavefunction/coupling preparation is never reported as timed.
+The frozen master table contains the union of requests actually made by both
+reducers. Its keys retain integral kind, scale, ordered invariants and squared
+masses, using exact f64 component bits, including signed zero. Both reducers use
+the same explicit S-matrix rows. An unknown key fails instead of executing a
+master or approximating a match. Controls cover A0/B0/B1/B11/B111 and C0/D0,
+including real/complex virtual argument ordering. The original rank-three bubble
+override prevents a hidden lower-rank fallback from changing this boundary.
 
-Before retained timing: verify every Laurent coefficient and finite split,
-callback counts and coefficient binding counts, ordinary/higher-rank layouts,
-empty/single/tail/permuted batches, invalid lengths and error propagation,
-master key completeness and scale variation, and unchanged result checksums.
-Run optimized builds on a quiet pinned CPU with identical thread/fast-math/cache
-policies, reverse process order in independent runs, retain raw rounds and
-uncertainty, and keep busy-host observations diagnostic. The validation bridge
-and shared master replay now have correctness controls; measured reduction
-throughput and a changing-kinematics large physical benchmark remain separate
-milestones.
+The older standalone reference benchmark uses compiled C++ callbacks over raw
+parameters, whereas the production Rust SymJIT path prepares coefficient heads
+before reduction. It remains useful for validation but does not establish a
+matched-provider reduction comparison. The shared bridge supplies that control.
 
-The concrete driver is documented in
-[`TIMING.md`](../validation/performance/shared_provider/TIMING.md). Its timing
-warmup checks integrated Laurent coefficients and internal finite-split
-identities. Independent raw numerator samples, Float256 coefficient oracles,
-transactional preparation and width-zero controls belong to the separate
-physical probe; their source and dependency revisions must be recorded beside
-timing results rather than described as re-executed by timing warmup.
+## Physical workload and evidence
+
+Both paths receive physical preparation at the same batch width, including
+coefficient evaluation. Original Ninja then reduces lanes individually; NinjaRS
+receives the whole batch. Complete records start from momenta, helicities and
+model bindings. These records include validation FFI and staging and are not
+unmodified production CLI latency.
+
+The fixed physical pool has three distinct phase-space points at fixed `pp`
+helicity. Changing-point records rotate this pool; repeated records use its
+first point. Helicity changes at fixed momentum are a different workload and
+must not be labeled changing phase space. Warmup exercises every pool point and
+callback layout, then checks Laurent coefficients against original Ninja and
+independent MadLoop values. It also checks each backend's internal finite split;
+cross-backend rational/cut-constructible component parity remains incomplete.
+
+The separate physical probe checks independent raw numerator samples, a Float256
+coefficient oracle, transactional preparation and empty/tail batches. Its source,
+artifact and dependency identities are retained alongside timing evidence.
+Historical correctness evidence is not silently promoted to current sources.
+
+Performance acceptance requires aligned optimized builds without fast-math,
+matching cache policies, contiguous repeated timing blocks, balanced execution
+order, retained raw samples and uncertainty, and reviewed host conditions.
+Widths 1, 8, 32, 128 and 1024, incomplete tails and changing inputs remain required.
+CPU affinity alone does not reserve a CPU or its SMT sibling. Current retained
+timings are diagnostic and do not meet the reduction performance gates. The
+concrete historical sampling/profile limitations remain recorded in `TIMING.md`
+and the immutable evidence indexes.
