@@ -1,0 +1,590 @@
+{
+  "checks": 4480,
+  "graphs": [
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.3639233009752325e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 2.3831434992987907e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 2.17795065870553e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.3639233009752325e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.0178160678401148e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 4.069974138067939e-14,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 2.3872465154160565e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 2.1445473878799277e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        2,
+        0,
+        1
+      ],
+      "directed_physical_cycle": [
+        1,
+        5,
+        2
+      ],
+      "exact_normalization_control": "2*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94*UFO::{}::MH^(-2)*UFO::{}::MT^3",
+      "feynkit_orientation": 0,
+      "madloop_filter_id": 11,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.3639233009752325e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 2.3831434992987907e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 2.17795065870553e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.3639233009752325e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.06616738259507e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 3.1758367718564316e-14,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 2.3872465154160565e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 2.1445473878799277e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        2,
+        0,
+        1
+      ],
+      "directed_physical_cycle": [
+        1,
+        2,
+        5
+      ],
+      "exact_normalization_control": "2*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94*UFO::{}::MH^(-2)*UFO::{}::MT^3",
+      "feynkit_orientation": 1,
+      "madloop_filter_id": 12,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "maximum_scaled_error": 4.353623307204258e-14,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 4.473785679007888e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 5.116783661774984e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 5.6432518554452377e-14,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 4.162426959038748e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 6.617649549119874e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 5.948487487902867e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 3.4252089436483935e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        1,
+        4,
+        3,
+        2
+      ],
+      "exact_normalization_control": "-2*UFO::{}::GC_11^2*UFO::{}::GC_94^2*UFO::{}::MT^4",
+      "feynkit_orientation": 2,
+      "madloop_filter_id": 10,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.761281887210651e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 4.047371497153364e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 6.011178665292859e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.4452837066100484e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 7.786009013358267e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 6.610806783547082e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 4.453361446069883e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 6.054849301448909e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        1,
+        3,
+        4,
+        2
+      ],
+      "exact_normalization_control": "-2*UFO::{}::GC_11^2*UFO::{}::GC_94^2*UFO::{}::MT^4",
+      "feynkit_orientation": 3,
+      "madloop_filter_id": 9,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.761299803683884e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 4.2597799658518684e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 6.011178665292859e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.4452895388704699e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 7.845069346530616e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 4.403978217132083e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 5.221753822853618e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 6.054849301448909e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        1,
+        2,
+        4,
+        3
+      ],
+      "exact_normalization_control": "-2*UFO::{}::GC_11^2*UFO::{}::GC_94^2*UFO::{}::MT^4",
+      "feynkit_orientation": 4,
+      "madloop_filter_id": 13,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.1370470586455548e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 6.535287472567787e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 4.663700095759444e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.2693991234028961e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 8.458780901904672e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.0714473015698918e-15,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.0129821152642658e-15,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 3.766213445866453e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        1,
+        3,
+        2,
+        4
+      ],
+      "exact_normalization_control": "-2*UFO::{}::GC_11^2*UFO::{}::GC_94^2*UFO::{}::MT^4",
+      "feynkit_orientation": 5,
+      "madloop_filter_id": 16,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "maximum_scaled_error": 5.275585697061098e-14,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 7.676714609788446e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 5.077271227509267e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 4.303822301470657e-14,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 5.695254313326626e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 5.622515717765972e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 5.963931445062005e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 3.4252086374109093e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "exact_normalization_control": "-2*UFO::{}::GC_11^2*UFO::{}::GC_94^2*UFO::{}::MT^4",
+      "feynkit_orientation": 6,
+      "madloop_filter_id": 15,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.1370470586455548e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 6.535287472567787e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 4.663700095759444e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.2694239161124113e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 5.941537938942907e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.072044743106788e-15,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.0970849066850714e-15,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 3.766213445866453e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        1,
+        4,
+        2,
+        3
+      ],
+      "exact_normalization_control": "-2*UFO::{}::GC_11^2*UFO::{}::GC_94^2*UFO::{}::MT^4",
+      "feynkit_orientation": 7,
+      "madloop_filter_id": 14,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    }
+  ],
+  "maximum_scaled_error": 5.6432518554452377e-14,
+  "pass": true,
+  "exit_code": 0,
+  "criterion": "abs(actual-reference)/max(1,abs(reference)) <=1e-9 for every raw complex sample",
+  "normalization": {
+    "raw_factor": "-1/2",
+    "linear_laurent_factor": "-8*pi^2",
+    "proof": "One fermion-loop minus sign times Tr(Ta Tb)=delta_ab/2, projected by delta_ab/8 exactly once. Independent symbolic temporal-polarization zero-momentum controls verify each complete FeynKit numerator and the triangle Higgs bridge. MadLoop loop amplitude2 has fermion factor -1 and color tensor Tr(1,2); CT_interface contributes1/(16*pi^2). Couplings are GC11=GC5=iG, GC94=GC37=-i yt/sqrt2, GC69=GC30=-6i lambda vev.",
+    "integrated_comparison": "not performed by this raw matching probe"
+  },
+  "reference_scope": {
+    "input_precision": "MadLoop binary64 wavefunctions/momenta/couplings converted to exact rationals before binding; not an independent high-precision physical input oracle",
+    "polarizations": "Unisolvence is in loop components after each fixed polarization binding; generic and Ward states add independent controls.",
+    "independent_checks": 4480,
+    "internal_madloop_raw_wrapper_checks": 8960
+  },
+  "provenance": {
+    "recorded_at_utc": "2026-10-16T19:54:05.053233+00:00",
+    "compile_command": [
+      "rustc",
+      "--edition=2024",
+      "/shared/external/ninja/validation/madloop/gg_hh/match.rs",
+      "-o",
+      "/shared/external/ninja/target/physical/gg-hh/raw-match/match-gg-hh",
+      "-L",
+      "dependency=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps",
+      "--extern",
+      "serde_json=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libserde_json-116ef9b7dba087ae.rlib",
+      "--extern",
+      "symbolica=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libsymbolica-46b4143f33dc3388.rlib",
+      "--extern",
+      "feynkit_graph=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libfeynkit_graph-69cd1a2d62a45712.rlib",
+      "--extern",
+      "ninjars_graph=/shared/external/ninja/target/debug/libninjars_graph.rlib"
+    ],
+    "run_command": [
+      "/shared/external/ninja/target/physical/gg-hh/raw-match/match-gg-hh",
+      "/shared/external/ninja/target/reference/madloop-gg-hh-probes/reference.json",
+      "/shared/external/ninja/examples/graphs/physical/gg-hh"
+    ],
+    "compiler": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+    "binary_sha256": "94d699df4e26e78963f130c64037b9e5ed27fd896639af9f14a13723fd8597ae",
+    "rlib_sha256": {
+      "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libserde_json-116ef9b7dba087ae.rlib": "b59523ea6b430b07de5b266a3b18fe67d39d419c3e96bbfee228ecc80285da58",
+      "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libsymbolica-46b4143f33dc3388.rlib": "13076b88025c7ce0373e3d7730efa965042762941842f2a4b26501b14e674335",
+      "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libfeynkit_graph-69cd1a2d62a45712.rlib": "d1356e69c75b172a345097e0cc9b8d6f2f5745a6ed9621ceefc86f2f858d0a34",
+      "/shared/external/ninja/target/debug/libninjars_graph.rlib": "4d262f00361058b7b0b62ce734f9ae260622c4bc726666d10b68b7e01885efbb"
+    },
+    "source_sha256": {
+      "/shared/external/ninja/validation/madloop/gg_hh/match.rs": "4acaf7791f32154497c831e43890503ec0956e5103c11b4f1481875890f1d390",
+      "/shared/external/ninja/validation/madloop/gg_hh/match.py": "d637dba2ca98984ed6c4e93fd2143d283b1e5024bd9ad3d43bc710a33e4c11f7",
+      "/shared/external/ninja/target/reference/madloop-gg-hh-probes/reference.json": "0bd5dea68892b3b634dbb726af18d08aaa2fd39e319f64faa01b2a3d1dd6c117",
+      "/shared/external/ninja/examples/graphs/physical/gg-hh/feynkit-graphs.json": "2fb70eb15124abd86fe335d891fae1ee020b980c07ada4439fb16ddfdcc9070f",
+      "/shared/external/ninja/Cargo.lock": "1035b5beee28438bc1e0841e541f8a5d4986f46e50c0ee25820b4326c8b155b0",
+      "/shared/external/ninja/dependencies/manifest.json": "7734d3712264e072c9cb1440297f841c097a705a2a2d80f84397f01c32e06f6e",
+      "/shared/external/ninja/examples/graphs/physical/gg-hh/top-box-2.dot": "2b372ea78f87490e4def6152def29ee575702be18975a570d65107b6202248a6",
+      "/shared/external/ninja/examples/graphs/physical/gg-hh/top-box-3.dot": "09e27fdbef34586e25603e8916a9a9215ce9d72e422649bd48cbceb4154ea740",
+      "/shared/external/ninja/examples/graphs/physical/gg-hh/top-box-4.dot": "2bbedf64578465a5fdf14df232d65c3993f91d6c6187940d8b3b5bb4947381b2",
+      "/shared/external/ninja/examples/graphs/physical/gg-hh/top-box-5.dot": "cb1c52cf3ea56dba83f5a2bcaf7ca7772bb73e6ec9a5831dcfc6baa37100a9da",
+      "/shared/external/ninja/examples/graphs/physical/gg-hh/top-box-6.dot": "fe4027d24367e0b4f743c6afd3079e1441a11d03af86db8f7969c51df40fcb26",
+      "/shared/external/ninja/examples/graphs/physical/gg-hh/top-box-7.dot": "de0fb3d849cf4c112b73ad7d88f5c2f352e47d0192293fe2e594f52dd5e8386f",
+      "/shared/external/ninja/examples/graphs/physical/gg-hh/top-triangle-0.dot": "6a8edd2ea5a8171e01d11cd517fd8bdb0e5e1f2d11b05a343e166c60b2e45da2",
+      "/shared/external/ninja/examples/graphs/physical/gg-hh/top-triangle-1.dot": "7ba7a311e2db76d38f8f7251934d332fe0dda307e8bbdd020febf1c17e983b05"
+    },
+    "dependency_heads": {
+      "symbolica": "58b72d438e7bcfce158d132612db7d35fdefa4ba",
+      "feynkit": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+    }
+  }
+}

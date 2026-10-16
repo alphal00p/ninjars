@@ -1,0 +1,1850 @@
+{
+  "schema_version": 1,
+  "process": "g g > h h QCD=2 QED=2 [virt=QCD]",
+  "model": "unmodified loop_sm",
+  "original_model_sha256": {
+    ".restrict_parallel_test.dat": "33abf2ee8645e2f55414bb89bb6b9359ad70384667d271d4213a846281622e0e",
+    ".restrict_parallel_test_c_massive.dat": "e6da223a909271a9fe596a71f3d3ee97bba783a20dda65cb3d3ae71615e1ac3d",
+    "CT_couplings.py": "ec0ab5fab1d693e246284c1d82d9ef5219b274dedb909bdd3f6187cbc1ed7b02",
+    "CT_parameters.py": "fe89b26fcc375dbffc40003d7e064b2e66316d8d4daa897cd7a9c0ae386cfb3d",
+    "CT_vertices.py": "6f125c6cffdd94491fb6167411b23700468663d46c60cee90cdb675ad5659b0f",
+    "__init__.py": "f313e3030c3b3a5d8da2db3ed1b8ad487ce45dfb21810b15a1f717b9a4147d4b",
+    "coupling_orders.py": "c75540ae451aaca4c8f497aed727a252a2960c65c9d6174e94039af8a0615ae0",
+    "couplings.py": "a91df246f6a68325ead56ec30d49c0586fb9b39451ae62a5c527896acb45014f",
+    "function_library.py": "4f61390f3cd3ba3baa6b37a908f0f3129c457bca2d4e2b2fa8806c3ac31f9ea3",
+    "lorentz.py": "2552626d868a558a321c84fbafd14b43dafd2f4bbd45cf04a7693cb1caac3dc1",
+    "object_library.py": "a4bb6c554809ff739fea28a70e3a889408ea93f48e55cfe20a68d5664a7e16e1",
+    "parameters.py": "5de44653a32f4c213b6fc0696f3585f36bc34830e64d713c7e268814c847b58f",
+    "particles.py": "a437dda2285158b79b44d97830d219f16a3fd1aa864f75131acca6d826893f78",
+    "restrict_c_mass.dat": "11626ca4f6a8220df5ed33d530b6fec92fe69ba5f1c82f54bc17427dd3e83116",
+    "restrict_ckm.dat": "d51f802a2fb5f55a4be5ca0c6daaf666514757f24f42c656a3c00818afd12e44",
+    "restrict_default.dat": "878a7d1b110faf49824885bd340fb09d6431394d9c7f3d5b86c12d6f4ef54160",
+    "restrict_lepton_masses.dat": "12e95ad3b16a4d92c20c4d60068b27355021bd2966df2af081e06f017ba9bce7",
+    "restrict_no_b_mass.dat": "9e1839428fd3a3918fa14be2a5ba0b4907dc12134e91ff08d40cd1056208714c",
+    "restrict_no_masses.dat": "1f72584d6ed563aa911369719a14d8ac3c51bbe055985b3d0a07b6a7b464ad83",
+    "restrict_no_tau_mass.dat": "4170075aed30aa27eba1ec1533d42fa1496ff605bf666608ed31557e65d28f46",
+    "restrict_no_widths.dat": "05ebf8a6e774a80af3f6880346d0e313cef5aaea92f70a9ec35de68635bdfedf",
+    "restrict_parallel_test.dat": "33abf2ee8645e2f55414bb89bb6b9359ad70384667d271d4213a846281622e0e",
+    "restrict_test.dat": "2ea03c8e94750e40c403d4524bc461f9c1c5802e5f951e15abc18011513f7fe1",
+    "restrict_zeromass_ckm.dat": "ea454a976b28615c60a12d638be9e6896b4e29de10deb8f5ff7337b81a1794ff",
+    "vertices.py": "89a4311b8305295e3019e1570c57519c2614b784b1f9ee9637a54ee9d2f07b82",
+    "write_param_card.py": "628c1411379454931f6a1f4f4e29d2034da8ac095cc2d838e03a24834130bf5a"
+  },
+  "source_sha256": {
+    "prepare_madloop.py": "10eb2a6b14d319c7b875a6064577d93a200ad4f413e6b15e117321e2142fb43e",
+    "prepare_hgg.py": "4308dad78b761bdc83c34d67547052fd92bceae314dc5ef0a0aab8e8a363a031"
+  },
+  "commands": [
+    "set automatic_html_opening False",
+    "set group_subprocesses False",
+    "set loop_optimized_output False",
+    "set output_dependencies internal",
+    "set gauge Feynman",
+    "import model loop_sm",
+    "generate g g > h h QCD=2 QED=2 [virt=QCD] --loop_filter=\"n in [3,4] and all(abs(p)==6 for p in loop_pdgs)\"",
+    "set automatic_html_opening False",
+    "set group_subprocesses False",
+    "set loop_optimized_output False",
+    "set output_dependencies internal",
+    "set gauge Feynman",
+    "import model loop_sm",
+    "generate g g > h h QCD=2 QED=2 [virt=QCD] --loop_filter=\"n in [3,4] and all(abs(p)==6 for p in loop_pdgs) and id==9\"",
+    "output standalone /shared/external/ninja/target/reference/madloop-gg-hh/graph-9",
+    "set automatic_html_opening False",
+    "set group_subprocesses False",
+    "set loop_optimized_output False",
+    "set output_dependencies internal",
+    "set gauge Feynman",
+    "import model loop_sm",
+    "generate g g > h h QCD=2 QED=2 [virt=QCD] --loop_filter=\"n in [3,4] and all(abs(p)==6 for p in loop_pdgs) and id==10\"",
+    "output standalone /shared/external/ninja/target/reference/madloop-gg-hh/graph-10",
+    "set automatic_html_opening False",
+    "set group_subprocesses False",
+    "set loop_optimized_output False",
+    "set output_dependencies internal",
+    "set gauge Feynman",
+    "import model loop_sm",
+    "generate g g > h h QCD=2 QED=2 [virt=QCD] --loop_filter=\"n in [3,4] and all(abs(p)==6 for p in loop_pdgs) and id==11\"",
+    "output standalone /shared/external/ninja/target/reference/madloop-gg-hh/graph-11",
+    "set automatic_html_opening False",
+    "set group_subprocesses False",
+    "set loop_optimized_output False",
+    "set output_dependencies internal",
+    "set gauge Feynman",
+    "import model loop_sm",
+    "generate g g > h h QCD=2 QED=2 [virt=QCD] --loop_filter=\"n in [3,4] and all(abs(p)==6 for p in loop_pdgs) and id==12\"",
+    "output standalone /shared/external/ninja/target/reference/madloop-gg-hh/graph-12",
+    "set automatic_html_opening False",
+    "set group_subprocesses False",
+    "set loop_optimized_output False",
+    "set output_dependencies internal",
+    "set gauge Feynman",
+    "import model loop_sm",
+    "generate g g > h h QCD=2 QED=2 [virt=QCD] --loop_filter=\"n in [3,4] and all(abs(p)==6 for p in loop_pdgs) and id==13\"",
+    "output standalone /shared/external/ninja/target/reference/madloop-gg-hh/graph-13",
+    "set automatic_html_opening False",
+    "set group_subprocesses False",
+    "set loop_optimized_output False",
+    "set output_dependencies internal",
+    "set gauge Feynman",
+    "import model loop_sm",
+    "generate g g > h h QCD=2 QED=2 [virt=QCD] --loop_filter=\"n in [3,4] and all(abs(p)==6 for p in loop_pdgs) and id==14\"",
+    "output standalone /shared/external/ninja/target/reference/madloop-gg-hh/graph-14",
+    "set automatic_html_opening False",
+    "set group_subprocesses False",
+    "set loop_optimized_output False",
+    "set output_dependencies internal",
+    "set gauge Feynman",
+    "import model loop_sm",
+    "generate g g > h h QCD=2 QED=2 [virt=QCD] --loop_filter=\"n in [3,4] and all(abs(p)==6 for p in loop_pdgs) and id==15\"",
+    "output standalone /shared/external/ninja/target/reference/madloop-gg-hh/graph-15",
+    "set automatic_html_opening False",
+    "set group_subprocesses False",
+    "set loop_optimized_output False",
+    "set output_dependencies internal",
+    "set gauge Feynman",
+    "import model loop_sm",
+    "generate g g > h h QCD=2 QED=2 [virt=QCD] --loop_filter=\"n in [3,4] and all(abs(p)==6 for p in loop_pdgs) and id==16\"",
+    "output standalone /shared/external/ninja/target/reference/madloop-gg-hh/graph-16"
+  ],
+  "graphs": [
+    {
+      "filter_id": 9,
+      "loop_pdgs": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "loop_propagators": 4,
+      "attached_pdgs": [
+        21,
+        21,
+        25,
+        25
+      ],
+      "vertices": [
+        {
+          "id": 8,
+          "legs": [
+            {
+              "id": 21,
+              "number": 1,
+              "state": false,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 6,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "legs": [
+            {
+              "id": 21,
+              "number": 2,
+              "state": false,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 57,
+          "legs": [
+            {
+              "id": 25,
+              "number": 4,
+              "state": true,
+              "loop_line": false,
+              "from_group": false,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 57,
+          "legs": [
+            {
+              "id": 25,
+              "number": 3,
+              "state": true,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": -1,
+          "legs": [
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 5,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        }
+      ],
+      "multiplier": 1,
+      "directory": "graph-9",
+      "reference_controls": {
+        "MLReductionLib": "1",
+        "CTModeRun": 1,
+        "CTModeInit": 1,
+        "CTLoopLibrary": 2,
+        "ImprovePSPoint": -1,
+        "UseQPIntegrandForCutTools": false,
+        "UseLoopFilter": false
+      },
+      "external_wavefunction_calls": [
+        [
+          "CALL VXXXXX(P(0,1),ZERO,NHEL(1),-1*IC(1),W(1,1))",
+          "CALL VXXXXX(P(0,2),ZERO,NHEL(2),-1*IC(2),W(1,2))",
+          "CALL SXXXXX(P(0,3),+1*IC(3),W(1,3))",
+          "CALL SXXXXX(P(0,4),+1*IC(4),W(1,4))"
+        ],
+        []
+      ],
+      "loop_calls": [
+        "# Loop amplitude for loop diagram with ID 1",
+        "CALL %(proc_prefix)sLOOP_4_4(1,1,2,4,3,DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),GC_5,MP__GC_5,GC_5,MP__GC_5,GC_37,MP__GC_37,GC_37,MP__GC_37,4,1,1,2,AMPL(1,2),S(2))"
+      ],
+      "loop_color_basis": "{(('Tr', (1, 2)),): [(0, (0, 0, 0, 0), Fraction(1, 1), False, 0, None), (1, (0,), Fraction(1, 1), False, 0, 0)]}",
+      "color_amplitudes": [
+        [
+          {
+            "fermion_factor": -1,
+            "rational_color_coefficient": "1",
+            "imaginary": false,
+            "nc_power": 0,
+            "amplitude_number": 2
+          },
+          {
+            "fermion_factor": 1,
+            "rational_color_coefficient": "1",
+            "imaginary": false,
+            "nc_power": 0,
+            "amplitude_number": 1
+          }
+        ]
+      ],
+      "generated_sources_sha256": {
+        "SubProcesses/MadLoopCommons.f": "1ef4e522e047c56fe22f8656da67cd033816542ba7a28feede9570accee12106",
+        "SubProcesses/MadLoopParamReader.f": "bd71b67f62ea2d244c303095ba6c207acaed15f04fdcbc116b4d643741fcdcfc",
+        "SubProcesses/P0_gg_hh/CT_interface.f": "28f68d1e5df1945b02b65c3886f302676f8a96b8de6b741c1a26d1c59b6ca6b1",
+        "SubProcesses/P0_gg_hh/MadLoopCommons.f": "1ef4e522e047c56fe22f8656da67cd033816542ba7a28feede9570accee12106",
+        "SubProcesses/P0_gg_hh/MadLoopParamReader.f": "bd71b67f62ea2d244c303095ba6c207acaed15f04fdcbc116b4d643741fcdcfc",
+        "SubProcesses/P0_gg_hh/check_sa.f": "618eeb40ed44a3d84152787b208fdcb94ffc11096a3a7beec63be93cc99313c6",
+        "SubProcesses/P0_gg_hh/improve_ps.f": "83ec5735a4b323ee6bfb5aa17e77c56d6f6e56c7d9a370dd3d4bff7494113961",
+        "SubProcesses/P0_gg_hh/loop_matrix.f": "6329502efd6ace165a8b1efdb867463eb44950e275aa23e66da2783e0986462c",
+        "SubProcesses/P0_gg_hh/loop_num.f": "38944bd2c6883517fa1fa9426bdabc6ef973db166ef82bae7aee51fb57b07143",
+        "SubProcesses/P0_gg_hh/mp_born_amps_and_wfs.f": "e0079923df0a01f9e45d2dd1e96eca5b117db3d403efc97ff809fb62aa601cc4"
+      }
+    },
+    {
+      "filter_id": 10,
+      "loop_pdgs": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "loop_propagators": 4,
+      "attached_pdgs": [
+        21,
+        21,
+        25,
+        25
+      ],
+      "vertices": [
+        {
+          "id": 8,
+          "legs": [
+            {
+              "id": 21,
+              "number": 1,
+              "state": false,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 6,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "legs": [
+            {
+              "id": 21,
+              "number": 2,
+              "state": false,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 57,
+          "legs": [
+            {
+              "id": 25,
+              "number": 3,
+              "state": true,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 57,
+          "legs": [
+            {
+              "id": 25,
+              "number": 4,
+              "state": true,
+              "loop_line": false,
+              "from_group": false,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": -1,
+          "legs": [
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 5,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        }
+      ],
+      "multiplier": 1,
+      "directory": "graph-10",
+      "reference_controls": {
+        "MLReductionLib": "1",
+        "CTModeRun": 1,
+        "CTModeInit": 1,
+        "CTLoopLibrary": 2,
+        "ImprovePSPoint": -1,
+        "UseQPIntegrandForCutTools": false,
+        "UseLoopFilter": false
+      },
+      "external_wavefunction_calls": [
+        [
+          "CALL VXXXXX(P(0,1),ZERO,NHEL(1),-1*IC(1),W(1,1))",
+          "CALL VXXXXX(P(0,2),ZERO,NHEL(2),-1*IC(2),W(1,2))",
+          "CALL SXXXXX(P(0,3),+1*IC(3),W(1,3))",
+          "CALL SXXXXX(P(0,4),+1*IC(4),W(1,4))"
+        ],
+        []
+      ],
+      "loop_calls": [
+        "# Loop amplitude for loop diagram with ID 1",
+        "CALL %(proc_prefix)sLOOP_4_4(1,1,2,3,4,DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),GC_5,MP__GC_5,GC_5,MP__GC_5,GC_37,MP__GC_37,GC_37,MP__GC_37,4,1,1,2,AMPL(1,2),S(2))"
+      ],
+      "loop_color_basis": "{(('Tr', (1, 2)),): [(0, (0, 0, 0, 0), Fraction(1, 1), False, 0, None), (1, (0,), Fraction(1, 1), False, 0, 0)]}",
+      "color_amplitudes": [
+        [
+          {
+            "fermion_factor": -1,
+            "rational_color_coefficient": "1",
+            "imaginary": false,
+            "nc_power": 0,
+            "amplitude_number": 2
+          },
+          {
+            "fermion_factor": 1,
+            "rational_color_coefficient": "1",
+            "imaginary": false,
+            "nc_power": 0,
+            "amplitude_number": 1
+          }
+        ]
+      ],
+      "generated_sources_sha256": {
+        "SubProcesses/MadLoopCommons.f": "1ef4e522e047c56fe22f8656da67cd033816542ba7a28feede9570accee12106",
+        "SubProcesses/MadLoopParamReader.f": "bd71b67f62ea2d244c303095ba6c207acaed15f04fdcbc116b4d643741fcdcfc",
+        "SubProcesses/P0_gg_hh/CT_interface.f": "28f68d1e5df1945b02b65c3886f302676f8a96b8de6b741c1a26d1c59b6ca6b1",
+        "SubProcesses/P0_gg_hh/MadLoopCommons.f": "1ef4e522e047c56fe22f8656da67cd033816542ba7a28feede9570accee12106",
+        "SubProcesses/P0_gg_hh/MadLoopParamReader.f": "bd71b67f62ea2d244c303095ba6c207acaed15f04fdcbc116b4d643741fcdcfc",
+        "SubProcesses/P0_gg_hh/check_sa.f": "618eeb40ed44a3d84152787b208fdcb94ffc11096a3a7beec63be93cc99313c6",
+        "SubProcesses/P0_gg_hh/improve_ps.f": "83ec5735a4b323ee6bfb5aa17e77c56d6f6e56c7d9a370dd3d4bff7494113961",
+        "SubProcesses/P0_gg_hh/loop_matrix.f": "54558bfab792e1f61ed8e95cdc2d3b167fdfaad76c382f4aec693d9fe4daa0b4",
+        "SubProcesses/P0_gg_hh/loop_num.f": "38944bd2c6883517fa1fa9426bdabc6ef973db166ef82bae7aee51fb57b07143",
+        "SubProcesses/P0_gg_hh/mp_born_amps_and_wfs.f": "62140e940aed56d0e1f1a4a2df3d244233e163c151c1226ce9b21f8e3e2fcfc6"
+      }
+    },
+    {
+      "filter_id": 11,
+      "loop_pdgs": [
+        6,
+        6,
+        6
+      ],
+      "loop_propagators": 3,
+      "attached_pdgs": [
+        21,
+        21,
+        25
+      ],
+      "vertices": [
+        {
+          "id": 8,
+          "legs": [
+            {
+              "id": 21,
+              "number": 1,
+              "state": false,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 6,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "legs": [
+            {
+              "id": 21,
+              "number": 2,
+              "state": false,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 57,
+          "legs": [
+            {
+              "id": 25,
+              "number": 3,
+              "state": true,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": -1,
+          "legs": [
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 5,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        }
+      ],
+      "multiplier": 1,
+      "directory": "graph-11",
+      "reference_controls": {
+        "MLReductionLib": "1",
+        "CTModeRun": 1,
+        "CTModeInit": 1,
+        "CTLoopLibrary": 2,
+        "ImprovePSPoint": -1,
+        "UseQPIntegrandForCutTools": false,
+        "UseLoopFilter": false
+      },
+      "external_wavefunction_calls": [
+        [
+          "CALL VXXXXX(P(0,1),ZERO,NHEL(1),-1*IC(1),W(1,1))",
+          "CALL VXXXXX(P(0,2),ZERO,NHEL(2),-1*IC(2),W(1,2))",
+          "CALL SXXXXX(P(0,3),+1*IC(3),W(1,3))",
+          "CALL SXXXXX(P(0,4),+1*IC(4),W(1,4))",
+          "CALL SSS1_1(W(1,3),W(1,4),GC_30,mdl_MH,mdl_WH,W(1,5))"
+        ],
+        []
+      ],
+      "loop_calls": [
+        "# Loop amplitude for loop diagram with ID 1",
+        "CALL %(proc_prefix)sLOOP_3_3(1,1,2,5,DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),GC_5,MP__GC_5,GC_5,MP__GC_5,GC_37,MP__GC_37,3,1,1,2,AMPL(1,2),S(2))"
+      ],
+      "loop_color_basis": "{(('Tr', (1, 2)),): [(0, (0, 0, 0, 0), Fraction(1, 1), False, 0, None), (1, (0, 0), Fraction(1, 1), False, 0, 0)]}",
+      "color_amplitudes": [
+        [
+          {
+            "fermion_factor": -1,
+            "rational_color_coefficient": "1",
+            "imaginary": false,
+            "nc_power": 0,
+            "amplitude_number": 2
+          },
+          {
+            "fermion_factor": 1,
+            "rational_color_coefficient": "1",
+            "imaginary": false,
+            "nc_power": 0,
+            "amplitude_number": 1
+          }
+        ]
+      ],
+      "generated_sources_sha256": {
+        "SubProcesses/MadLoopCommons.f": "1ef4e522e047c56fe22f8656da67cd033816542ba7a28feede9570accee12106",
+        "SubProcesses/MadLoopParamReader.f": "bd71b67f62ea2d244c303095ba6c207acaed15f04fdcbc116b4d643741fcdcfc",
+        "SubProcesses/P0_gg_hh/CT_interface.f": "c4e543d6f6d6fdceeb739d6af59ae8970d10ccd24e98f8a3fe09b9f243e80c18",
+        "SubProcesses/P0_gg_hh/MadLoopCommons.f": "1ef4e522e047c56fe22f8656da67cd033816542ba7a28feede9570accee12106",
+        "SubProcesses/P0_gg_hh/MadLoopParamReader.f": "bd71b67f62ea2d244c303095ba6c207acaed15f04fdcbc116b4d643741fcdcfc",
+        "SubProcesses/P0_gg_hh/check_sa.f": "618eeb40ed44a3d84152787b208fdcb94ffc11096a3a7beec63be93cc99313c6",
+        "SubProcesses/P0_gg_hh/improve_ps.f": "83ec5735a4b323ee6bfb5aa17e77c56d6f6e56c7d9a370dd3d4bff7494113961",
+        "SubProcesses/P0_gg_hh/loop_matrix.f": "e64c180d41ed914cab4994d5d1ed3128cbd0936eaf75b985d1283e52c3882529",
+        "SubProcesses/P0_gg_hh/loop_num.f": "27a9b2223ff95478a771e2b6e8a52b877f2f04a7a32b7a103f5d27eb958e7c2e",
+        "SubProcesses/P0_gg_hh/mp_born_amps_and_wfs.f": "fb71f6ee0447dceb25cfe163e00012066563666ba28a09eb321e0e32e064ef78"
+      }
+    },
+    {
+      "filter_id": 12,
+      "loop_pdgs": [
+        6,
+        6,
+        6
+      ],
+      "loop_propagators": 3,
+      "attached_pdgs": [
+        21,
+        21,
+        25
+      ],
+      "vertices": [
+        {
+          "id": 8,
+          "legs": [
+            {
+              "id": 21,
+              "number": 1,
+              "state": false,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 5,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "legs": [
+            {
+              "id": 21,
+              "number": 2,
+              "state": false,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 57,
+          "legs": [
+            {
+              "id": 25,
+              "number": 3,
+              "state": true,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": -1,
+          "legs": [
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 6,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        }
+      ],
+      "multiplier": 1,
+      "directory": "graph-12",
+      "reference_controls": {
+        "MLReductionLib": "1",
+        "CTModeRun": 1,
+        "CTModeInit": 1,
+        "CTLoopLibrary": 2,
+        "ImprovePSPoint": -1,
+        "UseQPIntegrandForCutTools": false,
+        "UseLoopFilter": false
+      },
+      "external_wavefunction_calls": [
+        [
+          "CALL VXXXXX(P(0,1),ZERO,NHEL(1),-1*IC(1),W(1,1))",
+          "CALL VXXXXX(P(0,2),ZERO,NHEL(2),-1*IC(2),W(1,2))",
+          "CALL SXXXXX(P(0,3),+1*IC(3),W(1,3))",
+          "CALL SXXXXX(P(0,4),+1*IC(4),W(1,4))",
+          "CALL SSS1_1(W(1,3),W(1,4),GC_30,mdl_MH,mdl_WH,W(1,5))"
+        ],
+        []
+      ],
+      "loop_calls": [
+        "# Loop amplitude for loop diagram with ID 1",
+        "CALL %(proc_prefix)sLOOP_3_3(1,1,2,5,DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),GC_5,MP__GC_5,GC_5,MP__GC_5,GC_37,MP__GC_37,3,1,1,2,AMPL(1,2),S(2))"
+      ],
+      "loop_color_basis": "{(('Tr', (1, 2)),): [(0, (0, 0, 0, 0), Fraction(1, 1), False, 0, None), (1, (0, 0), Fraction(1, 1), False, 0, 0)]}",
+      "color_amplitudes": [
+        [
+          {
+            "fermion_factor": -1,
+            "rational_color_coefficient": "1",
+            "imaginary": false,
+            "nc_power": 0,
+            "amplitude_number": 2
+          },
+          {
+            "fermion_factor": 1,
+            "rational_color_coefficient": "1",
+            "imaginary": false,
+            "nc_power": 0,
+            "amplitude_number": 1
+          }
+        ]
+      ],
+      "generated_sources_sha256": {
+        "SubProcesses/MadLoopCommons.f": "1ef4e522e047c56fe22f8656da67cd033816542ba7a28feede9570accee12106",
+        "SubProcesses/MadLoopParamReader.f": "bd71b67f62ea2d244c303095ba6c207acaed15f04fdcbc116b4d643741fcdcfc",
+        "SubProcesses/P0_gg_hh/CT_interface.f": "c4e543d6f6d6fdceeb739d6af59ae8970d10ccd24e98f8a3fe09b9f243e80c18",
+        "SubProcesses/P0_gg_hh/MadLoopCommons.f": "1ef4e522e047c56fe22f8656da67cd033816542ba7a28feede9570accee12106",
+        "SubProcesses/P0_gg_hh/MadLoopParamReader.f": "bd71b67f62ea2d244c303095ba6c207acaed15f04fdcbc116b4d643741fcdcfc",
+        "SubProcesses/P0_gg_hh/check_sa.f": "618eeb40ed44a3d84152787b208fdcb94ffc11096a3a7beec63be93cc99313c6",
+        "SubProcesses/P0_gg_hh/improve_ps.f": "83ec5735a4b323ee6bfb5aa17e77c56d6f6e56c7d9a370dd3d4bff7494113961",
+        "SubProcesses/P0_gg_hh/loop_matrix.f": "e64c180d41ed914cab4994d5d1ed3128cbd0936eaf75b985d1283e52c3882529",
+        "SubProcesses/P0_gg_hh/loop_num.f": "0b2256c7e428c70a3ab7eb350a43412b34c85973a6f67cd25450a7f23f7c8da3",
+        "SubProcesses/P0_gg_hh/mp_born_amps_and_wfs.f": "fb71f6ee0447dceb25cfe163e00012066563666ba28a09eb321e0e32e064ef78"
+      }
+    },
+    {
+      "filter_id": 13,
+      "loop_pdgs": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "loop_propagators": 4,
+      "attached_pdgs": [
+        21,
+        21,
+        25,
+        25
+      ],
+      "vertices": [
+        {
+          "id": 8,
+          "legs": [
+            {
+              "id": 21,
+              "number": 1,
+              "state": false,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 5,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "legs": [
+            {
+              "id": 21,
+              "number": 2,
+              "state": false,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 57,
+          "legs": [
+            {
+              "id": 25,
+              "number": 4,
+              "state": true,
+              "loop_line": false,
+              "from_group": false,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 57,
+          "legs": [
+            {
+              "id": 25,
+              "number": 3,
+              "state": true,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": -1,
+          "legs": [
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 6,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        }
+      ],
+      "multiplier": 1,
+      "directory": "graph-13",
+      "reference_controls": {
+        "MLReductionLib": "1",
+        "CTModeRun": 1,
+        "CTModeInit": 1,
+        "CTLoopLibrary": 2,
+        "ImprovePSPoint": -1,
+        "UseQPIntegrandForCutTools": false,
+        "UseLoopFilter": false
+      },
+      "external_wavefunction_calls": [
+        [
+          "CALL VXXXXX(P(0,1),ZERO,NHEL(1),-1*IC(1),W(1,1))",
+          "CALL VXXXXX(P(0,2),ZERO,NHEL(2),-1*IC(2),W(1,2))",
+          "CALL SXXXXX(P(0,3),+1*IC(3),W(1,3))",
+          "CALL SXXXXX(P(0,4),+1*IC(4),W(1,4))"
+        ],
+        []
+      ],
+      "loop_calls": [
+        "# Loop amplitude for loop diagram with ID 1",
+        "CALL %(proc_prefix)sLOOP_4_4(1,1,2,4,3,DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),GC_5,MP__GC_5,GC_5,MP__GC_5,GC_37,MP__GC_37,GC_37,MP__GC_37,4,1,1,2,AMPL(1,2),S(2))"
+      ],
+      "loop_color_basis": "{(('Tr', (1, 2)),): [(0, (0, 0, 0, 0), Fraction(1, 1), False, 0, None), (1, (0,), Fraction(1, 1), False, 0, 0)]}",
+      "color_amplitudes": [
+        [
+          {
+            "fermion_factor": -1,
+            "rational_color_coefficient": "1",
+            "imaginary": false,
+            "nc_power": 0,
+            "amplitude_number": 2
+          },
+          {
+            "fermion_factor": 1,
+            "rational_color_coefficient": "1",
+            "imaginary": false,
+            "nc_power": 0,
+            "amplitude_number": 1
+          }
+        ]
+      ],
+      "generated_sources_sha256": {
+        "SubProcesses/MadLoopCommons.f": "1ef4e522e047c56fe22f8656da67cd033816542ba7a28feede9570accee12106",
+        "SubProcesses/MadLoopParamReader.f": "bd71b67f62ea2d244c303095ba6c207acaed15f04fdcbc116b4d643741fcdcfc",
+        "SubProcesses/P0_gg_hh/CT_interface.f": "28f68d1e5df1945b02b65c3886f302676f8a96b8de6b741c1a26d1c59b6ca6b1",
+        "SubProcesses/P0_gg_hh/MadLoopCommons.f": "1ef4e522e047c56fe22f8656da67cd033816542ba7a28feede9570accee12106",
+        "SubProcesses/P0_gg_hh/MadLoopParamReader.f": "bd71b67f62ea2d244c303095ba6c207acaed15f04fdcbc116b4d643741fcdcfc",
+        "SubProcesses/P0_gg_hh/check_sa.f": "618eeb40ed44a3d84152787b208fdcb94ffc11096a3a7beec63be93cc99313c6",
+        "SubProcesses/P0_gg_hh/improve_ps.f": "83ec5735a4b323ee6bfb5aa17e77c56d6f6e56c7d9a370dd3d4bff7494113961",
+        "SubProcesses/P0_gg_hh/loop_matrix.f": "6329502efd6ace165a8b1efdb867463eb44950e275aa23e66da2783e0986462c",
+        "SubProcesses/P0_gg_hh/loop_num.f": "05447ed8f45213b6535806731ceef6c4b2de79ba898d8b0d336fb082dbeb8d45",
+        "SubProcesses/P0_gg_hh/mp_born_amps_and_wfs.f": "e0079923df0a01f9e45d2dd1e96eca5b117db3d403efc97ff809fb62aa601cc4"
+      }
+    },
+    {
+      "filter_id": 14,
+      "loop_pdgs": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "loop_propagators": 4,
+      "attached_pdgs": [
+        21,
+        25,
+        21,
+        25
+      ],
+      "vertices": [
+        {
+          "id": 8,
+          "legs": [
+            {
+              "id": 21,
+              "number": 1,
+              "state": false,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 6,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 57,
+          "legs": [
+            {
+              "id": 25,
+              "number": 3,
+              "state": true,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "legs": [
+            {
+              "id": 21,
+              "number": 2,
+              "state": false,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 57,
+          "legs": [
+            {
+              "id": 25,
+              "number": 4,
+              "state": true,
+              "loop_line": false,
+              "from_group": false,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": -1,
+          "legs": [
+            {
+              "id": -6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 5,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        }
+      ],
+      "multiplier": 1,
+      "directory": "graph-14",
+      "reference_controls": {
+        "MLReductionLib": "1",
+        "CTModeRun": 1,
+        "CTModeInit": 1,
+        "CTLoopLibrary": 2,
+        "ImprovePSPoint": -1,
+        "UseQPIntegrandForCutTools": false,
+        "UseLoopFilter": false
+      },
+      "external_wavefunction_calls": [
+        [
+          "CALL VXXXXX(P(0,1),ZERO,NHEL(1),-1*IC(1),W(1,1))",
+          "CALL VXXXXX(P(0,2),ZERO,NHEL(2),-1*IC(2),W(1,2))",
+          "CALL SXXXXX(P(0,3),+1*IC(3),W(1,3))",
+          "CALL SXXXXX(P(0,4),+1*IC(4),W(1,4))"
+        ],
+        []
+      ],
+      "loop_calls": [
+        "# Loop amplitude for loop diagram with ID 1",
+        "CALL %(proc_prefix)sLOOP_4_4(1,1,3,2,4,DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),GC_5,MP__GC_5,GC_37,MP__GC_37,GC_5,MP__GC_5,GC_37,MP__GC_37,4,1,1,2,AMPL(1,2),S(2))"
+      ],
+      "loop_color_basis": "{(('Tr', (1, 2)),): [(0, (0, 0, 0, 0), Fraction(1, 1), False, 0, None), (1, (0,), Fraction(1, 1), False, 0, 0)]}",
+      "color_amplitudes": [
+        [
+          {
+            "fermion_factor": -1,
+            "rational_color_coefficient": "1",
+            "imaginary": false,
+            "nc_power": 0,
+            "amplitude_number": 2
+          },
+          {
+            "fermion_factor": 1,
+            "rational_color_coefficient": "1",
+            "imaginary": false,
+            "nc_power": 0,
+            "amplitude_number": 1
+          }
+        ]
+      ],
+      "generated_sources_sha256": {
+        "SubProcesses/MadLoopCommons.f": "1ef4e522e047c56fe22f8656da67cd033816542ba7a28feede9570accee12106",
+        "SubProcesses/MadLoopParamReader.f": "bd71b67f62ea2d244c303095ba6c207acaed15f04fdcbc116b4d643741fcdcfc",
+        "SubProcesses/P0_gg_hh/CT_interface.f": "28f68d1e5df1945b02b65c3886f302676f8a96b8de6b741c1a26d1c59b6ca6b1",
+        "SubProcesses/P0_gg_hh/MadLoopCommons.f": "1ef4e522e047c56fe22f8656da67cd033816542ba7a28feede9570accee12106",
+        "SubProcesses/P0_gg_hh/MadLoopParamReader.f": "bd71b67f62ea2d244c303095ba6c207acaed15f04fdcbc116b4d643741fcdcfc",
+        "SubProcesses/P0_gg_hh/check_sa.f": "618eeb40ed44a3d84152787b208fdcb94ffc11096a3a7beec63be93cc99313c6",
+        "SubProcesses/P0_gg_hh/improve_ps.f": "83ec5735a4b323ee6bfb5aa17e77c56d6f6e56c7d9a370dd3d4bff7494113961",
+        "SubProcesses/P0_gg_hh/loop_matrix.f": "e71fb321ed839189e00fac3fb59a1c3eb34ffd58ada4642bff73b8346f31b5d6",
+        "SubProcesses/P0_gg_hh/loop_num.f": "8f639028c1473fb13e2ab1ab9e4abf0dc0d71352be0e1edbdd3d949f0bb8c451",
+        "SubProcesses/P0_gg_hh/mp_born_amps_and_wfs.f": "62140e940aed56d0e1f1a4a2df3d244233e163c151c1226ce9b21f8e3e2fcfc6"
+      }
+    },
+    {
+      "filter_id": 15,
+      "loop_pdgs": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "loop_propagators": 4,
+      "attached_pdgs": [
+        21,
+        21,
+        25,
+        25
+      ],
+      "vertices": [
+        {
+          "id": 8,
+          "legs": [
+            {
+              "id": 21,
+              "number": 1,
+              "state": false,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 5,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "legs": [
+            {
+              "id": 21,
+              "number": 2,
+              "state": false,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 57,
+          "legs": [
+            {
+              "id": 25,
+              "number": 3,
+              "state": true,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 57,
+          "legs": [
+            {
+              "id": 25,
+              "number": 4,
+              "state": true,
+              "loop_line": false,
+              "from_group": false,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": -1,
+          "legs": [
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 6,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        }
+      ],
+      "multiplier": 1,
+      "directory": "graph-15",
+      "reference_controls": {
+        "MLReductionLib": "1",
+        "CTModeRun": 1,
+        "CTModeInit": 1,
+        "CTLoopLibrary": 2,
+        "ImprovePSPoint": -1,
+        "UseQPIntegrandForCutTools": false,
+        "UseLoopFilter": false
+      },
+      "external_wavefunction_calls": [
+        [
+          "CALL VXXXXX(P(0,1),ZERO,NHEL(1),-1*IC(1),W(1,1))",
+          "CALL VXXXXX(P(0,2),ZERO,NHEL(2),-1*IC(2),W(1,2))",
+          "CALL SXXXXX(P(0,3),+1*IC(3),W(1,3))",
+          "CALL SXXXXX(P(0,4),+1*IC(4),W(1,4))"
+        ],
+        []
+      ],
+      "loop_calls": [
+        "# Loop amplitude for loop diagram with ID 1",
+        "CALL %(proc_prefix)sLOOP_4_4(1,1,2,3,4,DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),GC_5,MP__GC_5,GC_5,MP__GC_5,GC_37,MP__GC_37,GC_37,MP__GC_37,4,1,1,2,AMPL(1,2),S(2))"
+      ],
+      "loop_color_basis": "{(('Tr', (1, 2)),): [(0, (0, 0, 0, 0), Fraction(1, 1), False, 0, None), (1, (0,), Fraction(1, 1), False, 0, 0)]}",
+      "color_amplitudes": [
+        [
+          {
+            "fermion_factor": -1,
+            "rational_color_coefficient": "1",
+            "imaginary": false,
+            "nc_power": 0,
+            "amplitude_number": 2
+          },
+          {
+            "fermion_factor": 1,
+            "rational_color_coefficient": "1",
+            "imaginary": false,
+            "nc_power": 0,
+            "amplitude_number": 1
+          }
+        ]
+      ],
+      "generated_sources_sha256": {
+        "SubProcesses/MadLoopCommons.f": "1ef4e522e047c56fe22f8656da67cd033816542ba7a28feede9570accee12106",
+        "SubProcesses/MadLoopParamReader.f": "bd71b67f62ea2d244c303095ba6c207acaed15f04fdcbc116b4d643741fcdcfc",
+        "SubProcesses/P0_gg_hh/CT_interface.f": "28f68d1e5df1945b02b65c3886f302676f8a96b8de6b741c1a26d1c59b6ca6b1",
+        "SubProcesses/P0_gg_hh/MadLoopCommons.f": "1ef4e522e047c56fe22f8656da67cd033816542ba7a28feede9570accee12106",
+        "SubProcesses/P0_gg_hh/MadLoopParamReader.f": "bd71b67f62ea2d244c303095ba6c207acaed15f04fdcbc116b4d643741fcdcfc",
+        "SubProcesses/P0_gg_hh/check_sa.f": "618eeb40ed44a3d84152787b208fdcb94ffc11096a3a7beec63be93cc99313c6",
+        "SubProcesses/P0_gg_hh/improve_ps.f": "83ec5735a4b323ee6bfb5aa17e77c56d6f6e56c7d9a370dd3d4bff7494113961",
+        "SubProcesses/P0_gg_hh/loop_matrix.f": "54558bfab792e1f61ed8e95cdc2d3b167fdfaad76c382f4aec693d9fe4daa0b4",
+        "SubProcesses/P0_gg_hh/loop_num.f": "05447ed8f45213b6535806731ceef6c4b2de79ba898d8b0d336fb082dbeb8d45",
+        "SubProcesses/P0_gg_hh/mp_born_amps_and_wfs.f": "62140e940aed56d0e1f1a4a2df3d244233e163c151c1226ce9b21f8e3e2fcfc6"
+      }
+    },
+    {
+      "filter_id": 16,
+      "loop_pdgs": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "loop_propagators": 4,
+      "attached_pdgs": [
+        21,
+        25,
+        21,
+        25
+      ],
+      "vertices": [
+        {
+          "id": 8,
+          "legs": [
+            {
+              "id": 21,
+              "number": 1,
+              "state": false,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 5,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 57,
+          "legs": [
+            {
+              "id": 25,
+              "number": 3,
+              "state": true,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "legs": [
+            {
+              "id": 21,
+              "number": 2,
+              "state": false,
+              "loop_line": false,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": false,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": 57,
+          "legs": [
+            {
+              "id": 25,
+              "number": 4,
+              "state": true,
+              "loop_line": false,
+              "from_group": false,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        },
+        {
+          "id": -1,
+          "legs": [
+            {
+              "id": 6,
+              "number": 1,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            },
+            {
+              "id": -6,
+              "number": 6,
+              "state": true,
+              "loop_line": true,
+              "from_group": true,
+              "onshell": null,
+              "polarization": []
+            }
+          ]
+        }
+      ],
+      "multiplier": 1,
+      "directory": "graph-16",
+      "reference_controls": {
+        "MLReductionLib": "1",
+        "CTModeRun": 1,
+        "CTModeInit": 1,
+        "CTLoopLibrary": 2,
+        "ImprovePSPoint": -1,
+        "UseQPIntegrandForCutTools": false,
+        "UseLoopFilter": false
+      },
+      "external_wavefunction_calls": [
+        [
+          "CALL VXXXXX(P(0,1),ZERO,NHEL(1),-1*IC(1),W(1,1))",
+          "CALL VXXXXX(P(0,2),ZERO,NHEL(2),-1*IC(2),W(1,2))",
+          "CALL SXXXXX(P(0,3),+1*IC(3),W(1,3))",
+          "CALL SXXXXX(P(0,4),+1*IC(4),W(1,4))"
+        ],
+        []
+      ],
+      "loop_calls": [
+        "# Loop amplitude for loop diagram with ID 1",
+        "CALL %(proc_prefix)sLOOP_4_4(1,1,3,2,4,DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),GC_5,MP__GC_5,GC_37,MP__GC_37,GC_5,MP__GC_5,GC_37,MP__GC_37,4,1,1,2,AMPL(1,2),S(2))"
+      ],
+      "loop_color_basis": "{(('Tr', (1, 2)),): [(0, (0, 0, 0, 0), Fraction(1, 1), False, 0, None), (1, (0,), Fraction(1, 1), False, 0, 0)]}",
+      "color_amplitudes": [
+        [
+          {
+            "fermion_factor": -1,
+            "rational_color_coefficient": "1",
+            "imaginary": false,
+            "nc_power": 0,
+            "amplitude_number": 2
+          },
+          {
+            "fermion_factor": 1,
+            "rational_color_coefficient": "1",
+            "imaginary": false,
+            "nc_power": 0,
+            "amplitude_number": 1
+          }
+        ]
+      ],
+      "generated_sources_sha256": {
+        "SubProcesses/MadLoopCommons.f": "1ef4e522e047c56fe22f8656da67cd033816542ba7a28feede9570accee12106",
+        "SubProcesses/MadLoopParamReader.f": "bd71b67f62ea2d244c303095ba6c207acaed15f04fdcbc116b4d643741fcdcfc",
+        "SubProcesses/P0_gg_hh/CT_interface.f": "28f68d1e5df1945b02b65c3886f302676f8a96b8de6b741c1a26d1c59b6ca6b1",
+        "SubProcesses/P0_gg_hh/MadLoopCommons.f": "1ef4e522e047c56fe22f8656da67cd033816542ba7a28feede9570accee12106",
+        "SubProcesses/P0_gg_hh/MadLoopParamReader.f": "bd71b67f62ea2d244c303095ba6c207acaed15f04fdcbc116b4d643741fcdcfc",
+        "SubProcesses/P0_gg_hh/check_sa.f": "618eeb40ed44a3d84152787b208fdcb94ffc11096a3a7beec63be93cc99313c6",
+        "SubProcesses/P0_gg_hh/improve_ps.f": "83ec5735a4b323ee6bfb5aa17e77c56d6f6e56c7d9a370dd3d4bff7494113961",
+        "SubProcesses/P0_gg_hh/loop_matrix.f": "e71fb321ed839189e00fac3fb59a1c3eb34ffd58ada4642bff73b8346f31b5d6",
+        "SubProcesses/P0_gg_hh/loop_num.f": "3ce777d8c307efd334689b8ee2f83985255d45286369baf209182c1cf9df8afe",
+        "SubProcesses/P0_gg_hh/mp_born_amps_and_wfs.f": "62140e940aed56d0e1f1a4a2df3d244233e163c151c1226ce9b21f8e3e2fcfc6"
+      }
+    }
+  ],
+  "discovery_filter": "n in [3,4] and all(abs(p)==6 for p in loop_pdgs)",
+  "group_subprocesses": false,
+  "loop_optimized_output": false,
+  "convention": "four-dimensional unsquared graph numerator plus R1; no R2/UV; zero widths",
+  "warning": "Standard generated matrix drivers include counterterms; only direct LOOPNUM/CT_interface calls are intended for validation.",
+  "post_discovery_loop_count": 8,
+  "discovered_topology_counts": {
+    "3": 2,
+    "4": 6
+  },
+  "original_model_unchanged": true,
+  "status": "eight individually exported top-quark graphs"
+}

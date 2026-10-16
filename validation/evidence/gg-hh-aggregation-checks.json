@@ -1,0 +1,99 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "case": "missing physical row",
+      "rejected_by": [
+        "complete_matrix",
+        "physical_row_count_192",
+        "complete_independent_pole_sums"
+      ]
+    },
+    {
+      "case": "duplicate row replaces another sample",
+      "rejected_by": [
+        "complete_matrix",
+        "complete_independent_pole_sums"
+      ]
+    },
+    {
+      "case": "unsuccessful process with readable output",
+      "rejected_by": [
+        "process_success"
+      ]
+    },
+    {
+      "case": "mu-mode mismatch",
+      "rejected_by": [
+        "physical_mu_mode_equivalence"
+      ]
+    },
+    {
+      "case": "missing all mu-mode controls",
+      "rejected_by": [
+        "complete_mu_mode_controls"
+      ]
+    },
+    {
+      "case": "summed-graph mismatch",
+      "rejected_by": [
+        "physical_summed_graphs_mode4"
+      ]
+    },
+    {
+      "case": "missing independent pole row",
+      "rejected_by": [
+        "complete_integrated_pole_controls"
+      ]
+    },
+    {
+      "case": "DoubleFloat misses fixed accuracy target",
+      "rejected_by": [
+        "physical_integrated_pole_accuracy"
+      ]
+    },
+    {
+      "case": "altered pole output despite stale comparison flags",
+      "rejected_by": [
+        "physical_independent_pole_sum_accuracy"
+      ]
+    },
+    {
+      "case": "relaxed precision target",
+      "rejected_by": [
+        "fixed_precision_targets"
+      ]
+    },
+    {
+      "case": "changed runtime source",
+      "rejected_by": [
+        "unchanged_runtime_sources"
+      ]
+    },
+    {
+      "case": "Float result at wrong working precision",
+      "rejected_by": [
+        "working_precision"
+      ]
+    },
+    {
+      "case": "generic mismatch remains diagnostic",
+      "physical_gate_passed": true,
+      "diagnostic_passed": false
+    },
+    {
+      "case": "Ward mismatch remains diagnostic",
+      "physical_gate_passed": true,
+      "diagnostic_passed": false
+    },
+    {
+      "case": "mode1 mismatch remains diagnostic",
+      "physical_gate_passed": true,
+      "diagnostic_passed": false
+    }
+  ],
+  "matrix_sha256": "49ac7d8c6a35a06b2258d8de1642e713f575664f8878361d75184ef405ecd0bd",
+  "poles_sha256": "4a399ee58ceb54d3529a5378860bb8b2c7e0337a3fb8da5011b00c633b57e9c3",
+  "test_source_sha256": "2f4ffae4389e5f636e5194b8c95225855b61a7a1a2f4da5c8b17a550b72d17e6",
+  "aggregator_sha256": "0cc62165f89d6000989120e48b923fbf0867463ea7b3b2a5bfe87caec5e55388"
+}
