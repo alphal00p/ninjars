@@ -1,0 +1,30 @@
+{
+  "recorded_utc": "2026-10-16T22:51:39.663638+00:00",
+  "geometry_source_revision": "91add1cd35da3a49515521dbdd98ed55d735c84a",
+  "oneloopmaster": "53106429b849e5bcf843f111429be76227b4e0ce",
+  "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+  "feynkit": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93",
+  "scope": "Six native geometry controls repeated after canonical reciprocal correction; source remains isolated from de0f190 timing checkpoint.",
+  "test_result": "6 passed; 0 failed",
+  "executable": "/common/build-cache/external/75/8f9e7ed5ac9e03/debug/deps/native_tadpole_geometry-e06c691543951871",
+  "executable_sha256": "2db7f434823263bec3c87d9a72fcbcec4157040bdfe32b672fb49b0a3fb56959",
+  "logs": {
+    "build": {
+      "path": "validation/evidence/ninjars-geometry-fixed-inverse-build.log",
+      "sha256": "b1fdb415121df2df33cea2d96e48d50aad5df91c396545b7f6fe8aa397b698fb"
+    },
+    "tests": {
+      "path": "validation/evidence/ninjars-geometry-fixed-inverse-tests.log",
+      "sha256": "007ca60f73e40ed584cc3a773bf1a983d369588eb4dc953fc7ab532583b9ab80"
+    }
+  },
+  "review": "Root reviewed production diff and verified29 source/evidence file hashes from tadpole-native-geometry.json.",
+  "commands": [
+    "cargo test --locked -j4 -p ninjars-symbolica --features native-kernels --test native_tadpole_geometry --no-run --message-format=json",
+    "flock /tmp/ninjars-symbolica-tests.lock <test executable> --test-threads=1 --nocapture"
+  ],
+  "limitations": [
+    "No timing/performance acceptance or CLI geometry selection.",
+    "Dependency manifest in this isolated geometry branch remains historical; main already pins actual tested upstream5310642."
+  ]
+}

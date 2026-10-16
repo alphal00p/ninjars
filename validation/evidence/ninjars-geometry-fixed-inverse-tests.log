@@ -1,0 +1,11 @@
+
+running 6 tests
+test dual_shape_and_nonprimal_failures_remain_lane_local ... ok
+test full_dual_geometry_and_unknown_ordered_shape_fallback ... ok
+test integrated_amplitudes_change_only_the_selected_geometry_provider ... ok
+test integrated_mixed_dual_bubble_changes_only_geometry ... ok
+test native_probe_dimensions_precision_and_warm_allocations ... ok
+test ordinary_geometry_batches_precision_charts_and_failures ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.56s
+
