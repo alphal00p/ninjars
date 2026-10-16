@@ -1,0 +1,188 @@
+{
+  "schema": "ninjars-superseded-native-catalog-controls-v1",
+  "status": "superseded-known-extreme-domain-failure",
+  "source_commit": "ee1f15214271caa2af5da2f234938aa7e7fa1a39",
+  "regular_physical_controls_passed": true,
+  "eligible_for_timing": false,
+  "performance_acceptance": false,
+  "timing_samples_collected": 0,
+  "archives": {
+    "oracle": {
+      "path": "validation/evidence/shared-reduction-catalog-ee1f152-superseded-oracle.json.gz",
+      "uncompressed_sha256": "ec1609fcebc4e5843f4df4f4681c3c7c9e5bfcf53f7b9f9647131be2f8d35180",
+      "compressed_sha256": "54d43b67659be34cde7cd008d8460489c45aeb94050f6674575688f5b940360d",
+      "uncompressed_bytes": 301508,
+      "compressed_bytes": 97147,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-release-oracle-ee1f152/result.json"
+    },
+    "interpreted-check": {
+      "path": "validation/evidence/shared-reduction-catalog-ee1f152-superseded-interpreted-check.json.gz",
+      "uncompressed_sha256": "9e400a820d07e801f540d0da261f5ea6c39fd574c918f2cd87d4929e603fcde3",
+      "compressed_sha256": "6d845526c6dceb8a89e7de55604a8bc06396bfe735fba59503f0caeb9d9a9b7d",
+      "uncompressed_bytes": 2546393,
+      "compressed_bytes": 321323,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-release-check-ee1f152-symbolica/result.json"
+    }
+  },
+  "dependency_heads": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "oneloopmaster": "bf7632a916528073464870f1b515d3e62f4e0060",
+    "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+  },
+  "release_profile": {
+    "opt_level": 3,
+    "lto": "thin",
+    "codegen_units": 1,
+    "matches_main_workspace_profile": true
+  },
+  "all_completed_source_guards_unchanged": true,
+  "all_completed_report_runtime_sources_match": true,
+  "runtime_source_manifest_sha256": "9e3b58f8027716bc1d5448ec6d96db3a4c37a9085955856a9204f37ab66b86a8",
+  "known_defect": {
+    "classification": "incorrect finite native output at extreme finite inputs",
+    "source": "independent sibling audit of degree-zero triangle-to-bubble correction",
+    "input": "All inputs zero except c3=d0=d1=1e110 and projection_e3[2]=1; rows1 and3.",
+    "observed_native_f64": 0,
+    "expected_float256_approximately": 1,
+    "observed_interpreted_f64": "nonfinite",
+    "cause_under_investigation": "d0 cubed overflows; generated reciprocal can turn the nonfinite intermediate into finite zero, masking failed evaluation.",
+    "disposition": "Do not sample this source. Preserve its passing bounded controls and rebuild/revalidate after the owning oneloopmaster primitive fix is reviewed."
+  },
+  "same_artifact_oracle": {
+    "integrated_widths": [
+      0,
+      1,
+      3,
+      8,
+      31,
+      32,
+      128,
+      1024
+    ],
+    "preparation_widths": [
+      0,
+      1,
+      8,
+      32,
+      128,
+      1024,
+      31
+    ],
+    "master_union_entries": 85,
+    "literal_shared_frozen_union_handle": true,
+    "catalog_parity": [
+      {
+        "coverage": {
+          "selection": "symbolica",
+          "native_feature_enabled": true,
+          "families": {
+            "t2_denominators": "symbolica-interpreter",
+            "t3_denominators": "symbolica-interpreter",
+            "bubble_source_projection": "symbolica-interpreter",
+            "triangle_bubble_correction": "symbolica-interpreter",
+            "tadpole_source_projection": "symbolica-interpreter",
+            "other_reduction": "symbolica-interpreter",
+            "integration": "symbolica-interpreter",
+            "accumulation": "symbolica-interpreter"
+          },
+          "selection_scope": "Setup-only partial catalog; unused stages need not execute. Numerator, geometry and masters are independent."
+        },
+        "complex_components_checked": 6135,
+        "max_scaled_error": 0
+      },
+      {
+        "coverage": {
+          "selection": "native-denominators",
+          "native_feature_enabled": true,
+          "families": {
+            "t2_denominators": "native-rust",
+            "t3_denominators": "native-rust",
+            "bubble_source_projection": "symbolica-interpreter",
+            "triangle_bubble_correction": "symbolica-interpreter",
+            "tadpole_source_projection": "symbolica-interpreter",
+            "other_reduction": "symbolica-interpreter",
+            "integration": "symbolica-interpreter",
+            "accumulation": "symbolica-interpreter"
+          },
+          "selection_scope": "Setup-only partial catalog; unused stages need not execute. Numerator, geometry and masters are independent."
+        },
+        "complex_components_checked": 6135,
+        "max_scaled_error": 2.311115933264683e-33
+      },
+      {
+        "coverage": {
+          "selection": "native",
+          "native_feature_enabled": true,
+          "families": {
+            "t2_denominators": "native-rust",
+            "t3_denominators": "native-rust",
+            "bubble_source_projection": "native-rust",
+            "triangle_bubble_correction": "native-rust",
+            "tadpole_source_projection": "native-rust",
+            "other_reduction": "symbolica-interpreter",
+            "integration": "symbolica-interpreter",
+            "accumulation": "symbolica-interpreter"
+          },
+          "selection_scope": "Setup-only partial catalog; unused stages need not execute. Numerator, geometry and masters are independent."
+        },
+        "complex_components_checked": 6135,
+        "max_scaled_error": 3.496446946337351e-18
+      }
+    ],
+    "raw_components_checked": 210,
+    "raw_max_scaled_error": 3.771063304099544e-15,
+    "coefficient_oracle_max_scaled_error": 2.3581169793365375e-15,
+    "integrated_max_scaled_error": 2.1453487309187703e-16,
+    "madloop_integrated_max_scaled_error": 1.162555970610204e-16
+  },
+  "ordinary_timing_binary_check_only": {
+    "selection": {
+      "selection": "symbolica",
+      "native_feature_enabled": true,
+      "families": {
+        "t2_denominators": "symbolica-interpreter",
+        "t3_denominators": "symbolica-interpreter",
+        "bubble_source_projection": "symbolica-interpreter",
+        "triangle_bubble_correction": "symbolica-interpreter",
+        "tadpole_source_projection": "symbolica-interpreter",
+        "other_reduction": "symbolica-interpreter",
+        "integration": "symbolica-interpreter",
+        "accumulation": "symbolica-interpreter"
+      },
+      "selection_scope": "Setup-only partial catalog; unused stages need not execute. Numerator, geometry and masters are independent."
+    },
+    "records": 12,
+    "widths": [
+      1,
+      8,
+      31,
+      32,
+      128,
+      1024
+    ],
+    "workloads": [
+      "changing",
+      "repeated"
+    ],
+    "max_scaled_error": 2.089315818533712e-16,
+    "frozen_backend_calls": 0,
+    "frozen_backend_rows": 0,
+    "union_misses": 0,
+    "timing_samples": 0
+  },
+  "unfinished_execution_build": {
+    "status": "cancelled",
+    "cargo_exit_code": 101,
+    "artifact_claimed": false,
+    "execution_report_collected": false,
+    "reason": "Stop work on superseded candidate before canonical dependency update. Only the owned bridge compiler was terminated after PID/crate/cwd validation.",
+    "stderr_sha256": "c0058039d6be8eb389f4be28a0d2a06b255a3ede71f247cbf15d0bbeefe97962",
+    "stderr": "warning: patch `clarabel v0.11.1 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/vendor/clarabel)` was not used in the crate graph\nwarning: patch `typst-library v0.15.1 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/vendor/typst-library)` was not used in the crate graph\nwarning: patch `typst-svg v0.15.1 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/vendor/typst-svg)` was not used in the crate graph\nhelp: Check that the patched package version and available features are compatible\n      with the dependency requirements. If the patch has a different version from\n      what is locked in the Cargo.lock file, run `cargo update` to use the new\n      version. This may also occur with an optional dependency that is not enabled.\n   Compiling ninjars-shared-provider-probe v0.0.0 (/shared/external/ninja/references/ninjars_reduction_measurement/validation/performance/shared_provider)\nerror: could not compile `ninjars-shared-provider-probe` (lib)\n\nCaused by:\n  process didn't exit successfully: `rustc --crate-name ninjars_shared_provider_probe --edition=2024 src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type rlib --crate-type cdylib --emit=dep-info,link -C opt-level=3 -C codegen-units=1 --cfg 'feature=\"execution-diagnostics\"' --cfg 'feature=\"native-kernels\"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values(\"allocation-diagnostics\", \"execution-diagnostics\", \"native-kernels\"))' -C metadata=3a61f73c4c500df9 --out-dir /common/build-cache/external/83/908dcad578ed91/release/deps -C strip=debuginfo -L dependency=/common/build-cache/external/83/908dcad578ed91/release/deps --extern feynkit_graph=/common/build-cache/external/83/908dcad578ed91/release/deps/libfeynkit_graph-7a3bec0ad586849e.rlib --extern feynkit_kinematics=/common/build-cache/external/83/908dcad578ed91/release/deps/libfeynkit_kinematics-b06ea69a126a8297.rlib --extern ninjars=/common/build-cache/external/83/908dcad578ed91/release/deps/libninjars-b5f9bcaba77ba108.rlib --extern ninjars_graph=/common/build-cache/external/83/908dcad578ed91/release/deps/libninjars_graph-1f2e7ff0aac32572.rlib --extern ninjars_symbolica=/common/build-cache/external/83/908dcad578ed91/release/deps/libninjars_symbolica-fe79bf58509ac924.rlib --extern symbolica=/common/build-cache/external/83/908dcad578ed91/release/deps/libsymbolica-b98c855fcb1103e6.rlib -L native=/common/build-cache/external/83/908dcad578ed91/release/build/psm-107be26094170a7c/out -L native=/common/build-cache/external/83/908dcad578ed91/release/build/gmp-mpfr-sys-fbaf675a2d7bb3d7/out/lib -L native=/common/build-cache/external/83/908dcad578ed91/release/build/blake3-ad5cbfcba40f9c07/out -L native=/common/build-cache/external/83/908dcad578ed91/release/build/blake3-ad5cbfcba40f9c07/out` (signal: 15, SIGTERM: termination signal)\n"
+  },
+  "limitations": [
+    "Passing regular physical inputs do not establish the missing extreme-domain correctness.",
+    "The native catalog contains five generated reduction families; geometry and remaining reduction/integration/accumulation remain interpreted.",
+    "No denominator-only/native timing-binary check pass or instrumented execution pass was run after discovering the defect.",
+    "The preserved0c77597 timing evidence and copied binaries were not modified."
+  ]
+}

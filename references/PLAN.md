@@ -1549,3 +1549,29 @@ connects the existing kernels into integrated amplitudes and a standalone
   `tadpole-native-dispatch.json`, `shared-provider-tadpole-selection.json`,
   and `tadpole-native-combined.json`. Optimized same-artifact measurements of
   all three selections are next; no speedup or acceptance is inferred yet.
+
+### Extreme-domain audit blocks native timing (2026-10-16)
+
+- The optimized `ee1f152` oracle passed all three selections through width
+  1024 (6,135 complex components per selection against one frozen union).
+  Twelve interpreted-mode timing-binary checks also passed. These bounded
+  regular-input controls are explicitly superseded; no timing was collected.
+- An independent audit found a real native numerical defect in the degree-zero
+  triangle-to-bubble correction. With finite inputs c3=d0=d1=1e110 and the
+  indicated source projection equal to one, the exact-plan Float256 result is
+  approximately one, native f64 returns zero, and interpreted f64 is nonfinite.
+  The defect reproduces in scalar and batched execution near the d0-cube
+  overflow boundary. The native reciprocal's axis shortcut can mask a
+  nonfinite intermediate as finite zero.
+- The owning oneloopmaster fix and upstream regressions are being prepared in
+  isolation. Timing is held until that fix is reviewed, pushed directly to
+  oneloopmaster main, pinned here, and the combined controls pass again. The
+  unfinished diagnostic build was cancelled without claiming its output.
+  Evidence: `shared-reduction-catalog-ee1f152-superseded.json`; root verified
+  both lossless archives and equal unchanged runtime-source manifests.
+- Integrated `cc70c34`: an ordinary Laurent export inventory uses existing
+  Symbolica plans and RustEmitter only. The n<=6/r<=n+1 suite has 58 nonempty
+  and 31 empty plans; ordinary emitted bodies total 864,498 bytes, with 45
+  identical-source/table groups. Generation, strict example Clippy and
+  formatting pass. This installs no production kernels and claims no speedup;
+  `laurent-catalog-inventory.json` records layouts and exact source identity.
