@@ -283,7 +283,7 @@ fn forward_network() -> ProbeResult<(Network, Vec<Atom>)> {
                 &mut network,
                 &format!("{target}_division"),
                 &bubble_division,
-                &[denominator.clone()],
+                std::slice::from_ref(&denominator),
             );
             let mut arguments = c3.clone();
             arguments.extend(network.external(
@@ -327,7 +327,7 @@ fn forward_network() -> ProbeResult<(Network, Vec<Atom>)> {
         unreachable!()
     };
     let constant = powers.iter().position(|&p| p == (0, 0)).unwrap();
-    for target in 0..3 {
+    for (target, mass) in masses.iter().enumerate() {
         let label = format!("tad{target}_o0");
         let extras: Vec<_> = (0..3).filter(|&i| i != target).collect();
         let denominators: Vec<_> = extras
@@ -390,7 +390,7 @@ fn forward_network() -> ProbeResult<(Network, Vec<Atom>)> {
             &label,
             1,
             &c1,
-            &[masses[target].clone()],
+            std::slice::from_ref(mass),
             &[],
         )?);
     }
