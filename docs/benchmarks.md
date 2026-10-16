@@ -109,6 +109,9 @@ CLI's numerator-preparation package;
 the NinjaRS reduction engine remains independent of graphs, models and JIT
 compilation. The ordinary provider remains a correctness and timing control,
 with precision-preserving evaluation for carriers unsupported by SymJIT.
+The explicit `symjit-o2-factored` variant additionally factors external
+coefficients with Symbolica at setup. Record that policy when comparing providers;
+its factoring time is included in preparation time and must not be added twice.
 
 Before timing, compare every compiled coefficient and complete reduction with
 the existing provider on the same physical inputs. Record the compilation and

@@ -15,7 +15,6 @@ use serde_json::{Value, json};
 use symbolica::{
     atom::{Atom, AtomCore},
     domains::{
-        atom::AtomField,
         float::{Complex, Float, RealLike, SingleFloat},
         rational::Rational,
     },
@@ -351,18 +350,8 @@ fn main() -> Result<()> {
         .zip(&oracle)
         .map(|(v, e)| close(*v, C::new(e.re.to_f64(), e.im.to_f64())))
         .fold(0_f64, f64::max);
-    let factored_expression = plan
-        .polynomial()
-        .map_coeff(
-            |head| head.factor(),
-            AtomField {
-                statistical_zero_test: false,
-                ..AtomField::new()
-            },
-        )
-        .flatten(false);
-    let factored_plan =
-        PolynomialCoefficientPlan::new(factored_expression, q.clone(), parameters.clone())?;
+    let coefficient_heads = plan.coefficient_expressions().len();
+    let factored_plan = plan.factor_coefficients()?;
     assert_eq!(
         factored_plan.coefficient_expressions().len(),
         factored_heads.len()
@@ -388,9 +377,9 @@ fn main() -> Result<()> {
             &json!({"passed":high_error.into_iter().all(|e|e<=1e-9),"provider_parity_passed":true,"performance_acceptance":false,
         "scope":"FeynKit wavefunctions and routed propagators plus Symbolica/SymJIT coefficient preparation from numerical momenta, helicities, pole mass and inverse electromagnetic coupling; no reduction or timings",
         "graph":"four-photon/top-box-0","distinct_momentum_points":3,"helicity_states":3,"model_input_rows":model_rows,
-        "coefficient_heads":plan.coefficient_expressions().len(),"parameter_count":parameters.len(),
+        "coefficient_heads":coefficient_heads,"parameter_count":parameters.len(),
         "coefficient_float256_oracle":{"scope":"all nine distinct momentum/helicity bindings, exact promotion of binary64 component inputs; outputs rounded to binary64 for comparison","criterion":1e-9,"jit_max_scaled_error":high_error[0],"interpreter_max_scaled_error":high_error[1],"worst_cases":worst},
-        "factorization_experiment":{"scope":"Symbolica factor() on every coefficient head with exact identity checks, existing interpreter and existing PolynomialCoefficientPlan/SymJIT through map_coeff/flatten; no production changes","interpreter_max_scaled_error":factor_error,"jit_max_scaled_error":factored_jit_error,"passed":factor_error<=1e-9 && factored_jit_error<=1e-9},
+        "factorization_experiment":{"scope":"Symbolica factor() on every coefficient head with exact identity checks, independent factored interpreter and optional PolynomialCoefficientPlan::factor_coefficients/SymJIT provider","interpreter_max_scaled_error":factor_error,"jit_max_scaled_error":factored_jit_error,"passed":factor_error<=1e-9 && factored_jit_error<=1e-9},
         "wavefunction_fixture_max_scaled_error":wave_error,"coefficient_max_scaled_error":coefficient_error,
         "reconstruction_max_scaled_error":reconstruction_error,"batches":records})
         )?

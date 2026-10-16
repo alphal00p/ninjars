@@ -277,7 +277,7 @@ index c64e08fe..36606d26 100644
      fn runtime_dual() {
          let x = HyperDual::<f64>::from_values(
 diff --git a/src/evaluate.rs b/src/evaluate.rs
-index 20a72c0f..0ea13c33 100644
+index 20a72c0f..37fd7d86 100644
 --- a/src/evaluate.rs
 +++ b/src/evaluate.rs
 @@ -26,6 +26,7 @@ use symjit::{Applet, Composer, Config, Defuns, Storage, Translator};
@@ -296,10 +296,170 @@ index 20a72c0f..0ea13c33 100644
  pub use domain::*;
  pub use dual::*;
  pub use evaluator::*;
-@@ -584,6 +586,136 @@ mod test {
+@@ -584,6 +586,296 @@ mod test {
          }
      }
  
++    #[test]
++    fn completed_conditionals_reuse_only_their_parent_scope() {
++        let repeated = parse!("(if(c,1/x,sqrt(x+2))+x)*(if(c,1/x,sqrt(x+2))+y)");
++        let params = [parse!("c"), parse!("x"), parse!("y")];
++        let exact = repeated
++            .evaluator(&params)
++            .horner_iterations(0)
++            .build()
++            .unwrap();
++        let branches = |graph: &ExportedInstructions<Complex<Rational>>| {
++            graph
++                .instructions
++                .iter()
++                .filter(|i| matches!(i, Instruction::IfElse(..)))
++                .count()
++        };
++        assert_eq!(branches(&exact.export_instructions()), 1);
++        let heads = [
++            parse!("if(c,1/x,sqrt(x+2))+x"),
++            parse!("if(c,1/x,sqrt(x+2))+y"),
++        ];
++        let multiple = Atom::evaluator_multiple(&heads, &params)
++            .horner_iterations(0)
++            .build()
++            .unwrap();
++        assert_eq!(branches(&multiple.export_instructions()), 1);
++        let separate =
++            parse!("if(a,(if(c,1/x,sqrt(x+2))+x)*(if(c,1/x,sqrt(x+2))+y),if(c,1/x,sqrt(x+2))+y)");
++        let exact = separate
++            .evaluator(&[parse!("a"), parse!("c"), parse!("x"), parse!("y")])
++            .horner_iterations(0)
++            .build()
++            .unwrap();
++        // One completed inner conditional in each arm; neither arm's result
++        // may escape into its sibling, even when the expressions are identical.
++        assert_eq!(branches(&exact.export_instructions()), 3);
++        let mut scalar = exact.clone().map_coeff(&|c| c.re.to_f64());
++        let mut batch = scalar.clone().into_batch_evaluator();
++        let inputs = [
++            1., 0., 0., 2., 0., 0., 0., 2., 1., 1., -2., 3., 0., 1., -2., 3.,
++        ];
++        let mut expected = [0.; 4];
++        for (input, expected) in inputs.as_chunks::<4>().0.iter().zip(&mut expected) {
++            let [a, c, x, y] = *input;
++            let selected = if c != 0. { 1. / x } else { (x + 2.).sqrt() };
++            *expected = if a != 0. {
++                (selected + x) * (selected + y)
++            } else {
++                selected + y
++            };
++            assert!((scalar.evaluate_single(input) - *expected).abs() < 1e-12);
++        }
++        for rows in [4, 0, 1, 3, 4] {
++            let mut output = vec![f64::NAN; rows];
++            batch
++                .evaluate_batch(&inputs[..4 * rows], &mut output, rows)
++                .unwrap();
++            for (actual, expected) in output.iter().zip(expected) {
++                assert!(actual.is_finite() && (actual - expected).abs() < 1e-12);
++            }
++        }
++        #[cfg(feature = "bincode")]
++        {
++            let bytes = bincode::encode_to_vec(&exact, bincode::config::standard()).unwrap();
++            let (decoded, _) = bincode::decode_from_slice::<
++                crate::evaluate::ExpressionEvaluator<Complex<Rational>>,
++                _,
++            >(&bytes, bincode::config::standard())
++            .unwrap();
++            let mut decoded = decoded.map_coeff(&|c| c.re.to_f64());
++            assert!((decoded.evaluate_single(&inputs[..4]) - expected[0]).abs() < 1e-12);
++        }
++        #[cfg(feature = "native_code_generation")]
++        {
++            let mut jit = scalar
++                .jit_compile(JITCompilationSettings::default())
++                .unwrap();
++            for (input, expected) in inputs.as_chunks::<4>().0.iter().zip(expected) {
++                let mut output = [0.];
++                jit.evaluate(input, &mut output);
++                assert!((output[0] - expected).abs() < 1e-12);
++            }
++        }
++    }
++
++    #[test]
++    fn completed_shared_conditionals_keep_captures_and_mixed_dual_components() {
++        let params = [parse!("c"), parse!("x"), parse!("y")];
++        let build = |policy| {
++            parse!("conditional_cache::f(c,x)+conditional_cache::f(c,x+1)")
++                .evaluator(&params)
++                .add_function_with_options(
++                    symbol!("conditional_cache::f"),
++                    vec![symbol!("b"), symbol!("z")],
++                    parse!("(if(b,1/z,z+y)+z)*(if(b,1/z,z+y)+y)"),
++                    FunctionRegistrationOptions::new().inlining(policy),
++                )
++                .unwrap()
++                .horner_iterations(0)
++                .build()
++                .unwrap()
++        };
++        let exact = build(InliningPolicy::Never);
++        let exported = exact.export_instructions();
++        assert_eq!(exported.sub_evaluators.len(), 1);
++        let helper = &exported.sub_evaluators[0];
++        assert_eq!(helper.input_count, 3); // b, z, captured y
++        assert_eq!(
++            helper
++                .instructions
++                .instructions
++                .iter()
++                .filter(|i| matches!(i, Instruction::IfElse(..)))
++                .count(),
++            1
++        );
++        let dual = Dualizer::new(
++            HyperDual::<Complex<Rational>>::new(vec![
++                vec![0, 0],
++                vec![1, 0],
++                vec![0, 1],
++                vec![2, 0],
++                vec![1, 1],
++            ]),
++            vec![],
++        );
++        let mut shared = exact
++            .vectorize(&dual)
++            .unwrap()
++            .map_coeff(&|c| c.re.to_f64());
++        let mut inline = build(InliningPolicy::Always)
++            .vectorize(&dual)
++            .unwrap()
++            .map_coeff(&|c| c.re.to_f64());
++        let mut batch = shared.clone().into_batch_evaluator();
++        let mut inputs = Vec::new();
++        let mut expected = Vec::new();
++        for (c, x, y) in [(0., 0., 2.), (1., 2., 3.), (0., -1., 4.), (1., -3., -2.)] {
++            let row = [c, 0., 0., 0., 0., x, 1., 0., 0., 0., y, 0., 1., 0., 0.];
++            let mut output = [0.; 5];
++            let mut reference = [0.; 5];
++            shared.evaluate(&row, &mut output);
++            inline.evaluate(&row, &mut reference);
++            for (actual, reference) in output.iter().zip(reference) {
++                assert!(actual.is_finite() && (actual - reference).abs() < 1e-11);
++            }
++            inputs.extend(row);
++            expected.extend(reference);
++        }
++        for rows in [4, 0, 1, 3, 4] {
++            let mut output = vec![f64::NAN; rows * 5];
++            batch
++                .evaluate_batch(&inputs[..rows * 15], &mut output, rows)
++                .unwrap();
++            for (actual, reference) in output.iter().zip(&expected) {
++                assert!(actual.is_finite() && (actual - reference).abs() < 1e-11);
++            }
++        }
++    }
++
 +    #[test]
 +    fn non_inlined_function_reuses_temporary_stack_slots() {
 +        let helper = symbol!("symbolica::shared_stack::chain");
@@ -2093,7 +2253,7 @@ index 2a6f155a..2524403b 100644
      fn dependent_duplicates_collapse_in_one_pass() {
          let depth = 128;
 diff --git a/src/evaluate/tree.rs b/src/evaluate/tree.rs
-index 378d96db..06e3394a 100644
+index 378d96db..4365eb69 100644
 --- a/src/evaluate/tree.rs
 +++ b/src/evaluate/tree.rs
 @@ -894,11 +894,25 @@ impl<'a> AtomView<'a> {
@@ -2125,6 +2285,16 @@ index 378d96db..06e3394a 100644
              };
              // Recursive compilation has already registered every callee.
              context.external_indices.insert(
+@@ -1283,6 +1297,9 @@ impl<'a> AtomView<'a> {
+ 
+                     let temp = Slot::Temp(instr.len());
+                     instr.push(Instruction::Join(temp, cond, then_branch, else_branch));
++                    // The completed result now dominates this scope. Branch-local
++                    // values remain in their cloned caches, never in the parent.
++                    subexpressions.insert(*self, temp);
+                     return Ok(temp);
+                 } else if let Some(fun) = fn_map.get(*self) {
+                     fun
 diff --git a/src/lib.rs b/src/lib.rs
 index 96426e53..33a8b487 100644
 --- a/src/lib.rs

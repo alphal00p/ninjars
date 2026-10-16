@@ -63,3 +63,28 @@ The on-shell triangle exposed a bubble-cut Weyl-chart singularity for a lightlik
 The historical baseline passes 32 of 36 rows at the scaled `1e-9` gate; four f64 double-longitudinal rows miss only the expected-zero single pole, at `1.066920211437358e-9`. That failed record is retained. The later combined coefficient-alias repair and dependency update passes **all 36 rows**, with maximum error `5.062690174549114e-10`, recorded in `validation/evidence/physical-hgg-cli-coefficient-aliases.json`. The tolerance is unchanged; the combined rerun does not isolate which change reduced cancellation. The double-longitudinal samples are independent numerator-contraction diagnostics; the no-R2 integrated contribution is nonzero, and no complete Ward-identity claim is made. Physical performance acceptance and automatic generic helicity preparation remain outstanding.
 
 FeynKit PR [#144](https://github.com/alphal00p/gammaloop/pull/144) makes explicit one-thread generation stay on the calling thread, including numerator/color preparation. It is stacked on shared-type PR #143; the full generator unit suite passes (104 tests), including the caller-thread and two/four-worker regressions, with strict crate Clippy and formatting checks.
+
+# Larger physical graphs
+
+The same convention and independent matching workflow now cover six top-quark
+four-photon boxes, eight gg→HH graphs, and all 50 gg→HHH graphs. Reproduction
+guides and retained diagnostic limitations are in
+[`validation/madloop/four_photon`](../validation/madloop/four_photon/README.md),
+[`validation/madloop/gg_hh`](../validation/madloop/gg_hh/README.md), and
+[`validation/madloop/gg_hhh`](../validation/madloop/gg_hhh/INTEGRATED.md).
+
+The gg→HHH suite has eight triangles, 18 boxes and 24 pentagons. All 28,000
+independent raw numerator checks and 2,400 integrated rows pass. The integrated
+matrix covers four helicities plus generic/Ward diagnostics, all three scalar
+precisions, and both mu-extraction modes. Independent Symbolica differentiation
+checks each pole; the 50-graph sum cancels exactly in all eight states. Analytic
+pole controls demonstrate additional accuracy in DoubleFloat and Float256.
+MadLoop finite-part inputs remain binary64 even in its fixed quadruple mode.
+
+The [shared physical-provider control](../validation/performance/shared_provider/PHYSICAL.md)
+starts from raw momenta, helicities and model inputs at three distinct physical
+points. It includes FeynKit wavefunctions, dependent parameters, coefficient
+evaluation and routed propagators in each complete evaluation. Both reducers
+then use the same numerator provider. This validation adapter is separate from
+the CLI's prebound-polarization fixtures; reusable numerical preparation and
+controlled performance measurements remain in development.
