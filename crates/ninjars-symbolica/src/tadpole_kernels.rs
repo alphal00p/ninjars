@@ -196,24 +196,22 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
             ));
         }
         let mut specialized = [None, None];
-        for (kind, source_size) in [3, 2].into_iter().enumerate() {
-            let zero_slots = rank_specialization::zero_slots(n, rank, source_size)?;
-            let plan = TadpoleSubtraction::new(source_size, false)?;
-            let ExpansionKind::T3 { powers } = plan.output_expansion() else {
-                unreachable!()
-            };
-            let constant = powers.iter().position(|&p| p == (0, 0)).ok_or_else(|| {
-                Error::Expansion("tadpole correction has no constant head".into())
-            })?;
-            let exact = rank_specialization::specialize(
-                &plan.exact,
-                &[constant],
-                plan.input_layout().residue.clone(),
-                &zero_slots,
-            );
+        use rank_specialization::RankSpecializedCorrectionPlan::{
+            BubbleToTadpoleN5R4, TriangleToTadpoleN5R4,
+        };
+        for (kind, identity) in [TriangleToTadpoleN5R4, BubbleToTadpoleN5R4]
+            .into_iter()
+            .enumerate()
+        {
+            let plan = identity.prepare()?;
+            if self.layout.quotient_expansion() != &plan.output {
+                return Err(Error::Unsupported(
+                    "guarded tadpole correction quotient differs from its semantic plan".into(),
+                ));
+            }
             specialized[kind] = Some(GuardedCorrection {
-                kernel: compile(&exact)?,
-                zero_slots,
+                kernel: compile(&plan.exact)?,
+                zero_slots: plan.zero_slots,
             });
         }
         self.specialized_subtraction = specialized;
@@ -752,6 +750,14 @@ where
             .iter()
             .all(Option::is_some)
     }
+
+    /// Backend of the guarded alternate; failed guards use the generic backend.
+    #[cfg(feature = "native-kernels")]
+    pub fn rank_specialized_correction_backend(&self) -> Option<crate::KernelBackend> {
+        self.engine.specialized_subtraction[0]
+            .as_ref()
+            .map(|plan| plan.kernel.backend())
+    }
 }
 
 /// The same tadpole coefficients through shared static or runtime Dual bodies.
@@ -786,6 +792,14 @@ where
             .iter()
             .all(Option::is_some)
     }
+
+    /// Backend of the guarded alternate; failed guards use the generic backend.
+    #[cfg(feature = "native-kernels")]
+    pub fn rank_specialized_correction_backend(&self) -> Option<crate::KernelBackend> {
+        self.engine.specialized_subtraction[0]
+            .as_ref()
+            .map(|plan| plan.kernel.backend())
+    }
 }
 
 macro_rules! implement {
@@ -814,6 +828,29 @@ impl<T: oneloop::rust_codegen::runtime::NativeFloat> SymbolicaTadpoleKernels<T>
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    /// Opt into generated n=5/r=4 correction bodies with the same exact-zero
+    /// guards. Generic native selections are retained for whole-batch fallback.
+    pub fn with_native_rank_specialized_corrections(self) -> Result<Self> {
+        let mut kernels = self.with_rank_specialized_corrections()?;
+        let prototype = kernels.engine.zero.re.clone();
+        use crate::rank_specialization::RankSpecializedCorrectionPlan::{
+            BubbleToTadpoleN5R4, TriangleToTadpoleN5R4,
+        };
+        for (alternate, plan) in kernels
+            .engine
+            .specialized_subtraction
+            .iter_mut()
+            .zip([TriangleToTadpoleN5R4, BubbleToTadpoleN5R4])
+        {
+            crate::native_kernels::rank_specialization::install_ordinary(
+                &mut alternate.as_mut().expect("specialization installed").kernel,
+                plan,
+                &prototype,
+            )?;
+        }
+        Ok(kernels)
+    }
+
     /// Opt into generated denominator arithmetic; other kernels stay interpreted.
     pub fn new_with_native_denominators(
         propagators: usize,
@@ -853,6 +890,31 @@ impl<T: oneloop::rust_codegen::runtime::NativeFloat, D: Real + DualNumber<Comple
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    /// Opt into generated n=5/r=4 correction bodies with the same exact-zero
+    /// guards. Generic native selections are retained for whole-batch fallback.
+    /// Only the catalogued ordered five-component shape is generated; other
+    /// shapes use the interpreted alternate and report that backend.
+    pub fn with_native_rank_specialized_corrections(self) -> Result<Self> {
+        let mut kernels = self.with_rank_specialized_corrections()?;
+        let prototype = kernels.engine.division.scalar_prototype().clone();
+        use crate::rank_specialization::RankSpecializedCorrectionPlan::{
+            BubbleToTadpoleN5R4, TriangleToTadpoleN5R4,
+        };
+        for (alternate, plan) in kernels
+            .engine
+            .specialized_subtraction
+            .iter_mut()
+            .zip([TriangleToTadpoleN5R4, BubbleToTadpoleN5R4])
+        {
+            crate::native_kernels::rank_specialization::install_dual(
+                &mut alternate.as_mut().expect("specialization installed").kernel,
+                plan,
+                &prototype,
+            )?;
+        }
+        Ok(kernels)
+    }
+
     /// Opt in for catalogued ordered Dual shapes; other shapes stay interpreted.
     pub fn new_with_native_denominators(
         propagators: usize,

@@ -220,7 +220,7 @@ where
     }
 }
 
-fn ordinary<T: NativeFloat>(p: T, native: bool)
+fn ordinary<T: NativeFloat>(p: T, native: bool, native_rank: bool)
 where
     Complex<T>: Real + EvaluationDomain,
 {
@@ -243,6 +243,13 @@ where
     };
     let mut b = make_b().with_rank_specialized_corrections().unwrap();
     let mut t = make_t().with_rank_specialized_corrections().unwrap();
+    #[cfg(feature = "native-kernels")]
+    if native_rank {
+        b = b.with_native_rank_specialized_corrections().unwrap();
+        t = t.with_native_rank_specialized_corrections().unwrap();
+    }
+    #[cfg(not(feature = "native-kernels"))]
+    assert!(!native_rank);
     let mut generic_b = make_b();
     let mut generic_t = make_t();
     let make = || fixture(|r, i| Complex::new(p.from_i64(r), p.from_i64(i)));
@@ -382,6 +389,10 @@ fn dual_specialization_preserves_explicit_scalar_precision_distinct_from_carrier
 
 #[test]
 fn nonempty_failed_batches_keep_sentinels_and_retry_cleanly() {
+    failed_batches(false);
+}
+
+fn failed_batches(native_rank: bool) {
     let c = |r, i| Complex::new(r as f64, i as f64);
     let mut f = fixture(c);
     let mut bubble = SymbolicaBubbleKernels::new(5, 4, 0.)
@@ -392,6 +403,13 @@ fn nonempty_failed_batches_keep_sentinels_and_retry_cleanly() {
         .unwrap()
         .with_rank_specialized_corrections()
         .unwrap();
+    #[cfg(feature = "native-kernels")]
+    if native_rank {
+        bubble = bubble.with_native_rank_specialized_corrections().unwrap();
+        tadpole = tadpole.with_native_rank_specialized_corrections().unwrap();
+    }
+    #[cfg(not(feature = "native-kernels"))]
+    assert!(!native_rank);
     let sentinel = c(987, 0);
     for bad in [true, false] {
         f.masses[0].im = if bad { f64::NAN } else { -1. };
@@ -446,19 +464,23 @@ fn nonempty_failed_batches_keep_sentinels_and_retry_cleanly() {
 
 #[test]
 fn ordinary_specialized_and_all_masked_slot_fallbacks() {
-    ordinary(0., false);
-    ordinary(DoubleFloat::default(), false);
-    ordinary(Float::new(192), false);
+    ordinary(0., false, false);
+    ordinary(DoubleFloat::default(), false, false);
+    ordinary(Float::new(192), false, false);
 }
 
 #[cfg(feature = "native-kernels")]
 #[test]
 fn native_generic_fallback_is_preserved() {
-    ordinary(0., true);
+    ordinary(0., true, false);
 }
 
 #[test]
 fn higher_mixed_derivative_only_coefficients_force_fallback() {
+    dual_guards(false);
+}
+
+fn dual_guards(native_rank: bool) {
     let zero = HyperDual::from_values(
         vec![vec![0, 0], vec![1, 0], vec![0, 1], vec![2, 0], vec![1, 1]],
         vec![Complex::new(0., 0.); 5],
@@ -474,6 +496,13 @@ fn higher_mixed_derivative_only_coefficients_force_fallback() {
     let make_t = || SymbolicaDualTadpoleKernels::new(5, 4, 0., &zero).unwrap();
     let mut b = make_b().with_rank_specialized_corrections().unwrap();
     let mut t = make_t().with_rank_specialized_corrections().unwrap();
+    #[cfg(feature = "native-kernels")]
+    if native_rank {
+        b = b.with_native_rank_specialized_corrections().unwrap();
+        t = t.with_native_rank_specialized_corrections().unwrap();
+    }
+    #[cfg(not(feature = "native-kernels"))]
+    assert!(!native_rank);
     let mut generic_b = make_b();
     let mut generic_t = make_t();
     let check = |a: &HyperDual<Complex<f64>>, b: &HyperDual<Complex<f64>>| {
@@ -596,6 +625,18 @@ fn exceptional_overflow_is_classified_by_independent_float_control() {
     ordinary.evaluate_batch(&row, &mut generic, 1).unwrap();
     specialized.evaluate_batch(&row, &mut actual, 1).unwrap();
     oracle.evaluate_batch(&high, &mut expected, 1).unwrap();
+    #[cfg(feature = "native-kernels")]
+    {
+        let semantic = RankSpecializedCorrectionPlan::TriangleToBubbleN5R4;
+        let mut native = semantic.prepare().unwrap().exact.compile(&0.).unwrap();
+        crate::native_kernels::rank_specialization::install_ordinary(&mut native, semantic, &0.)
+            .unwrap();
+        let mut result = vec![Complex::new(0., 0.); 3];
+        native.evaluate_batch(&row, &mut result, 1).unwrap();
+        for (value, reference) in result.iter().zip(&actual) {
+            close(value, reference, &0.);
+        }
+    }
     assert!(generic.iter().any(|v| !v.is_finite()));
     for (i, value) in [1., -1., 0.].into_iter().enumerate() {
         close(&actual[i], &Complex::new(value, 0.), &0.);
@@ -686,3 +727,7 @@ fn amplitude_builder_orders_report_both_backends() {
         );
     }
 }
+
+#[cfg(feature = "native-kernels")]
+#[path = "native_rank_specialization_tests.rs"]
+mod native;

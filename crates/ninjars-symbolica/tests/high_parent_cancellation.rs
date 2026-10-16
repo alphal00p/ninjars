@@ -140,6 +140,19 @@ fn near_zero(value: Complex<f64>, context: &str) {
 }
 
 fn check_lower_stages(n: usize, rank: usize, expression: Atom, label: &str, specialized: bool) {
+    check_lower_stages_mode(n, rank, expression, label, specialized, false);
+}
+
+fn check_lower_stages_mode(
+    n: usize,
+    rank: usize,
+    expression: Atom,
+    label: &str,
+    specialized: bool,
+    native_rank: bool,
+) {
+    #[cfg(not(feature = "native-kernels"))]
+    assert!(!native_rank);
     let topology = Topology::new(n, rank).unwrap();
     let lanes = 2;
     let routing = routing();
@@ -198,6 +211,14 @@ fn check_lower_stages(n: usize, rank: usize, expression: Atom, label: &str, spec
     } else {
         bubble_kernels
     };
+    #[cfg(feature = "native-kernels")]
+    let bubble_kernels = if native_rank {
+        bubble_kernels
+            .with_native_rank_specialized_corrections()
+            .unwrap()
+    } else {
+        bubble_kernels
+    };
     let mut bubble = BubbleReducer::new(bubble_kernels, c(0.)).unwrap();
     let mut bubbles =
         vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); bubble.cut_count() * lanes];
@@ -230,6 +251,14 @@ fn check_lower_stages(n: usize, rank: usize, expression: Atom, label: &str, spec
     let tadpole_kernels = SymbolicaTadpoleKernels::new(n, rank, 0.).unwrap();
     let tadpole_kernels = if specialized {
         tadpole_kernels.with_rank_specialized_corrections().unwrap()
+    } else {
+        tadpole_kernels
+    };
+    #[cfg(feature = "native-kernels")]
+    let tadpole_kernels = if native_rank {
+        tadpole_kernels
+            .with_native_rank_specialized_corrections()
+            .unwrap()
     } else {
         tadpole_kernels
     };
@@ -319,4 +348,25 @@ fn rank_specialization_preserves_independent_exact_n5_r4_parent_cancellation() {
             specialized,
         );
     }
+}
+
+#[cfg(feature = "native-kernels")]
+#[test]
+fn native_rank_specialization_preserves_independent_exact_n5_r4_parent_cancellation() {
+    check_lower_stages_mode(
+        5,
+        4,
+        box_numerator(5, 4, &[1, 2, 3, 4]),
+        "native n5/r4 exact box",
+        true,
+        true,
+    );
+    check_lower_stages_mode(
+        5,
+        4,
+        pentagon_numerator(5, &[0, 1, 2, 3, 4]),
+        "native n5/r4 exact pentagon",
+        true,
+        true,
+    );
 }

@@ -2,6 +2,7 @@
 //! No dimension-based or carrier-type inference selects generated arithmetic.
 
 pub(crate) mod bubbles;
+pub(crate) mod rank_specialization;
 pub(crate) mod tadpoles;
 
 use ninjars::{Complex, Error, Real, Result};

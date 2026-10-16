@@ -114,6 +114,16 @@ fn vars() -> [Atom; 5] {
 
 #[test]
 fn rank_specialization_full_lower_stage_coefficient_parity() {
+    rank_specialization_lower_stages(false);
+}
+
+#[cfg(feature = "native-kernels")]
+#[test]
+fn native_rank_specialization_full_lower_stage_coefficient_parity() {
+    rank_specialization_lower_stages(true);
+}
+
+fn rank_specialization_lower_stages(native_rank: bool) {
     let zero = Complex::new(0., 0.);
     let (n, rank) = (5, 4);
     let mut numerator = PolynomialNumerator::new(expression(rank), vars(), vec![], 0.).unwrap();
@@ -122,11 +132,22 @@ fn rank_specialization_full_lower_stage_coefficient_parity() {
         TriangleReducer::new(SymbolicaTriangleKernels::new(n, rank, 0.).unwrap(), zero).unwrap();
     let make_b = || SymbolicaBubbleKernels::new(n, rank, 0.).unwrap();
     let make_t = || SymbolicaTadpoleKernels::new(n, rank, 0.).unwrap();
-    let mut b =
-        BubbleReducer::new(make_b().with_rank_specialized_corrections().unwrap(), zero).unwrap();
+    let b = make_b().with_rank_specialized_corrections().unwrap();
+    let t = make_t().with_rank_specialized_corrections().unwrap();
+    #[cfg(feature = "native-kernels")]
+    let (b, t) = if native_rank {
+        (
+            b.with_native_rank_specialized_corrections().unwrap(),
+            t.with_native_rank_specialized_corrections().unwrap(),
+        )
+    } else {
+        (b, t)
+    };
+    #[cfg(not(feature = "native-kernels"))]
+    assert!(!native_rank);
+    let mut b = BubbleReducer::new(b, zero).unwrap();
     let mut old_b = BubbleReducer::new(Separate(make_b()), zero).unwrap();
-    let mut t =
-        TadpoleReducer::new(make_t().with_rank_specialized_corrections().unwrap(), zero).unwrap();
+    let mut t = TadpoleReducer::new(t, zero).unwrap();
     let mut old_t = TadpoleReducer::new(Separate(make_t()), zero).unwrap();
     let topology = Topology::new(n, rank).unwrap();
     for (lanes, bad, reverse) in [

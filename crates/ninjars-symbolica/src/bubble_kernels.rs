@@ -142,18 +142,16 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
         mut compile: impl FnMut(&ExactKernel) -> Result<K>,
     ) -> Result<()> {
         rank_specialization::require_supported(self.n, self.rank)?;
-        let zero_slots = rank_specialization::zero_slots(self.n, self.rank, 3)?;
-        let plan = TriangleBubbleSubtraction::for_quotient(&self.layout)?;
-        let heads: Vec<_> = (0..plan.exact.expressions.len()).collect();
-        let exact = rank_specialization::specialize(
-            &plan.exact,
-            &heads,
-            plan.input_layout().residue.clone(),
-            &zero_slots,
-        );
+        let plan =
+            rank_specialization::RankSpecializedCorrectionPlan::TriangleToBubbleN5R4.prepare()?;
+        if self.layout.quotient_expansion() != &plan.output {
+            return Err(Error::Unsupported(
+                "guarded bubble correction quotient differs from its semantic plan".into(),
+            ));
+        }
         self.specialized_correction = Some(GuardedCorrection {
-            kernel: compile(&exact)?,
-            zero_slots,
+            kernel: compile(&plan.exact)?,
+            zero_slots: plan.zero_slots,
         });
         Ok(())
     }
@@ -597,6 +595,15 @@ where
     pub fn rank_specialized_corrections_enabled(&self) -> bool {
         self.engine.specialized_correction.is_some()
     }
+
+    /// Backend of the guarded alternate; failed guards use the generic backend.
+    #[cfg(feature = "native-kernels")]
+    pub fn rank_specialized_correction_backend(&self) -> Option<crate::KernelBackend> {
+        self.engine
+            .specialized_correction
+            .as_ref()
+            .map(|plan| plan.kernel.backend())
+    }
 }
 
 /// Static/dynamic Dual execution of the same exact bubble graphs.
@@ -627,6 +634,15 @@ where
     pub fn rank_specialized_corrections_enabled(&self) -> bool {
         self.engine.specialized_correction.is_some()
     }
+
+    /// Backend of the guarded alternate; failed guards use the generic backend.
+    #[cfg(feature = "native-kernels")]
+    pub fn rank_specialized_correction_backend(&self) -> Option<crate::KernelBackend> {
+        self.engine
+            .specialized_correction
+            .as_ref()
+            .map(|plan| plan.kernel.backend())
+    }
 }
 
 macro_rules! implementation {
@@ -655,6 +671,24 @@ impl<T: oneloop::rust_codegen::runtime::NativeFloat> SymbolicaBubbleKernels<T>
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    /// Opt into generated n=5/r=4 correction bodies with the same exact-zero
+    /// guards. Generic native selections are retained for whole-batch fallback.
+    pub fn with_native_rank_specialized_corrections(self) -> Result<Self> {
+        let mut kernels = self.with_rank_specialized_corrections()?;
+        let prototype = kernels.engine.zero.re.clone();
+        crate::native_kernels::rank_specialization::install_ordinary(
+            &mut kernels
+                .engine
+                .specialized_correction
+                .as_mut()
+                .expect("specialization installed")
+                .kernel,
+            crate::rank_specialization::RankSpecializedCorrectionPlan::TriangleToBubbleN5R4,
+            &prototype,
+        )?;
+        Ok(kernels)
+    }
+
     /// Opt into generated denominator arithmetic; other kernels stay interpreted.
     pub fn new_with_native_denominators(
         propagators: usize,
@@ -696,6 +730,26 @@ impl<T: oneloop::rust_codegen::runtime::NativeFloat, D: Real + DualNumber<Comple
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    /// Opt into generated n=5/r=4 correction bodies with the same exact-zero
+    /// guards. Generic native selections are retained for whole-batch fallback.
+    /// Only the catalogued ordered five-component shape is generated; other
+    /// shapes use the interpreted alternate and report that backend.
+    pub fn with_native_rank_specialized_corrections(self) -> Result<Self> {
+        let mut kernels = self.with_rank_specialized_corrections()?;
+        let prototype = kernels.engine.division.scalar_prototype().clone();
+        crate::native_kernels::rank_specialization::install_dual(
+            &mut kernels
+                .engine
+                .specialized_correction
+                .as_mut()
+                .expect("specialization installed")
+                .kernel,
+            crate::rank_specialization::RankSpecializedCorrectionPlan::TriangleToBubbleN5R4,
+            &prototype,
+        )?;
+        Ok(kernels)
+    }
+
     /// Opt in for catalogued ordered Dual shapes; other shapes stay interpreted.
     pub fn new_with_native_denominators(
         propagators: usize,

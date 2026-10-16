@@ -1,0 +1,84 @@
+{
+  "algebra": "Same Symbolica residue-projection zero masks, literal replacement and explicit head selection as guarded interpreted stages",
+  "constant_count": 4,
+  "dual_shape": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      1,
+      1
+    ]
+  ],
+  "guard": "All structural-zero components in every active source-kind row; whole-kind generic fallback",
+  "plans": [
+    {
+      "bytes": 10893,
+      "dual": false,
+      "inputs": 28,
+      "instructions": 34,
+      "module": "rank_triangle_to_bubble_n5_r4",
+      "outputs": 3,
+      "semantic_plan": "triangle_to_bubble_n5_r4_full_quotient"
+    },
+    {
+      "bytes": 119060,
+      "dual": true,
+      "inputs": 140,
+      "instructions": 589,
+      "module": "rank_triangle_to_bubble_n5_r4_dual",
+      "outputs": 15,
+      "semantic_plan": "triangle_to_bubble_n5_r4_full_quotient"
+    },
+    {
+      "bytes": 5837,
+      "dual": false,
+      "inputs": 25,
+      "instructions": 8,
+      "module": "rank_triangle_to_tadpole_n5_r4",
+      "outputs": 1,
+      "semantic_plan": "triangle_to_tadpole_n5_r4_constant"
+    },
+    {
+      "bytes": 44427,
+      "dual": true,
+      "inputs": 125,
+      "instructions": 164,
+      "module": "rank_triangle_to_tadpole_n5_r4_dual",
+      "outputs": 5,
+      "semantic_plan": "triangle_to_tadpole_n5_r4_constant"
+    },
+    {
+      "bytes": 5383,
+      "dual": false,
+      "inputs": 24,
+      "instructions": 5,
+      "module": "rank_bubble_to_tadpole_n5_r4",
+      "outputs": 1,
+      "semantic_plan": "bubble_to_tadpole_n5_r4_constant"
+    },
+    {
+      "bytes": 40069,
+      "dual": true,
+      "inputs": 120,
+      "instructions": 142,
+      "module": "rank_bubble_to_tadpole_n5_r4_dual",
+      "outputs": 5,
+      "semantic_plan": "bubble_to_tadpole_n5_r4_constant"
+    }
+  ],
+  "runtime": "oneloopmaster RustEmitter instruction-major batches with width-one scalar path"
+}

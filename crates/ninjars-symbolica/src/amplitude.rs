@@ -40,11 +40,17 @@ fn accumulation(n: usize, rank: usize) -> Result<ExactKernel> {
 #[cfg(feature = "native-kernels")]
 type StageFactory<T, K> = fn(usize, usize, T) -> Result<K>;
 #[cfg(feature = "native-kernels")]
+type StageSpecializer<K> = fn(K) -> Result<K>;
+#[cfg(feature = "native-kernels")]
 type DualStageFactory<T, D, K> = fn(usize, usize, T, &D) -> Result<K>;
 
 /// Exact reduction and integration kernels for complex f64, DoubleFloat or Float.
 /// Construct once, then call `into_amplitude(lanes)` to allocate the coordinator.
 pub struct SymbolicaAmplitudeKernels<T> {
+    #[cfg(feature = "native-kernels")]
+    native_rank_bubble: Option<StageSpecializer<SymbolicaBubbleKernels<T>>>,
+    #[cfg(feature = "native-kernels")]
+    native_rank_tadpole: Option<StageSpecializer<SymbolicaTadpoleKernels<T>>>,
     #[cfg(feature = "native-kernels")]
     native_bubble_corrections: bool,
     #[cfg(feature = "native-kernels")]
@@ -70,6 +76,10 @@ where
     pub fn new(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
         let accumulation = accumulation(propagators, rank)?.compile(&prototype)?;
         Ok(Self {
+            #[cfg(feature = "native-kernels")]
+            native_rank_bubble: None,
+            #[cfg(feature = "native-kernels")]
+            native_rank_tadpole: None,
             #[cfg(feature = "native-kernels")]
             native_triangle: None,
             #[cfg(feature = "native-kernels")]
@@ -107,6 +117,11 @@ where
     pub fn with_rank_specialized_corrections(mut self) -> Result<Self> {
         crate::rank_specialization::require_supported(self.n, self.rank)?;
         self.rank_specialized_corrections = true;
+        #[cfg(feature = "native-kernels")]
+        {
+            self.native_rank_bubble = None;
+            self.native_rank_tadpole = None;
+        }
         Ok(self)
     }
 
@@ -155,6 +170,10 @@ where
         };
         #[cfg(not(feature = "native-kernels"))]
         let kernels = SymbolicaBubbleKernels::new(self.n, self.rank, self.prototype.clone())?;
+        #[cfg(feature = "native-kernels")]
+        if let Some(specialize) = self.native_rank_bubble {
+            return specialize(kernels);
+        }
         if self.rank_specialized_corrections {
             kernels.with_rank_specialized_corrections()
         } else {
@@ -170,6 +189,10 @@ where
         };
         #[cfg(not(feature = "native-kernels"))]
         let kernels = SymbolicaTadpoleKernels::new(self.n, self.rank, self.prototype.clone())?;
+        #[cfg(feature = "native-kernels")]
+        if let Some(specialize) = self.native_rank_tadpole {
+            return specialize(kernels);
+        }
         if self.rank_specialized_corrections {
             kernels.with_rank_specialized_corrections()
         } else {
@@ -198,6 +221,10 @@ where
 /// The same kernels transformed by Symbolica for a static or dynamic Dual shape.
 pub struct SymbolicaDualAmplitudeKernels<T, D> {
     #[cfg(feature = "native-kernels")]
+    native_rank_bubble: Option<StageSpecializer<SymbolicaDualBubbleKernels<T, D>>>,
+    #[cfg(feature = "native-kernels")]
+    native_rank_tadpole: Option<StageSpecializer<SymbolicaDualTadpoleKernels<T, D>>>,
+    #[cfg(feature = "native-kernels")]
     native_tadpole_projections: bool,
     #[cfg(feature = "native-kernels")]
     native_triangle: Option<DualStageFactory<T, D, SymbolicaDualTriangleKernels<T, D>>>,
@@ -221,6 +248,10 @@ where
     pub fn new(propagators: usize, rank: usize, prototype: T, dual: &D) -> Result<Self> {
         let accumulation = accumulation(propagators, rank)?.compile_dual(&prototype, dual)?;
         Ok(Self {
+            #[cfg(feature = "native-kernels")]
+            native_rank_bubble: None,
+            #[cfg(feature = "native-kernels")]
+            native_rank_tadpole: None,
             #[cfg(feature = "native-kernels")]
             native_tadpole_projections: false,
             #[cfg(feature = "native-kernels")]
@@ -255,6 +286,11 @@ where
     pub fn with_rank_specialized_corrections(mut self) -> Result<Self> {
         crate::rank_specialization::require_supported(self.n, self.rank)?;
         self.rank_specialized_corrections = true;
+        #[cfg(feature = "native-kernels")]
+        {
+            self.native_rank_bubble = None;
+            self.native_rank_tadpole = None;
+        }
         Ok(self)
     }
 
@@ -311,6 +347,10 @@ where
         #[cfg(not(feature = "native-kernels"))]
         let kernels =
             SymbolicaDualBubbleKernels::new(self.n, self.rank, self.prototype.clone(), &self.dual)?;
+        #[cfg(feature = "native-kernels")]
+        if let Some(specialize) = self.native_rank_bubble {
+            return specialize(kernels);
+        }
         if self.rank_specialized_corrections {
             kernels.with_rank_specialized_corrections()
         } else {
@@ -331,6 +371,10 @@ where
             self.prototype.clone(),
             &self.dual,
         )?;
+        #[cfg(feature = "native-kernels")]
+        if let Some(specialize) = self.native_rank_tadpole {
+            return specialize(kernels);
+        }
         if self.rank_specialized_corrections {
             kernels.with_rank_specialized_corrections()
         } else {
@@ -365,6 +409,21 @@ impl<T: oneloop::rust_codegen::runtime::NativeFloat> SymbolicaAmplitudeKernels<T
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    /// Opt into guarded native n=5/r=4 corrections, independently of the
+    /// generic native catalog. Either order with `with_native_kernels` or
+    /// `with_native_denominators` preserves both selections. Calling the
+    /// interpreted specialization builder afterwards selects interpreted
+    /// alternates. Consult both backend reports for conditional dispatch.
+    pub fn with_native_rank_specialized_corrections(mut self) -> Result<Self> {
+        crate::rank_specialization::require_supported(self.n, self.rank)?;
+        self.rank_specialized_corrections = true;
+        self.native_rank_bubble =
+            Some(SymbolicaBubbleKernels::with_native_rank_specialized_corrections);
+        self.native_rank_tadpole =
+            Some(SymbolicaTadpoleKernels::with_native_rank_specialized_corrections);
+        Ok(self)
+    }
+
     /// Opt into the partial native catalog. Only T2/T3 denominator expansions
     /// change backend; callbacks, geometry, masters and other kernels do not.
     pub fn with_native_denominators(mut self) -> Self {
@@ -409,8 +468,13 @@ where
     /// Backend of guarded correction alternates; generic fallback selections
     /// remain in [`Self::kernel_backends`]. Actual selection depends on inputs.
     pub fn rank_specialized_correction_backend(&self) -> Option<crate::KernelBackend> {
-        self.rank_specialized_corrections
-            .then_some(crate::KernelBackend::SymbolicaInterpreter)
+        self.rank_specialized_corrections.then(|| {
+            if self.native_rank_bubble.is_some() {
+                crate::KernelBackend::NativeRust
+            } else {
+                crate::KernelBackend::SymbolicaInterpreter
+            }
+        })
     }
 }
 
@@ -420,6 +484,22 @@ impl<T: oneloop::rust_codegen::runtime::NativeFloat, D: Real + DualNumber<Comple
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    /// Opt into guarded native n=5/r=4 corrections, independently of the
+    /// generic native catalog. Either order with `with_native_kernels` or
+    /// `with_native_denominators` preserves both selections. Calling the
+    /// interpreted specialization builder afterwards selects interpreted
+    /// alternates. Consult both backend reports for conditional dispatch.
+    /// Unsupported or reordered Dual shapes retain interpreted alternates.
+    pub fn with_native_rank_specialized_corrections(mut self) -> Result<Self> {
+        crate::rank_specialization::require_supported(self.n, self.rank)?;
+        self.rank_specialized_corrections = true;
+        self.native_rank_bubble =
+            Some(SymbolicaDualBubbleKernels::with_native_rank_specialized_corrections);
+        self.native_rank_tadpole =
+            Some(SymbolicaDualTadpoleKernels::with_native_rank_specialized_corrections);
+        Ok(self)
+    }
+
     /// Opt into the partial native catalog. Only T2/T3 denominator expansions
     /// change backend; callbacks, geometry, masters and other kernels do not.
     pub fn with_native_denominators(mut self) -> Self {
@@ -460,7 +540,14 @@ where
     /// Backend of guarded correction alternates; see [`Self::kernel_backends`]
     /// for the separate generic fallback selections.
     pub fn rank_specialized_correction_backend(&self) -> Option<crate::KernelBackend> {
-        self.rank_specialized_corrections
-            .then_some(crate::KernelBackend::SymbolicaInterpreter)
+        self.rank_specialized_corrections.then(|| {
+            if self.native_rank_bubble.is_some()
+                && crate::native_kernels::supported_shape(&self.dual.get_shape())
+            {
+                crate::KernelBackend::NativeRust
+            } else {
+                crate::KernelBackend::SymbolicaInterpreter
+            }
+        })
     }
 }

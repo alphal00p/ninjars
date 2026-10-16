@@ -1,0 +1,322 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-10-16T23:55:02.371866+00:00",
+  "source_parent_revision": "5c50941354bf357097e3c7097b1afef0799f6891",
+  "status": "Focused native guarded-correction correctness candidate; no timing or performance acceptance claim",
+  "scope": {
+    "topology": [
+      5,
+      4
+    ],
+    "explicit_opt_in": "with_native_rank_specialized_corrections",
+    "ordinary": [
+      "f64",
+      "DoubleFloat",
+      "Float192"
+    ],
+    "dual_shape": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "unsupported_dual_shapes": "interpreted alternate with truthful conditional backend report",
+    "generic_fallback": "unchanged whole active source-kind batch when any structural-mask component is nonzero",
+    "production_changes": "shared exact semantic builders, six mechanically emitted alternates, stage/amplitude opt-in and conditional backend reports; no dependency, geometry, master, callback, CLI or core coordinator changes"
+  },
+  "generation": {
+    "metadata": "crates/ninjars-symbolica/src/native_kernels/generated/rank_specialization_metadata.json",
+    "method": "Existing Symbolica literal replacement/head selection, Symbolica Dual transform and oneloopmaster RustEmitter; no handwritten algebra",
+    "artifacts": 8,
+    "reproduction": "all eight artifacts byte-identical in an independent temporary output directory",
+    "generator_build_feature": "rust-codegen (native-kernels disabled)",
+    "formatting": "generator source formatted after first build; generated bodies are rustfmt-skipped"
+  },
+  "tests": {
+    "passed": 21,
+    "failed": 0,
+    "ignored": 0,
+    "unit_filter": "rank_specialization (19 passed; 11 unrelated tests filtered)",
+    "integration_filter": "high_parent_cancellation::rank_specialization (2 passed; 2 unrelated tests filtered)",
+    "coverage": [
+      "all structural-mask violations independently",
+      "derivative-only first/higher/mixed mask violations",
+      "asymmetric complex seeds by component/lane on four eligible input axes, all-component interpreted comparison and distinct-first-derivative discriminator",
+      "ordinary and ordered Dual f64/DoubleFloat/Float192",
+      "actual native constants at Float256 with independent Float128 Dual carrier, direct stages and amplitude factories",
+      "empty, single, tail and permuted batches",
+      "whole-kind fallback, invalid lanes, unchanged failed outputs and retries",
+      "unsupported/reordered Dual interpreter fallback and truthful reports",
+      "generic native selection in both builder orders; correction-specific last builder wins",
+      "full lower-stage coefficient parity with both bubble orientations",
+      "independent exact n5/r4 box and pentagon lower-coefficient cancellation",
+      "independent Float256 exceptional-overflow control"
+    ]
+  },
+  "checks": {
+    "strict_clippy": "passed: library, tests, examples with native-kernels and -D warnings",
+    "feature_off": "passed: library with --no-default-features",
+    "formatting": "passed: cargo fmt --all --check",
+    "whitespace": "passed: git diff --check"
+  },
+  "failures_retained": [
+    {
+      "log": "validation/evidence/native-rank-specialization/initial-build-error.txt",
+      "kind": "Initial compile failure E0282 in cfg(test) native-constant precision observation",
+      "fix": "Explicit Context<T> annotation preserves the original scalar type; no numerical failures occurred",
+      "resolved_by": "validation/evidence/native-rank-specialization/test-build-fixed.log"
+    }
+  ],
+  "execution": {
+    "build_jobs": 4,
+    "cache": "/common/build-cache/external/cd/5d62942031e3ee",
+    "cache_override": "CARGO_BUILD_BUILD_DIR",
+    "numerical_lock": "/tmp/ninjars-symbolica-tests.lock",
+    "test_threads": 1,
+    "builds": "outside numerical lock",
+    "generators_and_tests": "under numerical lock",
+    "performance_sampling": false,
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)"
+  },
+  "dependency_revisions": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "oneloopmaster": "53106429b849e5bcf843f111429be76227b4e0ce",
+    "feynkit": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+  },
+  "source_files": [
+    {
+      "path": "Cargo.lock",
+      "sha256": "1035b5beee28438bc1e0841e541f8a5d4986f46e50c0ee25820b4326c8b155b0"
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "74ee51fef490da00d067cec2a526bd2b7272c05802af556b5f249b15d72ccba6"
+    },
+    {
+      "path": "crates/ninjars-symbolica/Cargo.toml",
+      "sha256": "f8368f7f12e782e7d24cfd0b9a7272811bda30f7fef8381bda19bf8341a672ec"
+    },
+    {
+      "path": "crates/ninjars-symbolica/examples/generate_native_rank_specializations.rs",
+      "sha256": "826a82664ac227be4fe893d035cecb2cc35c5f9eab24136b7ad0fa2bae49ea23"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/amplitude.rs",
+      "sha256": "aae45772e7e65e5648bf1dbcc018ef4a5d42b6a96b080d1006ffdb25ac044bf4"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/bubble_kernels.rs",
+      "sha256": "7e6ab996634ec321d1c02d40206bc6ed8f227e0fb1ca58e74ed5c12904139f31"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/denominator_reuse_tests.rs",
+      "sha256": "8725ede83f1693435adc1d9327975bb3c3379c6bd6e5e25b4e61a189d8862cbc"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/kernel.rs",
+      "sha256": "773db92ef38cc4b4781bc195237a501448b0c04f13f094436d9334a0ef1efca8"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/lib.rs",
+      "sha256": "15ea3d7a81b69779aa859acf538b1ea3ce633b102f8ecbca8290044cfbe7a6a8"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/rank_bubble_to_tadpole_n5_r4.rs",
+      "sha256": "e1993c117f3e8956c54c46952814cd74f0f41f8f9d293b7284a0ecd4648108b9"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/rank_bubble_to_tadpole_n5_r4_dual.rs",
+      "sha256": "000712cac2be73edc9e7ff7e67957ad72ae540fabc343b663ab56677e7230b8c"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/rank_specialization_constants.rs",
+      "sha256": "0e66ca698d31083e81dbd224b472572240bff308c2aa30f0c5875bbc756b238a"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/rank_specialization_metadata.json",
+      "sha256": "be1c41466a235bfdbf8728fd17d39d6c56ec44fe97adb9506245415635fe1e78"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/rank_triangle_to_bubble_n5_r4.rs",
+      "sha256": "6e2cbd33f135fffc480f4a85d7b007d9d821fb8971201ece6b3fae88e13ae0f7"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/rank_triangle_to_bubble_n5_r4_dual.rs",
+      "sha256": "159aecf20097c4b708b175d86b5fd73fc14ff594bdbf2ca62dc14f802c48d9f3"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/rank_triangle_to_tadpole_n5_r4.rs",
+      "sha256": "e8f964892aa65d7afe09ee163dd4107d536af64efc9b9ebffe8c88386dde0189"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/rank_triangle_to_tadpole_n5_r4_dual.rs",
+      "sha256": "176bb857d12ec82e708c186516cd2d4a411eb6e76e0133d8abc124a7a3f84a73"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/mod.rs",
+      "sha256": "6a8458369edf5c048779b0c2bc6027640cf5abb9cbe2c7aa2216834fef2a1528"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/rank_specialization.rs",
+      "sha256": "6ab2404bee307e85aae796a16f8538e3b038aa7d77ca0a96e0aea7d4ba51f757"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_rank_specialization_tests.rs",
+      "sha256": "1cafcc9975e24c39a4c55a57a7de7889f2b44f403c9e6d008039f9dbea9ffadd"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/rank_specialization.rs",
+      "sha256": "4e7ee76127eff5a0ddea2fcbedba7c569db48424e435ee50aa40c196665cdab4"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/rank_specialization_tests.rs",
+      "sha256": "1f645ac5aba7b2b4d2f987a8db7ee5de1a7cdd026e913707e3f43705934c56d7"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/rust_codegen.rs",
+      "sha256": "3c714f4f3f94871130fa6481968b7227d48c7473368f20484b1665b4336e9c65"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/tadpole_kernels.rs",
+      "sha256": "932eb32b498b482ad139635f47fe251b78782b32f43f6656a157dc2d41a256be"
+    },
+    {
+      "path": "crates/ninjars-symbolica/tests/high_parent_cancellation.rs",
+      "sha256": "af9a71f3173abe1122d2cfeb4a08f1a6da9c3198db35827a6871cc3294e4e378"
+    },
+    {
+      "path": "dependencies/manifest.json",
+      "sha256": "b823d8e21987b9248d9797c3db1b16af06b45410ae3b5d653a3883d6b020247e"
+    },
+    {
+      "path": "docs/guarded-rank-specialization.md",
+      "sha256": "3eaa3b89e5ebbc118163d9482044b39566759b9c87621a38a93d31573a7d6238"
+    }
+  ],
+  "executables": [
+    {
+      "name": "generate_native_rank_specializations",
+      "path": "/shared/external/ninja/references/ninjars_native_rank_specialization/target/debug/examples/generate_native_rank_specializations",
+      "sha256": "9654f0e7f6a2fa35c9961dbf47fbd1aa96d8a8fd1cc65d9de428fd6a1d3f0b65"
+    },
+    {
+      "name": "high_parent_cancellation",
+      "path": "/common/build-cache/external/cd/5d62942031e3ee/debug/deps/high_parent_cancellation-92b1885a29b33558",
+      "sha256": "3d5744f7194abe184ca5381a953d100262b078115788eed7236939fc23d5d31a"
+    },
+    {
+      "name": "ninjars_symbolica",
+      "path": "/common/build-cache/external/cd/5d62942031e3ee/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+      "sha256": "cf0e050496a7561db5634067a01a263a4a6c83e06376430d3e7e91cfcad7aab5"
+    }
+  ],
+  "logs": [
+    {
+      "path": "validation/evidence/native-rank-specialization/generator-build.log",
+      "sha256": "2e8f1e463a76d3275f0a2d6944fccaed830a3842a77603f32fe30dce31fe80b7",
+      "bytes": 2782
+    },
+    {
+      "path": "validation/evidence/native-rank-specialization/generation.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "validation/evidence/native-rank-specialization/regeneration.log",
+      "sha256": "b467cdce2b7c8160dabdfe78230095db8070da072a969850dbaf886090b6fbb0",
+      "bytes": 855
+    },
+    {
+      "path": "validation/evidence/native-rank-specialization/test-build.log",
+      "sha256": "db54110ece8cc09bae8bafd5d2a62444ae1972002e8bebc9dc60a45a9e8a208b",
+      "bytes": 1174
+    },
+    {
+      "path": "validation/evidence/native-rank-specialization/test-build-fixed.log",
+      "sha256": "c4a26e1aca62d73c933298d1a712c01fc8e00fa58e039be860c6eb65010a5d93",
+      "bytes": 1109
+    },
+    {
+      "path": "validation/evidence/native-rank-specialization/unit-tests.log",
+      "sha256": "8fc0203bacda0980edb587da21d4c0d1ac1735ca80bad3b1278211aaed149879",
+      "bytes": 2080
+    },
+    {
+      "path": "validation/evidence/native-rank-specialization/parent-cancellation.log",
+      "sha256": "06ec830936d670271766ac67211ae3fc34995dc4248a5cab0f5a5bbdb8a48481",
+      "bytes": 292
+    },
+    {
+      "path": "validation/evidence/native-rank-specialization/clippy.log",
+      "sha256": "f18ef5e3b8db3f94be0d241783cd8ee1c45f9fa95cc4d726b2ee9739efe2f9f4",
+      "bytes": 2783
+    },
+    {
+      "path": "validation/evidence/native-rank-specialization/feature-off.log",
+      "sha256": "7e7dc5ec61aa5f0fe338103742fb768f95d36db733a6fcae232da9af7ef3441b",
+      "bytes": 2782
+    },
+    {
+      "path": "validation/evidence/native-rank-specialization/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "validation/evidence/native-rank-specialization/diff-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "validation/evidence/native-rank-specialization/test-build.jsonl.gz",
+      "sha256": "be240d01f95e04b9052a716d589d9f601011faebe48bdfcf9ce4a6deb29259cd",
+      "bytes": 21199,
+      "uncompressed_sha256": "850ce47f87a313f3c82b6f34809e07822cb236551f54a11d2a8e27dd9e43f30a"
+    },
+    {
+      "path": "validation/evidence/native-rank-specialization/test-build-fixed.jsonl.gz",
+      "sha256": "34e5e14a96e530b014fa424e858e84aa1aa132e4d9f6edf29f7848e02a797730",
+      "bytes": 19735,
+      "uncompressed_sha256": "bf2414ec6f0c924bf2ef182ec9ab50990289fbe254f8b9a4f38ff61c8254214e"
+    },
+    {
+      "path": "validation/evidence/native-rank-specialization/initial-build-error.txt",
+      "sha256": "11670593049278aae93f0c71ec97eabd8bd3002d26e02947c02dbf562aa82e16",
+      "bytes": 615
+    }
+  ],
+  "commands": [
+    "cargo build -p ninjars-symbolica --features rust-codegen --example generate_native_rank_specializations",
+    "flock /tmp/ninjars-symbolica-tests.lock target/debug/examples/generate_native_rank_specializations",
+    "flock /tmp/ninjars-symbolica-tests.lock target/debug/examples/generate_native_rank_specializations /tmp/ninjars-native-rank-regenerated",
+    "cargo test -p ninjars-symbolica --features native-kernels --lib --test high_parent_cancellation --no-run --message-format=json",
+    "flock /tmp/ninjars-symbolica-tests.lock <unit-executable> rank_specialization --test-threads=1 --nocapture",
+    "flock /tmp/ninjars-symbolica-tests.lock <high_parent_cancellation-executable> rank_specialization --test-threads=1 --nocapture",
+    "cargo clippy -p ninjars-symbolica --features native-kernels --lib --tests --examples -- -D warnings",
+    "cargo check -p ninjars-symbolica --lib --no-default-features",
+    "cargo fmt --all --check",
+    "git diff --check"
+  ],
+  "limitations": [
+    "n=5/r=4 only",
+    "only the exact ordered five-component Dual shape is generated; arbitrary shapes stay interpreted",
+    "CLI opt-in and intentional report-schema extension remain separate work",
+    "no native-specialization timings or performance acceptance claim",
+    "historical upstream dependency warnings remain unchanged"
+  ]
+}

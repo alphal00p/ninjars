@@ -1,0 +1,24 @@
+
+running 19 tests
+test bubble_kernels::denominator_reuse_tests::native_rank_specialization_full_lower_stage_coefficient_parity ... ok
+test bubble_kernels::denominator_reuse_tests::rank_specialization_full_lower_stage_coefficient_parity ... ok
+test rank_specialization::tests::amplitude_builder_orders_report_both_backends ... ok
+test rank_specialization::tests::dual_specialization_preserves_explicit_scalar_precision_distinct_from_carrier ... ok
+test rank_specialization::tests::exceptional_overflow_is_classified_by_independent_float_control ... ok
+test rank_specialization::tests::higher_mixed_derivative_only_coefficients_force_fallback ... ok
+test rank_specialization::tests::masks_are_exact_projection_zeros ... ok
+test rank_specialization::tests::native::native_amplitude_builder_orders_and_explicit_interpreted_override ... ok
+test rank_specialization::tests::native::native_constants_preserve_float256_scalar_with_float128_dual_carrier ... ok
+test rank_specialization::tests::native::native_dispatch_tracks_the_whole_active_source_kind ... ok
+test rank_specialization::tests::native::native_dual_alternates_preserve_every_derivative_only_guard ... ok
+test rank_specialization::tests::native::native_failed_active_batches_keep_sentinels_and_retry ... ok
+test rank_specialization::tests::native::native_higher_mixed_dual_matches_the_interpreted_alternate_at_each_precision ... ok
+test rank_specialization::tests::native::ordinary_native_alternates_preserve_all_guard_controls ... ok
+test rank_specialization::tests::native::uncatalogued_and_reordered_dual_shapes_keep_interpreted_alternates ... ok
+test rank_specialization::tests::native::unsupported_topologies_return_errors_before_native_installation ... ok
+test rank_specialization::tests::native_generic_fallback_is_preserved ... ok
+test rank_specialization::tests::nonempty_failed_batches_keep_sentinels_and_retry_cleanly ... ok
+test rank_specialization::tests::ordinary_specialized_and_all_masked_slot_fallbacks ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 3.70s
+

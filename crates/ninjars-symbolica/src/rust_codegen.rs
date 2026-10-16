@@ -9,6 +9,7 @@
 use ninjars::{Error, Result};
 use symbolica::domains::dual::DualNumberStructure;
 
+pub use crate::rank_specialization::RankSpecializedCorrectionPlan;
 pub use oneloop::rust_codegen::{EmitOptions, GeneratedModule, RustEmitter, runtime};
 
 use crate::{
@@ -120,3 +121,49 @@ export_kernel!(DenominatorExpansion);
 export_kernel!(BubbleSourceProjection);
 export_kernel!(TadpoleSourceProjection);
 export_kernel!(TadpoleGeometryProbe);
+
+/// Export only the named guarded bodies; runtime guard enforcement remains in
+/// the stage adapters. No public unguarded evaluator constructor is introduced.
+impl RustKernelExport for RankSpecializedCorrectionPlan {
+    fn export_rust(
+        &self,
+        emitter: &mut RustEmitter,
+        options: EmitOptions,
+    ) -> Result<GeneratedModule> {
+        emitter
+            .emit(self.prepare()?.exact.evaluator()?, options)
+            .map_err(Error::Symbolic)
+    }
+
+    fn export_rust_dual<D: DualNumberStructure + Clone>(
+        &self,
+        structure: &D,
+        emitter: &mut RustEmitter,
+        options: EmitOptions,
+    ) -> Result<GeneratedModule> {
+        emitter
+            .emit(self.prepare()?.exact.dual_evaluator(structure)?, options)
+            .map_err(Error::Symbolic)
+    }
+
+    fn export_rust_batch(
+        &self,
+        emitter: &mut RustEmitter,
+        options: EmitOptions,
+    ) -> Result<GeneratedModule> {
+        emitter
+            .emit_batch(self.prepare()?.exact.evaluator()?, options)
+            .map_err(Error::Symbolic)
+    }
+
+    fn export_rust_batch_dual<D: DualNumberStructure + Clone>(
+        &self,
+        structure: &D,
+        emitter: &mut RustEmitter,
+        options: EmitOptions,
+    ) -> Result<GeneratedModule> {
+        emitter
+            .emit_batch(self.prepare()?.exact.dual_evaluator(structure)?, options)
+            .map_err(Error::Symbolic)
+    }
+}

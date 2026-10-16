@@ -1,0 +1,14 @@
+error[E0282]: type annotations needed for `oneloop::rust_codegen::runtime::Context<_>`
+   --> crates/ninjars-symbolica/src/native_kernels/rank_specialization.rs:97:9
+    |
+ 97 |     let context =
+    |         ^^^^^^^
+...
+105 |                     [constant.re.get_precision(), constant.im.get_precision()]
+    |                      ----------- type must be known at this point
+    |
+help: consider giving `context` an explicit type, where the placeholder `_` is specified
+    |
+ 97 |     let context: oneloop::rust_codegen::runtime::Context<T> =
+    |                ++++++++++++++++++++++++++++++++++++++++++++
+

@@ -23,11 +23,32 @@ onto a different path. The generic tadpole fallback retains both output heads
 and checks both for finiteness before copying the constant. Standalone public
 stage users may therefore supply arbitrary coefficients without losing data.
 
-The alternate currently uses the Symbolica interpreter. Native constructors
-retain their native generic fallback, and amplitude builders compose in either
-order. Callers using this option must consult both `kernel_backends()` (generic
-fallback selections) and `rank_specialized_correction_backend()` (conditional
-alternate). No CLI selection or report schema is changed by this prototype.
+`with_rank_specialized_corrections()` selects interpreted alternates. With the
+`native-kernels` feature, `with_native_rank_specialized_corrections()` instead
+selects generated alternates for f64, DoubleFloat and arbitrary-precision Float.
+The existing ordered Dual shape `[[0,0],[1,0],[0,1],[2,0],[1,1]]` also has generated
+bodies; all other shapes, including reordered components, retain interpreted
+alternates. Stage adapters report the actually installed alternate backend.
+
+Generic native selection and rank specialization are independent: either order
+with `with_native_kernels()` or `with_native_denominators()` preserves both.
+Calling the interpreted-specialization builder after the native-specialization
+builder explicitly returns to interpreted alternates, and vice versa. Native
+constructors retain their existing generic fallback. Callers must consult both
+`kernel_backends()` (generic fallback selections) and
+`rank_specialized_correction_backend()` (conditional alternate). The report
+identifies the eligible alternate; the guard decides whether each active batch
+uses it. No CLI selection or report schema is changed by this prototype.
+
+The generator `generate_native_rank_specializations` consumes three explicit
+semantic plans: triangle-to-bubble n5/r4 full quotient (28 inputs, 3 heads),
+triangle-to-tadpole n5/r4 constant (25 inputs, 1 head), and bubble-to-tadpole n5/r4
+constant (24 inputs, 1 head). The interpreted stages and the generator use the
+same exact constructor. The oneloopmaster emitter lowers Symbolica instruction
+graphs, including Symbolica's Dual transform; no formulas are handwritten. The
+full original input ABI is retained for every generated body. The generator
+requires only `rust-codegen`, so it can reproduce native files without first
+building the native catalog.
 
 Dual stages retain the scalar precision supplied explicitly to their constructors.
 The optional correction bodies recover that scalar prototype from the existing
@@ -63,6 +84,23 @@ Independent exact box and pentagon numerators also verify that all lower-stage
 coefficients vanish in the n=5/r=4 topology, for both generic and specialized
 corrections; those numerators do not use the box or pentagon reducers.
 
-This is a correctness prototype. It has no timing result or performance
-acceptance claim. Generated native specialized bodies, end-to-end CLI selection,
-and any reduction of the swapped numerator callback remain separate work.
+Native-extension validation is recorded separately in
+`validation/evidence/native-rank-specialization.json`: 21 focused controls pass,
+including full lower-stage coefficients and independent parent cancellation.
+Eligible Dual fixtures use distinct complex seeds by derivative component and
+lane on mass, routing and residue inputs. A discriminator requires the two first
+derivatives to differ in an output head, so a generated component permutation
+cannot pass through symmetric seeds. Every component is compared against the
+interpreted alternate at f64, DoubleFloat and Float192 precision. Exact masks,
+whole-kind fallback, empty/tail/permuted batches, invalid inputs and retries,
+unsupported/reordered Dual shapes, both builder orders and actual native
+Float256 constants with Float128 Dual carriers are covered. An independent
+Float256 oracle also controls the exceptional intermediate-overflow case.
+
+The six generated bodies, shared constant table and metadata reproduce
+byte-for-byte. Strict Clippy for the library, tests and examples, feature-off
+compilation, formatting and whitespace checks pass. The initial build failure
+was a missing type annotation in test-only precision instrumentation; its log
+is retained. There is no native timing result or performance acceptance claim.
+End-to-end CLI selection and any reduction of the swapped numerator callback
+remain separate work.
