@@ -125,11 +125,14 @@ record the remaining performance gap and keep actual master computation separate
 [Same-call denominator reuse](docs/denominator-reuse.md) is integrated. The
 optional [guarded rank specialization](docs/guarded-rank-specialization.md)
 uses Symbolica to remove structural zeros for five propagators and rank four,
-with complete-Dual checks and a generic fallback. It currently uses interpreted
-alternate kernels and has no timing result. The
+with checks of every Dual component and a generic fallback. Separate explicit
+opt-ins select interpreted or generated native alternate kernels; neither has
+a timing result yet. The
 [algorithm audit](docs/audits/reduction-algorithm-audit.md) describes further
-experiments, including an integrated-output projection; none has established
-the final performance gates.
+experiments. Its [bounded triangle study](docs/audits/transpose-probe.md) proves
+the forward/transposed symbolic identities but finds lower instruction counts
+from forward fusion at one changing point. These counts exclude some required
+intermediate diagnostics and do not establish the final performance gates.
 
 See [synthetic graph fixtures](examples/graphs/README.md) and the
 [original Ninja reference harness](validation/reference/README.md).

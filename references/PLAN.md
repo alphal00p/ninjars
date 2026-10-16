@@ -1763,3 +1763,37 @@ connects the existing kernels into integrated amplitudes and a standalone
   a bounded symbolic n3 lower-cut transpose experiment. Neither is production
   dispatch or a measured algorithmic speedup. Both remain source-only while
   the blocking and denominator-reuse timing window is coordinated.
+
+### Native guarded corrections and bounded algorithm comparison (2026-10-16)
+
+- Integrated native candidate `466a66d` as `b618106`. The explicit
+  `with_native_rank_specialized_corrections` builder selects three ordinary
+  and three ordered-Dual bodies mechanically generated from the same guarded
+  Symbolica plans. Unsupported Dual shapes retain the interpreted alternate;
+  generic fallback and the separate scalar working precision are preserved.
+  No dependencies, core coordinator, numerator callbacks or masters changed.
+- The candidate passes 21 focused controls and byte-identical regeneration.
+  Independent source review prompted asymmetric complex derivative seeds and
+  a distinct-first-derivative check, preventing component swaps from hiding
+  behind equal expected values. Root verified 27 source hashes, three executable
+  hashes and 14 retained logs. The ordinary bodies have 34/8/5 instructions;
+  these are generated counts, not measured speedups.
+- Integrated the bounded n3/r3 transpose experiment and evidence as
+  `4ccaf54`/`b24dbde`/`e716113`. Both runs prove all five exact symbolic output
+  identities and reproduce the same inventory. Separated forward, fused forward,
+  factored transpose and fused transpose use 1954/1075/3359/1925 instructions.
+  Transpose preparation costs 3054 instructions and application costs 305.
+  Instruction-only reuse thresholds are H>=2 against separated forward and
+  H>=4 against fused forward, with preparation charged at every changing point.
+- This negative H=1 transpose result favors investigating forward fusion first.
+  Abstract geometry does not test physical cross-cut cancellations. Five-output
+  fusion omits intermediate failure/reconstruction heads; lazy master selection
+  and transactional lane semantics remain requirements. None of these counts
+  predicts runtime. Root verified 14 source hashes, eight logs, two inventories
+  and the symbolic executable hash. See `docs/audits/transpose-probe.md`.
+- Combined main validation passes 41 tests, with four intentional probes ignored,
+  plus strict library/tests/examples Clippy and formatting. Evidence is in
+  `native-rank-integrated.json`. The opt-in is not yet exposed in the CLI timing
+  harness, and optimized physical timing remains outstanding. The frozen blocking
+  probe is still compiling in thin LTO; its build cost is preparation, not timed
+  reduction. Fresh timing authorization follows completion of all validation jobs.

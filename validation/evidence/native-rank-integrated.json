@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-10-16T23:59:14.255985+00:00",
+  "source_commit": "e716113fdac4faab486778bf276f185d2640eac9",
+  "purpose": "Combined main validation of native guarded corrections, the symbolic transpose inventory registration, denominator reuse and existing native blocking controls.",
+  "reviewed_native_candidate": "466a66de052cb3301384f69af06709cc1ccd2a3f",
+  "reviewed_symbolic_candidate": "76671748daa5ff0e8deee057cdbb8c444cd41cc6",
+  "source_sha256": {
+    "Cargo.lock": "1035b5beee28438bc1e0841e541f8a5d4986f46e50c0ee25820b4326c8b155b0",
+    "Cargo.toml": "74ee51fef490da00d067cec2a526bd2b7272c05802af556b5f249b15d72ccba6",
+    "crates/ninjars-symbolica/Cargo.toml": "5e8d0b56ee10be2329eb2659e5300acc81af96b5f2f092482565bb48df9d2fb8",
+    "crates/ninjars-symbolica/examples/generate_native_rank_specializations.rs": "826a82664ac227be4fe893d035cecb2cc35c5f9eab24136b7ad0fa2bae49ea23",
+    "crates/ninjars-symbolica/src/algorithm_transpose_probe.rs": "6c2fbd6022e825372c9de975dbc3272f7d1ecbe9a683282042f3e2eaf227957a",
+    "crates/ninjars-symbolica/src/amplitude.rs": "aae45772e7e65e5648bf1dbcc018ef4a5d42b6a96b080d1006ffdb25ac044bf4",
+    "crates/ninjars-symbolica/src/bubble_kernels.rs": "7e6ab996634ec321d1c02d40206bc6ed8f227e0fb1ca58e74ed5c12904139f31",
+    "crates/ninjars-symbolica/src/contraction.rs": "0d484501c94c3378121a8bc08fe1b36b5f4b73a9d843e7a3ec06a38843431b5d",
+    "crates/ninjars-symbolica/src/denominator_reuse_tests.rs": "8725ede83f1693435adc1d9327975bb3c3379c6bd6e5e25b4e61a189d8862cbc",
+    "crates/ninjars-symbolica/src/kernel.rs": "9162348ea18fc8e3eb4184e2cdd2ce8bfa22c44b01ba8470aaae74cd732d69aa",
+    "crates/ninjars-symbolica/src/laurent.rs": "e988ed2431f2392c97ae5cbe0284970f6fd3f0c419f3c920d943448abda9b815",
+    "crates/ninjars-symbolica/src/lib.rs": "b01f26bdc1ccf9219a408f2203e91a39cea1c62fdf3aa53bda24d8dfef4e04f6",
+    "crates/ninjars-symbolica/src/native_blocking_probe.rs": "5228f06034dca70b492038b0b8b806d2a205ca82fd1bf49dfc0e3b26ef03604f",
+    "crates/ninjars-symbolica/src/native_kernels/generated/rank_bubble_to_tadpole_n5_r4.rs": "e1993c117f3e8956c54c46952814cd74f0f41f8f9d293b7284a0ecd4648108b9",
+    "crates/ninjars-symbolica/src/native_kernels/generated/rank_bubble_to_tadpole_n5_r4_dual.rs": "000712cac2be73edc9e7ff7e67957ad72ae540fabc343b663ab56677e7230b8c",
+    "crates/ninjars-symbolica/src/native_kernels/generated/rank_specialization_constants.rs": "0e66ca698d31083e81dbd224b472572240bff308c2aa30f0c5875bbc756b238a",
+    "crates/ninjars-symbolica/src/native_kernels/generated/rank_specialization_metadata.json": "be1c41466a235bfdbf8728fd17d39d6c56ec44fe97adb9506245415635fe1e78",
+    "crates/ninjars-symbolica/src/native_kernels/generated/rank_triangle_to_bubble_n5_r4.rs": "6e2cbd33f135fffc480f4a85d7b007d9d821fb8971201ece6b3fae88e13ae0f7",
+    "crates/ninjars-symbolica/src/native_kernels/generated/rank_triangle_to_bubble_n5_r4_dual.rs": "159aecf20097c4b708b175d86b5fd73fc14ff594bdbf2ca62dc14f802c48d9f3",
+    "crates/ninjars-symbolica/src/native_kernels/generated/rank_triangle_to_tadpole_n5_r4.rs": "e8f964892aa65d7afe09ee163dd4107d536af64efc9b9ebffe8c88386dde0189",
+    "crates/ninjars-symbolica/src/native_kernels/generated/rank_triangle_to_tadpole_n5_r4_dual.rs": "176bb857d12ec82e708c186516cd2d4a411eb6e76e0133d8abc124a7a3f84a73",
+    "crates/ninjars-symbolica/src/native_kernels/mod.rs": "1e3570fbc164ebe3efe3d4610925a70b590f6a11857c3383d50f47b160dab811",
+    "crates/ninjars-symbolica/src/native_kernels/rank_specialization.rs": "6ab2404bee307e85aae796a16f8538e3b038aa7d77ca0a96e0aea7d4ba51f757",
+    "crates/ninjars-symbolica/src/native_rank_specialization_tests.rs": "1cafcc9975e24c39a4c55a57a7de7889f2b44f403c9e6d008039f9dbea9ffadd",
+    "crates/ninjars-symbolica/src/projection.rs": "319ae463ee2b7f13ec6ab5d3b195e3f2b96c8ec9c2c4f6762247e2c92c895b53",
+    "crates/ninjars-symbolica/src/rank_specialization.rs": "4e7ee76127eff5a0ddea2fcbedba7c569db48424e435ee50aa40c196665cdab4",
+    "crates/ninjars-symbolica/src/rank_specialization_tests.rs": "1f645ac5aba7b2b4d2f987a8db7ee5de1a7cdd026e913707e3f43705934c56d7",
+    "crates/ninjars-symbolica/src/rust_codegen.rs": "3c714f4f3f94871130fa6481968b7227d48c7473368f20484b1665b4336e9c65",
+    "crates/ninjars-symbolica/src/subtraction.rs": "6ba171ce328bd8f2055e0e3e1dd16e2f47ff70eff61b3218cefeede1481f6c0c",
+    "crates/ninjars-symbolica/src/tadpole_kernels.rs": "932eb32b498b482ad139635f47fe251b78782b32f43f6656a157dc2d41a256be",
+    "crates/ninjars-symbolica/tests/high_parent_cancellation.rs": "af9a71f3173abe1122d2cfeb4a08f1a6da9c3198db35827a6871cc3294e4e378",
+    "dependencies/manifest.json": "b823d8e21987b9248d9797c3db1b16af06b45410ae3b5d653a3883d6b020247e",
+    "docs/audits/transpose-probe.md": "fbc2016f12bf33d40253941a8df3f8c98b845eec9c426629cee0ed269e39aa27",
+    "docs/guarded-rank-specialization.md": "3eaa3b89e5ebbc118163d9482044b39566759b9c87621a38a93d31573a7d6238"
+  },
+  "tests": {
+    "ninjars_symbolica": {
+      "passed": 37,
+      "failed": 0,
+      "ignored": 4
+    },
+    "high_parent_cancellation": {
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0
+    }
+  },
+  "checks": {
+    "strict_adapter_library_tests_examples_clippy": true,
+    "core_adapter_format": true,
+    "git_diff_check": true
+  },
+  "artifacts": [
+    {
+      "path": "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/high_parent_cancellation-92b1885a29b33558",
+      "sha256": "a12238830484e5ca4c292b2590cfcdaef2859eb68ed46c86061ae70a14bbe8c4"
+    },
+    {
+      "path": "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+      "sha256": "66e755fd7a19d398f23274476850af570847227b1741323ac91f0eec16b0ad78"
+    }
+  ],
+  "logs": {
+    "build": {
+      "path": "validation/evidence/native-rank-integrated-logs/build.log",
+      "sha256": "ad2f9c5788cbd1a609b3fabb0b6563b3ba21efbaf08576733d6e7e8127a4ee4a"
+    },
+    "ninjars_symbolica": {
+      "path": "validation/evidence/native-rank-integrated-logs/ninjars_symbolica.log",
+      "sha256": "e590db2bf0dcaaf1ed547deff43de56d8fd9fc73ac187b6feaa4f04e395106d3"
+    },
+    "high_parent_cancellation": {
+      "path": "validation/evidence/native-rank-integrated-logs/high_parent_cancellation.log",
+      "sha256": "6ae39fbad9d8b4efa166b614841dd946a007740ca54037ce10ecb81d6cf1bb76"
+    },
+    "clippy": {
+      "path": "validation/evidence/native-rank-integrated-logs/clippy.log",
+      "sha256": "1aa17bc9635d2c5354a82dc4f1b1a15b333511ba78994d88b72d4380641089ac"
+    },
+    "fmt": {
+      "path": "validation/evidence/native-rank-integrated-logs/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "performance_acceptance": false,
+  "new_performance_measurements": false,
+  "limitations": [
+    "Native correction execution is explicit opt-in for n5/r4 and the catalogued ordered Dual shape.",
+    "No CLI selection or physical native-specialization timing is implemented yet.",
+    "The exact transpose probe was validated twice in its isolated source; it remains ignored in this combined numerical run.",
+    "Fused operation counts exclude intermediate failure/reconstruction checks and are not timing predictions."
+  ]
+}
