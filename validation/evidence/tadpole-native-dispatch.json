@@ -1,0 +1,196 @@
+{
+  "recorded_utc": "2026-10-16T22:24:27.055207+00:00",
+  "base_revision": "d432c5b3daa5c24fe181a422b25d0a61572be017",
+  "scope": "Opt-in native tadpole source projections24->6 and28->9; ordinary and explicit ordered five-component Dual; geometry probe remains interpreted",
+  "dependencies": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "oneloopmaster": "bf7632a916528073464870f1b515d3e62f4e0060",
+    "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+  },
+  "source_sha256": {
+    "crates/ninjars-cli/src/runtime.rs": "222492a47d41b3653ae0d2728b518e33bd4c90c119133332f7137fe58fcce9a7",
+    "crates/ninjars-cli/tests/bench.rs": "22feee5a1ff2d2d39a1ae92c0fa501b98e675b3687ffe5c5f35ee14ab556a237",
+    "crates/ninjars-cli/tests/reduce.rs": "68b4a049f35d0ae234d03127ab167dd9bbdb9e8b1a3e4ad350902bf7f85fcdc0",
+    "crates/ninjars-symbolica/examples/generate_native_tadpoles.rs": "ef4422b628b713b46d683b28e5e6ebb772ed5bcb55b549f97548d02a60bda9bc",
+    "crates/ninjars-symbolica/src/amplitude.rs": "2cf492f4bebc7fdb4574dabf4f3006e0bea69478b40b2028cd7977a37fd0be8b",
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_metadata.json": "1840503ef84cc112e855c9a7d5aa9d8bc9d8f531897d256f78085dfe8af5aac6",
+    "crates/ninjars-symbolica/src/native_kernels/mod.rs": "89a3ddf51b7e511a7ca752eb31098bb806404fae6ea52dd7cb103c363f0f5ef4",
+    "crates/ninjars-symbolica/src/native_kernels/tadpoles.rs": "5befa2ed88ba3847a5716bdab74ff8280108a747003f2c2a70031e6abad6d1da",
+    "crates/ninjars-symbolica/src/tadpole_kernels.rs": "34f7f407788ece78d791c88dd5d8b841321fdc93b2ea4b84c10d4c3816ea7c73",
+    "crates/ninjars-symbolica/src/tadpole_plans.rs": "c1d921e84ef6d4c20095effcf7a2ec879ff3b0e2b76a141b7f9da9f997c21dde",
+    "crates/ninjars-symbolica/tests/native_amplitude.rs": "b31bc5939e37b03623ba3a442f751356d3588eb4218c9cf47bacbebc0ba8a281",
+    "crates/ninjars-symbolica/tests/native_tadpole_dispatch.rs": "9bae4c1cc934dc598f65d90d0109b4529e2fca390765d2343f81845e8f9a4516",
+    "docs/native-reduction-catalog.md": "f8f1b54aa9e24c4a91e3eeafe639fcdc183d6d35a7628de4deb5122345c8e777",
+    "docs/tadpole-kernel-plans.md": "b1be801ed655915b5b466137b3d26b6c293edcb5d0a085aa84ccc475ca4d5689"
+  },
+  "plan_metadata": {
+    "algebra": "Existing tadpole source-axis and reference-probe expressions; Symbolica Dualizer",
+    "constant_count": 52,
+    "dual_shape": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "plans": [
+      {
+        "bytes": 12650,
+        "dual": false,
+        "inputs": 24,
+        "instructions": 46,
+        "module": "tadpole_triangle_projection",
+        "outputs": 6
+      },
+      {
+        "bytes": 127816,
+        "dual": true,
+        "inputs": 120,
+        "instructions": 746,
+        "module": "tadpole_triangle_projection_dual",
+        "outputs": 30
+      },
+      {
+        "bytes": 17032,
+        "dual": false,
+        "inputs": 28,
+        "instructions": 67,
+        "module": "tadpole_bubble_projection",
+        "outputs": 9
+      },
+      {
+        "bytes": 184940,
+        "dual": true,
+        "inputs": 140,
+        "instructions": 1109,
+        "module": "tadpole_bubble_projection_dual",
+        "outputs": 45
+      },
+      {
+        "bytes": 31006,
+        "dual": false,
+        "inputs": 8,
+        "instructions": 150,
+        "module": "tadpole_geometry_probe",
+        "outputs": 28
+      },
+      {
+        "bytes": 187565,
+        "dual": true,
+        "inputs": 40,
+        "instructions": 1295,
+        "module": "tadpole_geometry_probe_dual",
+        "outputs": 140
+      }
+    ],
+    "production_dispatch": {
+      "geometry_probe": "deferred",
+      "source_projections": "opt-in native ordinary and supported ordered Dual shape"
+    },
+    "runtime": "oneloopmaster RustEmitter instruction-major batches; width-one scalar path"
+  },
+  "native_source_module_bytes": 342438,
+  "selection": {
+    "family_count": 8,
+    "new_family": "TadpoleSourceProjection",
+    "selector": "native",
+    "denominator_only_unchanged": true,
+    "unsupported_or_reordered_dual_shapes": "symbolica-interpreter",
+    "geometry_probe": "symbolica-interpreter"
+  },
+  "validation": [
+    {
+      "target": "tadpole_plans",
+      "summary": "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+      "log_sha256": "8e8755e941661f5b3ca661d61774e79b5a7464c66a21fd5f132d8cdc03d9ba51"
+    },
+    {
+      "target": "native_tadpole_dispatch",
+      "summary": "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.68s",
+      "log_sha256": "d47fa8f636ff92a318de098600ffadbc95d4ab243282cf64c8bc9a4ee343c3b5"
+    },
+    {
+      "target": "native_tadpole_plans",
+      "summary": "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.52s",
+      "log_sha256": "3cb54fbb3c87642059099680b8064b2d7f46718270330482c79cc32c72ef0ce9"
+    },
+    {
+      "target": "native_amplitude",
+      "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.30s",
+      "log_sha256": "3ecb11a353a7740b66f061ee064bb73b3aee787fed4fe1bfe2c7ee6ad6966280"
+    },
+    {
+      "target": "bench",
+      "summary": "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.95s",
+      "log_sha256": "24f06cf594afcc7825525fd3706ebc55cb0ec6fccedbdf6a2c822af9a869f961"
+    },
+    {
+      "target": "reduce",
+      "summary": "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.43s",
+      "log_sha256": "6c68529e178b1840b846a782ef8989a5f8db86a7e521cdc68ed6c9b8087c7374"
+    },
+    {
+      "target": "reduce feature disabled; native selector rejection only",
+      "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.01s",
+      "log_sha256": "972df7e74c86d801f33022a18c8c97b789f8015c1a85dc5d962097adf6c5c548"
+    }
+  ],
+  "commands": [
+    "cargo run --locked -p ninjars-symbolica --features rust-codegen --example generate_native_tadpoles",
+    "cargo test -p ninjars-symbolica --features native-kernels --locked --test native_tadpole_dispatch --test native_tadpole_plans --test tadpole_plans --test native_amplitude --no-run",
+    "cargo test -p ninjars-cli --features native-kernels --locked --test reduce --test bench --no-run",
+    "Execute compiled test binaries serially with --test-threads=1 --nocapture and RUST_MIN_STACK=134217728",
+    "cargo clippy -p ninjars-symbolica --features native-kernels --locked --lib --test native_tadpole_dispatch --test native_tadpole_plans --test tadpole_plans --test native_amplitude -- -D warnings",
+    "cargo clippy -p ninjars-cli --features native-kernels --locked --bin ninjars --test reduce --test bench -- -D warnings",
+    "cargo fmt --all --check",
+    "git diff --check",
+    "cargo test -p ninjars-cli --locked --test reduce native_denominator_selection_requires_its_feature_before_preparing -- --exact --test-threads=1"
+  ],
+  "strict_clippy": true,
+  "format_check": true,
+  "allocation_control": {
+    "scope": "Warmed low-level projection evaluators only, allocation and reallocation counted on the executing thread",
+    "f64": {
+      "rows": [
+        1,
+        32,
+        8,
+        1
+      ],
+      "native_allocations_per_call": 0
+    },
+    "static_dual": {
+      "triangle_source_allocations_per_row": 30,
+      "bubble_source_allocations_per_row": 37,
+      "native_equals_interpreter": true,
+      "cause": "Existing complete ordered shape validation still allocates; no bypass introduced"
+    }
+  },
+  "integrated_controls": {
+    "ordinary": "n1..6, rank n+1 control, f64/DoubleFloat/Float, reset/accumulation/failed-lane isolation",
+    "dual": "n2 supported mixed-five-component and unknown univariate-five-component interpreter fallback",
+    "n3_dual": "Named regression preserves C0 UnsupportedDerivativeDomain; no integrated three-propagator Dual support claimed"
+  },
+  "performance_acceptance": false,
+  "limitations": [
+    "No runtime speedup measurement or acceptance claim.",
+    "The8->28 geometry probe remains independently interpreted; generated geometry modules are test-only.",
+    "Other reduction, integration, accumulation and master execution remain interpreted.",
+    "Shared-provider eight-family/ten-cell ABI update is coordinated separately and must be integrated with this runtime change."
+  ]
+}

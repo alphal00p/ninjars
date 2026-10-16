@@ -169,7 +169,11 @@ fn benchmark_honors_partial_native_selection() {
             ],
         ));
         assert_eq!(report["reduction_kernels"]["selection"], selection);
-        for family in ["bubble_source_projection", "triangle_bubble_correction"] {
+        for family in [
+            "bubble_source_projection",
+            "triangle_bubble_correction",
+            "tadpole_source_projection",
+        ] {
             assert_eq!(
                 report["reduction_kernels"][family],
                 if selection == "native" {

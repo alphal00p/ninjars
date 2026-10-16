@@ -2,6 +2,7 @@
 //! No dimension-based or carrier-type inference selects generated arithmetic.
 
 pub(crate) mod bubbles;
+pub(crate) mod tadpoles;
 
 use ninjars::{Complex, Error, Real, Result};
 use oneloop::rust_codegen::runtime::{
@@ -49,6 +50,7 @@ pub enum KernelFamily {
     T3Denominators,
     BubbleSourceProjection,
     TriangleBubbleCorrection,
+    TadpoleSourceProjection,
     OtherReduction,
     Integration,
     Accumulation,
@@ -60,13 +62,18 @@ pub struct KernelBackendSelection {
     pub backend: KernelBackend,
 }
 
-pub(crate) fn coverage(native: bool, bubble_corrections: bool) -> [KernelBackendSelection; 7] {
+pub(crate) fn coverage(
+    native: bool,
+    bubble_corrections: bool,
+    tadpole_projections: bool,
+) -> [KernelBackendSelection; 8] {
     use KernelFamily::*;
     [
         T2Denominators,
         T3Denominators,
         BubbleSourceProjection,
         TriangleBubbleCorrection,
+        TadpoleSourceProjection,
         OtherReduction,
         Integration,
         Accumulation,
@@ -76,6 +83,7 @@ pub(crate) fn coverage(native: bool, bubble_corrections: bool) -> [KernelBackend
         backend: if (native && matches!(family, T2Denominators | T3Denominators))
             || (bubble_corrections
                 && matches!(family, BubbleSourceProjection | TriangleBubbleCorrection))
+            || (tadpole_projections && matches!(family, TadpoleSourceProjection))
         {
             KernelBackend::NativeRust
         } else {

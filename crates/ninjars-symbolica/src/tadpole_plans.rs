@@ -201,3 +201,68 @@ where
         self.kernel.evaluate_batch(input, output, rows)
     }
 }
+
+#[cfg(feature = "native-kernels")]
+impl TadpoleSourceProjection {
+    /// Select the generated ordinary source-axis plan. This does not select
+    /// the independent geometry reference probe or its cut provider.
+    pub fn compile_native<T: oneloop::rust_codegen::runtime::NativeFloat>(
+        &self,
+        prototype: &T,
+    ) -> Result<TadpolePlanEvaluator<T>>
+    where
+        Complex<T>: Real + EvaluationDomain,
+    {
+        use crate::native_kernels::tadpoles::{TadpoleSourcePlan, install_projection};
+        let mut result = self.compile(prototype)?;
+        install_projection(
+            &mut result.kernel,
+            TadpoleSourcePlan::for_source(self.source_size)?,
+            prototype,
+        )?;
+        Ok(result)
+    }
+
+    /// Select the exact ordered five-component Dual body when available.
+    /// Other complete shapes retain the existing interpreter evaluator.
+    pub fn compile_dual_native<
+        T: oneloop::rust_codegen::runtime::NativeFloat,
+        D: Real + DualNumber<Complex<T>>,
+    >(
+        &self,
+        prototype: &T,
+        dual: &D,
+    ) -> Result<DualTadpolePlanEvaluator<T, D>>
+    where
+        Complex<T>: Real + EvaluationDomain,
+    {
+        use crate::native_kernels::tadpoles::{TadpoleSourcePlan, install_dual_projection};
+        let mut result = self.compile_dual(prototype, dual)?;
+        install_dual_projection(
+            &mut result.kernel,
+            TadpoleSourcePlan::for_source(self.source_size)?,
+            prototype,
+        )?;
+        Ok(result)
+    }
+}
+
+#[cfg(feature = "native-kernels")]
+impl<T: Real + SingleFloat> TadpolePlanEvaluator<T>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    pub fn backend(&self) -> crate::KernelBackend {
+        self.kernel.backend()
+    }
+}
+
+#[cfg(feature = "native-kernels")]
+impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> DualTadpolePlanEvaluator<T, D>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    pub fn backend(&self) -> crate::KernelBackend {
+        self.kernel.backend()
+    }
+}
