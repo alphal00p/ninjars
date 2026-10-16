@@ -1,11 +1,15 @@
 //! Exact Symbolica graphs for quadruple-cut division and interpolation.
 
-use crate::kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor};
+use crate::{
+    kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor},
+    value_checks::{DualChecks, OrdinaryChecks, ValueChecks},
+};
 use ninjars::{
     BatchShape, BoxCoefficientMode, BoxDivisionRequest, BoxMuDivisionRequest, BoxMuMode,
     BoxProjectionRequest, BoxReductionKernels, BoxReductionOptions, Complex, Error, ExpansionKind,
     FloatLike, FourMomentum, Real, Result, SingleFloat, Topology,
 };
+use std::marker::PhantomData;
 use symbolica::{
     atom::{Atom, AtomCore},
     domains::{atom::AtomField, dual::DualNumber},
@@ -221,7 +225,7 @@ impl Plans {
     }
 }
 
-struct Engine<V, K> {
+struct Engine<V, K, Checks> {
     n: usize,
     rank: usize,
     options: BoxReductionOptions,
@@ -234,9 +238,7 @@ struct Engine<V, K> {
     projections: K,
     interpolation: K,
     zero: V,
-    finite: fn(&V) -> bool,
-    nonzero: fn(&V) -> bool,
-    shape_matches: fn(&V, &V) -> bool,
+    checks: PhantomData<fn() -> Checks>,
     input: Vec<V>,
     probe: Vec<V>,
     packed: Vec<V>,
@@ -244,17 +246,13 @@ struct Engine<V, K> {
     eligible: Vec<usize>,
     active: Vec<usize>,
 }
-impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
-    #[allow(clippy::too_many_arguments)]
+impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Checks> {
     fn new(
         n: usize,
         rank: usize,
         options: BoxReductionOptions,
         prototype: &V,
         mut compile: impl FnMut(&ExactKernel) -> Result<K>,
-        finite: fn(&V) -> bool,
-        nonzero: fn(&V) -> bool,
-        shape_matches: fn(&V, &V) -> bool,
     ) -> Result<Self> {
         let plans = Plans::new(n, rank, options)?;
         let expansion = if rank >= n && options.mu_extraction == BoxMuMode::Expansion {
@@ -281,9 +279,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             projections: compile(&plans.projections)?,
             interpolation: compile(&plans.interpolation)?,
             zero: prototype.zero(),
-            finite,
-            nonzero,
-            shape_matches,
+            checks: PhantomData,
             input: Vec::new(),
             probe: Vec::new(),
             packed: Vec::new(),
@@ -296,7 +292,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
         if self.rank > self.n { 6 } else { 5 }
     }
     fn valid(&self, v: &V) -> bool {
-        (self.shape_matches)(v, &self.zero) && (self.finite)(v)
+        Checks::shape_matches(v, &self.zero) && Checks::finite(v)
     }
     fn valid_vector(&self, v: &FourMomentum<V>) -> bool {
         v.components().iter().all(|c| self.valid(c))
@@ -385,7 +381,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
         for (index, &row) in self.eligible.iter().enumerate() {
             let r = &requests[row];
             let den = &self.probe[index * uncut..(index + 1) * uncut];
-            if !den.iter().all(|d| self.valid(d) && (self.nonzero)(d)) {
+            if !den.iter().all(|d| self.valid(d) && Checks::nonzero(d)) {
                 continue;
             }
             self.active.push(row);
@@ -478,8 +474,8 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
         for (index, &row) in self.eligible.iter().enumerate() {
             let probe = &self.probe[index * probe_width..(index + 1) * probe_width];
             if !probe.iter().all(|v| self.valid(v))
-                || !(self.nonzero)(&probe[0])
-                || (0..uncut).any(|i| !(self.nonzero)(&probe[1 + i * 2]))
+                || !Checks::nonzero(&probe[0])
+                || (0..uncut).any(|i| !Checks::nonzero(&probe[1 + i * 2]))
             {
                 continue;
             }
@@ -528,7 +524,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
         for (row, r) in requests.iter().enumerate() {
             stable[row] = false;
             if !self.valid(r.sampling_scale)
-                || (levels > 1 && !(self.nonzero)(r.sampling_scale))
+                || (levels > 1 && !Checks::nonzero(r.sampling_scale))
                 || !r.mu_coefficients.iter().all(|v| self.valid(v))
                 || !self.valid_vector(r.shift)
                 || !self.valid_vector(&r.geometry.a)
@@ -557,7 +553,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             let r = &requests[row];
             let probe = &self.probe[index * levels * 3..(index + 1) * levels * 3];
             if !probe.iter().all(|v| self.valid(v))
-                || (full && (0..levels).any(|level| !(self.nonzero)(&probe[level * 3 + 2])))
+                || (full && (0..levels).any(|level| !Checks::nonzero(&probe[level * 3 + 2])))
             {
                 continue;
             }
@@ -586,7 +582,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
 }
 
 pub struct SymbolicaBoxKernels<T> {
-    engine: Engine<Complex<T>, CompiledKernel<T>>,
+    engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks>,
 }
 impl<T: Real + SingleFloat> SymbolicaBoxKernels<T>
 where
@@ -600,21 +596,14 @@ where
     ) -> Result<Self> {
         let zero = Complex::new(prototype.zero(), prototype.zero());
         Ok(Self {
-            engine: Engine::new(
-                propagators,
-                rank,
-                options,
-                &zero,
-                |exact| exact.compile(&prototype),
-                |v| v.is_finite(),
-                |v| !v.is_fully_zero(),
-                |_, _| true,
-            )?,
+            engine: Engine::new(propagators, rank, options, &zero, |exact| {
+                exact.compile(&prototype)
+            })?,
         })
     }
 }
 pub struct SymbolicaDualBoxKernels<T, D> {
-    engine: Engine<D, CompiledDualKernel<T, D>>,
+    engine: Engine<D, CompiledDualKernel<T, D>, DualChecks<T>>,
 }
 impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualBoxKernels<T, D>
 where
@@ -628,16 +617,9 @@ where
         dual: &D,
     ) -> Result<Self> {
         Ok(Self {
-            engine: Engine::new(
-                propagators,
-                rank,
-                options,
-                dual,
-                |exact| exact.compile_dual(&prototype, dual),
-                |v| v.values().iter().all(|x| x.is_finite()),
-                |v| !v.values()[0].is_fully_zero(),
-                |v, p| v.values().len() == p.values().len() && v.get_shape() == p.get_shape(),
-            )?,
+            engine: Engine::new(propagators, rank, options, dual, |exact| {
+                exact.compile_dual(&prototype, dual)
+            })?,
         })
     }
 }

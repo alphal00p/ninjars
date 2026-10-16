@@ -1,21 +1,23 @@
 //! Generated five-cut division using shared Symbolica/FeynKit algebra.
 
-use crate::kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor};
+use crate::{
+    kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor},
+    value_checks::{DualChecks, OrdinaryChecks, ValueChecks},
+};
 use ninjars::{
     BatchShape, Complex, CutFailure, Error, FloatLike, FourMomentum, PentagonDivisionRequest,
     PentagonReductionKernels, Real, Result, SingleFloat, Topology,
 };
+use std::marker::PhantomData;
 use symbolica::{atom::Atom, domains::dual::DualNumber, evaluate::EvaluationDomain, symbol};
 
-struct Engine<V, K> {
+struct Engine<V, K, Checks> {
     n: usize,
     rank: usize,
     denominator: K,
     division: K,
     zero: V,
-    finite: fn(&V) -> bool,
-    nonzero: fn(&V) -> bool,
-    compatible: fn(&V, &V) -> bool,
+    checks: PhantomData<fn() -> Checks>,
     eligible: Vec<usize>,
     active: Vec<usize>,
     input: Vec<V>,
@@ -23,16 +25,12 @@ struct Engine<V, K> {
     values: Vec<V>,
 }
 
-impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
-    #[allow(clippy::too_many_arguments)]
+impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Checks> {
     fn new(
         n: usize,
         rank: usize,
         prototype: &V,
         mut compile: impl FnMut(&ExactKernel) -> Result<K>,
-        finite: fn(&V) -> bool,
-        nonzero: fn(&V) -> bool,
-        compatible: fn(&V, &V) -> bool,
     ) -> Result<Self> {
         Topology::new(n, rank)?;
         if n < 5 {
@@ -75,9 +73,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             denominator,
             division,
             zero: prototype.zero(),
-            finite,
-            nonzero,
-            compatible,
+            checks: PhantomData,
             eligible: Vec::new(),
             active: Vec::new(),
             input: Vec::new(),
@@ -133,11 +129,11 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
                 .chain(r.geometry.q.components())
                 .chain([&r.geometry.mu_squared, &numerator[row]])
             {
-                if !(self.compatible)(value, &self.zero) {
+                if !Checks::shape_matches(value, &self.zero) {
                     failures[row] = Some(CutFailure::DerivativeShape);
                     break;
                 }
-                if !(self.finite)(value) {
+                if !Checks::finite(value) {
                     failures[row] = Some(CutFailure::NonFiniteInput);
                     break;
                 }
@@ -145,7 +141,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             if failures[row].is_some() {
                 continue;
             }
-            if !(self.nonzero)(&r.geometry.mu_squared) {
+            if !Checks::nonzero(&r.geometry.mu_squared) {
                 failures[row] = Some(CutFailure::SingularParameter);
                 continue;
             }
@@ -167,9 +163,9 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
         self.input.clear();
         for (index, &row) in self.eligible.iter().enumerate() {
             let den = &self.denominators[index];
-            if !(self.finite)(den) {
+            if !Checks::finite(den) {
                 failures[row] = Some(CutFailure::NonFiniteResult);
-            } else if !(self.nonzero)(den) {
+            } else if !Checks::nonzero(den) {
                 failures[row] = Some(CutFailure::SingularParameter);
             } else {
                 self.active.push(row);
@@ -180,7 +176,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
         self.division
             .evaluate(&self.input, &mut self.values, self.active.len())?;
         for (index, &row) in self.active.iter().enumerate() {
-            if (self.finite)(&self.values[index]) {
+            if Checks::finite(&self.values[index]) {
                 output[row] = self.values[index].clone();
             } else {
                 failures[row] = Some(CutFailure::NonFiniteResult);
@@ -191,7 +187,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
 }
 
 pub struct SymbolicaPentagonKernels<T> {
-    engine: Engine<Complex<T>, CompiledKernel<T>>,
+    engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks>,
 }
 impl<T: Real + SingleFloat> SymbolicaPentagonKernels<T>
 where
@@ -200,20 +196,12 @@ where
     pub fn new(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
         let zero = Complex::new(prototype.zero(), prototype.zero());
         Ok(Self {
-            engine: Engine::new(
-                propagators,
-                rank,
-                &zero,
-                |k| k.compile(&prototype),
-                |v| v.is_finite(),
-                |v| !v.is_fully_zero(),
-                |_, _| true,
-            )?,
+            engine: Engine::new(propagators, rank, &zero, |k| k.compile(&prototype))?,
         })
     }
 }
 pub struct SymbolicaDualPentagonKernels<T, D> {
-    engine: Engine<D, CompiledDualKernel<T, D>>,
+    engine: Engine<D, CompiledDualKernel<T, D>, DualChecks<T>>,
 }
 impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualPentagonKernels<T, D>
 where
@@ -221,15 +209,9 @@ where
 {
     pub fn new(propagators: usize, rank: usize, prototype: T, dual: &D) -> Result<Self> {
         Ok(Self {
-            engine: Engine::new(
-                propagators,
-                rank,
-                dual,
-                |k| k.compile_dual(&prototype, dual),
-                |v| v.values().iter().all(|x| x.is_finite()),
-                |v| !v.values()[0].is_fully_zero(),
-                |v, p| v.values().len() == p.values().len() && v.get_shape() == p.get_shape(),
-            )?,
+            engine: Engine::new(propagators, rank, dual, |k| {
+                k.compile_dual(&prototype, dual)
+            })?,
         })
     }
 }
