@@ -1,0 +1,17 @@
+{
+  "compression": "gzip; mtime=0; no filename metadata",
+  "uncompressed_sha256": "8650a0d0b2df7835ff2e65f280cc191a5b5c7b96f7e7c9cb05d3e424d28cf471",
+  "compressed_sha256": "b858aa0a70c794ecc8bee77009c4650ca273cbe7de97debbd602596025d56036",
+  "uncompressed_bytes": 36180542,
+  "compressed_bytes": 2351000,
+  "schema_version": 1,
+  "graphs": 50,
+  "topologies": {
+    "triangle": 8,
+    "box": 18,
+    "pentagon": 24
+  },
+  "independent_raw_checks": 28000,
+  "internal_madloop_wrapper_checks": 56000,
+  "archive": "gg-hhh-madloop.json.gz"
+}

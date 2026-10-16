@@ -1032,3 +1032,28 @@ connects the existing kernels into integrated amplitudes and a standalone
   parameters, routed propagators and coefficient evaluation for both paths.
   The existing prebound-component fixture benchmark remains explicitly narrower.
   Large pentagon integration and controlled end-to-end measurements are pending.
+
+### gg→HHH independent graph preparation and raw matching (2026-10-16)
+
+- Independent FeynKit and unmodified MadLoop generators agree on 50 top-quark
+  graphs: eight triangles, 18 boxes and 24 pentagons. The triangles distinguish
+  two quartic-Higgs trees from six nested cubic-Higgs trees; the exact matching
+  preserves tree identity, fermion orientation and ordered propagator routing.
+  Shared `IntegralFamily` mappings verify every transformed denominator.
+- Symbolic DOT fixtures retain momenta, polarizations and model couplings.
+  Loop-independent Higgs bridges are included exactly once in the overall
+  factor. Exact controls derive the raw factor `-1/2` and integrated `-8*pi^2`
+  normalization independently. Bound loop rank is at most four (at most two
+  for triangles), so the 70-point complex degree-four grid is sufficient.
+- All **28,000 independent raw numerator checks** pass the fixed scaled `1e-9`
+  criterion, with maximum `6.78444e-13`. The separate **56,000 MadLoop internal
+  wrapper checks** also pass, using fixed CutTools modes one and four, grouping
+  disabled, four-dimensional numerators and R1 without R2/UV.
+- The 36,180,542-byte reference JSON is retained losslessly as a deterministic
+  2,351,000-byte gzip archive. Both hashes and byte counts are recorded; ten
+  archive-integrity and missing/duplicate/nonfinite mutation tests pass.
+  Evidence is under `validation/evidence/gg-hhh-{generation,raw,reference-archive}*`;
+  reproduction instructions are in `validation/madloop/gg_hhh/README.md`.
+- The 2,400-row integrated comparison is running against a separately copied,
+  immutable development CLI on pins `fd7bced5/e9d14f7`. Raw matching is complete;
+  integrated acceptance, pole controls and performance remain separate gates.

@@ -1,0 +1,148 @@
+      PROGRAM RAW_GG_HHH
+      IMPLICIT NONE
+      INCLUDE 'coupl.inc'
+      REAL*8 P(0:3,5),LSCALE,REF
+      COMPLEX*16 W(20,@NWAVEFUNCS@),LC(@NLOOP@),ML(7)
+      COMPLEX*16 Q(0:3),NUM,RAW,RES(3),BASEQ(0:3),DQ(0:3)
+      COMPLEX*32 MPW(20,@NWAVEFUNCS@)
+      INTEGER WE(5),ID,SYMFACT,MULTIPLIER,AMPLNUM,HELPICKED
+      INTEGER CTMODE,NTRY,I,J,H1,H2,WARD,GENERIC,N0,N1,N2,N3
+      LOGICAL CHECKPHASE,HELDOUBLECHECKED,GOODHEL(4),GOODAMP(@NLOOPAMPS@,4)
+      LOGICAL CTINIT,TIRINIT,GOLEMINIT,SAMURAIINIT,NINJAINIT
+      LOGICAL STABLE,UPDATELOOP,MP_DONE
+      CHARACTER*512 CARD,ARG
+      COMMON/ML5_0_DP_LOOP/LC,ML
+      COMMON/ML5_0_LOOP/WE,ID,SYMFACT,MULTIPLIER,AMPLNUM
+      COMMON/ML5_0_WFCTS/W
+      COMMON/ML5_0_MP_WFS/MPW
+      COMMON/ML5_0_MP_DONE/MP_DONE
+      COMMON/ML5_0_CT/LSCALE,CTMODE
+      COMMON/ML5_0_HELCHOICE/HELPICKED
+      COMMON/ML5_0_INIT/NTRY,CHECKPHASE,HELDOUBLECHECKED,REF
+      COMMON/ML5_0_FILTERS/GOODAMP,GOODHEL
+      COMMON/REDUCTIONCODEINIT/CTINIT,TIRINIT,GOLEMINIT,SAMURAIINIT,
+     $ NINJAINIT
+      COMMON/TO_UPDATELOOP/UPDATELOOP
+      CALL GET_COMMAND_ARGUMENT(1,CARD)
+      UPDATELOOP=.TRUE.
+      CALL SETPARAMLOG(.FALSE.)
+      CALL SETPARA2(CARD)
+      IF(MDL_MT.NE.173D0.OR.MDL_MH.NE.125D0) STOP 2
+      IF(MDL_WT.NE.0D0.OR.MDL_WH.NE.0D0) STOP 3
+      MU_R=100D0
+      ALL_MU_R=MU_R
+      P=0D0
+      P(0,1:2)=225D0
+      P(0,3:5)=150D0
+      P(3,1)=225D0
+      P(3,2)=-225D0
+      P(1,3)=25D0*SQRT(11D0)
+      P(1,4)=-P(1,3)/2D0
+      P(2,4)=25D0*SQRT(33D0)/2D0
+      P(1,5)=P(1,4)
+      P(2,5)=-P(2,4)
+      W=DCMPLX(0D0,0D0)
+      H1=1
+      H2=1
+      CALL GET_COMMAND_ARGUMENT(2,ARG)
+      READ(ARG,*) H1
+      CALL GET_COMMAND_ARGUMENT(3,ARG)
+      READ(ARG,*) H2
+      CALL VXXXXX(P(0,1),0D0,H1,-1,W(1,1))
+      CALL VXXXXX(P(0,2),0D0,H2,-1,W(1,2))
+      CALL SXXXXX(P(0,3),1,W(1,3))
+      CALL SXXXXX(P(0,4),1,W(1,4))
+      CALL SXXXXX(P(0,5),1,W(1,5))
+      GENERIC=0
+      CALL GET_COMMAND_ARGUMENT(6,ARG)
+      READ(ARG,*) GENERIC
+      IF(GENERIC.EQ.1) THEN
+        W(5:8,1)=(/DCMPLX(1D0,1D0),DCMPLX(2D0,0D0),
+     $    DCMPLX(-1D0,2D0),DCMPLX(3D0,0D0)/)
+        W(5:8,2)=(/DCMPLX(2D0,0D0),DCMPLX(1D0,-1D0),
+     $    DCMPLX(3D0,0D0),DCMPLX(4D0,1D0)/)
+      ENDIF
+      WARD=0
+      CALL GET_COMMAND_ARGUMENT(4,ARG)
+      READ(ARG,*) WARD
+      DO J=1,2
+        IF(BTEST(WARD,J-1)) THEN
+          DO I=0,3
+            W(5+I,J)=DCMPLX(P(I,J),0D0)
+          ENDDO
+        ENDIF
+      ENDDO
+@BRIDGE_CALL@
+      LC=(/@COUPLINGS@/)
+      ML=DCMPLX(MDL_MT,0D0)
+      WE=0
+      WE(1:@NLOOP@)=(/@WAVEFUNCTION_ORDER@/)
+      ID=1
+      SYMFACT=1
+      MULTIPLIER=1
+      AMPLNUM=@AMPLNUM@
+      HELPICKED=1
+      CHECKPHASE=.TRUE.
+      HELDOUBLECHECKED=.FALSE.
+      GOODHEL=.TRUE.
+      GOODAMP=.TRUE.
+      NTRY=0
+      REF=1D0
+      CALL GET_COMMAND_ARGUMENT(5,ARG)
+      READ(ARG,*) CTMODE
+      IF(CTMODE.NE.1.AND.CTMODE.NE.4) STOP 4
+C     All external inputs remain identical binary64 values in mode four.
+C     CTMODE zero and its automatic wavefunction/counterterm path are forbidden.
+      MPW=CMPLX(W,KIND=16)
+      MP_DONE=.TRUE.
+      LSCALE=100D0
+      CTINIT=.FALSE.
+      TIRINIT=.FALSE.
+      GOLEMINIT=.FALSE.
+      SAMURAIINIT=.FALSE.
+      NINJAINIT=.FALSE.
+      CALL CTSINIT(1D-2,2,.TRUE.)
+      WRITE(*,*) 'STATE ',H1,H2,WARD,GENERIC
+      WRITE(*,*) 'CTMODE ',CTMODE
+      WRITE(*,'(A,12ES25.16)') 'INPUT ',MDL_MT,MDL_MH,MU_R,
+     $ MDL_WH,GC_5,GC_37,@BRIDGE_COUPLING@,@QUARTIC_COUPLING@
+      DO J=1,5
+        WRITE(*,'(A,I3,4ES25.16)') 'P ',J,P(:,J)
+      ENDDO
+      DO J=1,@NWAVEFUNCS@
+        DO I=1,8
+          WRITE(*,'(A,2I3,2ES25.16)') 'W ',J,I,W(I,J)
+        ENDDO
+      ENDDO
+C     Unisolvent affine complex degree-four grid, also sufficient for triangles.
+      BASEQ=(/DCMPLX(3D0,.25D0),DCMPLX(-1D0,.5D0),
+     $ DCMPLX(2D0,-.75D0),DCMPLX(4D0,.125D0)/)
+      DQ=(/DCMPLX(1D0,.5D0),DCMPLX(2D0,-.25D0),
+     $ DCMPLX(-1D0,.75D0),DCMPLX(3D0,.125D0)/)
+      J=0
+      DO N0=0,4
+       DO N1=0,4-N0
+        DO N2=0,4-N0-N1
+         DO N3=0,4-N0-N1-N2
+          J=J+1
+          Q=BASEQ+(/N0,N1,N2,N3/)*DQ
+          CALL ML5_0_LOOPNUMHEL(-Q,RAW,1)
+          CALL ML5_0_LOOPNUM(Q,NUM)
+          WRITE(*,'(A,I3,12ES25.16)') 'NUM ',J,Q,RAW,NUM
+         ENDDO
+        ENDDO
+       ENDDO
+      ENDDO
+      IF(J.NE.70) STOP 5
+@INTEGRATED_CALL@
+      WRITE(*,'(A,L2,6ES25.16)') 'LAURENT ',STABLE,RES
+      END
+
+C     This symbol must link because stock MPLOOPNUM contains an inactive branch.
+C     Refuse any attempt to evaluate automatic external states or counterterms.
+      SUBROUTINE ML5_0_MP_BORN_AMPS_AND_WFS(P)
+      IMPLICIT NONE
+      REAL*16 P(0:3,5)
+      WRITE(*,*) 'ERROR forbidden Born/counterterm wavefunction path'
+      STOP 91
+      END

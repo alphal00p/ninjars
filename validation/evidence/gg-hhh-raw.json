@@ -1,0 +1,3800 @@
+{
+  "checks": 28000,
+  "graphs": [
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 5.597461413494502e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.1031676915590914e-17,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.496446946337351e-18,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 5.597461413494502e-16,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 6.882699918352086e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 6.801886420689172e-14,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.174268159238736e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.3902459033177675e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        2,
+        0,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "H[3,4,5]",
+        "2"
+      ],
+      "exact_normalization_control": "2*UFO::{}::GC_11^2*UFO::{}::GC_33*UFO::{}::GC_94*UFO::{}::MH^(-2)*UFO::{}::MT^3",
+      "feynkit_orientation": 0,
+      "madloop_filter_id": 66,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 5.597461413494502e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.1031676915590914e-17,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.496446946337351e-18,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 5.597461413494502e-16,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 6.520781793293428e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.4228856678110484e-14,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.174268159238736e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.3902459033177675e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        2,
+        0,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "2",
+        "H[3,4,5]"
+      ],
+      "exact_normalization_control": "2*UFO::{}::GC_11^2*UFO::{}::GC_33*UFO::{}::GC_94*UFO::{}::MH^(-2)*UFO::{}::MT^3",
+      "feynkit_orientation": 1,
+      "madloop_filter_id": 100,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.206597878357754e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 1.5515838457795457e-17,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.878959614448864e-18,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.206605901798814e-16,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 6.396956285504547e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 9.071057473086266e-14,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.17018491967987e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.3273898902825485e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        2,
+        0,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "H[4,H[3,5]]",
+        "2"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69^2*UFO::{}::GC_94*UFO::{}::MH^(-4)*UFO::{}::MT^3",
+      "feynkit_orientation": 2,
+      "madloop_filter_id": 60,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.206605901798814e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 1.5515838457795457e-17,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.878959614448864e-18,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.206597878357754e-16,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 6.396956285504547e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.216654626599073e-14,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.17018491967987e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.3273898902825485e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        2,
+        0,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "2",
+        "H[4,H[3,5]]"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69^2*UFO::{}::GC_94*UFO::{}::MH^(-4)*UFO::{}::MT^3",
+      "feynkit_orientation": 3,
+      "madloop_filter_id": 72,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.206597878357754e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 1.5515838457795457e-17,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.878959614448864e-18,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.206605901798814e-16,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 6.396956285504547e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 9.071057473086266e-14,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.17018491967987e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.3273898902825485e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        2,
+        0,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "H[5,H[3,4]]",
+        "2"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69^2*UFO::{}::GC_94*UFO::{}::MH^(-4)*UFO::{}::MT^3",
+      "feynkit_orientation": 4,
+      "madloop_filter_id": 57,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.206605901798814e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 1.5515838457795457e-17,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.878959614448864e-18,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.206597878357754e-16,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 6.396956285504547e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.216654626599073e-14,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.17018491967987e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.3273898902825485e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        2,
+        0,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "2",
+        "H[5,H[3,4]]"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69^2*UFO::{}::GC_94*UFO::{}::MH^(-4)*UFO::{}::MT^3",
+      "feynkit_orientation": 5,
+      "madloop_filter_id": 67,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.206597878357754e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 1.5515838457795457e-17,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.878959614448864e-18,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.206605901798814e-16,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 6.396956285504547e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 9.071057473086266e-14,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.17018491967987e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.3273898902825485e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        2,
+        0,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "H[3,H[4,5]]",
+        "2"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69^2*UFO::{}::GC_94*UFO::{}::MH^(-4)*UFO::{}::MT^3",
+      "feynkit_orientation": 6,
+      "madloop_filter_id": 63,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.206605901798814e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 1.5515838457795457e-17,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.878959614448864e-18,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.206597878357754e-16,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 6.396956285504547e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.216654626599073e-14,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.17018491967987e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 3.3273898902825485e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        2,
+        0,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "2",
+        "H[3,H[4,5]]"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69^2*UFO::{}::GC_94*UFO::{}::MH^(-4)*UFO::{}::MT^3",
+      "feynkit_orientation": 7,
+      "madloop_filter_id": 85,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.212107711708343e-13,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.879217928246309e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.288266347913969e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.4042923458536638e-13,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.291915302040635e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.638747055944858e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.331783987877058e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 2.4825105358826946e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "H[3,4]",
+        "5",
+        "2"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 8,
+      "madloop_filter_id": 58,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.4661801424997727e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.969232380873211e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.827420655502729e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.9558846298978836e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.494500052760485e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.336014639597989e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.749846654639406e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.71260081911926e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        2,
+        0,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "5",
+        "H[3,4]",
+        "2"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 9,
+      "madloop_filter_id": 59,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.733111682683327e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.507306846355662e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.671835313101404e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.9558834117589807e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.444077648491658e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.461289871556577e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.761743437288912e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.293075180006152e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        2,
+        0,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "2",
+        "H[3,4]",
+        "5"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 10,
+      "madloop_filter_id": 70,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.665847867660104e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 5.499044699345225e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.192317060896952e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.279184485910425e-16,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.99163717912244e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 3,
+          "maximum_scaled_error": 9.350923834779697e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 3,
+          "maximum_scaled_error": 5.990735889187082e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.019186213180054e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "5",
+        "2",
+        "H[3,4]"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 11,
+      "madloop_filter_id": 69,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.810611896537346e-14,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.879217928246309e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.288266347913969e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.8770249655690172e-13,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.980253305348922e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.252915167369652e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.331783987877058e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.6567099212397264e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "2",
+        "5",
+        "H[3,4]"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 12,
+      "madloop_filter_id": 68,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.665844162833751e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 5.456580398219829e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.192317060896952e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.279188275815834e-16,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.2813744124115878e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 3,
+          "maximum_scaled_error": 1.0820321373779466e-15,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 3,
+          "maximum_scaled_error": 5.990735889187082e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.116704965330101e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "H[3,4]",
+        "2",
+        "5"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 13,
+      "madloop_filter_id": 71,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.9927580382219183e-13,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.2434222784840427e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.390223571169552e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.7050206148259825e-13,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.39986160101285e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.501728101973092e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.308993167072013e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.5532006836112146e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "H[3,5]",
+        "4",
+        "2"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 14,
+      "madloop_filter_id": 61,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.5044444971921993e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.3198098628986483e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.7582158509531e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.47274844731079e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.7349622137432717e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.459164233830522e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.792662561989608e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.3394488424564724e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        2,
+        0,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "4",
+        "H[3,5]",
+        "2"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 15,
+      "madloop_filter_id": 62,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.485289208499812e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.314957951154918e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.706475236532714e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.2699315281640353e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.6801248514870256e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.401653473459796e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.792662561989608e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.3394488424564724e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        2,
+        0,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "2",
+        "H[3,5]",
+        "4"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 16,
+      "madloop_filter_id": 75,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.115542085900549e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.808762360970444e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 5.859699898406176e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.200447489704672e-16,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.010135429402959e-14,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 3,
+          "maximum_scaled_error": 1.2308302257648548e-15,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 3,
+          "maximum_scaled_error": 5.334391640157311e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.9699530020206243e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "4",
+        "2",
+        "H[3,5]"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 17,
+      "madloop_filter_id": 74,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.992755461446203e-13,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.84413102898239e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.390223571169552e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.381509545623421e-13,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.876905057866023e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.878634535313602e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.126434093734879e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.5532006836112146e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "2",
+        "4",
+        "H[3,5]"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 18,
+      "madloop_filter_id": 73,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.115542085900549e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.808762360970444e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 5.3239763489296e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.200447489704672e-16,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 2.1301493746836067e-14,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 3,
+          "maximum_scaled_error": 1.0718752433108116e-15,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 3,
+          "maximum_scaled_error": 5.334391640157311e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.0130121855606324e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "H[3,5]",
+        "2",
+        "4"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 19,
+      "madloop_filter_id": 76,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.784434851757174e-13,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.218315074914495e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.271123841619527e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.7845102245068186e-13,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.956468190017071e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.36468588536009e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.478499149180494e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 2.4375144425634586e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "H[4,5]",
+        "3",
+        "2"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 20,
+      "madloop_filter_id": 65,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.6650305774368961e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.309538186827222e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.6643874752384103e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.6675555389808679e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.2206032419135483e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.97391825507259e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.9828690894832325e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.85630698244492e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        2,
+        0,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "3",
+        "H[4,5]",
+        "2"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 21,
+      "madloop_filter_id": 64,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.6650136402432902e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.309538186827222e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.554978026729032e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.6788308485870102e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.2206032419135483e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.97391825507259e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.985789699415295e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.85630698244492e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        2,
+        0,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "2",
+        "H[4,5]",
+        "3"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 22,
+      "madloop_filter_id": 83,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.920283867787304e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.3934142727723174e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.885437039155549e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.200817432625232e-16,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.4528344327053367e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 3,
+          "maximum_scaled_error": 1.0840100810880593e-15,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 3,
+          "maximum_scaled_error": 6.344125214968855e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.3189485537389026e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "3",
+        "2",
+        "H[4,5]"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 23,
+      "madloop_filter_id": 87,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.784432085262423e-13,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.501865459405208e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.193990002584559e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.7705278044666437e-13,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.107123506842105e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.36468588536009e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.47533813452577e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 2.4375141519891454e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "2",
+        "3",
+        "H[4,5]"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 24,
+      "madloop_filter_id": 86,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.920283867787304e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.3934142727723174e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 2,
+          "maximum_scaled_error": 4.885437039155549e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.306881713167538e-16,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.754451247211908e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 3,
+          "maximum_scaled_error": 1.0840100810880593e-15,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 3,
+          "maximum_scaled_error": 5.537574944212578e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.3189484429012923e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "H[4,5]",
+        "2",
+        "3"
+      ],
+      "exact_normalization_control": "(2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_69*UFO::{}::GC_94^2*UFO::{}::MH^(-2)*UFO::{}::MT^4",
+      "feynkit_orientation": 25,
+      "madloop_filter_id": 84,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.649495622605099e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.998145759137255e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.164290622483598e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 2.936561523806462e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.1652376048786312e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.714739128843654e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.3198048422409915e-15,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.0794050511097804e-15,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "5",
+        "4",
+        "3",
+        "2"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 26,
+      "madloop_filter_id": 55,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 2.343716838178122e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.9474231108958135e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.196017363611413e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.803503198136284e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.4013592000036843e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.034015889060479e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.069038917993954e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.609519641630426e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "5",
+        "3",
+        "4",
+        "2"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 27,
+      "madloop_filter_id": 56,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.451671866005004e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.549726885402648e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.1859774519828275e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.4314900496440786e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.0535567715079326e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.57156119319783e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.966159995621568e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.3185111559565595e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "4",
+        "3",
+        "5",
+        "2"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 28,
+      "madloop_filter_id": 54,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.501752297989073e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.623059353488467e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.035617438124137e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.0982271748301334e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.548732386691349e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.603393275580233e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.075027517053281e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.0632046268544767e-15,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "4",
+        "5",
+        "3",
+        "2"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 29,
+      "madloop_filter_id": 53,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.3475115252513117e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.161516175594071e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.102099970415274e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.41284367482396e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.1076595179939804e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.044211977340656e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.041389633574373e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.390607175337625e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "3",
+        "4",
+        "5",
+        "2"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 30,
+      "madloop_filter_id": 52,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.802872293578485e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.77275007126342e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.006404362452013e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.222557823644933e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.4458049177093836e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.754053187409865e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.480459958434067e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.0381808550162814e-15,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "3",
+        "5",
+        "4",
+        "2"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 31,
+      "madloop_filter_id": 51,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.0399361372292954e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.562829231484099e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.983486528682734e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.9933659697983664e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.2359380671292988e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.9563979347436e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.034079520830732e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.207029023044846e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 32,
+      "madloop_filter_id": 77,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.324010653094423e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.549726885402648e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.640889202977941e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.4296089845165004e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.404593578300514e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.806687298982382e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.208123548835752e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.391335632237304e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "2",
+        "5",
+        "3",
+        "4"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 33,
+      "madloop_filter_id": 88,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.1824335318564218e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.4278359161719e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.080382449365276e-15,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.0310102797266409e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.2376105112152051e-14,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.723097936020728e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.4352309955993642e-15,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.478195965195673e-15,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "4",
+        "3",
+        "2",
+        "5"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 34,
+      "madloop_filter_id": 98,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.901567386370149e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.368757044000118e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.708178883965226e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.0210232922050252e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.7274339169159925e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.562951644224118e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.3707116985458156e-15,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.3370749224441735e-15,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "4",
+        "2",
+        "5",
+        "3"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 35,
+      "madloop_filter_id": 80,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.645971156486193e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.605577966330422e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.39668716876636e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.173375438456553e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.0146603198077224e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.779451718540651e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.7143017627568675e-15,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.710312896327573e-15,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "3",
+        "4",
+        "2",
+        "5"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 36,
+      "madloop_filter_id": 96,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.13926475841247e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.474685584571007e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.297537945511751e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.4417729163432067e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 2.064401451255091e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.912876866400797e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.0161535910879984e-15,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.883456786625668e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "3",
+        "2",
+        "5",
+        "4"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 37,
+      "madloop_filter_id": 91,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 2.7048444970255767e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.855575506119085e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.593741675345297e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 4.191639602740581e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.782561099518127e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.702332838054366e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.756368060188079e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.2896987841155933e-15,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "2",
+        "4",
+        "3",
+        "5"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 38,
+      "madloop_filter_id": 94,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.789224412561248e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.841182439888326e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.070608422410768e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.1442786992941996e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.5088724742455052e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.92272993736673e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.489481778165904e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.0671421593167512e-15,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "2",
+        "4",
+        "5",
+        "3"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 39,
+      "madloop_filter_id": 78,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.646393303464806e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.410553903738579e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.96222985323892e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.2001138715995527e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.2661682411110123e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.60691419175196e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.6695229933055678e-15,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.7030751692279542e-15,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "5",
+        "2",
+        "4",
+        "3"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 40,
+      "madloop_filter_id": 82,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.642589109597047e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.025358166674607e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.510957728348793e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.6423543318361207e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 2.093943361660248e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.606223451432378e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.996691565377473e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.428014173258083e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "5",
+        "3",
+        "2",
+        "4"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 41,
+      "madloop_filter_id": 92,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.901715471267382e-16,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.933447271863146e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.1777964542479905e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.0210242717097535e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.317872558164716e-16,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.983027968968412e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.703863865449457e-15,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.2295917928579056e-15,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "3",
+        "5",
+        "2",
+        "4"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 42,
+      "madloop_filter_id": 90,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.7019700115143709e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.664620427916758e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.745751237745573e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.55532026153864e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.6360772516720505e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.0310240753219641e-15,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.68397456763254e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.231175391414584e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "3",
+        "2",
+        "4",
+        "5"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 43,
+      "madloop_filter_id": 97,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 3.1182791521187546e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.874609284632947e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 6.193683978488564e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 2.6300320982648538e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.0764155339992716e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.714739128843655e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.1736391781409736e-15,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.0767563015227773e-15,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 44,
+      "madloop_filter_id": 95,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 2.8906865466591905e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.512174855735147e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.6380255777338e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 2.497868822076115e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.5228508330115332e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.884100120541795e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.101443393076441e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.50559548370926e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "2",
+        "3",
+        "5",
+        "4"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 45,
+      "madloop_filter_id": 89,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.0349306653956764e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.503340963305021e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.080209658605077e-15,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.0310382471014343e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.0955376136551058e-14,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.520747508776697e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.867492597858051e-15,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.1755306219446943e-15,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "5",
+        "2",
+        "3",
+        "4"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 46,
+      "madloop_filter_id": 93,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.1508631380570405e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.931539343556705e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.019135943257086e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.2097443386893924e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 2.0430496733192056e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.767976039478044e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.108853892909487e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.1077434509131975e-15,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "5",
+        "4",
+        "2",
+        "3"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 47,
+      "madloop_filter_id": 81,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.330756190761574e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.850950203538611e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 5.759894431438792e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.876592260293433e-16,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.8986168218902293e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.554110257626558e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.741927845700277e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.883119020164816e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "4",
+        "5",
+        "2",
+        "3"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 48,
+      "madloop_filter_id": 79,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.6425951249123244e-15,
+          "state": "pp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 7.011106689444989e-16,
+          "state": "pm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.642769313122799e-16,
+          "state": "mp"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 1.6424280154092316e-15,
+          "state": "mm"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 2.459051519414802e-15,
+          "state": "generic_complex"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.465581251266627e-16,
+          "state": "ward0"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 8.754023408914239e-16,
+          "state": "ward1"
+        },
+        {
+          "checks": 70,
+          "loop_degree": 4,
+          "maximum_scaled_error": 9.159279408876532e-16,
+          "state": "ward_both"
+        }
+      ],
+      "denominator_map": [
+        4,
+        0,
+        2,
+        1,
+        3
+      ],
+      "directed_physical_cycle": [
+        "1",
+        "4",
+        "2",
+        "3",
+        "5"
+      ],
+      "exact_normalization_control": "(-2\ud835\udc56)*UFO::{}::GC_11^2*UFO::{}::GC_94^3*UFO::{}::MT^5",
+      "feynkit_orientation": 49,
+      "madloop_filter_id": 99,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    }
+  ],
+  "maximum_scaled_error": 6.784434851757174e-13,
+  "pass": true,
+  "exit_code": 0,
+  "criterion": "abs(actual-reference)/max(1,abs(reference)) <=1e-9 for every raw complex sample",
+  "normalization": {
+    "raw_factor": "-1/2",
+    "linear_laurent_factor": "-8*pi^2",
+    "proof": "One fermion-loop minus sign times Tr(Ta Tb)=delta_ab/2, projected by delta_ab/8 exactly once. Independent symbolic temporal-polarization zero-momentum controls verify each complete FeynKit numerator and its scalar trees. The selected MadLoop loop amplitude has fermion factor -1 and color tensor Tr(1,2); CT_interface contributes1/(16*pi^2). Couplings are GC11=GC5=iG, GC94=GC37=-i yt/sqrt2, GC69=GC30=-6i lambda vev, GC33=GC_HHHH=-6i lambda.",
+    "integrated_comparison": "not performed by this raw matching probe"
+  },
+  "reference_scope": {
+    "uncompressed_reference_sha256": "8650a0d0b2df7835ff2e65f280cc191a5b5c7b96f7e7c9cb05d3e424d28cf471",
+    "input_precision": "MadLoop binary64 wavefunctions/momenta/couplings converted to exact rationals before binding; not an independent high-precision physical input oracle",
+    "polarizations": "Unisolvence is in loop components after each fixed polarization binding; generic and Ward states add independent controls.",
+    "independent_checks": 28000,
+    "internal_madloop_raw_wrapper_checks": 56000
+  },
+  "provenance": {
+    "recorded_at_utc": "2026-10-16T20:18:34.032889+00:00",
+    "compile_command": [
+      "rustc",
+      "--edition=2024",
+      "/shared/external/ninja/validation/madloop/gg_hhh/match.rs",
+      "-o",
+      "/shared/external/ninja/target/physical/gg-hhh/locked-matching/match-gg-hhh",
+      "-L",
+      "dependency=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps",
+      "--extern",
+      "serde_json=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libserde_json-116ef9b7dba087ae.rlib",
+      "--extern",
+      "symbolica=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libsymbolica-46b4143f33dc3388.rlib",
+      "--extern",
+      "feynkit_graph=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libfeynkit_graph-69cd1a2d62a45712.rlib",
+      "--extern",
+      "ninjars_graph=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libninjars_graph-7af5955dc3634b27.rlib"
+    ],
+    "run_command": [
+      "/shared/external/ninja/target/physical/gg-hhh/locked-matching/match-gg-hhh",
+      "/shared/external/ninja/target/physical/gg-hhh/locked-matching/reference-input.json",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh"
+    ],
+    "compiler": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+    "binary_sha256": "3e0797253d0a9c732b546d419718351b30aa829d6e7268ee94424d74df95dd44",
+    "rlib_sha256": {
+      "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libserde_json-116ef9b7dba087ae.rlib": "b59523ea6b430b07de5b266a3b18fe67d39d419c3e96bbfee228ecc80285da58",
+      "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libsymbolica-46b4143f33dc3388.rlib": "6c35df2496b87615aab44ebdcfd2961d661bd140070b117cd0ebf9f51f5e8d6a",
+      "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libfeynkit_graph-69cd1a2d62a45712.rlib": "c5c2ff0d9d20e4e3c9f39140df5d0119c31e841bc1600638b794e29037c8624d",
+      "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libninjars_graph-7af5955dc3634b27.rlib": "85754c565fad78d23d0a972034062dd6fe768aaa3fbe2f78ec9eba531fb8d701"
+    },
+    "source_sha256": {
+      "/shared/external/ninja/validation/madloop/gg_hhh/match.rs": "bc54a398343bd12ce8b8dcde0bcbb0896932f19bb99b2b31f5a3c60b37758836",
+      "/shared/external/ninja/validation/madloop/gg_hhh/reference_io.py": "dfc51222cf727123a3b5a487146806ef57b720ca661b0bf89512463d4636e8bf",
+      "/shared/external/ninja/validation/madloop/gg_hhh/match.py": "609be1b993d31f65b3013e66bb6bee75cc8a008e74801d64b005d898b93809b8",
+      "/shared/external/ninja/validation/evidence/gg-hhh-madloop.json.gz": "b858aa0a70c794ecc8bee77009c4650ca273cbe7de97debbd602596025d56036",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/feynkit-graphs.json": "e2532e8b952ae8532ea9c89b2ee5276fc8ffc3e350f432acc7febbf61a7b6ae1",
+      "/shared/external/ninja/Cargo.lock": "1035b5beee28438bc1e0841e541f8a5d4986f46e50c0ee25820b4326c8b155b0",
+      "/shared/external/ninja/dependencies/manifest.json": "d71dcb77b2f354dd604dd591009290d33d81ec7089bff3bf8291eb9e9faba89c",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-10.dot": "5465f7e61fdbb0918f7942ea644275364bc3286a954229740aa02e1c26ed2158",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-11.dot": "6d49782c2b3a34409fa138be355f34444b1127c1352980de07a037c640d9bd99",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-12.dot": "b3a5d2d7461021209ebc3a58bc9ec740efccb51b5d50bee9c9c432c0092e389c",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-13.dot": "b626dbdcd8e61cd582d94240fbae6c454d72ddac93eb1f9576d99695a1ad87b1",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-14.dot": "5830a7e0e943937d909def6b9f585d2be3acfbef70f56a56a3b48005d31e7dbc",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-15.dot": "0a01f19e0f5970dd098589e3b1f9400cecbbaae3c06e8055f8726f1b798e853a",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-16.dot": "e36dc993dbab3a5c5375fa44ef99feb7619ea3fc7fc85518710d6d2c0ab9e476",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-17.dot": "4ec82c690cec41f40bc26b415d418d8a33290ec53ca4e829a105c4bf489f0a25",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-18.dot": "616c9d754462b1f14864bc369f51a6644d5cb338780d112da1172c82b8c16593",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-19.dot": "86809aedb63d6c26d78629feb8e859ff62efe7dd7881eaa8c9fc345268413b76",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-20.dot": "2772863b294dbf646450776ed21bf68aed52535d14729c5ef9482365873594a6",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-21.dot": "5d05ada7401f2f03fec814063f8b741f9d2ea1a3e217634a97360d7c8d41cb5b",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-22.dot": "64033632f937b91ea043beeecb745f2a5eea580bcbccd50b04a7bad95c70c7f6",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-23.dot": "5c67a73fcfa2965eadfec51eaba2017966a76ca159fca42fa0080952a14e67a2",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-24.dot": "9fcd689a299db6545b3e36ef36084682308187beac8637ddc60c5ef0162cbbd2",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-25.dot": "7e35d618dcdce83a7c8b41d47ea7ce6525d42cbac7ed552bf5bb88966954ff2f",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-8.dot": "4fd4189186fbefc63a590ab8029f8c94f58f06c4fecb9d3dc7d6f336cc065a60",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-box-9.dot": "ae22713874066d77a2359ddb2eeb6516414176b42f3a18d05a5d37dd7186d3b5",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-26.dot": "055e0a1df3a9b0a9cc8b8158eb700180c26cba2c22ac386af00d6e0ff592f5a0",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-27.dot": "b787deddb6ffc2c70fc26ba4c2ce9327919858086a64e247951723960d8e5479",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-28.dot": "f8ff6bf8cc3954940f7752dc602a39d4c7ae838594c82f13866c6f942e2a0a88",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-29.dot": "bc0d575b928718d89c7da67f03062202cb77c67eec6bfb58b46e5ba3ef0e397e",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-30.dot": "a8e031f3ba13eacac194cf1312f18978e15794552cfbd7c64c2c5c19d07ada44",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-31.dot": "d4d7827fa40b612d07a5187df357b049824632f15b71095f9204d05473182908",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-32.dot": "d719c079f75c80029dca4ab019048f3e56bed4c03b995a8088265df65bd48310",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-33.dot": "6d487e67f04b4eab418d0328a0a74483663b13a5206168fd56ee696f856bc848",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-34.dot": "8ab4eb4ebd5607009f95a2bbb49c0ec6a64a4551b80d10cc0a14d457575a22c0",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-35.dot": "b40f538fbca94fab62473a62f7c3b9e60fde634045aa3ee9871ba16e3d700320",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-36.dot": "6af064339c073ef59994307dd027fdeb8928a9cd81a9e3571a028e3dade6d434",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-37.dot": "6391eeafb8dfd47ad94ced6b7752f9b90ba653e9cbf9365b3790cb7d60e8bb31",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-38.dot": "76ed542d3c2201500ab2ec25bcec818c3a789f499f8da5913befb5c916c5c9d2",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-39.dot": "2710d3949c7e26e387afc694831c4513a42877477b0abfbbc4472130fd281e9d",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-40.dot": "cff25e28a618291041c4ce8ef69c31b073a69764da2a2b956a65c2cbd631d5cd",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-41.dot": "abe885fdb16b2728f4f411f7a0fdb9e4c77f4af7908afa777cff200df98bcfec",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-42.dot": "59e8a4d99e0558b0c25956c4d0b0b63f1c27313f677d10d10dd45894834c5672",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-43.dot": "988ad41fc4494193081e850e3a22fbd5160ecfe0773a640a41a66d3001054cfa",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-44.dot": "12c7e485bfb3a8824bc48603b14348db59c373a53547cf8900e36ccbf6eef4e9",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-45.dot": "aac1f956570a3e7130c41723578ccc4d86096eef4ac89aa6b3bc4f913cdc4b9a",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-46.dot": "4df2fe52a035b655a6b97ffb7a82793751f6ea52d2c9d3e76e4ce59cd1185fce",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-47.dot": "0cd64140827012be79950ef66156ad732e2846ea0339ada5130a589b7e8511e4",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-48.dot": "6122c7ed0997404f9fd5a496ddca9fd96838c82175aee500f358e3c37d40b8e4",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-49.dot": "a8944ad1069b12f971acf0e11a8c90d54ad36601d81865eb58274d9e570f4bdb",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-triangle-0.dot": "958b5cfe4fff4f7b68ef22c0f4d63b7d2531c7f69ec6c9c3d985368a9cd6e8b3",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-triangle-1.dot": "527b4a2e4b89ed3a6ac0f7f969735fea1b0b8f8404dc19ee7af3b365d55a58a3",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-triangle-2.dot": "254ff9dc3a3a6cdf479fa79e5f6d312bc77966994a44224627c424a22340ca89",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-triangle-3.dot": "1a146932e90e5c03f0b4d39654b34fe30babbca4ac1f6848aaf72ea54843f3fe",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-triangle-4.dot": "99a3488151ff13831a8bac9f8fd7f8042458c3a7c030aa9d592568e4854d4b05",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-triangle-5.dot": "b0bd909c5f14a315b3628dbe883c155bcb8ea17f99020390993b5a6188738884",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-triangle-6.dot": "59c0e2cafcee9f390aabb5c64381e682203c89580a2eb66938f3ca61071254ae",
+      "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-triangle-7.dot": "3420a5071c5bdf979c4c6e3805086343706792c79dcda1c4d7a93874bb8cd801"
+    },
+    "dependency_heads": {
+      "symbolica": "fd7bced5307e94e994d5deba63c60b8380aa7d02",
+      "feynkit": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+    }
+  }
+}
