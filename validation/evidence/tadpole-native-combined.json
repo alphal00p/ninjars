@@ -1,0 +1,55 @@
+{
+  "schema": "ninjars-tadpole-native-combined-v1",
+  "source_commit": "e48051a5681860fd80933c7af6bf2b635a865432",
+  "integrated_changes": [
+    "8727132 native tadpole projections",
+    "decc970 eighth-family/ten-cell validation ABI",
+    "962fc1c exact CLI stage accounting",
+    "071e291 test-only compiler probe"
+  ],
+  "tests": {
+    "native_amplitude": 4,
+    "native_tadpole_dispatch": 9,
+    "cli_bench": 6,
+    "cli_reduce": 6,
+    "shared_provider_python": 19
+  },
+  "strict_clippy": "adapter and CLI all-features/all-targets passed",
+  "format": "passed",
+  "source_sha256": {
+    "crates/ninjars-symbolica/src/amplitude.rs": "2cf492f4bebc7fdb4574dabf4f3006e0bea69478b40b2028cd7977a37fd0be8b",
+    "crates/ninjars-symbolica/src/native_kernels/mod.rs": "89a3ddf51b7e511a7ca752eb31098bb806404fae6ea52dd7cb103c363f0f5ef4",
+    "crates/ninjars-symbolica/src/native_kernels/tadpoles.rs": "5befa2ed88ba3847a5716bdab74ff8280108a747003f2c2a70031e6abad6d1da",
+    "crates/ninjars-symbolica/src/tadpole_kernels.rs": "34f7f407788ece78d791c88dd5d8b841321fdc93b2ea4b84c10d4c3816ea7c73",
+    "crates/ninjars-symbolica/src/tadpole_plans.rs": "c1d921e84ef6d4c20095effcf7a2ec879ff3b0e2b76a141b7f9da9f997c21dde",
+    "crates/ninjars-cli/src/bench.rs": "dfa1c5113c6cc913cdb27192aba54e1724b77f510aab7f77707131b4b81e44cf",
+    "crates/ninjars-cli/src/runtime.rs": "222492a47d41b3653ae0d2728b518e33bd4c90c119133332f7137fe58fcce9a7",
+    "crates/ninjars-cli/tests/bench.rs": "a47c8cc9f09d4e0f496d939fab3bd8285533960879f0c6662ed076197f4adbbe",
+    "validation/performance/shared_provider/src/session.rs": "5d13d6fd633547bd51cc91a4a9e57f4a56fc8a8a1e5007c1e1da30c24704a58d",
+    "validation/performance/shared_provider/bridge.h": "38f3d1a238b65103adabd7645d500829ba0d59bae6773119c92c4f2f1f3b658a",
+    "validation/performance/shared_provider/kernel_selection.hh": "83d4dc1649ac0cf7eedd03b152abd8995fa720b6b71aa4b2a83d4298c32ffea0",
+    "validation/performance/shared_provider/kernel_selection.py": "26120b2f8c7c3b19568de132ce1dcda6226bcab7cda5377f246ad4c99d3547f2"
+  },
+  "logs": {
+    "adapter": {
+      "path": "validation/evidence/tadpole-native-combined-adapter.log",
+      "sha256": "5d027d591885c8ad1059158b13cb898475c60fd299a4f916f99ea9dea96d2cfa"
+    },
+    "cli": {
+      "path": "validation/evidence/tadpole-native-combined-cli.log",
+      "sha256": "4e4dd43e29646a1eb49100a6d77fbc08e12603013e7e39705901b266c30a74c1"
+    },
+    "clippy": {
+      "path": "validation/evidence/tadpole-native-combined-clippy.log",
+      "sha256": "9d6559d75c1c00b788aba5bc81b71a1a8a178d069807d11683056165046b033c"
+    },
+    "fmt": {
+      "path": "validation/evidence/tadpole-native-combined-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "standalone_reference_evidence": "validation/evidence/shared-provider-tadpole-selection.json",
+  "reference_source_verification": "Root verified all1946 recorded hashes against measured worktree, log/archive hashes, and all14committed native dispatchsource hashes.",
+  "performance_acceptance": false,
+  "limitation": "No primary timings for this integrated native checkpoint yet."
+}
