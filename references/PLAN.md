@@ -1495,3 +1495,29 @@ connects the existing kernels into integrated amplitudes and a standalone
 - Native-catalog comparisons remain next. A separate test-only probe is being
   prepared for Symbolica's existing complex SymJIT compiler on unchanged exact
   reduction plans; no production backend or generic carrier behavior changes.
+
+### Explicit catalog controls and compiler probe (2026-10-16)
+
+- Integrated `24b01c8`: the shared-provider harness now selects interpreted,
+  native denominators, or the current native catalog at session construction.
+  Compatibility defaults stay interpreted. Reports verify actual family
+  coverage independently of numerator and master selection; invalid choices
+  preserve the caller's handle.
+- All three selections pass same-artifact frozen-master physical controls at
+  widths 0/1/3/8. The native catalog's maximum scaled difference is 3.50e-18;
+  its 85-entry union has no misses or backend execution during replay. The
+  existing 210 raw MadLoop and integrated controls also pass. Constructor
+  feature-on/off tests, nineteen Python tests, four C++ configurations, strict
+  Clippy and formatting pass. Root verified the archived report/log hashes and
+  all 1,933 runtime/dependency hashes against the measured worktree. Evidence:
+  `shared-provider-kernel-selection.json`. This seven-family checkpoint still
+  predates the pending tadpole runtime/coverage extension and has no timings.
+- Integrated `071e291`: a test-only probe compiles seventeen unchanged exact
+  reduction plans with Symbolica's complex SymJIT O2 API. 48,720 moderate finite
+  complex component comparisons pass, including empty/tail/permuted batches;
+  maximum scaled error is 4.65e-15. Strict adapter Clippy and formatting pass.
+  Evidence: `reduction-jit-probe.json`; independent review found no blocker.
+- This compiler setting executes scalar JIT programs per row. It is explicitly
+  not a production batched backend. Extreme-range/near-singular division, Dual
+  JIT and full physical JIT remain unvalidated. Its ignored microbenchmark has
+  not been timed; native reduction measurement retains priority.
