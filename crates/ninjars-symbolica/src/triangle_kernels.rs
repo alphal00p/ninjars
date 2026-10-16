@@ -3,6 +3,7 @@
 use crate::{
     DenominatorExpansion, LaurentDivision, ResidueProjection,
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor},
+    value_checks::{DualChecks, OrdinaryChecks, ValueChecks},
 };
 use ninjars::{
     BatchShape, Complex, Error, ExpansionKind, FloatLike, FourMomentum, Real, Result, SingleFloat,
@@ -10,7 +11,7 @@ use ninjars::{
 };
 use symbolica::{atom::Atom, domains::dual::DualNumber, evaluate::EvaluationDomain, symbol};
 
-struct Engine<V, K> {
+struct Engine<V, K, Checks> {
     n: usize,
     rank: usize,
     layout: LaurentDivision,
@@ -20,9 +21,7 @@ struct Engine<V, K> {
     projection: K,
     swap: K,
     zero: V,
-    finite: fn(&V) -> bool,
-    nonzero: fn(&V) -> bool,
-    shape_matches: fn(&V, &V) -> bool,
+    checks: std::marker::PhantomData<fn() -> Checks>,
     input: Vec<V>,
     denominators: Vec<V>,
     values: Vec<V>,
@@ -30,15 +29,16 @@ struct Engine<V, K> {
     eligible: Vec<usize>,
 }
 
-impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
+impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Checks> {
+    fn values_are_finite(&self, values: &[V]) -> bool {
+        values.iter().all(Checks::finite)
+    }
+
     fn new(
         n: usize,
         rank: usize,
         prototype: &V,
         mut compile: impl FnMut(&ExactKernel) -> Result<K>,
-        finite: fn(&V) -> bool,
-        nonzero: fn(&V) -> bool,
-        shape_matches: fn(&V, &V) -> bool,
     ) -> Result<Self> {
         let layout = LaurentDivision::new(n, rank, 3)?;
         let denominator = compile(&DenominatorExpansion::new(3)?.exact)?;
@@ -67,9 +67,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             projection,
             swap,
             zero: prototype.zero(),
-            finite,
-            nonzero,
-            shape_matches,
+            checks: std::marker::PhantomData,
             input: Vec::new(),
             denominators: Vec::new(),
             values: Vec::new(),
@@ -149,7 +147,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
                 .chain(r.masses_squared)
                 .chain(std::iter::once(r.beta))
                 .chain(&numerator[row * columns..(row + 1) * columns])
-                .all(|value| (self.shape_matches)(value, &self.zero) && (self.finite)(value));
+                .all(|value| Checks::shape_matches(value, &self.zero) && Checks::finite(value));
             if !stable[row] {
                 continue;
             }
@@ -180,9 +178,13 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             let status = &mut stable[row];
             let num = &numerator[row * columns..(row + 1) * columns];
             let den = &self.denominators[index * uncut * 4..(index + 1) * uncut * 4];
-            *status = num.iter().all(self.finite)
-                && den.iter().all(self.finite)
-                && den.as_chunks::<4>().0.iter().all(|d| (self.nonzero)(&d[0]));
+            *status = num.iter().all(Checks::finite)
+                && den.iter().all(Checks::finite)
+                && den
+                    .as_chunks::<4>()
+                    .0
+                    .iter()
+                    .all(|d| Checks::nonzero(&d[0]));
             if *status {
                 self.active.push(row);
                 self.input.extend_from_slice(num);
@@ -195,7 +197,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             .evaluate(&self.input, &mut self.values, self.active.len())?;
         for (i, &row) in self.active.iter().enumerate() {
             let values = &self.values[i * width..(i + 1) * width];
-            stable[row] = values.iter().all(self.finite);
+            stable[row] = values.iter().all(Checks::finite);
             if stable[row] {
                 output[row * width..(row + 1) * width].clone_from_slice(values);
             }
@@ -226,7 +228,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
 /// Zero leading uncut denominators and nonfinite rows are isolated. Precision
 /// rescue and a scaled small-denominator criterion remain separate diagnostics.
 pub struct SymbolicaTriangleKernels<T> {
-    engine: Engine<Complex<T>, CompiledKernel<T>>,
+    engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks>,
 }
 impl<T: Real + SingleFloat> SymbolicaTriangleKernels<T>
 where
@@ -235,22 +237,14 @@ where
     pub fn new(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
         let zero = Complex::new(prototype.zero(), prototype.zero());
         Ok(Self {
-            engine: Engine::new(
-                propagators,
-                rank,
-                &zero,
-                |exact| exact.compile(&prototype),
-                |v| v.is_finite(),
-                |v| !v.is_fully_zero(),
-                |_, _| true,
-            )?,
+            engine: Engine::new(propagators, rank, &zero, |exact| exact.compile(&prototype))?,
         })
     }
 }
 
 /// The same core triangle stage with a Symbolica static or dynamic Dual shape.
 pub struct SymbolicaDualTriangleKernels<T, D> {
-    engine: Engine<D, CompiledDualKernel<T, D>>,
+    engine: Engine<D, CompiledDualKernel<T, D>, DualChecks<T>>,
 }
 impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualTriangleKernels<T, D>
 where
@@ -258,15 +252,9 @@ where
 {
     pub fn new(propagators: usize, rank: usize, prototype: T, dual: &D) -> Result<Self> {
         Ok(Self {
-            engine: Engine::new(
-                propagators,
-                rank,
-                dual,
-                |exact| exact.compile_dual(&prototype, dual),
-                |v| v.values().iter().all(|x| x.is_finite()),
-                |v| !v.values()[0].is_fully_zero(),
-                |v, p| v.values().len() == p.values().len() && v.get_shape() == p.get_shape(),
-            )?,
+            engine: Engine::new(propagators, rank, dual, |exact| {
+                exact.compile_dual(&prototype, dual)
+            })?,
         })
     }
 }
@@ -282,7 +270,7 @@ macro_rules! implementation {
             fn swapped_effective_batch(&mut self,cuts:&[&TriangleCut<$value>],output:&mut[FourMomentum<$value>])->Result<()> {self.engine.swapped(cuts,output)}
             fn divide_batch(&mut self,requests:&[TriangleDivisionRequest<'_,$value>],numerator:&[$value],output:&mut[$value],stable:&mut[bool])->Result<()> {self.engine.divide(requests,numerator,output,stable)}
             fn project_batch(&mut self,quotients:&[$value],e12:&[$value],output:&mut[$value])->Result<()> {self.engine.project(quotients,e12,output)}
-            fn values_are_finite(&self,values:&[$value])->bool {values.iter().all(self.engine.finite)}
+            fn values_are_finite(&self,values:&[$value])->bool {self.engine.values_are_finite(values)}
         }
     };
 }
