@@ -1723,3 +1723,20 @@ connects the existing kernels into integrated amplitudes and a standalone
   prototype. A focused correction and mixed-prototype regression are required
   before integration. See `docs/native-blocking-probe.md` for the completed
   execution probe; rank specialization remains a separate experiment.
+
+### Optimized denominator-reuse controls (2026-10-16)
+
+- Integrated `dd5ea4d` as `d7d886e`. The frozen `553f406` source has the
+  reviewed reuse runtime and unchanged dependency revisions. All three
+  selections pass the physical oracle through width 1024, including empty
+  and tail batches, Float256 coefficient controls and independent MadLoop
+  comparisons. Maximum errors are unchanged from the prior checkpoint.
+- Three six-width repeated/changing checks cover 66,096 Laurent components
+  in 36 records. Backend calls, backend rows and frozen-union misses are zero;
+  every source/artifact guard passes. Root verified all four lossless archives,
+  7,808 source entries and 24 artifact entries. The three checks use one saved
+  ordinary library and runner; prior benchmark artifacts remain intact.
+- Evidence: `denominator-reuse-release-553f406.json`. These are optimized
+  correctness controls, not timings. Cached artifacts are ready for a later
+  coordinated sampling window; the blocked-execution probe is separately
+  preparing optimized correctness controls before its microbenchmark.
