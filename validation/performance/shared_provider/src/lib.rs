@@ -8,6 +8,8 @@ use ninjars::{
 use ninjars_symbolica::PolynomialNumerator;
 #[cfg(feature = "allocation-diagnostics")]
 mod allocation;
+#[cfg(feature = "execution-diagnostics")]
+mod execution;
 mod foreign;
 mod masters;
 mod physical;
@@ -417,6 +419,8 @@ pub unsafe extern "C" fn sp_call(
     out_len: usize,
 ) -> i32 {
     guard(|| {
+        #[cfg(feature = "execution-diagnostics")]
+        let _execution_scope = execution::Scope::numerator(which, rows);
         let provider = unsafe { provider(handle) }?;
         let powers = unsafe { read(powers, powers_len) }?;
         let ids = unsafe { read(ids, rows) }?;

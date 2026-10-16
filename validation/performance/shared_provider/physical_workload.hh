@@ -2,6 +2,9 @@
 #pragma once
 #include "physical_bridge.h"
 #include "masters.hh"
+#ifdef SP_EXECUTION_DIAGNOSTICS
+#include "execution.hh"
+#endif
 #include <algorithm>
 #include <iomanip>
 #include <limits>
@@ -33,22 +36,28 @@ struct Physical{
     packed.resize(indices.size()*51);
   }
   int prepare_status(){return sp_physical_prepare(handle,scales.size(),momenta.data(),momenta.size(),helicities.data(),helicities.size(),model.data(),model.size(),scales.data(),scales.size(),packed.data(),packed.size());}
-  void prepare(const std::vector<Point>&pool,const std::vector<size_t>&indices){load(pool,indices);checked(prepare_status());}
+  void prepare(const std::vector<Point>&pool,const std::vector<size_t>&indices){
+#ifdef SP_EXECUTION_DIAGNOSTICS
+    execution_diagnostic::PreparationScope span(indices.size());
+#endif
+    load(pool,indices);checked(prepare_status());
+  }
   std::vector<SpPair> coefficients(){std::vector<SpPair> result(scales.size()*info[4]);checked(sp_physical_coefficients(handle,result.data(),result.size()));return result;}
 };
 struct Session{SpSession *handle{};Session(){checked(sp_session_create(5,4,3,&handle));}~Session(){sp_session_destroy(handle);}Session(const Session&)=delete;Session&operator=(const Session&)=delete;};
 struct Runs{
-  Physical &physical;SharedNumerator numerator;Session session;
+  Physical *physical;SharedNumerator numerator;Session session;
   std::array<ninja::RealMomentum,5> shifts{};std::array<C,5> masses{};std::array<double,25> matrix{};
   ninja::Amplitude<ninja::ComplexMasses> original;
   std::vector<SpPair> v,m,s,sm,output;
-  explicit Runs(Physical&p):physical(p),numerator(p.provider),original(5,4,shifts.data(),masses.data()){}
+  explicit Runs(Physical&p):physical(&p),numerator(p.provider),original(5,4,shifts.data(),masses.data()){}
+  void use_prepared(Physical&p){if(p.info!=physical->info)throw std::runtime_error("prepared provider topology differs");physical=&p;numerator.use_provider(p.provider);}
   const std::vector<SpPair>&run_original(const std::vector<Point>&pool,const std::vector<size_t>&indices,SharedMasters&masters){
-    physical.prepare(pool,indices);return reduce_original(masters);
+    physical->prepare(pool,indices);return reduce_original(masters);
   }
   const std::vector<SpPair>&reduce_original(ninja::IntegralLibrary&masters){
-    output.resize(physical.scales.size()*5);
-    for(size_t row=0;row<physical.scales.size();++row){const auto *data=physical.packed.data()+row*51;
+    output.resize(physical->scales.size()*5);
+    for(size_t row=0;row<physical->scales.size();++row){const auto *data=physical->packed.data()+row*51;
       for(unsigned i=0;i<5;++i){shifts[i]=ninja::RealMomentum(data[4*i].re,data[4*i+1].re,data[4*i+2].re,data[4*i+3].re);masses[i]=complex(data[20+i]);}
       for(unsigned i=0;i<25;++i)matrix[i]=data[25+i].re;
       original.reset();original.setIntegralLibrary(masters).setRenormalizationScale(data[50].re).setSMatrix(matrix.data());numerator.lane(row);
@@ -59,14 +68,14 @@ struct Runs{
     return output;
   }
   const std::vector<SpPair>&run_rust(const std::vector<Point>&pool,const std::vector<size_t>&indices,SharedMasters&masters){
-    physical.prepare(pool,indices);return reduce_rust(&masters);
+    physical->prepare(pool,indices);return reduce_rust(&masters);
   }
   const std::vector<SpPair>&reduce_rust(SharedMasters*masters){
-    const size_t rows=physical.scales.size();v.clear();m.clear();s.clear();sm.clear();
-    for(size_t row=0;row<rows;++row){const auto *data=physical.packed.data()+row*51;v.insert(v.end(),data,data+20);m.insert(m.end(),data+20,data+25);sm.insert(sm.end(),data+25,data+50);s.push_back(data[50]);}
+    const size_t rows=physical->scales.size();v.clear();m.clear();s.clear();sm.clear();
+    for(size_t row=0;row<rows;++row){const auto *data=physical->packed.data()+row*51;v.insert(v.end(),data,data+20);m.insert(m.end(),data+20,data+25);sm.insert(sm.end(),data+25,data+50);s.push_back(data[50]);}
     output.resize(rows*5);
-    if(masters)checked(sp_session_run(session.handle,physical.provider,masters->handle(),rows,v.data(),v.size(),m.data(),m.size(),s.data(),s.size(),sm.data(),sm.size(),output.data(),output.size()));
-    else checked(sp_session_run_production(session.handle,physical.provider,rows,v.data(),v.size(),m.data(),m.size(),s.data(),s.size(),sm.data(),sm.size(),output.data(),output.size()));
+    if(masters)checked(sp_session_run(session.handle,physical->provider,masters->handle(),rows,v.data(),v.size(),m.data(),m.size(),s.data(),s.size(),sm.data(),sm.size(),output.data(),output.size()));
+    else checked(sp_session_run_production(session.handle,physical->provider,rows,v.data(),v.size(),m.data(),m.size(),s.data(),s.size(),sm.data(),sm.size(),output.data(),output.size()));
     return output;
   }
 };

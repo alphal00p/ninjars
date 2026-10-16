@@ -43,6 +43,9 @@ public:
   SharedNumerator&operator=(const SharedNumerator&)=delete;
   void bind(const std::vector<SpPair>&values,size_t rows){checked(sp_bind(handle_,values.data(),values.size(),rows));}
   void lane(uint64_t lane){lane_=lane;}
+  // Validation-only switch between prevalidated immutable coefficient states.
+  // The physical owner retains this borrowed handle and all calls serialize.
+  void use_provider(SpProvider *borrowed){if(owns_||!borrowed)throw std::runtime_error("expected live borrowed numerator state");handle_=borrowed;}
   SpProvider *handle(){return handle_;}
   ninja::Complex evaluate(const ninja::ComplexMomentum&q,const ninja::Complex&mu,int cut,const ninja::PartitionInt part[])override{
     input_.clear();powers_.clear();put(q);input_.push_back(pair(mu));call(0,cut,part,1);return complex(output_[0]);
