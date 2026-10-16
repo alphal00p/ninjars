@@ -31,6 +31,19 @@ pub struct TadpoleCorrectionRequest<'a, T> {
     pub beta: &'a T,
 }
 
+impl<T> Copy for TadpoleSource<'_, T> {}
+impl<T> Clone for TadpoleSource<'_, T> {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+impl<T> Copy for TadpoleCorrectionRequest<'_, T> {}
+impl<T> Clone for TadpoleCorrectionRequest<'_, T> {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
 /// All numerical arithmetic is supplied by the Symbolica adapter.
 pub trait TadpoleReductionKernels<T> {
     fn propagators(&self) -> usize;
@@ -53,6 +66,79 @@ pub trait TadpoleReductionKernels<T> {
         output: &mut [T],
         stable: &mut [bool],
     ) -> Result<()>;
+    /// Same-call division and parent correction. Requests are ordered by
+    /// division row, then parent; higher-rank orientation pairs stay adjacent.
+    /// Failed target groups never reach parent validation or arithmetic.
+    /// Buffer-shape errors are rejected before writes. As with separate calls,
+    /// a later correction error may leave successful quotients/statuses written;
+    /// these are stage scratch outputs, not transactionally published residues.
+    #[allow(clippy::too_many_arguments)]
+    fn divide_with_corrections_batch(
+        &mut self,
+        divisions: &[TadpoleDivisionRequest<'_, T>],
+        numerator: &[T],
+        quotients: &mut [T],
+        quotient_stable: &mut [bool],
+        requests: &[TadpoleCorrectionRequest<'_, T>],
+        corrections: &mut [T],
+        correction_stable: &mut [bool],
+    ) -> Result<()>
+    where
+        T: Clone,
+    {
+        let n = self.propagators();
+        let parents = n
+            .checked_mul(n - 1)
+            .ok_or_else(|| Error::Expansion("tadpole parent count overflows".into()))?
+            / 2;
+        let orientations = if self.rank() > n { 2 } else { 1 };
+        let width = self.quotient_columns();
+        if !divisions.len().is_multiple_of(orientations) {
+            return Err(Error::Expansion(
+                "tadpole division orientations are incomplete".into(),
+            ));
+        }
+        BatchShape {
+            rows: divisions.len(),
+            columns: parents,
+        }
+        .validate("tadpole parent request rows", requests.len())?;
+        BatchShape {
+            rows: requests.len(),
+            columns: width,
+        }
+        .validate("tadpole parent correction output", corrections.len())?;
+        BatchShape {
+            rows: requests.len(),
+            columns: 1,
+        }
+        .validate("tadpole parent correction status", correction_stable.len())?;
+        self.divide_batch(divisions, numerator, quotients, quotient_stable)?;
+        correction_stable.fill(false);
+        let selected: Vec<_> = (0..requests.len())
+            .filter(|&row| {
+                let target = row / parents / orientations;
+                quotient_stable[orientations * target..orientations * (target + 1)]
+                    .iter()
+                    .all(|&v| v)
+            })
+            .collect();
+        let selected_requests: Vec<_> = selected.iter().map(|&row| requests[row]).collect();
+        let mut values: Vec<_> = selected
+            .iter()
+            .flat_map(|&row| corrections[row * width..(row + 1) * width].iter().cloned())
+            .collect();
+        let mut stable = vec![false; selected.len()];
+        self.correction_batch(&selected_requests, &mut values, &mut stable)?;
+        for (index, &row) in selected.iter().enumerate() {
+            correction_stable[row] = stable[index];
+            if stable[index] {
+                corrections[row * width..(row + 1) * width]
+                    .clone_from_slice(&values[index * width..(index + 1) * width]);
+            }
+        }
+        Ok(())
+    }
     /// Corrections are orientation-row-major, then cached parent order.
     fn combine_batch(
         &mut self,
@@ -494,22 +580,9 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
         self.quotients
             .resize(expansions.len() * width, self.zero.clone());
         self.division_stable.resize(expansions.len(), false);
-        self.kernels.divide_batch(
-            &divisions,
-            &self.numerator,
-            &mut self.quotients,
-            &mut self.division_stable,
-        )?;
-        let divided = &mut self.divided;
-        divided.clear();
-        divided.extend((0..active.len()).filter(|&i| {
-            self.division_stable[i * orientations..(i + 1) * orientations]
-                .iter()
-                .all(|&s| s)
-        }));
         let parent_count = self.parents.first().map_or(0, Vec::len);
-        let mut corrections = Vec::with_capacity(divided.len() * orientations * parent_count);
-        for &index in divided.iter() {
+        let mut corrections = Vec::with_capacity(active.len() * orientations * parent_count);
+        for index in 0..active.len() {
             let active_row = active[index];
             let id = requests[active_row].id;
             let target = eligible[active_row] / lanes;
@@ -543,17 +616,28 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
         self.corrections
             .resize(corrections.len() * width, self.zero.clone());
         self.correction_stable.resize(corrections.len(), false);
-        self.kernels.correction_batch(
+        self.kernels.divide_with_corrections_batch(
+            &divisions,
+            &self.numerator,
+            &mut self.quotients,
+            &mut self.division_stable,
             &corrections,
             &mut self.corrections,
             &mut self.correction_stable,
         )?;
+        let divided = &mut self.divided;
+        divided.clear();
+        divided.extend((0..active.len()).filter(|&i| {
+            self.division_stable[i * orientations..(i + 1) * orientations]
+                .iter()
+                .all(|&s| s)
+        }));
         self.raw.clear();
         self.selected_corrections.clear();
         let corrected = &mut self.corrected;
         corrected.clear();
-        for (i, &index) in divided.iter().enumerate() {
-            let start = i * orientations * parent_count;
+        for &index in divided.iter() {
+            let start = index * orientations * parent_count;
             let end = start + orientations * parent_count;
             if !self.correction_stable[start..end].iter().all(|&s| s) {
                 continue;
