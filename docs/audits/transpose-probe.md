@@ -1,8 +1,50 @@
 # Bounded n3/r3 transpose experiment
 
-Status: source prepared; **not built or executed**. The active measurement
-window forbids builds, symbolic generation, numerical runs and timing. There
-are no operation counts, exact identity results or speedup claims yet.
+Status: the bounded n3/r3 symbolic check has executed successfully. All five
+exact output identities passed, with 60 independent callback heads and 39
+symbolic master Laurent components. No numerical evaluator, timing or n3/r4
+experiment has run. The initial source `c10279a` result and logs are retained in
+`validation/evidence/transpose-probe/`; the subsequent source change only fixes
+lint/style issues.
+
+## Result
+
+| Graph | Instructions | Additions | Multiplications | Inversions | Local temporary slots | Generated source bytes |
+|---|---:|---:|---:|---:|---:|---:|
+| Separate forward blocks | 1,954 | 636 | 1,500 | 81 | largest 30; sum 520 | 517,266 summed call sites |
+| Fused forward | 1,075 | 429 | 991 | 36 | 132 | 249,531 |
+| Factored transpose preparation | 3,054 | 828 | 1,969 | 75 | largest 47; sum 956 | 873,883 summed call sites |
+| Factored transpose application | 305 | 295 | 300 | 0 | 65 | 118,218 |
+| Factored transpose total | 3,359 | 1,123 | 2,269 | 75 | largest 65; sum 1,021 | 992,101 summed call sites |
+| Fused transpose | 1,925 | 797 | 1,541 | 36 | 292 | 400,640 |
+
+This is a negative result for transposition at one numerator per changing
+phase-space point. Ordinary **forward fusion** reduces the count by 879
+instructions (45%) relative to separate forward blocks. The fused transpose
+still costs 850 more instructions than fused forward, and the factored
+transpose costs 1,405 more than separate forward. These are symbolic graph
+counts, not a performance claim. Instruction counts differ from summed scalar
+arithmetic because evaluator instructions may have several operands.
+
+The five-output fused graphs omit intermediate heads that the current
+cut-failure, coefficient-diagnostic and reconstruction contracts inspect. A
+production fused path therefore needs additional diagnostic outputs and checks,
+or a deliberate fast-path eligibility contract with a full forward fallback.
+The 45% graph-count reduction is not a directly deployable reduction speedup.
+Fused forward also requires 132 local temporaries versus a maximum of 30 for
+one separate forward block; cross-block storage remains unmeasured.
+
+For H numerators with genuinely fixed geometry and master values, an
+**instruction-count-only** model gives `3054 + 305*H` for the factored
+transpose. It falls below `1954*H` at H=2 and below `1075*H` at H=4
+(strict thresholds H>1.852 and H>3.966). These thresholds are not timing
+predictions: they omit master-selection differences, memory/packing, setup
+and differing instruction costs. At changing kinematics the preparation must
+be charged again for every point, giving 3,359 instructions at H=1. A negative
+abstract-geometry result does not exclude cancellation after physical cut
+geometry is composed, but that further experiment is deferred.
+
+## Scope and construction
 
 The ignored crate-internal test `inventory_transpose_n3_r3` starts with all
 Laurent callback heads for one triangle, three bubbles and three tadpoles.

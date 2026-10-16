@@ -1,0 +1,300 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-10-16T23:55:07.411369+00:00",
+  "source_revision": "76671748daa5ff0e8deee057cdbb8c444cd41cc6",
+  "initial_source_revision": "c10279a4c358e9245573689dd26b1365005828c8",
+  "status": "Exact n3/r3 symbolic identities passed; transpose has higher instruction cost at H=1; no timing or numerical evaluation claim.",
+  "initial_and_final_inventory_equal": true,
+  "exact_identities": 5,
+  "callback_heads": 60,
+  "symbolic_master_components": 39,
+  "runs": [
+    {
+      "source": "c10279a",
+      "passed": 1,
+      "failed": 0,
+      "exit_code": 0,
+      "executable_sha256": "a32581051ad79ea0b5608c448c8b43c02a3b052317dc0ad4a4857b0004075c96"
+    },
+    {
+      "source": "7667174",
+      "passed": 1,
+      "failed": 0,
+      "exit_code": 0,
+      "executable_sha256": "c5a9ea43c56822d96dccccc9ee20a0cb1fa0c147c0a21a852245c8e77fc63ef1"
+    }
+  ],
+  "bounds": {
+    "composition_expression_text_bytes": 8388608,
+    "wall_seconds_inside_lock": 180,
+    "term_kill_grace_seconds": 10,
+    "bound_reached": false
+  },
+  "build_command": "cargo test --locked -j4 -p ninjars-symbolica --features rust-codegen --lib --no-run --message-format=json",
+  "run_command": "flock /tmp/ninjars-symbolica-tests.lock timeout --signal=TERM --kill-after=10s 180s TEST_EXECUTABLE --ignored --exact algorithm_transpose_probe::inventory_transpose_n3_r3 --test-threads=1 --nocapture",
+  "environment": {
+    "RUST_MIN_STACK": "134217728",
+    "file_descriptor_limit": 65536,
+    "SYMBOLICA_LICENSE": "configured; omitted",
+    "cache": "existing algorithm-audit workspace cache; no new target directory"
+  },
+  "checks": {
+    "final_strict_clippy": "cargo clippy --locked -j4 -p ninjars-symbolica --features native-kernels --lib --tests -- -D warnings: passed",
+    "final_fmt": "cargo fmt --all --check: passed",
+    "initial_clippy": "failed: two probe style lints, fixed in7667174; pre-existing test-only probe_workspace dead-code in rust-codegen-only configuration avoided by native-kernels feature, no unrelated source changed",
+    "initial_fmt": "failed module ordering, fixed in7667174"
+  },
+  "dependencies": [
+    {
+      "name": "symbolica",
+      "revision": "2c06f245835d57535418b5d78f711fe191db49cc",
+      "tracked_clean": true
+    },
+    {
+      "name": "oneloopmaster",
+      "revision": "53106429b849e5bcf843f111429be76227b4e0ce",
+      "tracked_clean": true
+    },
+    {
+      "name": "feynkit",
+      "revision": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93",
+      "tracked_clean": true
+    }
+  ],
+  "source_files": [
+    {
+      "path": "Cargo.toml",
+      "sha256": "74ee51fef490da00d067cec2a526bd2b7272c05802af556b5f249b15d72ccba6"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "1035b5beee28438bc1e0841e541f8a5d4986f46e50c0ee25820b4326c8b155b0"
+    },
+    {
+      "path": "dependencies/manifest.json",
+      "sha256": "b823d8e21987b9248d9797c3db1b16af06b45410ae3b5d653a3883d6b020247e"
+    },
+    {
+      "path": "crates/ninjars-symbolica/Cargo.toml",
+      "sha256": "8a96e690d3cbb549139f35626b2aa04457970616d94458cdc9a6ccc22db647b6"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/lib.rs",
+      "sha256": "b01f26bdc1ccf9219a408f2203e91a39cea1c62fdf3aa53bda24d8dfef4e04f6"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/algorithm_transpose_probe.rs",
+      "sha256": "6c2fbd6022e825372c9de975dbc3272f7d1ecbe9a683282042f3e2eaf227957a"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/kernel.rs",
+      "sha256": "9162348ea18fc8e3eb4184e2cdd2ce8bfa22c44b01ba8470aaae74cd732d69aa"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/laurent.rs",
+      "sha256": "e988ed2431f2392c97ae5cbe0284970f6fd3f0c419f3c920d943448abda9b815"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/projection.rs",
+      "sha256": "319ae463ee2b7f13ec6ab5d3b195e3f2b96c8ec9c2c4f6762247e2c92c895b53"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/subtraction.rs",
+      "sha256": "6ba171ce328bd8f2055e0e3e1dd16e2f47ff70eff61b3218cefeede1481f6c0c"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/contraction.rs",
+      "sha256": "0d484501c94c3378121a8bc08fe1b36b5f4b73a9d843e7a3ec06a38843431b5d"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/rust_codegen.rs",
+      "sha256": "70e0c3a6d5d60e6c886571c07de20982fa4b9ffe3039c96386ec984b9a388ef3"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/tadpole_kernels.rs",
+      "sha256": "673959a9bcc748ff2d9a4059cc22415c0b0bbfaa3ec222ffca1ab9315491d689"
+    },
+    {
+      "path": "docs/audits/transpose-probe.md",
+      "sha256": "fbc2016f12bf33d40253941a8df3f8c98b845eec9c426629cee0ed269e39aa27"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/common/build-cache/external/b4/f0447ab46499fc/debug/deps/ninjars_symbolica-bfa72ee958dcd1ce",
+      "sha256": "c5a9ea43c56822d96dccccc9ee20a0cb1fa0c147c0a21a852245c8e77fc63ef1",
+      "features": [
+        "rust-codegen"
+      ]
+    }
+  ],
+  "logs": [
+    {
+      "path": "validation/evidence/transpose-probe/c10279a-build.log",
+      "sha256": "db655c478d031331cbb2cefe1c21e4eb68404652f545b0906189cbed8b1cc1d2",
+      "raw_sha256": "db655c478d031331cbb2cefe1c21e4eb68404652f545b0906189cbed8b1cc1d2",
+      "normalization": "Strip trailing whitespace and trailing blank lines only."
+    },
+    {
+      "path": "validation/evidence/transpose-probe/c10279a-run.log",
+      "sha256": "93a94ca4407cf110bf6545065c98654de6f7ccf761a08305b0899568a32ffbc2",
+      "raw_sha256": "1dfc4fe7e77879c95c1c61d30ba039eed681f8189edc69404c47253c6866e1dc",
+      "normalization": "Strip trailing whitespace and trailing blank lines only."
+    },
+    {
+      "path": "validation/evidence/transpose-probe/c10279a-clippy.log",
+      "sha256": "c2f7ac2be20990e84ccff4762be7d1fa771488a2354bb6381ee8194ca76b762d",
+      "raw_sha256": "c2f7ac2be20990e84ccff4762be7d1fa771488a2354bb6381ee8194ca76b762d",
+      "normalization": "Strip trailing whitespace and trailing blank lines only."
+    },
+    {
+      "path": "validation/evidence/transpose-probe/c10279a-fmt.log",
+      "sha256": "8d233515b7073024469d863132e37b93566e538bba7b585a20841cc0f0048378",
+      "raw_sha256": "0d14cef76a8fea6afa1dc2f15a3a02145a31407decc99310d717755ebded944e",
+      "normalization": "Strip trailing whitespace and trailing blank lines only."
+    },
+    {
+      "path": "validation/evidence/transpose-probe/7667174-build.log",
+      "sha256": "a771e95e858407f04ea6ccbd30e2b22373de3ce795b61b21186264ed4eb4d9f1",
+      "raw_sha256": "a771e95e858407f04ea6ccbd30e2b22373de3ce795b61b21186264ed4eb4d9f1",
+      "normalization": "Strip trailing whitespace and trailing blank lines only."
+    },
+    {
+      "path": "validation/evidence/transpose-probe/7667174-run.log",
+      "sha256": "1dd3442f813a0eefa039ab4aa1110f75e831a23046a2f2967f2f269c8ea61fe9",
+      "raw_sha256": "33987d328d507aa54ea5a7108efd0697203fb805c9b98eacd9378d696e20b2e2",
+      "normalization": "Strip trailing whitespace and trailing blank lines only."
+    },
+    {
+      "path": "validation/evidence/transpose-probe/7667174-clippy.log",
+      "sha256": "df897b3f33421ab8c4d365269a588e33f26897337eed94a91b5c9914043d9934",
+      "raw_sha256": "df897b3f33421ab8c4d365269a588e33f26897337eed94a91b5c9914043d9934",
+      "normalization": "Strip trailing whitespace and trailing blank lines only."
+    },
+    {
+      "path": "validation/evidence/transpose-probe/7667174-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalization": "Strip trailing whitespace and trailing blank lines only."
+    }
+  ],
+  "inventories": [
+    {
+      "path": "validation/evidence/transpose-probe/c10279a-inventory.json",
+      "sha256": "5af793d8c4b71f740239db6f981b6251ec863c81a36375cb5452674013debd8b"
+    },
+    {
+      "path": "validation/evidence/transpose-probe/7667174-inventory.json",
+      "sha256": "5af793d8c4b71f740239db6f981b6251ec863c81a36375cb5452674013debd8b"
+    }
+  ],
+  "counts": {
+    "forward_separated": {
+      "instructions": 1954,
+      "largest_local_temporary_slots": 30,
+      "operations": {
+        "additions": 636,
+        "function_calls": 0,
+        "inversions": 81,
+        "multiplications": 1500
+      },
+      "separate_temporary_slots_sum": 520,
+      "unrolled_callsite_source_bytes": 517266
+    },
+    "forward_fused": {
+      "category": "complete",
+      "constants_bytes": 693,
+      "expression_bytes": 521445,
+      "inputs": 313,
+      "instructions": 1075,
+      "name": "forward_fused",
+      "operations": {
+        "additions": 429,
+        "function_calls": 0,
+        "inversions": 36,
+        "multiplications": 991
+      },
+      "outputs": 5,
+      "source_bytes": 249531,
+      "temporary_slots": 132
+    },
+    "transpose_factored": {
+      "instructions": 3359,
+      "largest_local_temporary_slots": 65,
+      "operations": {
+        "additions": 1123,
+        "function_calls": 0,
+        "inversions": 75,
+        "multiplications": 2269
+      },
+      "separate_temporary_slots_sum": 1021,
+      "unrolled_callsite_source_bytes": 992101
+    },
+    "transpose_prepare": {
+      "instructions": 3054,
+      "largest_local_temporary_slots": 47,
+      "operations": {
+        "additions": 828,
+        "function_calls": 0,
+        "inversions": 75,
+        "multiplications": 1969
+      },
+      "separate_temporary_slots_sum": 956,
+      "unrolled_callsite_source_bytes": 873883
+    },
+    "transpose_apply": {
+      "instructions": 305,
+      "largest_local_temporary_slots": 65,
+      "operations": {
+        "additions": 295,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 300
+      },
+      "separate_temporary_slots_sum": 65,
+      "unrolled_callsite_source_bytes": 118218
+    },
+    "transpose_fused": {
+      "category": "complete",
+      "constants_bytes": 694,
+      "expression_bytes": 313447,
+      "inputs": 313,
+      "instructions": 1925,
+      "name": "transposed_fused",
+      "operations": {
+        "additions": 797,
+        "function_calls": 0,
+        "inversions": 36,
+        "multiplications": 1541
+      },
+      "outputs": 5,
+      "source_bytes": 400640,
+      "temporary_slots": 292
+    }
+  },
+  "instruction_only_reuse_model": {
+    "expression": "3054 + 305*H",
+    "separated_forward": "1954*H",
+    "fused_forward": "1075*H",
+    "strict_H_threshold_vs_separated": 1.85203153426319,
+    "strict_H_threshold_vs_fused": 3.966233766233766,
+    "minimum_integer_H_vs_separated": 2,
+    "minimum_integer_H_vs_fused": 4,
+    "not_timing_prediction": true
+  },
+  "limitations": [
+    "Abstract source projection inputs obey no assumed cross-cut identities; no physical cancellation claim.",
+    "A negative abstract-geometry result does not exclude savings after actual cut geometry is composed.",
+    "Counts include reduction and symbolic master contraction, but no numerator head preparation, geometry construction or master evaluation.",
+    "Local forward kernel counts include currently computed unused heads; fused/reverse graphs target integrated outputs only.",
+    "Per-block temporary counts describe separate evaluators, not aggregate peak memory; retained cross-block arrays are unmeasured.",
+    "Summed source sizes describe unrolled call sites, not the current library's binary size or code shared between cuts.",
+    "Reverse weights contain symbolic master values. Production must preserve zero-weight lazy master calls and required-cut failure provenance.",
+    "Residue diagnostics, reconstruction and cut-stop require separate output graphs or the full forward fallback.",
+    "No conditioning, overflow-boundary, Dual-component, batching or latency equivalence is established by exact identities.",
+    "No map-construction amortization is permitted for one numerator at changing kinematics. Multi-numerator reuse needs separate build/apply measurements.",
+    "n3/r4 and physical geometry composition are deferred until this bounded n3/r3 graph is evaluated.",
+    "The five-output fused graphs omit intermediate heads required by current failure/reconstruction/diagnostic contracts; counts are not for a drop-in production replacement.",
+    "No n3/r4 extension, physical geometry composition, numerical controls or performance experiment was attempted."
+  ]
+}

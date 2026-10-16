@@ -1,0 +1,2085 @@
+{
+  "callback_heads": 60,
+  "composition_byte_budget": 8388608,
+  "exact_output_identities": 5,
+  "forward_fused": {
+    "category": "complete",
+    "constants_bytes": 693,
+    "expression_bytes": 521445,
+    "inputs": 313,
+    "instructions": 1075,
+    "name": "forward_fused",
+    "operations": {
+      "additions": 429,
+      "function_calls": 0,
+      "inversions": 36,
+      "multiplications": 991
+    },
+    "outputs": 5,
+    "source_bytes": 249531,
+    "temporary_slots": 132
+  },
+  "forward_separated": [
+    {
+      "category": "division",
+      "constants_bytes": 242,
+      "expression_bytes": 174,
+      "inputs": 6,
+      "instructions": 6,
+      "name": "tri012_o0_division",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 6,
+      "source_bytes": 2967,
+      "temporary_slots": 0
+    },
+    {
+      "category": "division",
+      "constants_bytes": 242,
+      "expression_bytes": 174,
+      "inputs": 6,
+      "instructions": 6,
+      "name": "tri012_o1_division",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 6,
+      "source_bytes": 2967,
+      "temporary_slots": 0
+    },
+    {
+      "category": "projection",
+      "constants_bytes": 343,
+      "expression_bytes": 404,
+      "inputs": 13,
+      "instructions": 19,
+      "name": "tri012_projection",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 14
+      },
+      "outputs": 10,
+      "source_bytes": 6897,
+      "temporary_slots": 11
+    },
+    {
+      "category": "master_weights",
+      "constants_bytes": 293,
+      "expression_bytes": 50,
+      "inputs": 2,
+      "instructions": 2,
+      "name": "tri012_weights",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 1
+      },
+      "outputs": 2,
+      "source_bytes": 1966,
+      "temporary_slots": 1
+    },
+    {
+      "category": "master_contraction",
+      "constants_bytes": 242,
+      "expression_bytes": 189,
+      "inputs": 5,
+      "instructions": 5,
+      "name": "tri012_contract",
+      "operations": {
+        "additions": 1,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 3
+      },
+      "outputs": 5,
+      "source_bytes": 3107,
+      "temporary_slots": 4
+    },
+    {
+      "category": "division",
+      "constants_bytes": 341,
+      "expression_bytes": 1591,
+      "inputs": 14,
+      "instructions": 43,
+      "name": "bub01_o0_division",
+      "operations": {
+        "additions": 13,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 36
+      },
+      "outputs": 7,
+      "source_bytes": 11148,
+      "temporary_slots": 12
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 489,
+      "expression_bytes": 8091,
+      "inputs": 26,
+      "instructions": 161,
+      "name": "tri012_to_bub01_o0",
+      "operations": {
+        "additions": 50,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 126
+      },
+      "outputs": 7,
+      "source_bytes": 32848,
+      "temporary_slots": 30
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 336,
+      "inputs": 14,
+      "instructions": 14,
+      "name": "bub01_o0_sum",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 7,
+      "source_bytes": 5895,
+      "temporary_slots": 8
+    },
+    {
+      "category": "division",
+      "constants_bytes": 341,
+      "expression_bytes": 1591,
+      "inputs": 14,
+      "instructions": 43,
+      "name": "bub01_o1_division",
+      "operations": {
+        "additions": 13,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 36
+      },
+      "outputs": 7,
+      "source_bytes": 11148,
+      "temporary_slots": 12
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 489,
+      "expression_bytes": 8091,
+      "inputs": 26,
+      "instructions": 161,
+      "name": "tri012_to_bub01_o1",
+      "operations": {
+        "additions": 50,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 126
+      },
+      "outputs": 7,
+      "source_bytes": 32848,
+      "temporary_slots": 30
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 336,
+      "inputs": 14,
+      "instructions": 14,
+      "name": "bub01_o1_sum",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 7,
+      "source_bytes": 5895,
+      "temporary_slots": 8
+    },
+    {
+      "category": "projection",
+      "constants_bytes": 292,
+      "expression_bytes": 274,
+      "inputs": 11,
+      "instructions": 15,
+      "name": "bub01_projection",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 11
+      },
+      "outputs": 10,
+      "source_bytes": 5823,
+      "temporary_slots": 9
+    },
+    {
+      "category": "master_weights",
+      "constants_bytes": 392,
+      "expression_bytes": 196,
+      "inputs": 8,
+      "instructions": 9,
+      "name": "bub01_weights",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 4,
+      "source_bytes": 4030,
+      "temporary_slots": 5
+    },
+    {
+      "category": "master_contraction",
+      "constants_bytes": 242,
+      "expression_bytes": 467,
+      "inputs": 13,
+      "instructions": 15,
+      "name": "bub01_contract",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 9
+      },
+      "outputs": 5,
+      "source_bytes": 5767,
+      "temporary_slots": 7
+    },
+    {
+      "category": "division",
+      "constants_bytes": 341,
+      "expression_bytes": 1591,
+      "inputs": 14,
+      "instructions": 43,
+      "name": "bub02_o0_division",
+      "operations": {
+        "additions": 13,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 36
+      },
+      "outputs": 7,
+      "source_bytes": 11148,
+      "temporary_slots": 12
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 489,
+      "expression_bytes": 8091,
+      "inputs": 26,
+      "instructions": 161,
+      "name": "tri012_to_bub02_o0",
+      "operations": {
+        "additions": 50,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 126
+      },
+      "outputs": 7,
+      "source_bytes": 32848,
+      "temporary_slots": 30
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 336,
+      "inputs": 14,
+      "instructions": 14,
+      "name": "bub02_o0_sum",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 7,
+      "source_bytes": 5895,
+      "temporary_slots": 8
+    },
+    {
+      "category": "division",
+      "constants_bytes": 341,
+      "expression_bytes": 1591,
+      "inputs": 14,
+      "instructions": 43,
+      "name": "bub02_o1_division",
+      "operations": {
+        "additions": 13,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 36
+      },
+      "outputs": 7,
+      "source_bytes": 11148,
+      "temporary_slots": 12
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 489,
+      "expression_bytes": 8091,
+      "inputs": 26,
+      "instructions": 161,
+      "name": "tri012_to_bub02_o1",
+      "operations": {
+        "additions": 50,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 126
+      },
+      "outputs": 7,
+      "source_bytes": 32848,
+      "temporary_slots": 30
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 336,
+      "inputs": 14,
+      "instructions": 14,
+      "name": "bub02_o1_sum",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 7,
+      "source_bytes": 5895,
+      "temporary_slots": 8
+    },
+    {
+      "category": "projection",
+      "constants_bytes": 292,
+      "expression_bytes": 274,
+      "inputs": 11,
+      "instructions": 15,
+      "name": "bub02_projection",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 11
+      },
+      "outputs": 10,
+      "source_bytes": 5823,
+      "temporary_slots": 9
+    },
+    {
+      "category": "master_weights",
+      "constants_bytes": 392,
+      "expression_bytes": 196,
+      "inputs": 8,
+      "instructions": 9,
+      "name": "bub02_weights",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 4,
+      "source_bytes": 4030,
+      "temporary_slots": 5
+    },
+    {
+      "category": "master_contraction",
+      "constants_bytes": 242,
+      "expression_bytes": 467,
+      "inputs": 13,
+      "instructions": 15,
+      "name": "bub02_contract",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 9
+      },
+      "outputs": 5,
+      "source_bytes": 5767,
+      "temporary_slots": 7
+    },
+    {
+      "category": "division",
+      "constants_bytes": 341,
+      "expression_bytes": 1591,
+      "inputs": 14,
+      "instructions": 43,
+      "name": "bub12_o0_division",
+      "operations": {
+        "additions": 13,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 36
+      },
+      "outputs": 7,
+      "source_bytes": 11148,
+      "temporary_slots": 12
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 489,
+      "expression_bytes": 8091,
+      "inputs": 26,
+      "instructions": 161,
+      "name": "tri012_to_bub12_o0",
+      "operations": {
+        "additions": 50,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 126
+      },
+      "outputs": 7,
+      "source_bytes": 32848,
+      "temporary_slots": 30
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 336,
+      "inputs": 14,
+      "instructions": 14,
+      "name": "bub12_o0_sum",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 7,
+      "source_bytes": 5895,
+      "temporary_slots": 8
+    },
+    {
+      "category": "division",
+      "constants_bytes": 341,
+      "expression_bytes": 1591,
+      "inputs": 14,
+      "instructions": 43,
+      "name": "bub12_o1_division",
+      "operations": {
+        "additions": 13,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 36
+      },
+      "outputs": 7,
+      "source_bytes": 11148,
+      "temporary_slots": 12
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 489,
+      "expression_bytes": 8091,
+      "inputs": 26,
+      "instructions": 161,
+      "name": "tri012_to_bub12_o1",
+      "operations": {
+        "additions": 50,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 126
+      },
+      "outputs": 7,
+      "source_bytes": 32848,
+      "temporary_slots": 30
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 336,
+      "inputs": 14,
+      "instructions": 14,
+      "name": "bub12_o1_sum",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 7,
+      "source_bytes": 5895,
+      "temporary_slots": 8
+    },
+    {
+      "category": "projection",
+      "constants_bytes": 292,
+      "expression_bytes": 274,
+      "inputs": 11,
+      "instructions": 15,
+      "name": "bub12_projection",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 11
+      },
+      "outputs": 10,
+      "source_bytes": 5823,
+      "temporary_slots": 9
+    },
+    {
+      "category": "master_weights",
+      "constants_bytes": 392,
+      "expression_bytes": 196,
+      "inputs": 8,
+      "instructions": 9,
+      "name": "bub12_weights",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 4,
+      "source_bytes": 4030,
+      "temporary_slots": 5
+    },
+    {
+      "category": "master_contraction",
+      "constants_bytes": 242,
+      "expression_bytes": 467,
+      "inputs": 13,
+      "instructions": 15,
+      "name": "bub12_contract",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 9
+      },
+      "outputs": 5,
+      "source_bytes": 5767,
+      "temporary_slots": 7
+    },
+    {
+      "category": "division",
+      "constants_bytes": 292,
+      "expression_bytes": 402,
+      "inputs": 6,
+      "instructions": 14,
+      "name": "tad0_o0_division",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 11
+      },
+      "outputs": 2,
+      "source_bytes": 4571,
+      "temporary_slots": 6
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 1430,
+      "inputs": 12,
+      "instructions": 30,
+      "name": "tri012_to_tad0_o0",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 29
+      },
+      "outputs": 2,
+      "source_bytes": 8340,
+      "temporary_slots": 10
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 2364,
+      "inputs": 16,
+      "instructions": 50,
+      "name": "bub01_to_tad0_o0",
+      "operations": {
+        "additions": 18,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 42
+      },
+      "outputs": 2,
+      "source_bytes": 12229,
+      "temporary_slots": 11
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 2364,
+      "inputs": 16,
+      "instructions": 50,
+      "name": "bub02_to_tad0_o0",
+      "operations": {
+        "additions": 18,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 42
+      },
+      "outputs": 2,
+      "source_bytes": 12228,
+      "temporary_slots": 11
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 184,
+      "inputs": 8,
+      "instructions": 6,
+      "name": "tad0_o0_sum",
+      "operations": {
+        "additions": 6,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 2
+      },
+      "outputs": 2,
+      "source_bytes": 3511,
+      "temporary_slots": 3
+    },
+    {
+      "category": "projection",
+      "constants_bytes": 291,
+      "expression_bytes": 21,
+      "inputs": 1,
+      "instructions": 5,
+      "name": "tad0_o0_projection",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 5,
+      "source_bytes": 2444,
+      "temporary_slots": 0
+    },
+    {
+      "category": "master_weights",
+      "constants_bytes": 291,
+      "expression_bytes": 25,
+      "inputs": 1,
+      "instructions": 2,
+      "name": "tad0_o0_weights",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 2,
+      "source_bytes": 1805,
+      "temporary_slots": 0
+    },
+    {
+      "category": "master_contraction",
+      "constants_bytes": 242,
+      "expression_bytes": 199,
+      "inputs": 5,
+      "instructions": 5,
+      "name": "tad0_o0_contract",
+      "operations": {
+        "additions": 1,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 3
+      },
+      "outputs": 5,
+      "source_bytes": 3107,
+      "temporary_slots": 4
+    },
+    {
+      "category": "division",
+      "constants_bytes": 292,
+      "expression_bytes": 402,
+      "inputs": 6,
+      "instructions": 14,
+      "name": "tad1_o0_division",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 11
+      },
+      "outputs": 2,
+      "source_bytes": 4571,
+      "temporary_slots": 6
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 1430,
+      "inputs": 12,
+      "instructions": 30,
+      "name": "tri012_to_tad1_o0",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 29
+      },
+      "outputs": 2,
+      "source_bytes": 8340,
+      "temporary_slots": 10
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 2364,
+      "inputs": 16,
+      "instructions": 50,
+      "name": "bub01_to_tad1_o0",
+      "operations": {
+        "additions": 18,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 42
+      },
+      "outputs": 2,
+      "source_bytes": 12229,
+      "temporary_slots": 11
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 2364,
+      "inputs": 16,
+      "instructions": 50,
+      "name": "bub12_to_tad1_o0",
+      "operations": {
+        "additions": 18,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 42
+      },
+      "outputs": 2,
+      "source_bytes": 12229,
+      "temporary_slots": 11
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 184,
+      "inputs": 8,
+      "instructions": 6,
+      "name": "tad1_o0_sum",
+      "operations": {
+        "additions": 6,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 2
+      },
+      "outputs": 2,
+      "source_bytes": 3511,
+      "temporary_slots": 3
+    },
+    {
+      "category": "projection",
+      "constants_bytes": 291,
+      "expression_bytes": 21,
+      "inputs": 1,
+      "instructions": 5,
+      "name": "tad1_o0_projection",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 5,
+      "source_bytes": 2444,
+      "temporary_slots": 0
+    },
+    {
+      "category": "master_weights",
+      "constants_bytes": 291,
+      "expression_bytes": 25,
+      "inputs": 1,
+      "instructions": 2,
+      "name": "tad1_o0_weights",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 2,
+      "source_bytes": 1805,
+      "temporary_slots": 0
+    },
+    {
+      "category": "master_contraction",
+      "constants_bytes": 242,
+      "expression_bytes": 199,
+      "inputs": 5,
+      "instructions": 5,
+      "name": "tad1_o0_contract",
+      "operations": {
+        "additions": 1,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 3
+      },
+      "outputs": 5,
+      "source_bytes": 3107,
+      "temporary_slots": 4
+    },
+    {
+      "category": "division",
+      "constants_bytes": 292,
+      "expression_bytes": 402,
+      "inputs": 6,
+      "instructions": 14,
+      "name": "tad2_o0_division",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 11
+      },
+      "outputs": 2,
+      "source_bytes": 4571,
+      "temporary_slots": 6
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 1430,
+      "inputs": 12,
+      "instructions": 30,
+      "name": "tri012_to_tad2_o0",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 29
+      },
+      "outputs": 2,
+      "source_bytes": 8340,
+      "temporary_slots": 10
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 2364,
+      "inputs": 16,
+      "instructions": 50,
+      "name": "bub02_to_tad2_o0",
+      "operations": {
+        "additions": 18,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 42
+      },
+      "outputs": 2,
+      "source_bytes": 12229,
+      "temporary_slots": 11
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 2364,
+      "inputs": 16,
+      "instructions": 50,
+      "name": "bub12_to_tad2_o0",
+      "operations": {
+        "additions": 18,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 42
+      },
+      "outputs": 2,
+      "source_bytes": 12228,
+      "temporary_slots": 12
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 186,
+      "inputs": 8,
+      "instructions": 6,
+      "name": "tad2_o0_sum",
+      "operations": {
+        "additions": 6,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 2
+      },
+      "outputs": 2,
+      "source_bytes": 3511,
+      "temporary_slots": 3
+    },
+    {
+      "category": "projection",
+      "constants_bytes": 291,
+      "expression_bytes": 21,
+      "inputs": 1,
+      "instructions": 5,
+      "name": "tad2_o0_projection",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 5,
+      "source_bytes": 2444,
+      "temporary_slots": 0
+    },
+    {
+      "category": "master_weights",
+      "constants_bytes": 291,
+      "expression_bytes": 25,
+      "inputs": 1,
+      "instructions": 2,
+      "name": "tad2_o0_weights",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 2,
+      "source_bytes": 1805,
+      "temporary_slots": 0
+    },
+    {
+      "category": "master_contraction",
+      "constants_bytes": 242,
+      "expression_bytes": 199,
+      "inputs": 5,
+      "instructions": 5,
+      "name": "tad2_o0_contract",
+      "operations": {
+        "additions": 1,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 3
+      },
+      "outputs": 5,
+      "source_bytes": 3107,
+      "temporary_slots": 4
+    },
+    {
+      "category": "contribution_sum",
+      "constants_bytes": 242,
+      "expression_bytes": 765,
+      "inputs": 35,
+      "instructions": 5,
+      "name": "amplitude_sum",
+      "operations": {
+        "additions": 30,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 5,
+      "source_bytes": 8450,
+      "temporary_slots": 5
+    }
+  ],
+  "forward_totals": {
+    "instructions": 1954,
+    "largest_local_temporary_slots": 30,
+    "operations": {
+      "additions": 636,
+      "function_calls": 0,
+      "inversions": 81,
+      "multiplications": 1500
+    },
+    "separate_temporary_slots_sum": 520,
+    "unrolled_callsite_source_bytes": 517266
+  },
+  "limitations": [
+    "Abstract source projection inputs obey no assumed cross-cut identities; no physical cancellation claim.",
+    "A negative abstract-geometry result does not exclude savings after actual cut geometry is composed.",
+    "Counts include reduction and symbolic master contraction, but no numerator head preparation, geometry construction or master evaluation.",
+    "Local forward kernel counts include currently computed unused heads; fused/reverse graphs target integrated outputs only.",
+    "Per-block temporary counts describe separate evaluators, not aggregate peak memory; retained cross-block arrays are unmeasured.",
+    "Summed source sizes describe unrolled call sites, not the current library's binary size or code shared between cuts.",
+    "Reverse weights contain symbolic master values. Production must preserve zero-weight lazy master calls and required-cut failure provenance.",
+    "Residue diagnostics, reconstruction and cut-stop require separate output graphs or the full forward fallback.",
+    "No conditioning, overflow-boundary, Dual-component, batching or latency equivalence is established by exact identities.",
+    "No map-construction amortization is permitted for one numerator at changing kinematics. Multi-numerator reuse needs separate build/apply measurements.",
+    "n3/r4 and physical geometry composition are deferred until this bounded n3/r3 graph is evaluated."
+  ],
+  "numerical_execution": false,
+  "performance_acceptance": false,
+  "production_dispatch": false,
+  "propagators": 3,
+  "rank": 3,
+  "schema": "ninjars-transpose-inventory-v1",
+  "status": "complete_exact_identities",
+  "symbolic_master_components": 39,
+  "transposed_apply_totals": {
+    "instructions": 305,
+    "largest_local_temporary_slots": 65,
+    "operations": {
+      "additions": 295,
+      "function_calls": 0,
+      "inversions": 0,
+      "multiplications": 300
+    },
+    "separate_temporary_slots_sum": 65,
+    "unrolled_callsite_source_bytes": 118218
+  },
+  "transposed_factored": [
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 291,
+      "expression_bytes": 35,
+      "inputs": 0,
+      "instructions": 35,
+      "name": "reverse_amplitude_sum",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 35,
+      "source_bytes": 8886,
+      "temporary_slots": 0
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 242,
+      "expression_bytes": 240,
+      "inputs": 8,
+      "instructions": 6,
+      "name": "reverse_tad2_o0_contract",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 4
+      },
+      "outputs": 6,
+      "source_bytes": 3609,
+      "temporary_slots": 4
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 242,
+      "expression_bytes": 120,
+      "inputs": 4,
+      "instructions": 4,
+      "name": "reverse_tad2_o0_weights",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 4,
+      "source_bytes": 2414,
+      "temporary_slots": 0
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 242,
+      "expression_bytes": 116,
+      "inputs": 4,
+      "instructions": 4,
+      "name": "reverse_tad2_o0_projection",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 4,
+      "source_bytes": 2414,
+      "temporary_slots": 0
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 524,
+      "inputs": 4,
+      "instructions": 16,
+      "name": "reverse_tad2_o0_sum",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 4
+      },
+      "outputs": 16,
+      "source_bytes": 4815,
+      "temporary_slots": 4
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 341,
+      "expression_bytes": 6848,
+      "inputs": 12,
+      "instructions": 63,
+      "name": "reverse_bub12_to_tad2_o0",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 54
+      },
+      "outputs": 32,
+      "source_bytes": 16341,
+      "temporary_slots": 33
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 341,
+      "expression_bytes": 6832,
+      "inputs": 12,
+      "instructions": 63,
+      "name": "reverse_bub02_to_tad2_o0",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 54
+      },
+      "outputs": 32,
+      "source_bytes": 16341,
+      "temporary_slots": 33
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 341,
+      "expression_bytes": 4392,
+      "inputs": 12,
+      "instructions": 40,
+      "name": "reverse_tri012_to_tad2_o0",
+      "operations": {
+        "additions": 3,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 35
+      },
+      "outputs": 16,
+      "source_bytes": 10962,
+      "temporary_slots": 17
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 1148,
+      "inputs": 8,
+      "instructions": 19,
+      "name": "reverse_tad2_o0_division",
+      "operations": {
+        "additions": 1,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 16
+      },
+      "outputs": 8,
+      "source_bytes": 6205,
+      "temporary_slots": 9
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 242,
+      "expression_bytes": 240,
+      "inputs": 8,
+      "instructions": 6,
+      "name": "reverse_tad1_o0_contract",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 4
+      },
+      "outputs": 6,
+      "source_bytes": 3609,
+      "temporary_slots": 4
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 242,
+      "expression_bytes": 120,
+      "inputs": 4,
+      "instructions": 4,
+      "name": "reverse_tad1_o0_weights",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 4,
+      "source_bytes": 2414,
+      "temporary_slots": 0
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 242,
+      "expression_bytes": 116,
+      "inputs": 4,
+      "instructions": 4,
+      "name": "reverse_tad1_o0_projection",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 4,
+      "source_bytes": 2414,
+      "temporary_slots": 0
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 524,
+      "inputs": 4,
+      "instructions": 16,
+      "name": "reverse_tad1_o0_sum",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 4
+      },
+      "outputs": 16,
+      "source_bytes": 4815,
+      "temporary_slots": 4
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 341,
+      "expression_bytes": 6848,
+      "inputs": 12,
+      "instructions": 63,
+      "name": "reverse_bub12_to_tad1_o0",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 54
+      },
+      "outputs": 32,
+      "source_bytes": 16341,
+      "temporary_slots": 33
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 341,
+      "expression_bytes": 6832,
+      "inputs": 12,
+      "instructions": 63,
+      "name": "reverse_bub01_to_tad1_o0",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 54
+      },
+      "outputs": 32,
+      "source_bytes": 16341,
+      "temporary_slots": 33
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 341,
+      "expression_bytes": 4392,
+      "inputs": 12,
+      "instructions": 40,
+      "name": "reverse_tri012_to_tad1_o0",
+      "operations": {
+        "additions": 3,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 35
+      },
+      "outputs": 16,
+      "source_bytes": 10962,
+      "temporary_slots": 17
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 1148,
+      "inputs": 8,
+      "instructions": 19,
+      "name": "reverse_tad1_o0_division",
+      "operations": {
+        "additions": 1,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 16
+      },
+      "outputs": 8,
+      "source_bytes": 6205,
+      "temporary_slots": 9
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 242,
+      "expression_bytes": 240,
+      "inputs": 8,
+      "instructions": 6,
+      "name": "reverse_tad0_o0_contract",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 4
+      },
+      "outputs": 6,
+      "source_bytes": 3609,
+      "temporary_slots": 4
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 242,
+      "expression_bytes": 120,
+      "inputs": 4,
+      "instructions": 4,
+      "name": "reverse_tad0_o0_weights",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 4,
+      "source_bytes": 2414,
+      "temporary_slots": 0
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 242,
+      "expression_bytes": 116,
+      "inputs": 4,
+      "instructions": 4,
+      "name": "reverse_tad0_o0_projection",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 4,
+      "source_bytes": 2414,
+      "temporary_slots": 0
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 524,
+      "inputs": 4,
+      "instructions": 16,
+      "name": "reverse_tad0_o0_sum",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 4
+      },
+      "outputs": 16,
+      "source_bytes": 4815,
+      "temporary_slots": 4
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 341,
+      "expression_bytes": 6848,
+      "inputs": 12,
+      "instructions": 63,
+      "name": "reverse_bub02_to_tad0_o0",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 54
+      },
+      "outputs": 32,
+      "source_bytes": 16341,
+      "temporary_slots": 33
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 341,
+      "expression_bytes": 6832,
+      "inputs": 12,
+      "instructions": 63,
+      "name": "reverse_bub01_to_tad0_o0",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 54
+      },
+      "outputs": 32,
+      "source_bytes": 16341,
+      "temporary_slots": 33
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 341,
+      "expression_bytes": 4392,
+      "inputs": 12,
+      "instructions": 40,
+      "name": "reverse_tri012_to_tad0_o0",
+      "operations": {
+        "additions": 3,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 35
+      },
+      "outputs": 16,
+      "source_bytes": 10962,
+      "temporary_slots": 17
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 1148,
+      "inputs": 8,
+      "instructions": 19,
+      "name": "reverse_tad0_o0_division",
+      "operations": {
+        "additions": 1,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 16
+      },
+      "outputs": 8,
+      "source_bytes": 6205,
+      "temporary_slots": 9
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 242,
+      "expression_bytes": 584,
+      "inputs": 14,
+      "instructions": 14,
+      "name": "reverse_bub12_contract",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 12
+      },
+      "outputs": 14,
+      "source_bytes": 6482,
+      "temporary_slots": 12
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 392,
+      "expression_bytes": 720,
+      "inputs": 18,
+      "instructions": 20,
+      "name": "reverse_bub12_weights",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 14
+      },
+      "outputs": 14,
+      "source_bytes": 7705,
+      "temporary_slots": 11
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 2826,
+      "inputs": 79,
+      "instructions": 75,
+      "name": "reverse_bub12_projection",
+      "operations": {
+        "additions": 40,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 35
+      },
+      "outputs": 38,
+      "source_bytes": 26997,
+      "temporary_slots": 34
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 756,
+      "inputs": 12,
+      "instructions": 24,
+      "name": "reverse_bub12_o1_sum",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 12
+      },
+      "outputs": 24,
+      "source_bytes": 7860,
+      "temporary_slots": 12
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 341,
+      "expression_bytes": 5488,
+      "inputs": 21,
+      "instructions": 68,
+      "name": "reverse_tri012_to_bub12_o1",
+      "operations": {
+        "additions": 20,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 54
+      },
+      "outputs": 16,
+      "source_bytes": 17025,
+      "temporary_slots": 21
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 1360,
+      "inputs": 15,
+      "instructions": 37,
+      "name": "reverse_bub12_o1_division",
+      "operations": {
+        "additions": 8,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 27
+      },
+      "outputs": 12,
+      "source_bytes": 10274,
+      "temporary_slots": 13
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 1618,
+      "inputs": 26,
+      "instructions": 52,
+      "name": "reverse_bub12_o0_sum",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 26
+      },
+      "outputs": 52,
+      "source_bytes": 15625,
+      "temporary_slots": 26
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 489,
+      "expression_bytes": 28050,
+      "inputs": 44,
+      "instructions": 238,
+      "name": "reverse_tri012_to_bub12_o0",
+      "operations": {
+        "additions": 96,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 201
+      },
+      "outputs": 30,
+      "source_bytes": 53685,
+      "temporary_slots": 47
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 341,
+      "expression_bytes": 5680,
+      "inputs": 33,
+      "instructions": 119,
+      "name": "reverse_bub12_o0_division",
+      "operations": {
+        "additions": 40,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 93
+      },
+      "outputs": 27,
+      "source_bytes": 28581,
+      "temporary_slots": 28
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 242,
+      "expression_bytes": 584,
+      "inputs": 14,
+      "instructions": 14,
+      "name": "reverse_bub02_contract",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 12
+      },
+      "outputs": 14,
+      "source_bytes": 6482,
+      "temporary_slots": 12
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 392,
+      "expression_bytes": 720,
+      "inputs": 18,
+      "instructions": 20,
+      "name": "reverse_bub02_weights",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 14
+      },
+      "outputs": 14,
+      "source_bytes": 7705,
+      "temporary_slots": 11
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 2826,
+      "inputs": 79,
+      "instructions": 75,
+      "name": "reverse_bub02_projection",
+      "operations": {
+        "additions": 40,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 35
+      },
+      "outputs": 38,
+      "source_bytes": 26997,
+      "temporary_slots": 34
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 756,
+      "inputs": 12,
+      "instructions": 24,
+      "name": "reverse_bub02_o1_sum",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 12
+      },
+      "outputs": 24,
+      "source_bytes": 7860,
+      "temporary_slots": 12
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 341,
+      "expression_bytes": 5488,
+      "inputs": 21,
+      "instructions": 68,
+      "name": "reverse_tri012_to_bub02_o1",
+      "operations": {
+        "additions": 20,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 54
+      },
+      "outputs": 16,
+      "source_bytes": 17025,
+      "temporary_slots": 21
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 1360,
+      "inputs": 15,
+      "instructions": 37,
+      "name": "reverse_bub02_o1_division",
+      "operations": {
+        "additions": 8,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 27
+      },
+      "outputs": 12,
+      "source_bytes": 10274,
+      "temporary_slots": 13
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 1618,
+      "inputs": 26,
+      "instructions": 52,
+      "name": "reverse_bub02_o0_sum",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 26
+      },
+      "outputs": 52,
+      "source_bytes": 15625,
+      "temporary_slots": 26
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 489,
+      "expression_bytes": 28050,
+      "inputs": 44,
+      "instructions": 238,
+      "name": "reverse_tri012_to_bub02_o0",
+      "operations": {
+        "additions": 96,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 201
+      },
+      "outputs": 30,
+      "source_bytes": 53685,
+      "temporary_slots": 47
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 341,
+      "expression_bytes": 5680,
+      "inputs": 33,
+      "instructions": 119,
+      "name": "reverse_bub02_o0_division",
+      "operations": {
+        "additions": 40,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 93
+      },
+      "outputs": 27,
+      "source_bytes": 28581,
+      "temporary_slots": 28
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 242,
+      "expression_bytes": 570,
+      "inputs": 14,
+      "instructions": 14,
+      "name": "reverse_bub01_contract",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 12
+      },
+      "outputs": 14,
+      "source_bytes": 6482,
+      "temporary_slots": 12
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 392,
+      "expression_bytes": 720,
+      "inputs": 18,
+      "instructions": 20,
+      "name": "reverse_bub01_weights",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 14
+      },
+      "outputs": 14,
+      "source_bytes": 7705,
+      "temporary_slots": 11
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 2826,
+      "inputs": 79,
+      "instructions": 75,
+      "name": "reverse_bub01_projection",
+      "operations": {
+        "additions": 40,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 35
+      },
+      "outputs": 38,
+      "source_bytes": 26997,
+      "temporary_slots": 34
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 756,
+      "inputs": 12,
+      "instructions": 24,
+      "name": "reverse_bub01_o1_sum",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 12
+      },
+      "outputs": 24,
+      "source_bytes": 7860,
+      "temporary_slots": 12
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 341,
+      "expression_bytes": 5488,
+      "inputs": 21,
+      "instructions": 68,
+      "name": "reverse_tri012_to_bub01_o1",
+      "operations": {
+        "additions": 20,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 54
+      },
+      "outputs": 16,
+      "source_bytes": 17025,
+      "temporary_slots": 21
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 1360,
+      "inputs": 15,
+      "instructions": 37,
+      "name": "reverse_bub01_o1_division",
+      "operations": {
+        "additions": 8,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 27
+      },
+      "outputs": 12,
+      "source_bytes": 10274,
+      "temporary_slots": 13
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 292,
+      "expression_bytes": 1618,
+      "inputs": 26,
+      "instructions": 52,
+      "name": "reverse_bub01_o0_sum",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 26
+      },
+      "outputs": 52,
+      "source_bytes": 15625,
+      "temporary_slots": 26
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 489,
+      "expression_bytes": 28050,
+      "inputs": 44,
+      "instructions": 238,
+      "name": "reverse_tri012_to_bub01_o0",
+      "operations": {
+        "additions": 96,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 201
+      },
+      "outputs": 30,
+      "source_bytes": 53685,
+      "temporary_slots": 47
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 341,
+      "expression_bytes": 5680,
+      "inputs": 33,
+      "instructions": 119,
+      "name": "reverse_bub01_o0_division",
+      "operations": {
+        "additions": 40,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 93
+      },
+      "outputs": 27,
+      "source_bytes": 28581,
+      "temporary_slots": 28
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 242,
+      "expression_bytes": 230,
+      "inputs": 8,
+      "instructions": 6,
+      "name": "reverse_tri012_contract",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 4
+      },
+      "outputs": 6,
+      "source_bytes": 3609,
+      "temporary_slots": 4
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 293,
+      "expression_bytes": 182,
+      "inputs": 6,
+      "instructions": 6,
+      "name": "reverse_tri012_weights",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 2
+      },
+      "outputs": 6,
+      "source_bytes": 3171,
+      "temporary_slots": 2
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 343,
+      "expression_bytes": 6988,
+      "inputs": 193,
+      "instructions": 79,
+      "name": "reverse_tri012_projection",
+      "operations": {
+        "additions": 156,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 40
+      },
+      "outputs": 42,
+      "source_bytes": 50626,
+      "temporary_slots": 38
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 242,
+      "expression_bytes": 672,
+      "inputs": 21,
+      "instructions": 21,
+      "name": "reverse_tri012_o1_division",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 21,
+      "source_bytes": 7237,
+      "temporary_slots": 0
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 242,
+      "expression_bytes": 662,
+      "inputs": 21,
+      "instructions": 21,
+      "name": "reverse_tri012_o0_division",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 21,
+      "source_bytes": 7237,
+      "temporary_slots": 0
+    },
+    {
+      "category": "reverse_prepare",
+      "constants_bytes": 291,
+      "expression_bytes": 5887,
+      "inputs": 183,
+      "instructions": 300,
+      "name": "reverse_callback_weights",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 300,
+      "source_bytes": 81112,
+      "temporary_slots": 0
+    },
+    {
+      "category": "reverse_apply",
+      "constants_bytes": 242,
+      "expression_bytes": 18515,
+      "inputs": 360,
+      "instructions": 305,
+      "name": "reverse_application",
+      "operations": {
+        "additions": 295,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 300
+      },
+      "outputs": 5,
+      "source_bytes": 118218,
+      "temporary_slots": 65
+    }
+  ],
+  "transposed_fused": {
+    "category": "complete",
+    "constants_bytes": 694,
+    "expression_bytes": 313447,
+    "inputs": 313,
+    "instructions": 1925,
+    "name": "transposed_fused",
+    "operations": {
+      "additions": 797,
+      "function_calls": 0,
+      "inversions": 36,
+      "multiplications": 1541
+    },
+    "outputs": 5,
+    "source_bytes": 400640,
+    "temporary_slots": 292
+  },
+  "transposed_preparation_blocks": 58,
+  "transposed_prepare_totals": {
+    "instructions": 3054,
+    "largest_local_temporary_slots": 47,
+    "operations": {
+      "additions": 828,
+      "function_calls": 0,
+      "inversions": 75,
+      "multiplications": 1969
+    },
+    "separate_temporary_slots_sum": 956,
+    "unrolled_callsite_source_bytes": 873883
+  },
+  "transposed_totals": {
+    "instructions": 3359,
+    "largest_local_temporary_slots": 65,
+    "operations": {
+      "additions": 1123,
+      "function_calls": 0,
+      "inversions": 75,
+      "multiplications": 2269
+    },
+    "separate_temporary_slots_sum": 1021,
+    "unrolled_callsite_source_bytes": 992101
+  }
+}
