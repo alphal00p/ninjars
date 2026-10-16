@@ -603,6 +603,23 @@ where
         )?;
         Ok(kernels)
     }
+
+    /// Select denominators and both available parent-axis projection plans.
+    /// Tadpole subtraction, residue projection and geometry stay interpreted.
+    pub fn new_with_native_kernels(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
+        use crate::native_kernels::tadpoles::{TadpoleSourcePlan, install_projection};
+        let mut kernels = Self::new_with_native_denominators(propagators, rank, prototype.clone())?;
+        for (projection, source_size) in kernels.engine.source_projection.iter_mut().zip([3, 2]) {
+            if let Some(projection) = projection {
+                install_projection(
+                    projection,
+                    TadpoleSourcePlan::for_source(source_size)?,
+                    &prototype,
+                )?;
+            }
+        }
+        Ok(kernels)
+    }
 }
 
 #[cfg(feature = "native-kernels")]
@@ -624,6 +641,29 @@ where
             crate::native_kernels::DenominatorPlan::T3,
             &prototype,
         )?;
+        Ok(kernels)
+    }
+
+    /// Select available denominator and source-axis bodies for the supported
+    /// ordered Dual shape. Other shapes retain the complete interpreter path.
+    pub fn new_with_native_kernels(
+        propagators: usize,
+        rank: usize,
+        prototype: T,
+        dual: &D,
+    ) -> Result<Self> {
+        use crate::native_kernels::tadpoles::{TadpoleSourcePlan, install_dual_projection};
+        let mut kernels =
+            Self::new_with_native_denominators(propagators, rank, prototype.clone(), dual)?;
+        for (projection, source_size) in kernels.engine.source_projection.iter_mut().zip([3, 2]) {
+            if let Some(projection) = projection {
+                install_dual_projection(
+                    projection,
+                    TadpoleSourcePlan::for_source(source_size)?,
+                    &prototype,
+                )?;
+            }
+        }
         Ok(kernels)
     }
 }

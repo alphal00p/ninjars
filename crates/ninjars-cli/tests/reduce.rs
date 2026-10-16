@@ -124,7 +124,11 @@ fn native_denominator_selection_matches_original_in_all_precisions() {
                 original_checks(&actual, fixture);
                 let kernels = &actual["reduction_kernels"];
                 assert_eq!(kernels["selection"], selection);
-                for name in ["bubble_source_projection", "triangle_bubble_correction"] {
+                for name in [
+                    "bubble_source_projection",
+                    "triangle_bubble_correction",
+                    "tadpole_source_projection",
+                ] {
                     assert_eq!(
                         kernels[name],
                         if selection == "native" {
