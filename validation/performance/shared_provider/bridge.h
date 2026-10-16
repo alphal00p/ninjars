@@ -55,6 +55,14 @@ int32_t sp_rust_bubble(struct SpProvider *,struct SpMasters *,const SpPair *shif
                        SpPair *out,size_t no);
 struct SpSession;
 int32_t sp_session_create(size_t propagators,size_t rank,size_t rows,struct SpSession **);
+/* Setup-only selector; default/old constructor remains interpreted. Failure
+ * leaves *out unchanged. No selector changes numerator or master providers. */
+enum SpReductionKernels { SP_KERNEL_SYMBOLICA=0, SP_KERNEL_DENOMINATORS=1, SP_KERNEL_NATIVE=2 };
+int32_t sp_session_create_with_kernels(size_t propagators,size_t rank,size_t rows,uint32_t selection,struct SpSession **out);
+/* selection,native_feature_enabled,then seven backend flags in exact order:
+ * T2,T3,bubble_source,triangle_bubble,other_reduction,integration,accumulation.
+ * Backend0=interpreter,1=native Rust. Every family is reported, including unused. */
+int32_t sp_session_kernel_info(struct SpSession *,uint64_t *out,size_t len);
 /* Retained topology/geometry/wire buffers. Both Rust providers call the same
  * non-inlined sp_call/sp_master_call entry points used by the C++ adapters.
  * Handles must be mutually disjoint and exclusive. All arrays are row-major. */

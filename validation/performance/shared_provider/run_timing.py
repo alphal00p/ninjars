@@ -12,6 +12,7 @@ import subprocess
 from run_physical import ROOT, HERE, digest, runtime_sources
 from timing_statistics import summarize_record
 from execution_report import validate_execution_record
+from kernel_selection import add_arguments, native_enabled, validate_report
 
 
 def host_snapshot():
@@ -59,6 +60,7 @@ def main():
     parser.add_argument('--trials', type=int, default=8)
     parser.add_argument('--reference-build-dir', type=Path, default=ROOT/'target/reference-uncached-v2')
     parser.add_argument('--physical-controls', type=Path, default=ROOT/'validation/evidence/shared-physical-provider-probe.json', help='separate raw/oracle/empty-batch report; its exact source revisions remain explicit')
+    add_arguments(parser)
     args = parser.parse_args()
     if args.scopes is None:
         args.scopes = '1' if args.timing else '0,1,2,3'
@@ -120,7 +122,9 @@ def main():
             raise RuntimeError(f'{label} failed: {out}/{label}.stderr')
         return (out/f'{label}.stdout').read_text()
 
-    command = ['cargo', 'build', '--manifest-path', HERE/'Cargo.toml', '--locked', '--message-format=json']
+    command = ['cargo', 'build', '--manifest-path', HERE/'Cargo.toml', '--locked', '-j4', '--message-format=json']
+    if native_enabled(args):
+        command += ["--features", "native-kernels"]
     if args.timing or args.release:
         command.append('--release')
     if args.allocation_diagnostics:
@@ -148,12 +152,13 @@ def main():
     run('cpp-build', command)
     actual_mode = 'timing' if args.timing else 'allocations' if args.allocation_diagnostics else 'execution' if args.execution_diagnostics else 'check'
     host_before = host_snapshot()
-    stdout = run('physical-workloads', [binary, ROOT/'examples/graphs/physical/gg-hhh/top-pentagon-26.dot', actual_mode, args.rounds, args.trials, args.widths, args.scopes], input_text, affinity=True)
+    stdout = run('physical-workloads', [binary, ROOT/'examples/graphs/physical/gg-hhh/top-pentagon-26.dot', actual_mode, args.rounds, args.trials, args.widths, args.scopes, args.reduction_kernels], input_text, affinity=True)
     host_after = host_snapshot()
     results = [json.loads(line) for line in stdout.splitlines() if line.startswith('{')]
     if len(results) != 1 or not results[0]['success']:
         raise RuntimeError('missing successful workload report')
     result = results[0]
+    validate_report(result, args.reduction_kernels, native_enabled(args))
     if args.execution_diagnostics:
         for item in result['records']:
             item['validated_execution_breakdown'] = validate_execution_record(item)

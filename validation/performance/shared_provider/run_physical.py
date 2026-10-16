@@ -9,6 +9,8 @@ from pathlib import Path
 import shutil
 import subprocess
 
+from kernel_selection import add_arguments, native_enabled, validate_report
+
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 
@@ -40,7 +42,10 @@ def main():
     parser.add_argument('--reference-build-dir', type=Path, default=ROOT/'target/reference-uncached-v2')
     parser.add_argument('--maximum-integrated-batch', type=int, default=32)
     parser.add_argument('--release', action='store_true', help='use the optimized Rust configuration used by timing probes')
+    add_arguments(parser, all_catalog=True)
     args = parser.parse_args()
+    if args.all_reduction_kernels and args.reduction_kernels != "symbolica":
+        parser.error("all-catalog checks use interpreted as the primary selection")
     if args.maximum_integrated_batch < 3:
         parser.error('maximum integrated batch must include the three distinct points')
     out = args.output_dir.resolve()
@@ -97,7 +102,9 @@ def main():
             raise RuntimeError(f'{label} failed: {out}/{label}.stderr')
         return (out/f'{label}.stdout').read_text()
 
-    build_command = ['cargo', 'build', '--manifest-path', HERE/'Cargo.toml', '--locked', '--message-format=json']
+    build_command = ['cargo', 'build', '--manifest-path', HERE/'Cargo.toml', '--locked', '-j4', '--message-format=json']
+    if native_enabled(args):
+        build_command += ["--features", "native-kernels"]
     if args.release:
         build_command.append('--release')
     build = run('cargo-build', build_command)
@@ -114,11 +121,12 @@ def main():
                      '-I'+str(reference/'ninja-source/src'), '-I'+str(reference/'ninja-build/src'), '-I'+str(reference/'ninja-build'),
                      HERE/'physical_probe.cc', library, ninja, olo, fortran, '-lquadmath',
                      '-Wl,-rpath,'+str(out), '-Wl,-rpath,'+str(fortran.parent), '-o', binary])
-    stdout = run('physical-probe', [binary, ROOT/'examples/graphs/physical/gg-hhh/top-pentagon-26.dot', args.maximum_integrated_batch], '\n'.join(protocol)+'\n')
+    stdout = run('physical-probe', [binary, ROOT/'examples/graphs/physical/gg-hhh/top-pentagon-26.dot', args.maximum_integrated_batch, "all" if args.all_reduction_kernels else args.reduction_kernels], '\n'.join(protocol)+'\n')
     results = [json.loads(line) for line in stdout.splitlines() if line.startswith("{")]
     if len(results) != 1:
         raise RuntimeError("expected exactly one physical probe report")
     result = results[0]
+    validate_report(result, args.reduction_kernels, native_enabled(args), all_catalog=args.all_reduction_kernels)
     if not result['success']:
         raise RuntimeError('physical provider controls did not pass')
     # Mode1 is separately visible, with no automatic switching or substitution.
@@ -133,6 +141,9 @@ def main():
     result['success'] &= before == after
     result['madloop_mode1_diagnostic'] = mode1
     result['rust_profile'] = 'release' if args.release else 'dev'
+    result['numerator_provider'] = {'coefficient_heads': 'factored SymJIT O2 during physical preparation',
+                                    'reduction_callbacks': 'shared interpreted PolynomialNumerator<f64> direct/Mu/T3/T2',
+                                    'independent_of_reduction_selection': True}
     result['scope'] = 'Same factored SymJIT coefficient provider, FeynKit wavefunctions/model binding/routing and shared live masters; separate frozen-union reduction controls. No production-backend or timing acceptance.'
     result['physical_input_boundary'] = 'Explicit five positive-energy binary64 four-momenta, five helicities, seven free model values and scale squared; wavefunctions, dependent model coefficients, coefficient heads, propagators and S matrix evaluated within every complete-path call.'
     result['precision_oracle_boundary'] = 'Float256 exactly promotes binary64 physical component inputs after wavefunction evaluation; this checks coefficient arithmetic, not high-precision physical wavefunctions.'
