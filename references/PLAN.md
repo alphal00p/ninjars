@@ -1318,3 +1318,28 @@ connects the existing kernels into integrated amplitudes and a standalone
   performance acceptance is inferred from allocation counts. Per-row residue
   coefficient/mask allocations remain; kernel attribution and separately timed
   master execution are being developed in isolated branches.
+
+### Reduction and numerator cost attribution (2026-10-16)
+
+- Added a validation-only own-process profiler and disposable instrumented
+  adapter build. Two external CPU profiles and six kernel-span controls cover
+  the physical n5/rank4 graph and ordinary/higher-rank bubbles at widths one and
+  eight. Pre/post Laurent checks, source guards, geometry recomputation counts
+  and zero frozen-master misses pass; eleven harness regressions pass. Root
+  independently reran those regressions and checked both archive hashes/sizes.
+- The shared physical provider uses SymJIT O2 for external coefficient heads;
+  its direct/Mu/T3/T2 cut callbacks remain interpreted PolynomialNumerator on
+  both sides. The observed interpreter CPU share therefore includes callbacks
+  and cannot be attributed wholly to reduction kernels. Separate numerator
+  spans are required in the matched timing report.
+- The profiled exact kernels suggest source-axis projections and selected
+  triangle-to-bubble corrections as the next generated catalog increment after
+  the existing denominator option. Bubble costs differ materially from the
+  physical graph, so both remain required controls. Intrusive spans include
+  instrumentation overhead, especially for empty calls; they are not parity
+  timings or evidence of an optimization gain.
+- See `docs/reduction-kernel-profile.md` and
+  `validation/evidence/reduction-kernel-profile.json` with its lossless archive.
+  The immutable historical provider/core and disposable diagnostic rebuild are
+  identified separately. Native kernels were disabled in these profiles, and
+  their ratios are not performance acceptance evidence for current main.
