@@ -1250,3 +1250,21 @@ connects the existing kernels into integrated amplitudes and a standalone
   dependency pins and earlier evidence were held fixed throughout this baseline.
   Rational-separation parity, broader Dual domains and final performance
   acceptance remain outstanding.
+
+### Current optimization priority (user clarification, 2026-10-16)
+
+- Prioritize NinjaRS reduction latency and throughput until they are on par with
+  or faster than original Ninja. Hold the numerator and precomputed master
+  providers fixed for these comparisons. Advance workspace reuse and generated
+  reduction kernels first; further numerator-provider and production-master
+  integration is deferred behind this reduction target.
+- Report time spent computing one-loop masters separately from reduction time
+  excluding masters, and retain total evaluation time. Use separately instrumented
+  provider calls and explicit scopes; do not infer master time by subtracting
+  timings from different runs. Keep uninstrumented aggregate timing alongside
+  the stage diagnostics and the matched precomputed-master reduction control.
+- The intended fast numerator representation is a symmetric tensor polynomial
+  in loop momentum, compiled as such with SymJIT O2 in the numerator-preparation
+  package. Preserve the shared Symbolica/Spenso/Idenso representations and keep
+  this provider separate from the core reducer. Resume this work after the
+  reduction performance gap has been addressed.
