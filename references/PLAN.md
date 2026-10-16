@@ -1268,3 +1268,28 @@ connects the existing kernels into integrated amplitudes and a standalone
   package. Preserve the shared Symbolica/Spenso/Idenso representations and keep
   this provider separate from the core reducer. Resume this work after the
   reduction performance gap has been addressed.
+
+### Optional generated denominator dispatch (2026-10-16)
+
+- Integrated the explicit `native-kernels` feature. The library's
+  `with_native_denominators()` and CLI `--reduction-kernels native-denominators`
+  select mechanically generated Rust for T2/T3 denominator expansion. Other
+  reduction kernels, integration and accumulation remain interpreted and are
+  reported separately. The default remains unchanged. The CLI option is
+  independent of `--numerator-evaluator`, including factored SymJIT O2.
+- Ordinary f64, DoubleFloat and arbitrary-precision carriers are supported.
+  Static/runtime Dual shapes `[00,10,01,20,11]` use generated arithmetic;
+  other shapes retain the interpreter. Full ordered-shape validation remains
+  active. A newly exposed malformed dynamic-Dual prototype now fails at setup
+  instead of panicking later. Working and tracked input precision are retained.
+- The catalog reproduces byte-for-byte from Symbolica instruction graphs and
+  oneloopmaster's existing emitter. Forty-one library/native regression tests
+  and sixteen CLI tests pass, including original-Ninja controls at all three
+  ordinary precisions, tails, SymJIT composition, and feature-disabled errors.
+  Strict Clippy, formatting and default-feature checks pass. Evidence is
+  `native-denominator-dispatch.json` and `native-denominator-cli.json`.
+- Direct warmed f64 denominator calls allocate zero; existing Dual shape-check
+  allocations remain unchanged pending the separately published PR86. No
+  end-to-end allocation or speedup claim follows from this limited catalog.
+  The next measurements keep the same numerator and master providers and must
+  attribute reduction and master time separately.
