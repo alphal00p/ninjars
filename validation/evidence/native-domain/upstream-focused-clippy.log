@@ -1,0 +1,19 @@
+warning: unused import: `ComplexField`
+ --> /shared/external/ninja/references/symbolica_conditional_cache/lib/numerica/src/domains/float/double.rs:9:21
+  |
+9 | use simba::scalar::{ComplexField, RealField};
+  |                     ^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unnecessary `unsafe` block
+  --> /shared/external/ninja/references/symbolica_conditional_cache/lib/numerica/src/domains/float/double.rs:75:35
+   |
+75 |             return Ok(DoubleFloat(unsafe { Df64::new_full(hi, lo) }));
+   |                                   ^^^^^^ unnecessary `unsafe` block
+   |
+   = note: `#[warn(unused_unsafe)]` (part of `#[warn(unused)]`) on by default
+
+warning: `numerica` (lib) generated 2 warnings
+    Checking oneloop v0.1.0 (/shared/external/ninja/references/oneloopmaster_native_inverse)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 8.26s

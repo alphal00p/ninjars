@@ -1,0 +1,88 @@
+warning: unused import: `ComplexField`
+ --> /shared/external/ninja/references/symbolica_conditional_cache/lib/numerica/src/domains/float/double.rs:9:21
+  |
+9 | use simba::scalar::{ComplexField, RealField};
+  |                     ^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unnecessary `unsafe` block
+  --> /shared/external/ninja/references/symbolica_conditional_cache/lib/numerica/src/domains/float/double.rs:75:35
+   |
+75 |             return Ok(DoubleFloat(unsafe { Df64::new_full(hi, lo) }));
+   |                                   ^^^^^^ unnecessary `unsafe` block
+   |
+   = note: `#[warn(unused_unsafe)]` (part of `#[warn(unused)]`) on by default
+
+warning: `numerica` (lib) generated 2 warnings
+   Compiling oneloop v0.1.0 (/shared/external/ninja/references/oneloopmaster_native_inverse)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.70s
+     Running tests/native.rs (/common/build-cache/external/63/3acbc1ddca833d/debug/deps/native-6cc03c77e1156cc0)
+
+running 6 tests
+test native_arbitrary_precision_matches_expressions_at_1000_digits ... ok
+test native_double_float_acceptance ... ok
+test native_expanded_binary64_diagnostic ... ignored, exploratory binary64 stress audit; report failures without accepting them
+test native_expanded_fortran_fixtures_at_256_bits ... ok
+test native_f64_acceptance_scalar_and_mixed_batches ... ok
+test native_shape_and_domain_errors_do_not_modify_outputs ... ok
+
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 22.96s
+
+     Running tests/native_contract.rs (/common/build-cache/external/63/3acbc1ddca833d/debug/deps/native_contract-4a1a589e6ccf60d3)
+
+running 4 tests
+test native_double_float_keeps_compensated_mass ... ok
+test native_float_validation_precedes_precision_rounding ... ok
+test native_precision_and_clone_contract ... ok
+test native_shape_domain_and_batch_errors_are_atomic ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/native_hooks.rs (/common/build-cache/external/63/3acbc1ddca833d/debug/deps/native_hooks-5a8d390770483f54)
+
+running 1 test
+test double_float_master_hooks_preserve_the_numeric_domain ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.26s
+
+     Running tests/native_primitives.rs (/common/build-cache/external/63/3acbc1ddca833d/debug/deps/native_primitives-f202d5ddfa43b893)
+
+running 12 tests
+test native_float_hypot_tracks_component_precision ... ok
+test native_integer_powers_preserve_real_axis_signed_lips ... ok
+test native_inverse_three_halves_avoids_overflowing_intermediates ... ok
+test native_primitives_binary64_hypot_exact_axes_and_nonfinite_values ... ok
+test native_primitives_binary64_subnormals_and_extremes ... ok
+test native_primitives_disparate_component_precision ... ok
+test native_primitives_double_float_retains_low_components ... ok
+test native_primitives_exact_axes_all_types ... ok
+test native_primitives_general_powers_and_quadrants ... ok
+test native_primitives_thousand_decimal_digits ... ok
+test native_reciprocal_nonfinite_axes_delegate_to_symbolica ... ok
+test native_scalar_half_powers_preserve_unbalanced_precision ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running tests/native_startup.rs (/common/build-cache/external/63/3acbc1ddca833d/debug/deps/native_startup-33b0d5e4f3f6dce0)
+
+running 2 tests
+test first_transcendental_call_initializes_linked_inventory ... ok
+test native_startup_child ... ignored, fresh-process helper; the parent supplies a timeout
+
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 40.73s
+
+     Running tests/rust_batch_codegen.rs (/common/build-cache/external/63/3acbc1ddca833d/debug/deps/rust_batch_codegen-a7d2e90eb170034d)
+
+running 1 test
+test generated_batch_numeric_precision_dual_trace_and_allocation_contracts ... ordinary source: scalar_bytes=1049 scalar_plus_batch_bytes=4309
+lazy source: scalar_plus_batch_bytes=10011 flattened_dual_bytes=117108
+native batch probe: source_bytes=238804 prepare_and_emit_seconds=0.026284 optimized_rustc_seconds=22.628475; instruction-major trace=[("log", 1.0), ("log", 4.0), ("log", 9.0), ("sqrt", 1.0), ("sqrt", 4.0), ("sqrt", 9.0), ("abs", 1.0), ("abs", 4.0), ("abs", 9.0)]
+warmed f64 allocation count=0; fresh single-row allocation count=0; numeric/precision/Dual controls passed
+lazy active-lane trace=[("log", 4.0), ("log", 9.0), ("sqrt", 4.0), ("sqrt", 9.0), ("powi", 2.0), ("powi", 4.0)]; retained stride=128
+lazy warmed allocation count=0; inactive singular arms skipped
+
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 23.01s
+
