@@ -76,3 +76,10 @@ numerical carrier is converted. Both executors pass the changing physical-row
 controls, independent pentagon raw-numerator grid and unchanged-output failure
 checks; this is correctness evidence, not a throughput claim. CLI integration is
 still a separate stage.
+
+The private compiled callback preserves `Send + Sync`. This delegates to the
+existing upstream types: Symbolica's `JITCompiledEvaluator` owns a SymJIT `Applet`
+and external functions whose trait already requires both bounds. Compile-time
+checks cover that JIT evaluator, `SymJitCoefficientEvaluator`, and
+`PhysicalInputEvaluator<f64/DoubleFloat/Float>` with the optional feature enabled
+and disabled. No unsafe thread-safety implementation is added here.

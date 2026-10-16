@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "base_commit": "b6c82bf8a761ef6f93eafaedce6a4e643c7e381e",
+  "scope": "Preserve existing Send+Sync auto traits through the optional compiled coefficient callback; no unsafe workaround",
+  "source_sha256": {
+    "crates/ninjars-graph/src/physical_input.rs": "cd98a2cde913703a94b0de3ca41981fb20efe00a96cbb9c460503bf259a83d31",
+    "crates/ninjars-graph/tests/physical_input.rs": "3d4e0eb6a468ae5c73dd87d019ad7ff4728b43970864fd15b82ead57e7bff3d4",
+    "docs/physical-input-preparation.md": "e4fae5b15beeb3686dacbc44afff22e7678f03b78f425e2f9cf6cd4e49cc0cb4"
+  },
+  "checks": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-j8",
+        "-p",
+        "ninjars-graph",
+        "--all-features",
+        "--test",
+        "physical_input",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "passed": 7,
+      "log_sha256": "b6690e8769105dc2c04487fe5de3fd6ff8db51d99980624731364c19eddb17a8",
+      "output_summary": [
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.09s",
+        "test exact_non_binary64_input_is_not_rounded_before_preparation ... ok",
+        "test hgg_raw_physical_batch_rebinding_precision_and_transactional_errors ... ok",
+        "test model_scalar_names_are_known_distinct_and_disjoint ... ok",
+        "test pentagon_changing_physical_points_match_independent_madloop_raw_grid ... ok",
+        "test physical_evaluators_preserve_thread_safety_with_optional_jit ... ok",
+        "test symjit_hgg_rebinding_and_transactional_errors_share_preparation ... ok",
+        "test symjit_pentagon_changing_points_match_independent_madloop_raw_grid ... ok",
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.68s"
+      ]
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "-j8",
+        "-p",
+        "ninjars-graph",
+        "--all-features",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "passed": null,
+      "log_sha256": "9a314337bb96723bbfe78c62b9384bb9fcdab81a9decbbbb91327fb192a991b5",
+      "output_summary": [
+        "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.77s"
+      ]
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-j8",
+        "-p",
+        "ninjars-graph",
+        "--no-default-features",
+        "--test",
+        "physical_input",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "passed": 5,
+      "log_sha256": "559058637a6a479ac1738d38a77c6a5a9e6d8bc225c68edd7c888e9f20355b7f",
+      "output_summary": [
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.77s",
+        "test exact_non_binary64_input_is_not_rounded_before_preparation ... ok",
+        "test hgg_raw_physical_batch_rebinding_precision_and_transactional_errors ... ok",
+        "test model_scalar_names_are_known_distinct_and_disjoint ... ok",
+        "test pentagon_changing_physical_points_match_independent_madloop_raw_grid ... ok",
+        "test physical_evaluators_preserve_thread_safety_with_optional_jit ... ok",
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.45s"
+      ]
+    }
+  ],
+  "upstream_audit": [
+    "Symbolica src/evaluate/backend.rs:852 JITCompiledEvaluator owns Applet, external function containers and numerical buffers",
+    "Symbolica src/evaluate/external.rs:335 ExternalFunction requires Send+Sync",
+    "SymJIT2.27.3 rust/applet.rs:13 Applet owns a Function and Arc<Config>; native memory/function owners provide upstream Send+Sync implementations"
+  ],
+  "compile_time_assertions": [
+    "JITCompiledEvaluator<Complex<f64>>:Send+Sync",
+    "SymJitCoefficientEvaluator:Send+Sync",
+    "PhysicalInputEvaluator<f64>:Send+Sync",
+    "PhysicalInputEvaluator<DoubleFloat>:Send+Sync",
+    "PhysicalInputEvaluator<Float>:Send+Sync"
+  ]
+}

@@ -420,8 +420,9 @@ impl PhysicalInputPlan {
 }
 
 #[cfg(feature = "numerator-jit")]
-type CompiledCoefficients<T> =
-    dyn FnMut(&[Complex<T>], &mut [Complex<T>], usize) -> std::result::Result<(), CoefficientError>;
+type CompiledCoefficients<T> = dyn FnMut(&[Complex<T>], &mut [Complex<T>], usize) -> std::result::Result<(), CoefficientError>
+    + Send
+    + Sync;
 
 // The compiled variant is constructed only for f64. One setup allocation and
 // one dispatch per batch keep the preparation body independent of this policy.

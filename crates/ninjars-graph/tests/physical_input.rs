@@ -35,6 +35,20 @@ fn variables() -> [Atom; 5] {
         parse!("ninjars::mu2"),
     ]
 }
+
+#[test]
+fn physical_evaluators_preserve_thread_safety_with_optional_jit() {
+    fn assert_send_sync<T: Send + Sync>() {}
+    assert_send_sync::<PhysicalInputEvaluator<f64>>();
+    assert_send_sync::<PhysicalInputEvaluator<DoubleFloat>>();
+    assert_send_sync::<PhysicalInputEvaluator<Float>>();
+    #[cfg(feature = "numerator-jit")]
+    {
+        assert_send_sync::<symbolica::evaluate::JITCompiledEvaluator<Complex<f64>>>();
+        assert_send_sync::<ninjars_graph::SymJitCoefficientEvaluator>();
+    }
+}
+
 fn plan(path: &str) -> PhysicalInputPlan {
     PhysicalInputPlan::new(
         &graph(path),
