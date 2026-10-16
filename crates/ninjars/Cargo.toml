@@ -1,0 +1,12 @@
+[package]
+name = "ninjars"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Generic batched one-loop integrand reduction"
+
+[dependencies]
+feynkit-kinematics.workspace = true
+symbolica.workspace = true
+thiserror.workspace = true

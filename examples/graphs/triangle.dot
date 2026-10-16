@@ -1,0 +1,10 @@
+digraph triangle {
+    num = "1 + ninjars::q0*ninjars::q1 + ninjars::q2^3 + ninjars::mu2*ninjars::q0";
+    ext [style=invis];
+    ext -> a [particle="phi", num="1"];
+    ext -> b [particle="phi", num="1"];
+    c -> ext [particle="phi", num="1"];
+    a -> b [particle="phi", lmb_id=0, num="1"];
+    b -> c [particle="phi", num="1"];
+    c -> a [particle="phi", num="1"];
+}

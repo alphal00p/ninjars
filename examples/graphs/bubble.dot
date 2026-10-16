@@ -1,0 +1,8 @@
+digraph bubble {
+    num = "1 + ninjars::q0 + 2*ninjars::q1^2 + ninjars::mu2";
+    ext [style=invis];
+    ext -> a [particle="phi", num="1"];
+    a -> b [particle="phi", lmb_id=0, num="1"];
+    b -> a [particle="phi", num="1"];
+    b -> ext [particle="phi", num="1"];
+}

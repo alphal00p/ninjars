@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "graph": "triangle.dot",
+  "model": "phi3",
+  "scale_squared": "1",
+  "parameter_overrides": { "UFO::mass": "1" },
+  "samples": [
+    { "external_momenta": { "0": ["0", "1", "0", "0"], "1": ["0", "0", "1", "0"], "2": ["0", "1", "-1", "0"] } },
+    { "external_momenta": { "0": ["0", "2", "0", "0"], "1": ["0", "0", "3/2", "0"], "2": ["0", "2", "-3/2", "0"] } }
+  ]
+}

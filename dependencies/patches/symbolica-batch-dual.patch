@@ -1,0 +1,1351 @@
+diff --git a/lib/numerica/src/domains/dual.rs b/lib/numerica/src/domains/dual.rs
+index c64e08fe..827a7552 100644
+--- a/lib/numerica/src/domains/dual.rs
++++ b/lib/numerica/src/domains/dual.rs
+@@ -1053,13 +1053,19 @@ macro_rules! create_hyperdual_from_components {
+ 
+             #[inline(always)]
+             fn norm(&self) -> Self {
+-                let n = self.values[0].norm();
+-                if n == self.values[0] {
++                if self.is_fully_zero() {
+                     return self.clone();
+-                } else {
+-                    let scale = n / &self.values[0];
+-                    self.clone() * &scale
+                 }
++                let n = self.values[0].norm();
++                // The differentiation parameters are real; complex coefficients
++                // must also be conjugated. Normalize before taking the squared
++                // norm to preserve the scalar norm's overflow/underflow behavior.
++                let normalized = self.clone() * &n.inv();
++                let mut squared = normalized.clone() * normalized.conj();
++                squared.values[0] = n.one();
++                let mut result = squared.sqrt() * &n;
++                result.values[0] = n;
++                result
+             }
+ 
+             #[inline(always)]
+@@ -2142,13 +2148,16 @@ impl<T: Real> Real for HyperDual<T> {
+ 
+     #[inline(always)]
+     fn norm(&self) -> Self {
+-        let n = self.values[0].norm();
+-        if n == self.values[0] {
++        if self.is_fully_zero() {
+             return self.clone();
+-        } else {
+-            let scale = n / &self.values[0];
+-            self.clone() * &scale
+         }
++        let n = self.values[0].norm();
++        let normalized = self.clone() * &n.inv();
++        let mut squared = normalized.clone() * normalized.conj();
++        squared.values[0] = n.one();
++        let mut result = squared.sqrt() * &n;
++        result.values[0] = n;
++        result
+     }
+ 
+     #[inline(always)]
+@@ -2385,6 +2394,64 @@ mod test {
+ 
+     create_hyperdual_from_depths!(Dual, [1, 2, 3]);
+     create_hyperdual_from_components!(ReorderedDual, [[0, 0], [0, 1], [1, 0]]);
++    create_hyperdual_from_components!(NormDual, [[0, 0], [1, 0], [0, 1], [2, 0], [1, 1]]);
++
++    #[test]
++    fn complex_norm_real_parameter_derivatives() {
++        use crate::domains::float::Complex;
++        let values = [
++            Complex::new(3., 4.),
++            Complex::new(1., 0.),
++            Complex::new(0., 1.),
++            Complex::new(0., 0.),
++            Complex::new(0., 0.),
++        ];
++        let fixed = NormDual { values }.norm();
++        let dynamic = HyperDual::from_values(
++            vec![vec![0, 0], vec![1, 0], vec![0, 1], vec![2, 0], vec![1, 1]],
++            values.to_vec(),
++        )
++        .norm();
++        for result in [&fixed.values[..], &dynamic.values[..]] {
++            for (actual, expected) in
++                result
++                    .iter()
++                    .zip([5., 3. / 5., 4. / 5., 8. / 125., -12. / 125.])
++            {
++                assert!(
++                    (actual.re - expected).abs() < 1e-12,
++                    "{actual:?} != {expected}"
++                );
++                assert!(actual.im.abs() < 1e-12);
++            }
++        }
++        // An imaginary seed at a positive real primal must still contribute to
++        // the second derivative; equality of primal values cannot justify a shortcut.
++        let actual = HyperDual::from_values(
++            vec![vec![0], vec![1], vec![2]],
++            vec![
++                Complex::new(3., 0.),
++                Complex::new(0., 1.),
++                Complex::new(0., 0.),
++            ],
++        )
++        .norm();
++        assert!((actual.values[2].re - 1. / 6.).abs() < 1e-12);
++    }
++
++    #[test]
++    fn complex_norm_preserves_extreme_primal_scales() {
++        use crate::domains::float::Complex;
++        for x in [1e200, -1e200, 1e-200, -1e-200] {
++            let result = HyperDual::from_values(
++                vec![vec![0], vec![1]],
++                vec![Complex::new(x, 0.), Complex::new(1., 0.)],
++            )
++            .norm();
++            assert_eq!(result.values[0], Complex::new(x.abs(), 0.));
++            assert!((result.values[1].re - x.signum()).abs() < 1e-12);
++        }
++    }
+ 
+     #[test]
+     fn real_functions() {
+diff --git a/src/evaluate.rs b/src/evaluate.rs
+index 20a72c0f..cb796c91 100644
+--- a/src/evaluate.rs
++++ b/src/evaluate.rs
+@@ -26,6 +26,7 @@ use symjit::{Applet, Composer, Config, Defuns, Storage, Translator};
+ 
+ #[cfg(feature = "native_code_generation")]
+ mod backend;
++mod batch;
+ mod domain;
+ mod dual;
+ mod evaluator;
+@@ -39,6 +40,7 @@ mod tree;
+ 
+ #[cfg(feature = "native_code_generation")]
+ pub use backend::*;
++pub use batch::*;
+ pub use domain::*;
+ pub use dual::*;
+ pub use evaluator::*;
+diff --git a/src/evaluate/batch.rs b/src/evaluate/batch.rs
+new file mode 100644
+index 00000000..0cd1f07f
+--- /dev/null
++++ b/src/evaluate/batch.rs
+@@ -0,0 +1,569 @@
++use super::*;
++
++/// An expression evaluator that applies each instruction across a batch.
++///
++/// Inputs and outputs are row-major: a row contains all parameters or results
++/// for one sample. Internally, lanes of each stack slot are contiguous. Shared
++/// functions receive the same batch, and branches evaluate only their active
++/// lanes. Storage is retained between calls and grows to the largest batch seen.
++///
++/// Map exact coefficients to the desired numeric domain and precision before
++/// calling [`ExpressionEvaluator::into_batch_evaluator`]. Dual numbers can be
++/// represented by flattening their components with [`Dualizer`] first.
++#[derive(Clone)]
++pub struct BatchExpressionEvaluator<T> {
++    evaluator: ExpressionEvaluator<T>,
++    workspace: BatchWorkspace<T>,
++    functions: Vec<BatchWorkspace<T>>,
++    lanes: Vec<usize>,
++    capacity: usize,
++}
++
++#[derive(Clone)]
++struct BatchWorkspace<T> {
++    stack: Vec<T>,
++    active: Vec<usize>,
++    // Forward instruction index at which each lane resumes after a branch.
++    resume: Vec<usize>,
++}
++
++impl<T> Default for BatchWorkspace<T> {
++    fn default() -> Self {
++        Self {
++            stack: Vec::new(),
++            active: Vec::new(),
++            resume: Vec::new(),
++        }
++    }
++}
++
++impl<T> ExpressionEvaluator<T> {
++    /// Convert to an interpreter that carries batches through instructions and
++    /// shared function calls, with reusable storage and lazy per-lane branches.
++    ///
++    /// ```
++    /// use symbolica::prelude::*;
++    /// let mut evaluator = parse!("x^2+y")
++    ///     .evaluator(&[parse!("x"), parse!("y")]).build().unwrap()
++    ///     .map_coeff(&|c| c.re.to_f64()).into_batch_evaluator();
++    /// let mut output = [0.; 3];
++    /// evaluator.evaluate_batch(&[2., 1., 3., 2., 4., 3.], &mut output, 3).unwrap();
++    /// assert_eq!(output, [5., 11., 19.]);
++    /// ```
++    pub fn into_batch_evaluator(self) -> BatchExpressionEvaluator<T> {
++        let functions = (0..self.external_fns.len())
++            .map(|_| BatchWorkspace::default())
++            .collect();
++        BatchExpressionEvaluator {
++            evaluator: self,
++            workspace: BatchWorkspace::default(),
++            functions,
++            lanes: Vec::new(),
++            capacity: 0,
++        }
++    }
++}
++
++impl<T> BatchExpressionEvaluator<T> {
++    /// Number of parameters in each input row.
++    pub fn get_input_len(&self) -> usize {
++        self.evaluator.param_count
++    }
++
++    /// Number of results in each output row.
++    pub fn get_output_len(&self) -> usize {
++        self.evaluator.result_indices.len()
++    }
++
++    /// Return the original scalar evaluator, discarding batch workspaces.
++    pub fn into_expression_evaluator(self) -> ExpressionEvaluator<T> {
++        self.evaluator
++    }
++
++    fn size_overflow() -> EvaluationError {
++        EvaluationError::EvaluationFailed {
++            expression: Atom::num(0),
++            reason: "Batch dimensions exceed the addressable buffer size".into(),
++        }
++    }
++}
++
++impl<T: Real> BatchWorkspace<T> {
++    fn reserve(&mut self, slots: usize, lanes: usize) -> Result<(), EvaluationError> {
++        let size = slots
++            .checked_mul(lanes)
++            .ok_or_else(BatchExpressionEvaluator::<T>::size_overflow)?;
++        self.stack.resize_with(size, T::new_zero);
++        self.resume.resize(lanes, 0);
++        if self.active.capacity() < lanes {
++            self.active.reserve(lanes - self.active.len());
++        }
++        Ok(())
++    }
++}
++
++impl<T: Real> BatchExpressionEvaluator<T> {
++    /// Preallocate reusable root and shared-function workspaces for `rows`.
++    pub fn reserve(&mut self, rows: usize) -> Result<(), EvaluationError> {
++        if rows <= self.capacity {
++            return Ok(());
++        }
++        self.workspace.reserve(self.evaluator.stack.len(), rows)?;
++        for (workspace, function) in self
++            .functions
++            .iter_mut()
++            .zip(&mut self.evaluator.external_fns)
++        {
++            if let Some(body) = &function.body {
++                workspace.reserve(body.stack_size, rows)?;
++            }
++        }
++        self.lanes = (0..rows).collect();
++        self.capacity = rows;
++        Ok(())
++    }
++
++    /// Evaluate `rows` samples. Input and output lengths must be exactly
++    /// `rows * get_input_len()` and `rows * get_output_len()`, respectively.
++    /// Empty batches are supported, including evaluators with no parameters.
++    /// Shape errors leave the output buffer unchanged.
++    pub fn evaluate_batch(
++        &mut self,
++        parameters: &[T],
++        out: &mut [T],
++        rows: usize,
++    ) -> Result<(), EvaluationError> {
++        let inputs = rows
++            .checked_mul(self.get_input_len())
++            .ok_or_else(Self::size_overflow)?;
++        let outputs = rows
++            .checked_mul(self.get_output_len())
++            .ok_or_else(Self::size_overflow)?;
++        if parameters.len() != inputs {
++            return Err(EvaluationError::InvalidParameterCount {
++                expected: inputs,
++                actual: parameters.len(),
++            });
++        }
++        if out.len() != outputs {
++            return Err(EvaluationError::InvalidOutputCount {
++                expected: outputs,
++                actual: out.len(),
++            });
++        }
++        if rows == 0 {
++            return Ok(());
++        }
++        // Avoid packing overhead and batch allocations for the scalar case.
++        if rows == 1 {
++            return self.evaluator.try_evaluate(parameters, out);
++        }
++        self.reserve(rows)?;
++        let stride = self.capacity;
++        let evaluator = &mut self.evaluator;
++        for parameter in 0..evaluator.param_count {
++            for lane in 0..rows {
++                self.workspace.stack[parameter * stride + lane]
++                    .set_from(&parameters[lane * evaluator.param_count + parameter]);
++            }
++        }
++        for constant in evaluator.param_count..evaluator.reserved_indices {
++            for lane in 0..rows {
++                self.workspace.stack[constant * stride + lane].set_from(&evaluator.stack[constant]);
++            }
++        }
++        Self::evaluate_program(
++            &evaluator.instructions,
++            &mut self.workspace,
++            &mut evaluator.external_fns,
++            &mut self.functions,
++            &self.lanes[..rows],
++            stride,
++        )?;
++        for (column, slot) in evaluator.result_indices.iter().enumerate() {
++            for lane in 0..rows {
++                out[lane * evaluator.result_indices.len() + column]
++                    .set_from(&self.workspace.stack[slot * stride + lane]);
++            }
++        }
++        Ok(())
++    }
++
++    fn evaluate_program(
++        instructions: &[(Instr, ComplexPhase)],
++        workspace: &mut BatchWorkspace<T>,
++        external_fns: &mut [ExternalFunctionContainer<T>],
++        functions: &mut [BatchWorkspace<T>],
++        lanes: &[usize],
++        stride: usize,
++    ) -> Result<(), EvaluationError> {
++        let BatchWorkspace {
++            stack,
++            active,
++            resume,
++        } = workspace;
++        active.clear();
++        active.extend_from_slice(lanes);
++        for lane in lanes {
++            resume[*lane] = 0;
++        }
++        let mut temporary = T::new_zero();
++        for (pc, (instruction, _)) in instructions.iter().enumerate() {
++            match instruction {
++                Instr::Label(_) => {
++                    active.clear();
++                    active.extend(lanes.iter().copied().filter(|lane| resume[*lane] <= pc));
++                }
++                Instr::Goto(label) => {
++                    debug_assert!(label.0 > pc, "Batch programs have forward branches");
++                    for lane in active.iter() {
++                        resume[*lane] = label.0;
++                    }
++                    active.clear();
++                }
++                Instr::IfElse(condition, label) => {
++                    debug_assert!(label.0 > pc, "Batch programs have forward branches");
++                    active.retain(|lane| {
++                        if stack[condition * stride + lane].is_fully_zero() {
++                            resume[*lane] = label.0;
++                            false
++                        } else {
++                            true
++                        }
++                    });
++                }
++                Instr::Add(out, args) | Instr::Mul(out, args) => {
++                    for lane in active.iter().copied() {
++                        temporary.set_from(&stack[args[0] * stride + lane]);
++                        for arg in &args[1..] {
++                            if matches!(instruction, Instr::Add(..)) {
++                                temporary += &stack[arg * stride + lane];
++                            } else {
++                                temporary *= &stack[arg * stride + lane];
++                            }
++                        }
++                        std::mem::swap(&mut stack[out * stride + lane], &mut temporary);
++                    }
++                }
++                Instr::Pow(out, base, exponent) => {
++                    for lane in active.iter().copied() {
++                        let value = &stack[base * stride + lane];
++                        temporary = if *exponent == -1 {
++                            value.inv()
++                        } else if *exponent >= 0 {
++                            value.pow(*exponent as u64)
++                        } else {
++                            value.pow(exponent.unsigned_abs()).inv()
++                        };
++                        std::mem::swap(&mut stack[out * stride + lane], &mut temporary);
++                    }
++                }
++                Instr::Powf(out, base, exponent) => {
++                    for lane in active.iter().copied() {
++                        temporary =
++                            stack[base * stride + lane].powf(&stack[exponent * stride + lane]);
++                        std::mem::swap(&mut stack[out * stride + lane], &mut temporary);
++                    }
++                }
++                Instr::BuiltinFun(out, symbol, arg) => {
++                    for lane in active.iter().copied() {
++                        let value = &stack[arg * stride + lane];
++                        temporary = match symbol.get_id() {
++                            Symbol::EXP_ID => value.exp(),
++                            Symbol::LOG_ID => value.log(),
++                            Symbol::SIN_ID => value.sin(),
++                            Symbol::COS_ID => value.cos(),
++                            Symbol::SQRT_ID => value.sqrt(),
++                            Symbol::ABS_ID => value.norm(),
++                            Symbol::CONJ_ID => value.conj(),
++                            _ => unreachable!("Unsupported built-in evaluator instruction"),
++                        };
++                        std::mem::swap(&mut stack[out * stride + lane], &mut temporary);
++                    }
++                }
++                Instr::Join(out, condition, then_value, else_value) => {
++                    for lane in active.iter().copied() {
++                        let value = if stack[condition * stride + lane].is_fully_zero() {
++                            else_value
++                        } else {
++                            then_value
++                        };
++                        temporary.set_from(&stack[value * stride + lane]);
++                        std::mem::swap(&mut stack[out * stride + lane], &mut temporary);
++                    }
++                }
++                Instr::ExternalFun(out, index, args) => {
++                    if active.is_empty() {
++                        continue;
++                    }
++                    let (callees, current) = external_fns.split_at_mut(*index);
++                    let (callee_workspaces, current_workspace) = functions.split_at_mut(*index);
++                    let external = &mut current[0];
++                    if let Some(body) = &external.body {
++                        let workspace = &mut current_workspace[0];
++                        debug_assert_eq!(args.len(), body.param_count);
++                        for (parameter, arg) in args.iter().enumerate() {
++                            for lane in active.iter().copied() {
++                                workspace.stack[parameter * stride + lane]
++                                    .set_from(&stack[arg * stride + lane]);
++                            }
++                        }
++                        Self::evaluate_program(
++                            &body.instructions,
++                            workspace,
++                            callees,
++                            callee_workspaces,
++                            active,
++                            stride,
++                        )?;
++                        for lane in active.iter().copied() {
++                            stack[out * stride + lane]
++                                .set_from(&workspace.stack[body.result_index * stride + lane]);
++                        }
++                    } else if let Some(function) = &external.imp {
++                        if external.stack.len() < args.len() {
++                            external.stack.resize_with(args.len(), T::new_zero);
++                        }
++                        for lane in active.iter().copied() {
++                            for (value, arg) in external.stack.iter_mut().zip(args) {
++                                value.set_from(&stack[arg * stride + lane]);
++                            }
++                            stack[out * stride + lane] = function(&external.stack[..args.len()]);
++                        }
++                    } else {
++                        return Err(EvaluationError::EvaluationFailed {
++                            expression: external.symbol.call(&external.tags),
++                            reason: format!(
++                                "No function implementation for {}",
++                                std::any::type_name::<T>()
++                            ),
++                        });
++                    }
++                }
++            }
++        }
++        Ok(())
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn batch_polynomial_and_buffer_shapes() {
++        let exact = Atom::evaluator_multiple(
++            &[crate::parse!("x^2+2*x*y+y"), crate::parse!("x-y")],
++            &[crate::parse!("x"), crate::parse!("y")],
++        )
++        .build()
++        .unwrap();
++        let mut scalar = exact.map_coeff(&|c| c.re.to_f64());
++        let mut batch = scalar.clone().into_batch_evaluator();
++        for rows in [0, 1, 8, 3, 33, 2] {
++            let parameters = (0..rows)
++                .flat_map(|i| [i as f64 / 7., (rows - i) as f64 / 3.])
++                .collect::<Vec<_>>();
++            let mut actual = vec![0.; rows * 2];
++            batch
++                .evaluate_batch(&parameters, &mut actual, rows)
++                .unwrap();
++            for (input, result) in parameters.chunks_exact(2).zip(actual.chunks_exact(2)) {
++                let mut expected = [0.; 2];
++                scalar.evaluate(input, &mut expected);
++                assert_eq!(result, expected);
++            }
++        }
++        let mut out = [42.; 4];
++        assert!(matches!(
++            batch.evaluate_batch(&[1.; 3], &mut out, 2),
++            Err(EvaluationError::InvalidParameterCount { .. })
++        ));
++        assert_eq!(out, [42.; 4]);
++        assert!(matches!(
++            batch.evaluate_batch(&[1.; 4], &mut out[..3], 2),
++            Err(EvaluationError::InvalidOutputCount { .. })
++        ));
++        assert_eq!(out, [42.; 4]);
++    }
++
++    #[test]
++    fn batch_constant_outputs_and_oversized_dimensions() {
++        let mut evaluator = crate::parse!("pi")
++            .evaluator::<Atom>(&[])
++            .build()
++            .unwrap()
++            .map_coeff(&|c| c.re.to_f64())
++            .into_batch_evaluator();
++        let mut out = [0.; 5];
++        evaluator.evaluate_batch(&[], &mut out, 5).unwrap();
++        assert_eq!(out, [std::f64::consts::PI; 5]);
++        let mut evaluator = crate::parse!("x+y")
++            .evaluator(&[crate::parse!("x"), crate::parse!("y")])
++            .build()
++            .unwrap()
++            .map_coeff(&|c| c.re.to_f64())
++            .into_batch_evaluator();
++        assert!(evaluator.evaluate_batch(&[], &mut [], usize::MAX).is_err());
++    }
++
++    #[test]
++    fn batch_complex_precision_domains_and_flattened_duals() {
++        let exact = crate::parse!("batch_precision::f(c,x)")
++            .evaluator(&[crate::parse!("c"), crate::parse!("x")])
++            .add_function_with_options(
++                crate::symbol!("batch_precision::f"),
++                vec![crate::symbol!("a"), crate::symbol!("z")],
++                crate::parse!("if(a,log(1+z)+pi,sqrt(1+z))"),
++                FunctionRegistrationOptions::new().inlining(InliningPolicy::Never),
++            )
++            .unwrap()
++            .build()
++            .unwrap()
++            .vectorize(&Dualizer::new(
++                crate::domains::dual::HyperDual::<Complex<Rational>>::new(vec![
++                    vec![0],
++                    vec![1],
++                    vec![2],
++                ]),
++                vec![],
++            ))
++            .unwrap();
++        fn check<T: Real>(mut scalar: ExpressionEvaluator<T>, input: Vec<T>) {
++            let mut batch = scalar.clone().into_batch_evaluator();
++            let mut result = vec![T::new_zero(); 9];
++            batch.evaluate_batch(&input, &mut result, 3).unwrap();
++            for (input, actual) in input.chunks_exact(6).zip(result.chunks_exact(3)) {
++                let mut expected = vec![T::new_zero(); 3];
++                scalar.evaluate(input, &mut expected);
++                assert_eq!(actual, expected);
++            }
++        }
++        let values = [
++            (0, 0),
++            (0, 0),
++            (0, 0),
++            (3, 4),
++            (1, 0),
++            (0, 0),
++            (1, 0),
++            (0, 0),
++            (0, 0),
++            (2, 1),
++            (1, 0),
++            (0, 0),
++            (0, 0),
++            (0, 0),
++            (0, 0),
++            (1, 2),
++            (2, 1),
++            (1, 0),
++        ];
++        let to_f64 = |c: &Complex<Rational>| Complex::new(c.re.to_f64(), c.im.to_f64());
++        let to_double = |c: &Complex<Rational>| {
++            Complex::new(DoubleFloat::from(&c.re), DoubleFloat::from(&c.im))
++        };
++        let to_float = |c: &Complex<Rational>| {
++            Complex::new(c.re.to_multi_prec_float(192), c.im.to_multi_prec_float(192))
++        };
++        let exact_inputs =
++            values.map(|(re, im)| Complex::new(Rational::from(re), Rational::from(im)));
++        check(
++            exact.clone().map_coeff(&to_f64),
++            exact_inputs.iter().map(to_f64).collect(),
++        );
++        check(
++            exact.clone().map_coeff(&to_double),
++            exact_inputs.iter().map(to_double).collect(),
++        );
++        check(
++            exact.map_coeff_with_prec(&to_float, 192),
++            exact_inputs.iter().map(to_float).collect(),
++        );
++    }
++
++    #[test]
++    fn batch_calls_are_instruction_major_and_skip_inactive_lanes() {
++        let calls = Arc::new(Mutex::new(Vec::new()));
++        let f_calls = calls.clone();
++        crate::symbol!(
++            "batch_order::f",
++            eval = EvaluationInfo::new().register(move |args: &[f64]| {
++                assert_ne!(args[0], 0., "inactive lane reached external callback");
++                f_calls.lock().unwrap().push(('f', args[0]));
++                1. / args[0]
++            })
++        );
++        let g_calls = calls.clone();
++        crate::symbol!(
++            "batch_order::g",
++            eval = EvaluationInfo::new().register(move |args: &[f64]| {
++                g_calls.lock().unwrap().push(('g', args[0]));
++                args[0] * args[0]
++            })
++        );
++        let mut evaluator = crate::parse!("batch_order::body(c,x)")
++            .evaluator(&[crate::parse!("c"), crate::parse!("x")])
++            .add_function_with_options(
++                crate::symbol!("batch_order::body"),
++                vec![crate::symbol!("a"), crate::symbol!("z")],
++                crate::parse!("if(a,batch_order::f(z)+batch_order::g(z),z)"),
++                FunctionRegistrationOptions::new().inlining(InliningPolicy::Never),
++            )
++            .unwrap()
++            .build()
++            .unwrap()
++            .map_coeff(&|c| c.re.to_f64())
++            .into_batch_evaluator();
++        let mut out = [0.; 4];
++        evaluator
++            .evaluate_batch(&[1., 1., 0., 0., 1., 2., 1., 3.], &mut out, 4)
++            .unwrap();
++        assert_eq!(out, [2., 0., 4.5, 9. + 1. / 3.]);
++        let calls = calls.lock().unwrap();
++        assert_eq!(calls.len(), 6);
++        for group in calls.chunks_exact(3) {
++            assert!(group.iter().all(|(function, _)| *function == group[0].0));
++            assert_eq!(
++                group.iter().map(|(_, value)| *value).collect::<Vec<_>>(),
++                [1., 2., 3.]
++            );
++        }
++        assert_ne!(calls[0].0, calls[3].0);
++    }
++
++    #[test]
++    fn batch_shared_functions_keep_inactive_branches_lazy() {
++        let exact = crate::parse!("batch_shared::outer(c,x)+batch_shared::outer(c,x+1)")
++            .evaluator(&[crate::parse!("c"), crate::parse!("x"), crate::parse!("q")])
++            .add_function_with_options(
++                crate::symbol!("batch_shared::inner"),
++                vec![crate::symbol!("a"), crate::symbol!("y")],
++                crate::parse!("if(a,1/y,sqrt(y+2))"),
++                FunctionRegistrationOptions::new().inlining(InliningPolicy::Never),
++            )
++            .unwrap()
++            .add_function_with_options(
++                crate::symbol!("batch_shared::outer"),
++                vec![crate::symbol!("b"), crate::symbol!("z")],
++                crate::parse!("if(b,batch_shared::inner(b,z)+q,batch_shared::inner(b,z)*q)"),
++                FunctionRegistrationOptions::new().inlining(InliningPolicy::Never),
++            )
++            .unwrap()
++            .build()
++            .unwrap();
++        let mut scalar = exact.map_coeff(&|c| c.re.to_f64());
++        let mut batch = scalar.clone().into_batch_evaluator();
++        let inputs = [0., 0., 2., 1., -4., 3., 0., 0., 4., 1., 2., 1., 0., -1., 2.];
++        for rows in [5, 2, 3, 5] {
++            let mut actual = vec![0.; rows];
++            batch
++                .evaluate_batch(&inputs[..3 * rows], &mut actual, rows)
++                .unwrap();
++            for (parameters, result) in inputs.chunks_exact(3).zip(actual) {
++                assert_eq!(result, scalar.evaluate_single(parameters));
++                assert!(result.is_finite());
++            }
++        }
++    }
++}
+diff --git a/src/evaluate/dual.rs b/src/evaluate/dual.rs
+index 0b33aa61..b38d90f2 100644
+--- a/src/evaluate/dual.rs
++++ b/src/evaluate/dual.rs
+@@ -1,15 +1,13 @@
+ use super::*;
+ 
+ impl<T: Default + Clone> ExpressionEvaluator<T> {
+-    /// Inline generated scalar instructions without dualizing them again.
+-    fn inline_vector_components(
++    /// Import a generated evaluator's scalar constants and shared function table.
++    fn import_vector_context(
+         &self,
+-        args: &[Slot],
+         ins: &mut InstructionList<T>,
+         external_functions: &mut Vec<ExternalFunctionContainer<T>>,
+-        next_label: &mut usize,
+-    ) -> Vec<Slot> {
+-        let mut slots = args.to_vec();
++    ) -> (Vec<Slot>, Vec<usize>) {
++        let mut slots = Vec::new();
+         let mut constants = Vec::new();
+         for value in &self.stack[self.param_count..self.reserved_indices] {
+             constants.push(ins.constants.len());
+@@ -19,7 +17,6 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+             ins.constants.extend((1..ins.dim).map(|_| T::default()));
+             ins.unknown_constants.push(false);
+         }
+-        slots.resize(self.stack.len(), Slot::Temp(0));
+         let mut functions = Vec::new();
+         for external in &self.external_fns {
+             let mut external = external.clone();
+@@ -27,6 +24,14 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+                 *index = constants[*index];
+                 ins.unknown_constants[*index / ins.dim] = true;
+             }
++            if let Some(body) = external.body.as_mut() {
++                let body = Arc::make_mut(body);
++                for (instruction, _) in &mut body.instructions {
++                    if let Instr::ExternalFun(_, function, _) = instruction {
++                        *function = functions[*function];
++                    }
++                }
++            }
+             let index = external_functions
+                 .iter()
+                 .position(|f| f == &external && f.constant_index == external.constant_index)
+@@ -36,6 +41,21 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+                 });
+             functions.push(index);
+         }
++        (slots, functions)
++    }
++
++    /// Inline generated scalar instructions without dualizing them again.
++    fn inline_vector_components(
++        &self,
++        args: &[Slot],
++        ins: &mut InstructionList<T>,
++        external_functions: &mut Vec<ExternalFunctionContainer<T>>,
++        next_label: &mut usize,
++    ) -> Vec<Slot> {
++        let (constants, functions) = self.import_vector_context(ins, external_functions);
++        let mut slots = args.to_vec();
++        slots.extend(constants);
++        slots.resize(self.stack.len(), Slot::Temp(0));
+         let mut labels = HashMap::default();
+         for (instr, _) in &self.instructions {
+             if let Instr::Label(label) = instr {
+@@ -88,6 +108,63 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+         self.result_indices.iter().map(|i| slots[*i]).collect()
+     }
+ 
++    /// Retain one vector component without executing instructions exclusive to
++    /// other components. Keep control-flow instructions and their conditions so
++    /// singular expressions in inactive branches remain unevaluated.
++    fn retain_vector_component(&mut self, component: usize) {
++        self.result_indices = vec![self.result_indices[component]];
++        self.undo_stack_optimization();
++        let mut needed = vec![false; self.stack.len()];
++        needed[self.result_indices[0]] = true;
++        self.instructions = self
++            .instructions
++            .drain(..)
++            .rev()
++            .filter_map(|entry| {
++                match &entry.0 {
++                    Instr::Add(out, args)
++                    | Instr::Mul(out, args)
++                    | Instr::ExternalFun(out, _, args) => {
++                        if !needed[*out] {
++                            return None;
++                        }
++                        for arg in args {
++                            needed[*arg] = true;
++                        }
++                    }
++                    Instr::Pow(out, arg, _) | Instr::BuiltinFun(out, _, arg) => {
++                        if !needed[*out] {
++                            return None;
++                        }
++                        needed[*arg] = true;
++                    }
++                    Instr::Powf(out, a, b) => {
++                        if !needed[*out] {
++                            return None;
++                        }
++                        needed[*a] = true;
++                        needed[*b] = true;
++                    }
++                    Instr::Join(out, c, a, b) => {
++                        if !needed[*out] {
++                            return None;
++                        }
++                        needed[*c] = true;
++                        needed[*a] = true;
++                        needed[*b] = true;
++                    }
++                    Instr::IfElse(c, _) => needed[*c] = true,
++                    Instr::Goto(_) | Instr::Label(_) => {}
++                }
++                Some(entry)
++            })
++            .collect();
++        self.instructions.reverse();
++        self.undo_stack_optimization();
++        self.optimize_stack();
++        self.fix_labels();
++    }
++
+     /// Redefine every operation to take `n` components in and
+     /// yield `n` components. This can be used to define efficient
+     /// evaluation over dual numbers.
+@@ -99,6 +176,9 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+     /// The input to the functions
+     /// is the flattened vector of all components of all parameters,
+     /// followed by all previously computed output components.
++    /// Shared function bodies are transformed recursively and remain shared.
++    /// Each result component has its own scalar body, with unused instructions
++    /// removed. Components can still repeat common intermediate work.
+     ///
+     /// # Example
+     ///
+@@ -124,16 +204,22 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+     ///
+     /// assert!(dest.iter().all(|x| x.abs() < 1e-10));
+     /// ```
+-    pub fn vectorize<V: Vectorize<T>>(mut self, v: &V) -> Result<ExpressionEvaluator<T>, String> {
++    pub fn vectorize<V: Vectorize<T>>(self, v: &V) -> Result<ExpressionEvaluator<T>, String> {
++        self.vectorize_impl(v, &mut HashMap::default(), false)
++    }
++
++    fn vectorize_impl<V: Vectorize<T>>(
++        mut self,
++        v: &V,
++        bodies: &mut HashMap<usize, ExpressionEvaluator<T>>,
++        function_scope: bool,
++    ) -> Result<ExpressionEvaluator<T>, String> {
+         let mut new_external_fns = vec![];
+         let mut external_fn_index_map = HashMap::default();
+         let mut unknown_constants = vec![false; self.reserved_indices - self.param_count];
+         for external_fn in &self.external_fns {
+             if external_fn.body.is_some() {
+-                return Err(format!(
+-                    "Sub-evaluator '{}' cannot be vectorized",
+-                    external_fn.symbol.get_name()
+-                ));
++                continue;
+             }
+ 
+             if let Some(c_index) = external_fn.constant_index {
+@@ -240,6 +326,7 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+         };
+ 
+         let mut generated_functions = HashMap::default();
++        let mut shared_functions: HashMap<usize, (Vec<usize>, Vec<Slot>)> = HashMap::default();
+         let mut next_label = self
+             .instructions
+             .iter()
+@@ -269,6 +356,102 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+                     (o, VectorInstruction::BuiltinFun(f, get_slot!(slot_map[&a])))
+                 }
+                 Instr::ExternalFun(o, f, a) => {
++                    if let Some(body) = &self.external_fns[f].body {
++                        let (functions, constants) = match shared_functions.entry(f) {
++                            Entry::Occupied(entry) => entry.into_mut(),
++                            Entry::Vacant(entry) => {
++                                let key = Arc::as_ptr(body) as usize;
++                                if !bodies.contains_key(&key) {
++                                    let mut external_fns = self.external_fns[..f].to_vec();
++                                    // The function's existing constants are captured
++                                    // parameters. They are resolved in the root, not
++                                    // in this temporary evaluator's empty constant pool.
++                                    for external in &mut external_fns {
++                                        external.constant_index = None;
++                                    }
++                                    let evaluator = ExpressionEvaluator {
++                                        stack: vec![T::default(); body.stack_size],
++                                        param_count: body.param_count,
++                                        reserved_indices: body.param_count,
++                                        instructions: body.instructions.clone(),
++                                        result_indices: vec![body.result_index],
++                                        external_fns,
++                                        settings: self.settings.clone(),
++                                    }
++                                    .vectorize_impl(v, bodies, true)?;
++                                    bodies.insert(key, evaluator);
++                                }
++                                let generated = &bodies[&key];
++                                let (constants, function_indices) = generated
++                                    .import_vector_context(&mut ins, &mut new_external_fns);
++                                let mut functions = Vec::with_capacity(v.get_dimension());
++                                for component in 0..v.get_dimension() {
++                                    let mut evaluator = generated.clone();
++                                    evaluator.retain_vector_component(component);
++                                    // Exported functions are identified by symbol and
++                                    // tags. Distinguish components and vectorization
++                                    // rules, including different Dual shapes with the
++                                    // same dimension, when exporting or merging.
++                                    let mut signature =
++                                        std::collections::hash_map::DefaultHasher::new();
++                                    format!("{:?}", evaluator.instructions).hash(&mut signature);
++                                    evaluator.reserved_indices.hash(&mut signature);
++                                    evaluator.result_indices.hash(&mut signature);
++                                    evaluator.external_fns.hash(&mut signature);
++                                    let signature = signature.finish();
++                                    let mut tags = self.external_fns[f].tags.clone();
++                                    tags.push(signature.into());
++                                    tags.push(component.into());
++                                    for (instruction, _) in &mut evaluator.instructions {
++                                        if let Instr::ExternalFun(_, function, _) = instruction {
++                                            *function = function_indices[*function];
++                                        }
++                                    }
++                                    let mut external = ExternalFunctionContainer::with_body(
++                                        self.external_fns[f].symbol,
++                                        tags,
++                                        Arc::new(FunctionBody {
++                                            instructions: evaluator.instructions,
++                                            // Newly generated constants are explicit
++                                            // scalar captures after the flattened inputs.
++                                            param_count: evaluator.reserved_indices,
++                                            result_index: evaluator.result_indices[0],
++                                            stack_size: evaluator.stack.len(),
++                                        }),
++                                    );
++                                    external.export_name = format!(
++                                        "{}__symbolica_vector_{:x}_{}",
++                                        self.external_fns[f].export_name, signature, component,
++                                    );
++                                    let index = new_external_fns
++                                        .iter()
++                                        .position(|f| f == &external)
++                                        .unwrap_or_else(|| {
++                                            new_external_fns.push(external);
++                                            new_external_fns.len() - 1
++                                        });
++                                    functions.push(index);
++                                }
++                                entry.insert((functions, constants))
++                            }
++                        };
++                        let args = a
++                            .iter()
++                            .flat_map(|x| {
++                                let slot = get_slot!(slot_map[x]);
++                                (0..v.get_dimension()).map(move |k| slot.index(k))
++                            })
++                            .chain(constants.iter().copied())
++                            .collect::<Vec<_>>();
++                        for function in functions {
++                            ins.add(VectorInstruction::ExternalFun(*function, args.clone()));
++                        }
++                        slot_map.insert(
++                            o,
++                            ins.instructions.len() + self.reserved_indices - v.get_dimension(),
++                        );
++                        continue;
++                    }
+                     if !external_fn_index_map.contains_key(&(self.external_fns[f].clone(), 0)) {
+                         let external = &self.external_fns[f];
+                         let generated = match generated_functions.entry((f, a.len())) {
+@@ -366,7 +549,11 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+                 ),
+             };
+ 
+-            let r = v.map_instruction(&instr, &mut ins);
++            let r = if function_scope {
++                v.map_instruction_in_function(&instr, &mut ins)
++            } else {
++                v.map_instruction(&instr, &mut ins)
++            };
+             assert_eq!(r.len(), v.get_dimension());
+             for ii in r {
+                 ins.add(ii);
+@@ -498,6 +685,17 @@ pub trait Vectorize<T> {
+         instr_addr: &mut InstructionList<T>,
+     ) -> Vec<VectorInstruction>;
+ 
++    /// Map an instruction in a shared function body. Parameter indices here
++    /// refer to that function's arguments and captures, not the root inputs.
++    /// Override this when root-parameter assumptions affect instruction mapping.
++    fn map_instruction_in_function(
++        &self,
++        instr: &VectorInstruction,
++        instr_addr: &mut InstructionList<T>,
++    ) -> Vec<VectorInstruction> {
++        self.map_instruction(instr, instr_addr)
++    }
++
+     /// Get the dimension of the vectorization.
+     fn get_dimension(&self) -> usize;
+ 
+@@ -519,7 +717,7 @@ pub trait Vectorize<T> {
+ /// You can specify which components of the dual numbers are always zero
+ /// by providing a list of `(component index, dual index)` pairs in the constructor.
+ pub struct Dualizer<T: DualNumberStructure> {
+-    dual: T,
++    dual: Arc<T>,
+     zero_components: HashSet<(usize, usize)>, // component, index
+ }
+ 
+@@ -529,7 +727,7 @@ impl<T: DualNumberStructure> Dualizer<T> {
+     /// by providing a list of `(component index, dual index)` pairs.
+     pub fn new(dual: T, zero_components_per_parameter: Vec<(usize, usize)>) -> Self {
+         Self {
+-            dual,
++            dual: Arc::new(dual),
+             zero_components: zero_components_per_parameter.into_iter().collect(),
+         }
+     }
+@@ -540,6 +738,18 @@ impl<T: DualNumberStructure> Vectorize<Complex<Rational>> for Dualizer<T> {
+         false
+     }
+ 
++    fn map_instruction_in_function(
++        &self,
++        instr: &VectorInstruction,
++        instr_addr: &mut InstructionList<Complex<Rational>>,
++    ) -> Vec<VectorInstruction> {
++        Self {
++            dual: self.dual.clone(),
++            zero_components: HashSet::default(),
++        }
++        .map_instruction(instr, instr_addr)
++    }
++
+     fn vectorize_function(
+         &self,
+         symbol: Symbol,
+@@ -937,13 +1147,45 @@ impl<T: DualNumberStructure> Vectorize<Complex<Rational>> for Dualizer<T> {
+                     e.iter().map(|x| VectorInstruction::Assign(*x)).collect()
+                 }
+                 Symbol::ABS_ID => {
+-                    let n = instrs.add(VectorInstruction::BuiltinFun(Symbol::ABS, *a));
+-
+-                    let inv_val = instrs.add(VectorInstruction::Pow(*a, -1));
+-                    let scale = instrs.add(VectorInstruction::Mul(n, inv_val));
+-
+-                    (0..self.dual.get_len())
+-                        .map(|j| scalar_yield_mul(&a.index(j), &scale, self, instrs))
++                    // Differentiation parameters are real, but their coefficients can
++                    // be complex. Reuse the dual product and square root for
++                    // |z| = sqrt(z * conj(z)), including higher/mixed components.
++                    // Normalize first, preserving the stable scalar norm instead
++                    // of squaring a potentially very large or small primal value.
++                    let norm = instrs.add(VectorInstruction::BuiltinFun(Symbol::ABS, *a));
++                    let inverse = instrs.add(VectorInstruction::Pow(norm, -1));
++                    let input = (0..self.dual.get_len())
++                        .map(|j| scalar_mul(&a.index(j), &inverse, self, instrs))
++                        .collect::<Vec<_>>();
++                    let conjugate = input
++                        .iter()
++                        .map(|slot| instrs.add(VectorInstruction::BuiltinFun(Symbol::CONJ, *slot)))
++                        .collect::<Vec<_>>();
++                    let mut norm_squared = mul(&input, &conjugate, mult_table, self, instrs);
++                    norm_squared[0] =
++                        instrs.add_constant_in_first_component(Complex::from(Rational::one()));
++                    let adjacent = norm_squared
++                        .into_iter()
++                        .map(|slot| instrs.add(VectorInstruction::Assign(slot)))
++                        .collect::<Vec<_>>();
++                    let result = self
++                        .map_instruction(
++                            &VectorInstruction::BuiltinFun(Symbol::SQRT, adjacent[0]),
++                            instrs,
++                        )
++                        .into_iter()
++                        .map(|instruction| instrs.add(instruction))
++                        .collect::<Vec<_>>();
++                    result
++                        .iter()
++                        .enumerate()
++                        .map(|(j, slot)| {
++                            if j == 0 {
++                                VectorInstruction::Assign(norm)
++                            } else {
++                                scalar_yield_mul(slot, &norm, self, instrs)
++                            }
++                        })
+                         .collect()
+                 }
+                 Symbol::CONJ_ID => {
+@@ -1040,7 +1282,7 @@ mod test {
+ 
+     use crate::{
+         atom::{Atom, AtomCore, EvaluationInfo},
+-        evaluate::Dualizer,
++        evaluate::{Dualizer, FunctionMap, FunctionRegistrationOptions, InliningPolicy},
+         function, parse, symbol,
+     };
+ 
+@@ -1271,6 +1513,210 @@ mod test {
+         }
+     }
+ 
++    #[test]
++    fn shared_functions_preserve_captures_branches_and_higher_derivatives() {
++        let build = |inlining| {
++            let mut functions = FunctionMap::new();
++            for (name, arg, expression) in [
++                ("dual_shared::inner", "z", "if(c, sqrt(z+2)+pi, z^2)"),
++                ("dual_shared::outer", "y", "dual_shared::inner(y)+q*y"),
++            ] {
++                functions
++                    .add_function_with_options(
++                        symbol!(name),
++                        vec![symbol!(arg)],
++                        parse!(expression),
++                        FunctionRegistrationOptions::new().inlining(inlining),
++                    )
++                    .unwrap();
++            }
++            parse!("dual_shared::outer(x)+dual_shared::outer(x+1)")
++                .evaluator(&[parse!("x"), parse!("q"), parse!("c")])
++                .function_map(functions)
++                .build()
++                .unwrap()
++                .vectorize(&Dualizer::new(
++                    HyperDual::<Complex<Rational>>::new(vec![
++                        vec![0, 0],
++                        vec![1, 0],
++                        vec![0, 1],
++                        vec![2, 0],
++                        vec![1, 1],
++                    ]),
++                    vec![],
++                ))
++                .unwrap()
++        };
++        let exact = build(InliningPolicy::Never);
++        // Each function is shared across both call sites; generated component
++        // bodies retain calls to the inner function instead of expanding it.
++        assert_eq!(
++            exact
++                .external_fns
++                .iter()
++                .filter(|f| f.body.is_some())
++                .count(),
++            10
++        );
++        assert!(
++            exact
++                .external_fns
++                .iter()
++                .filter_map(|f| f.body.as_ref())
++                .any(|body| {
++                    body.instructions
++                        .iter()
++                        .any(|(instr, _)| matches!(instr, super::Instr::ExternalFun(..)))
++                })
++        );
++        let mut shared = exact.map_coeff(&|r| r.re.to_f64());
++        let mut inline = build(InliningPolicy::Always).map_coeff(&|r| r.re.to_f64());
++        // At x=-2 the square root has singular derivatives, but this branch is
++        // inactive. Repeated calls also exercise reuse of body-local stacks.
++        for (x, c) in [(0.3, 1.), (-2., 0.), (1.2, 1.)] {
++            let inputs = [x, 1., 0., 0., 0., 2., 0., 1., 0., 0., c, 0., 0., 0., 0.];
++            let mut a = [0.; 5];
++            let mut b = [0.; 5];
++            shared.evaluate(&inputs, &mut a);
++            inline.evaluate(&inputs, &mut b);
++            for (a, b) in a.into_iter().zip(b) {
++                assert!((a - b).abs() < 1e-10, "shared {a} != inline {b}");
++            }
++        }
++    }
++
++    #[test]
++    fn shared_function_parameters_do_not_inherit_root_zero_assumptions() {
++        let mut evaluator = parse!("x+dual_shared_zero::square(y)")
++            .evaluator(&[parse!("x"), parse!("y")])
++            .add_function_with_options(
++                symbol!("dual_shared_zero::square"),
++                vec![symbol!("z")],
++                parse!("z^2"),
++                FunctionRegistrationOptions::new().inlining(InliningPolicy::Never),
++            )
++            .unwrap()
++            .build()
++            .unwrap()
++            .vectorize(&Dualizer::new(
++                HyperDual::<Complex<Rational>>::new(vec![vec![0], vec![1]]),
++                vec![(0, 1)],
++            ))
++            .unwrap()
++            .map_coeff(&|r| r.re.to_f64());
++        let mut out = [0.; 2];
++        evaluator.evaluate(&[1., 0., 3., 1.], &mut out);
++        assert_eq!(out, [10., 6.]);
++    }
++
++    #[test]
++    fn shared_vectorized_functions_export_merge_and_serialize() {
++        let build = |shape| {
++            parse!("dual_shared_merge::f(x,y)")
++                .evaluator(&[parse!("x"), parse!("y")])
++                .add_function_with_options(
++                    symbol!("dual_shared_merge::f"),
++                    vec![symbol!("u"), symbol!("v")],
++                    parse!("u^2+u*v"),
++                    FunctionRegistrationOptions::new().inlining(InliningPolicy::Never),
++                )
++                .unwrap()
++                .build()
++                .unwrap()
++                .vectorize(&Dualizer::new(
++                    HyperDual::<Complex<Rational>>::new(shape),
++                    vec![],
++                ))
++                .unwrap()
++        };
++        let mut evaluator = build(vec![vec![0], vec![1], vec![2]]);
++        evaluator
++            .merge(build(vec![vec![0, 0], vec![1, 0], vec![0, 1]]), Some(1))
++            .unwrap();
++        let exported = evaluator.export_instructions();
++        let identities = exported
++            .sub_evaluators
++            .iter()
++            .map(|body| (body.symbol, body.tags.clone()))
++            .collect::<super::HashSet<_>>();
++        assert_eq!(identities.len(), exported.sub_evaluators.len());
++        let mut evaluator = evaluator.map_coeff(&|r| r.re.to_f64());
++        #[cfg(feature = "bincode")]
++        {
++            let encoded = bincode::encode_to_vec(&evaluator, bincode::config::standard()).unwrap();
++            evaluator = bincode::decode_from_slice(&encoded, bincode::config::standard())
++                .unwrap()
++                .0;
++        }
++        let mut out = [0.; 6];
++        evaluator.evaluate(&[3., 1., 0., 4., 0., 1.], &mut out);
++        assert_eq!(out, [21., 10., 4., 21., 10., 3.]);
++    }
++
++    #[test]
++    fn complex_absolute_value_real_parameter_derivatives() {
++        let mut evaluator = dualize(
++            "abs(z)",
++            &[parse!("z")],
++            vec![vec![0, 0], vec![1, 0], vec![0, 1], vec![2, 0], vec![1, 1]],
++        )
++        .map_coeff(&|r| Complex::new(r.re.to_f64(), r.im.to_f64()));
++        let mut out = [Complex::new(0., 0.); 5];
++        // z(s,t) = 3 + 4i + s + it. Components are Taylor coefficients.
++        evaluator.evaluate(
++            &[
++                Complex::new(3., 4.),
++                Complex::new(1., 0.),
++                Complex::new(0., 1.),
++                Complex::new(0., 0.),
++                Complex::new(0., 0.),
++            ],
++            &mut out,
++        );
++        for (actual, expected) in
++            out.into_iter()
++                .zip([5., 3. / 5., 4. / 5., 8. / 125., -12. / 125.])
++        {
++            assert!(
++                (actual.re - expected).abs() < 1e-12,
++                "{actual:?} != {expected}"
++            );
++            assert!(
++                actual.im.abs() < 1e-12,
++                "non-real modulus component: {actual:?}"
++            );
++        }
++    }
++
++    #[test]
++    fn absolute_value_preserves_extreme_primal_scales() {
++        let mut evaluator =
++            dualize("abs(x)", &[parse!("x")], vec![vec![0], vec![1]]).map_coeff(&|c| c.re.to_f64());
++        for x in [1e200, -1e200, 1e-200, -1e-200] {
++            let mut out = [0.; 2];
++            evaluator.evaluate(&[x, 1.], &mut out);
++            assert_eq!(out[0], x.abs());
++            assert!((out[1] - x.signum()).abs() < 1e-12, "{x}: {out:?}");
++        }
++    }
++
++    #[test]
++    fn absolute_value_preserves_real_higher_input_components() {
++        let mut evaluator = dualize(
++            "abs(x)",
++            &[parse!("x")],
++            vec![vec![0], vec![1], vec![2], vec![3]],
++        )
++        .map_coeff(&|r| r.re.to_f64());
++        for sign in [-1., 1.] {
++            let mut out = [0.; 4];
++            evaluator.evaluate(&[sign * 3., 2., 4., 6.], &mut out);
++            for (actual, expected) in out.into_iter().zip([3., sign * 2., sign * 4., sign * 6.]) {
++                assert!((actual - expected).abs() < 1e-12, "{actual} != {expected}");
++            }
++        }
++    }
++
+     #[test]
+     fn unknown_constant() {
+         let expr = parse!("2*pi*x^2");
+diff --git a/src/lib.rs b/src/lib.rs
+index 96426e53..33a8b487 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -128,9 +128,9 @@ pub mod prelude {
+         JITCompilationSettings,
+     };
+     pub use crate::evaluate::{
+-        Dualizer, EvaluationDomain, EvaluationFn, EvaluatorBuilder, ExportedInstructions,
+-        ExportedSubEvaluator, ExpressionEvaluator, ExternalFunction, FunctionMap, Instruction,
+-        OperationCount, OptimizationSettings, Vectorize,
++        BatchExpressionEvaluator, Dualizer, EvaluationDomain, EvaluationFn, EvaluatorBuilder,
++        ExportedInstructions, ExportedSubEvaluator, ExpressionEvaluator, ExternalFunction,
++        FunctionMap, Instruction, OperationCount, OptimizationSettings, Vectorize,
+     };
+ 
+     pub use crate::id::{

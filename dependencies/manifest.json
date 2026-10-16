@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "dependencies": [
+    {
+      "name": "symbolica",
+      "path": "references/symbolica",
+      "url": "https://github.com/symbolica-dev/symbolica.git",
+      "revision": "c78cffc20f318df1fce50539a587cbe8ffc717c0",
+      "patches": [
+        {
+          "path": "dependencies/patches/symbolica-batch-dual.patch",
+          "sha256": "5210c42f58208524d3f5892959616055255b1bc127a54a21074cdb26256ec743"
+        }
+      ],
+      "patched_revisions": [
+        "62e546cb5e34cdaf503fa257e8f0a0d81dde84ce"
+      ]
+    },
+    {
+      "name": "feynkit",
+      "path": "references/gammaloop_ninja_shared",
+      "url": "https://github.com/alphal00p/gammaloop.git",
+      "revision": "d3b91d31461e50d91dce4702d68c45294faca350",
+      "patches": [
+        {
+          "path": "dependencies/patches/feynkit-shared-types.patch",
+          "sha256": "aef50a0cc83738b5eda035ebe11a639826266878a47916e991eb211e0348369f"
+        }
+      ],
+      "patched_revisions": [
+        "1cdae7cad7ad6384b789a68ca969020256191558"
+      ]
+    },
+    {
+      "name": "oneloopmaster",
+      "path": "references/oneloopmaster",
+      "url": "https://github.com/alphal00p/oneloopmaster.git",
+      "revision": "45cf79e6c8d1e052f655ca4e26ff299b661986a6"
+    },
+    {
+      "name": "ninja-reference",
+      "path": "references/ninja",
+      "url": "https://github.com/peraro/ninja.git",
+      "revision": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0"
+    }
+  ]
+}

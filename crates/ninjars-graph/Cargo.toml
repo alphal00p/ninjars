@@ -1,0 +1,16 @@
+[package]
+name = "ninjars-graph"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Independent FeynKit graph and numerator preparation for one-loop reduction"
+
+[dependencies]
+feynkit-generator.workspace = true
+feynkit-graph.workspace = true
+feynkit-kinematics.workspace = true
+feynkit-model.workspace = true
+idenso.workspace = true
+spenso.workspace = true
+symbolica.workspace = true
+thiserror.workspace = true

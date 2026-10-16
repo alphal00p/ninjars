@@ -1,0 +1,207 @@
+# NinjaRS using shared FeynKit and Symbolica types
+
+## 1. Goal and startup
+
+**Goal:** Implement a Rust library and CLI providing Ninja-compatible one-loop reduction, with batching throughout phase-space evaluation, cut sampling, numerator callbacks, reduction, and master integrals. Reuse FeynKit’s physics types and Symbolica’s algebra. Support f64, DoubleFloat, arbitrary precision, and Symbolica Dual types with higher and mixed derivatives. Validate against original Ninja and MadLoop, meeting the agreed correctness and performance gates.
+
+At implementation start:
+
+1. Write this complete plan to `/shared/external/ninja/references/PLAN.md`.
+2. Register the goal above using `create_goal`, without a token budget.
+3. Record dependency revisions, upstream patches/PRs, validation evidence, and outstanding work in the plan.
+4. Establish a reproducible Rust ≥1.96 development environment and build the reference tools.
+
+Use the [official Ninja code](https://github.com/peraro/ninja), [Laurent-reduction paper](https://arxiv.org/abs/1203.0291), [Ninja paper](https://arxiv.org/abs/1403.1229), and [tensor-interface paper](https://arxiv.org/abs/1604.01363) as references.
+
+Production implementation and numerator preparation remain Rust. Symbolica’s native numerical dependencies are allowed; reference C++/Fortran/Python programs remain validation tools.
+
+## 2. Shared types and package boundaries
+
+The inspected FeynKit types will become the canonical representations used by Ninja:
+
+| Concept | Representation to reuse |
+|---|---|
+| Numerical momenta | `feynkit_kinematics::{FourMomentum<T>, ThreeMomentum<T>, Energy<T>}` |
+| Momentum routing | `Signature`, `MomentumSignature`, and FeynKit’s `LoopMomentumBasis` |
+| Symbolic scalar products and assumptions | `feynkit_kinematics::Kinematics` |
+| Ordered symbolic denominators | `feynkit_graph::IntegralFamily` |
+| Quadratic denominator decomposition | `IntegralFamily::quadratic_denominator` and `QuadraticMomentum` |
+| Verified routing transformations | `IntegralMapping`, `PropagatorMapping` |
+| Symbolic numerators | Symbolica `Atom` and `MultivariatePolynomial`, as used by FeynKit |
+| Tensor numerators | Idenso `SymbolicTensor` and Spenso `ParamTensor`/`DataTensor` |
+| Tensor evaluation | Spenso `EvalTensor` and Symbolica evaluators |
+| Models and physical states | FeynKit model, parameter-binding, projector, and wavefunction APIs |
+
+Use these types directly or re-export them. Do not introduce Ninja-owned momentum, symbolic denominator, polynomial, or tensor representations.
+
+FeynKit’s `FourMomentum<T>` already has the correct component order and (+---) metric. Its basic arithmetic supports complex and Dual carriers through ordinary arithmetic bounds. Keep real-only `KinematicScalar` bounds out of complex cut kernels.
+
+Use existing momentum types for both batch layouts:
+
+- Public sample input: `&[FourMomentum<T>]`.
+- Internal component-contiguous storage: `FourMomentum<Vec<T>>`.
+- Borrowed component views: `FourMomentum<&[T]>`.
+
+Validate component lengths at the batch boundary. Avoid a new batch physics type unless an actual missing operation requires one.
+
+Maintain four packages:
+
+- **`ninja`:** reduction interfaces, topology plans, workspaces, kernels, master-provider interface, and results; uses shared FeynKit types.
+- **`ninja-symbolica`:** thin polynomial/tensor adapters implementing Ninja’s reduction callbacks over existing representations.
+- **`ninja-graph`:** independent DOT/model/routing/numerator preparation, composed from FeynKit APIs.
+- **`ninja-cli`:** orchestration, reference adapters, comparisons, and benchmarks.
+
+Ninja’s `Numerator` remains a reduction-specific callback contract. Its implementation consumes shared numerator data. Graph loading, Feynman rules, and physical numerator preparation stay outside the reduction engine.
+
+## 3. Reduction, algebra, and upstream extensions
+
+Preserve Ninja’s semantic API: amplitude accumulation/reset, tensor and callback numerator interfaces, S-matrix and scale controls, cut stopping, rational separation, reconstruction diagnostics, and per-lane stability status.
+
+Support:
+
+- Ranks R ≤ n+1, massless/real/complex squared masses, and explicit μ² numerators.
+- Batched `evaluate`, `muExpansion`, `t3Expansion`, and `t2Expansion`, retaining cut partitions and expansion depths.
+- Results ordered `[finite, single pole, double pole]`.
+- Denominators (q+V_i)²−m_i²−μ², with μ² carrying rank weight two.
+- Explicit rejection of unsupported ranks, raised/repeated loop propagators, and nonquadratic loop denominators.
+- Unchanged accumulated results for lanes whose evaluation fails as unstable.
+
+Cache topology-only partitions, complements, containment relationships, and coefficient layouts. Keep numerical bases, branch choices, and stability checks lane-local. Identify callback requests by phase-space lane, cut, expansion, and sample; compact active lanes and restore their order.
+
+Arithmetic must process batches throughout the pipeline. Arbitrary precision uses batched scalar operations; SIMD is an independently validated specialization. Use reusable workspaces and a warmed batch-size-one path without packing allocations.
+
+**Algebra policy:** before adding any algebraic operation, document checks of Symbolica’s public API, its implementation/tests/examples, and FeynKit/gammaloop usages. Use their polynomial, series, contraction, differentiation, and evaluator facilities. Generate Rust arithmetic mechanically from Symbolica instruction graphs using the existing oneloopmaster approach.
+
+**Focused FeynKit/gammaloop PRs:**
+
+- Expose the existing ordered propagator extraction as `(EdgeId, Atom)` entries, and make `propagator_family` delegate to it. This preserves provenance without duplicating denominator-selection rules.
+- Expose Spenso’s existing `EvalTensor::evaluate_components` functionality through a supported buffer API; extend it for batched output where necessary, preserving sparse-index reconstruction.
+- Add precision-preserving model parameter/evaluation bindings. Current `ComplexValue`, parameter cards, and evaluator values use f64; high-precision and Dual inputs must not pass through them.
+- Relax momentum `zero` constructors to the numerical traits they actually require, so complex and Dual values retain precision and derivative shape.
+
+Keep changes in their existing owning crates. Any further shared capability belongs upstream rather than in a parallel Ninja abstraction. Follow FeynKit’s feature-workspace workflow, open focused PRs, attach them to this chat, and pin the port to the tested changes while review proceeds.
+
+**Symbolica and oneloopmaster:**
+
+- Unify Symbolica, Numerica, and Graphica on compatible pinned revisions.
+- Reuse existing oneloopmaster scalar and tensor masters, including `b1`, `b11`, `b111`, and `an`.
+- Extend master execution to carry batches through arithmetic and helper calls, preserving lazy branches.
+- Support Dual transformations through shared evaluator bodies recursively.
+- Audit complex derivative primitives, continuation helpers, and higher/mixed components.
+- Generate neighborhood expansions before specializing removable limits such as equal masses and zero invariants. Report genuinely nonanalytic derivative points explicitly.
+- Make necessary Symbolica patches minimal, independently tested, and submitted as upstream PRs.
+
+Construct constants directly at working precision. Check all Dual components for validation and cache identity: Symbolica Dual equality compares primal values and is insufficient for these purposes.
+
+## 4. CLI preparation and reference validation
+
+Provide `prepare`, `reduce`, `compare`, and `bench`, accepting DOT graphs, models, parameter bindings, phase-space samples, precision, batch size, and diagnostics. Produce readable summaries and reproducible machine-readable results.
+
+Preparation will:
+
+- Import synthetic numerators from DOT `num` attributes.
+- Apply FeynKit’s Feynman rules, projectors, wavefunctions, routing, and Symbolica/spenso/idenso contraction for physical graphs.
+- Use `propagator_family`, which preserves physical propagators. Do not append the auxiliary denominators introduced by `integral_family`.
+- Use `QuadraticMomentum` and `Kinematics::linear_terms` for exact decomposition.
+- Preserve denominator normalization factors. Move loop-independent internal propagators into the overall prefactor using Symbolica.
+- Apply graph weights, numerator prefactors, and projectors exactly once.
+- Pass shared numerator and propagator data to both Rust Ninja and the reference adapters.
+
+Validation progression:
+
+1. Explicit bubble and triangle polynomials.
+2. Tadpole, box, pentagon, and six-propagator cases, including R=n+1, complex masses, and explicit μ²/μ⁴.
+3. Top-quark H→gg triangle graphs.
+4. Top-quark γγ→γγ box graphs.
+5. Top-quark gg→HH triangle/box graphs.
+6. Top-quark gg→HHH pentagon graphs.
+
+Compare synthetic inputs with original Ninja using identical prepared polynomials and propagators. Check callbacks/coefficient extraction separately from complete original Ninja–OneLOop evaluation.
+
+For physical graphs, compare independently prepared FeynKit and MadLoop numerators before integrated results. Match graph identity, orientation, helicity, color projection, routing, parameters, scale, and normalization. Disable grouping and hidden backend switching; extract graph contributions before squaring or Born interference.
+
+The physical convention remains **four-dimensional numerators with R1 retained, excluding explicit R2 and UV counterterms**. Start with zero widths; cover complex masses in synthetic tests.
+
+## 5. Milestones and acceptance
+
+Implement in validated stages:
+
+1. Shared-type integration, upstream extensions, dependency unification, reference harness, and generic/batched/Dual master probes.
+2. Bubble/triangle CLI preparation and reduction parity.
+3. Full Ninja coverage through R=n+1.
+4. Complete batching and derivative support.
+5. Physical validation through pentagons.
+6. Performance optimization, independent audits, documentation, and final acceptance.
+
+Delegate parallel audits of shared APIs, numerical correctness, reference matching, and performance.
+
+**Correctness gates**
+
+- Validate every Laurent coefficient, rational decomposition where available, and supported reconstruction checks.
+- Explicitly document original Ninja’s incomplete higher-rank global reconstruction coverage; independently validate higher-rank callbacks and integrated results.
+- Test empty/single/tail batches, permutations, mixed branches, failed-lane isolation, and scalar/batch equivalence.
+- Cover scaleless integrals, equal masses, zero invariants, thresholds, near-Gram degeneracy, complex masses, accumulation/reset, and both μ² extraction modes.
+- Verify first, higher, and mixed derivatives using symbolic differentiation, analytic controls, and converged high-precision differences.
+- Add upstream regressions for complex/Dual momentum arithmetic, exact parameter bindings, propagator order/provenance, and evaluator buffer behavior.
+- Fix precision-dependent tolerances before optimization: ordinary f64 comparisons use a scaled 10^-9 relative criterion; higher precisions must demonstrate additional accuracy. Diagnose exceptional points separately.
+- Run relevant tests, formatting, Clippy, and dependency regression suites.
+
+**Performance gates**
+
+- Compare optimized builds on the same host and thread count, without fast-math, using matching accuracy and cache policies.
+- Require f64 batch-size-one latency within 5% of original Ninja and equal-or-better batched throughput on the fixed suite.
+- Measure preparation, callbacks, reduction, masters, and complete evaluation separately; exclude setup and IPC from steady-state comparisons.
+- Include batch sizes 1, 8, 32, 128, and 1024, incomplete tails, changing phase-space points, and repeated-point workloads.
+- Report per-case timing uncertainty and precision-rescue rates.
+- Compare reduction with a shared master provider and complete evaluation with production backends.
+- Benchmark DoubleFloat, arbitrary precision, and Dual separately, recording accuracy and derivative order.
+
+Completion requires reproducible correctness/performance evidence, usable library and CLI examples, recorded Symbolica and FeynKit/gammaloop PRs, and an updated plan with all remaining limitations stated.
+
+## Implementation record
+
+Started 2026-10-16. Goal registered and active. This document contains the accepted plan; completed milestones below require recorded evidence.
+
+User naming update: the product is **NinjaRS**, the library and CLI are `ninjars`, and supporting crates are `ninjars-symbolica`, `ninjars-graph`, and `ninjars-cli`. This supersedes the package spellings in the originally accepted plan above.
+
+Toolchain established with pinned `flake.nix`/`flake.lock`; `nix develop path:. --command cargo --version` reports Cargo 1.98.1. FeynKit changes live in the task-owned `references/gammaloop_ninja_shared` worktree. Exact `Model::scalar_bindings` overrides already preserve symbolic parameter values; reuse and regression-test them instead of introducing another parameter schema.
+
+### Reference revisions
+
+| Reference | Initial revision |
+|---|---|
+| Ninja | `05fb0d3a0f47f216eceef411a09ac19e1b9a19f0` |
+| Symbolica | `c78cffc20f318df1fce50539a587cbe8ffc717c0` |
+| oneloopmaster | `45cf79e6c8d1e052f655ca4e26ff299b661986a6` |
+| FeynKit/gammaloop | `d3b91d31461e50d91dce4702d68c45294faca350` |
+| MadGraph | supplied `MG5_aMC_v3_7_0` tree |
+
+### Progress
+
+- [x] Save accepted plan and register active goal.
+- [x] Establish pinned Rust toolchain and core dependency build (full workspace validation follows).
+- [ ] Shared FeynKit API changes and upstream PRs.
+- [ ] Symbolica changes and upstream PRs.
+- [ ] Generic batched reduction and numerator callbacks.
+- [ ] Graph preparation and reference CLI.
+- [ ] Numerical, derivative, physics, and performance acceptance gates.
+
+### Algebra reuse audit
+
+Before implementing symbolic operations: use Symbolica `AtomCore` polynomial conversion and substitution, `MultivariatePolynomial` division/coefficient access, `Series` expansion, evaluator Horner/CSE and `Dualizer`; verify implementations/tests under Symbolica `src/poly` and `src/evaluate`; reuse FeynKit `Kinematics::linear_terms`, `IntegralFamily::quadratic_denominator`, Symbolica-utils polynomial emission, and Spenso/Idenso tensor contraction. No replacement algebra engine is authorized.
+
+### Initial publication milestone — 2026-10-16
+
+User authorized pushing to `git@github.com:alphal00p/ninjars.git` and committing/pushing subsequent validated milestones. Commit author: `ValentinHirschi <valentin.hirschi@gmail.com>`. The root remote is configured. GitHub CLI authentication is available; pushes use its HTTPS credential helper because no SSH identity is loaded in this session.
+
+- `cargo check -p ninjars` passes with Rust/Cargo 1.98.1. Core topology partitions and explicitly batched numerator callback contracts use shared FeynKit momenta.
+- The core six-propagator partition test, five DOT-preparation tests, and five CLI tests pass, checking cut containment, physical propagator order, single prefactor application, exact component routing, bridge factors, JSON framing, sub-f64 parameter values, and invalid input rejection. `ninjars prepare` runs on both bubble and triangle fixtures.
+- FeynKit patch commit `1cdae7cad7ad6384b789a68ca969020256191558`: 14 focused tests pass serially (complex/static/dynamic Dual momenta, graph integral provenance, exact bindings, and sparse tensor batch output). Original reference checkout remains unchanged.
+- Symbolica patch commit `336db77cbdd30802603427e649902ae053c95530`: 12 focused Dual tests pass serially, including complex absolute-value derivatives, nested shared bodies, higher/mixed components, lazy branches, evaluator merging and serialization.
+- Symbolica batch evaluator commit `2d1255653f6a83580ce5a9f9449e3838f6053f11`: five focused batch tests pass, covering shape/overflow checks, empty/single/tail batches, changing batch sizes, nested lazy helpers, instruction-major callback order and complex f64/DoubleFloat/192-bit evaluations with second derivatives.
+- Original Ninja plus bundled OneLOop 3.4 builds successfully. Three reference-protocol regression tests pass. Constant massive bubble and spacelike triangle smoke results are recorded by the harness; these are reference checks, not Rust reduction parity.
+- `dependencies/manifest.json`, checked-in upstream patches and `tools/bootstrap.py` make the source dependencies recoverable independently of the supplied checkouts.
+- FeynKit changes submitted as draft [gammaloop PR #142](https://github.com/alphal00p/gammaloop/pull/142) and attached to this chat. Focused Clippy passed with existing dependency/macro warnings.
+- Symbolica changes submitted as [Symbolica PR #82](https://github.com/symbolica-dev/symbolica/pull/82) and attached to this chat. Follow-up `62e546cb` corrects direct static/dynamic Dual complex norms and normalizes modulus composition for extreme finite values. All 13 evaluator Dual, 7 Numerica Dual and 5 batch tests pass. Clippy passes after allowing an existing `never_loop` violation in `src/poly/factor.rs:11853`; baseline warnings remain.
+- Bootstrap succeeds against the pinned dependencies. Applying each checked-in patch to its original base in an isolated Git index reproduces the corresponding patched commit tree exactly.
+- Reduction kernels, complete CLI, generic/Dual master support, physical comparisons, and all performance acceptance gates remain outstanding. This initial publication is not a completed implementation.

@@ -1,0 +1,45 @@
+[workspace]
+resolver = "3"
+members = ["crates/ninjars", "crates/ninjars-symbolica", "crates/ninjars-graph", "crates/ninjars-cli"]
+exclude = ["references"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.96"
+license = "GPL-3.0-or-later"
+
+[workspace.dependencies]
+ninjars = { path = "crates/ninjars" }
+ninjars-symbolica = { path = "crates/ninjars-symbolica" }
+ninjars-graph = { path = "crates/ninjars-graph" }
+symbolica = { version = "3.0.1", default-features = false, features = ["integer-gmp", "float-mpfr", "bincode", "serde", "tracing_max_level_info"] }
+numerica = { version = "3.0.1", default-features = false }
+feynkit-kinematics = { path = "references/gammaloop_ninja_shared/crates/feynkit-kinematics", default-features = false, features = ["native"] }
+feynkit-graph = { path = "references/gammaloop_ninja_shared/crates/feynkit-graph", default-features = false, features = ["native"] }
+feynkit-model = { path = "references/gammaloop_ninja_shared/crates/feynkit-model", default-features = false, features = ["native"] }
+feynkit-generator = { path = "references/gammaloop_ninja_shared/crates/feynkit-generator", default-features = false, features = ["native"] }
+spenso = { path = "references/gammaloop_ninja_shared/crates/spenso", default-features = false, features = ["native", "shadowing"] }
+idenso = { path = "references/gammaloop_ninja_shared/crates/idenso", default-features = false, features = ["native"] }
+symbolica-utils = { path = "references/gammaloop_ninja_shared/crates/symbolica-utils", default-features = false, features = ["native"] }
+oneloop = { path = "references/oneloopmaster", default-features = false }
+thiserror = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+clap = { version = "4", features = ["derive"] }
+
+[patch.crates-io]
+symbolica = { path = "references/symbolica" }
+numerica = { path = "references/symbolica/lib/numerica" }
+graphica = { path = "references/symbolica/lib/graphica" }
+symbolica-typst-plugin = { git = "https://github.com/symbolica-dev/symbolica-typst-plugin", rev = "57b7455b37c30f4f87353c0073e49f5225e937ab" }
+typst-library = { path = "references/gammaloop_ninja_shared/vendor/typst-library" }
+typst-svg = { path = "references/gammaloop_ninja_shared/vendor/typst-svg" }
+clarabel = { path = "references/gammaloop_ninja_shared/vendor/clarabel" }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+
+[profile.dev.package."*"]
+opt-level = 2

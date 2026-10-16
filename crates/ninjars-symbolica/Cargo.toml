@@ -1,0 +1,13 @@
+[package]
+name = "ninjars-symbolica"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Symbolica numerator adapters and master integration for NinjaRS"
+
+[dependencies]
+ninjars.workspace = true
+symbolica.workspace = true
+oneloop.workspace = true
+symbolica-utils.workspace = true

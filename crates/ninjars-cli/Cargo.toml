@@ -1,0 +1,19 @@
+[package]
+name = "ninjars-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Standalone graph preparation and reduction with NinjaRS"
+
+[[bin]]
+name = "ninjars"
+path = "src/main.rs"
+
+[dependencies]
+ninjars-graph.workspace = true
+symbolica.workspace = true
+feynkit-model.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
