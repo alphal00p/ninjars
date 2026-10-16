@@ -1619,3 +1619,26 @@ connects the existing kernels into integrated amplitudes and a standalone
   native geometry patch `91add1c` remains isolated; its 22 tests and 29 verified
   file hashes do not change this measurement checkpoint. Algorithm experiments
   likewise remain separate until independently validated.
+
+### Algorithm audit: validated symbolic specialization probe (2026-10-16)
+
+- Audit branch `codex/reduction-algorithm-audit` retains `a908e70` and `cc93e52`:
+  an ignored Symbolica inventory and reproducible evidence, with no production
+  dispatch changes. One inventory test, strict adapter Clippy and formatting
+  pass; root verified five source hashes and both validation-log hashes.
+- For n5/r4, structural source zeros reduce triangle-to-bubble instructions
+  from 102 to 34. Restricting its swapped output additionally gives six
+  instructions. Selected rank-specialized triangle/bubble-to-tadpole constants
+  require eight/five instructions, compared with current full plans' 30/50.
+  Weighted across the correction rows, these plans use 1,540 instructions
+  instead of 8,020. Geometry, division, callbacks and masters are excluded;
+  this is not measured runtime or numerical acceptance.
+- An intermediate variant retaining both full bubble orientations uses 2,380
+  correction instructions. It avoids changing callback batching/layouts and
+  is a useful first numerical experiment after denominator reuse. Original
+  Ninja also computes generic cubic/quadratic terms removable by these zeros.
+- Public amplitude factories alone cannot guarantee source provenance.
+  Specialization needs a private trusted boundary or validation of every zero
+  component with generic fallback. Existing `IntegrationChecks::is_zero`
+  supplies the complete-Dual predicate. The larger transpose experiment must
+  keep master values symbolic to preserve current lazy zero-weight selection.
