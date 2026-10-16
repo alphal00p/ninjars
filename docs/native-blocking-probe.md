@@ -82,3 +82,18 @@ residue projection each repack their inputs; public request validation also
 rechecks topology and full lane data per parent. Those costs are separate from
 this blocking experiment. Any later fusion or trusted internal path must retain
 public standalone contracts, full-component validation and failed-lane isolation.
+
+Validation of source commit `7e68928099b1027f8694f9c7627431d59a566a78`
+passed eight focused controls, with the microbenchmark ignored. Each of f64,
+DoubleFloat and Float192 compared 421,872 complex components exactly across
+whole/chunked execution. Strict package Clippy (including the generator example),
+formatting and the feature-off library check passed. Raw logs, source/dependency
+identities and the test executable hash are retained in
+[the evidence record](../validation/evidence/native-blocking/summary.json).
+
+Native Dual controls use the existing ordered shape
+`[[0,0],[1,0],[0,1],[2,0],[1,1]]`. The conditional fixture covers ordinary
+f64/DoubleFloat/Float; the supported native Dual reduction bodies tested here
+are straight-line. Validation was performed in the debug profile. Optimized
+correctness controls and coordinated timings remain required before interpreting
+performance or selecting a production policy.
