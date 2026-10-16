@@ -89,7 +89,7 @@
   "upstream_audit": [
     "Symbolica src/evaluate/backend.rs:852 JITCompiledEvaluator owns Applet, external function containers and numerical buffers",
     "Symbolica src/evaluate/external.rs:335 ExternalFunction requires Send+Sync",
-    "SymJIT2.27.3 rust/applet.rs:13 Applet owns a Function and Arc<Config>; native memory/function owners provide upstream Send+Sync implementations"
+    "SymJIT2.27.3 rust/applet.rs:13 Applet owns optional MachineCode<f64>, Config and numerical buffers; rust/machine.rs:24-25 supplies upstream Send+Sync for MachineCode<f64>"
   ],
   "compile_time_assertions": [
     "JITCompiledEvaluator<Complex<f64>>:Send+Sync",
