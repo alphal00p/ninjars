@@ -93,9 +93,49 @@ impl<T> MasterRequest<'_, T> {
     }
 }
 
+/// A numerical failure affecting one master-integral row.
+/// Structural buffer errors and unsupported integral identifiers remain `Error`s.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum MasterFailure {
+    NonFiniteInput,
+    /// An optional provider-specific precision policy rejected an input.
+    /// Symbolica's tracking `Float` provider preserves mixed component precision.
+    PrecisionMismatch,
+    NonRealInvariant,
+    InvalidMass,
+    InvalidScale,
+    DerivativeShape,
+    /// The provider has not validated derivatives in this kinematic domain.
+    /// This includes removable limits which still need neighborhood expansions.
+    UnsupportedDerivativeDomain,
+    NonFiniteResult,
+}
+
+/// Outcome of one row, separate from the retained numerical output.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum MasterStatus {
+    /// Evaluation produced finite values in the provider's supported domain.
+    /// This does not certify an accuracy target or a number of significant bits.
+    Success,
+    Failed(MasterFailure),
+}
+
 /// Providers retain their numerical workspaces between evaluations.
 pub trait MasterProvider<T> {
     /// Write one `[finite, simple pole, double pole]` result per input row.
-    /// Invalid requests must leave the caller's output unchanged.
+    /// Any invalid request or failed numerical row leaves all outputs unchanged.
     fn evaluate(&mut self, request: MasterRequest<'_, T>, output: &mut [Laurent<T>]) -> Result<()>;
+
+    /// Evaluate a family with per-row numerical/domain statuses. Failed rows
+    /// retain every previous output component. Structural or preparation errors
+    /// return `Err` and leave both output and status buffers unchanged.
+    ///
+    /// Implementations must retain batching through eligible rows; this method
+    /// deliberately has no default scalar loop over `evaluate`.
+    fn evaluate_batch(
+        &mut self,
+        request: MasterRequest<'_, T>,
+        output: &mut [Laurent<T>],
+        statuses: &mut [MasterStatus],
+    ) -> Result<()>;
 }

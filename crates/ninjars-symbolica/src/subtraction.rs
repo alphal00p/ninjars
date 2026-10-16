@@ -93,7 +93,7 @@ pub struct TriangleBubbleSubtraction {
     layout: TriangleBubbleInputLayout,
     denominator: ExpansionKind,
     output: ExpansionKind,
-    exact: ExactKernel,
+    pub(crate) exact: ExactKernel,
 }
 
 impl TriangleBubbleSubtraction {
@@ -284,7 +284,7 @@ pub struct TadpoleSubtraction {
     layout: TadpoleSubtractionInputLayout,
     denominator: ExpansionKind,
     output: ExpansionKind,
-    exact: ExactKernel,
+    pub(crate) exact: ExactKernel,
 }
 
 impl TadpoleSubtraction {

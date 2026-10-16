@@ -49,8 +49,8 @@ pub struct MasterContractionInputLayout {
 pub struct MasterContraction {
     layout: MasterContractionInputLayout,
     masters: Vec<MasterIntegral>,
-    weights: ExactKernel,
-    contraction: ExactKernel,
+    pub(crate) weights: ExactKernel,
+    pub(crate) contraction: ExactKernel,
 }
 
 impl MasterContraction {

@@ -3,7 +3,8 @@
 use std::collections::BTreeMap;
 
 use ninjars::{
-    Complex, Error, FloatLike, Laurent, MasterIntegral, MasterProvider, MasterRequest, Result,
+    BatchShape, Complex, Error, FloatLike, Laurent, MasterFailure, MasterIntegral, MasterProvider,
+    MasterRequest, MasterStatus, Result,
 };
 use oneloop::{NativeFloat, OneLoopExpressions};
 use symbolica::{
@@ -16,11 +17,47 @@ use symbolica::{
 
 type ExactEvaluator = ExpressionEvaluator<Complex<Rational>>;
 
+// These views are formed only after the complete request has passed structural
+// validation. Row identities remain those of the caller after compaction.
+fn row_request<'a, T>(request: &MasterRequest<'a, T>, row: usize) -> MasterRequest<'a, T> {
+    let invariants = request.integral.invariant_count();
+    let masses = request.integral.mass_count();
+    MasterRequest {
+        integral: request.integral,
+        invariants: &request.invariants[row * invariants..(row + 1) * invariants],
+        masses_squared: &request.masses_squared[row * masses..(row + 1) * masses],
+        scales_squared: &request.scales_squared[row..row + 1],
+    }
+}
+
+fn strict_status(statuses: &[MasterStatus]) -> Result<()> {
+    if let Some((row, MasterStatus::Failed(failure))) = statuses
+        .iter()
+        .enumerate()
+        .find(|(_, status)| matches!(status, MasterStatus::Failed(_)))
+    {
+        return Err(Error::Unsupported(format!(
+            "master row {row} failed: {failure:?}"
+        )));
+    }
+    Ok(())
+}
+
 /// Reusable master provider for `f64`, `DoubleFloat`, and arbitrary-precision `Float`.
 ///
 /// Constants are mapped directly from rationals at the representative's working
 /// precision. No input is converted through binary64. Each instruction and
 /// shared helper processes all active lanes; Symbolica retains lazy branches.
+/// Working precision specifies constant preparation, not a required precision
+/// for every input or output component. Symbolica `Float` tracks significant
+/// bits through arithmetic, so cancellation can lower a component's precision
+/// even when its absolute error is small. Inputs and computed outputs retain
+/// that information; this provider never pads their precision. A successful
+/// status reports a finite result in the supported domain, not attainment of
+/// the working precision. Accuracy requires reconstruction or convergence checks.
+/// `MasterProvider::evaluate_batch` compacts eligible rows, evaluates the family
+/// once, and scatters only finite results. Failed rows retain their old output;
+/// `evaluate` retains its strict all-or-nothing contract.
 /// Expression preparation uses the calling thread, which must provide the stack
 /// required by oneloopmaster (128 MiB is its documented regression-test setting).
 pub struct SymbolicaMasters<T> {
@@ -28,6 +65,8 @@ pub struct SymbolicaMasters<T> {
     evaluators: BTreeMap<MasterIntegral, BatchExpressionEvaluator<Complex<T>>>,
     arguments: Vec<Complex<T>>,
     results: Vec<Complex<T>>,
+    active: Vec<usize>,
+    statuses: Vec<MasterStatus>,
 }
 
 impl<T: NativeFloat> SymbolicaMasters<T>
@@ -40,9 +79,12 @@ where
             evaluators: BTreeMap::new(),
             arguments: Vec::new(),
             results: Vec::new(),
+            active: Vec::new(),
+            statuses: Vec::new(),
         }
     }
 
+    /// Working bits used to prepare constants; computed component precision may differ.
     pub fn precision(&self) -> u32 {
         self.representative.get_precision()
     }
@@ -110,7 +152,10 @@ where
             .map_err(|error| Error::Symbolic(error.to_string()))
     }
 
-    fn validate_values(&self, request: &MasterRequest<'_, Complex<T>>) -> Result<()> {
+    fn validate_values(
+        &self,
+        request: &MasterRequest<'_, Complex<T>>,
+    ) -> std::result::Result<(), MasterFailure> {
         let zero = self.representative.zero();
         for value in request
             .invariants
@@ -119,34 +164,85 @@ where
             .chain(request.scales_squared)
         {
             if !value.re.is_finite() || !value.im.is_finite() {
-                return Err(Error::Unsupported("master arguments must be finite".into()));
-            }
-            if value.re.get_precision() != self.precision()
-                || value.im.get_precision() != self.precision()
-            {
-                return Err(Error::Unsupported(
-                    "master input precision differs from its provider".into(),
-                ));
+                return Err(MasterFailure::NonFiniteInput);
             }
         }
-        if request.invariants.iter().any(|value| !value.im.is_zero()) {
-            return Err(Error::Unsupported("master invariants must be real".into()));
+        if request
+            .invariants
+            .iter()
+            .any(|value| !value.im.is_fully_zero())
+        {
+            return Err(MasterFailure::NonRealInvariant);
         }
         if request.masses_squared.iter().any(|value| value.im > zero) {
-            return Err(Error::Unsupported(
-                "squared masses require nonpositive imaginary parts".into(),
-            ));
+            return Err(MasterFailure::InvalidMass);
         }
         if request
             .scales_squared
             .iter()
-            .any(|value| !value.im.is_zero() || value.re <= zero)
+            .any(|value| !value.im.is_fully_zero() || value.re <= zero)
         {
-            return Err(Error::Unsupported(
-                "squared scales must be positive and real".into(),
-            ));
+            return Err(MasterFailure::InvalidScale);
         }
         Ok(())
+    }
+
+    fn stage(&mut self, request: &MasterRequest<'_, Complex<T>>, strict: bool) -> Result<()> {
+        self.active.clear();
+        self.arguments.clear();
+        self.statuses.clear();
+        for row in 0..request.rows() {
+            let point = row_request(request, row);
+            match self.validate_values(&point) {
+                Err(failure) => self.statuses.push(MasterStatus::Failed(failure)),
+                Ok(()) => {
+                    self.statuses.push(MasterStatus::Success);
+                    self.active.push(row);
+                    self.arguments.extend_from_slice(point.invariants);
+                    self.arguments.extend_from_slice(point.masses_squared);
+                    self.arguments.extend_from_slice(point.scales_squared);
+                }
+            }
+        }
+        if strict {
+            strict_status(&self.statuses)?;
+        }
+        if self.active.is_empty() {
+            return Ok(());
+        }
+        let rows = self.active.len();
+        self.prepare(request.integral, rows)?;
+        let size = rows
+            .checked_mul(3)
+            .ok_or_else(|| Error::Unsupported("master output dimensions overflow usize".into()))?;
+        self.results.resize_with(size, || {
+            Complex::new(self.representative.zero(), self.representative.zero())
+        });
+        self.evaluators
+            .get_mut(&request.integral)
+            .unwrap()
+            .evaluate_batch(&self.arguments, &mut self.results, rows)
+            .map_err(|error| Error::Symbolic(error.to_string()))?;
+        for (&row, values) in self.active.iter().zip(self.results.as_chunks::<3>().0) {
+            if values
+                .iter()
+                .any(|value| !value.re.is_finite() || !value.im.is_finite())
+            {
+                self.statuses[row] = MasterStatus::Failed(MasterFailure::NonFiniteResult);
+            }
+        }
+        Ok(())
+    }
+
+    fn commit(&self, output: &mut [Laurent<Complex<T>>]) {
+        for (&row, values) in self.active.iter().zip(self.results.as_chunks::<3>().0) {
+            if self.statuses[row] == MasterStatus::Success {
+                output[row].clone_from_slice(values);
+            }
+        }
+        if !self.active.is_empty() {
+            oneloop::record_usage();
+        }
     }
 }
 
@@ -157,14 +253,21 @@ where
 /// `alpha!`. Derivatives
 /// are currently supported and tested for positive real masses and scales in tadpoles and
 /// strictly spacelike bubbles, with real parameter seeds. Other domains return
-/// an explicit error, including removable zero-momentum limits whose specialized
-/// value formulas do not determine their neighborhood derivatives.
+/// an explicit failure status (or an error through strict `evaluate`), including
+/// removable zero-momentum limits whose specialized value formulas do not
+/// determine their neighborhood derivatives. Shape, domain and finiteness checks
+/// cover every component, before compaction or arithmetic. As for
+/// [`SymbolicaMasters`], constants use the representative's working precision;
+/// each input and computed component keeps its own tracked significant precision.
+/// Success does not certify that all derivatives achieve the working precision.
 pub struct SymbolicaDualMasters<T> {
     representative: T,
     shape: Vec<Vec<usize>>,
     evaluators: BTreeMap<MasterIntegral, BatchExpressionEvaluator<Complex<T>>>,
     arguments: Vec<Complex<T>>,
     results: Vec<Complex<T>>,
+    active: Vec<usize>,
+    statuses: Vec<MasterStatus>,
 }
 
 impl<T: NativeFloat> SymbolicaDualMasters<T>
@@ -183,12 +286,26 @@ where
             evaluators: BTreeMap::new(),
             arguments: Vec::new(),
             results: Vec::new(),
+            active: Vec::new(),
+            statuses: Vec::new(),
         }
     }
 
-    fn validate<D: DualNumber<Complex<T>>>(&self, request: &MasterRequest<'_, D>) -> Result<()> {
+    fn valid_shape<D: DualNumber<Complex<T>>>(&self, value: &D) -> bool {
+        !self.shape.is_empty()
+            && value.values().len() == self.shape.len()
+            && value
+                .get_shape()
+                .into_iter()
+                .eq(self.shape.iter().map(Vec::as_slice))
+    }
+
+    fn validate<D: DualNumber<Complex<T>>>(
+        &self,
+        request: &MasterRequest<'_, D>,
+    ) -> std::result::Result<(), MasterFailure> {
         if matches!(request.integral, MasterIntegral::C0 | MasterIntegral::D0) {
-            return Err(Error::Unsupported("triangle/box master derivatives require additional continuation and removable-limit validation".into()));
+            return Err(MasterFailure::UnsupportedDerivativeDomain);
         }
         let zero = self.representative.zero();
         for dual in request
@@ -197,20 +314,15 @@ where
             .chain(request.masses_squared)
             .chain(request.scales_squared)
         {
-            if dual.get_shape() != self.shape.iter().map(Vec::as_slice).collect::<Vec<_>>() {
-                return Err(Error::Unsupported("master Dual shapes differ".into()));
+            if !self.valid_shape(dual) {
+                return Err(MasterFailure::DerivativeShape);
             }
             for component in dual.values() {
-                if !component.re.is_finite() || !component.im.is_finite() || !component.im.is_zero()
-                {
-                    return Err(Error::Unsupported("supported master derivatives require finite real values and real parameter seeds".into()));
+                if !component.re.is_finite() || !component.im.is_finite() {
+                    return Err(MasterFailure::NonFiniteInput);
                 }
-                if component.re.get_precision() != self.representative.get_precision()
-                    || component.im.get_precision() != self.representative.get_precision()
-                {
-                    return Err(Error::Unsupported(
-                        "master Dual component precision differs from its provider".into(),
-                    ));
+                if !component.im.is_fully_zero() {
+                    return Err(MasterFailure::UnsupportedDerivativeDomain);
                 }
             }
         }
@@ -219,33 +331,59 @@ where
             .iter()
             .any(|value| value.values()[0].re >= zero)
         {
-            return Err(Error::Unsupported("bubble derivatives currently require strictly spacelike nonzero momentum; zero-momentum neighborhood expansions are not yet implemented".into()));
+            return Err(MasterFailure::UnsupportedDerivativeDomain);
         }
         if request
             .masses_squared
             .iter()
-            .chain(request.scales_squared)
             .any(|value| value.values()[0].re <= zero)
         {
-            return Err(Error::Unsupported("master derivatives currently require strictly positive masses and scales; massless and nonanalytic limits are not yet implemented".into()));
+            return Err(MasterFailure::UnsupportedDerivativeDomain);
+        }
+        if request
+            .scales_squared
+            .iter()
+            .any(|value| value.values()[0].re <= zero)
+        {
+            return Err(MasterFailure::InvalidScale);
         }
         Ok(())
     }
-}
 
-impl<T: NativeFloat, D: FloatLike + DualNumber<Complex<T>>> MasterProvider<D>
-    for SymbolicaDualMasters<T>
-where
-    Complex<T>: EvaluationDomain,
-{
-    fn evaluate(&mut self, request: MasterRequest<'_, D>, output: &mut [Laurent<D>]) -> Result<()> {
-        request.validate(output.len())?;
-        let rows = request.rows();
-        let components = self.shape.len();
-        if rows == 0 {
+    fn stage<D: DualNumber<Complex<T>>>(
+        &mut self,
+        request: &MasterRequest<'_, D>,
+        strict: bool,
+    ) -> Result<()> {
+        self.active.clear();
+        self.arguments.clear();
+        self.statuses.clear();
+        for row in 0..request.rows() {
+            let point = row_request(request, row);
+            match self.validate(&point) {
+                Err(failure) => self.statuses.push(MasterStatus::Failed(failure)),
+                Ok(()) => {
+                    self.statuses.push(MasterStatus::Success);
+                    self.active.push(row);
+                    for dual in point
+                        .invariants
+                        .iter()
+                        .chain(point.masses_squared)
+                        .chain(point.scales_squared)
+                    {
+                        self.arguments.extend_from_slice(dual.values());
+                    }
+                }
+            }
+        }
+        if strict {
+            strict_status(&self.statuses)?;
+        }
+        if self.active.is_empty() {
             return Ok(());
         }
-        self.validate(&request)?;
+        let rows = self.active.len();
+        let components = self.shape.len();
         if !self.evaluators.contains_key(&request.integral) {
             let exact = SymbolicaMasters::<T>::exact_evaluator(request.integral)?;
             let structure = HyperDual::<Complex<Rational>>::new(self.shape.clone());
@@ -256,18 +394,6 @@ where
                 request.integral,
                 SymbolicaMasters::numeric_evaluator(dual, &self.representative),
             );
-        }
-        let invariants = request.integral.invariant_count();
-        let masses = request.integral.mass_count();
-        self.arguments.clear();
-        for row in 0..rows {
-            for dual in request.invariants[row * invariants..(row + 1) * invariants]
-                .iter()
-                .chain(&request.masses_squared[row * masses..(row + 1) * masses])
-                .chain(std::iter::once(&request.scales_squared[row]))
-            {
-                self.arguments.extend_from_slice(dual.values());
-            }
         }
         let columns = components
             .checked_mul(3)
@@ -283,29 +409,43 @@ where
             .unwrap()
             .evaluate_batch(&self.arguments, &mut self.results, rows)
             .map_err(|error| Error::Symbolic(error.to_string()))?;
-        if self
-            .results
-            .iter()
-            .any(|value| !value.re.is_finite() || !value.im.is_finite())
-        {
-            return Err(Error::Unsupported(
-                "master derivative evaluation is nonfinite".into(),
-            ));
+        for (&row, values) in self.active.iter().zip(self.results.chunks_exact(columns)) {
+            if values
+                .iter()
+                .any(|value| !value.re.is_finite() || !value.im.is_finite())
+            {
+                self.statuses[row] = MasterStatus::Failed(MasterFailure::NonFiniteResult);
+            }
         }
-        for (row, values) in output.iter_mut().zip(self.results.chunks_exact(columns)) {
-            for (coefficient, values) in row.iter_mut().zip(values.chunks_exact(components)) {
-                if coefficient.get_shape()
-                    == self.shape.iter().map(Vec::as_slice).collect::<Vec<_>>()
-                {
-                    coefficient.values_mut().clone_from_slice(values);
-                } else {
-                    *coefficient = request.scales_squared[0].zero();
-                    coefficient.values_mut().clone_from_slice(values);
+        Ok(())
+    }
+
+    fn commit<D: FloatLike + DualNumber<Complex<T>>>(
+        &self,
+        request: &MasterRequest<'_, D>,
+        output: &mut [Laurent<D>],
+    ) {
+        if self.active.is_empty() {
+            return;
+        }
+        let components = self.shape.len();
+        for (&row, values) in self
+            .active
+            .iter()
+            .zip(self.results.chunks_exact(3 * components))
+        {
+            if self.statuses[row] != MasterStatus::Success {
+                continue;
+            }
+            for (coefficient, values) in output[row].iter_mut().zip(values.chunks_exact(components))
+            {
+                if !self.valid_shape(coefficient) {
+                    *coefficient = request.scales_squared[row].zero();
                 }
+                coefficient.values_mut().clone_from_slice(values);
             }
         }
         oneloop::record_usage();
-        Ok(())
     }
 }
 
@@ -319,46 +459,59 @@ where
         output: &mut [Laurent<Complex<T>>],
     ) -> Result<()> {
         request.validate(output.len())?;
-        self.validate_values(&request)?;
-        let rows = request.rows();
-        if rows == 0 {
-            return Ok(());
+        self.stage(&request, true)?;
+        strict_status(&self.statuses)?;
+        self.commit(output);
+        Ok(())
+    }
+
+    fn evaluate_batch(
+        &mut self,
+        request: MasterRequest<'_, Complex<T>>,
+        output: &mut [Laurent<Complex<T>>],
+        statuses: &mut [MasterStatus],
+    ) -> Result<()> {
+        request.validate(output.len())?;
+        BatchShape {
+            rows: request.rows(),
+            columns: 1,
         }
-        self.prepare(request.integral, rows)?;
-        let invariants = request.integral.invariant_count();
-        let masses = request.integral.mass_count();
-        self.arguments.clear();
-        for row in 0..rows {
-            self.arguments
-                .extend_from_slice(&request.invariants[row * invariants..(row + 1) * invariants]);
-            self.arguments
-                .extend_from_slice(&request.masses_squared[row * masses..(row + 1) * masses]);
-            self.arguments.push(request.scales_squared[row].clone());
+        .validate("master statuses", statuses.len())?;
+        self.stage(&request, false)?;
+        self.commit(output);
+        statuses.copy_from_slice(&self.statuses);
+        Ok(())
+    }
+}
+
+impl<T: NativeFloat, D: FloatLike + DualNumber<Complex<T>>> MasterProvider<D>
+    for SymbolicaDualMasters<T>
+where
+    Complex<T>: EvaluationDomain,
+{
+    fn evaluate(&mut self, request: MasterRequest<'_, D>, output: &mut [Laurent<D>]) -> Result<()> {
+        request.validate(output.len())?;
+        self.stage(&request, true)?;
+        strict_status(&self.statuses)?;
+        self.commit(&request, output);
+        Ok(())
+    }
+
+    fn evaluate_batch(
+        &mut self,
+        request: MasterRequest<'_, D>,
+        output: &mut [Laurent<D>],
+        statuses: &mut [MasterStatus],
+    ) -> Result<()> {
+        request.validate(output.len())?;
+        BatchShape {
+            rows: request.rows(),
+            columns: 1,
         }
-        let size = rows
-            .checked_mul(3)
-            .ok_or_else(|| Error::Unsupported("master output dimensions overflow usize".into()))?;
-        self.results.resize_with(size, || {
-            Complex::new(self.representative.zero(), self.representative.zero())
-        });
-        self.evaluators
-            .get_mut(&request.integral)
-            .unwrap()
-            .evaluate_batch(&self.arguments, &mut self.results, rows)
-            .map_err(|error| Error::Symbolic(error.to_string()))?;
-        if self
-            .results
-            .iter()
-            .any(|value| !value.re.is_finite() || !value.im.is_finite())
-        {
-            return Err(Error::Unsupported(
-                "master evaluation is nonfinite at the supplied kinematics".into(),
-            ));
-        }
-        for (row, values) in output.iter_mut().zip(self.results.as_chunks::<3>().0) {
-            row.clone_from_slice(values);
-        }
-        oneloop::record_usage();
+        .validate("master statuses", statuses.len())?;
+        self.stage(&request, false)?;
+        self.commit(&request, output);
+        statuses.copy_from_slice(&self.statuses);
         Ok(())
     }
 }

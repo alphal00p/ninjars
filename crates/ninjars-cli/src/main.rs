@@ -1,4 +1,5 @@
 mod prepare;
+mod reduce;
 #[cfg(feature = "reference-codegen")]
 mod reference;
 
@@ -16,6 +17,8 @@ struct Cli {
 enum Command {
     /// Prepare a FeynKit DOT graph or a JSON fixture using exact symbolic inputs.
     Prepare(prepare::Args),
+    /// Reduce one-, two-, or three-propagator graphs with fully specified samples.
+    Reduce(reduce::Args),
 }
 
 fn main() {
@@ -25,7 +28,15 @@ fn main() {
     // worker threads, and no other environment access runs concurrently here.
     unsafe { std::env::set_var("SYMBOLICA_HIDE_BANNER", "1") };
     let result = match Cli::parse().command {
-        Command::Prepare(args) => prepare::run(args),
+        Command::Prepare(args) => prepare::run(args).map_err(|error| error.to_string()),
+        Command::Reduce(args) => std::thread::Builder::new()
+            .name("ninjars-reduce".into())
+            // oneloopmaster's exact expression preparation requires this stack.
+            .stack_size(128 * 1024 * 1024)
+            .spawn(move || reduce::run(args).map_err(|error| error.to_string()))
+            .expect("cannot start reduction worker")
+            .join()
+            .unwrap_or_else(|_| Err("reduction worker panicked".into())),
     };
     if let Err(error) = result {
         eprintln!("ninjars: {error}");

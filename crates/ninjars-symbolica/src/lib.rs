@@ -1,10 +1,13 @@
 //! Symbolica-backed numerator and master-integral adapters for NinjaRS.
 #![forbid(unsafe_code)]
 
+mod amplitude;
+mod bubble_kernels;
 mod contraction;
 mod cuts;
 mod denominators;
 mod dual_polynomial;
+mod integration;
 mod kernel;
 mod laurent;
 mod masters;
@@ -13,8 +16,11 @@ mod projection;
 #[cfg(feature = "reference-codegen")]
 mod reference;
 mod subtraction;
+mod tadpole_kernels;
 mod triangle_kernels;
 
+pub use amplitude::{SymbolicaAmplitudeKernels, SymbolicaDualAmplitudeKernels};
+pub use bubble_kernels::{SymbolicaBubbleKernels, SymbolicaDualBubbleKernels};
 pub use contraction::{
     DualMasterContractionEvaluator, MasterContraction, MasterContractionEvaluator,
     MasterContractionInputLayout,
@@ -22,6 +28,7 @@ pub use contraction::{
 pub use cuts::{SymbolicaCuts, SymbolicaDualCuts};
 pub use denominators::{DenominatorEvaluator, DenominatorExpansion, DualDenominatorEvaluator};
 pub use dual_polynomial::DualPolynomialNumerator;
+pub use integration::{SymbolicaDualIntegrationKernels, SymbolicaIntegrationKernels};
 pub use laurent::{DualLaurentDivisionEvaluator, LaurentDivision, LaurentDivisionEvaluator};
 pub use masters::{SymbolicaDualMasters, SymbolicaMasters};
 pub use polynomial::PolynomialNumerator;
@@ -36,4 +43,5 @@ pub use subtraction::{
     DualTriangleBubbleEvaluator, TriangleBubbleEvaluator, TriangleBubbleInputLayout,
     TriangleBubbleSubtraction,
 };
+pub use tadpole_kernels::{SymbolicaDualTadpoleKernels, SymbolicaTadpoleKernels};
 pub use triangle_kernels::{SymbolicaDualTriangleKernels, SymbolicaTriangleKernels};

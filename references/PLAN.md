@@ -247,3 +247,71 @@ Final checks for this foundation:
 - Algebra API checks are documented in `docs/algebra-audit.md`. The current implementation uses exact Symbolica instruction graphs; generated native Rust specialization is still required for the performance phase. Current coordinator request/geometry allocations, scaled small-denominator conditioning and rescue are explicitly unfinished.
 - Remaining required work: bubble/tadpole coordination and integrated CLI parity; amplitude accumulation/reset, S-matrix/cut controls and reconstruction diagnostics; boxes/pentagons/full rank coverage; derivative continuation/removable limits; physical FeynKit–MadLoop matching; all performance acceptance gates. The goal remains active.
 - Final milestone validation: all **66 workspace tests** pass with all features and ignored reference tests enabled, serial execution and `RUST_MIN_STACK=134217728`. Strict all-target/all-feature Clippy passes (existing upstream warnings remain). Dependency patches reproduce both pinned commit trees exactly in isolated Git indexes. The standalone triangle-stage example returns `c0=c7=1`.
+
+### Integrated tadpole, bubble and triangle milestone
+
+The Laurent-stage snapshot was published as `6357f3e`. This next milestone
+connects the existing kernels into integrated amplitudes and a standalone
+`reduce` command; the full NinjaRS goal remains active.
+
+- Core `BubbleReducer` subtracts all containing triangle residues in both
+  orientations and retains complete original 10/20 coefficient arrays. Six
+  tests cover two through four propagators, multiple parents and shifted
+  origins, independent cut reconstruction, permutations/tails, higher/mixed
+  Dual inputs, malformed uncut values and DoubleFloat/Float precision.
+- Core `TadpoleReducer` subtracts triangle and corrected-bubble parents. Its
+  result explicitly marks only c0 (ordinary), or c0/c14/c15 (rank n+1), as
+  computed. Six tests cover analytic tensor coefficients, denominator
+  cancellation, independently supplied nonzero parents, shifted origins,
+  parent failure/provenance, higher/mixed derivatives and 256-bit accuracy.
+- `MasterProvider::evaluate_batch` reports per-row `MasterStatus` without
+  degrading to scalar execution. Both Symbolica providers compact valid rows
+  before one family evaluation. Seven tests cover mixed domains and lazy
+  branches, output overflow, all Dual components and shapes, empty/single/tail
+  batches, strict API transactionality and precision propagation.
+- `ResidueIntegrator` batches master families across active cuts and phase-space
+  lanes. Generated Symbolica kernels construct invariants, weights, contraction
+  and accumulated sums. All-component zero weights skip unnecessary masters.
+  Four tests check original Ninja tensor-moment values, explicit rational
+  integrals, compact batches, failed-row preservation and analytic higher/mixed
+  derivative products.
+- Core `Amplitude` now integrates one, two and three propagators through rank
+  n+1. Successful lanes accumulate; failed lanes retain all previous numerical
+  fields. Reset, fixed batch identity, separate rational/cut-constructible
+  components and Laurent accessors are available. Four tests cover shifted
+  tadpoles, higher-rank bubbles, triangle mu-squared/mu-fourth controls,
+  scaleless tadpoles/null bubbles and failure/reset semantics. An independent
+  five-test audit adds late-error transactionality, repeated-propagator rejection,
+  derivative-only weights, higher/mixed Dual history and higher precision.
+- Independent finite B0 controls use the closed form
+  `2-sqrt(5)*log((sqrt(5)+1)/(sqrt(5)-1))`, evaluated with Symbolica at 384 bits.
+  Errors are below 1e-14 for f64, 1e-29 for DoubleFloat, 1e-52 for Float192 and
+  1e-70 for Float256; each precision increase improves the error by at least
+  twelve decimal digits. Independent A0 controls reach below 1e-45 at 160 bits
+  and 1e-90 at 320 bits against a 512-bit reference.
+- The CLI `reduce` reuses exact DOT/model preparation and one parameterized
+  polynomial adapter across phase-space samples. It supports f64, DoubleFloat
+  and arbitrary precision, batch sizes/tails, diagnostics and JSON output with
+  decimal complex components. All sixteen CLI tests pass, including the original
+  Ninja bubble/triangle reference rows in all three carriers, exact corrections
+  below f64 resolution, mixed failed lanes, empty inputs and rank rejection.
+- Full CLI testing exposed an incorrect NinjaRS assumption that every component
+  must retain the nominal working precision. Symbolica Float intentionally
+  tracks significant bits under cancellation, including tiny imaginary
+  residuals. Integration and masters now preserve those values and bit counts;
+  constants still originate at the configured working precision. No values are
+  padded, clipped or converted through f64. The CLI records component precision
+  separately. Upstream documented behavior and its zero-does-not-restore-precision
+  regression establish that no Symbolica patch is appropriate for this issue.
+- All **103 workspace tests** pass with every feature and ignored reference
+  test enabled; none are skipped. Strict all-target/all-feature Clippy passes.
+  The complete bubble example runs successfully. Reproducible reference
+  comparisons and analytic accuracy gates are recorded in
+  `validation/evidence/integrated-stage.json`.
+- Remaining work includes boxes/pentagons and full six-line integration;
+  S-matrix/cut stopping and reconstruction controls; triangle/box Dual masters,
+  continuation and removable limits; tensor adapters and physical FeynKit/MadLoop
+  matching; `compare`/`bench` and CLI derivative controls; numerical rescue,
+  allocation removal/native Rust specialization and all performance gates.
+  `docs/box-pentagon-design.md` records next-stage research, including an
+  explicitly unconfirmed original higher-rank box reconstruction hypothesis.

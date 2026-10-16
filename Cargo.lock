@@ -1556,6 +1556,7 @@ dependencies = [
  "ninjars",
  "ninjars-graph",
  "ninjars-symbolica",
+ "oneloop",
  "serde",
  "serde_json",
  "symbolica",

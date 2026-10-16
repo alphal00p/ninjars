@@ -7,7 +7,6 @@
 use std::{collections::HashMap, error::Error, fmt::Write, fs, path::Path};
 
 use ninjars::Numerator;
-use ninjars_graph::FourMomentum;
 use ninjars_symbolica::PolynomialNumerator;
 use serde_json::{Value, json};
 use symbolica::{
@@ -18,13 +17,7 @@ use symbolica::{
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
-pub(crate) struct ExportSample {
-    pub lane: usize,
-    pub numerator: Atom,
-    pub overall_factor: Atom,
-    pub shifts: Vec<FourMomentum<Atom>>,
-    pub mass_squared: Vec<Atom>,
-}
+use crate::prepare::PreparedSample as ExportSample;
 
 /// Evaluate only at the independent reference's required binary64 boundary.
 /// The higher precision probe also prevents tiny complex components from being

@@ -16,9 +16,28 @@ use symbolica::{
     atom::{Atom, AtomCore, AtomView, Symbol},
     id::{Pattern, Replacement},
     parser::ParseSettings,
+    symbol,
 };
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
+
+pub(crate) struct PreparedSample {
+    pub lane: usize,
+    pub numerator: Atom,
+    pub overall_factor: Atom,
+    pub shifts: Vec<FourMomentum<Atom>>,
+    pub mass_squared: Vec<Atom>,
+    pub parameters: Vec<Atom>,
+}
+
+pub(crate) struct PreparedDocument {
+    pub document: Value,
+    pub propagators: usize,
+    pub samples: Vec<PreparedSample>,
+    pub scale_squared: Atom,
+    pub numerator_template: Atom,
+    pub parameters: Vec<Atom>,
+}
 
 #[derive(ClapArgs)]
 pub struct Args {
@@ -137,7 +156,7 @@ fn bind_external(
     Ok(momenta)
 }
 
-pub fn run(args: Args) -> Result<()> {
+pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
     let input_is_json = args
         .input
         .extension()
@@ -233,8 +252,48 @@ pub fn run(args: Args) -> Result<()> {
         parse("ninjars::q3")?,
     );
     let mut samples = Vec::<Value>::new();
-    #[cfg(feature = "reference-codegen")]
-    let mut reference_samples = Vec::new();
+    let mut exact_samples = Vec::new();
+    // These are evaluator parameters, not a new symbolic momentum representation.
+    // Pick names absent from the bound integrand, including parameter overrides.
+    let bound_numerator = substitute(&prepared.numerator, &replacements);
+    let bound_factor = substitute(&prepared.overall_factor, &replacements);
+    let mut generation = 0;
+    let parameters = loop {
+        let parameters: Vec<_> = (0..prepared.family.external_momenta().len() * 4)
+            .map(|index| {
+                Atom::var(symbol!(format!(
+                    "ninjars_cli_components::p{generation}_{index}"
+                )))
+            })
+            .collect();
+        if parameters.iter().all(|parameter| {
+            !bound_numerator.contains(parameter) && !bound_factor.contains(parameter)
+        }) {
+            break parameters;
+        }
+        generation += 1;
+    };
+    let symbolic_external = prepared
+        .family
+        .external_momenta()
+        .iter()
+        .cloned()
+        .zip(
+            parameters
+                .as_chunks::<4>()
+                .0
+                .iter()
+                .cloned()
+                .map(FourMomentum::from),
+        )
+        .collect();
+    let template_kinematics =
+        prepared.component_kinematics(&loop_components, &symbolic_external)?;
+    let numerator_template = substitute(
+        &template_kinematics.apply(&(&prepared.numerator * &prepared.overall_factor)),
+        &replacements,
+    )
+    .expand();
     if let Some(fixture) = &fixture {
         for (lane, sample) in fixture.samples.iter().enumerate() {
             let external = bind_external(sample, &prepared, &replacements)
@@ -256,23 +315,27 @@ pub fn run(args: Args) -> Result<()> {
                 .map(&specialize)
                 .collect::<Vec<_>>();
             let overall_factor = specialize(&prepared.overall_factor);
+            let exact = PreparedSample {
+                lane,
+                numerator,
+                overall_factor,
+                shifts,
+                mass_squared,
+                parameters: prepared
+                    .family
+                    .external_momenta()
+                    .iter()
+                    .flat_map(|name| external[name].components().map(Clone::clone))
+                    .collect(),
+            };
             samples.push(json!({
-                "lane": lane,
-                "numerator": canonical(&numerator),
-                "shifts": shifts.iter().map(|vector| vector.components().map(canonical)).collect::<Vec<_>>(),
-                "mass_squared": mass_squared.iter().map(canonical).collect::<Vec<_>>(),
-                "overall_factor": canonical(&overall_factor),
+                "lane": exact.lane,
+                "numerator": canonical(&exact.numerator),
+                "shifts": exact.shifts.iter().map(|vector| vector.components().map(canonical)).collect::<Vec<_>>(),
+                "mass_squared": exact.mass_squared.iter().map(canonical).collect::<Vec<_>>(),
+                "overall_factor": canonical(&exact.overall_factor),
             }));
-            #[cfg(feature = "reference-codegen")]
-            if args.reference_dir.is_some() {
-                reference_samples.push(crate::reference::ExportSample {
-                    lane,
-                    numerator,
-                    overall_factor,
-                    shifts,
-                    mass_squared,
-                });
-            }
+            exact_samples.push(exact);
         }
     }
     let scale = parse(
@@ -282,14 +345,6 @@ pub fn run(args: Args) -> Result<()> {
             .unwrap_or("1"),
     )?;
     let scale = substitute(&scale, &replacements);
-    #[cfg(feature = "reference-codegen")]
-    let reference_export = args
-        .reference_dir
-        .as_ref()
-        .map(|directory| crate::reference::export(directory, &reference_samples, &scale))
-        .transpose()?;
-    #[cfg(not(feature = "reference-codegen"))]
-    let reference_export: Option<Value> = None;
     let result = json!({
         "schema_version": 1,
         "operation": "prepare",
@@ -310,9 +365,28 @@ pub fn run(args: Args) -> Result<()> {
         "overall_factor": canonical(&substitute(&prepared.overall_factor, &replacements)),
         "input_fixture": fixture,
         "samples": samples,
-        "reference_export": reference_export,
+        "reference_export": null,
     });
-    let output = serde_json::to_string_pretty(&result)? + "\n";
+    Ok(PreparedDocument {
+        document: result,
+        propagators: prepared.quadratics.len(),
+        samples: exact_samples,
+        scale_squared: scale,
+        numerator_template,
+        parameters,
+    })
+}
+
+pub fn run(args: Args) -> Result<()> {
+    let mut prepared = prepare(&args)?;
+    #[cfg(feature = "reference-codegen")]
+    if let Some(directory) = &args.reference_dir {
+        prepared.document["reference_export"] =
+            crate::reference::export(directory, &prepared.samples, &prepared.scale_squared)?;
+    }
+    // Keep this mutation available in builds without the optional reference exporter.
+    prepared.document["operation"] = "prepare".into();
+    let output = serde_json::to_string_pretty(&prepared.document)? + "\n";
     #[cfg(feature = "reference-codegen")]
     if let Some(directory) = args.reference_dir {
         fs::write(directory.join("prepared.json"), &output)?;

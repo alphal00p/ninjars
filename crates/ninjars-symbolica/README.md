@@ -34,12 +34,39 @@ tensor coefficients. It maps constants directly at the working precision and
 uses Symbolica's batch interpreter through shared helper calls and lazy branches.
 Results are `[finite, single pole, double pole]`.
 
+For arbitrary-precision `Float`, the configured working precision controls
+constant construction. Symbolica tracks significant bits separately in each
+numerical component, so cancellation can reduce a component's reported precision.
+The adapters preserve that information instead of resetting it to the nominal
+precision. Finite output and domain checks do not by themselves certify accuracy;
+analytic controls and precision-convergence checks remain necessary.
+
 `SymbolicaDualMasters<T>` currently enables derivatives for positive real masses
 and scales in tadpoles and strictly spacelike bubbles with real seeds. It rejects
 triangle/box derivatives, zero-invariant removable limits and other unvalidated
 derivative regions. These restrictions are tracked in the project plan. Invalid
-master requests leave the entire output buffer unchanged; per-lane rescue is
-still part of the future reduction engine.
+master requests through `evaluate` leave the entire output buffer unchanged.
+`evaluate_batch` reports a status for each row and leaves failed rows unchanged,
+while evaluating all eligible rows through one batched instruction graph.
+
+## Integrated amplitudes
+
+`SymbolicaAmplitudeKernels::new(n, rank, prototype)?.into_amplitude(lanes)`
+constructs a core `Amplitude` for one through three propagators and rank at most
+n+1. Supply shared lane-major shifts/masses, one squared scale per lane, a
+numerator, `SymbolicaCuts` and a master provider to `evaluate_batch`. Successful
+lanes accumulate into `[finite, single pole, double pole, cut-constructible finite,
+rational]`; failed lanes retain all previous components. Inspect `statuses()`
+for the last attempt and call `reset()` or `reset_batch(lanes)` to clear results.
+`SymbolicaDualAmplitudeKernels` provides the same interface for static and dynamic
+Dual carriers; supported integrated derivatives remain limited by the master
+provider's validated domains.
+
+Run `cargo run -p ninjars-symbolica --example bubble` for a complete batched
+rank-three example. The example provides a 128 MiB worker stack for master
+expression preparation. Numerical coefficients, geometry and master values
+retain the requested precision throughout; all arithmetic is generated through
+Symbolica. Zero-weight masters are skipped only if every Dual component is zero.
 
 ## Laurent reduction stages
 
@@ -71,8 +98,11 @@ depends on the selected residue basis, as in original Ninja.
 Kernel inputs and preconditions are documented on their public types. Low-level
 division and projection expect nonsingular active rows. The triangle coordinator
 compacts invalid rows and restores cut/lane order. A scaled small-denominator
-test, precision rescue, full reconstruction diagnostics, bubble/tadpole
-coordination, and integrated amplitude accumulation remain unfinished. The
+test, precision rescue, full reconstruction diagnostics, box/pentagon
+coordination, and S-matrix/cut controls remain unfinished. Bubble coordination
+subtracts every containing triangle; tadpole coordination subtracts triangle and
+corrected bubble parents. Tadpoles expose an explicit mask for the integrated
+coefficients c0 and, at higher rank, c14/c15; other entries are uncomputed. The
 current coordinator still allocates request/geometry buffers and is not the
 final performance implementation.
 
