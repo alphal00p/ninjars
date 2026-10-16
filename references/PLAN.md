@@ -1179,3 +1179,26 @@ connects the existing kernels into integrated amplitudes and a standalone
 - This establishes the fixed physical correctness suite through pentagons.
   Finite-part MadLoop inputs remain binary64, performance acceptance is still
   pending, and previously recorded four-photon/gg→HH diagnostics are unchanged.
+
+### Adopted conditional reuse and C0 dependencies (2026-10-16)
+
+- Primary NinjaRS now pins Symbolica integration `2c06f245` and oneloopmaster
+  `bf7632a9`. The consolidated Symbolica patch reproduces the new tree from its
+  upstream base; dependency bootstrap verification passes. The oneloopmaster
+  pin was pushed directly to `main`, without a new PR, after combined validation
+  with the lazy C0 correction and conditional reuse enabled together.
+- The combined dependency suite passes 118 tests with three explicitly retained
+  ignored diagnostics. Both Python build roots pass locked checks with the
+  actual public git dependencies, and all three manifests resolve one shared
+  Symbolica/Numerica/Graphica revision. Evidence is
+  `conditional-c0-upstream-checks.json`; it includes the unchanged nearby f64
+  third-derivative limitation by reference to the C0 diagnostic evidence.
+- NinjaRS passes **187 tests across 51 suites**, including all five separately
+  executed original-Ninja reference controls, with strict all-target/all-feature
+  Clippy and formatting. Build and test commands ran serially. Logs, source
+  identities, compiler details and bootstrap output are archived in
+  `validation/evidence/conditional-c0-workspace-checks.json`.
+- The completed physical 50-graph matrix retains its original immutable binary
+  and older pins. Updated-pin optimized shared-physical controls and preliminary
+  timing diagnostics are being run separately. No performance acceptance or
+  global derivative-accuracy completion is implied by this pin update.
