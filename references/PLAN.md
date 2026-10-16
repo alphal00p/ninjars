@@ -1575,3 +1575,14 @@ connects the existing kernels into integrated amplitudes and a standalone
   identical-source/table groups. Generation, strict example Clippy and
   formatting pass. This installs no production kernels and claims no speedup;
   `laurent-catalog-inventory.json` records layouts and exact source identity.
+
+### Independent algorithm audit requested (2026-10-16)
+
+- Launched a separate audit of substantive changes to Ninja's reduction
+  algorithm, beyond compiled arithmetic and storage reuse. It will examine
+  cut/subtraction organization, coefficient extraction, shared work across cuts,
+  tensor structure and alternatives in the primary literature.
+- Candidates must preserve the established algebra policy, Ninja semantics,
+  numerical stability, batching and generic/Dual support. The audit must
+  distinguish arithmetic savings from execution overhead and propose bounded,
+  falsifiable experiments before any production algorithm change.
