@@ -10,6 +10,7 @@ publish = false
 crate-type = ["rlib", "cdylib"]
 
 [features]
+native-kernels = ["ninjars-symbolica/native-kernels"]
 allocation-diagnostics = []
 execution-diagnostics = []
 

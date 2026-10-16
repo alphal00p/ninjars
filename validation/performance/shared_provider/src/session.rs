@@ -13,6 +13,7 @@ use ninjars_symbolica::{
 };
 type C = Complex<f64>;
 pub struct Session {
+    kernel_info: [u64; 9],
     n: usize,
     rank: usize,
     amplitude: Amplitude<C, SymbolicaAmplitudeKernels<f64>>,
@@ -34,8 +35,62 @@ unsafe fn session<'a>(handle: *mut Session) -> Result<&'a mut Session> {
     }
     Ok(unsafe { &mut *handle })
 }
+/// Validation IDs select public factory methods; buffer dimensions never select arithmetic.
+fn kernels(
+    n: usize,
+    rank: usize,
+    selection: u32,
+) -> Result<(SymbolicaAmplitudeKernels<f64>, [u64; 9])> {
+    if selection > 2 {
+        return Err("unknown reduction-kernel selection".into());
+    }
+    #[cfg(not(feature = "native-kernels"))]
+    if selection != 0 {
+        return Err("native selection requires native-kernels feature".into());
+    }
+    let kernels = SymbolicaAmplitudeKernels::new(n, rank, 0.).map_err(|e| e.to_string())?;
+    #[cfg(feature = "native-kernels")]
+    let kernels = match selection {
+        0 => kernels,
+        1 => kernels.with_native_denominators(),
+        2 => kernels.with_native_kernels(),
+        _ => unreachable!(),
+    };
+    let mut info = [0; 9];
+    info[0] = u64::from(selection);
+    info[1] = u64::from(cfg!(feature = "native-kernels"));
+    #[cfg(feature = "native-kernels")]
+    {
+        use ninjars_symbolica::{KernelBackend, KernelFamily};
+        let mut seen = [false; 7];
+        for entry in kernels.kernel_backends() {
+            let index = match entry.family {
+                KernelFamily::T2Denominators => 0,
+                KernelFamily::T3Denominators => 1,
+                KernelFamily::BubbleSourceProjection => 2,
+                KernelFamily::TriangleBubbleCorrection => 3,
+                KernelFamily::OtherReduction => 4,
+                KernelFamily::Integration => 5,
+                KernelFamily::Accumulation => 6,
+            };
+            if seen[index] {
+                return Err("duplicate kernel coverage family".into());
+            }
+            seen[index] = true;
+            info[index + 2] = match entry.backend {
+                KernelBackend::SymbolicaInterpreter => 0,
+                KernelBackend::NativeRust => 1,
+            };
+        }
+        if !seen.into_iter().all(|value| value) {
+            return Err("incomplete kernel coverage".into());
+        }
+    }
+    Ok((kernels, info))
+}
 /// # Safety
 /// out must be a valid writable slot. Returned handles are used serially.
+/// Compatibility constructor: interpreted reduction, independent of numerator mode.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn sp_session_create(
     n: usize,
@@ -43,16 +98,30 @@ pub unsafe extern "C" fn sp_session_create(
     rows: usize,
     out: *mut *mut Session,
 ) -> i32 {
+    unsafe { sp_session_create_with_kernels(n, rank, rows, 0, out) }
+}
+/// # Safety
+/// Same ownership contract as sp_session_create. Selection is setup-only:
+/// 0 interpreted, 1 native denominators, 2 all currently catalogued kernels.
+/// Invalid selection/build/topology leaves the caller's output slot unchanged.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sp_session_create_with_kernels(
+    n: usize,
+    rank: usize,
+    rows: usize,
+    selection: u32,
+    out: *mut *mut Session,
+) -> i32 {
     guard(|| {
         if out.is_null() || !out.is_aligned() {
             return Err("invalid session output".into());
         }
+        let (kernels, kernel_info) = kernels(n, rank, selection)?;
         let state = Session {
+            kernel_info,
             n,
             rank,
-            amplitude: SymbolicaAmplitudeKernels::new(n, rank, 0.)
-                .and_then(|k| k.into_amplitude(rows))
-                .map_err(|e| e.to_string())?,
+            amplitude: kernels.into_amplitude(rows).map_err(|e| e.to_string())?,
             low: SymbolicaCuts::new(0.).map_err(|e| e.to_string())?,
             high: SymbolicaHighCuts::new(0.).map_err(|e| e.to_string())?,
             numerator: NumeratorWire::default(),
@@ -72,6 +141,18 @@ pub unsafe extern "C" fn sp_session_create(
         unsafe { out.write(Box::into_raw(Box::new(state))) };
         Ok(())
     })
+}
+/// # Safety
+/// Live exclusive session and nine writable cells: selection, compiled-native
+/// feature, then backend flags for T2,T3,bubble-source,triangle-bubble,other,
+/// integration,accumulation. Zero means interpreted, one means generated Rust.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sp_session_kernel_info(
+    handle: *mut Session,
+    out: *mut u64,
+    len: usize,
+) -> i32 {
+    guard(|| unsafe { write(out, len, &session(handle)?.kernel_info) })
 }
 /// # Safety
 /// All handles are live, exclusive and mutually disjoint. Buffers are valid for
@@ -320,4 +401,76 @@ pub unsafe extern "C" fn sp_session_production_stats(
         let state = unsafe { session(handle) }?;
         unsafe { write(out, len, &[state.production.calls, state.production.rows]) }
     })
+}
+
+#[cfg(test)]
+mod kernel_tests {
+    use super::*;
+    #[test]
+    fn compatibility_selection_and_transactional_creation() {
+        let mut handle = std::ptr::null_mut();
+        assert_eq!(unsafe { sp_session_create(2, 2, 0, &mut handle) }, 0);
+        let original = handle;
+        let mut info = [99; 9];
+        assert_eq!(
+            unsafe { sp_session_kernel_info(handle, info.as_mut_ptr(), 9) },
+            0
+        );
+        assert_eq!(info[0], 0);
+        assert!(info[2..].iter().all(|v| *v == 0));
+        assert_eq!(info[1], u64::from(cfg!(feature = "native-kernels")));
+        for selection in [3, u32::MAX] {
+            assert_ne!(
+                unsafe { sp_session_create_with_kernels(2, 2, 0, selection, &mut handle) },
+                0
+            );
+            assert_eq!(handle, original);
+        }
+        let before = info;
+        assert_ne!(
+            unsafe { sp_session_kernel_info(handle, info.as_mut_ptr(), 8) },
+            0
+        );
+        assert_eq!(info, before);
+        unsafe { session(handle).unwrap() }.amplitude.reset_batch(3);
+        assert_eq!(
+            unsafe { sp_session_kernel_info(handle, info.as_mut_ptr(), 9) },
+            0
+        );
+        assert_eq!(info, before);
+        assert_eq!(unsafe { sp_session_destroy(handle) }, 0);
+    }
+    #[test]
+    fn explicit_catalog_coverage_or_feature_off_refusal() {
+        for selection in [1, 2] {
+            let mut handle = std::ptr::null_mut();
+            let status = unsafe { sp_session_create_with_kernels(5, 4, 0, selection, &mut handle) };
+            if cfg!(feature = "native-kernels") {
+                assert_eq!(status, 0);
+                let mut info = [99; 9];
+                assert_eq!(
+                    unsafe { sp_session_kernel_info(handle, info.as_mut_ptr(), 9) },
+                    0
+                );
+                assert_eq!(
+                    info,
+                    [
+                        u64::from(selection),
+                        1,
+                        1,
+                        1,
+                        u64::from(selection == 2),
+                        u64::from(selection == 2),
+                        0,
+                        0,
+                        0
+                    ]
+                );
+                assert_eq!(unsafe { sp_session_destroy(handle) }, 0);
+            } else {
+                assert_ne!(status, 0);
+                assert!(handle.is_null());
+            }
+        }
+    }
 }

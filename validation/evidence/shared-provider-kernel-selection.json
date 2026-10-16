@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "purpose": "Setup-only reduction-kernel selection and same-artifact correctness controls. No timing or performance acceptance.",
+  "git_head_before_commit": "ab7db8517225fa24ed032c815c4d9fcb63b53442",
+  "implementation_scope": "Validation shared-provider bridge and runners only; no production kernels changed.",
+  "selection_api": {
+    "compatibility_constructor": "sp_session_create delegates to interpreted mode0",
+    "new_constructor": "sp_session_create_with_kernels",
+    "selectors": [
+      "symbolica",
+      "native-denominators",
+      "native"
+    ],
+    "feature": "native-kernels; disabled by default",
+    "coverage_families": 7,
+    "output_contract": "Invalid/unsupported selection leaves caller handle unchanged; session reset retains selection."
+  },
+  "numerator_provider": {
+    "coefficient_heads": "factored SymJIT O2 during physical preparation",
+    "reduction_callbacks": "shared interpreted PolynomialNumerator<f64> direct/Mu/T3/T2",
+    "independent_of_reduction_selection": true
+  },
+  "master_boundary": "Same85-entry captured original/Rust request union, frozen before replay; zero misses and no backend calls during replay. Separate live-master controls retained.",
+  "physical_fixture": "examples/graphs/physical/gg-hhh/top-pentagon-26.dot",
+  "integrated_widths": [
+    0,
+    1,
+    3,
+    8
+  ],
+  "catalog_parity": [
+    {
+      "coverage": {
+        "selection": "symbolica",
+        "native_feature_enabled": true,
+        "families": {
+          "t2_denominators": "symbolica-interpreter",
+          "t3_denominators": "symbolica-interpreter",
+          "bubble_source_projection": "symbolica-interpreter",
+          "triangle_bubble_correction": "symbolica-interpreter",
+          "other_reduction": "symbolica-interpreter",
+          "integration": "symbolica-interpreter",
+          "accumulation": "symbolica-interpreter"
+        },
+        "selection_scope": "Setup-only partial catalog; unused stages need not execute. Numerator, geometry and masters are independent."
+      },
+      "complex_components_checked": 60,
+      "max_scaled_error": 0
+    },
+    {
+      "coverage": {
+        "selection": "native-denominators",
+        "native_feature_enabled": true,
+        "families": {
+          "t2_denominators": "native-rust",
+          "t3_denominators": "native-rust",
+          "bubble_source_projection": "symbolica-interpreter",
+          "triangle_bubble_correction": "symbolica-interpreter",
+          "other_reduction": "symbolica-interpreter",
+          "integration": "symbolica-interpreter",
+          "accumulation": "symbolica-interpreter"
+        },
+        "selection_scope": "Setup-only partial catalog; unused stages need not execute. Numerator, geometry and masters are independent."
+      },
+      "complex_components_checked": 60,
+      "max_scaled_error": 2.311115933264683e-33
+    },
+    {
+      "coverage": {
+        "selection": "native",
+        "native_feature_enabled": true,
+        "families": {
+          "t2_denominators": "native-rust",
+          "t3_denominators": "native-rust",
+          "bubble_source_projection": "native-rust",
+          "triangle_bubble_correction": "native-rust",
+          "other_reduction": "symbolica-interpreter",
+          "integration": "symbolica-interpreter",
+          "accumulation": "symbolica-interpreter"
+        },
+        "selection_scope": "Setup-only partial catalog; unused stages need not execute. Numerator, geometry and masters are independent."
+      },
+      "complex_components_checked": 60,
+      "max_scaled_error": 3.496446946337351e-18
+    }
+  ],
+  "independent_controls": {
+    "raw_components_checked": 210,
+    "raw_max_scaled_error": 3.771063304099544e-15,
+    "coefficient_oracle_max_scaled_error": 2.3581169793365375e-15,
+    "jit_interpreter_max_scaled_error": 1.3021791046214033e-15,
+    "integrated_max_scaled_error": 2.1453487309187703e-16,
+    "madloop_integrated_max_scaled_error": 1.162555970610204e-16,
+    "batch_laurent_components_checked": 36,
+    "preparation_failure_controls": 4,
+    "transactional_preparation_checked": true
+  },
+  "runtime_source_guard": {
+    "unchanged": true,
+    "files": 1933
+  },
+  "dependencies": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "oneloopmaster": "bf7632a916528073464870f1b515d3e62f4e0060",
+    "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+  },
+  "physical_evidence": {
+    "path": "validation/evidence/shared-provider-kernel-selection-physical.json.gz",
+    "sha256": "ba5bfb0586af9050d9e8b5e97f024660729cc7426cc24956f6312e95abf31c51",
+    "bytes": 96421,
+    "uncompressed_sha256": "5f26a02a6ca0cfd41d88dcd97b58e417b8e5942654d6cb49e43f0365871d0aae",
+    "uncompressed_bytes": 298820,
+    "format": "deterministic gzip, mtime0; exact round-trip verified"
+  },
+  "validation": {
+    "native_constructor_tests": 2,
+    "feature_off_constructor_tests": 2,
+    "python_tests": 19,
+    "strict_cpp_syntax_configurations": 4,
+    "all_target_clippy_warnings_denied": true,
+    "format_check": true,
+    "physical_probe_success": true
+  },
+  "commands": [
+    [
+      "cargo",
+      "test",
+      "--locked",
+      "-j4",
+      "--manifest-path",
+      "validation/performance/shared_provider/Cargo.toml",
+      "--features",
+      "native-kernels",
+      "kernel_tests",
+      "--",
+      "--test-threads=1"
+    ],
+    [
+      "cargo",
+      "test",
+      "--locked",
+      "-j4",
+      "--manifest-path",
+      "validation/performance/shared_provider/Cargo.toml",
+      "kernel_tests",
+      "--",
+      "--test-threads=1"
+    ],
+    [
+      "cargo",
+      "clippy",
+      "--locked",
+      "-j4",
+      "--manifest-path",
+      "validation/performance/shared_provider/Cargo.toml",
+      "--features",
+      "native-kernels",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    [
+      "cargo",
+      "fmt",
+      "--manifest-path",
+      "validation/performance/shared_provider/Cargo.toml",
+      "--",
+      "--check"
+    ],
+    [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "validation/performance/shared_provider",
+      "-p",
+      "test_*.py"
+    ],
+    [
+      "python3",
+      "validation/performance/shared_provider/run_physical.py",
+      "--output-dir",
+      "target/shared-kernel-selection",
+      "--reference-build-dir",
+      "/shared/external/ninja/target/reference-uncached-v2",
+      "--maximum-integrated-batch",
+      "8",
+      "--all-reduction-kernels"
+    ]
+  ],
+  "logs": {
+    "native-tests": {
+      "path": "validation/evidence/shared-provider-kernel-selection-native-tests.log",
+      "sha256": "ff9f268f851465f7a9a1e64c41fed559904fb1c53ba4c3a5b93462b89674ac39"
+    },
+    "feature-off-tests": {
+      "path": "validation/evidence/shared-provider-kernel-selection-feature-off-tests.log",
+      "sha256": "147bcb4dbe3e8d88b040894edc3c87239b532fee43595dc0ae072c3c370ec7c3"
+    },
+    "clippy": {
+      "path": "validation/evidence/shared-provider-kernel-selection-clippy.log",
+      "sha256": "3bd82a071c0584a25278b8c1076b5bdfb940ad886e28778b23fc33f3c4e80c83"
+    },
+    "format": {
+      "path": "validation/evidence/shared-provider-kernel-selection-format.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "python-tests": {
+      "path": "validation/evidence/shared-provider-kernel-selection-python-tests.log",
+      "sha256": "d37f213656056010ff955785e4d300084baa5c22471073ec204749ad4def743d"
+    },
+    "cpp-syntax": {
+      "path": "validation/evidence/shared-provider-kernel-selection-cpp-syntax.log",
+      "sha256": "fa5ac2abcecc7afbc32fe9a9e2538307f5e468e166a5049587fe2b1b6125688c"
+    }
+  },
+  "limitations": [
+    "f64 physical control at three fixed binary64 input points; no new general Dual/precision claim.",
+    "Seven-family partial catalog: other reduction, integration and accumulation stay interpreted; geometry/numerator/masters are independently selected.",
+    "Timing runner selection compiles in ordinary/execution/allocation configurations, but no timings were executed in this checkpoint.",
+    "Shared-master correctness does not establish production-backend or performance acceptance."
+  ],
+  "performance_acceptance": false
+}
