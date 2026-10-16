@@ -1,7 +1,8 @@
 //! Generated numerical kernels for the core double-cut coordinator.
 
 use crate::{
-    DenominatorExpansion, LaurentDivision, ResidueProjection, TriangleBubbleSubtraction,
+    BubbleSourceProjection, DenominatorExpansion, LaurentDivision, ResidueProjection,
+    TriangleBubbleSubtraction,
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor},
 };
 use ninjars::{
@@ -40,15 +41,6 @@ fn parameters(namespace: &str, count: usize) -> Vec<Atom> {
     (0..count)
         .map(|i| Atom::var(symbol!(format!("{namespace}::p{i}"))))
         .collect()
-}
-
-fn vector(p: &[Atom], offset: usize) -> FourMomentum<Atom> {
-    FourMomentum::from_args(
-        p[offset].clone(),
-        p[offset + 1].clone(),
-        p[offset + 2].clone(),
-        p[offset + 3].clone(),
-    )
 }
 
 fn append_denominator<V: Clone>(
@@ -91,42 +83,9 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             expressions: p[..4].iter().map(|v| -v / (&p[4] * 2)).collect(),
             parameters: p,
         })?;
-        // Shared momentum operations build exact projections, without scalar-domain bounds.
-        let p = parameters("ninjars_bubble_source_projection", 28);
-        let mut expressions = Vec::new();
-        for axis in [20, 24] {
-            let e = vector(&p, axis);
-            expressions.push((vector(&p, 0) + vector(&p, 16)).dot(&e));
-            for v in [4, 8, 12] {
-                expressions.push(vector(&p, v).dot(&e));
-            }
-        }
-        let source_projection = compile(&ExactKernel {
-            expressions,
-            parameters: p,
-        })?;
+        let source_projection = compile(&BubbleSourceProjection::new().exact)?;
         let source_count = if rank > n { 15 } else { 10 };
-        let correction_plan = TriangleBubbleSubtraction::new(rank > n)?;
-        let ExpansionKind::T2 { powers: full } = correction_plan.output_expansion() else {
-            unreachable!()
-        };
-        let ExpansionKind::T2 { powers: selected } = layout.quotient_expansion() else {
-            unreachable!()
-        };
-        let expressions = selected
-            .iter()
-            .map(|power| {
-                let index = full
-                    .iter()
-                    .position(|p| p == power)
-                    .expect("bubble quotient powers fit subtraction degree");
-                correction_plan.exact.expressions[index].clone()
-            })
-            .collect();
-        let correction = compile(&ExactKernel {
-            expressions,
-            parameters: correction_plan.exact.parameters.clone(),
-        })?;
+        let correction = compile(&TriangleBubbleSubtraction::for_quotient(&layout)?.exact)?;
         let width = layout.quotient_expansion().len();
         let p = parameters("ninjars_bubble_parent_sum", width * (n - 1));
         let expressions = (0..width)

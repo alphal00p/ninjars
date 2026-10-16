@@ -1,6 +1,6 @@
 //! Original Ninja residue ordering, projected from corrected Laurent quotients.
 
-use ninjars::{Complex, Error, ExpansionKind, Real, Result, SingleFloat};
+use ninjars::{Complex, Error, ExpansionKind, FourMomentum, Real, Result, SingleFloat};
 use symbolica::{
     atom::{Atom, AtomCore},
     domains::dual::DualNumber,
@@ -12,6 +12,105 @@ use crate::{
     LaurentDivision,
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel},
 };
+
+/// Exact projections of a bubble sampling line on a parent triangle's axes.
+///
+/// Each input row is `[a0, a1, e3, e4_effective, V_triangle, E3, E4]`,
+/// with four components per shared momentum. Outputs are the four projections
+/// `[(a0+V_triangle)·E, a1·E, e3·E, e4_effective·E]` for E3 then E4.
+/// The parent triangle's origin is independent of the target bubble's origin.
+/// This is the existing bubble correction plan, also exposed for mechanical
+/// code generation; all contractions use FeynKit's shared +--- momentum type.
+pub struct BubbleSourceProjection {
+    pub(crate) exact: ExactKernel,
+}
+impl Default for BubbleSourceProjection {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+impl BubbleSourceProjection {
+    pub fn new() -> Self {
+        let p: Vec<_> = (0..28)
+            .map(|i| Atom::var(symbol!(format!("ninjars_bubble_source_projection::p{i}"))))
+            .collect();
+        let vector = |offset: usize| {
+            FourMomentum::from_args(
+                p[offset].clone(),
+                p[offset + 1].clone(),
+                p[offset + 2].clone(),
+                p[offset + 3].clone(),
+            )
+        };
+        let mut expressions = Vec::new();
+        for axis in [20, 24] {
+            let e = vector(axis);
+            expressions.push((vector(0) + vector(16)).dot(&e));
+            for v in [4, 8, 12] {
+                expressions.push(vector(v).dot(&e));
+            }
+        }
+        Self {
+            exact: ExactKernel {
+                expressions,
+                parameters: p,
+            },
+        }
+    }
+    pub fn compile<T: Real + SingleFloat>(
+        &self,
+        prototype: &T,
+    ) -> Result<BubbleSourceProjectionEvaluator<T>>
+    where
+        Complex<T>: Real + EvaluationDomain,
+    {
+        Ok(BubbleSourceProjectionEvaluator {
+            kernel: self.exact.compile(prototype)?,
+        })
+    }
+    pub fn compile_dual<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>>(
+        &self,
+        prototype: &T,
+        dual: &D,
+    ) -> Result<DualBubbleSourceProjectionEvaluator<T, D>>
+    where
+        Complex<T>: Real + EvaluationDomain,
+    {
+        Ok(DualBubbleSourceProjectionEvaluator {
+            kernel: self.exact.compile_dual(prototype, dual)?,
+        })
+    }
+}
+/// Batched arithmetic for the documented 28→8 source-projection layout.
+pub struct BubbleSourceProjectionEvaluator<T> {
+    kernel: CompiledKernel<T>,
+}
+impl<T: Real + SingleFloat> BubbleSourceProjectionEvaluator<T>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    pub fn evaluate_batch(
+        &mut self,
+        input: &[Complex<T>],
+        output: &mut [Complex<T>],
+        rows: usize,
+    ) -> Result<()> {
+        self.kernel.evaluate_batch(input, output, rows)
+    }
+}
+/// All-component Symbolica Dual transformation of the same projection plan.
+pub struct DualBubbleSourceProjectionEvaluator<T, D> {
+    kernel: CompiledDualKernel<T, D>,
+}
+impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>>
+    DualBubbleSourceProjectionEvaluator<T, D>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    pub fn evaluate_batch(&mut self, input: &[D], output: &mut [D], rows: usize) -> Result<()> {
+        self.kernel.evaluate_batch(input, output, rows)
+    }
+}
 
 /// Convert both transverse orientations into Ninja's indexed residue coefficients.
 ///
