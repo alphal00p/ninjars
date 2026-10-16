@@ -1,5 +1,12 @@
 # Reduction kernel profile and next catalog
 
+This is the retained pre-catalog profile. The denominator, bubble correction
+and tadpole source projections proposed below have since been implemented;
+see [current coverage](native-reduction-catalog.md). Their optimized comparison
+is held pending the confirmed reciprocal overflow-masking fix recorded in
+`shared-reduction-catalog-ee1f152-superseded.json`. The historical span timings
+below are not measurements of the current native implementation.
+
 The retained diagnostic evidence contains two external CPU profiles and six
 instrumented kernel runs. Every run passed pre/post total-Laurent checks,
 source/header guards and frozen-master replay with zero misses. Eleven harness
