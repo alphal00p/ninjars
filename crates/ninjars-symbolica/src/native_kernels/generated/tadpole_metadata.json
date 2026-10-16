@@ -1,0 +1,78 @@
+{
+  "algebra": "Existing tadpole source-axis and reference-probe expressions; Symbolica Dualizer",
+  "constant_count": 52,
+  "dual_shape": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      1,
+      1
+    ]
+  ],
+  "plans": [
+    {
+      "bytes": 12650,
+      "dual": false,
+      "inputs": 24,
+      "instructions": 46,
+      "module": "tadpole_triangle_projection",
+      "outputs": 6
+    },
+    {
+      "bytes": 127816,
+      "dual": true,
+      "inputs": 120,
+      "instructions": 746,
+      "module": "tadpole_triangle_projection_dual",
+      "outputs": 30
+    },
+    {
+      "bytes": 17032,
+      "dual": false,
+      "inputs": 28,
+      "instructions": 67,
+      "module": "tadpole_bubble_projection",
+      "outputs": 9
+    },
+    {
+      "bytes": 184940,
+      "dual": true,
+      "inputs": 140,
+      "instructions": 1109,
+      "module": "tadpole_bubble_projection_dual",
+      "outputs": 45
+    },
+    {
+      "bytes": 31006,
+      "dual": false,
+      "inputs": 8,
+      "instructions": 150,
+      "module": "tadpole_geometry_probe",
+      "outputs": 28
+    },
+    {
+      "bytes": 187565,
+      "dual": true,
+      "inputs": 40,
+      "instructions": 1295,
+      "module": "tadpole_geometry_probe_dual",
+      "outputs": 140
+    }
+  ],
+  "production_dispatch": "deferred",
+  "runtime": "oneloopmaster RustEmitter instruction-major batches; width-one scalar path"
+}

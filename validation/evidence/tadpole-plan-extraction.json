@@ -1,0 +1,152 @@
+{
+  "recorded_utc": "2026-10-16T22:07:27.458889+00:00",
+  "base_revision": "ea0a2e912cca9461a4aed5d48ee329fff3934ff3",
+  "dependencies": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "oneloopmaster": "bf7632a916528073464870f1b515d3e62f4e0060",
+    "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+  },
+  "scope": "Exact existing tadpole source-projection and reference-probe extraction; generated ordinary and fixed-shape Dual bodies tested independently; no production native dispatch",
+  "plan_metadata": {
+    "algebra": "Existing tadpole source-axis and reference-probe expressions; Symbolica Dualizer",
+    "constant_count": 52,
+    "dual_shape": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "plans": [
+      {
+        "bytes": 12650,
+        "dual": false,
+        "inputs": 24,
+        "instructions": 46,
+        "module": "tadpole_triangle_projection",
+        "outputs": 6
+      },
+      {
+        "bytes": 127816,
+        "dual": true,
+        "inputs": 120,
+        "instructions": 746,
+        "module": "tadpole_triangle_projection_dual",
+        "outputs": 30
+      },
+      {
+        "bytes": 17032,
+        "dual": false,
+        "inputs": 28,
+        "instructions": 67,
+        "module": "tadpole_bubble_projection",
+        "outputs": 9
+      },
+      {
+        "bytes": 184940,
+        "dual": true,
+        "inputs": 140,
+        "instructions": 1109,
+        "module": "tadpole_bubble_projection_dual",
+        "outputs": 45
+      },
+      {
+        "bytes": 31006,
+        "dual": false,
+        "inputs": 8,
+        "instructions": 150,
+        "module": "tadpole_geometry_probe",
+        "outputs": 28
+      },
+      {
+        "bytes": 187565,
+        "dual": true,
+        "inputs": 40,
+        "instructions": 1295,
+        "module": "tadpole_geometry_probe_dual",
+        "outputs": 140
+      }
+    ],
+    "production_dispatch": "deferred",
+    "runtime": "oneloopmaster RustEmitter instruction-major batches; width-one scalar path"
+  },
+  "source_sha256": {
+    "crates/ninjars-symbolica/Cargo.toml": "2c004073b58e2f20b8d02f848c43f2dad4661ea90a4d8bd63da29ebf7b4fefd5",
+    "crates/ninjars-symbolica/src/tadpole_plans.rs": "8e3a7320bf2b6e64f7a6d2247b224b9e9db135fe8762e7db06b548110f8436a6",
+    "crates/ninjars-symbolica/src/tadpole_kernels.rs": "906e43bd761ce2323e665d645c2daab0735613b58adb74913a946d558cd60884",
+    "crates/ninjars-symbolica/src/cuts.rs": "af2d23f640f5ce0a6e791e0ef3c7e2648e7dee03debbae79e832e454a6f49d69",
+    "crates/ninjars-symbolica/src/lib.rs": "f66f571613289fcb7b95e3f27e286a42de65fd8e88bdd5e9b33dd8e9372cb621",
+    "crates/ninjars-symbolica/src/rust_codegen.rs": "4985b70d1515dae42f11dc3d24a340d4254834674038f0c595b6b2f718c0725d",
+    "crates/ninjars-symbolica/examples/generate_native_tadpoles.rs": "ed29d6d4c7a2a28d3247c35d3de7d86d9e571369d9e8e260b58e02647d6fc741",
+    "crates/ninjars-symbolica/tests/tadpole_plans.rs": "bfe083881dcd285f6066a236e39b8a9ed750cd443600263261bfca59284694a8",
+    "crates/ninjars-symbolica/tests/native_tadpole_plans.rs": "f5cb19ac33ec254e0f3ef85bb80afd40326bd1506f18cbd0d0226dba92b02006",
+    "docs/tadpole-kernel-plans.md": "478f0733d3f619d649818ed7e86c48b6c30a48d01b69bcc0255460f05e6b1884",
+    "docs/reduction-kernel-profile.md": "c2e240c543478a3ee03b4c306f15d3620389730e9be555c083c75ad355678b70",
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_bubble_projection.rs": "37e5a6b46e5220b678f116d68af522afb2a0a88db022d7b7049e9d5878ec4d7e",
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_bubble_projection_dual.rs": "723ee1a35d2c9028e6bb71c381ad74a99048f5e0ae7b72eef08f852b9efbfa02",
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_constants.rs": "dc3143df42388804afbacb2a86d0f3b3c0308934437394f5a906025418062266",
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_geometry_probe.rs": "9c8ae06eed788a147a97b06461785f2cef33861b174e7808e010d8df80e418bf",
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_geometry_probe_dual.rs": "ea086814f28b38e035c9e4396ffccb1014c07546e2eba3c458d8e22bbbd1bea4",
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_metadata.json": "232ca965d01c5a01b0a62b6451f192f326c233656b0206534633e83e7ba7e4a1",
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_triangle_projection.rs": "616c1c0dc83e9de7f05007276b90ede2b68e256a9553e1f139e3ec2174f4cfd4",
+    "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_triangle_projection_dual.rs": "5bc005d63eb281f443f6e5bc3a2d5374b05363f866c493ba9d3128c87e780c0d"
+  },
+  "validation": [
+    {
+      "target": "cuts",
+      "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.62s",
+      "elapsed_seconds": 0.620195210998645,
+      "executable_sha256": "4e26baed5591d466e01e3bc42dd6ca676a52f88b36943f73c65be8316aaf1e8f"
+    },
+    {
+      "target": "tadpoles",
+      "summary": "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.05s",
+      "elapsed_seconds": 2.0559503069962375,
+      "executable_sha256": "f6bb8719675bfcff1d035ab3f1d851d41422a84f06a83147c3a13053e5b4c139"
+    },
+    {
+      "target": "tadpole_plans",
+      "summary": "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+      "elapsed_seconds": 0.028317154006799683,
+      "executable_sha256": "f6c9988e40f46685278e79e9e8ec5f321b1dc1ae2093a4a47da594e8feb17566"
+    },
+    {
+      "target": "native_tadpole_plans",
+      "summary": "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.38s",
+      "elapsed_seconds": 12.386799266998423,
+      "executable_sha256": "c46712193d9d85f90fb542a00973adfc595ef659f49cea7fe6a7c5682feb7910"
+    }
+  ],
+  "strict_clippy": {
+    "passed": true,
+    "command": "cargo clippy -p ninjars-symbolica --features rust-codegen --test tadpole_plans --test native_tadpole_plans --example generate_native_tadpoles --locked -- -D warnings"
+  },
+  "format_check": true,
+  "build_command": "cargo test -p ninjars-symbolica --features rust-codegen --locked --test tadpole_plans --test native_tadpole_plans --test tadpoles --test cuts --no-run",
+  "test_command": "Run the four compiled test binaries serially with --test-threads=1 and RUST_MIN_STACK=134217728",
+  "observed_incremental_debug_build_seconds": 7.43,
+  "build_cost_scope": "Incremental local debug build with dependencies cached; not a cold-build or runtime benchmark",
+  "total_generated_module_bytes": 561009,
+  "performance_acceptance": false,
+  "limitations": [
+    "Runtime native selection for these plans is deferred.",
+    "Generated Dual bodies have only the explicit five-component ordered shape in metadata; production Dual evaluation remains interpreted.",
+    "Cold cut setup constructs the same six exact bases for probe and finish separately; warm arithmetic is unchanged.",
+    "The previous profile label finish for8\u219228 was corrected to probe; raw profile artifacts are unchanged."
+  ]
+}

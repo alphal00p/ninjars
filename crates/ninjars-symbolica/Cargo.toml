@@ -23,6 +23,10 @@ required-features = ["rust-codegen"]
 name = "generate_native_denominators"
 required-features = ["rust-codegen"]
 
+[[example]]
+name = "generate_native_tadpoles"
+required-features = ["rust-codegen"]
+
 [dependencies]
 ninjars.workspace = true
 symbolica.workspace = true

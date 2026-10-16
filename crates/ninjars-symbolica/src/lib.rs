@@ -27,6 +27,7 @@ mod reference;
 pub mod rust_codegen;
 mod subtraction;
 mod tadpole_kernels;
+mod tadpole_plans;
 mod triangle_kernels;
 mod value_checks;
 
@@ -59,4 +60,7 @@ pub use subtraction::{
     TriangleBubbleSubtraction,
 };
 pub use tadpole_kernels::{SymbolicaDualTadpoleKernels, SymbolicaTadpoleKernels};
+pub use tadpole_plans::{
+    DualTadpolePlanEvaluator, TadpoleGeometryProbe, TadpolePlanEvaluator, TadpoleSourceProjection,
+};
 pub use triangle_kernels::{SymbolicaDualTriangleKernels, SymbolicaTriangleKernels};
