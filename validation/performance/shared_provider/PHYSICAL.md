@@ -1,0 +1,28 @@
+# Shared physical numerical preparation
+
+`run_physical.py` is a correctness probe for the independently matched top pentagon graph26 in gg→HHH. It consumes `validation/evidence/gg-hhh-changing-pool.json` unchanged: three binary64 momentum rows at center-of-mass energies450,525,600, fixed `pp` helicities, and zero widths. The600 point lies across a massive-pair subchannel threshold from the first two; none lies on the threshold.
+
+The per-point input boundary is five positive-energy four-momenta, five helicities, the free model inputs `[MT,ymt,MH,Gf,aS,aEWM1,MZ]`, and the squared renormalization scale. Each complete path calls the same `sp_physical_prepare`: shared FeynKit wavefunctions (two vector and three scalar), dependent model/coupling evaluation, one multi-output coefficient evaluation per row, routed propagators, squared masses, and the S matrix. It uses exact model expressions and shared Symbolica polynomial factoring before compilation. Graph loading, Feynman rules, symbolic contraction, coefficient splitting/factoring and compilation are setup, outside the per-point boundary.
+
+Both reducers use the exact same Rust `PolynomialNumerator` through `sp_call`. Both master adapters call `sp_master_call`. Two policies remain explicit:
+
+- Frozen union replay validates reduction/contraction/master lookup using the union of actual requests from both reducers. It never computes a missing integral.
+- Live shared masters bypass all result-table lookups and insertions and execute the production Symbolica master provider on every request. Backend call/row counters demonstrate that both complete paths execute the masters even at repeated points.
+
+The live control is not the separate production-backend comparison between NinjaRS/oneloopmaster and original Ninja/OneLOop. That comparison remains required. This probe takes no timings and makes no acceptance claim.
+
+`SpPhysical` owns its numerator provider. The pointer returned by `sp_physical_provider` is borrowed, must never be destroyed through `sp_destroy`, and is invalidated when the physical handle is destroyed. Destroy the C++ borrowed adapter first. Preparation and reduction calls are serialized; buffers and handles must be valid and mutually disjoint for each call. Preparation failures preserve the caller's output and previously committed provider bindings. Input validation and nonfinite-coefficient failures reject the whole preparation batch explicitly.
+
+The independent raw control uses all70 degree-four unisolvent complex loop samples at each of the three phase-space points. The verified mapping is FeynKit graph26→MadLoop filter55, `K→−K`, denominator permutation `[4,0,2,1,3]`. Raw MadLoop values receive the independently derived factor `−1/2`; integrated values receive `−8π²`. The DOT's color projector, fermion sign and graph prefactor are applied exactly once. Fixed MadLoop mode4 is the integrated oracle, with mode1 retained separately.
+
+The coefficient oracle exactly promotes the represented binary64 momenta/wavefunction/model component inputs to Symbolica Float256. It validates coefficient arithmetic, not arbitrary-precision physical wavefunctions. Both coefficient providers use the same factored exact expressions. Per-component scaled comparison is `abs(actual-reference)/max(1,abs(reference)) ≤ 1e-9`; all comparisons reject nonfinite values. Total Laurent coefficients and each reducer's own finite=CC+rational identity are checked. Separate rational/CC parity is not claimed for different residue-basis conventions.
+
+Preparation covers widths0,1,8,32,128,1024 and31. Integrated coverage is reported separately and controlled by `--maximum-integrated-batch`; do not infer integration coverage from preparation widths. The changing-point pool is distinct from helicity variation. Sources, dependency pins, input bytes, linked libraries and executable hashes are recorded before/after execution; the older shared-provider evidence remains immutable.
+
+Run in the project's pinned tool environment with the local Symbolica license:
+
+```sh
+python3 validation/performance/shared_provider/run_physical.py \
+  --output-dir target/performance/shared-physical-control \
+  --maximum-integrated-batch 32
+```

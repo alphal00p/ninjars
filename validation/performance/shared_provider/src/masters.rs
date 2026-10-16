@@ -24,6 +24,8 @@ pub struct Masters {
     backend: SymbolicaMasters<f64>,
     entries: HashMap<Key, Entry>,
     frozen: bool,
+    live: bool,
+    backend_calls: usize,
     backend_rows: usize,
     replay_rows: usize,
     misses: usize,
@@ -34,6 +36,8 @@ impl Masters {
             backend: SymbolicaMasters::new(0.),
             entries: HashMap::new(),
             frozen: false,
+            live: false,
+            backend_calls: 0,
             backend_rows: 0,
             replay_rows: 0,
             misses: 0,
@@ -58,6 +62,26 @@ impl Masters {
             .any(|v| !v.re.is_finite() || !v.im.is_finite())
         {
             return Err("nonfinite master key".into());
+        }
+        if self.live {
+            // Complete shared-provider controls execute the master expressions
+            // on every request, including repeated points. No key lookup or
+            // insertion occurs in this mode.
+            let mut values = vec![[Complex::new(0., 0.); 3]; request.rows()];
+            let mut statuses = vec![MasterStatus::Success; request.rows()];
+            self.backend_calls += 1;
+            self.backend
+                .evaluate_batch(request, &mut values, &mut statuses)
+                .map_err(|e| e.to_string())?;
+            if let Some((row, status)) = statuses
+                .iter()
+                .enumerate()
+                .find(|(_, status)| **status != MasterStatus::Success)
+            {
+                return Err(format!("shared live master row {row} failed: {status:?}"));
+            }
+            self.backend_rows += values.len();
+            return Ok(values);
         }
         let ni = request.integral.invariant_count();
         let nm = request.integral.mass_count();
@@ -104,6 +128,7 @@ impl Masters {
                 .collect::<Vec<_>>();
             let mut values = vec![[Complex::new(0., 0.); 3]; missing.len()];
             let mut statuses = vec![MasterStatus::Success; missing.len()];
+            self.backend_calls += 1;
             self.backend
                 .evaluate_batch(
                     MasterRequest {
@@ -285,8 +310,51 @@ pub unsafe extern "C" fn sp_master_call(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn sp_master_freeze(handle: *mut Masters) -> i32 {
     guard(|| {
-        unsafe { masters(handle) }?.frozen = true;
+        let state = unsafe { masters(handle) }?;
+        if state.live {
+            return Err("live master provider cannot freeze".into());
+        }
+        state.frozen = true;
         Ok(())
+    })
+}
+/// # Safety
+/// Live exclusive handle. Live mode cannot replace frozen replay, and skips
+/// every result-table lookup/insertion. Existing capture entries are retained
+/// only for diagnostics and are never consulted by live execution.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sp_master_set_live(handle: *mut Masters) -> i32 {
+    guard(|| {
+        let state = unsafe { masters(handle) }?;
+        if state.frozen {
+            return Err("frozen replay cannot become a live master provider".into());
+        }
+        state.live = true;
+        Ok(())
+    })
+}
+/// # Safety
+/// Live exclusive handle and three writable u64 cells: backend calls (including
+/// failed calls), successful backend rows, live-mode flag.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sp_master_execution_stats(
+    handle: *mut Masters,
+    out: *mut u64,
+    len: usize,
+) -> i32 {
+    guard(|| {
+        let state = unsafe { masters(handle) }?;
+        unsafe {
+            write(
+                out,
+                len,
+                &[
+                    state.backend_calls as u64,
+                    state.backend_rows as u64,
+                    u64::from(state.live),
+                ],
+            )
+        }
     })
 }
 /// # Safety
@@ -391,6 +459,34 @@ mod tests {
     fn c(x: f64) -> Complex<f64> {
         Complex::new(x, 0.)
     }
+    #[test]
+    fn live_mode_reexecutes_repeated_rows_without_table_access() {
+        let mut state = Masters::new();
+        let masses = [Complex::new(2., 0.), Complex::new(2., 0.)];
+        let scales = [Complex::new(1., 0.); 2];
+        let request = MasterRequest {
+            integral: MasterIntegral::A0,
+            invariants: &[],
+            masses_squared: &masses,
+            scales_squared: &scales,
+        };
+        let expected = state.evaluate(request, 1).unwrap();
+        let entries = state.entries.len();
+        let calls = state.backend_calls;
+        let rows = state.backend_rows;
+        state.live = true;
+        for _ in 0..2 {
+            assert_eq!(state.evaluate(request, 2).unwrap(), expected);
+        }
+        assert_eq!(state.entries.len(), entries);
+        assert_eq!(state.backend_calls, calls + 2);
+        assert_eq!(state.backend_rows, rows + 4);
+        assert_eq!(state.replay_rows, 0);
+        assert!(state.entries.values().all(|entry| entry.sources == 1));
+        assert_ne!(unsafe { sp_master_freeze(&mut state) }, 0);
+        assert!(!state.frozen);
+    }
+
     #[test]
     fn capture_union_replays_permuted_batches_and_rejects_changed_scale_and_order() {
         let mut state = Masters::new();

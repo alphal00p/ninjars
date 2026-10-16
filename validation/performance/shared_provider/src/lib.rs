@@ -8,6 +8,7 @@ use ninjars::{
 use ninjars_symbolica::PolynomialNumerator;
 mod foreign;
 mod masters;
+mod physical;
 mod session;
 
 use std::{

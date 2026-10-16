@@ -10,12 +10,13 @@ six propagators and rank n+1, with batched polynomial/Dual callbacks, both box
 mu-extraction modes, lower-cut subtraction, master integrals and lane-local accumulation.
 Analytic and original Ninja controls validate an initial synthetic suite.
 Independent FeynKit preparation also matches raw MadLoop numerators for both
-top-quark H→gg orientations. Their physical helicity amplitudes agree in all
-three scalar precisions; four f64 longitudinal diagnostic rows still miss the
-fixed pole tolerance. Six top-quark four-photon boxes also pass independent raw
-numerator comparisons for three helicities and generic complex polarizations;
-their integrated comparison is pending. Full reconstruction controls, broader physical validation,
-derivative continuation and performance acceptance remain in development.
+top-quark H→gg orientations, six four-photon boxes and eight gg→HH graphs.
+Their physical integrated comparisons pass in all three scalar precisions.
+Some generic-polarization and Ward diagnostics remain outside the fixed gates,
+as recorded in the evidence ledger. All 50 top-quark gg→HHH graphs pass raw
+numerator matching; their full integrated matrix is being validated separately.
+Full reconstruction controls, derivative continuation and performance acceptance
+remain in development.
 The complete specification and evidence ledger are in [the plan](references/PLAN.md).
 
 ## Development
@@ -106,6 +107,11 @@ The [matched reference timing harness](validation/performance/README.md) uses a
 common parameterized numerator, an uncached original-Ninja/OneLOop build, and
 persistent numerical sessions. It records full Laurent checks, compiler/build
 provenance and raw timing rounds; the performance gates remain unfulfilled.
+The [shared physical-provider control](validation/performance/shared_provider/PHYSICAL.md)
+also validates a gg→HHH pentagon from raw external momenta through wavefunctions,
+model parameters, SymJIT coefficient preparation, reduction and live masters.
+It covers three changing phase-space points and batches through 1024; it is a
+correctness control, with optimized end-to-end timing still outstanding.
 
 The optional `ninjars-symbolica/rust-codegen` feature exports existing exact
 kernel graphs through oneloopmaster's shared emitter. The
@@ -117,7 +123,7 @@ See [synthetic graph fixtures](examples/graphs/README.md) and the
 [original Ninja reference harness](validation/reference/README.md).
 The [physical preparation guide](docs/physical-preparation.md) gives exact
 polarization/model bindings, isolated MadLoop graph comparisons and the retained
-physical accuracy results, including the unresolved longitudinal f64 poles.
+physical accuracy results and diagnostic limitations.
 The [adapter guide](crates/ninjars-symbolica/README.md) describes precision,
 Dual coefficient conventions and current master-domain limitations. Constructing
 large oneloopmaster expressions requires a generous thread stack; the test command

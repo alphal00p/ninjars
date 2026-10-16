@@ -1057,3 +1057,40 @@ connects the existing kernels into integrated amplitudes and a standalone
 - The 2,400-row integrated comparison is running against a separately copied,
   immutable development CLI on pins `fd7bced5/e9d14f7`. Raw matching is complete;
   integrated acceptance, pole controls and performance remain separate gates.
+
+### Shared physical pentagon preparation and reduction (2026-10-16)
+
+- A frozen numerical pool supplies three distinct on-shell gg→HHH points at
+  center-of-mass energies 450, 525 and 600, fixed helicity, zero widths and
+  squared scale 10000. Shared FeynKit momenta and Symbolica exact construction
+  verify conservation and mass shells before rounding each component once.
+  The MadLoop harness reads the same stored binary64 values unchanged; 420
+  internal raw/wrapper checks and six fixed-mode integrations pass. Five
+  boundary and coverage mutation tests pass.
+- The validation-only physical provider evaluates five wavefunctions, dependent
+  model parameters, 57 exact-factored polynomial coefficient heads, routed
+  propagators and the S matrix on every preparation call. Both reducers consume
+  the same Rust numerator callback and numerical input preparation. SymJIT O2
+  remains entirely in the preparation adapter, outside the reduction engine.
+- All 210 independent raw numerator checks pass (maximum scaled error
+  `3.78e-15`). Float256 coefficient controls exactly promote the binary64
+  component inputs and pass at `2.36e-15`; they do not establish higher-precision
+  physical wavefunctions. The independently verified graph26→MadLoop55 mapping
+  retains the `-1/2` raw and `-8*pi^2` integrated factors.
+- Integrated widths 0, 1, 3, 8, 31, 32, 128 and 1024 pass **3,681 Laurent
+  component comparisons**, with reducer agreement `2.14e-16` and fixed MadLoop
+  mode-four agreement `1.15e-16`. Preparation covers 3,705 rows and 18,525
+  wavefunction evaluations. Four failing-input controls preserve output and
+  prior provider bindings; changed model parameters also pass the coefficient
+  oracle. Six Rust regressions, strict Clippy and formatting pass.
+- Frozen master replay uses the actual union of 85 requested integrals.
+  Separate live mode bypasses every result-table lookup and insertion: original
+  Ninja executes 150 master rows, while NinjaRS executes 120 rows in five
+  batches. Repeating NinjaRS adds another 120 rows and five backend calls,
+  verifying that repeated points still execute the master expressions.
+- Evidence is `validation/evidence/shared-physical-provider-probe.json` and
+  `gg-hhh-changing-*.json`, with before/after source guards, artifact hashes and
+  commands. No optimized timing, separate production-backend performance, or
+  cross-basis rational-separation acceptance is claimed. The Euclidean C0
+  exceptional point remains a separately documented failing regression at these
+  pins; its isolated fix is still under validation.

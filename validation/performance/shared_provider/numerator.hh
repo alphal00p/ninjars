@@ -14,7 +14,7 @@ static void checked(int code) {
 }
 static SpPair pair(const ninja::Complex &z) { return {z.real(),z.imag()}; }
 static ninja::Complex complex(SpPair z) { return {z.re,z.im}; }
-static void close(ninja::Complex actual,ninja::Complex expected) {
+[[maybe_unused]] static void close(ninja::Complex actual,ninja::Complex expected) {
   if (!std::isfinite(actual.real()) || !std::isfinite(actual.imag()) ||
       !std::isfinite(expected.real()) || !std::isfinite(expected.imag()) ||
       std::abs(actual-expected)>1e-11*(1.+std::abs(expected)))
@@ -22,6 +22,7 @@ static void close(ninja::Complex actual,ninja::Complex expected) {
 }
 class SharedNumerator final:public ninja::Numerator {
   SpProvider *handle_{};
+  bool owns_{true};
   std::array<uint64_t,3> info_{};
   uint64_t lane_{};
   std::vector<SpPair> input_, output_;
@@ -34,7 +35,10 @@ class SharedNumerator final:public ninja::Numerator {
   }
 public:
   explicit SharedNumerator(unsigned fixture){checked(sp_create(fixture,&handle_));checked(sp_info(handle_,info_.data(),info_.size()));input_.reserve(19);powers_.reserve(39);output_.reserve(13);}
-  ~SharedNumerator() override {sp_destroy(handle_);}
+  // Borrowed provider is owned by its physical handle. All uses are serialized;
+  // destroy this adapter before the owning physical handle.
+  explicit SharedNumerator(SpProvider *borrowed):handle_(borrowed),owns_(false){checked(sp_info(handle_,info_.data(),info_.size()));input_.reserve(19);powers_.reserve(39);output_.reserve(13);}
+  ~SharedNumerator() override {if(owns_)sp_destroy(handle_);}
   SharedNumerator(const SharedNumerator&)=delete;
   SharedNumerator&operator=(const SharedNumerator&)=delete;
   void bind(const std::vector<SpPair>&values,size_t rows){checked(sp_bind(handle_,values.data(),values.size(),rows));}

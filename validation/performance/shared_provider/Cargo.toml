@@ -12,6 +12,9 @@ crate-type = ["rlib", "cdylib"]
 [dependencies]
 ninjars = { path = "../../../crates/ninjars" }
 ninjars-symbolica = { path = "../../../crates/ninjars-symbolica" }
+ninjars-graph = { path = "../../../crates/ninjars-graph", features = ["numerator-jit"] }
+feynkit-graph = { path = "../../../references/gammaloop_ninja_shared/crates/feynkit-graph", default-features = false, features = ["native"] }
+feynkit-kinematics = { path = "../../../references/gammaloop_ninja_shared/crates/feynkit-kinematics" }
 symbolica = { version = "3.0.1", default-features = false, features = ["integer-gmp", "float-mpfr", "bincode", "serde", "tracing_max_level_info"] }
 
 [patch.crates-io]

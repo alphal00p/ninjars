@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "compile_command": [
+    "rustc",
+    "--edition=2024",
+    "/shared/external/ninja/validation/madloop/gg_hhh/phase_space_pool.rs",
+    "-o",
+    "/shared/external/ninja/target/physical/gg-hhh/changing-pool-v2/phase-space-pool",
+    "-L",
+    "dependency=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps",
+    "--extern",
+    "serde_json=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libserde_json-116ef9b7dba087ae.rlib",
+    "--extern",
+    "symbolica=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libsymbolica-46b4143f33dc3388.rlib",
+    "--extern",
+    "ninjars_graph=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libninjars_graph-7af5955dc3634b27.rlib"
+  ],
+  "run_command": [
+    "/shared/external/ninja/target/physical/gg-hhh/changing-pool-v2/phase-space-pool"
+  ],
+  "compiler": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+  "binary_sha256": "98b91f7f2aa0c06220c230b3ba40c1e6aaaf5fc126ecab1ab742b75f80216739",
+  "pool_sha256": "07f1da9125609ac5a4f737e6d6adcb29ea573926c32353606d32449bfbef7fbb",
+  "rlib_sha256": {
+    "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libserde_json-116ef9b7dba087ae.rlib": "b59523ea6b430b07de5b266a3b18fe67d39d419c3e96bbfee228ecc80285da58",
+    "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libsymbolica-46b4143f33dc3388.rlib": "6c35df2496b87615aab44ebdcfd2961d661bd140070b117cd0ebf9f51f5e8d6a",
+    "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libninjars_graph-7af5955dc3634b27.rlib": "85754c565fad78d23d0a972034062dd6fe768aaa3fbe2f78ec9eba531fb8d701"
+  },
+  "source_sha256": {
+    "/shared/external/ninja/validation/madloop/gg_hhh/phase_space_pool.py": "6eab6dd1cf96d027c13d7fc4afd66f7d9dd46efa431ff75c1f48bdb4b4c4d9fb",
+    "/shared/external/ninja/validation/madloop/gg_hhh/phase_space_pool.rs": "303987e25660b8843109435bfb11ed8871d043c47750a707379f87b03cb07e32",
+    "/shared/external/ninja/Cargo.lock": "1035b5beee28438bc1e0841e541f8a5d4986f46e50c0ee25820b4326c8b155b0",
+    "/shared/external/ninja/dependencies/manifest.json": "d71dcb77b2f354dd604dd591009290d33d81ec7089bff3bf8291eb9e9faba89c"
+  }
+}
