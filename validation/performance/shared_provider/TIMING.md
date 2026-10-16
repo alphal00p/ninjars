@@ -107,7 +107,7 @@ C++ artifacts. The C++ runner accepts the same optional last argument; omitting
 it preserves interpreted behavior. Session selection and coverage validation
 happen during setup, before warmup or any block.
 
-Every JSON report includes the actual seven-family backend report and the
+Every JSON report includes the actual eight-family backend report and the
 compiled feature flag. Both frontends validate those values. The currently
 available `native` catalog additionally executes ordinary bubble source
 projections and triangle-parent corrections; other reduction, integration and

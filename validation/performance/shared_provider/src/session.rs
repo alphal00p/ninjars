@@ -13,7 +13,7 @@ use ninjars_symbolica::{
 };
 type C = Complex<f64>;
 pub struct Session {
-    kernel_info: [u64; 9],
+    kernel_info: [u64; 10],
     n: usize,
     rank: usize,
     amplitude: Amplitude<C, SymbolicaAmplitudeKernels<f64>>,
@@ -40,7 +40,7 @@ fn kernels(
     n: usize,
     rank: usize,
     selection: u32,
-) -> Result<(SymbolicaAmplitudeKernels<f64>, [u64; 9])> {
+) -> Result<(SymbolicaAmplitudeKernels<f64>, [u64; 10])> {
     if selection > 2 {
         return Err("unknown reduction-kernel selection".into());
     }
@@ -56,22 +56,23 @@ fn kernels(
         2 => kernels.with_native_kernels(),
         _ => unreachable!(),
     };
-    let mut info = [0; 9];
+    let mut info = [0; 10];
     info[0] = u64::from(selection);
     info[1] = u64::from(cfg!(feature = "native-kernels"));
     #[cfg(feature = "native-kernels")]
     {
         use ninjars_symbolica::{KernelBackend, KernelFamily};
-        let mut seen = [false; 7];
+        let mut seen = [false; 8];
         for entry in kernels.kernel_backends() {
             let index = match entry.family {
                 KernelFamily::T2Denominators => 0,
                 KernelFamily::T3Denominators => 1,
                 KernelFamily::BubbleSourceProjection => 2,
                 KernelFamily::TriangleBubbleCorrection => 3,
-                KernelFamily::OtherReduction => 4,
-                KernelFamily::Integration => 5,
-                KernelFamily::Accumulation => 6,
+                KernelFamily::TadpoleSourceProjection => 4,
+                KernelFamily::OtherReduction => 5,
+                KernelFamily::Integration => 6,
+                KernelFamily::Accumulation => 7,
             };
             if seen[index] {
                 return Err("duplicate kernel coverage family".into());
@@ -143,8 +144,8 @@ pub unsafe extern "C" fn sp_session_create_with_kernels(
     })
 }
 /// # Safety
-/// Live exclusive session and nine writable cells: selection, compiled-native
-/// feature, then backend flags for T2,T3,bubble-source,triangle-bubble,other,
+/// Live exclusive session and ten writable cells: selection, compiled-native
+/// feature, then backend flags for T2,T3,bubble-source,triangle-bubble,tadpole-source,other,
 /// integration,accumulation. Zero means interpreted, one means generated Rust.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn sp_session_kernel_info(
@@ -411,9 +412,9 @@ mod kernel_tests {
         let mut handle = std::ptr::null_mut();
         assert_eq!(unsafe { sp_session_create(2, 2, 0, &mut handle) }, 0);
         let original = handle;
-        let mut info = [99; 9];
+        let mut info = [99; 10];
         assert_eq!(
-            unsafe { sp_session_kernel_info(handle, info.as_mut_ptr(), 9) },
+            unsafe { sp_session_kernel_info(handle, info.as_mut_ptr(), 10) },
             0
         );
         assert_eq!(info[0], 0);
@@ -427,14 +428,15 @@ mod kernel_tests {
             assert_eq!(handle, original);
         }
         let before = info;
+        // Reject the previous seven-family buffer without a partial write.
         assert_ne!(
-            unsafe { sp_session_kernel_info(handle, info.as_mut_ptr(), 8) },
+            unsafe { sp_session_kernel_info(handle, info.as_mut_ptr(), 9) },
             0
         );
         assert_eq!(info, before);
         unsafe { session(handle).unwrap() }.amplitude.reset_batch(3);
         assert_eq!(
-            unsafe { sp_session_kernel_info(handle, info.as_mut_ptr(), 9) },
+            unsafe { sp_session_kernel_info(handle, info.as_mut_ptr(), 10) },
             0
         );
         assert_eq!(info, before);
@@ -447,9 +449,9 @@ mod kernel_tests {
             let status = unsafe { sp_session_create_with_kernels(5, 4, 0, selection, &mut handle) };
             if cfg!(feature = "native-kernels") {
                 assert_eq!(status, 0);
-                let mut info = [99; 9];
+                let mut info = [99; 10];
                 assert_eq!(
-                    unsafe { sp_session_kernel_info(handle, info.as_mut_ptr(), 9) },
+                    unsafe { sp_session_kernel_info(handle, info.as_mut_ptr(), 10) },
                     0
                 );
                 assert_eq!(
@@ -459,6 +461,7 @@ mod kernel_tests {
                         1,
                         1,
                         1,
+                        u64::from(selection == 2),
                         u64::from(selection == 2),
                         u64::from(selection == 2),
                         0,

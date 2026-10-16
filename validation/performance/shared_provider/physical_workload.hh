@@ -46,7 +46,7 @@ struct Physical{
   std::vector<SpPair> coefficients(){std::vector<SpPair> result(scales.size()*info[4]);checked(sp_physical_coefficients(handle,result.data(),result.size()));return result;}
 };
 struct Session{
-  SpSession *handle{};std::array<uint64_t,9> info{};
+  SpSession *handle{};std::array<uint64_t,10> info{};
   explicit Session(unsigned selection=SP_KERNEL_SYMBOLICA){
     checked(sp_session_create_with_kernels(5,4,3,selection,&handle));
     try{checked(sp_session_kernel_info(handle,info.data(),info.size()));validate_kernel_info(info,selection);}
