@@ -7,6 +7,7 @@ license.workspace = true
 description = "Standalone graph preparation and reduction with NinjaRS"
 
 [features]
+native-kernels = ["ninjars-symbolica/native-kernels"]
 numerator-jit = ["ninjars-graph/numerator-jit"]
 reference-codegen = ["ninjars-symbolica/reference-codegen"]
 

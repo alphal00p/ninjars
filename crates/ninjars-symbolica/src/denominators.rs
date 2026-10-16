@@ -149,3 +149,74 @@ where
         self.kernel.evaluate_batch(input, output, rows)
     }
 }
+
+#[cfg(feature = "native-kernels")]
+impl DenominatorExpansion {
+    fn native_plan(&self) -> crate::native_kernels::DenominatorPlan {
+        match self.kind {
+            ExpansionKind::T2 { .. } => crate::native_kernels::DenominatorPlan::T2,
+            ExpansionKind::T3 { .. } => crate::native_kernels::DenominatorPlan::T3,
+            _ => unreachable!("DenominatorExpansion creates only T2/T3 plans"),
+        }
+    }
+
+    /// Compile the existing plan and explicitly select generated Rust arithmetic.
+    /// Constants use `prototype` precision; input values retain their own precision.
+    pub fn compile_native<T: oneloop::rust_codegen::runtime::NativeFloat>(
+        &self,
+        prototype: &T,
+    ) -> Result<DenominatorEvaluator<T>>
+    where
+        Complex<T>: Real + EvaluationDomain,
+    {
+        let mut result = self.compile(prototype)?;
+        crate::native_kernels::install_denominator(
+            &mut result.kernel,
+            self.native_plan(),
+            prototype,
+        )?;
+        Ok(result)
+    }
+
+    /// Select native Rust for the supported ordered five-component Dual shape.
+    /// Other shapes keep the ordinary Symbolica evaluator and report that backend.
+    pub fn compile_dual_native<
+        T: oneloop::rust_codegen::runtime::NativeFloat,
+        D: Real + DualNumber<Complex<T>>,
+    >(
+        &self,
+        prototype: &T,
+        dual: &D,
+    ) -> Result<DualDenominatorEvaluator<T, D>>
+    where
+        Complex<T>: Real + EvaluationDomain,
+    {
+        let mut result = self.compile_dual(prototype, dual)?;
+        crate::native_kernels::install_dual_denominator(
+            &mut result.kernel,
+            self.native_plan(),
+            prototype,
+        )?;
+        Ok(result)
+    }
+}
+
+#[cfg(feature = "native-kernels")]
+impl<T: Real + SingleFloat> DenominatorEvaluator<T>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    pub fn backend(&self) -> crate::KernelBackend {
+        self.kernel.backend()
+    }
+}
+
+#[cfg(feature = "native-kernels")]
+impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> DualDenominatorEvaluator<T, D>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    pub fn backend(&self) -> crate::KernelBackend {
+        self.kernel.backend()
+    }
+}

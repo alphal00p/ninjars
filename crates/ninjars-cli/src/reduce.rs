@@ -32,6 +32,29 @@ pub enum MuExtraction {
 }
 
 #[derive(Clone, Copy, ValueEnum)]
+pub enum ReductionKernels {
+    Symbolica,
+    /// Execute generated Rust for T2/T3 denominator expansions only.
+    NativeDenominators,
+}
+
+impl ReductionKernels {
+    pub(crate) fn name(self) -> &'static str {
+        match self {
+            Self::Symbolica => "symbolica",
+            Self::NativeDenominators => "native-denominators",
+        }
+    }
+
+    pub(crate) fn validate(self) -> Result<()> {
+        if matches!(self, Self::NativeDenominators) && !cfg!(feature = "native-kernels") {
+            return Err("--reduction-kernels native-denominators requires a build with --features native-kernels".into());
+        }
+        Ok(())
+    }
+}
+
+#[derive(Clone, Copy, ValueEnum)]
 pub enum NumeratorEvaluator {
     Symbolica,
     SymjitO2,
@@ -81,6 +104,9 @@ pub struct Args {
     /// Evaluate the physical numerator directly, or compile its coefficient heads once with SymJIT O2.
     #[arg(long, value_enum, default_value = "symbolica")]
     pub numerator_evaluator: NumeratorEvaluator,
+    /// Reduction execution, independently of the numerator preparation provider.
+    #[arg(long, value_enum, default_value = "symbolica")]
+    pub reduction_kernels: ReductionKernels,
     /// Working precision in bits for --precision float (default 256).
     #[arg(long)]
     pub bits: Option<u32>,
@@ -222,6 +248,7 @@ where
     prepared.document["requested_cut_stop"] = args.cut_stop.into();
     prepared.document["rank"] = rank.into();
     prepared.document["numerator_provider"] = session.numerator_provider_info();
+    prepared.document["reduction_kernels"] = session.kernel_provider_info();
     prepared.document["box_reduction"] = json!({"mu_extraction":match args.mu_extraction {MuExtraction::Expansion=>"expansion",MuExtraction::Sampling=>"sampling"},"coefficient_mode":if args.full_box_coefficients {"full"}else{"integrated"},"mu_sampling_scale":args.mu_sampling_scale});
     prepared.document["box_reduction"]["mu_sampling_scale_mode"] =
         if args.mu_sampling_scale.is_some() {
@@ -255,6 +282,7 @@ where
 }
 
 pub(crate) fn evaluate_prepared(prepared: &mut PreparedDocument, args: &Args) -> Result<bool> {
+    args.reduction_kernels.validate()?;
     args.numerator_evaluator.validate(args.precision)?;
     if args.bits.is_some() && !matches!(args.precision, Precision::Float) {
         return Err("--bits applies only to --precision float".into());
@@ -270,6 +298,7 @@ pub(crate) fn evaluate_prepared(prepared: &mut PreparedDocument, args: &Args) ->
 }
 
 pub fn run(args: Args) -> Result<()> {
+    args.reduction_kernels.validate()?;
     args.numerator_evaluator.validate(args.precision)?;
     let mut prepared = prepare::prepare(&prepare::Args {
         input: args.input.clone(),

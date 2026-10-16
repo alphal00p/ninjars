@@ -9,6 +9,7 @@ description = "Symbolica numerator adapters and master integration for NinjaRS"
 [features]
 reference-codegen = ["symbolica/native_code_generation"]
 rust-codegen = ["oneloop/rust-codegen"]
+native-kernels = ["rust-codegen"]
 
 [[example]]
 name = "generate_reference"
@@ -16,6 +17,10 @@ required-features = ["reference-codegen"]
 
 [[example]]
 name = "generate_rust_kernels"
+required-features = ["rust-codegen"]
+
+[[example]]
+name = "generate_native_denominators"
 required-features = ["rust-codegen"]
 
 [dependencies]

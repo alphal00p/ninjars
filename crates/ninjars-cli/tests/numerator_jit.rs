@@ -133,6 +133,40 @@ mod enabled {
         }
     }
 
+    #[cfg(feature = "native-kernels")]
+    #[test]
+    fn compiled_coefficient_provider_combines_with_native_denominators() {
+        let fixture = "examples/graphs/bubble-parameterized.json";
+        let control = value(run("reduce", &[fixture]));
+        let actual = value(run(
+            "reduce",
+            &[
+                fixture,
+                "--batch-size",
+                "2",
+                "--numerator-evaluator",
+                "symjit-o2-factored",
+                "--reduction-kernels",
+                "native-denominators",
+            ],
+        ));
+        assert_eq!(
+            actual["numerator_provider"]["evaluator"],
+            "symjit-o2-factored"
+        );
+        assert_eq!(
+            actual["reduction_kernels"]["selection"],
+            "native-denominators"
+        );
+        let rows = actual["results"].as_array().unwrap();
+        let expected = control["results"].as_array().unwrap();
+        assert_eq!(rows.len(), expected.len());
+        for (actual, expected) in rows.iter().zip(expected) {
+            assert_eq!(actual["status"]["kind"], "success");
+            near(&actual["values"], &expected["values"]);
+        }
+    }
+
     #[test]
     fn benchmark_evaluates_coefficient_heads_for_each_sample_including_tails() {
         let fixture = "examples/graphs/bubble-parameterized.json";

@@ -27,7 +27,7 @@ use symbolica::{
 use crate::{
     numerator_coefficients::{CoefficientBatch, CoefficientScalar},
     prepare::PreparedDocument,
-    reduce::{Args, MuExtraction, NumeratorEvaluator},
+    reduce::{Args, MuExtraction, NumeratorEvaluator, ReductionKernels},
 };
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
@@ -348,6 +348,7 @@ where
     numerator: PolynomialNumerator<T>,
     coefficients: Option<Box<dyn CoefficientBatch<T>>>,
     numerator_info: serde_json::Value,
+    kernel_info: serde_json::Value,
     geometry: SymbolicaCuts<T>,
     high_geometry: Option<SymbolicaHighCuts<T>>,
     masters: SymbolicaMasters<T>,
@@ -382,6 +383,7 @@ where
     Complex<T>: EvaluationDomain,
 {
     pub(crate) fn new(prepared: &PreparedDocument, args: &Args, prototype: T) -> Result<Self> {
+        args.reduction_kernels.validate()?;
         let variables = ["q0", "q1", "q2", "q3", "mu2"]
             .map(|name| Atom::var(symbol!(format!("ninjars::{name}"))));
         let (expression, parameters, coefficients, numerator_info) = match args.numerator_evaluator
@@ -454,9 +456,27 @@ where
                 MuExtraction::Sampling => BoxMuMode::Sampling,
             },
         };
-        let mut amplitude = SymbolicaAmplitudeKernels::new(n, rank, prototype.clone())?
-            .with_box_options(box_options)
-            .into_amplitude(0)?;
+        let kernels = SymbolicaAmplitudeKernels::new(n, rank, prototype.clone())?
+            .with_box_options(box_options);
+        #[cfg(feature = "native-kernels")]
+        let kernels = match args.reduction_kernels {
+            ReductionKernels::Symbolica => kernels,
+            ReductionKernels::NativeDenominators => kernels.with_native_denominators(),
+        };
+        let denominator_backend = match args.reduction_kernels {
+            ReductionKernels::Symbolica => "symbolica-interpreter",
+            ReductionKernels::NativeDenominators => "native-rust",
+        };
+        let kernel_info = serde_json::json!({
+            "selection": args.reduction_kernels.name(),
+            "t2_denominators": denominator_backend,
+            "t3_denominators": denominator_backend,
+            "other_reduction": "symbolica-interpreter",
+            "integration": "symbolica-interpreter",
+            "accumulation": "symbolica-interpreter",
+            "scope": "Selected denominator execution; numerator callbacks, cut geometry and masters retain their separate providers. Unused cut stages need not execute."
+        });
+        let mut amplitude = kernels.into_amplitude(0)?;
         amplitude.set_cut_stop(args.cut_stop);
         let manual_scale = args
             .mu_sampling_scale
@@ -479,6 +499,7 @@ where
             numerator,
             coefficients,
             numerator_info,
+            kernel_info,
             geometry: SymbolicaCuts::new(prototype.clone())?,
             high_geometry: if n >= 4 {
                 Some(SymbolicaHighCuts::new(prototype.clone())?)
@@ -499,6 +520,10 @@ where
 
     pub(crate) fn numerator_provider_info(&self) -> serde_json::Value {
         self.numerator_info.clone()
+    }
+
+    pub(crate) fn kernel_provider_info(&self) -> serde_json::Value {
+        self.kernel_info.clone()
     }
 
     fn bind_numerator(&mut self, batch: &NumericalBatch<T>) -> Result<()> {
