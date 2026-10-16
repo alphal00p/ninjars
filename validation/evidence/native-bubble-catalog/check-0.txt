@@ -1,0 +1,114 @@
+warning: patch `clarabel v0.11.1 (/shared/external/ninja/references/ninjars_native_kernels/references/gammaloop_ninja_shared/vendor/clarabel)` was not used in the crate graph
+warning: patch `typst-library v0.15.1 (/shared/external/ninja/references/ninjars_native_kernels/references/gammaloop_ninja_shared/vendor/typst-library)` was not used in the crate graph
+warning: patch `typst-svg v0.15.1 (/shared/external/ninja/references/ninjars_native_kernels/references/gammaloop_ninja_shared/vendor/typst-svg)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+warning: unused import: `ComplexField`
+ --> references/symbolica/lib/numerica/src/domains/float/double.rs:9:21
+  |
+9 | use simba::scalar::{ComplexField, RealField};
+  |                     ^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unnecessary `unsafe` block
+  --> references/symbolica/lib/numerica/src/domains/float/double.rs:48:28
+   |
+48 |             Ok(DoubleFloat(unsafe { Df64::new_full(hi, lo) }))
+   |                            ^^^^^^ unnecessary `unsafe` block
+   |
+   = note: `#[warn(unused_unsafe)]` (part of `#[warn(unused)]`) on by default
+
+warning: unnecessary `unsafe` block
+  --> references/symbolica/lib/numerica/src/domains/float/double.rs:75:35
+   |
+75 |             return Ok(DoubleFloat(unsafe { Df64::new_full(hi, lo) }));
+   |                                   ^^^^^^ unnecessary `unsafe` block
+
+warning: `numerica` (lib) generated 3 warnings
+warning: `numerica` (lib) generated 3 warnings (3 duplicates)
+warning: unused `Result` that must be used
+   --> references/symbolica/src/atom.rs:776:9
+    |
+776 |         self.export(&mut data);
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: this `Result` may be an `Err` variant, which should be handled
+    = note: `#[warn(unused_must_use)]` (part of `#[warn(unused)]`) on by default
+help: use `let _ = ...` to ignore the resulting value
+    |
+776 |         let _ = self.export(&mut data);
+    |         +++++++
+
+warning: `symbolica` (lib) generated 1 warning
+warning: `symbolica` (lib) generated 1 warning (1 duplicate)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.21s
+     Running tests/bubble_plans.rs (/common/build-cache/external/f8/1c519ec9193fe0/debug/deps/bubble_plans-e5ce84517ed5ee5f)
+
+running 2 tests
+test exact_power_subset_agrees_with_full_correction_in_every_degree_class ... ok
+test source_origin_projection_uses_shared_momentum_and_all_dual_components ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/bubbles.rs (/common/build-cache/external/f8/1c519ec9193fe0/debug/deps/bubbles-680bf754b2666d45)
+
+running 6 tests
+test bubble_batches_preserve_parameter_lanes_and_explicit_mu_squared ... ok
+test division_isolates_uncut_dual_shapes_and_rejects_duplicate_indices ... ok
+test doublefloat_and_arbitrary_precision_complex_mass_bubbles_keep_inputs ... ok
+test higher_and_mixed_dual_parent_subtraction_preserves_the_bubble_coefficient ... ok
+test polynomial_residues_reconstruct_with_zero_one_and_two_triangle_parents ... ok
+test unstable_or_misidentified_parent_cannot_be_treated_as_zero ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.21s
+
+     Running tests/native_amplitude.rs (/common/build-cache/external/f8/1c519ec9193fe0/debug/deps/native_amplitude-9154190e6fc5e440)
+
+running 3 tests
+test dual_amplitude_all_components_and_unknown_shape_fallback ... ok
+test growing_catalog_covers_lower_quotient_degrees_and_complex_precisions ... ok
+test partial_native_amplitudes_keep_results_failure_isolation_and_reset ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.05s
+
+     Running tests/native_bubbles.rs (/common/build-cache/external/f8/1c519ec9193fe0/debug/deps/native_bubbles-9c4c813f8ac6fdda)
+
+running 5 tests
+test checked_in_bubble_catalog_is_the_exact_plan_export ... ok
+test empty_quotient_and_dual_corrections_keep_interpreter_fallback ... ok
+test every_semantic_degree_precision_batch_and_transactional_shape ... ok
+test tracked_precision_inputs_are_not_promoted_to_working_precision ... ok
+test warmed_native_bubble_storage_has_no_f64_allocations ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.95s
+
+     Running tests/native_denominators.rs (/common/build-cache/external/f8/1c519ec9193fe0/debug/deps/native_denominators-4df12f1d93d4661b)
+
+running 9 tests
+test checked_in_catalog_matches_the_named_exact_plans ... ok
+test exact_ordered_shape_dispatch_and_malformed_dual_transactionality ... ok
+test float_inputs_keep_their_own_precision ... ok
+test malformed_dual_prototypes_are_rejected_before_output_reconstruction ... ok
+test native_feature_preserves_send_sync_for_standard_evaluators ... ok
+test native_warm_f64_storage_and_width_one_do_not_allocate ... ok
+test scalar_precision_batches_and_transactionality ... ok
+test static_and_dynamic_higher_mixed_components ... ok
+test warm_dual_native_dispatch_adds_no_allocations_to_existing_shape_validation ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.53s
+
+     Running tests/subtraction.rs (/common/build-cache/external/f8/1c519ec9193fe0/debug/deps/subtraction-f78fe1b2cf284be2)
+
+running 6 tests
+test higher_and_mixed_dual_subtraction_matches_symbolic_derivatives ... ok
+test subtraction_layout_scalar_batch_permutation_and_failed_shape ... ok
+test tadpole_coefficients_match_original_generated_subtractions ... ignored, requires C++ compiler and validation/reference/build.py artifacts
+test tadpole_dual_retains_mu_terms_and_mixed_parameter_derivatives ... ok
+test tadpole_subtractions_preserve_offsets_and_full_layout ... ok
+test triangle_bubble_matches_original_subtractions_with_offset_origins ... ignored, requires C++ compiler and validation/reference/build.py artifacts
+
+test result: ok. 4 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.09s
+

@@ -28,14 +28,19 @@ fn vars() -> [Atom; 5] {
         parse!("mu2"),
     ]
 }
-fn coverage(report: &[ninjars_symbolica::KernelBackendSelection], native: bool) {
-    assert_eq!(report.len(), 5);
+fn coverage(report: &[ninjars_symbolica::KernelBackendSelection], native: bool, corrections: bool) {
+    assert_eq!(report.len(), 7);
     for entry in report {
-        let selected = native
+        let selected = (native
             && matches!(
                 entry.family,
                 KernelFamily::T2Denominators | KernelFamily::T3Denominators
-            );
+            ))
+            || (corrections
+                && matches!(
+                    entry.family,
+                    KernelFamily::BubbleSourceProjection | KernelFamily::TriangleBubbleCorrection
+                ));
         assert_eq!(
             entry.backend,
             if selected {
@@ -46,18 +51,29 @@ fn coverage(report: &[ninjars_symbolica::KernelBackendSelection], native: bool) 
         );
     }
 }
-fn scalar<T: NativeFloat + Into<Float>>(p: T, n: usize, digits: u64)
+fn scalar<T: NativeFloat + Into<Float>>(p: T, n: usize, digits: u64, catalog: bool)
 where
     Complex<T>: Real + EvaluationDomain,
 {
-    let c = |x| Complex::new(p.from_i64(x), p.zero());
-    let zero = c(0);
     let expression = match n {
         1 => parse!("a*q0^2"),
         2 => parse!("a*(q0-q1)^3"),
         3 => parse!("a*(q0-q1)^3+mu2"),
         _ => parse!("a*(q0-q1)^4+mu2^2"),
     };
+    scalar_expression(p, n, digits, catalog, expression);
+}
+fn scalar_expression<T: NativeFloat + Into<Float>>(
+    p: T,
+    n: usize,
+    digits: u64,
+    catalog: bool,
+    expression: Atom,
+) where
+    Complex<T>: Real + EvaluationDomain,
+{
+    let c = |x| Complex::new(p.from_i64(x), p.zero());
+    let zero = c(0);
     let source =
         PolynomialNumerator::new(expression, vars(), vec![parse!("a")], p.clone()).unwrap();
     let rank = source.rank();
@@ -66,14 +82,30 @@ where
         .set_parameter_batch(&[c(1), c(2), c(3)], 3)
         .unwrap();
     let default = SymbolicaAmplitudeKernels::new(n, rank, p.clone()).unwrap();
-    coverage(&default.kernel_backends(), false);
+    coverage(&default.kernel_backends(), false, false);
     let selected = SymbolicaAmplitudeKernels::new(n, rank, p.clone())
         .unwrap()
         .with_native_denominators();
-    coverage(&selected.kernel_backends(), true);
+    let selected = if catalog {
+        selected.with_native_kernels()
+    } else {
+        selected
+    };
+    coverage(&selected.kernel_backends(), true, catalog);
     let mut interpreted = default.into_amplitude(3).unwrap();
     let mut native = selected.into_amplitude(3).unwrap();
-    let routing = [[0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
+    let routing = if n <= 4 {
+        vec![[0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+    } else {
+        vec![
+            [0, 0, 0, 0],
+            [2, 1, 0, 0],
+            [4, 0, 1, 0],
+            [7, 0, 0, 1],
+            [11, 1, 2, 1],
+            [16, 2, -1, 2],
+        ]
+    };
     let shifts: Vec<_> = (0..3)
         .flat_map(|_| routing[..n].iter().map(|a| FourMomentum::from(a.map(c))))
         .collect();
@@ -146,10 +178,10 @@ where
 #[test]
 fn partial_native_amplitudes_keep_results_failure_isolation_and_reset() {
     for n in 1..=4 {
-        scalar(0., n, 9);
+        scalar(0., n, 9, false);
     }
-    scalar(DoubleFloat::default(), 2, 25);
-    scalar(Float::new(192), 2, 45);
+    scalar(DoubleFloat::default(), 2, 25, false);
+    scalar(Float::new(192), 2, 45, false);
 }
 
 #[test]
@@ -171,7 +203,8 @@ fn dual_amplitude_all_components_and_unknown_shape_fallback() {
         let selected = SymbolicaDualAmplitudeKernels::new(2, 3, 0., &d)
             .unwrap()
             .with_native_denominators();
-        coverage(&selected.kernel_backends(), shape[0].len() == 2);
+        let selected = selected.with_native_kernels();
+        coverage(&selected.kernel_backends(), shape[0].len() == 2, false);
         let mut interpreted = default.into_amplitude(2).unwrap();
         let mut native = selected.into_amplitude(2).unwrap();
         let shifts: Vec<_> = (0..2)
@@ -217,4 +250,19 @@ fn dual_amplitude_all_components_and_unknown_shape_fallback() {
             }
         }
     }
+}
+
+#[test]
+fn growing_catalog_covers_lower_quotient_degrees_and_complex_precisions() {
+    for n in 1..=6 {
+        scalar(0., n, 9, true);
+    }
+    scalar_expression(0., 3, 9, true, parse!("a*(q0-q1)^4+mu2^2"));
+    scalar(DoubleFloat::default(), 3, 25, true);
+    scalar(Float::new(192), 3, 45, true);
+    let selection = SymbolicaAmplitudeKernels::new(3, 3, 0.)
+        .unwrap()
+        .with_native_kernels()
+        .with_native_denominators();
+    coverage(&selection.kernel_backends(), true, false);
 }

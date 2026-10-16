@@ -45,8 +45,13 @@ fn source_origin_projection_uses_shared_momentum_and_all_dual_components() {
     }
     let mut output = vec![c(0., 0.); 24];
     evaluator.evaluate_batch(&inputs, &mut output, 3).unwrap();
-    for (input, actual) in inputs.chunks_exact(28).zip(output.chunks_exact(8)) {
-        assert_eq!(actual, projection_control(input));
+    for (input, actual) in inputs
+        .as_chunks::<28>()
+        .0
+        .iter()
+        .zip(output.as_chunks::<8>().0.iter())
+    {
+        assert_eq!(actual.as_slice(), projection_control(input));
     }
     let before = output.clone();
     assert!(

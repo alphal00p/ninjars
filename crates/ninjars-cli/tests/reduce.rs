@@ -106,30 +106,42 @@ fn double_float_and_arbitrary_precision_match_original_ninja() {
 #[cfg(feature = "native-kernels")]
 #[test]
 fn native_denominator_selection_matches_original_in_all_precisions() {
-    for precision in ["f64", "double-float", "float"] {
-        for fixture in [
-            "examples/graphs/bubble.json",
-            "examples/graphs/triangle-reference.json",
-        ] {
-            let actual = value(run(&[
-                fixture,
-                "--precision",
-                precision,
-                "--batch-size",
-                "2",
-                "--reduction-kernels",
-                "native-denominators",
-            ]));
-            original_checks(&actual, fixture);
-            let kernels = &actual["reduction_kernels"];
-            assert_eq!(kernels["selection"], "native-denominators");
-            for name in ["t2_denominators", "t3_denominators"] {
-                assert_eq!(kernels[name], "native-rust");
+    for selection in ["native-denominators", "native"] {
+        for precision in ["f64", "double-float", "float"] {
+            for fixture in [
+                "examples/graphs/bubble.json",
+                "examples/graphs/triangle-reference.json",
+            ] {
+                let actual = value(run(&[
+                    fixture,
+                    "--precision",
+                    precision,
+                    "--batch-size",
+                    "2",
+                    "--reduction-kernels",
+                    selection,
+                ]));
+                original_checks(&actual, fixture);
+                let kernels = &actual["reduction_kernels"];
+                assert_eq!(kernels["selection"], selection);
+                for name in ["bubble_source_projection", "triangle_bubble_correction"] {
+                    assert_eq!(
+                        kernels[name],
+                        if selection == "native" {
+                            "native-rust"
+                        } else {
+                            "symbolica-interpreter"
+                        }
+                    );
+                }
+                for name in ["t2_denominators", "t3_denominators"] {
+                    assert_eq!(kernels[name], "native-rust");
+                }
+                for name in ["other_reduction", "integration", "accumulation"] {
+                    assert_eq!(kernels[name], "symbolica-interpreter");
+                }
+                assert_eq!(actual["numerator_provider"]["evaluator"], "symbolica");
             }
-            for name in ["other_reduction", "integration", "accumulation"] {
-                assert_eq!(kernels[name], "symbolica-interpreter");
-            }
-            assert_eq!(actual["numerator_provider"]["evaluator"], "symbolica");
         }
     }
 }
@@ -137,14 +149,12 @@ fn native_denominator_selection_matches_original_in_all_precisions() {
 #[cfg(not(feature = "native-kernels"))]
 #[test]
 fn native_denominator_selection_requires_its_feature_before_preparing() {
-    let output = run(&[
-        "missing-fixture.json",
-        "--reduction-kernels",
-        "native-denominators",
-    ]);
-    assert!(!output.status.success());
-    assert!(String::from_utf8_lossy(&output.stderr).contains("--features native-kernels"));
-    assert!(output.stdout.is_empty());
+    for selection in ["native-denominators", "native"] {
+        let output = run(&["missing-fixture.json", "--reduction-kernels", selection]);
+        assert!(!output.status.success());
+        assert!(String::from_utf8_lossy(&output.stderr).contains("--features native-kernels"));
+        assert!(output.stdout.is_empty());
+    }
 }
 
 fn modified(label: &str, expression: &str, mut fixture: Value, options: &[&str]) -> Output {

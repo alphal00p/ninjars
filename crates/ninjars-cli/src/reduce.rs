@@ -36,6 +36,8 @@ pub enum ReductionKernels {
     Symbolica,
     /// Execute generated Rust for T2/T3 denominator expansions only.
     NativeDenominators,
+    /// Execute the available partial native catalog, including bubble corrections.
+    Native,
 }
 
 impl ReductionKernels {
@@ -43,12 +45,17 @@ impl ReductionKernels {
         match self {
             Self::Symbolica => "symbolica",
             Self::NativeDenominators => "native-denominators",
+            Self::Native => "native",
         }
     }
 
     pub(crate) fn validate(self) -> Result<()> {
-        if matches!(self, Self::NativeDenominators) && !cfg!(feature = "native-kernels") {
-            return Err("--reduction-kernels native-denominators requires a build with --features native-kernels".into());
+        if !matches!(self, Self::Symbolica) && !cfg!(feature = "native-kernels") {
+            return Err(format!(
+                "--reduction-kernels {} requires a build with --features native-kernels",
+                self.name()
+            )
+            .into());
         }
         Ok(())
     }

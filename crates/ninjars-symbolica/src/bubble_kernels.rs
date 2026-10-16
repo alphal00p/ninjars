@@ -499,6 +499,25 @@ where
         )?;
         Ok(kernels)
     }
+
+    /// Select denominators, shared source-axis projections, and the exact
+    /// triangle-parent correction for this topology's quotient degree.
+    pub fn new_with_native_kernels(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
+        use crate::native_kernels::bubbles::{BubblePlan, install};
+        let mut kernels = Self::new_with_native_denominators(propagators, rank, prototype.clone())?;
+        install(
+            &mut kernels.engine.source_projection,
+            BubblePlan::SourceProjection,
+            &prototype,
+        )?;
+        if let Some(plan) = BubblePlan::correction(
+            kernels.engine.layout.higher_rank(),
+            kernels.engine.layout.quotient_expansion(),
+        )? {
+            install(&mut kernels.engine.correction, plan, &prototype)?;
+        }
+        Ok(kernels)
+    }
 }
 
 #[cfg(feature = "native-kernels")]

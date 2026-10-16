@@ -278,3 +278,43 @@ where
         self.kernel.evaluate_batch(input, output, rows)
     }
 }
+
+#[cfg(feature = "native-kernels")]
+impl BubbleSourceProjection {
+    /// Select ordinary generic Rust arithmetic from this exact source plan.
+    pub fn compile_native<T: oneloop::rust_codegen::runtime::NativeFloat>(
+        &self,
+        prototype: &T,
+    ) -> Result<BubbleSourceProjectionEvaluator<T>>
+    where
+        Complex<T>: Real + EvaluationDomain,
+    {
+        let mut result = self.compile(prototype)?;
+        crate::native_kernels::bubbles::install(
+            &mut result.kernel,
+            crate::native_kernels::bubbles::BubblePlan::SourceProjection,
+            prototype,
+        )?;
+        Ok(result)
+    }
+}
+#[cfg(feature = "native-kernels")]
+impl<T: Real + SingleFloat> BubbleSourceProjectionEvaluator<T>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    pub fn backend(&self) -> crate::KernelBackend {
+        self.kernel.backend()
+    }
+}
+#[cfg(feature = "native-kernels")]
+impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>>
+    DualBubbleSourceProjectionEvaluator<T, D>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    /// No generated Dual projection is selected in the current catalog.
+    pub fn backend(&self) -> crate::KernelBackend {
+        self.kernel.backend()
+    }
+}
