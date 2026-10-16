@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "scope": "Isolated graph-only scalar/vector physical numerical preparation; no CLI integration or performance acceptance",
+  "worktree_base": "4017c8e82a5f314c824ddc119020aa06985427d2",
+  "branch": "codex/physical-input-plan",
+  "compiler": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8",
+  "actual_dependency_heads": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93",
+    "oneloopmaster": "bf7632a916528073464870f1b515d3e62f4e0060"
+  },
+  "dependency_note": "Tests used the actual dependency checkouts through worktree references symlinks. The review branch does not modify dependency pins; the oneloopmaster checkout is recorded for context but graph preparation does not depend on scalar masters.",
+  "source_sha256": {
+    "Cargo.toml": "74ee51fef490da00d067cec2a526bd2b7272c05802af556b5f249b15d72ccba6",
+    "Cargo.lock": "ef7b569bf076af5910bace287694a50bbef92af9819017953da23f4c53b1d332",
+    "crates/ninjars-graph/Cargo.toml": "551840629e11a0f63e349aba82e2473971c8c2a502bde28d645d3546e0acb792",
+    "crates/ninjars-graph/src/lib.rs": "2fe39e879b6a96b218f860faac0eda21260b6c7170ae00a89f42cc6d55dcecc1",
+    "crates/ninjars-graph/src/physical_input.rs": "48373862697360378da6e1deccd2e96323be3ecdc1b5199de2b537e0738cedd5",
+    "crates/ninjars-graph/tests/physical_input.rs": "4e61ce1c7d666b6d4bd6e787bfd47ef657af08f8b3496b6eb53274019f5f4a43",
+    "docs/physical-input-preparation.md": "49df6d6e02c6693ec287def1117ec0e6e798572c1838df2654d38bf3a7a0e0e6"
+  },
+  "checks": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-j8",
+        "-p",
+        "ninjars-graph",
+        "--all-features",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "passed": 23,
+      "failed": 0,
+      "log": "physical-input-plan/graph-all-features.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "-j8",
+        "-p",
+        "ninjars-graph",
+        "--all-features",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "log": "physical-input-plan/clippy-all-features.log"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "log_sha256": {
+    "graph-all-features.log": "40322ac8f5e6dd6579c27f235ddcd693164471d605636a584c05448863d0c9b5",
+    "clippy-all-features.log": "fdcdc2614e5c2aa383be1c7b3611755f10089118fd0e4ee67b9d4acb464fea54"
+  },
+  "focused_controls": [
+    "f64, DoubleFloat, Float256 Hgg common-plan model rebinding, changing masses, outgoing epsilonbar, scalar/batch equality and row permutation",
+    "Empty/single/tail batches and unchanged committed output after malformed shape, failed conservation or invalid scalar helicity",
+    "All 210 independent MadLoop graph55 raw loop probes at three changing phase-space points, using FeynKit graph26, q mapping -q and raw normalization -1/2; fixed 1e-9 scaled criterion",
+    "Exact MT=173+10^-50 remains distinct from binary64 MT; Float64 inputs under Float256 prototype preserve tracked lower precision",
+    "Unknown free/fixed model names, duplicate free names and overlapping fixed/free declarations rejected"
+  ],
+  "limitations": [
+    "External fermions unsupported",
+    "Dual physical preparation unsupported until all-component flattened validation",
+    "FeynKit wavefunctions still scalar per lane; propagator and coefficient evaluators batched",
+    "SymJIT raw-plan constructor and CLI physical schema remain next stages",
+    "MadLoop external inputs are represented binary64; no independent high-precision physical-input oracle claim"
+  ]
+}

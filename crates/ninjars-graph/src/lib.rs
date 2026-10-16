@@ -7,6 +7,7 @@ mod coefficients;
 mod components;
 mod numerator;
 mod physical;
+mod physical_input;
 mod prepare;
 
 pub use feynkit_graph::symbols;
@@ -15,6 +16,10 @@ pub use feynkit_kinematics::{FourMomentum, Kinematics};
 pub use feynkit_model::Model;
 pub use numerator::{NumeratorMode, contract_numerator};
 pub use physical::{PhysicalPreparationError, prepare_top_four_photons, prepare_top_higgs_gluons};
+pub use physical_input::{
+    PhysicalExternalLeg, PhysicalInputBatch, PhysicalInputError, PhysicalInputEvaluator,
+    PhysicalInputPlan, PhysicalInputValues, PhysicalScalar,
+};
 pub use prepare::{PreparationError, PreparedIntegrand, prepare_diagram, prepare_dot};
 
 #[cfg(feature = "numerator-jit")]
