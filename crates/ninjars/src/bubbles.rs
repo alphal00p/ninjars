@@ -1,5 +1,6 @@
 //! Batched double-cut reduction with complete triangle-parent subtraction.
 
+use crate::residue_storage::VecPool;
 use crate::{
     BatchShape, BubbleCut, BubbleCutRequest, CutFailure, CutOutcome, CutProvider, Error,
     ExpansionKind, ExpansionRequest, FloatLike, FourMomentum, Numerator, Result, SampleId,
@@ -94,6 +95,7 @@ pub struct BubbleReducer<T, K> {
     geometry_output: Vec<CutOutcome<BubbleCut<T>>>,
     active: Vec<usize>,
     staged: Vec<CutOutcome<BubbleResidue<T>>>,
+    coefficient_pool: VecPool<T>,
     requested_rows: Vec<usize>,
     swapped: Vec<FourMomentum<T>>,
     vectors: Vec<[FourMomentum<T>; 4]>,
@@ -153,6 +155,7 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
             geometry_output: Vec::new(),
             active: Vec::new(),
             staged: Vec::new(),
+            coefficient_pool: VecPool::default(),
             requested_rows: Vec::new(),
             swapped: Vec::new(),
             vectors: Vec::new(),
@@ -176,6 +179,19 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
     }
     pub fn cut_count(&self) -> usize {
         self.cuts.len()
+    }
+
+    /// Recycle an explicitly discarded suffix; live caller outputs are never borrowed.
+    pub(crate) fn discard_outcomes(
+        &mut self,
+        outcomes: &mut Vec<CutOutcome<BubbleResidue<T>>>,
+        keep: usize,
+    ) {
+        for outcome in outcomes.drain(keep..) {
+            if let CutOutcome::Stable(residue) = outcome {
+                self.coefficient_pool.recycle(residue.coefficients);
+            }
+        }
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -243,6 +259,12 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
         }
         if output.is_empty() {
             return Ok(());
+        }
+        // These are old outputs from a completed prior swap, never the live output.
+        for outcome in self.staged.drain(..) {
+            if let CutOutcome::Stable(residue) = outcome {
+                self.coefficient_pool.recycle(residue.coefficients);
+            }
         }
         let staged = &mut self.staged;
         staged.resize(
@@ -456,7 +478,7 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
                     cut_index: id.sample,
                     id,
                     geometry: (*active_cuts[index]).clone(),
-                    coefficients: values.to_vec(),
+                    coefficients: self.coefficient_pool.take_from_slice(values),
                 });
             }
         }

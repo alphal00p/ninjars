@@ -16,6 +16,7 @@ mod kinematics;
 mod masters;
 mod numerator;
 mod pentagons;
+mod residue_storage;
 mod tadpoles;
 mod topology;
 mod triangles;
