@@ -472,3 +472,121 @@ connects the existing kernels into integrated amplitudes and a standalone
   reference cache policies, native Rust arithmetic generation and allocation
   removal. Physical validation through pentagons and every performance gate
   remain unfulfilled.
+
+### Physical numerator, benchmark and upstream evaluator checkpoint (2026-10-16)
+
+- Added reusable CLI numerical sessions and `bench`, sharing the numerical
+  execution path with `reduce`. The default workloads cover widths
+  1/8/32/128/1024 and incomplete tails. Setup, exact binding, packing and warmup
+  are separate from primary timings; callback/master attribution runs in a
+  separate diagnostic pass. Reports retain individual rounds, numerical lane
+  failures and disabled-rescue status. Four benchmark regression groups pass,
+  including f64/DoubleFloat/Float parity with reduction. This is Rust-only
+  instrumentation; matching original-Ninja cache policy, shared-master timing,
+  Dual benchmarking and every performance acceptance gate remain outstanding.
+- Added exact CLI polarization bindings and embedded-SM physical fixtures for
+  both top-quark H→gg orientations, with ++, +− and double-longitudinal states.
+  The MadLoop harness calls raw graph numerators before squaring or Born
+  interference and explicitly excludes R2/UV. It records fixed CutTools modes
+  1 and 4 with no adaptive switching. Quadruple execution promotes the same
+  binary64 model/wavefunction inputs; it is not a high-precision physical-input
+  oracle. Fifteen independent complex points determine each rank-two polynomial.
+  All 90 independently prepared FeynKit/MadLoop numerator checks pass, maximum
+  scaled error 8.66e-16. Source hashes, routing, color/sign projection and the
+  1/(16π²) convention are retained in `physical-hgg-madloop.json` and the physical
+  preparation documentation.
+- Physical reduction exposed an axis-aligned bubble reference whose uncut
+  denominator had an identically zero leading Laurent coefficient. Generic
+  exact rational null references now come from FeynKit Weyl operations and
+  Symbolica evaluation. The regression reduces an explicit complementary
+  denominator to B0(0;m²,m²), checks f64/DoubleFloat/Float accuracy, higher/mixed
+  Dual translation invariance and failed-lane isolation. Two new and fourteen
+  existing geometry/bubble/amplitude test groups pass. This fixes the observed
+  lightlike channel; complement-aware chart retry and precision rescue remain
+  outstanding.
+- `physical-hgg-cli.json` retains the first complete 36-row physical comparison:
+  32 pass the unchanged 1e-9 Laurent gate. Both physical helicities pass in all
+  three precisions. Four f64 longitudinal diagnostic rows fail at a zero single
+  pole by 1.066920211e-9; DoubleFloat and Float256 pass those rows. The artifact
+  explicitly reports failure. Cancellation/conditioning improvement remains
+  required; no exceptional-point exemption or tolerance change was applied.
+- Published and attached [Symbolica PR #83](https://github.com/symbolica-dev/symbolica/pull/83).
+  Nested vectorized conditionals produce several joins; two optimizer passes
+  incorrectly ended a branch for every join. They now restore its parent at the
+  matching end label. A small shared polynomial reproducer exposed history-
+  dependent primals, independent of master formulas. The pinned integration is
+  `52ef4b8e3a10cf3a68385230d55ebe8c3d153948`, combining PR #82 with this fix and
+  its shared-Dual regression. All 62 evaluator tests pass, including batching
+  and higher/mixed components. The C0 zero-seed/primal discrepancy is fixed at
+  f64/Float256; a first complex mass derivative matches independent differences.
+  `docs/c0-dual-vectorization-audit.md` records the revision matrix and limits.
+  C0/D0 Dual master domains remain gated. PR #5's permanent follow-up regression
+  is published at `33a2e89b76252fc22556c0da50d1689cfb2101ec`, still pending NinjaRS
+  integration and the remaining removable-neighborhood work.
+- Published and attached [oneloopmaster PR #6](https://github.com/alphal00p/oneloopmaster/pull/6),
+  pinned at `de0114add9937a2225a3e5d89af1d497ccd31d07`. It extracts the existing
+  Rust emitter, supports arbitrary entry output counts and transactional exact
+  constant tables, and reuses its numerical runtime. All six master source
+  files are byte-identical before/after extraction; 64 library, 11 primitive,
+  four native-contract and one compact-sector tests pass, with one pre-existing
+  diagnostic ignored. Changed-file formatting and diff checks pass; upstream
+  Clippy completes with existing unrelated warnings. Both refreshed dependency
+  bundles pass bootstrap verification. NinjaRS kernel export/probes and a final
+  combined workspace validation are in progress; no native speedup is claimed.
+- NinjaRS now exposes a thin `RustKernelExport` adapter for the existing exact
+  Laurent-division, triangle-to-bubble-subtraction and denominator-expansion
+  evaluators, including the shared Symbolica Dual transformation. The compiled
+  control passes 36 cases, checking 1,044 scalar outputs and 5,220 flattened
+  higher/mixed components. Maximum scalar/Dual errors are 8.13e-16/1.83e-15 in
+  f64, 6.96e-32/3.10e-31 in DoubleFloat and 9.86e-77/2.56e-76 in Float256.
+  `validation/evidence/rust-kernel-codegen.json` retains exact constructor
+  parameters and generated-source hashes. This is scalar execution used as a
+  control; native instruction-major batching, production dispatch, allocation
+  targets and performance acceptance are not established.
+- Fixed the reference adapter's initialization of registered constants:
+  exporting an unmapped exact evaluator emitted π's zero placeholder.
+  Symbolica's existing `map_coeff_with_prec` resolves coefficients and registered
+  constants at 200 bits before C++ literal export. Both compiled callback tests
+  pass, including the physical electroweak factor and π^(3/2). H→gg physical
+  helicities now agree with original Ninja. Its binary64 longitudinal pole also
+  misses the fixed gate; this is a cancellation diagnostic, not an established
+  original-Ninja cut-geometry bug.
+- Per-cut diagnostics locate longitudinal cancellation before final accumulation:
+  tadpole poles are about +1.0789e7, -7.1927e6 and -3.5964e6, and bubble tensor
+  contraction subtracts terms near 9.3878e5. Rescaling the exact off-axis null
+  references from fractional to integer components worsened the matrix maximum
+  error from 1.06692e-9 to 1.17793e-9 and was reverted. No tolerance changed.
+  The restored 32/36 baseline was reproduced with binary/source/fixture hashes
+  and all run commands. `docs/precision-rescue-design.md` records a full-lane
+  retry design using existing exact inputs and shared numerical types; automatic
+  conditioning triggers and rescue remain unimplemented.
+- Published and attached [oneloopmaster PR #7](https://github.com/alphal00p/oneloopmaster/pull/7),
+  head `aa6491450b22b4341abfffc6ce0d576c232811b8`, stacked on PR #5. Symbolica-
+  generated centered quotient expressions preserve coincident exact primals and
+  independently seeded higher/mixed derivatives. All 59 library tests pass with
+  one existing ignored diagnostic; strict package Clippy and formatting pass.
+  This remains isolated pending broader master-domain validation.
+- Published and attached [Symbolica PR #84](https://github.com/symbolica-dev/symbolica/pull/84),
+  standalone head `eab147eaa5ceb69169bacb35281c3680d474bd84`. The public series API
+  previously returned indeterminate for Li2(1-x) about x=1. A focused native
+  positive-integer polylog series handler reuses Symbolica Series arithmetic;
+  shifted/composed, Puiseux and removable-quotient regressions pass, as do all
+  64 transcendental tests. Formatting passes and Clippy reports baseline
+  warnings only. NinjaRS pins and C0/D0 Dual gates remain unchanged while the
+  dependent divided-dilog neighborhood is investigated.
+- Final combined validation: **165 workspace tests passed, zero failed and zero
+  ignored**, with all features and reference controls enabled. Strict all-target
+  Clippy, workspace formatting and diff checks pass. Refreshed Symbolica and
+  oneloopmaster dependency bundles pass bootstrap verification.
+  `validation/evidence/physical-stage.json` records the tested source hashes,
+  dependency heads, toolchain and related evidence. Passing regressions do not
+  override the explicitly failed four longitudinal f64 comparison rows.
+- Independent allocation/performance audits identify avoidable deep cloning of
+  staged residue vectors and temporary orchestration buffers. The Symbolica
+  batch evaluator already has a warmed size-one scalar path and retained batch
+  workspace. A fair original-Ninja baseline still needs an explicitly uncached
+  master build, a common parameterized numerator with depth-specific callbacks,
+  and a persistent numerical loop. Original and NinjaRS finite-mu sampling-scale
+  policies differ and must remain reported. The goal is active; no performance,
+  full reconstruction, broad master-derivative or higher-multiplicity physical
+  acceptance is claimed by this milestone.

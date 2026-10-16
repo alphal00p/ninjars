@@ -1,0 +1,5915 @@
+{
+  "schema_version": 1,
+  "reference": "MG5_aMC_v3_7_0 / CutTools 1.9.3 / OneLOop 3.6",
+  "convention": "four-dimensional numerator plus R1; no R2 or UV; no squaring or interference",
+  "reference_graph_metadata": {
+    "process": "h > g g QED=1 [virt=QCD]",
+    "model": "loop_sm",
+    "group_subprocesses": false,
+    "loop_optimized_output": false,
+    "discovery_filter": "n==3 and all(abs(p)==6 for p in loop_pdgs)",
+    "graphs": [
+      {
+        "filter_id": 3,
+        "loop_pdgs": [
+          6,
+          6,
+          6
+        ],
+        "attached_pdgs": [
+          25,
+          21,
+          21
+        ],
+        "vertices": [
+          {
+            "id": 57,
+            "legs": [
+              {
+                "id": 25,
+                "number": 1,
+                "state": false,
+                "loop_line": false,
+                "from_group": null,
+                "onshell": null,
+                "polarization": []
+              },
+              {
+                "id": 6,
+                "number": 4,
+                "state": true,
+                "loop_line": true,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              },
+              {
+                "id": 6,
+                "number": 1,
+                "state": true,
+                "loop_line": true,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              }
+            ]
+          },
+          {
+            "id": 8,
+            "legs": [
+              {
+                "id": 21,
+                "number": 2,
+                "state": true,
+                "loop_line": false,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              },
+              {
+                "id": 6,
+                "number": 1,
+                "state": true,
+                "loop_line": true,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              },
+              {
+                "id": 6,
+                "number": 1,
+                "state": true,
+                "loop_line": true,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              }
+            ]
+          },
+          {
+            "id": 8,
+            "legs": [
+              {
+                "id": 21,
+                "number": 3,
+                "state": true,
+                "loop_line": false,
+                "from_group": false,
+                "onshell": null,
+                "polarization": []
+              },
+              {
+                "id": 6,
+                "number": 1,
+                "state": true,
+                "loop_line": true,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              },
+              {
+                "id": 6,
+                "number": 1,
+                "state": true,
+                "loop_line": true,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              }
+            ]
+          },
+          {
+            "id": -1,
+            "legs": [
+              {
+                "id": 6,
+                "number": 1,
+                "state": true,
+                "loop_line": true,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              },
+              {
+                "id": -6,
+                "number": 5,
+                "state": true,
+                "loop_line": true,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              }
+            ]
+          }
+        ],
+        "multiplier": 1,
+        "directory": "graph-3",
+        "reference_controls": {
+          "MLReductionLib": "1",
+          "CTModeRun": 1,
+          "CTModeInit": 1,
+          "CTLoopLibrary": 2,
+          "ImprovePSPoint": -1,
+          "UseQPIntegrandForCutTools": false,
+          "UseLoopFilter": false
+        },
+        "external_wavefunction_calls": [
+          [
+            "CALL SXXXXX(P(0,1),-1*IC(1),W(1,1))",
+            "CALL VXXXXX(P(0,2),ZERO,NHEL(2),+1*IC(2),W(1,2))",
+            "CALL VXXXXX(P(0,3),ZERO,NHEL(3),+1*IC(3),W(1,3))"
+          ],
+          []
+        ],
+        "loop_calls": [
+          "# Loop amplitude for loop diagram with ID 1",
+          "CALL %(proc_prefix)sLOOP_3_3(1,1,2,3,DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),GC_37,MP__GC_37,GC_5,MP__GC_5,GC_5,MP__GC_5,3,1,1,2,AMPL(1,2),S(2))"
+        ],
+        "loop_color_basis": "{(('Tr', (2, 3)),): [(0, (0, 0, 0), Fraction(1, 1), False, 0, None), (1, (0,), Fraction(1, 1), False, 0, 0)]}",
+        "color_amplitudes": [
+          [
+            {
+              "fermion_factor": -1,
+              "rational_color_coefficient": "1",
+              "imaginary": false,
+              "nc_power": 0,
+              "amplitude_number": 2
+            },
+            {
+              "fermion_factor": 1,
+              "rational_color_coefficient": "1",
+              "imaginary": false,
+              "nc_power": 0,
+              "amplitude_number": 1
+            }
+          ]
+        ]
+      },
+      {
+        "filter_id": 4,
+        "loop_pdgs": [
+          6,
+          6,
+          6
+        ],
+        "attached_pdgs": [
+          25,
+          21,
+          21
+        ],
+        "vertices": [
+          {
+            "id": 57,
+            "legs": [
+              {
+                "id": 25,
+                "number": 1,
+                "state": false,
+                "loop_line": false,
+                "from_group": null,
+                "onshell": null,
+                "polarization": []
+              },
+              {
+                "id": -6,
+                "number": 5,
+                "state": true,
+                "loop_line": true,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              },
+              {
+                "id": -6,
+                "number": 1,
+                "state": true,
+                "loop_line": true,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              }
+            ]
+          },
+          {
+            "id": 8,
+            "legs": [
+              {
+                "id": 21,
+                "number": 2,
+                "state": true,
+                "loop_line": false,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              },
+              {
+                "id": -6,
+                "number": 1,
+                "state": true,
+                "loop_line": true,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              },
+              {
+                "id": -6,
+                "number": 1,
+                "state": true,
+                "loop_line": true,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              }
+            ]
+          },
+          {
+            "id": 8,
+            "legs": [
+              {
+                "id": 21,
+                "number": 3,
+                "state": true,
+                "loop_line": false,
+                "from_group": false,
+                "onshell": null,
+                "polarization": []
+              },
+              {
+                "id": -6,
+                "number": 1,
+                "state": true,
+                "loop_line": true,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              },
+              {
+                "id": -6,
+                "number": 1,
+                "state": true,
+                "loop_line": true,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              }
+            ]
+          },
+          {
+            "id": -1,
+            "legs": [
+              {
+                "id": -6,
+                "number": 1,
+                "state": true,
+                "loop_line": true,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              },
+              {
+                "id": 6,
+                "number": 4,
+                "state": true,
+                "loop_line": true,
+                "from_group": true,
+                "onshell": null,
+                "polarization": []
+              }
+            ]
+          }
+        ],
+        "multiplier": 1,
+        "directory": "graph-4",
+        "reference_controls": {
+          "MLReductionLib": "1",
+          "CTModeRun": 1,
+          "CTModeInit": 1,
+          "CTLoopLibrary": 2,
+          "ImprovePSPoint": -1,
+          "UseQPIntegrandForCutTools": false,
+          "UseLoopFilter": false
+        },
+        "external_wavefunction_calls": [
+          [
+            "CALL SXXXXX(P(0,1),-1*IC(1),W(1,1))",
+            "CALL VXXXXX(P(0,2),ZERO,NHEL(2),+1*IC(2),W(1,2))",
+            "CALL VXXXXX(P(0,3),ZERO,NHEL(3),+1*IC(3),W(1,3))"
+          ],
+          []
+        ],
+        "loop_calls": [
+          "# Loop amplitude for loop diagram with ID 1",
+          "CALL %(proc_prefix)sLOOP_3_3(1,1,2,3,DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),DCMPLX(mdl_MT),CMPLX(MP__mdl_MT,KIND=16),GC_37,MP__GC_37,GC_5,MP__GC_5,GC_5,MP__GC_5,3,1,1,2,AMPL(1,2),S(2))"
+        ],
+        "loop_color_basis": "{(('Tr', (2, 3)),): [(0, (0, 0, 0), Fraction(1, 1), False, 0, None), (1, (0,), Fraction(1, 1), False, 0, 0)]}",
+        "color_amplitudes": [
+          [
+            {
+              "fermion_factor": -1,
+              "rational_color_coefficient": "1",
+              "imaginary": false,
+              "nc_power": 0,
+              "amplitude_number": 2
+            },
+            {
+              "fermion_factor": 1,
+              "rational_color_coefficient": "1",
+              "imaginary": false,
+              "nc_power": 0,
+              "amplitude_number": 1
+            }
+          ]
+        ]
+      }
+    ],
+    "status": "isolated exports; raw numerator harness pending",
+    "target_convention": "four-dimensional numerators plus R1, no R2 or UV; zero widths",
+    "warning": "Exported standard drivers include counterterms. They are not the no-R2/UV graph validation harness."
+  },
+  "source_sha256": {
+    "validation/madloop/raw_hgg.f": "bc3ed0b8ae10a9a197fbb6f50ca7714d2deec92bc919190780285f355a0b61f9",
+    "graph-3/SubProcesses/P0_h_gg/loop_num.f": "8494f86d1aa432122a073a81a38f3e9f4856129885af8fa6566a861df2b8ebba",
+    "graph-3/SubProcesses/P0_h_gg/CT_interface.f": "ba6ba932196dd8494d2b354f5547b227958aa36a5ea73c2ecb1a2430f21b0540",
+    "graph-3/SubProcesses/P0_h_gg/mp_born_amps_and_wfs.f": "111a70dab1ed183b349bb25bbbcddc6b3ef9a92d7775e1daf9a03c2065d5e820",
+    "graph-3/Cards/param_card.dat": "da29a641b1640355f450a01a2245d273c2d0ee4645aa1ce4bdc5fc9dc9b2fa54",
+    "graph-4/SubProcesses/P0_h_gg/loop_num.f": "a3f09102be47c50b76f06d80a1afe331a506e9ec7c8f48137e4deb16db374ca9",
+    "graph-4/SubProcesses/P0_h_gg/CT_interface.f": "ba6ba932196dd8494d2b354f5547b227958aa36a5ea73c2ecb1a2430f21b0540",
+    "graph-4/SubProcesses/P0_h_gg/mp_born_amps_and_wfs.f": "111a70dab1ed183b349bb25bbbcddc6b3ef9a92d7775e1daf9a03c2065d5e820",
+    "graph-4/Cards/param_card.dat": "da29a641b1640355f450a01a2245d273c2d0ee4645aa1ce4bdc5fc9dc9b2fa54"
+  },
+  "integrated_routine": "ML5_0_LOOP_3_3",
+  "ctmodes": [
+    1,
+    4
+  ],
+  "loop_library": 2,
+  "quadruple_inputs": "identical binary64 couplings and wavefunctions promoted exactly; reduction arithmetic is quadruple",
+  "linear_color_projection": "-1/2 (loop coefficient -1 times Tr(Ta Tb)=delta_ab/2)",
+  "ct_interface_normalization": "1/(16*pi^2)",
+  "ninjars_conversion": "multiply raw Laurent coefficients by -8*pi^2",
+  "laurent_order": [
+    "finite",
+    "single_pole",
+    "double_pole"
+  ],
+  "routing": [
+    "q_FeynKit=-q_CutTools",
+    "q_FeynKit=q_CutTools"
+  ],
+  "raw_sampling": "15-point unisolvent affine complex grid for total degree two in four components",
+  "denominator_order": [
+    2,
+    0,
+    1
+  ],
+  "cases": [
+    {
+      "graph_filter_id": 3,
+      "feynkit_orientation": 0,
+      "sample_lane": 0,
+      "state": "pp",
+      "ctmode": 1,
+      "inputs": {
+        "MT": 173.0,
+        "MH": 125.0,
+        "mu_R": 125.0,
+        "g_s": 1.2177157847767197,
+        "yukawa_re": -0.0,
+        "yukawa_im": -0.7026280699412916
+      },
+      "polarizations": {
+        "1": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -0.7071067811865476,
+            0.0
+          ],
+          [
+            0.0,
+            0.7071067811865476
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "2": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -0.7071067811865476,
+            0.0
+          ],
+          [
+            0.0,
+            -0.7071067811865476
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      "raw_samples": [
+        {
+          "index": 1,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15316766.830171604,
+            31272.525075079757
+          ]
+        },
+        {
+          "index": 2,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15221957.906889232,
+            79578.21222275341
+          ]
+        },
+        {
+          "index": 3,
+          "q": [
+            [
+              5.0,
+              1.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15126067.512999073,
+            129325.86018080541
+          ]
+        },
+        {
+          "index": 4,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15316631.64634563,
+            32353.995682863493
+          ]
+        },
+        {
+          "index": 5,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              3.0,
+              0.0
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15310818.741828794,
+            31993.505480268916
+          ]
+        },
+        {
+          "index": 6,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15318524.219909253,
+            33435.46629064723
+          ]
+        },
+        {
+          "index": 7,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              0.0,
+              0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15319650.75179236,
+            33435.46629064723
+          ]
+        },
+        {
+          "index": 8,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -15070157.735640422,
+            40735.392893187476
+          ]
+        },
+        {
+          "index": 9,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              10.0,
+              0.375
+            ]
+          ],
+          "raw_numerator": [
+            -14836503.757764976,
+            49116.79010351144
+          ]
+        },
+        {
+          "index": 10,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15221822.723063258,
+            80659.68283053715
+          ]
+        },
+        {
+          "index": 11,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15223715.29662688,
+            81741.1534383209
+          ]
+        },
+        {
+          "index": 12,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -14975348.812358044,
+            89041.08004086112
+          ]
+        },
+        {
+          "index": 13,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15318389.03608328,
+            34516.93689843097
+          ]
+        },
+        {
+          "index": 14,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -15070022.551814448,
+            41816.863500971216
+          ]
+        },
+        {
+          "index": 15,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -15071915.125378069,
+            42898.33410875495
+          ]
+        }
+      ],
+      "epsilon_raw": [
+        [
+          1.8727755881319788,
+          -3.80687342799545e-11
+        ],
+        [
+          1.9294132312201758e-13,
+          4.23184890688464e-15
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "epsilon_ninjars_normalization": [
+        [
+          -147.8684334950407,
+          3.0057867791467218e-09
+        ],
+        [
+          -1.5234036254696548e-11,
+          -3.3413339676907065e-13
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "stable": true
+    },
+    {
+      "graph_filter_id": 3,
+      "feynkit_orientation": 0,
+      "sample_lane": 1,
+      "state": "pm",
+      "ctmode": 1,
+      "inputs": {
+        "MT": 173.0,
+        "MH": 125.0,
+        "mu_R": 125.0,
+        "g_s": 1.2177157847767197,
+        "yukawa_re": -0.0,
+        "yukawa_im": -0.7026280699412916
+      },
+      "polarizations": {
+        "1": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -0.7071067811865476,
+            0.0
+          ],
+          [
+            0.0,
+            0.7071067811865476
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "2": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.7071067811865476,
+            0.0
+          ],
+          [
+            0.0,
+            -0.7071067811865476
+          ],
+          [
+            -0.0,
+            0.0
+          ]
+        ]
+      },
+      "raw_samples": [
+        {
+          "index": 1,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 2,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 3,
+          "q": [
+            [
+              5.0,
+              1.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 4,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            4325.882431134953,
+            1261.7157090810279
+          ]
+        },
+        {
+          "index": 5,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              3.0,
+              0.0
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1532.0833610269628,
+            12977.647293404862
+          ]
+        },
+        {
+          "index": 6,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1081.4706077837382,
+            -1441.960810378318
+          ]
+        },
+        {
+          "index": 7,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              0.0,
+              0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            270.3676519459346,
+            360.4902025945794
+          ]
+        },
+        {
+          "index": 8,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 9,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              10.0,
+              0.375
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 10,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            4325.882431134953,
+            1261.7157090810279
+          ]
+        },
+        {
+          "index": 11,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1081.4706077837382,
+            -1441.960810378318
+          ]
+        },
+        {
+          "index": 12,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 13,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -630.8578545405139,
+            2162.9412155674763
+          ]
+        },
+        {
+          "index": 14,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            4325.882431134953,
+            1261.7157090810279
+          ]
+        },
+        {
+          "index": 15,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -1081.4706077837382,
+            -1441.960810378318
+          ]
+        }
+      ],
+      "epsilon_raw": [
+        [
+          1.5827216206992843e-10,
+          -1.1945968828200468e-10
+        ],
+        [
+          -5.378578287856578e-14,
+          1.9480963534925715e-14
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "epsilon_ninjars_normalization": [
+        [
+          -1.249666901868235e-08,
+          9.43215892176669e-09
+        ],
+        [
+          4.246755195314636e-12,
+          -1.538155227534113e-12
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "stable": true
+    },
+    {
+      "graph_filter_id": 3,
+      "feynkit_orientation": 0,
+      "sample_lane": 2,
+      "state": "ww",
+      "ctmode": 1,
+      "inputs": {
+        "MT": 173.0,
+        "MH": 125.0,
+        "mu_R": 125.0,
+        "g_s": 1.2177157847767197,
+        "yukawa_re": -0.0,
+        "yukawa_im": -0.7026280699412916
+      },
+      "polarizations": {
+        "1": [
+          [
+            62.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            62.5,
+            0.0
+          ]
+        ],
+        "2": [
+          [
+            62.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -62.5,
+            0.0
+          ]
+        ]
+      },
+      "raw_samples": [
+        {
+          "index": 1,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173492334750.78723,
+            244316602.14906067
+          ]
+        },
+        {
+          "index": 2,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            174233029463.9308,
+            621704782.990261
+          ]
+        },
+        {
+          "index": 3,
+          "q": [
+            [
+              5.0,
+              1.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            174982173166.19766,
+            1010358282.6625419
+          ]
+        },
+        {
+          "index": 4,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173493390874.4276,
+            252765591.2723711
+          ]
+        },
+        {
+          "index": 5,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              3.0,
+              0.0
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173538804190.9654,
+            249949261.56460094
+          ]
+        },
+        {
+          "index": 6,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173478605143.4618,
+            261214580.39568156
+          ]
+        },
+        {
+          "index": 7,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              0.0,
+              0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173469804113.125,
+            261214580.39568156
+          ]
+        },
+        {
+          "index": 8,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            175418968301.81213,
+            318245256.9780271
+          ]
+        },
+        {
+          "index": 9,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              10.0,
+              0.375
+            ]
+          ],
+          "raw_numerator": [
+            177244390003.96405,
+            383724922.68368304
+          ]
+        },
+        {
+          "index": 10,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            174234085587.57117,
+            630153772.1135714
+          ]
+        },
+        {
+          "index": 11,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            174219299856.60535,
+            638602761.2368819
+          ]
+        },
+        {
+          "index": 12,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            176159663014.9557,
+            695633437.8192275
+          ]
+        },
+        {
+          "index": 13,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173479661267.10223,
+            269663569.518992
+          ]
+        },
+        {
+          "index": 14,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            175420024425.4525,
+            326694246.10133755
+          ]
+        },
+        {
+          "index": 15,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            175405238694.4867,
+            335143235.22464806
+          ]
+        }
+      ],
+      "epsilon_raw": [
+        [
+          -17834.61621990377,
+          -1.9859969643781481e-07
+        ],
+        [
+          6.605389392900881e-10,
+          -1.25940042658423e-10
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "epsilon_ninjars_normalization": [
+        [
+          1408164.8538856152,
+          1.568080350414134e-05
+        ],
+        [
+          -5.21540641784668e-08,
+          9.943827194359625e-09
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "stable": true
+    },
+    {
+      "graph_filter_id": 3,
+      "feynkit_orientation": 0,
+      "sample_lane": 0,
+      "state": "pp",
+      "ctmode": 4,
+      "inputs": {
+        "MT": 173.0,
+        "MH": 125.0,
+        "mu_R": 125.0,
+        "g_s": 1.2177157847767197,
+        "yukawa_re": -0.0,
+        "yukawa_im": -0.7026280699412916
+      },
+      "polarizations": {
+        "1": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -0.7071067811865476,
+            0.0
+          ],
+          [
+            0.0,
+            0.7071067811865476
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "2": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -0.7071067811865476,
+            0.0
+          ],
+          [
+            0.0,
+            -0.7071067811865476
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      "raw_samples": [
+        {
+          "index": 1,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15316766.830171604,
+            31272.525075079757
+          ]
+        },
+        {
+          "index": 2,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15221957.906889232,
+            79578.21222275341
+          ]
+        },
+        {
+          "index": 3,
+          "q": [
+            [
+              5.0,
+              1.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15126067.512999073,
+            129325.86018080541
+          ]
+        },
+        {
+          "index": 4,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15316631.64634563,
+            32353.995682863493
+          ]
+        },
+        {
+          "index": 5,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              3.0,
+              0.0
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15310818.741828794,
+            31993.505480268916
+          ]
+        },
+        {
+          "index": 6,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15318524.219909253,
+            33435.46629064723
+          ]
+        },
+        {
+          "index": 7,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              0.0,
+              0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15319650.75179236,
+            33435.46629064723
+          ]
+        },
+        {
+          "index": 8,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -15070157.735640422,
+            40735.392893187476
+          ]
+        },
+        {
+          "index": 9,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              10.0,
+              0.375
+            ]
+          ],
+          "raw_numerator": [
+            -14836503.757764976,
+            49116.79010351144
+          ]
+        },
+        {
+          "index": 10,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15221822.723063258,
+            80659.68283053715
+          ]
+        },
+        {
+          "index": 11,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15223715.29662688,
+            81741.1534383209
+          ]
+        },
+        {
+          "index": 12,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -14975348.812358044,
+            89041.08004086112
+          ]
+        },
+        {
+          "index": 13,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15318389.03608328,
+            34516.93689843097
+          ]
+        },
+        {
+          "index": 14,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -15070022.551814448,
+            41816.863500971216
+          ]
+        },
+        {
+          "index": 15,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -15071915.125378069,
+            42898.33410875495
+          ]
+        }
+      ],
+      "epsilon_raw": [
+        [
+          1.8727755881469699,
+          9.953379898193013e-30
+        ],
+        [
+          -2.7725136224136387e-31,
+          6.251850102571526e-34
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "epsilon_ninjars_normalization": [
+        [
+          -147.86843349622436,
+          -7.858873763913609e-28
+        ],
+        [
+          2.1890890119883078e-29,
+          -4.936262982983271e-32
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "stable": true
+    },
+    {
+      "graph_filter_id": 3,
+      "feynkit_orientation": 0,
+      "sample_lane": 1,
+      "state": "pm",
+      "ctmode": 4,
+      "inputs": {
+        "MT": 173.0,
+        "MH": 125.0,
+        "mu_R": 125.0,
+        "g_s": 1.2177157847767197,
+        "yukawa_re": -0.0,
+        "yukawa_im": -0.7026280699412916
+      },
+      "polarizations": {
+        "1": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -0.7071067811865476,
+            0.0
+          ],
+          [
+            0.0,
+            0.7071067811865476
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "2": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.7071067811865476,
+            0.0
+          ],
+          [
+            0.0,
+            -0.7071067811865476
+          ],
+          [
+            -0.0,
+            0.0
+          ]
+        ]
+      },
+      "raw_samples": [
+        {
+          "index": 1,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 2,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 3,
+          "q": [
+            [
+              5.0,
+              1.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 4,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            4325.882431134953,
+            1261.7157090810279
+          ]
+        },
+        {
+          "index": 5,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              3.0,
+              0.0
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1532.0833610269628,
+            12977.647293404862
+          ]
+        },
+        {
+          "index": 6,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1081.4706077837382,
+            -1441.960810378318
+          ]
+        },
+        {
+          "index": 7,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              0.0,
+              0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            270.3676519459346,
+            360.4902025945794
+          ]
+        },
+        {
+          "index": 8,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 9,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              10.0,
+              0.375
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 10,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            4325.882431134953,
+            1261.7157090810279
+          ]
+        },
+        {
+          "index": 11,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1081.4706077837382,
+            -1441.960810378318
+          ]
+        },
+        {
+          "index": 12,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 13,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -630.8578545405139,
+            2162.9412155674763
+          ]
+        },
+        {
+          "index": 14,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            4325.882431134953,
+            1261.7157090810279
+          ]
+        },
+        {
+          "index": 15,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -1081.4706077837382,
+            -1441.960810378318
+          ]
+        }
+      ],
+      "epsilon_raw": [
+        [
+          5.060889138905954e-29,
+          -5.817326638701074e-29
+        ],
+        [
+          -3.453663058326653e-31,
+          -4.007469523014663e-31
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "epsilon_ninjars_normalization": [
+        [
+          -3.995917897501723e-27,
+          4.593177007671879e-27
+        ],
+        [
+          2.726903049627237e-29,
+          3.164171107326159e-29
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "stable": true
+    },
+    {
+      "graph_filter_id": 3,
+      "feynkit_orientation": 0,
+      "sample_lane": 2,
+      "state": "ww",
+      "ctmode": 4,
+      "inputs": {
+        "MT": 173.0,
+        "MH": 125.0,
+        "mu_R": 125.0,
+        "g_s": 1.2177157847767197,
+        "yukawa_re": -0.0,
+        "yukawa_im": -0.7026280699412916
+      },
+      "polarizations": {
+        "1": [
+          [
+            62.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            62.5,
+            0.0
+          ]
+        ],
+        "2": [
+          [
+            62.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -62.5,
+            0.0
+          ]
+        ]
+      },
+      "raw_samples": [
+        {
+          "index": 1,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173492334750.78723,
+            244316602.14906067
+          ]
+        },
+        {
+          "index": 2,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            174233029463.9308,
+            621704782.990261
+          ]
+        },
+        {
+          "index": 3,
+          "q": [
+            [
+              5.0,
+              1.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            174982173166.19766,
+            1010358282.6625419
+          ]
+        },
+        {
+          "index": 4,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173493390874.4276,
+            252765591.2723711
+          ]
+        },
+        {
+          "index": 5,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              3.0,
+              0.0
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173538804190.9654,
+            249949261.56460094
+          ]
+        },
+        {
+          "index": 6,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173478605143.4618,
+            261214580.39568156
+          ]
+        },
+        {
+          "index": 7,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              0.0,
+              0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173469804113.125,
+            261214580.39568156
+          ]
+        },
+        {
+          "index": 8,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            175418968301.81213,
+            318245256.9780271
+          ]
+        },
+        {
+          "index": 9,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              10.0,
+              0.375
+            ]
+          ],
+          "raw_numerator": [
+            177244390003.96405,
+            383724922.68368304
+          ]
+        },
+        {
+          "index": 10,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            174234085587.57117,
+            630153772.1135714
+          ]
+        },
+        {
+          "index": 11,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            174219299856.60535,
+            638602761.2368819
+          ]
+        },
+        {
+          "index": 12,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            176159663014.9557,
+            695633437.8192275
+          ]
+        },
+        {
+          "index": 13,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173479661267.10223,
+            269663569.518992
+          ]
+        },
+        {
+          "index": 14,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            175420024425.4525,
+            326694246.10133755
+          ]
+        },
+        {
+          "index": 15,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            175405238694.4867,
+            335143235.22464806
+          ]
+        }
+      ],
+      "epsilon_raw": [
+        [
+          -17834.61621989694,
+          1.1151497891033167e-25
+        ],
+        [
+          -1.9233951080291692e-27,
+          1.1725253180502737e-27
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "epsilon_ninjars_normalization": [
+        [
+          1408164.8538850758,
+          -8.80486981312637e-24
+        ],
+        [
+          1.5186519058590742e-25,
+          -9.257888831534144e-26
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "stable": true
+    },
+    {
+      "graph_filter_id": 4,
+      "feynkit_orientation": 1,
+      "sample_lane": 0,
+      "state": "pp",
+      "ctmode": 1,
+      "inputs": {
+        "MT": 173.0,
+        "MH": 125.0,
+        "mu_R": 125.0,
+        "g_s": 1.2177157847767197,
+        "yukawa_re": -0.0,
+        "yukawa_im": -0.7026280699412916
+      },
+      "polarizations": {
+        "1": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -0.7071067811865476,
+            0.0
+          ],
+          [
+            0.0,
+            0.7071067811865476
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "2": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -0.7071067811865476,
+            0.0
+          ],
+          [
+            0.0,
+            -0.7071067811865476
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      "raw_samples": [
+        {
+          "index": 1,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15316766.830171604,
+            31272.525075079757
+          ]
+        },
+        {
+          "index": 2,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15221957.906889232,
+            79578.2122227534
+          ]
+        },
+        {
+          "index": 3,
+          "q": [
+            [
+              5.0,
+              1.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15126067.512999073,
+            129325.8601808054
+          ]
+        },
+        {
+          "index": 4,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15316631.64634563,
+            32353.995682863493
+          ]
+        },
+        {
+          "index": 5,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              3.0,
+              0.0
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15310818.741828792,
+            31993.505480268912
+          ]
+        },
+        {
+          "index": 6,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15318524.21990925,
+            33435.46629064724
+          ]
+        },
+        {
+          "index": 7,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              0.0,
+              0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15319650.75179236,
+            33435.46629064724
+          ]
+        },
+        {
+          "index": 8,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -15070157.73564042,
+            40735.392893187476
+          ]
+        },
+        {
+          "index": 9,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              10.0,
+              0.375
+            ]
+          ],
+          "raw_numerator": [
+            -14836503.757764978,
+            49116.79010351144
+          ]
+        },
+        {
+          "index": 10,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15221822.723063258,
+            80659.68283053716
+          ]
+        },
+        {
+          "index": 11,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15223715.29662688,
+            81741.1534383209
+          ]
+        },
+        {
+          "index": 12,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -14975348.812358044,
+            89041.08004086111
+          ]
+        },
+        {
+          "index": 13,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15318389.036083281,
+            34516.93689843097
+          ]
+        },
+        {
+          "index": 14,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -15070022.551814448,
+            41816.86350097121
+          ]
+        },
+        {
+          "index": 15,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -15071915.125378069,
+            42898.33410875495
+          ]
+        }
+      ],
+      "epsilon_raw": [
+        [
+          1.87277558814044,
+          -3.991583534658456e-11
+        ],
+        [
+          2.0446020808452609e-13,
+          4.163461852606064e-15
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "epsilon_ninjars_normalization": [
+        [
+          -147.86843349570879,
+          3.1516280336784733e-09
+        ],
+        [
+          -1.6143530956469476e-11,
+          -3.2873377139398767e-13
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "stable": true
+    },
+    {
+      "graph_filter_id": 4,
+      "feynkit_orientation": 1,
+      "sample_lane": 1,
+      "state": "pm",
+      "ctmode": 1,
+      "inputs": {
+        "MT": 173.0,
+        "MH": 125.0,
+        "mu_R": 125.0,
+        "g_s": 1.2177157847767197,
+        "yukawa_re": -0.0,
+        "yukawa_im": -0.7026280699412916
+      },
+      "polarizations": {
+        "1": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -0.7071067811865476,
+            0.0
+          ],
+          [
+            0.0,
+            0.7071067811865476
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "2": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.7071067811865476,
+            0.0
+          ],
+          [
+            0.0,
+            -0.7071067811865476
+          ],
+          [
+            -0.0,
+            0.0
+          ]
+        ]
+      },
+      "raw_samples": [
+        {
+          "index": 1,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 2,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 3,
+          "q": [
+            [
+              5.0,
+              1.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 4,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            4325.882431134953,
+            1261.7157090810279
+          ]
+        },
+        {
+          "index": 5,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              3.0,
+              0.0
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1532.0833610269628,
+            12977.64729340486
+          ]
+        },
+        {
+          "index": 6,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1081.4706077837382,
+            -1441.960810378318
+          ]
+        },
+        {
+          "index": 7,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              0.0,
+              0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            270.3676519459346,
+            360.4902025945794
+          ]
+        },
+        {
+          "index": 8,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 9,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              10.0,
+              0.375
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 10,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            4325.882431134953,
+            1261.7157090810279
+          ]
+        },
+        {
+          "index": 11,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1081.4706077837382,
+            -1441.960810378318
+          ]
+        },
+        {
+          "index": 12,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 13,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -630.8578545405139,
+            2162.9412155674763
+          ]
+        },
+        {
+          "index": 14,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            4325.882431134953,
+            1261.7157090810279
+          ]
+        },
+        {
+          "index": 15,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -1081.4706077837382,
+            -1441.960810378318
+          ]
+        }
+      ],
+      "epsilon_raw": [
+        [
+          1.5569323277463235e-10,
+          -1.184669249336203e-10
+        ],
+        [
+          -6.069381650292018e-14,
+          7.714541889723284e-15
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "epsilon_ninjars_normalization": [
+        [
+          -1.229304492329873e-08,
+          9.353773469667052e-09
+        ],
+        [
+          4.792191667809047e-12,
+          -6.091158126976091e-13
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "stable": true
+    },
+    {
+      "graph_filter_id": 4,
+      "feynkit_orientation": 1,
+      "sample_lane": 2,
+      "state": "ww",
+      "ctmode": 1,
+      "inputs": {
+        "MT": 173.0,
+        "MH": 125.0,
+        "mu_R": 125.0,
+        "g_s": 1.2177157847767197,
+        "yukawa_re": -0.0,
+        "yukawa_im": -0.7026280699412916
+      },
+      "polarizations": {
+        "1": [
+          [
+            62.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            62.5,
+            0.0
+          ]
+        ],
+        "2": [
+          [
+            62.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -62.5,
+            0.0
+          ]
+        ]
+      },
+      "raw_samples": [
+        {
+          "index": 1,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173492334750.78723,
+            244316602.14906067
+          ]
+        },
+        {
+          "index": 2,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            174233029463.9308,
+            621704782.990261
+          ]
+        },
+        {
+          "index": 3,
+          "q": [
+            [
+              5.0,
+              1.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            174982173166.19766,
+            1010358282.662542
+          ]
+        },
+        {
+          "index": 4,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173493390874.4276,
+            252765591.2723711
+          ]
+        },
+        {
+          "index": 5,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              3.0,
+              0.0
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173538804190.9654,
+            249949261.56460094
+          ]
+        },
+        {
+          "index": 6,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173478605143.4618,
+            261214580.3956816
+          ]
+        },
+        {
+          "index": 7,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              0.0,
+              0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173469804113.125,
+            261214580.3956816
+          ]
+        },
+        {
+          "index": 8,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            175418968301.81213,
+            318245256.9780271
+          ]
+        },
+        {
+          "index": 9,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              10.0,
+              0.375
+            ]
+          ],
+          "raw_numerator": [
+            177244390003.96402,
+            383724922.68368304
+          ]
+        },
+        {
+          "index": 10,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            174234085587.57117,
+            630153772.1135714
+          ]
+        },
+        {
+          "index": 11,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            174219299856.60535,
+            638602761.236882
+          ]
+        },
+        {
+          "index": 12,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            176159663014.9557,
+            695633437.8192276
+          ]
+        },
+        {
+          "index": 13,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173479661267.10223,
+            269663569.518992
+          ]
+        },
+        {
+          "index": 14,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            175420024425.4525,
+            326694246.10133755
+          ]
+        },
+        {
+          "index": 15,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            175405238694.4867,
+            335143235.22464806
+          ]
+        }
+      ],
+      "epsilon_raw": [
+        [
+          -17834.61621987268,
+          -1.9997057854800609e-07
+        ],
+        [
+          1.0851711145480018e-09,
+          -7.207876033240613e-11
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "epsilon_ninjars_normalization": [
+        [
+          1408164.8538831605,
+          1.5789044017006288e-05
+        ],
+        [
+          -8.568167686462402e-08,
+          5.691110801614245e-09
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "stable": true
+    },
+    {
+      "graph_filter_id": 4,
+      "feynkit_orientation": 1,
+      "sample_lane": 0,
+      "state": "pp",
+      "ctmode": 4,
+      "inputs": {
+        "MT": 173.0,
+        "MH": 125.0,
+        "mu_R": 125.0,
+        "g_s": 1.2177157847767197,
+        "yukawa_re": -0.0,
+        "yukawa_im": -0.7026280699412916
+      },
+      "polarizations": {
+        "1": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -0.7071067811865476,
+            0.0
+          ],
+          [
+            0.0,
+            0.7071067811865476
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "2": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -0.7071067811865476,
+            0.0
+          ],
+          [
+            0.0,
+            -0.7071067811865476
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      "raw_samples": [
+        {
+          "index": 1,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15316766.830171604,
+            31272.525075079757
+          ]
+        },
+        {
+          "index": 2,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15221957.906889232,
+            79578.2122227534
+          ]
+        },
+        {
+          "index": 3,
+          "q": [
+            [
+              5.0,
+              1.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15126067.512999073,
+            129325.8601808054
+          ]
+        },
+        {
+          "index": 4,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15316631.64634563,
+            32353.995682863493
+          ]
+        },
+        {
+          "index": 5,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              3.0,
+              0.0
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15310818.741828792,
+            31993.505480268912
+          ]
+        },
+        {
+          "index": 6,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15318524.21990925,
+            33435.46629064724
+          ]
+        },
+        {
+          "index": 7,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              0.0,
+              0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15319650.75179236,
+            33435.46629064724
+          ]
+        },
+        {
+          "index": 8,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -15070157.73564042,
+            40735.392893187476
+          ]
+        },
+        {
+          "index": 9,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              10.0,
+              0.375
+            ]
+          ],
+          "raw_numerator": [
+            -14836503.757764978,
+            49116.79010351144
+          ]
+        },
+        {
+          "index": 10,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15221822.723063258,
+            80659.68283053716
+          ]
+        },
+        {
+          "index": 11,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15223715.29662688,
+            81741.1534383209
+          ]
+        },
+        {
+          "index": 12,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -14975348.812358044,
+            89041.08004086111
+          ]
+        },
+        {
+          "index": 13,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -15318389.036083281,
+            34516.93689843097
+          ]
+        },
+        {
+          "index": 14,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -15070022.551814448,
+            41816.86350097121
+          ]
+        },
+        {
+          "index": 15,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -15071915.125378069,
+            42898.33410875495
+          ]
+        }
+      ],
+      "epsilon_raw": [
+        [
+          1.8727755881469699,
+          2.7118730500248334e-29
+        ],
+        [
+          -2.8474464230194124e-31,
+          1.6677167391515437e-33
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "epsilon_ninjars_normalization": [
+        [
+          -147.86843349622436,
+          -2.1412091351776573e-27
+        ],
+        [
+          2.2482535798798834e-29,
+          -1.3167763574800376e-31
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "stable": true
+    },
+    {
+      "graph_filter_id": 4,
+      "feynkit_orientation": 1,
+      "sample_lane": 1,
+      "state": "pm",
+      "ctmode": 4,
+      "inputs": {
+        "MT": 173.0,
+        "MH": 125.0,
+        "mu_R": 125.0,
+        "g_s": 1.2177157847767197,
+        "yukawa_re": -0.0,
+        "yukawa_im": -0.7026280699412916
+      },
+      "polarizations": {
+        "1": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -0.7071067811865476,
+            0.0
+          ],
+          [
+            0.0,
+            0.7071067811865476
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "2": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.7071067811865476,
+            0.0
+          ],
+          [
+            0.0,
+            -0.7071067811865476
+          ],
+          [
+            -0.0,
+            0.0
+          ]
+        ]
+      },
+      "raw_samples": [
+        {
+          "index": 1,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 2,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 3,
+          "q": [
+            [
+              5.0,
+              1.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 4,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            4325.882431134953,
+            1261.7157090810279
+          ]
+        },
+        {
+          "index": 5,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              3.0,
+              0.0
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1532.0833610269628,
+            12977.64729340486
+          ]
+        },
+        {
+          "index": 6,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1081.4706077837382,
+            -1441.960810378318
+          ]
+        },
+        {
+          "index": 7,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              0.0,
+              0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            270.3676519459346,
+            360.4902025945794
+          ]
+        },
+        {
+          "index": 8,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 9,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              10.0,
+              0.375
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 10,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            4325.882431134953,
+            1261.7157090810279
+          ]
+        },
+        {
+          "index": 11,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -1081.4706077837382,
+            -1441.960810378318
+          ]
+        },
+        {
+          "index": 12,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -1171.5931584323837,
+            -7570.294254486169
+          ]
+        },
+        {
+          "index": 13,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            -630.8578545405139,
+            2162.9412155674763
+          ]
+        },
+        {
+          "index": 14,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            4325.882431134953,
+            1261.7157090810279
+          ]
+        },
+        {
+          "index": 15,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            -1081.4706077837382,
+            -1441.960810378318
+          ]
+        }
+      ],
+      "epsilon_raw": [
+        [
+          2.999707206670909e-29,
+          -3.96445247865936e-29
+        ],
+        [
+          -2.9442415824865552e-31,
+          -3.654353790757936e-31
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "epsilon_ninjars_normalization": [
+        [
+          -2.3684738759150935e-27,
+          3.1302062105028826e-27
+        ],
+        [
+          2.3246799744303682e-29,
+          2.8853621005121685e-29
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "stable": true
+    },
+    {
+      "graph_filter_id": 4,
+      "feynkit_orientation": 1,
+      "sample_lane": 2,
+      "state": "ww",
+      "ctmode": 4,
+      "inputs": {
+        "MT": 173.0,
+        "MH": 125.0,
+        "mu_R": 125.0,
+        "g_s": 1.2177157847767197,
+        "yukawa_re": -0.0,
+        "yukawa_im": -0.7026280699412916
+      },
+      "polarizations": {
+        "1": [
+          [
+            62.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            62.5,
+            0.0
+          ]
+        ],
+        "2": [
+          [
+            62.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -62.5,
+            0.0
+          ]
+        ]
+      },
+      "raw_samples": [
+        {
+          "index": 1,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173492334750.78723,
+            244316602.14906067
+          ]
+        },
+        {
+          "index": 2,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            174233029463.9308,
+            621704782.990261
+          ]
+        },
+        {
+          "index": 3,
+          "q": [
+            [
+              5.0,
+              1.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            174982173166.19766,
+            1010358282.662542
+          ]
+        },
+        {
+          "index": 4,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173493390874.4276,
+            252765591.2723711
+          ]
+        },
+        {
+          "index": 5,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              3.0,
+              0.0
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173538804190.9654,
+            249949261.56460094
+          ]
+        },
+        {
+          "index": 6,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173478605143.4618,
+            261214580.3956816
+          ]
+        },
+        {
+          "index": 7,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              0.0,
+              0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173469804113.125,
+            261214580.3956816
+          ]
+        },
+        {
+          "index": 8,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            175418968301.81213,
+            318245256.9780271
+          ]
+        },
+        {
+          "index": 9,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              10.0,
+              0.375
+            ]
+          ],
+          "raw_numerator": [
+            177244390003.96402,
+            383724922.68368304
+          ]
+        },
+        {
+          "index": 10,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            174234085587.57117,
+            630153772.1135714
+          ]
+        },
+        {
+          "index": 11,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            174219299856.60535,
+            638602761.236882
+          ]
+        },
+        {
+          "index": 12,
+          "q": [
+            [
+              4.0,
+              0.75
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            176159663014.9557,
+            695633437.8192276
+          ]
+        },
+        {
+          "index": 13,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.125
+            ]
+          ],
+          "raw_numerator": [
+            173479661267.10223,
+            269663569.518992
+          ]
+        },
+        {
+          "index": 14,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              1.0,
+              0.25
+            ],
+            [
+              2.0,
+              -0.75
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            175420024425.4525,
+            326694246.10133755
+          ]
+        },
+        {
+          "index": 15,
+          "q": [
+            [
+              3.0,
+              0.25
+            ],
+            [
+              -1.0,
+              0.5
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              7.0,
+              0.25
+            ]
+          ],
+          "raw_numerator": [
+            175405238694.4867,
+            335143235.22464806
+          ]
+        }
+      ],
+      "epsilon_raw": [
+        [
+          -17834.61621989694,
+          1.0907786042229059e-25
+        ],
+        [
+          -1.4732388061500018e-27,
+          9.419029456014513e-28
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "epsilon_ninjars_normalization": [
+        [
+          1408164.8538850758,
+          -8.612442650282e-24
+        ],
+        [
+          1.1632227364026952e-25,
+          -7.436967565845692e-26
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "stable": true
+    }
+  ]
+}

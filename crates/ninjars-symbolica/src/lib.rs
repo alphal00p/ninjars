@@ -19,6 +19,8 @@ mod polynomial;
 mod projection;
 #[cfg(feature = "reference-codegen")]
 mod reference;
+#[cfg(feature = "rust-codegen")]
+pub mod rust_codegen;
 mod subtraction;
 mod tadpole_kernels;
 mod triangle_kernels;

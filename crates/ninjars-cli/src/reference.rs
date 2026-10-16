@@ -191,7 +191,7 @@ pub(crate) fn export(
         "operation": "original_ninja_reference_export",
         "reference_precision": "binary64",
         "numerical_conversion": "Symbolica 200-bit evaluation followed by binary64 rounding; exact expressions retained in prepared.json",
-        "callback_precision": "Symbolica exact instruction graph exported to C++ complex<double>",
+        "callback_precision": "Symbolica instruction graph with coefficients and registered constants evaluated at 200 bits, then C++ literals rounded to complex<double>",
         "overall_factor_included_in_callback": true,
         "epsilon_order": ["finite", "single_pole", "double_pole"],
         "scale_squared_exact": scale_squared.to_canonical_string(),

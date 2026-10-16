@@ -1,0 +1,132 @@
+      PROGRAM RAW_HGG
+      IMPLICIT NONE
+      INCLUDE 'coupl.inc'
+      REAL*8 P(0:3,3), LSCALE, REF
+      COMPLEX*16 W(20,3),LC(3),ML(5),Q(0:3),NUM,RAW,RES(3)
+      COMPLEX*16 BASEQ(0:3),DQ(0:3)
+      COMPLEX*32 MPM, MPC1, MPC2
+      COMPLEX*32 MPW(20,3)
+      INTEGER WE(3),ID,SYMFACT,MULTIPLIER,AMPLNUM,HELPICKED
+      INTEGER CTMODE,NTRY,I,J,H1,H2,WARD
+      INTEGER PAIRI(6),PAIRJ(6),K
+      LOGICAL CHECKPHASE,HELDOUBLECHECKED,GOODHEL(4),GOODAMP(2,4)
+      LOGICAL CTINIT,TIRINIT,GOLEMINIT,SAMURAIINIT,NINJAINIT
+      LOGICAL STABLE,UPDATELOOP
+      CHARACTER*512 CARD,ARG
+      COMMON/ML5_0_DP_LOOP/LC,ML
+      COMMON/ML5_0_LOOP/WE,ID,SYMFACT,MULTIPLIER,AMPLNUM
+      COMMON/ML5_0_WFCTS/W
+      COMMON/ML5_0_MP_WFS/MPW
+      COMMON/ML5_0_CT/LSCALE,CTMODE
+      COMMON/ML5_0_HELCHOICE/HELPICKED
+      COMMON/ML5_0_INIT/NTRY,CHECKPHASE,HELDOUBLECHECKED,REF
+      COMMON/ML5_0_FILTERS/GOODAMP,GOODHEL
+      COMMON/REDUCTIONCODEINIT/CTINIT,TIRINIT,GOLEMINIT,SAMURAIINIT,
+     $ NINJAINIT
+      COMMON/TO_UPDATELOOP/UPDATELOOP
+      CALL GET_COMMAND_ARGUMENT(1,CARD)
+      UPDATELOOP=.TRUE.
+      CALL SETPARAMLOG(.FALSE.)
+      CALL SETPARA2(CARD)
+      MU_R=125D0
+      ALL_MU_R=MU_R
+      P=0D0
+      P(0,1)=125D0
+      P(0,2)=62.5D0
+      P(0,3)=62.5D0
+      P(3,2)=62.5D0
+      P(3,3)=-62.5D0
+      W=DCMPLX(0D0,0D0)
+      H1=1
+      H2=1
+      CALL GET_COMMAND_ARGUMENT(2,ARG)
+      IF(LEN_TRIM(ARG).GT.0) READ(ARG,*) H1
+      CALL GET_COMMAND_ARGUMENT(3,ARG)
+      IF(LEN_TRIM(ARG).GT.0) READ(ARG,*) H2
+      CALL SXXXXX(P(0,1),-1,W(1,1))
+      CALL VXXXXX(P(0,2),0D0,H1,1,W(1,2))
+      CALL VXXXXX(P(0,3),0D0,H2,1,W(1,3))
+      WARD=0
+      CALL GET_COMMAND_ARGUMENT(4,ARG)
+      IF(LEN_TRIM(ARG).GT.0) READ(ARG,*) WARD
+      IF(IAND(WARD,1).NE.0) THEN
+        DO I=0,3
+          W(5+I,2)=DCMPLX(P(I,2),0D0)
+        ENDDO
+      ENDIF
+      IF(IAND(WARD,2).NE.0) THEN
+        DO I=0,3
+          W(5+I,3)=DCMPLX(P(I,3),0D0)
+        ENDDO
+      ENDIF
+      LC(1)=GC_37
+      LC(2)=GC_5
+      LC(3)=GC_5
+      ML=DCMPLX(MDL_MT,0D0)
+      WE=(/1,2,3/)
+      ID=1
+      SYMFACT=1
+      MULTIPLIER=1
+      AMPLNUM=2
+      HELPICKED=1
+      CHECKPHASE=.TRUE.
+      HELDOUBLECHECKED=.FALSE.
+      GOODHEL=.TRUE.
+      GOODAMP=.TRUE.
+      NTRY=0
+      REF=1D0
+      CTMODE=1
+      CALL GET_COMMAND_ARGUMENT(5,ARG)
+      IF(LEN_TRIM(ARG).GT.0) READ(ARG,*) CTMODE
+      IF(CTMODE.NE.1.AND.CTMODE.NE.4) STOP 'explicit modes 1 or 4'
+C     Explicit QP reduction preserves the identical binary64 external
+C     wavefunctions and couplings. There is no adaptive precision switch.
+      MPW=CMPLX(W,KIND=16)
+      LSCALE=125D0
+      CTINIT=.FALSE.
+      TIRINIT=.FALSE.
+      GOLEMINIT=.FALSE.
+      SAMURAIINIT=.FALSE.
+      NINJAINIT=.FALSE.
+      CALL CTSINIT(1D-2,2,.TRUE.)
+      WRITE(*,*) 'STATE ',H1,H2,WARD
+      WRITE(*,*) 'CTMODE ',CTMODE
+      WRITE(*,'(A,6ES25.16)') 'INPUT ',MDL_MT,MDL_MH,MU_R,
+     $ G,DBLE(GC_37),DIMAG(GC_37)
+      WRITE(*,'(A,2ES25.16)') 'GC5 ',GC_5
+      DO J=1,3
+        DO I=1,8
+          WRITE(*,'(A,2I3,2ES25.16)') 'W ',J,I,W(I,J)
+        ENDDO
+      ENDDO
+C     Fifteen independent points determine a degree-two polynomial in four
+C     variables: base, base+e_i, base+2e_i, and base+e_i+e_j.
+C     Each e_i has one nonzero complex component; no collinear-only probe.
+      BASEQ=(/DCMPLX(3D0,.25D0),DCMPLX(-1D0,.5D0),
+     $ DCMPLX(2D0,-.75D0),DCMPLX(4D0,.125D0)/)
+      DQ=(/DCMPLX(1D0,.5D0),DCMPLX(2D0,-.25D0),
+     $ DCMPLX(-1D0,.75D0),DCMPLX(3D0,.125D0)/)
+      PAIRI=(/0,0,0,1,1,2/)
+      PAIRJ=(/1,2,3,2,3,3/)
+      DO J=1,15
+        Q=BASEQ
+        IF(J.GE.2.AND.J.LE.9) THEN
+          I=(J-2)/2
+          Q(I)=Q(I)+(1+MOD(J-2,2))*DQ(I)
+        ELSEIF(J.GE.10) THEN
+          K=J-9
+          Q(PAIRI(K))=Q(PAIRI(K))+DQ(PAIRI(K))
+          Q(PAIRJ(K))=Q(PAIRJ(K))+DQ(PAIRJ(K))
+        ENDIF
+        CALL ML5_0_LOOPNUMHEL(-Q,RAW,1)
+        CALL ML5_0_LOOPNUM(Q,NUM)
+        WRITE(*,'(A,I3,12ES25.16)') 'NUM ',J,Q,RAW,NUM
+      ENDDO
+      MPM=CMPLX(MDL_MT,KIND=16)
+      MPC1=CMPLX(GC_37,KIND=16)
+      MPC2=CMPLX(GC_5,KIND=16)
+      CALL ML5_0_LOOP_3_3(1,1,2,3,DCMPLX(MDL_MT),MPM,
+     $ DCMPLX(MDL_MT),MPM,DCMPLX(MDL_MT),MPM,
+     $ GC_37,MPC1,GC_5,MPC2,GC_5,MPC2,3,1,1,2,RES,STABLE)
+      WRITE(*,'(A,L2,6ES25.16)') 'LAURENT ',STABLE,RES
+      END

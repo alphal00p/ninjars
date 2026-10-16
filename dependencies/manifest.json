@@ -9,11 +9,11 @@
       "patches": [
         {
           "path": "dependencies/patches/symbolica-batch-dual.patch",
-          "sha256": "c512826dea66151acc15fc14ffe9149d9d03d53ee70ca536407b4a29a3a9d397"
+          "sha256": "e0fd49c267805fa371d7b83b38a60ee02fc6a00a4aafa938c7917cfdd99f9701"
         }
       ],
       "patched_revisions": [
-        "b6edbce2d9b805b481b85a8699bb061e93cd83fb"
+        "52ef4b8e3a10cf3a68385230d55ebe8c3d153948"
       ]
     },
     {
@@ -39,11 +39,11 @@
       "patches": [
         {
           "path": "dependencies/patches/oneloopmaster-complex-seeds.patch",
-          "sha256": "cea5c3056339811250951efe07ea011f28cc24beda845b1c9028a7b28f8b4610"
+          "sha256": "dc6656a37f61b7f0a01ba57483629c3d89bdc29a9fe43ade1921bb4de978d703"
         }
       ],
       "patched_revisions": [
-        "606974150011332cfea677f70940f9228e24c9e3"
+        "de0114add9937a2225a3e5d89af1d497ccd31d07"
       ]
     },
     {

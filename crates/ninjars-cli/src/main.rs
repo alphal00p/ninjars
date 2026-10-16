@@ -1,9 +1,11 @@
+mod bench;
 #[cfg(feature = "reference-codegen")]
 mod compare;
 mod prepare;
 mod reduce;
 #[cfg(feature = "reference-codegen")]
 mod reference;
+mod runtime;
 
 use clap::{Parser, Subcommand};
 
@@ -21,6 +23,8 @@ enum Command {
     Prepare(prepare::Args),
     /// Reduce graphs through six propagators with fully specified samples.
     Reduce(reduce::Args),
+    /// Measure warmed Rust evaluation; reference performance acceptance is separate.
+    Bench(bench::Args),
     /// Compare prepared samples against original Ninja and OneLOop.
     #[cfg(feature = "reference-codegen")]
     Compare(compare::Args),
@@ -42,6 +46,13 @@ fn main() {
             .expect("cannot start reduction worker")
             .join()
             .unwrap_or_else(|_| Err("reduction worker panicked".into())),
+        Command::Bench(args) => std::thread::Builder::new()
+            .name("ninjars-bench".into())
+            .stack_size(128 * 1024 * 1024)
+            .spawn(move || bench::run(args).map_err(|error| error.to_string()))
+            .expect("cannot start benchmark worker")
+            .join()
+            .unwrap_or_else(|_| Err("benchmark worker panicked".into())),
         #[cfg(feature = "reference-codegen")]
         Command::Compare(args) => std::thread::Builder::new()
             .name("ninjars-compare".into())

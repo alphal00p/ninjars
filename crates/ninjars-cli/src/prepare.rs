@@ -48,7 +48,7 @@ pub struct Args {
     /// Sample fixture accompanying a DOT input.
     #[arg(long)]
     pub samples: Option<PathBuf>,
-    /// Built-in phi3/phi4, or path to a FeynKit model JSON. Defaults to fixture model or phi3.
+    /// Built-in phi3/phi4/sm, or path to a FeynKit model JSON. Defaults to fixture model or phi3.
     #[arg(long)]
     pub model: Option<String>,
     /// Construct local numerators and default external states from model rules.
@@ -74,6 +74,9 @@ struct Fixture {
     scale_squared: String,
     #[serde(default)]
     parameter_overrides: BTreeMap<String, String>,
+    /// Explicit Idenso policy for fundamental color invariants.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    color_dimension_invariants: bool,
     #[serde(default)]
     samples: Vec<Sample>,
 }
@@ -82,6 +85,9 @@ struct Fixture {
 #[serde(deny_unknown_fields)]
 struct Sample {
     external_momenta: BTreeMap<usize, [String; 4]>,
+    /// Exact polarization components, keyed by the graph's physical leg index.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    external_polarizations: BTreeMap<usize, [String; 4]>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     s_matrix: Option<Vec<Vec<String>>>,
 }
@@ -107,6 +113,7 @@ fn bind_external(
     sample: &Sample,
     prepared: &PreparedIntegrand,
     bindings: &[Replacement],
+    polarizations: &BTreeMap<usize, Atom>,
 ) -> Result<BTreeMap<Atom, FourMomentum<Atom>>> {
     let count = prepared.diagram.loop_momentum_basis().external_edges.len();
     let mut momenta = BTreeMap::new();
@@ -157,7 +164,72 @@ fn bind_external(
             .into());
         }
     }
+    for (leg, carrier) in polarizations {
+        let values = sample.external_polarizations[leg]
+            .iter()
+            .map(|text| parse(text).map(|atom| substitute(&atom, bindings)))
+            .collect::<Result<Vec<_>>>()?;
+        momenta.insert(
+            carrier.clone(),
+            FourMomentum::from_args(
+                values[0].clone(),
+                values[1].clone(),
+                values[2].clone(),
+                values[3].clone(),
+            ),
+        );
+    }
     Ok(momenta)
+}
+
+fn polarization_carriers(
+    prepared: &PreparedIntegrand,
+    samples: &[Sample],
+) -> Result<BTreeMap<usize, Atom>> {
+    let Some(first) = samples.first() else {
+        return Ok(BTreeMap::new());
+    };
+    let mut carriers = BTreeMap::new();
+    for leg in first.external_polarizations.keys() {
+        let (edge, _, data) = prepared
+            .diagram
+            .edges()
+            .find(|(_, _, data)| {
+                data.external
+                    .as_ref()
+                    .is_some_and(|external| external.index == *leg)
+            })
+            .ok_or_else(|| format!("unknown external polarization leg {leg}"))?;
+        if prepared.diagram.model().particle_by_id(data.particle)?.spin != 3 {
+            return Err(format!("external polarization leg {leg} is not a vector particle").into());
+        }
+        // Read the actual prepared projector carrier. Incoming/outgoing
+        // conventions remain owned by FeynKit, including explicit projectors.
+        let candidates: Vec<_> = [symbols::epsilon(), symbols::epsilonbar()]
+            .into_iter()
+            .filter(|symbol| {
+                let pattern = symbol
+                    .call((edge.0, Atom::var(symbol!("ninjars_cli_components::rep_"))))
+                    .to_pattern();
+                prepared
+                    .numerator
+                    .pattern_match(&pattern, None, None)
+                    .next()
+                    .is_some()
+            })
+            .map(|symbol| symbol.call(edge.0))
+            .collect();
+        if candidates.len() != 1 {
+            return Err(format!("external polarization leg {leg} must have exactly one prepared epsilon carrier; found {}", candidates.len()).into());
+        }
+        carriers.insert(*leg, candidates[0].clone());
+    }
+    for (lane, sample) in samples.iter().enumerate() {
+        if !sample.external_polarizations.keys().eq(carriers.keys()) {
+            return Err(format!("sample {lane}: external_polarizations must bind the same physical legs in every sample").into());
+        }
+    }
+    Ok(carriers)
 }
 
 pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
@@ -209,6 +281,7 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
     let model = Arc::new(match model_name {
         "phi3" => Model::phi3(),
         "phi4" => Model::phi4(),
+        "sm" => Model::standard_model(),
         path => {
             let path = if args.model.is_some() {
                 PathBuf::from(path)
@@ -239,7 +312,7 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
         })
         .collect::<Vec<_>>();
     let dot = fs::read_to_string(&graph_path)?;
-    let prepared = prepare_dot(
+    let mut prepared = prepare_dot(
         model.clone(),
         &dot,
         &Kinematics::new(),
@@ -249,6 +322,23 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
             NumeratorMode::Explicit
         },
     )?;
+    if fixture
+        .as_ref()
+        .is_some_and(|f| f.color_dimension_invariants)
+    {
+        prepared = prepared.with_color_dimension_invariants()?;
+    }
+    let polarizations = polarization_carriers(
+        &prepared,
+        fixture.as_ref().map_or(&[], |f| f.samples.as_slice()),
+    )?;
+    let carriers: Vec<_> = prepared
+        .family
+        .external_momenta()
+        .iter()
+        .cloned()
+        .chain(polarizations.values().cloned())
+        .collect();
     let loop_components = FourMomentum::from_args(
         parse("ninjars::q0")?,
         parse("ninjars::q1")?,
@@ -263,7 +353,7 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
     let bound_factor = substitute(&prepared.overall_factor, &replacements);
     let mut generation = 0;
     let parameters = loop {
-        let parameters: Vec<_> = (0..prepared.family.external_momenta().len() * 4)
+        let parameters: Vec<_> = (0..carriers.len() * 4)
             .map(|index| {
                 Atom::var(symbol!(format!(
                     "ninjars_cli_components::p{generation}_{index}"
@@ -277,9 +367,7 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
         }
         generation += 1;
     };
-    let symbolic_external = prepared
-        .family
-        .external_momenta()
+    let symbolic_external = carriers
         .iter()
         .cloned()
         .zip(
@@ -300,7 +388,7 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
     .expand();
     if let Some(fixture) = &fixture {
         for (lane, sample) in fixture.samples.iter().enumerate() {
-            let external = bind_external(sample, &prepared, &replacements)
+            let external = bind_external(sample, &prepared, &replacements, &polarizations)
                 .map_err(|error| format!("sample {lane}: {error}"))?;
             let kinematics = prepared.component_kinematics(&loop_components, &external)?;
             let specialize = |atom: &Atom| substitute(&kinematics.apply(atom), &replacements);
@@ -333,9 +421,7 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
                 shifts,
                 mass_squared,
                 s_matrix,
-                parameters: prepared
-                    .family
-                    .external_momenta()
+                parameters: carriers
                     .iter()
                     .flat_map(|name| external[name].components().map(Clone::clone))
                     .collect(),
@@ -373,6 +459,7 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
         "propagator_edges": prepared.propagator_edges.iter().map(|edge| edge.0).collect::<Vec<_>>(),
         "denominators": prepared.family.denominators().iter().map(|denominator| canonical(&substitute(denominator, &replacements))).collect::<Vec<_>>(),
         "external_basis": prepared.family.external_momenta().iter().map(canonical).collect::<Vec<_>>(),
+        "polarization_basis": polarizations.iter().map(|(leg, carrier)| (leg.to_string(), canonical(carrier))).collect::<BTreeMap<_,_>>(),
         "momentum_basis": prepared.diagram.loop_momentum_basis(),
         "numerator": canonical(&substitute(&prepared.numerator, &replacements)),
         "overall_factor": canonical(&substitute(&prepared.overall_factor, &replacements)),

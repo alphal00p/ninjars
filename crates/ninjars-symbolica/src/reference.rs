@@ -7,7 +7,7 @@ use std::fmt::Write;
 
 use ninjars::{Error, ExpansionKind, Numerator, Result};
 use symbolica::{
-    domains::float::{Complex, Real, SingleFloat},
+    domains::float::{Complex, Float, Real, SingleFloat},
     evaluate::{CompiledNumber, EvaluationDomain, ExportSettings, InlineASM},
 };
 
@@ -22,8 +22,9 @@ where
     /// The returned single-translation-unit header declares
     /// `ninjars_reference::GeneratedNumerator`, constructed from a pointer to
     /// complex double external parameters in [`Self::parameter_names`] order.
-    /// No parameter values or numerical coefficient approximations from this
-    /// instance are embedded. Reference execution uses double precision.
+    /// No parameter values from this instance are embedded. Exact coefficients
+    /// and registered constants such as π are mapped by Symbolica at 200 bits
+    /// before emission; the C++ compiler rounds literals to double precision.
     ///
     /// The header implements direct, mu, T3, and T2 callbacks, including explicit
     /// mu-squared terms and ranks through `propagator_count + 1`. It can be used
@@ -77,8 +78,23 @@ where
         writeln!(source, "constexpr unsigned parameter_count = {};\nconstexpr unsigned rank = {rank};\nconstexpr unsigned propagator_count = {propagator_count};", self.parameter_names().len()).unwrap();
         for (name, evaluator) in [("direct", &direct), ("mu", &mu), ("t3", &t3), ("t2", &t2)] {
             writeln!(source, "namespace generated_{name} {{").unwrap();
+            // Exact rational evaluators reserve zero placeholder slots for
+            // registered constants, including π. Mapping initializes those
+            // slots through Symbolica's registered implementations. Exporting
+            // the unmapped evaluator silently turns those constants into zero.
+            let precision = 200;
+            let prototype = Float::new(precision);
+            let numerical = evaluator.clone().map_coeff_with_prec(
+                &|value| {
+                    Complex::new(
+                        prototype.from_rational(&value.re),
+                        prototype.from_rational(&value.im),
+                    )
+                },
+                precision,
+            );
             source.push_str(
-                &evaluator
+                &numerical
                     .export_cpp_str::<Complex<f64>>(
                         &format!("ninjars_{name}"),
                         ExportSettings::new()

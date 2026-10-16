@@ -52,3 +52,38 @@ An optional supplied S-matrix replaces the generated invariant columns before
 both master arguments and rational weights are evaluated. Copying those columns
 adds no algebra. Matrix symmetry, zero diagonals and finiteness include all Dual
 components; primal-only equality is deliberately insufficient.
+
+## Off-axis bubble reference vectors
+
+The existing public FeynKit `FourMomentum<Atom>::from_weyl_spinors` constructs
+null vectors from exact spinor components. Its `feynkit-kinematics/src/weyl.rs`
+implementation and reconstruction/null-vector tests were checked, together with
+the existing NinjaRS tadpole and cut-basis usages. Symbolica's existing exact
+multi-output evaluator and Dualizer support these constant vectors and their
+dot products; no new spinor algebra or numerical square-root implementation is
+needed.
+
+Original Ninja's `basis.cc::Basis(const RealMomentum&)` uses a generic null
+reference with nonzero components along every spatial axis. The earlier NinjaRS
+axis references could place both transverse vectors outside a planar physical
+graph, making an uncut denominator's leading Laurent coefficient identically
+zero. Eight rational off-axis references now follow the same principle, with
+the largest primal dot product selected at working precision. Every reference
+component and dot product comes from Symbolica arithmetic. This fixes the
+equal-mass lightlike bubbles in the H→gg triangle geometry; complement-aware
+reference retries and broader numerical rescue remain outstanding. The existing
+zero-leading-denominator rejection is retained.
+
+## Reference callback constants
+
+The public `ExpressionEvaluator::map_coeff_with_prec` API, its implementation
+in `symbolica/src/evaluate/evaluator.rs`, and Symbolica's
+`examples/nested_evaluation.rs` establish that registered constants must be
+initialized before C++ export. Exact rational evaluators retain placeholder
+slots for constants such as π; exporting those slots directly emits zero.
+NinjaRS already maps constants for Rust evaluation. The reference exporter now
+uses the same supported operation with `Complex<Float>` at 200 bits, then
+delegates C++ emission to Symbolica. The compiler rounds the emitted literals
+at the reference's binary64 boundary. The exact prepared expressions remain in
+the reference manifest. This changes neither production constants nor original
+Ninja, and introduces no custom constant evaluation or algebra.

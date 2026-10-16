@@ -207,12 +207,31 @@ where
         let triangle_probe = Kernel::new(&expressions, &p, &prototype, shape)?;
         let p = variables(8);
         let k = vector(&p, 0) - vector(&p, 4);
-        let components = k.components();
         let mut expressions = Vec::new();
         append_vector(&mut expressions, &k);
-        for axis in 1..4 {
-            expressions.push(components[0] - components[axis]);
-            expressions.push(components[0] + components[axis]);
+        // As in Ninja's one-momentum Basis constructor, keep every spatial
+        // component of the auxiliary null reference nonzero. Axis references
+        // put the two transverse vectors outside a planar scattering geometry;
+        // then an uncut propagator can have zero leading Laurent coefficient
+        // even for an otherwise regular massive bubble. Exact Weyl pairs give
+        // eight references (1, ±2/3, ±2/3, ±1/3), without a square-root branch
+        // or binary64 constants. This is a generic chart choice, not a proof
+        // that every complement denominator is nonsingular.
+        for swap in [false, true] {
+            for x in [-1, 1] {
+                for y in [-1, 1] {
+                    let mut angle = [Atom::num(1), Atom::num(x) + Atom::i() * y];
+                    let mut square = [Atom::num(1), Atom::num(x) - Atom::i() * y];
+                    if swap {
+                        angle.swap(0, 1);
+                        square.swap(0, 1);
+                    }
+                    let reference =
+                        FourMomentum::from_weyl_spinors(&angle, &square) * (Atom::num(2) / 3);
+                    expressions.push(k.dot(&reference));
+                    append_vector(&mut expressions, &reference);
+                }
+            }
         }
         let bubble_probe = Kernel::new(&expressions, &p, &prototype, shape)?;
 
@@ -664,7 +683,7 @@ where
                 }
             } else {
                 let mut best = 4;
-                for i in 5..10 {
+                for i in (9..probe.columns).step_by(5) {
                     if Self::greater(
                         &Self::magnitude(&probe.component(probe_row, i)[0]),
                         &Self::magnitude(&probe.component(probe_row, best)[0]),
@@ -689,25 +708,10 @@ where
                     .inputs
                     .extend_from_slice(probe.component(probe_row, selected));
             } else {
-                let axis = (selected - 4) / 2 + 1;
-                let sign = if (selected - 4) % 2 == 0 { 1 } else { -1 };
-                for i in 0..4 {
-                    for component in 0..self.width {
-                        self.seeds[mode].inputs.push(Complex::new(
-                            self.prototype.from_i64(if component == 0 {
-                                if i == 0 {
-                                    1
-                                } else if i == axis {
-                                    sign
-                                } else {
-                                    0
-                                }
-                            } else {
-                                0
-                            }),
-                            self.prototype.zero(),
-                        ));
-                    }
+                for i in selected + 1..selected + 5 {
+                    self.seeds[mode]
+                        .inputs
+                        .extend_from_slice(probe.component(probe_row, i));
                 }
             }
         }

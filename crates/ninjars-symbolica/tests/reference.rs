@@ -24,7 +24,7 @@ fn variables() -> [Atom; 5] {
 }
 
 #[test]
-fn reference_export_checks_topology_and_uses_exact_coefficients() {
+fn reference_export_checks_topology_and_maps_coefficients_at_the_reference_boundary() {
     let numerator =
         PolynomialNumerator::new(parse!("q0^2/3+mu2^2"), variables(), vec![], 0.).unwrap();
     assert!(numerator.export_ninja_cpp(0).is_err());
@@ -33,7 +33,7 @@ fn reference_export_checks_topology_and_uses_exact_coefficients() {
     let source = numerator.export_ninja_cpp(3).unwrap();
     assert!(source.contains("constexpr unsigned rank = 4;"));
     assert!(source.contains("constexpr unsigned parameter_count = 0;"));
-    assert!(source.contains("T(1)/T(3)"));
+    assert!(source.contains("T(3.333333333333333"));
 }
 
 fn momentum(values: [(f64, f64); 4]) -> FourMomentum<Complex<f64>> {
@@ -77,8 +77,15 @@ fn generated_callbacks_match_rust_and_preserve_caller_buffer_bounds() {
     ));
     fs::create_dir(&temporary).unwrap();
     let result = std::panic::catch_unwind(|| {
+        // This is the exact electroweak coupling factor occurring in the Hgg
+        // fixture. Leaving π's evaluator slot uninitialized makes its inverse
+        // square root singular. Compiled direct and every Laurent callback
+        // must agree with the independently mapped Rust evaluator.
+        let coupling = parse!(
+            "pi^(3/2)*(((1/2)^(1/2)*(-9239168160000000/1717275997)*pi+270091425444897681/15625000000)^(1/2)*(-62500/519703209)+1/2)^(-1/2)*(((1/2)^(1/2)*(-9239168160000000/1717275997)*pi+270091425444897681/15625000000)^(1/2)+519703209/125000)^(-1/2)"
+        );
         let mut numerator = PolynomialNumerator::new(
-            parse!("a*q0^2+mu2*q1+mu2^2"),
+            parse!("a*q0^2+mu2*q1+mu2^2") + coupling * parse!("q0^2+mu2"),
             variables(),
             vec![parse!("a")],
             0.,

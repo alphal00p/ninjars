@@ -1,8 +1,9 @@
 # Rust instruction export audit
 
-Source audit on 2026-10-16. This records an implementation route and a proposed
-experiment, not measured NinjaRS performance. No numerical implementation was
-changed for this audit. Line numbers below refer to the inspected local files.
+Source audit and implementation checkpoint on 2026-10-16. The reusable emitter
+and the first scalar/Dual correctness probe are now implemented. Native batch
+execution and performance measurements remain outstanding. Line numbers in the
+original source audit refer to its inspected revisions.
 
 ## Existing mechanism and exact APIs
 
@@ -10,16 +11,16 @@ changed for this audit. Line numbers below refer to the inspected local files.
 | --- | --- |
 | Exact master evaluator | `OneLoopExpressions::evaluator(&[Atom], &[Atom]) -> Result<ExpressionEvaluator<Complex<Rational>>, EvaluationError>`, [expressions.rs](../references/oneloopmaster/src/expressions.rs):58. Its compiler retains the `FunctionMap`, uses `direct_translation(true)` and `horner_iterations(0)` at lines 161–180. |
 | Portable instruction graph | `ExpressionEvaluator::export_instructions() -> ExportedInstructions<T>`, [instruction.rs](../references/symbolica/src/evaluate/instruction.rs):219. Public fields at line 144 include input/output counts, instructions, temporary count, constants, constant-function metadata and recursive shared bodies. This API does not require the optional C++ native-code-generation feature. |
-| Checked exact export | `export_checked`, [generate_native.rs](../references/oneloopmaster/examples/generate_native.rs):73, checks an exact export against a 128-bit mapped export recursively, detecting unresolved constants. |
-| Generic Rust lowering | Private `Generator::{module,helper,body}`, same file at lines 216, 239 and 263, emits borrowed inputs, immutable arithmetic locals, helper functions and exact cached constants. `module` currently requires exactly three outputs; helpers require one output. |
-| Lazy control flow | `liveness` and `Emitter::range`, same file at lines 537 and 663. They reconstruct structured `if` branches, merge every live slot, restrict reuse to dominating definitions and outline large branches without evaluating inactive arms. |
-| Supported instruction operations | The emitter handles `Add`, `Mul`, `Pow`, `Powf`, `Assign`, shared or recognized `Fun`, and structured `IfElse`/`Goto`/`Label`/`Join` at lines 663–896. Unsupported external functions or control-flow shapes return errors. |
-| Constant initialization | `Context::new`, [native/mod.rs](../references/oneloopmaster/src/native/mod.rs):65, constructs rational constants directly at working precision and resolves registered pi/polylog constants once. Exact export placeholders must never be emitted as actual zero constants. |
+| Checked exact export | `export_checked`, [rust_codegen.rs](../references/oneloopmaster/src/rust_codegen.rs), checks an exact export against a 128-bit mapped export recursively, detecting unresolved constants. |
+| Generic Rust lowering | Public `RustEmitter::emit`, in the same module, accepts the existing exact evaluator and `EmitOptions`, returning source and layout metadata. Its private `Generator` emits borrowed inputs, immutable arithmetic locals, helper functions and exact cached constants. Entry output counts are arbitrary; helpers require one output. |
+| Lazy control flow | `liveness` and `Emitter::range`, in the same module, reconstruct structured `if` branches, merge every live slot, restrict reuse to dominating definitions and outline large branches without evaluating inactive arms. |
+| Supported instruction operations | The emitter handles `Add`, `Mul`, `Pow`, `Powf`, `Assign`, shared or recognized `Fun`, and structured `IfElse`/`Goto`/`Label`/`Join`. Unsupported external functions or control-flow shapes return errors. |
+| Constant initialization | `ConstantContext::new`, [native/constants.rs](../references/oneloopmaster/src/native/constants.rs), constructs rational constants directly at working precision and resolves registered pi/polylog constants once. Exact export placeholders must never be emitted as actual zero constants. It is also exported as `rust_codegen::runtime::Context`. |
 | Numeric interface | `NativeFloat`, [primitives.rs](../references/oneloopmaster/src/native/primitives.rs):43, has implementations for `f64`, `DoubleFloat` and `Float` at lines 71, 122 and 182. Emitted values are `Complex<T>`. |
-| Generator regression controls | [generate_native.rs](../references/oneloopmaster/examples/generate_native.rs):1004 onward tests registered constants, inactive division by zero, branch liveness, aliases, captures, tuple ordering and scoped common-expression reuse by compiling emitted Rust probes. |
+| Generator regression controls | [rust_codegen.rs](../references/oneloopmaster/src/rust_codegen.rs) tests registered constants, inactive division by zero, branch liveness, aliases, captures, tuple ordering, scoped common-expression reuse, output counts and transactional constant pools by compiling emitted Rust probes. |
 
-The generation entry point is `generate` at line 899; its example `main` at
-line 961 allocates a 128 MiB stack. It generates all files before replacing the
+The master generation example is now a thin client of the public emitter; its
+`main` allocates a 128 MiB stack. It generates all files before replacing the
 output set. The owning oneloopmaster code is the available Rust-emission
 implementation. Searches of Symbolica's public export APIs, implementation, and
 FeynKit/gammaloop usages found C++/SIMD/CUDA exporters and the portable instruction
@@ -83,16 +84,16 @@ allocations than the current reusable evaluator stack. For fixed Dual shapes,
 flattened arithmetic can increase generated source and compile time. Neither
 tradeoff has been measured here.
 
-## Smallest useful upstream change
+## Completed upstream extraction
 
-No missing Symbolica instruction-export capability blocks a first probe. The
-smallest focused reuse change is to extract oneloopmaster's existing emitter
-from its example into a feature-gated reusable module, retaining its regression
-tests, and parameterize the entry output count and numeric primitive names.
-Keep master-specific constant/function policy in oneloopmaster. A proposed API
-would accept `&ExportedInstructions<Complex<Rational>>` and emission settings,
-and return generated source plus exact constant initialization data; this API
-does not exist yet.
+No missing Symbolica instruction-export capability blocked the first probe.
+[oneloopmaster PR #6](https://github.com/alphal00p/oneloopmaster/pull/6) extracts
+the existing emitter behind `rust-codegen`, preserves its regression tests,
+supports arbitrary entry output counts and exposes the existing numerical
+runtime. `RustEmitter::emit` accepts `ExpressionEvaluator<Complex<Rational>>`
+and `EmitOptions`; `constants_source` exports the shared exact constant table.
+Master-specific constant/function policy stays in oneloopmaster. All six
+generated master modules are byte-identical before and after extraction.
 
 Do not fork the existing emitter into NinjaRS or introduce another symbolic
 graph representation. If its owner prefers a general upstream home, move the
@@ -101,10 +102,18 @@ and make oneloopmaster use it too. A truly instruction-major native batch
 exporter is a separate extension; its lazy-branch lowering must be tested before
 replacing the current Symbolica batch path.
 
-## Next reproducible experiment
+## Correctness probe and remaining measurements
 
-The proposed probe should be implemented only after current correctness gates
-pass. It is not an existing CLI command or benchmark result.
+The [probe runner](../validation/rust_codegen/README.md) implements the first
+three steps below for the Laurent, subtraction and denominator plans. All 36
+checks pass: 1,044 scalar outputs and 5,220 flattened Dual components, including
+empty and malformed batches. Maximum scalar/Dual differences are
+8.13e-16/1.83e-15 for f64, 6.96e-32/3.10e-31 for DoubleFloat, and
+9.86e-77/2.56e-76 for Float256. Generated-source hashes and exact plan parameters
+are retained in `validation/evidence/rust-kernel-codegen.json`. These graphs
+have no branches or shared functions; those features are tested upstream and
+are not newly validated by this straight-line probe. Cut square roots,
+permutations, timings and production dispatch remain to be measured.
 
 1. Export the same exact graphs for `LaurentDivision::new(4,5,3)`,
    `TriangleBubbleSubtraction::new(true)` and `DenominatorExpansion::new(2)`.

@@ -9,9 +9,11 @@ This is a development version. The library provides reduction stages through
 six propagators and rank n+1, with batched polynomial/Dual callbacks, both box
 mu-extraction modes, lower-cut subtraction, master integrals and lane-local accumulation.
 Analytic and original Ninja controls validate an initial synthetic suite.
-It also includes independent DOT preparation and an original Ninja reference
-harness. Full reconstruction controls, physical validation, derivative continuation
-and performance acceptance remain in development.
+Independent FeynKit preparation also matches raw MadLoop numerators for both
+top-quark H→gg orientations. Their physical helicity amplitudes agree in all
+three scalar precisions; four f64 longitudinal diagnostic rows still miss the
+fixed pole tolerance. Full reconstruction controls, broader physical validation,
+derivative continuation and performance acceptance remain in development.
 The complete specification and evidence ledger are in [the plan](references/PLAN.md).
 
 ## Development
@@ -29,6 +31,8 @@ nix develop path:. --command cargo run -p ninjars-cli -- reduce examples/graphs/
 nix develop path:. --command cargo run -p ninjars-cli -- reduce examples/graphs/triangle-reference.json --precision float --bits 256
 nix develop path:. --command cargo run -p ninjars-cli -- reduce examples/graphs/box.json --mu-extraction sampling --mu-sampling-scale 64 --full-box-coefficients
 nix develop path:. --command cargo run -p ninjars-cli --features reference-codegen -- compare examples/graphs/bubble.json --batch-size 2
+nix develop path:. --command cargo run --release -p ninjars-cli -- bench examples/graphs/bubble.json --output bubble-bench.json
+nix develop path:. --command cargo run -p ninjars-cli -- reduce examples/graphs/physical/hgg/top-triangle-0.json --precision double-float --batch-size 2
 nix develop path:. --command cargo run -p ninjars-symbolica --example bubble
 ```
 
@@ -48,9 +52,9 @@ development and reference-validation tools.
 | Package | Responsibility |
 | --- | --- |
 | `ninjars` | Topology, batched reduction callback contracts, kernels and results |
-| `ninjars-symbolica` | Symbolica polynomial/tensor callbacks and master adapters |
+| `ninjars-symbolica` | Symbolica polynomial/Dual callbacks, arithmetic kernels and masters |
 | `ninjars-graph` | Independent FeynKit graph, model and numerator preparation |
-| `ninjars-cli` | `prepare`, `reduce` and optional `compare`; planned `bench` command |
+| `ninjars-cli` | `prepare`, `reduce`, `bench` and optional `compare` |
 
 Numerical momenta are FeynKit `FourMomentum<T>`, with component order `(E,x,y,z)`
 and the `+---` metric. Laurent results use `[finite, single pole, double pole]`.
@@ -85,10 +89,24 @@ C++/Fortran are needed for this validation command. Recorded reference timings
 are diagnostics; performance acceptance requires the separate fixed-suite
 measurements with matching cache policies.
 
+`bench` reuses the reduction session across repeated or changing inputs at
+batch sizes 1, 8, 32, 128 and 1024, including tails. Preparation and warmup are
+outside primary timings; callbacks and masters are measured in a separate
+diagnostic pass. Reports retain individual timings and failed-lane counts.
+These are Rust-only measurements, with performance acceptance explicitly
+marked false. See [benchmark controls and timing boundaries](docs/benchmarks.md).
+
+The optional `ninjars-symbolica/rust-codegen` feature exports existing exact
+kernel graphs through oneloopmaster's shared emitter. The
+[compiled scalar/Dual probe](validation/rust_codegen/README.md) records correctness
+across all three carriers; native batch execution and production dispatch remain
+under development.
+
 See [synthetic graph fixtures](examples/graphs/README.md) and the
 [original Ninja reference harness](validation/reference/README.md).
-The [physical preparation guide](docs/physical-preparation.md) describes the
-initial FeynKit H→gg generator and the isolated MadLoop reference exports.
+The [physical preparation guide](docs/physical-preparation.md) gives exact
+polarization/model bindings, isolated MadLoop graph comparisons and the retained
+physical accuracy results, including the unresolved longitudinal f64 poles.
 The [adapter guide](crates/ninjars-symbolica/README.md) describes precision,
 Dual coefficient conventions and current master-domain limitations. Constructing
 large oneloopmaster expressions requires a generous thread stack; the test command

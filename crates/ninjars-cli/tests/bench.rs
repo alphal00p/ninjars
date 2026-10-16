@@ -1,0 +1,163 @@
+use serde_json::{Value, json};
+use std::{
+    path::PathBuf,
+    process::{Command, Output},
+};
+
+fn root() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..")
+}
+fn run(command: &str, args: &[&str]) -> Output {
+    Command::new(env!("CARGO_BIN_EXE_ninjars"))
+        .current_dir(root())
+        .arg(command)
+        .args(args)
+        .output()
+        .unwrap()
+}
+fn value(output: Output) -> Value {
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    serde_json::from_slice(&output.stdout).unwrap()
+}
+
+#[test]
+fn warmed_runtime_matches_reduce_for_all_precisions_and_both_workloads() {
+    for precision in ["f64", "double-float", "float"] {
+        let fixture = "examples/graphs/bubble.json";
+        let reduced = value(run(
+            "reduce",
+            &[fixture, "--precision", precision, "--batch-size", "2"],
+        ));
+        let report = value(run(
+            "bench",
+            &[
+                fixture,
+                "--precision",
+                precision,
+                "--batch-sizes",
+                "1,2",
+                "--points",
+                "3",
+                "--rounds",
+                "2",
+                "--iterations",
+                "2",
+            ],
+        ));
+        assert_eq!(report["success"], true);
+        assert_eq!(report["performance_acceptance"], false);
+        assert_eq!(
+            report["cache_policy"]["numerical_master_results"],
+            "not cached"
+        );
+        assert_eq!(report["cases"].as_array().unwrap().len(), 4);
+        for case in report["cases"].as_array().unwrap() {
+            let lane = if case["workload"] == "repeated" { 0 } else { 2 };
+            assert_eq!(case["representative_source_lane"], lane);
+            assert_eq!(
+                case["representative_result"],
+                reduced["results"][lane]["values"]
+            );
+            assert_eq!(case["round_ns"].as_array().unwrap().len(), 2);
+            assert_eq!(case["timed_points_per_round"], 6);
+            assert_eq!(case["diagnostic"]["points"], 3);
+            assert_eq!(case["diagnostic"]["failed_lanes"], 0);
+            assert_eq!(case["precision_rescue"]["attempts"], 0);
+            assert!(case["diagnostic"]["masters"]["calls"].as_u64().unwrap() > 0);
+            assert!(
+                case["diagnostic"]["numerator_expansion"]["rows"]
+                    .as_u64()
+                    .unwrap()
+                    > 0
+            );
+            assert!(case["median_ns"].as_f64().unwrap() > 0.);
+            if case["batch_size"] == 2 {
+                assert_eq!(case["tail_lanes"], 1);
+            }
+        }
+    }
+}
+
+#[test]
+fn default_widths_cover_full_batches_and_incomplete_tails() {
+    let report = value(run(
+        "bench",
+        &[
+            "examples/graphs/bubble.json",
+            "--workload",
+            "repeated",
+            "--rounds",
+            "1",
+        ],
+    ));
+    let cases = report["cases"].as_array().unwrap();
+    for (case, width) in cases.iter().zip([1, 8, 32, 128, 1024]) {
+        assert_eq!(case["batch_size"], width);
+        assert_eq!(case["points_per_iteration"], 1025);
+        assert_eq!(case["tail_lanes"], if width == 1 { 0 } else { 1 });
+        assert!(case["full_batches"].as_u64().unwrap() > 0);
+        assert_eq!(case["diagnostic"]["successful_lanes"], 1025);
+    }
+    assert_eq!(cases.len(), 5);
+}
+
+#[test]
+fn failed_lanes_are_reported_without_claiming_acceptance_or_rescue() {
+    let directory =
+        std::env::temp_dir().join(format!("ninjars-bench-failure-{}", std::process::id()));
+    std::fs::create_dir_all(&directory).unwrap();
+    let mut fixture: Value =
+        serde_json::from_str(include_str!("../../../examples/graphs/bubble.json")).unwrap();
+    fixture["graph"] = root()
+        .join("examples/graphs/bubble.dot")
+        .to_string_lossy()
+        .into_owned()
+        .into();
+    fixture["samples"][1]["external_momenta"] =
+        json!({"0":["0","1+𝑖","0","0"],"1":["0","1+𝑖","0","0"]});
+    let path = directory.join("input.json");
+    std::fs::write(&path, serde_json::to_vec(&fixture).unwrap()).unwrap();
+    let output = run(
+        "bench",
+        &[
+            path.to_str().unwrap(),
+            "--workload",
+            "changing",
+            "--batch-sizes",
+            "2",
+            "--points",
+            "3",
+            "--rounds",
+            "1",
+        ],
+    );
+    assert!(!output.status.success());
+    let report: Value = serde_json::from_slice(&output.stdout).unwrap();
+    let case = &report["cases"][0];
+    assert_eq!(report["success"], false);
+    assert_eq!(report["performance_acceptance"], false);
+    assert_eq!(case["diagnostic"]["failed_lanes"], 1);
+    assert_eq!(case["diagnostic"]["successful_lanes"], 2);
+    assert_eq!(case["warmup_final_pass_failed_lanes"], 1);
+    assert_eq!(case["precision_rescue"]["enabled"], false);
+    std::fs::remove_dir_all(directory).unwrap();
+}
+
+#[test]
+fn invalid_benchmark_controls_are_rejected_before_timing() {
+    for extra in [
+        vec!["--warmup", "0"],
+        vec!["--batch-sizes", "1,1"],
+        vec!["--bits", "192"],
+        vec!["--rounds", "0"],
+        vec!["--workload", "changing", "--points", "1"],
+    ] {
+        let mut args = vec!["examples/graphs/bubble.json"];
+        args.extend(extra);
+        assert!(!run("bench", &args).status.success());
+    }
+}

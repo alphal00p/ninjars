@@ -1,0 +1,89 @@
+# Rust benchmark command
+
+`bench` measures the same numerical execution session used by `reduce`. Build an
+optimized binary before collecting timings:
+
+```sh
+cargo run --release -p ninjars-cli -- bench examples/graphs/bubble.json \
+  --output bubble-bench.json
+```
+
+The default runs both repeated and changing workloads at batch sizes
+`1,8,32,128,1024`. Each iteration contains 1025 points, so every default batch
+width greater than one includes a one-point tail. Repeated workloads use the
+first fixture sample for every lane. Changing workloads cycle through the fixture
+rows in their original order; they require at least two fixture rows and two
+points per iteration. The report
+records the source-pool size and the policy, since repeated or equivalent rows in
+the supplied fixture do not become new kinematics.
+
+For a shorter run or a single-point fixture:
+
+```sh
+cargo run --release -p ninjars-cli -- bench examples/graphs/bubble.json \
+  --batch-sizes 1,8,32 --points 65 --rounds 5 --iterations 2 \
+  --workload repeated --warmup 1
+```
+
+The numerical controls match `reduce`: `--precision f64|double-float|float`,
+`--bits`, `--cut-stop`, `--mu-extraction`, `--full-box-coefficients`, and exact
+`--mu-sampling-scale`. Fixture S-matrices and exact parameter bindings follow the
+same preparation path. DoubleFloat and Float inputs are evaluated directly in
+their working precision. The benchmark CLI currently covers these three scalar
+carriers; Dual benchmark configuration remains future work.
+
+## Timing boundaries
+
+Graph and numerator preparation, exact-expression numerical binding, batch
+packing, session construction, and warmup are measured separately. Every full
+and tail batch is warmed at least once. Lazy numerator expansion compilation,
+master-expression compilation, and workspace growth encountered in those passes
+are outside the primary timed rounds. The session and compiled evaluator caches
+are retained between cases.
+
+The primary loop includes numeric numerator-parameter rebinding, automatic
+sampling-scale evaluation, amplitude reset, cut geometry, numerator callbacks,
+reduction, master integrals, and contraction. It calls the existing batched
+interfaces without callback timers. It excludes parsing, graph preparation,
+prepacking, JSON encoding, setup processes, and IPC. Results and statuses are
+consumed through `black_box` to retain the work.
+
+A separate diagnostic pass wraps the numerator and master-provider interfaces.
+It preserves every request batch and records calls, rows, and elapsed time.
+`residual_reduction_ns` is the diagnostic total minus callback and master time;
+its scope includes scale selection, binding, reset, geometry, contraction,
+bookkeeping, and timer overhead. It is an attribution measurement, not an isolated
+kernel benchmark. The instrumented pass cannot affect primary round timings.
+
+The report retains all round timings, observed quantiles, per-point latency, and
+throughput. These observed ranges are not confidence intervals. Numerical failure
+counts come from the final warmup pass and the separate diagnostic pass; they are
+not inferred to be measurements of every primary iteration. Failed lanes make
+the command exit unsuccessfully after writing its report. Precision rescue is
+currently disabled and its attempts are reported as zero.
+
+## Current scope of the evidence
+
+Every report sets `performance_acceptance` to `false`. The command measures Rust
+execution with warmed compiled evaluators and no numerical master-result cache.
+It does not yet run original Ninja, and does not establish the project's 5%
+latency or batched-throughput acceptance gates.
+
+The reference comparison must use matching cache policies. Original Ninja's
+default OneLOop integration can cache numerical master results, unlike the
+current Rust provider. A dedicated reference build with
+`--disable-avholo_cache`, a persistent in-process sample loop, and a common
+parameterized numerator are needed for the initial complete-evaluation baseline.
+Reduction with a shared master provider is a separate experiment. Compiler and
+dependency revisions, host load, thread settings, accuracy, timing uncertainty,
+and rescue rates must accompany those acceptance measurements.
+
+Before retaining an evidence run, the recorder must save the exact build and run
+commands, compiler version (`rustc -Vv`), checkout and dependency revisions,
+uncommitted-patch status, compiler flags, CPU model, CPU affinity, and active thread
+settings beside the JSON report. The current report embeds operating system,
+architecture, available parallelism, and debug/release status; it does not embed
+compiler identity, revision hashes, CPU model, or affinity. Available parallelism
+alone does not establish that two runs used the same processor placement or
+thread settings. Record host contention and any processor-frequency controls as
+well before comparing timings from separate runs.

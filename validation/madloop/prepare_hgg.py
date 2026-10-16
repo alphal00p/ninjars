@@ -123,6 +123,7 @@ def main() -> None:
         writer = interface._curr_helas_model
         graph['external_wavefunction_calls'] = writer.get_born_ct_helas_calls(element, include_CT=False)
         graph['loop_calls'] = writer.get_loop_amp_helas_calls(element)
+        graph['loop_color_basis'] = repr(element.get('loop_color_basis'))
         graph['color_amplitudes'] = [
             [
                 {'fermion_factor': coefficient[0], 'rational_color_coefficient': str(coefficient[1]),
@@ -138,7 +139,7 @@ def main() -> None:
         'loop_optimized_output': False,
         'discovery_filter': base_filter,
         'graphs': discovered,
-        'status': 'discovery only' if args.discover_only else 'isolated exports; raw numerator harness pending',
+        'status': 'discovery only' if args.discover_only else 'isolated reference exports',
         'target_convention': 'four-dimensional numerators plus R1, no R2 or UV; zero widths',
         'warning': 'Exported standard drivers include counterterms. They are not the no-R2/UV graph validation harness.',
     }

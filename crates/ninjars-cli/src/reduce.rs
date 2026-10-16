@@ -1,28 +1,19 @@
 //! Standalone orchestration over graph preparation and the batched reduction API.
 
-use std::{collections::HashMap, error::Error, fs, num::NonZeroUsize, path::PathBuf};
-
+use crate::{
+    prepare::{self, PreparedDocument},
+    runtime::{EvaluationSession, NumericalPool},
+};
 use clap::{Args as ClapArgs, ValueEnum};
-use ninjars::{
-    AmplitudeInput, BoxCoefficientMode, BoxMuMode, BoxReductionOptions, Complex, EvaluationStatus,
-    FloatLike, FourMomentum, Numerator, SamplingScaleProvider, SamplingScaleSource,
-    SamplingScaleStatus,
-};
-use ninjars_symbolica::{
-    PolynomialNumerator, SymbolicaAmplitudeKernels, SymbolicaCuts, SymbolicaHighCuts,
-    SymbolicaMasters, SymbolicaSamplingScales,
-};
+use ninjars::{Complex, EvaluationStatus, SamplingScaleSource, SamplingScaleStatus};
 use oneloop::NativeFloat;
 use serde_json::{Value, json};
+use std::{error::Error, fs, num::NonZeroUsize, path::PathBuf};
 use symbolica::{
-    atom::{Atom, AtomCore},
+    atom::AtomCore,
     domains::float::{DoubleFloat, Float},
     evaluate::EvaluationDomain,
-    parser::ParseSettings,
-    symbol,
 };
-
-use crate::prepare::{self, PreparedDocument};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
@@ -79,22 +70,6 @@ pub struct Args {
     pub output: Option<PathBuf>,
 }
 
-fn numerical<T: NativeFloat>(expression: &Atom, prototype: &T, label: &str) -> Result<Complex<T>>
-where
-    Complex<T>: EvaluationDomain,
-{
-    let value = expression
-        .evaluate_with_prec(
-            &HashMap::<Atom, Complex<T>>::new(),
-            prototype.get_precision(),
-        )
-        .map_err(|error| format!("{label} must be fully bound: {error}"))?;
-    if !value.re.is_finite() || !value.im.is_finite() {
-        return Err(format!("{label} is nonfinite").into());
-    }
-    Ok(value)
-}
-
 fn status_json(status: EvaluationStatus) -> Value {
     match status {
         EvaluationStatus::Success => json!({"kind":"success"}),
@@ -117,63 +92,12 @@ fn evaluate<T: NativeFloat>(
 where
     Complex<T>: EvaluationDomain,
 {
-    let variables =
-        ["q0", "q1", "q2", "q3", "mu2"].map(|name| Atom::var(symbol!(format!("ninjars::{name}"))));
-    let mut numerator = PolynomialNumerator::new(
-        prepared.numerator_template.clone(),
-        variables,
-        prepared.parameters.clone(),
-        prototype.clone(),
-    )?;
+    let pool = NumericalPool::new(prepared, &prototype)?;
+    let mut session = EvaluationSession::new(prepared, args, prototype.clone())?;
     let n = prepared.propagators;
-    let rank = numerator.rank();
-    let box_options = BoxReductionOptions {
-        coefficients: if args.full_box_coefficients {
-            BoxCoefficientMode::Full
-        } else {
-            BoxCoefficientMode::Integrated
-        },
-        mu_extraction: match args.mu_extraction {
-            MuExtraction::Expansion => BoxMuMode::Expansion,
-            MuExtraction::Sampling => BoxMuMode::Sampling,
-        },
-    };
-    let mut amplitude = SymbolicaAmplitudeKernels::new(n, rank, prototype.clone())?
-        .with_box_options(box_options)
-        .into_amplitude(0)?;
-    amplitude.set_cut_stop(args.cut_stop);
-    let boxes_active = n >= 4 && amplitude.cut_stop() <= 4;
-    let mut geometry = SymbolicaCuts::new(prototype.clone())?;
-    let mut high_geometry = if n >= 4 {
-        Some(SymbolicaHighCuts::new(prototype.clone())?)
-    } else {
-        None
-    };
-    let mut masters = SymbolicaMasters::new(prototype.clone());
-    let scale = numerical(&prepared.scale_squared, &prototype, "scale_squared")?;
-    let sampling_scale = args
-        .mu_sampling_scale
-        .as_ref()
-        .map(|expression| -> Result<Complex<T>> {
-            let value = numerical(
-                &Atom::parse(expression, "ninjars", ParseSettings::default())?,
-                &prototype,
-                "mu_sampling_scale",
-            )?;
-            if value.is_fully_zero() {
-                return Err("mu_sampling_scale must be nonzero".into());
-            }
-            Ok(value)
-        })
-        .transpose()?;
-    let mut auto_scales = if sampling_scale.is_none() {
-        Some(SymbolicaSamplingScales::new(n, prototype.clone())?)
-    } else {
-        None
-    };
-    if !scale.im.is_zero() || scale.re <= prototype.zero() {
-        return Err("scale_squared must be positive and real".into());
-    }
+    let rank = session.rank;
+    let box_options = session.box_options;
+    let boxes_active = session.boxes_active;
     // Display enough digits for a round trip, including DoubleFloat's low word.
     let digits = (u64::from(prototype.get_precision()) * 30103 / 100000 + 3) as usize;
     let encode = |value: &Complex<T>| {
@@ -184,143 +108,17 @@ where
     };
     let mut rows = Vec::new();
     let mut success = true;
-    // Make fallback evaluation independent of chunk boundaries: a missing
-    // matrix in a mixed fixture follows the same exact path at every batch size.
-    let has_s_matrix = prepared
-        .samples
-        .iter()
-        .any(|sample| sample.s_matrix.is_some());
-    for chunk in prepared.samples.chunks(args.batch_size.get()) {
-        let mut shifts = Vec::with_capacity(chunk.len() * n);
-        let mut masses = Vec::with_capacity(chunk.len() * n);
-        let mut parameters = Vec::with_capacity(chunk.len() * prepared.parameters.len());
-        let mut s_matrix = has_s_matrix.then(Vec::new);
-        for sample in chunk {
-            for (index, shift) in sample.shifts.iter().enumerate() {
-                let values = shift
-                    .components()
-                    .into_iter()
-                    .enumerate()
-                    .map(|(component, atom)| {
-                        numerical(
-                            atom,
-                            &prototype,
-                            &format!("sample {} shift {index} component {component}", sample.lane),
-                        )
-                    })
-                    .collect::<Result<Vec<_>>>()?;
-                let mut values = values.into_iter();
-                shifts.push(FourMomentum::from_args(
-                    values.next().unwrap(),
-                    values.next().unwrap(),
-                    values.next().unwrap(),
-                    values.next().unwrap(),
-                ));
-            }
-            masses.extend(
-                sample
-                    .mass_squared
-                    .iter()
-                    .enumerate()
-                    .map(|(index, atom)| {
-                        numerical(
-                            atom,
-                            &prototype,
-                            &format!("sample {} mass_squared {index}", sample.lane),
-                        )
-                    })
-                    .collect::<Result<Vec<_>>>()?,
-            );
-            if let Some(matrix) = s_matrix.as_mut() {
-                let derived;
-                let exact = if let Some(supplied) = &sample.s_matrix {
-                    supplied
-                } else {
-                    // Shared momenta and Symbolica derive omitted matrices, so
-                    // mixed supplied/omitted lanes retain one batched call.
-                    derived = sample
-                        .shifts
-                        .iter()
-                        .flat_map(|first| {
-                            sample.shifts.iter().map(move |second| {
-                                let difference = second.clone() - first.clone();
-                                difference.dot(&difference)
-                            })
-                        })
-                        .collect::<Vec<_>>();
-                    &derived
-                };
-                matrix.extend(
-                    exact
-                        .iter()
-                        .enumerate()
-                        .map(|(index, atom)| {
-                            numerical(
-                                atom,
-                                &prototype,
-                                &format!("sample {} s_matrix entry {index}", sample.lane),
-                            )
-                        })
-                        .collect::<Result<Vec<_>>>()?,
-                );
-            }
-            parameters.extend(
-                sample
-                    .parameters
-                    .iter()
-                    .enumerate()
-                    .map(|(index, atom)| {
-                        numerical(
-                            atom,
-                            &prototype,
-                            &format!("sample {} external component {index}", sample.lane),
-                        )
-                    })
-                    .collect::<Result<Vec<_>>>()?,
-            );
-        }
-        numerator.set_parameter_batch(&parameters, chunk.len())?;
-        let mut sampling_scales =
-            vec![sampling_scale.clone().unwrap_or_else(|| scale.zero()); chunk.len()];
-        let mut sampling_statuses =
-            vec![SamplingScaleStatus::Selected(SamplingScaleSource::UnitFallback); chunk.len()];
-        if let Some(provider) = auto_scales.as_mut() {
-            provider.evaluate_batch(
-                &shifts,
-                &masses,
-                chunk.len(),
-                &mut sampling_scales,
-                &mut sampling_statuses,
-            )?;
-        }
-        amplitude.reset_batch(chunk.len());
-        let scales_squared = vec![scale.clone(); chunk.len()];
-        let input = AmplitudeInput {
-            shifts: &shifts,
-            masses_squared: &masses,
-            scales_squared: &scales_squared,
-            sampling_scales: &sampling_scales,
-            s_matrix: s_matrix.as_deref(),
-        };
-        if let Some(high_geometry) = high_geometry.as_mut() {
-            amplitude.evaluate_batch_with_inputs(
-                input,
-                &mut numerator,
-                &mut geometry,
-                high_geometry,
-                &mut masters,
-            )?;
-        } else {
-            amplitude.evaluate_batch_with_low_cuts(
-                input,
-                &mut numerator,
-                &mut geometry,
-                &mut masters,
-            )?;
-        }
+    for (chunk_index, chunk) in prepared.samples.chunks(args.batch_size.get()).enumerate() {
+        let first = chunk_index * args.batch_size.get();
+        let indices = (first..first + chunk.len()).collect::<Vec<_>>();
+        let mut batch = pool.batch(&indices)?;
+        session.evaluate(&mut batch)?;
+        let amplitude = &session.amplitude;
+        let sampling_scales = &batch.sampling_scales;
+        let sampling_statuses = &batch.sampling_statuses;
         for (local, sample) in chunk.iter().enumerate() {
             let status = amplitude.statuses()[local];
-            let scale_failure = if boxes_active && sampling_scale.is_none() {
+            let scale_failure = if boxes_active && args.mu_sampling_scale.is_none() {
                 match sampling_statuses[local] {
                     SamplingScaleStatus::InvalidInput(failure) => Some(failure),
                     _ => None,
@@ -383,7 +181,7 @@ where
     prepared.document["operation"] = "reduce".into();
     prepared.document["precision"] = json!({"carrier":match args.precision {Precision::F64=>"f64",Precision::DoubleFloat=>"double-float",Precision::Float=>"float"},"bits":prototype.get_precision()});
     prepared.document["batch_size"] = args.batch_size.get().into();
-    prepared.document["cut_stop"] = amplitude.cut_stop().into();
+    prepared.document["cut_stop"] = session.amplitude.cut_stop().into();
     prepared.document["requested_cut_stop"] = args.cut_stop.into();
     prepared.document["rank"] = rank.into();
     prepared.document["box_reduction"] = json!({"mu_extraction":match args.mu_extraction {MuExtraction::Expansion=>"expansion",MuExtraction::Sampling=>"sampling"},"coefficient_mode":if args.full_box_coefficients {"full"}else{"integrated"},"mu_sampling_scale":args.mu_sampling_scale});

@@ -4,7 +4,7 @@ use ninjars::{BatchShape, Complex, Error, Real, Result, SingleFloat};
 use symbolica::{
     atom::{Atom, AtomCore},
     domains::{
-        dual::{DualNumber, HyperDual},
+        dual::{DualNumber, DualNumberStructure, HyperDual},
         rational::Rational,
     },
     evaluate::{BatchExpressionEvaluator, Dualizer, EvaluationDomain, ExpressionEvaluator},
@@ -45,10 +45,19 @@ pub(crate) struct ExactKernel {
 }
 
 impl ExactKernel {
-    fn evaluator(&self) -> Result<ExpressionEvaluator<Complex<Rational>>> {
+    pub(crate) fn evaluator(&self) -> Result<ExpressionEvaluator<Complex<Rational>>> {
         Atom::evaluator_multiple(&self.expressions, &self.parameters)
             .cores(1)
             .build()
+            .map_err(|e| Error::Symbolic(e.to_string()))
+    }
+
+    pub(crate) fn dual_evaluator<D: DualNumberStructure + Clone>(
+        &self,
+        structure: &D,
+    ) -> Result<ExpressionEvaluator<Complex<Rational>>> {
+        self.evaluator()?
+            .vectorize(&Dualizer::new(structure.clone(), Vec::new()))
             .map_err(|e| Error::Symbolic(e.to_string()))
     }
 
@@ -87,10 +96,7 @@ impl ExactKernel {
             None
         } else {
             let structure = HyperDual::<Complex<Rational>>::new(shape.clone());
-            let exact = self
-                .evaluator()?
-                .vectorize(&Dualizer::new(structure, Vec::new()))
-                .map_err(|e| Error::Symbolic(e.to_string()))?;
+            let exact = self.dual_evaluator(&structure)?;
             Some(PolynomialNumerator::map_evaluator(exact, prototype))
         };
         Ok(CompiledDualKernel {

@@ -63,3 +63,38 @@ regression retains the previous scale-three failure and its corrected scale-247
 result. This record does not establish physical integrated or performance
 acceptance. The comparison test removes temporary build artifacts after success;
 standalone `ninjars compare` retains its artifacts for inspection.
+
+## Physical numerators and generated Rust kernels
+
+`physical-hgg-madloop.json` records both individually exported top-quark H→gg
+orientations, three polarization states, and fixed double/quadruple CutTools
+modes without R2 or UV. Ninety complex loop-momentum checks match independently
+prepared FeynKit numerators. See [physical preparation](../../docs/physical-preparation.md)
+for routing, color/sign, normalization and reproduction commands. Quadruple
+execution promotes binary64 physical inputs; it is not an independent
+high-precision model-input oracle.
+
+`physical-hgg-cli.json` records the full 36-row integration matrix. Its four
+f64 longitudinal pole failures remain explicit at the unchanged 1e-9 gate.
+Physical helicities and all DoubleFloat/Float256 rows pass. Binary, source and
+fixture hashes accompany the exact run commands. This is partial physical
+validation and does not establish full project acceptance.
+
+`rust-kernel-codegen.json` records 36 compiled-versus-interpreted checks for
+three existing exact plans, in scalar and higher/mixed Dual forms, across f64,
+DoubleFloat and Float256. Every component is checked; generated-source hashes,
+plan parameters and toolchain details are retained. Reproduce it with
+`python3 validation/rust_codegen/run.py --evidence validation/evidence/rust-kernel-codegen.json`.
+Execution is a scalar row loop used as a control, not production batching or
+performance evidence.
+
+`validation/record_checkpoint.py TEST_LOG --output REPORT --evidence RELATED_JSON`
+records a successful all-feature workspace run alongside source/dependency
+hashes and toolchain/host metadata. Invoke it after sources have been frozen and
+tests completed. Related evidence can explicitly report a failed numerical
+gate; passing regression tests do not override that result.
+
+`physical-stage.json` records the 165-test workspace checkpoint with all reference
+controls enabled. It links the physical and generated-kernel records by hash,
+including the explicitly failed longitudinal matrix. Strict Clippy and
+formatting results and pending upstream work are recorded in the plan.

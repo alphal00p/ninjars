@@ -125,27 +125,29 @@ pub fn prepare_top_higgs_gluons(
             }
             let projector = diagram.projector()
                 * color.expression([gluons[0].index_atom(), gluons[1].index_atom()]);
-            let mut prepared = prepare_diagram(
+            prepare_diagram(
                 diagram.with_projector(projector),
                 kinematics,
                 NumeratorMode::Explicit,
             )
-            .map_err(Box::new)?;
-            // Use the model's SU(3) fundamental normalization, including T_R=1/2.
-            // The general preparation API deliberately retains symbolic invariants.
-            prepared.numerator = SymbolicTensor::infer(prepared.numerator)
-                .and_then(|tensor| {
-                    tensor.simplify_algebra(&AlgebraSettings {
-                        color: Some(
-                            ColorSimplifySettings::default().with_cof_dimension_invariants(),
-                        ),
-                        ..AlgebraSettings::default()
-                    })
-                })
-                .map_err(PreparationError::from)
-                .map_err(Box::new)?
-                .into_expression();
-            Ok(prepared)
+            .and_then(PreparedIntegrand::with_color_dimension_invariants)
+            .map_err(Box::new)
+            .map_err(PhysicalPreparationError::from)
         })
         .collect()
+}
+
+impl PreparedIntegrand {
+    /// Resolve supported fundamental-color invariants using Idenso's existing
+    /// dimension formulas. This is an explicit preparation policy; the default
+    /// graph preparation keeps arbitrary color invariants symbolic.
+    pub fn with_color_dimension_invariants(mut self) -> Result<Self, PreparationError> {
+        self.numerator = SymbolicTensor::infer(self.numerator)?
+            .simplify_algebra(&AlgebraSettings {
+                color: Some(ColorSimplifySettings::default().with_cof_dimension_invariants()),
+                ..AlgebraSettings::default()
+            })?
+            .into_expression();
+        Ok(self)
+    }
 }
