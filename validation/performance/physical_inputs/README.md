@@ -46,12 +46,16 @@ gate fails; the failure is retained in `validation/evidence/physical-numerical-i
 
 A separate preparation experiment applies Symbolica's existing `factor()` to
 each coefficient and verifies every exact identity. It reconstructs the shared
-polynomial through `map_coeff`/`flatten(false)` and uses the existing evaluators.
+polynomial through `PolynomialCoefficientPlan::factor_coefficients` (the
+audited `map_coeff`/`flatten(false)` composition) and uses the existing evaluators.
 The worst Float256 discrepancy falls to `7.45e-12` for the interpreter and
 `5.04e-12` for SymJIT O2. This candidate passes, but the report deliberately keeps
 the unfactored failure. Factorization changes floating-point evaluation order;
 these controls do not establish a general conditioning improvement. The initial
 provider-only parity record is retained separately as historical evidence.
+The public optional-provider rerun is recorded in
+`validation/evidence/physical-numerical-inputs-factored-provider.json`; it preserves
+the same baseline failure and passing factored candidate.
 
 This establishes correctness of preparation components, not a full physical
 performance result. Integration with both reducers, a large pentagon workload,

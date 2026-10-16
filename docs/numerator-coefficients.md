@@ -17,6 +17,22 @@ The same option is accepted by `bench`. Its report includes the coefficient
 plan/compilation setup costs and a separate `diagnostic.numerator_coefficients`
 measurement; the primary total includes coefficient evaluation on every pass.
 
+`--numerator-evaluator symjit-o2-factored` additionally factors each external
+coefficient exactly with Symbolica before compiling the same O2 evaluator.
+`PolynomialCoefficientPlan::factor_coefficients` exposes this optional setup
+operation for either the generic interpreter or JIT. It rebuilds the coefficient
+template because factorization can make previously distinct heads identical.
+Reports record `coefficients_factored` and `coefficient_factoring_ns`; the latter
+is part of the total coefficient preparation cost, not an additional timed
+per-point operation. Both existing modes and their defaults are unchanged.
+
+Factoring changes floating-point evaluation order. In a changing-phase-space
+four-photon preparation probe, a vanishing unfactored coefficient missed the
+fixed `1e-9` Float256 comparison gate at `1.72e-9`; the factored SymJIT candidate
+reduced the worst discrepancy to `5.04e-12`. This motivates an explicit optional
+policy, not a general guarantee about conditioning. Keep the original form and
+high-precision controls when comparing a new physical workload.
+
 `ninjars_graph::PolynomialCoefficientPlan` owns the existing Symbolica polynomial
 and composes `expand_in`, `map_coeff` and `flatten(false)`. Its five loop variables
 are `(q0,q1,q2,q3,mu_squared)`, with rank weights `(1,1,1,1,2)`. External parameter
@@ -68,6 +84,12 @@ algebraic transformation was implemented. The SymJIT API audit covered
 `evaluate/backend.rs`, the pinned SymJIT 2.27.3 configuration/complex generator
 and complex-division tests, and gammaloop's existing multi-output JIT wrapper.
 The gammaloop-specific unsafe carrier casts are not used here.
+
+The optional factorization audit additionally checked `AtomCore::factor` and
+its exact-identity documentation in `atom/core.rs`, the implementation in
+`poly/factor.rs`, `examples/factorization.rs`, and FeynKit's installed FeynCalc
+WW/Higgs/Z checks that use Symbolica's factor operation. Coefficient mapping,
+factorization and polynomial reconstruction all remain existing Symbolica calls.
 
 Focused controls live in `crates/ninjars-graph/tests/coefficients.rs` and the
 CLI `numerator_coefficients` module: exact reconstruction and factor-once,

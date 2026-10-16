@@ -394,13 +394,28 @@ where
                         "coefficient_preparation_ns":0, "coefficient_compilation_ns":0,
                         "coefficient_policy":"external coefficients evaluated within existing cut callbacks"}),
             ),
-            NumeratorEvaluator::SymjitO2 => {
+            NumeratorEvaluator::SymjitO2 | NumeratorEvaluator::SymjitO2Factored => {
                 let start = Instant::now();
                 let plan = ninjars_graph::PolynomialCoefficientPlan::new(
                     prepared.numerator_template.clone(),
                     variables.clone(),
                     prepared.parameters.clone(),
                 )?;
+                let factoring = matches!(
+                    args.numerator_evaluator,
+                    NumeratorEvaluator::SymjitO2Factored
+                );
+                let factor_start = Instant::now();
+                let plan = if factoring {
+                    plan.factor_coefficients()?
+                } else {
+                    plan
+                };
+                let factoring_ns = if factoring {
+                    factor_start.elapsed().as_secs_f64() * 1e9
+                } else {
+                    0.
+                };
                 let preparation_ns = start.elapsed().as_secs_f64() * 1e9;
                 let start = Instant::now();
                 let evaluator = T::compile_symjit_coefficients(&plan)?;
@@ -409,6 +424,9 @@ where
                         "external_inputs":prepared.parameters.len(),
                         "coefficient_outputs":plan.coefficient_expressions().len(),
                         "coefficient_preparation_ns":preparation_ns,
+                        "coefficient_factoring":if factoring { "symbolica_exact" } else { "none" },
+                        "coefficients_factored":factoring,
+                        "coefficient_factoring_ns":factoring_ns,
                         "coefficient_compilation_ns":compilation_ns,
                         "coefficient_error_policy":"reject_binding_batch_before_reduction",
                         "optimization_level":2,

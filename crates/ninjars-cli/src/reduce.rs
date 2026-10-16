@@ -35,6 +35,8 @@ pub enum MuExtraction {
 pub enum NumeratorEvaluator {
     Symbolica,
     SymjitO2,
+    /// Factor external coefficients exactly with Symbolica before SymJIT O2.
+    SymjitO2Factored,
 }
 
 impl NumeratorEvaluator {
@@ -42,16 +44,21 @@ impl NumeratorEvaluator {
         match self {
             Self::Symbolica => "symbolica",
             Self::SymjitO2 => "symjit-o2",
+            Self::SymjitO2Factored => "symjit-o2-factored",
         }
     }
 
     pub(crate) fn validate(self, precision: Precision) -> Result<()> {
-        if matches!(self, Self::SymjitO2) {
+        if matches!(self, Self::SymjitO2 | Self::SymjitO2Factored) {
             if !matches!(precision, Precision::F64) {
-                return Err("--numerator-evaluator symjit-o2 requires --precision f64; use symbolica to preserve higher precision".into());
+                return Err(format!("--numerator-evaluator {} requires --precision f64; use symbolica to preserve higher precision", self.name()).into());
             }
             if !cfg!(feature = "numerator-jit") {
-                return Err("--numerator-evaluator symjit-o2 requires a build with --features numerator-jit".into());
+                return Err(format!(
+                    "--numerator-evaluator {} requires a build with --features numerator-jit",
+                    self.name()
+                )
+                .into());
             }
         }
         Ok(())

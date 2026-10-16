@@ -55,6 +55,61 @@ fn shared_polynomial_reconstructs_exactly_and_counts_factor_once() {
 }
 
 #[test]
+fn factoring_preserves_exact_numerator_and_merges_equivalent_heads() {
+    let expression = parse!("(a^2-2*a*b+b^2)*q0+(a-b)^2*q1+(a-b)^2*mu2^2");
+    let original = plan(expression.clone(), vec![parse!("a"), parse!("b")]);
+    assert_eq!(original.coefficient_expressions().len(), 2);
+    let factored = original.factor_coefficients().unwrap();
+    assert_eq!(factored.rank(), 4);
+    assert_eq!(factored.coefficient_expressions().len(), 1);
+    let restored = factored
+        .coefficient_symbols()
+        .iter()
+        .zip(factored.coefficient_expressions())
+        .fold(factored.template().clone(), |value, (symbol, head)| {
+            value.replace(symbol.clone()).with(head.clone())
+        });
+    assert!((restored - expression).expand().is_zero());
+    let zero = plan(Atom::Zero, vec![]).factor_coefficients().unwrap();
+    assert!(zero.coefficient_expressions().is_empty());
+    assert!(zero.template().is_zero());
+}
+
+#[test]
+fn factored_coefficients_resolve_cancellation_against_high_precision() {
+    let original = plan(parse!("(a^2-2*a*b+b^2)*q0"), vec![parse!("a"), parse!("b")]);
+    let mut oracle = original.compile(Float::new(256)).unwrap();
+    let factored = original.factor_coefficients().unwrap();
+    let mut interpreter = factored.compile(0.).unwrap();
+    #[cfg(feature = "numerator-jit")]
+    let mut jit = factored.compile_symjit_o2().unwrap();
+    // All integers are exactly representable in binary64. The expanded head
+    // subtracts terms of order 2^54 to obtain one, zero or a complex square.
+    let a = 134_217_728.;
+    let rows = [c(a + 1.), c(a), c(a), c(a), Complex::new(a, 1.), c(a)];
+    let high_input = rows
+        .iter()
+        .map(|v| Complex::new(Float::with_val(256, v.re), Float::with_val(256, v.im)))
+        .collect::<Vec<_>>();
+    let mut high_output = vec![Complex::new(Float::new(256), Float::new(256)); 3];
+    oracle
+        .evaluate_batch(&high_input, &mut high_output, 3)
+        .unwrap();
+    let expected = high_output
+        .iter()
+        .map(|v| Complex::new(v.re.to_f64(), v.im.to_f64()))
+        .collect::<Vec<_>>();
+    let mut actual = vec![c(0.); 3];
+    interpreter.evaluate_batch(&rows, &mut actual, 3).unwrap();
+    assert_eq!(actual, expected);
+    #[cfg(feature = "numerator-jit")]
+    {
+        jit.evaluate_batch(&rows, &mut actual, 3).unwrap();
+        assert_eq!(actual, expected);
+    }
+}
+
+#[test]
 fn rejects_loop_nonpolynomials_and_ambiguous_bindings() {
     for expression in [parse!("q0^-1"), parse!("sin(q2)"), parse!("sqrt(mu2)")] {
         assert!(matches!(
@@ -264,45 +319,52 @@ fn symjit_constant_zero_and_failed_binding_controls() {
 fn symjit_preserves_lazy_coefficient_branches_across_reactivated_lanes() {
     let conditional = Symbol::IF.call((parse!("condition"), parse!("1/a"), Atom::num(7)));
     let expression = parse!("q0") * &conditional + parse!("q1^2") * (conditional + parse!("b"));
-    let plan = plan(
-        expression,
-        vec![parse!("condition"), parse!("a"), parse!("b")],
-    );
-    let mut interpreted = plan.compile(0.).unwrap();
-    let mut jit = plan.compile_symjit_o2().unwrap();
-    let columns = plan.coefficient_expressions().len();
-    for input in [
-        vec![
-            c(0.),
-            c(0.),
-            c(3.),
-            c(1.),
-            c(2.),
-            c(-1.),
-            c(0.),
-            c(0.),
-            c(4.),
-        ],
-        vec![
-            c(1.),
-            Complex::new(1., 1.),
-            c(3.),
-            c(0.),
-            c(0.),
-            c(-1.),
-            c(1.),
-            c(4.),
-            c(4.),
-        ],
-    ] {
-        let mut expected = vec![c(0.); 3 * columns];
-        let mut actual = expected.clone();
-        interpreted
-            .evaluate_batch(&input, &mut expected, 3)
-            .unwrap();
-        jit.evaluate_batch(&input, &mut actual, 3).unwrap();
-        for (actual, expected) in actual.into_iter().zip(expected) {
-            close(actual, expected);
+    for factored in [false, true] {
+        let plan = plan(
+            expression.clone(),
+            vec![parse!("condition"), parse!("a"), parse!("b")],
+        );
+        let plan = if factored {
+            plan.factor_coefficients().unwrap()
+        } else {
+            plan
+        };
+        let mut interpreted = plan.compile(0.).unwrap();
+        let mut jit = plan.compile_symjit_o2().unwrap();
+        let columns = plan.coefficient_expressions().len();
+        for input in [
+            vec![
+                c(0.),
+                c(0.),
+                c(3.),
+                c(1.),
+                c(2.),
+                c(-1.),
+                c(0.),
+                c(0.),
+                c(4.),
+            ],
+            vec![
+                c(1.),
+                Complex::new(1., 1.),
+                c(3.),
+                c(0.),
+                c(0.),
+                c(-1.),
+                c(1.),
+                c(4.),
+                c(4.),
+            ],
+        ] {
+            let mut expected = vec![c(0.); 3 * columns];
+            let mut actual = expected.clone();
+            interpreted
+                .evaluate_batch(&input, &mut expected, 3)
+                .unwrap();
+            jit.evaluate_batch(&input, &mut actual, 3).unwrap();
+            for (actual, expected) in actual.into_iter().zip(expected) {
+                close(actual, expected);
+            }
         }
     }
 }

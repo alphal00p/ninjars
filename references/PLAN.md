@@ -1125,3 +1125,31 @@ connects the existing kernels into integrated amplitudes and a standalone
 - The upstream push was a verified fast-forward, without a new oneloopmaster
   PR. Primary dependency checkouts remain on `fd7bced5/e9d14f7` until the frozen
   physical matrix completes; adopting these tested changes is the next step.
+### Optional factored coefficient provider (2026-10-16)
+
+- Added `PolynomialCoefficientPlan::factor_coefficients` using only Symbolica's
+  exact `factor`, `map_coeff` and `flatten(false)` APIs. It rebuilds the template
+  and deduplicates equivalent heads. The CLI exposes `symjit-o2-factored` for
+  reduce/compare/bench; the existing defaults and reduction-core API are unchanged.
+  Exact factoring is setup work, with a separately reported duration included
+  in total coefficient preparation. Per-point evaluation remains inside each
+  complete-evaluation batch. Both JIT policies reject non-f64 carriers explicitly.
+- The public-provider physical probe reproduces the successful factored error
+  bounds (`7.45e-12` interpreter, `5.04e-12` JIT) against Float256 while retaining
+  the unfactored `1.72e-9` failure. Its source and linked artifacts remained
+  unchanged during the run. Evidence is
+  `physical-numerical-inputs-factored-provider.json`; factoring is an optional
+  evaluation-order choice, not a general conditioning guarantee.
+- Exact reconstruction/deduplication, weighted rank, cancellation, inactive
+  singular branches, both mu modes, physical box reductions, timing attribution
+  and feature/precision rejection pass. Combined validation passes **187 tests
+  across 51 suites**, including the five separately executed original-Ninja
+  reference tests. Strict all-feature/all-target Clippy and formatting pass.
+  `factored-coefficient-workspace-checks.json` retains commands, source hashes,
+  logs and earlier rejected attempts. One overlapping feature-build attempt
+  rewrote a CLI artifact during subprocess tests; final validation serialized
+  build/test invocations in this worktree. No tolerance was changed.
+- Implementation and validation were isolated in the coefficient-factoring
+  worktree while the fixed gg→HHH matrix guarded primary runtime sources.
+  These checks establish correctness of the optional provider, not performance
+  acceptance or complete large-graph end-to-end timing.

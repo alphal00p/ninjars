@@ -1,0 +1,214 @@
+{
+  "batches": [
+    {
+      "coefficient_components": 0,
+      "propagator_components": 0,
+      "rows": 0
+    },
+    {
+      "coefficient_components": 70,
+      "propagator_components": 20,
+      "rows": 1
+    },
+    {
+      "coefficient_components": 560,
+      "propagator_components": 160,
+      "rows": 8
+    },
+    {
+      "coefficient_components": 2240,
+      "propagator_components": 640,
+      "rows": 32
+    },
+    {
+      "coefficient_components": 8960,
+      "propagator_components": 2560,
+      "rows": 128
+    },
+    {
+      "coefficient_components": 71680,
+      "propagator_components": 20480,
+      "rows": 1024
+    },
+    {
+      "coefficient_components": 210,
+      "propagator_components": 60,
+      "rows": 3
+    },
+    {
+      "coefficient_components": 2170,
+      "propagator_components": 620,
+      "rows": 31
+    }
+  ],
+  "coefficient_float256_oracle": {
+    "criterion": 1e-09,
+    "interpreter_max_scaled_error": 1.7234597589860246e-09,
+    "jit_max_scaled_error": 1.7234597589860246e-09,
+    "scope": "all nine distinct momentum/helicity bindings, exact promotion of binary64 component inputs; outputs rounded to binary64 for comparison",
+    "worst_cases": [
+      {
+        "actual": [
+          1.7234597589860246e-09,
+          0.0
+        ],
+        "error": 1.7234597589860246e-09,
+        "expected": [
+          "0",
+          "0"
+        ],
+        "head": 0,
+        "row": 2
+      },
+      {
+        "actual": [
+          1.7234597589860246e-09,
+          0.0
+        ],
+        "error": 1.7234597589860246e-09,
+        "expected": [
+          "0",
+          "0"
+        ],
+        "head": 0,
+        "row": 2
+      }
+    ]
+  },
+  "coefficient_heads": 70,
+  "coefficient_max_scaled_error": 1.436216465821687e-10,
+  "distinct_momentum_points": 3,
+  "factorization_experiment": {
+    "interpreter_max_scaled_error": 7.445428418750784e-12,
+    "jit_max_scaled_error": 5.039930770961413e-12,
+    "passed": true,
+    "scope": "Symbolica factor() on every coefficient head with exact identity checks, independent factored interpreter and optional PolynomialCoefficientPlan::factor_coefficients/SymJIT provider"
+  },
+  "graph": "four-photon/top-box-0",
+  "helicity_states": 3,
+  "model_input_rows": [
+    [
+      173.0,
+      132.507
+    ],
+    [
+      179.0,
+      133.0
+    ],
+    [
+      167.0,
+      131.5
+    ]
+  ],
+  "parameter_count": 30,
+  "passed": false,
+  "performance_acceptance": false,
+  "provider_parity_passed": true,
+  "reconstruction_max_scaled_error": 4.621577534780096e-13,
+  "scope": "FeynKit wavefunctions and routed propagators plus Symbolica/SymJIT coefficient preparation from numerical momenta, helicities, pole mass and inverse electromagnetic coupling; no reduction or timings",
+  "wavefunction_fixture_max_scaled_error": 1.1102230246251565e-16,
+  "unchanged_sources": true,
+  "unchanged_artifacts": true,
+  "provenance": {
+    "compile_command": [
+      "rustc",
+      "--edition=2024",
+      "/shared/external/ninja/references/ninjars_coefficient_factoring/validation/performance/physical_inputs/src/main.rs",
+      "-Dwarnings",
+      "-o",
+      "/shared/external/ninja/references/ninjars_coefficient_factoring/target/factored-coefficients/physical-inputs/physical-input-probe",
+      "-L",
+      "dependency=/common/build-cache/external/4d/8a1556de243501/debug/deps",
+      "--extern",
+      "serde_json=/common/build-cache/external/4d/8a1556de243501/debug/deps/libserde_json-116ef9b7dba087ae.rlib",
+      "--extern",
+      "symbolica=/common/build-cache/external/4d/8a1556de243501/debug/deps/libsymbolica-46b4143f33dc3388.rlib",
+      "--extern",
+      "feynkit_kinematics=/common/build-cache/external/4d/8a1556de243501/debug/deps/libfeynkit_kinematics-14597159af832cd6.rlib",
+      "--extern",
+      "ninjars_graph=/shared/external/ninja/references/ninjars_coefficient_factoring/target/debug/libninjars_graph.rlib"
+    ],
+    "run_command": [
+      "/shared/external/ninja/references/ninjars_coefficient_factoring/target/factored-coefficients/physical-inputs/physical-input-probe"
+    ],
+    "compiler": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+    "binary_sha256": "5ef8e171c2a189f4990a729c5e4078fc3f2484cb7a3456a79efa827283913310",
+    "source_sha256": {
+      "validation/performance/physical_inputs/src/main.rs": "277cc4b182aa50761885e52389b6aa131f60311f766afdcda0b7124737ea546d",
+      "validation/performance/physical_inputs/run.py": "97b1ca5c4f9fd67bc29e00d31eef7119bb7498bb187d8d24738fe2c27939c2c5",
+      "Cargo.lock": "1035b5beee28438bc1e0841e541f8a5d4986f46e50c0ee25820b4326c8b155b0",
+      "dependencies/manifest.json": "d71dcb77b2f354dd604dd591009290d33d81ec7089bff3bf8291eb9e9faba89c",
+      "examples/graphs/physical/four-photon/top-box-0.json": "3e6a82c183db8949e0d405fa1de8e65e4b35e55a1f32365cbef06c13138366e2"
+    },
+    "dependency_manifest": {
+      "schema_version": 1,
+      "dependencies": [
+        {
+          "name": "symbolica",
+          "path": "references/symbolica",
+          "url": "https://github.com/symbolica-dev/symbolica.git",
+          "revision": "c78cffc20f318df1fce50539a587cbe8ffc717c0",
+          "patches": [
+            {
+              "path": "dependencies/patches/symbolica-batch-dual.patch",
+              "sha256": "b99a2ff66d4c347a20344052ae54d131ef874b79a6d97a29e2697393d9c7954d"
+            }
+          ],
+          "patched_revisions": [
+            "fd7bced5307e94e994d5deba63c60b8380aa7d02"
+          ]
+        },
+        {
+          "name": "feynkit",
+          "path": "references/gammaloop_ninja_shared",
+          "url": "https://github.com/alphal00p/gammaloop.git",
+          "revision": "d3b91d31461e50d91dce4702d68c45294faca350",
+          "patches": [
+            {
+              "path": "dependencies/patches/feynkit-shared-types.patch",
+              "sha256": "7bc15975562034a01a5eb1d1ebe662f9c5c44697ebac3ecf5935e992118e39d6"
+            }
+          ],
+          "patched_revisions": [
+            "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+          ]
+        },
+        {
+          "name": "oneloopmaster",
+          "path": "references/oneloopmaster",
+          "url": "https://github.com/alphal00p/oneloopmaster.git",
+          "revision": "e9d14f7b5fa546af33fced2a421c616220178643"
+        },
+        {
+          "name": "ninja-reference",
+          "path": "references/ninja",
+          "url": "https://github.com/peraro/ninja.git",
+          "revision": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0"
+        }
+      ]
+    },
+    "cargo_artifacts_sha256": "af5f2bb58354daedd1549801a503278b71b53e239b6def595958ed5bf8f7a545",
+    "rlib_sha256": {
+      "/common/build-cache/external/4d/8a1556de243501/debug/deps/libserde_json-116ef9b7dba087ae.rlib": "16679ec7bdfd778df0fbee7bfc1c6cf55c5800a06d5d9fe55029f60df8011d65",
+      "/common/build-cache/external/4d/8a1556de243501/debug/deps/libsymbolica-46b4143f33dc3388.rlib": "c1b0da4d59d0c3e5d4bc84c7f01804c43f5679ee1c2fe73cbedfecbe3693262b",
+      "/common/build-cache/external/4d/8a1556de243501/debug/deps/libfeynkit_kinematics-14597159af832cd6.rlib": "0c1a8c2f0a63b3f42914a2daee3b993b47aafded1efa1b4a8e8c81f12555c9e1",
+      "/shared/external/ninja/references/ninjars_coefficient_factoring/target/debug/libninjars_graph.rlib": "1dcd2810f83b5ae474e5bf942cf2c35b65af39610423cb0e8e90938a3b733ff1"
+    },
+    "rlib_sha256_after": {
+      "/common/build-cache/external/4d/8a1556de243501/debug/deps/libserde_json-116ef9b7dba087ae.rlib": "16679ec7bdfd778df0fbee7bfc1c6cf55c5800a06d5d9fe55029f60df8011d65",
+      "/common/build-cache/external/4d/8a1556de243501/debug/deps/libsymbolica-46b4143f33dc3388.rlib": "c1b0da4d59d0c3e5d4bc84c7f01804c43f5679ee1c2fe73cbedfecbe3693262b",
+      "/common/build-cache/external/4d/8a1556de243501/debug/deps/libfeynkit_kinematics-14597159af832cd6.rlib": "0c1a8c2f0a63b3f42914a2daee3b993b47aafded1efa1b4a8e8c81f12555c9e1",
+      "/shared/external/ninja/references/ninjars_coefficient_factoring/target/debug/libninjars_graph.rlib": "1dcd2810f83b5ae474e5bf942cf2c35b65af39610423cb0e8e90938a3b733ff1"
+    },
+    "logs": {
+      "build.log": {
+        "text": "",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr.log": {
+        "text": "high precision coefficient controls [{\"actual\":[1.7234597589860246e-9,0.0],\"error\":1.7234597589860246e-9,\"expected\":[\"0\",\"0\"],\"head\":0,\"row\":2},{\"actual\":[1.7234597589860246e-9,0.0],\"error\":1.7234597589860246e-9,\"expected\":[\"0\",\"0\"],\"head\":0,\"row\":2}]\n",
+        "sha256": "f3d6a1b8f57bd97c633179508a8d8ec043c5bb10781dad168e778ab63d80515c"
+      }
+    }
+  }
+}
