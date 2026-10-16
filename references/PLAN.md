@@ -1293,3 +1293,28 @@ connects the existing kernels into integrated amplitudes and a standalone
   end-to-end allocation or speedup claim follows from this limited catalog.
   The next measurements keep the same numerator and master providers and must
   attribute reduction and master time separately.
+
+### Reusable reduction coordinator storage (2026-10-16)
+
+- Integrated `c33d3c1`: all five cut coordinators and amplitude integration retain
+  owned scratch between calls. Box projection uses flat momentum storage and
+  borrowed quotient chunks. Borrowed request arrays remain local and are sized
+  once per call; no unsafe lifetime conversion or arithmetic changes were used.
+- Published results/statuses remain transactional on callback and master API
+  errors. New tests cover every callback failure position, both box mu modes,
+  widths 1/8/1/0/3/8, failed-lane recovery, accumulation and reset. A separate
+  Float/Dual control compares all six higher/mixed components and precision
+  metadata against fresh amplitudes across changing widths and 53/192/256-bit
+  inputs. Forty-eight focused tests, strict Clippy and formatting pass.
+- The unchanged optimized allocation harness observes complete production-path
+  Rust allocations fall from 162 to 94 at width one and 559 to 421 at width eight.
+  Shared frozen-master reduction falls from 225 to 157 and 860 to 722. Warmed
+  reallocations fall from 46/128 to zero. Numerator, master, preparation and
+  original-path allocation counts remain unchanged; maximum scaled numerical
+  discrepancy is 2.24e-16. This measures Rust allocator activity only.
+- Evidence is `validation/evidence/reduction-workspace-reuse.json` and its
+  lossless allocation archive. Root independently checked the seven changed
+  source identities and both archive hashes. No elapsed-time improvement or
+  performance acceptance is inferred from allocation counts. Per-row residue
+  coefficient/mask allocations remain; kernel attribution and separately timed
+  master execution are being developed in isolated branches.
