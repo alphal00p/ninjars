@@ -328,6 +328,59 @@ fn masks_are_exact_projection_zeros() {
 }
 
 #[test]
+fn dual_specialization_preserves_explicit_scalar_precision_distinct_from_carrier() {
+    let p = Float::new(256);
+    let carrier = Float::new(128);
+    let dual = HyperDual::from_values(
+        vec![vec![0, 0], vec![1, 0], vec![0, 1], vec![2, 0], vec![1, 1]],
+        vec![Complex::new(carrier.zero(), carrier.zero()); 5],
+    );
+    assert_eq!(dual.values[0].re.get_precision(), 128);
+    let take = || {
+        crate::kernel::DUAL_COMPILATION_PRECISIONS.with(|r| std::mem::take(&mut *r.borrow_mut()))
+    };
+    let check = |records: Vec<(u32, Vec<u32>)>, expected_count: Option<usize>| {
+        if let Some(count) = expected_count {
+            assert_eq!(records.len(), count);
+        }
+        assert!(!records.is_empty());
+        let mut constant_count = 0;
+        for (precision, constants) in records {
+            assert_eq!(
+                precision, 256,
+                "alternate substituted the Dual carrier precision"
+            );
+            constant_count += constants.len();
+            assert!(
+                constants.iter().all(|&bits| bits == 256),
+                "actual mapped constants: {constants:?}"
+            );
+        }
+        assert!(
+            constant_count > 0,
+            "the check must observe actual evaluator constants"
+        );
+    };
+    let bubble = SymbolicaDualBubbleKernels::new(5, 4, p.clone(), &dual).unwrap();
+    take();
+    bubble.with_rank_specialized_corrections().unwrap();
+    check(take(), Some(1));
+    let tadpole = SymbolicaDualTadpoleKernels::new(5, 4, p.clone(), &dual).unwrap();
+    take();
+    tadpole.with_rank_specialized_corrections().unwrap();
+    check(take(), Some(2));
+    let amplitude = SymbolicaDualAmplitudeKernels::new(5, 4, p, &dual)
+        .unwrap()
+        .with_rank_specialized_corrections()
+        .unwrap();
+    take();
+    amplitude.bubble_kernels().unwrap();
+    amplitude.tadpole_kernels().unwrap();
+    check(take(), None);
+    assert_eq!(dual.values[0].re.get_precision(), 128);
+}
+
+#[test]
 fn nonempty_failed_batches_keep_sentinels_and_retry_cleanly() {
     let c = |r, i| Complex::new(r as f64, i as f64);
     let mut f = fixture(c);

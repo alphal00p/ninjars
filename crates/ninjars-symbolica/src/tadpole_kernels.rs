@@ -774,7 +774,7 @@ where
     /// Structural zeros are checked across every higher/mixed Dual component.
     pub fn with_rank_specialized_corrections(mut self) -> Result<Self> {
         let dual = self.engine.zero.clone();
-        let prototype = dual.values()[0].re.clone();
+        let prototype = self.engine.division.scalar_prototype().clone();
         self.engine
             .specialize_corrections(|exact| exact.compile_dual(&prototype, &dual))?;
         Ok(self)

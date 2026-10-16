@@ -618,7 +618,7 @@ where
     /// See [`SymbolicaBubbleKernels::with_rank_specialized_corrections`].
     pub fn with_rank_specialized_corrections(mut self) -> Result<Self> {
         let dual = self.engine.zero.clone();
-        let prototype = dual.values()[0].re.clone();
+        let prototype = self.engine.division.scalar_prototype().clone();
         self.engine
             .specialize_correction(|exact| exact.compile_dual(&prototype, &dual))?;
         Ok(self)

@@ -20,6 +20,14 @@ mod jit_probe;
 #[path = "native_blocking_probe.rs"]
 mod blocking_probe;
 
+#[cfg(test)]
+thread_local! {
+    /// Requested scalar precision and actual mapped evaluator constants.
+    pub(crate) static DUAL_COMPILATION_PRECISIONS: std::cell::RefCell<Vec<(u32, Vec<u32>)>> = const {
+        std::cell::RefCell::new(Vec::new())
+    };
+}
+
 pub(crate) trait KernelExecutor<V> {
     fn evaluate(&mut self, input: &[V], output: &mut [V], rows: usize) -> Result<()>;
 
@@ -119,6 +127,22 @@ impl ExactKernel {
             let exact = self.dual_evaluator(&structure)?;
             Some(PolynomialNumerator::map_evaluator(exact, prototype))
         };
+        #[cfg(test)]
+        DUAL_COMPILATION_PRECISIONS.with(|records| {
+            let constants = evaluator.as_ref().map_or_else(Vec::new, |evaluator| {
+                evaluator
+                    .clone()
+                    .into_expression_evaluator()
+                    .export_instructions()
+                    .constants
+                    .iter()
+                    .flat_map(|value| [value.re.get_precision(), value.im.get_precision()])
+                    .collect()
+            });
+            records
+                .borrow_mut()
+                .push((prototype.get_precision(), constants));
+        });
         Ok(CompiledDualKernel {
             kernel: CompiledKernel {
                 #[cfg(feature = "native-kernels")]
@@ -222,6 +246,12 @@ impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> CompiledDualKernel
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    /// Scalar zero at the explicit constructor precision. The Dual carrier's
+    /// own prototype may use a different precision and cannot substitute for it.
+    pub(crate) fn scalar_prototype(&self) -> &T {
+        &self.base_zero.re
+    }
+
     #[cfg(feature = "native-kernels")]
     pub(crate) fn native_parts(&mut self) -> (&[Vec<usize>], &mut CompiledKernel<T>) {
         (&self.shape, &mut self.kernel)

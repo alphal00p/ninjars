@@ -29,6 +29,13 @@ order. Callers using this option must consult both `kernel_backends()` (generic
 fallback selections) and `rank_specialized_correction_backend()` (conditional
 alternate). No CLI selection or report schema is changed by this prototype.
 
+Dual stages retain the scalar precision supplied explicitly to their constructors.
+The optional correction bodies recover that scalar prototype from the existing
+compiled division kernel; they do not infer it from the Dual carrier. For example,
+a Float256 scalar prototype and a Float128 Dual carrier still compile evaluator
+constants at 256 bits. The mixed-prototype regression covers direct stages and
+amplitude factories and checks actual mapped evaluator constants.
+
 Algebra reuse was checked in three places before implementation:
 
 - Symbolica's public `AtomCore::replace_multiple` API and example in
@@ -44,6 +51,8 @@ residue formula. Numerical evaluation and higher/mixed differentiation use
 the same shared Symbolica compiler as other kernels.
 
 Validation is recorded in `validation/evidence/guarded-rank-specialization.json`.
+The subsequent mixed-prototype precision fix and refreshed checks are recorded in
+`validation/evidence/guarded-rank-specialization-precision.json`.
 Tests compare complete lower-cut residue coefficients, ordinary f64,
 DoubleFloat, Float192 and every component of an ordered five-component
 HyperDual. They exercise every masked-slot violation, derivative-only

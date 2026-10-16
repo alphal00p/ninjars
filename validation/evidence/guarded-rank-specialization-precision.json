@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-10-16T23:36:27.076973+00:00",
+  "source_parent_revision": "7f1591e06de988dcf3277e470c3efff3a41eb39c",
+  "status": "focused precision-contract correction; no performance claim",
+  "fix": "Both Dual stage enable methods recover the explicit scalar constructor prototype from the always-present compiled division kernel base_zero, rather than the independent Dual carrier precision.",
+  "regression": {
+    "scalar_prototype_bits": 256,
+    "dual_carrier_bits": 128,
+    "before": "Expected regression failure: alternate requested scalar precision 128 instead of 256.",
+    "after": "Direct bubble, direct tadpole, and amplitude factories compile actual evaluator constants at 256 bits; carrier remains 128 bits.",
+    "observation": "Test-only observation of mapped Symbolica evaluator constants via export_instructions."
+  },
+  "test_totals": {
+    "passed": 37,
+    "failed": 0,
+    "ignored": 1
+  },
+  "historical_baseline": {
+    "path": "validation/evidence/guarded-rank-specialization.json",
+    "sha256": "65b8c0ba88a7c381c6646056a47cde1dce6e5257605f0eb9b7b83de7b40b261c",
+    "source_revision": "7f1591e06de988dcf3277e470c3efff3a41eb39c",
+    "note": "Historical baseline evidence is preserved unchanged; current source hashes and focused reruns are in this report."
+  },
+  "source_files": [
+    {
+      "path": "Cargo.toml",
+      "sha256": "74ee51fef490da00d067cec2a526bd2b7272c05802af556b5f249b15d72ccba6"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "1035b5beee28438bc1e0841e541f8a5d4986f46e50c0ee25820b4326c8b155b0"
+    },
+    {
+      "path": "dependencies/manifest.json",
+      "sha256": "b823d8e21987b9248d9797c3db1b16af06b45410ae3b5d653a3883d6b020247e"
+    },
+    {
+      "path": "crates/ninjars-symbolica/Cargo.toml",
+      "sha256": "8019736009b203a2838df97ac6d0a7655123f987eef9305aba4eece18d07e0e5"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/amplitude.rs",
+      "sha256": "eb26f00a4ed3ed180e30f5057bb012cc75a14fdf91ded20860e983994b677207"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/bubble_kernels.rs",
+      "sha256": "59137894946f2a4e6993d17f65de0d22fd795535003b9fe74020883c4444d581"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/tadpole_kernels.rs",
+      "sha256": "673959a9bcc748ff2d9a4059cc22415c0b0bbfaa3ec222ffca1ab9315491d689"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/lib.rs",
+      "sha256": "15ea3d7a81b69779aa859acf538b1ea3ce633b102f8ecbca8290044cfbe7a6a8"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/rank_specialization.rs",
+      "sha256": "068fa80f7e3ab57992ca0b968a371a2cee5d8a987638264acce8b1b207cf108f"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/rank_specialization_tests.rs",
+      "sha256": "66ca433e41da8c05800644920b305ca66c163d9bdc2756202da32c5d772adfea"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/denominator_reuse_tests.rs",
+      "sha256": "de79c554e4fa6d62091ae0b5a82efc46952404d5a9e9fa65e111afb7a0b4710a"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/projection.rs",
+      "sha256": "319ae463ee2b7f13ec6ab5d3b195e3f2b96c8ec9c2c4f6762247e2c92c895b53"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/subtraction.rs",
+      "sha256": "73aba6db3329c92aea1b144137de2add926b450ff03f1c183bf0369247394af3"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/laurent.rs",
+      "sha256": "e988ed2431f2392c97ae5cbe0284970f6fd3f0c419f3c920d943448abda9b815"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/kernel.rs",
+      "sha256": "773db92ef38cc4b4781bc195237a501448b0c04f13f094436d9334a0ef1efca8"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/value_checks.rs",
+      "sha256": "68ae0b3453779c86603633d95ad4917d235c15b6c3f2afcda91b5cf39246518e"
+    },
+    {
+      "path": "crates/ninjars-symbolica/tests/high_parent_cancellation.rs",
+      "sha256": "6b8bd8d6e02d1bd6713a981258aca8717a2e6f09df1289754b5985adc42a16f8"
+    },
+    {
+      "path": "docs/guarded-rank-specialization.md",
+      "sha256": "50daca5686d4f2c599ad58871382e97a72f0babf894ca0f73058ffc4d0246254"
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "symbolica",
+      "revision": "2c06f245835d57535418b5d78f711fe191db49cc",
+      "tracked_clean": true
+    },
+    {
+      "name": "oneloopmaster",
+      "revision": "53106429b849e5bcf843f111429be76227b4e0ce",
+      "tracked_clean": true
+    },
+    {
+      "name": "feynkit",
+      "revision": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93",
+      "tracked_clean": true
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/common/build-cache/external/cd/5d62942031e3ee/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+      "sha256": "81ed92a04acb607703cbac8d462dd6838bcb6fc1a1c1aa13352606845e4c258e"
+    },
+    {
+      "path": "/common/build-cache/external/cd/5d62942031e3ee/debug/deps/native_amplitude-b29120e262eff61e",
+      "sha256": "677fc77fb0b505160b9a17c0bd08574a81ab3d8e5ef7ed88db6d19085a8459c5"
+    },
+    {
+      "path": "/common/build-cache/external/cd/5d62942031e3ee/debug/deps/native_bubbles-e0f5492c99468a33",
+      "sha256": "22e893007a460eccbc7f9dfa999820650afbab9f8e6a2fb30d842da1294a01bf"
+    },
+    {
+      "path": "/common/build-cache/external/cd/5d62942031e3ee/debug/deps/native_tadpole_dispatch-e7f1cf62ebf9266e",
+      "sha256": "ed884a602883bc61f566ad9f534ceb1f3ef016f8ab2eafa26b32847f1bdf5807"
+    }
+  ],
+  "logs": [
+    {
+      "path": "validation/evidence/guarded-rank-specialization-precision/before-build.log",
+      "sha256": "6a77a43d40949f6b600c1af51d8754b61c98d4934a2626a029bf167c1a84a09e",
+      "raw_sha256": "6a77a43d40949f6b600c1af51d8754b61c98d4934a2626a029bf167c1a84a09e"
+    },
+    {
+      "path": "validation/evidence/guarded-rank-specialization-precision/before.log",
+      "sha256": "c4e758d15c462a62569e0eab0f36f5625e7b12e86c458e014508a2959bcf7d3e",
+      "raw_sha256": "80396a62c2528dafa13081a317494327f2174474fe4124c2a3b88abf513e9274",
+      "normalization": "Removed trailing whitespace and blank lines from archive; raw executable log retained in /tmp.",
+      "tests": {
+        "passed": 0,
+        "failed": 1,
+        "ignored": 0
+      },
+      "expected_failure": true
+    },
+    {
+      "path": "validation/evidence/guarded-rank-specialization-precision/build.log",
+      "sha256": "df3c53bc0cd0c270683d78e9c88a2516dcdf5b3412d0ce31c3df190312218d05",
+      "raw_sha256": "df3c53bc0cd0c270683d78e9c88a2516dcdf5b3412d0ce31c3df190312218d05"
+    },
+    {
+      "path": "validation/evidence/guarded-rank-specialization-precision/clippy.log",
+      "sha256": "9fd976cca644820d6c279227cff074861f5393f4dea1df5a7391d1826a2292d1",
+      "raw_sha256": "9fd976cca644820d6c279227cff074861f5393f4dea1df5a7391d1826a2292d1"
+    },
+    {
+      "path": "validation/evidence/guarded-rank-specialization-precision/feature-off.log",
+      "sha256": "56dedb6c331ced8e322c72f77f20cde052fdea99ea24891c98b12de9e1a2a49b",
+      "raw_sha256": "56dedb6c331ced8e322c72f77f20cde052fdea99ea24891c98b12de9e1a2a49b"
+    },
+    {
+      "path": "validation/evidence/guarded-rank-specialization-precision/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "validation/evidence/guarded-rank-specialization-precision/unit.log",
+      "sha256": "fc4269fe0a012ba8443bfb79cd83146cf9cbe95be8ec5fff8f317a6ae067f0e4",
+      "raw_sha256": "0217b3fa824360cd95e1d4ac6b677d539ba10a0130af4fbaa26f0efda89d5411",
+      "normalization": "Removed trailing blank lines from archive; raw executable log retained in /tmp.",
+      "tests": {
+        "passed": 19,
+        "failed": 0,
+        "ignored": 1
+      },
+      "expected_failure": false
+    },
+    {
+      "path": "validation/evidence/guarded-rank-specialization-precision/native_amplitude.log",
+      "sha256": "a623056dd23dda02741f5d98987076dad0f381d9456ddd5cb54a17dc76e0e3e8",
+      "raw_sha256": "ece0372299efb2cd7ca606b9d30b37a08de2ee9f6653008fbd8ca48770e95068",
+      "normalization": "Removed trailing blank lines from archive; raw executable log retained in /tmp.",
+      "tests": {
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0
+      },
+      "expected_failure": false
+    },
+    {
+      "path": "validation/evidence/guarded-rank-specialization-precision/native_bubbles.log",
+      "sha256": "0cb2401a85707df0c51322296dc5f4e06a3e2838cb6f03b77f7f73a33b0985b9",
+      "raw_sha256": "059b95fbe8225041da5a1b1f148d430556347aa74a4fdd4bb6158e31018b1d1c",
+      "normalization": "Removed trailing blank lines from archive; raw executable log retained in /tmp.",
+      "tests": {
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0
+      },
+      "expected_failure": false
+    },
+    {
+      "path": "validation/evidence/guarded-rank-specialization-precision/native_tadpole_dispatch.log",
+      "sha256": "5bfa39f422a391a63f6d83390b891288ca888f7d516a395b117a799027da9ffa",
+      "raw_sha256": "aac72db6c0b6bf431cbd198de6575fcad5ecfe6de22a1320230f019c5802c73e",
+      "normalization": "Removed trailing blank lines from archive; raw executable log retained in /tmp.",
+      "tests": {
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0
+      },
+      "expected_failure": false
+    }
+  ],
+  "reproducer": [
+    {
+      "path": "validation/evidence/guarded-rank-specialization-precision/before-regression.patch.gz",
+      "sha256": "dd1ccb609526948208171d2214a74f4d51ed22682bfcc64a79d740427a65b936",
+      "uncompressed_sha256": "883e0e41814ed80c67431270ea69d8cfd63ab1be6e48346696ba2f4ee57473df"
+    },
+    {
+      "path": "validation/evidence/guarded-rank-specialization-precision/before-source.json",
+      "sha256": "a866a2fdb3647a0fe14c4fbff5900772ac6d12ea1b1b35b08599f99f16e4b953"
+    }
+  ],
+  "checks": [
+    "Full adapter unit suite plus native_amplitude, native_bubbles, native_tadpole_dispatch; cached executables each run under the numerical lock with --test-threads=1",
+    "cargo clippy -p ninjars-symbolica --features native-kernels --lib --tests -- -D warnings",
+    "cargo check -p ninjars-symbolica --lib --no-default-features",
+    "cargo fmt --all --check",
+    "git diff --check"
+  ],
+  "unchanged_contracts": [
+    "Ordinary stage compilation",
+    "All-component structural-zero guard",
+    "Whole-kind generic/native fallback",
+    "Unsupported topology errors",
+    "Both bubble orientations and full input layouts"
+  ],
+  "limitations": [
+    "Rank specialization remains an interpreted opt-in n5/r4 prototype; no new CLI or native specialized body.",
+    "The retained before-fix executable hash is historical; the exact reproducer patch reconstructs its source from 7f1591e."
+  ]
+}

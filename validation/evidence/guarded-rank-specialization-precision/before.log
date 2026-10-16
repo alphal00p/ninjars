@@ -1,0 +1,16 @@
+
+running 1 test
+test rank_specialization::tests::dual_specialization_preserves_explicit_scalar_precision_distinct_from_carrier ...
+thread 'rank_specialization::tests::dual_specialization_preserves_explicit_scalar_precision_distinct_from_carrier' (3277079) panicked at crates/ninjars-symbolica/src/rank_specialization_tests.rs:349:13:
+assertion `left == right` failed: alternate substituted the Dual carrier precision
+  left: 128
+ right: 256
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    rank_specialization::tests::dual_specialization_preserves_explicit_scalar_precision_distinct_from_carrier
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 19 filtered out; finished in 0.03s
