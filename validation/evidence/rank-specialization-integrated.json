@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "source_commit": "33e9cee5846c3943dc30a1ea48f4efacca93bb90",
+  "purpose": "Combined main validation of the reviewed rank specialization and precision fix, with existing denominator reuse and test-only native blocking controls.",
+  "reviewed_commits": [
+    "7f1591e06de988dcf3277e470c3efff3a41eb39c",
+    "5c50941354bf357097e3c7097b1afef0799f6891"
+  ],
+  "integration_resolution": "Retained both independent cfg(test) declarations in kernel.rs; production changes match the reviewed candidate.",
+  "source_sha256": {
+    "Cargo.toml": "74ee51fef490da00d067cec2a526bd2b7272c05802af556b5f249b15d72ccba6",
+    "Cargo.lock": "1035b5beee28438bc1e0841e541f8a5d4986f46e50c0ee25820b4326c8b155b0",
+    "dependencies/manifest.json": "b823d8e21987b9248d9797c3db1b16af06b45410ae3b5d653a3883d6b020247e",
+    "crates/ninjars-symbolica/Cargo.toml": "8a96e690d3cbb549139f35626b2aa04457970616d94458cdc9a6ccc22db647b6",
+    "crates/ninjars-symbolica/src/amplitude.rs": "eb26f00a4ed3ed180e30f5057bb012cc75a14fdf91ded20860e983994b677207",
+    "crates/ninjars-symbolica/src/bubble_kernels.rs": "59137894946f2a4e6993d17f65de0d22fd795535003b9fe74020883c4444d581",
+    "crates/ninjars-symbolica/src/tadpole_kernels.rs": "673959a9bcc748ff2d9a4059cc22415c0b0bbfaa3ec222ffca1ab9315491d689",
+    "crates/ninjars-symbolica/src/lib.rs": "15ea3d7a81b69779aa859acf538b1ea3ce633b102f8ecbca8290044cfbe7a6a8",
+    "crates/ninjars-symbolica/src/rank_specialization.rs": "068fa80f7e3ab57992ca0b968a371a2cee5d8a987638264acce8b1b207cf108f",
+    "crates/ninjars-symbolica/src/rank_specialization_tests.rs": "66ca433e41da8c05800644920b305ca66c163d9bdc2756202da32c5d772adfea",
+    "crates/ninjars-symbolica/src/denominator_reuse_tests.rs": "de79c554e4fa6d62091ae0b5a82efc46952404d5a9e9fa65e111afb7a0b4710a",
+    "crates/ninjars-symbolica/src/projection.rs": "319ae463ee2b7f13ec6ab5d3b195e3f2b96c8ec9c2c4f6762247e2c92c895b53",
+    "crates/ninjars-symbolica/src/subtraction.rs": "6ba171ce328bd8f2055e0e3e1dd16e2f47ff70eff61b3218cefeede1481f6c0c",
+    "crates/ninjars-symbolica/src/laurent.rs": "e988ed2431f2392c97ae5cbe0284970f6fd3f0c419f3c920d943448abda9b815",
+    "crates/ninjars-symbolica/src/kernel.rs": "9162348ea18fc8e3eb4184e2cdd2ce8bfa22c44b01ba8470aaae74cd732d69aa",
+    "crates/ninjars-symbolica/src/value_checks.rs": "68ae0b3453779c86603633d95ad4917d235c15b6c3f2afcda91b5cf39246518e",
+    "crates/ninjars-symbolica/tests/high_parent_cancellation.rs": "6b8bd8d6e02d1bd6713a981258aca8717a2e6f09df1289754b5985adc42a16f8",
+    "docs/guarded-rank-specialization.md": "50daca5686d4f2c599ad58871382e97a72f0babf894ca0f73058ffc4d0246254",
+    "crates/ninjars-symbolica/src/native_blocking_probe.rs": "5228f06034dca70b492038b0b8b806d2a205ca82fd1bf49dfc0e3b26ef03604f"
+  },
+  "tests": {
+    "ninjars_symbolica": {
+      "passed": 27,
+      "failed": 0,
+      "ignored": 3
+    },
+    "high_parent_cancellation": {
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0
+    }
+  },
+  "checks": {
+    "strict_adapter_library_tests_and_blocking_generator_clippy": true,
+    "core_adapter_format": true,
+    "git_diff_check": true
+  },
+  "artifacts": [
+    {
+      "path": "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/high_parent_cancellation-92b1885a29b33558",
+      "sha256": "3d0bf927ad5dfe65ac7334ea3bf451d0ab5a74968994cb92cc413bb0ec9627e3"
+    },
+    {
+      "path": "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+      "sha256": "74db29a933941799cba1ecc6903be5c5cabc704663423ce581f1a0481b0325b4"
+    }
+  ],
+  "logs": {
+    "build": {
+      "path": "validation/evidence/rank-specialization-integrated-logs/build.log",
+      "sha256": "61b3bea11142d17b0ed8bfc7788acceb2390f6546081c8929b6cc01d928e5956"
+    },
+    "ninjars_symbolica": {
+      "path": "validation/evidence/rank-specialization-integrated-logs/ninjars_symbolica.log",
+      "sha256": "11da15e4c4784636eddedc30699c95d34bbcec2640ac5b0487e8bd7ca2e50323"
+    },
+    "high_parent_cancellation": {
+      "path": "validation/evidence/rank-specialization-integrated-logs/high_parent_cancellation.log",
+      "sha256": "fc27dd60296dd49ab2b4e391931ab6ce7a68a1622cdf516145856b3113140e51"
+    },
+    "clippy": {
+      "path": "validation/evidence/rank-specialization-integrated-logs/clippy.log",
+      "sha256": "07b9742381875823c330d0242d095bf88ad0291913b9352adb1063b228704594"
+    },
+    "fmt": {
+      "path": "validation/evidence/rank-specialization-integrated-logs/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "performance_acceptance": false,
+  "new_performance_measurements": false,
+  "limitations": [
+    "Explicit interpreted n5/r4 opt-in only; no CLI or new native specialized kernels.",
+    "Numerical tests used serialized execution under the shared lock.",
+    "Native blocking benchmark and symbolic inventory remained ignored in this integration run."
+  ]
+}

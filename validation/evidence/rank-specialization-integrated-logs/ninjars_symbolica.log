@@ -1,0 +1,35 @@
+
+running 30 tests
+test bubble_kernels::denominator_reuse_tests::full_higher_mixed_dual_components_and_failed_retry ... ok
+test bubble_kernels::denominator_reuse_tests::native_full_coefficients_and_exact_executed_denominator_counts ... ok
+test bubble_kernels::denominator_reuse_tests::ordinary_full_coefficients_and_exact_executed_denominator_counts ... ok
+test bubble_kernels::denominator_reuse_tests::precision_and_changed_batch_metadata_match_standalone ... ok
+test bubble_kernels::denominator_reuse_tests::rank_specialization_full_lower_stage_coefficient_parity ... ok
+test bubble_kernels::denominator_reuse_tests::selected_parent_errors_are_skipped_only_for_failed_bubble_targets_and_retry_is_clean ... ok
+test bubble_kernels::denominator_reuse_tests::tadpole_parent_failures_standalone_and_distinct_borrows_remain_correct ... ok
+test bubble_kernels::denominator_reuse_tests::zero_parent_and_empty_combined_calls_use_no_denominator_rows ... ok
+test kernel::blocking_probe::native_blocking_archive_metadata_and_jsonl_are_readable ... ok
+test kernel::blocking_probe::native_blocking_finite_heads_match_symbolica_oracle ... ok
+test kernel::blocking_probe::native_blocking_full_dual_reducer_and_failed_mixed_component ... ok
+test kernel::blocking_probe::native_blocking_microbenchmark ... ignored, requires a coordinated quiet window and NINJARS_BLOCKING_QUIET_WINDOW=approved
+test kernel::blocking_probe::native_blocking_natural_scalar_tails_preserve_exceptional_values ... ok
+test kernel::blocking_probe::native_blocking_preserves_all_components_and_precision ... ok
+test kernel::blocking_probe::native_blocking_preserves_lazy_branches_and_shared_helper_calls ... ok
+test kernel::blocking_probe::native_blocking_preserves_reducer_statuses_residues_and_retry ... ok
+test kernel::blocking_probe::native_blocking_retains_mixed_input_significant_bits ... ok
+test kernel::jit_probe::complex_reduction_jit_matches_interpreter ... ok
+test kernel::jit_probe::reduction_jit_microbenchmark ... ignored, diagnostic microbenchmark; run optimized, alone, with --nocapture
+test polynomial::coefficient_preservation_tests::coefficient_preserving_callbacks_equal_full_expansion_exactly ... ok
+test polynomial::coefficient_preservation_tests::factored_external_coefficients_preserve_mixed_dual_lanes ... ok
+test rank_specialization::tests::amplitude_builder_orders_report_both_backends ... ok
+test rank_specialization::tests::dual_specialization_preserves_explicit_scalar_precision_distinct_from_carrier ... ok
+test rank_specialization::tests::exceptional_overflow_is_classified_by_independent_float_control ... ok
+test rank_specialization::tests::higher_mixed_derivative_only_coefficients_force_fallback ... ok
+test rank_specialization::tests::masks_are_exact_projection_zeros ... ok
+test rank_specialization::tests::native_generic_fallback_is_preserved ... ok
+test rank_specialization::tests::nonempty_failed_batches_keep_sentinels_and_retry_cleanly ... ok
+test rank_specialization::tests::ordinary_specialized_and_all_masked_slot_fallbacks ... ok
+test subtraction::algorithm_rank_probe::inventory_rank_specialization_n5_r4 ... ignored, explicit symbolic/code-generation inventory; no performance or runtime acceptance
+
+test result: ok. 27 passed; 0 failed; 3 ignored; 0 measured; 0 filtered out; finished in 19.91s
+

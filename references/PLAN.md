@@ -1740,3 +1740,26 @@ connects the existing kernels into integrated amplitudes and a standalone
   correctness controls, not timings. Cached artifacts are ready for a later
   coordinated sampling window; the blocked-execution probe is separately
   preparing optimized correctness controls before its microbenchmark.
+
+### Guarded rank specialization and precision correction integrated (2026-10-16)
+
+- Integrated reviewed `7f1591e` and focused fix `5c50941` as `73c3bb1` and
+  `33e9cee`. The opt-in n5/r4 alternate uses Symbolica-derived structural zeros
+  and full-component guards; arbitrary public inputs retain the generic batch
+  fallback. Both bubble orientations and complete input layouts remain intact.
+- The fix preserves the explicit scalar working precision when the Dual
+  carrier uses a different precision. The retained Float256/Dual128 regression
+  fails before the fix and passes afterward for direct stages and amplitude
+  factories. Independent review reconstructed the failing source and verified
+  its hashes. Root verified 18 current source hashes, four executable hashes,
+  ten logs and both reproducer artifacts.
+- Combined main validation passes 30 tests, with three intentional probes
+  ignored, plus strict adapter library/tests/generator Clippy and formatting.
+  The only integration conflict combined two independent test declarations.
+  Evidence: `rank-specialization-integrated.json` and the preserved candidate
+  and focused precision records. No performance claim follows from these tests.
+- Native rank-specialized generation is being prepared separately using the
+  shared exact plans and oneloopmaster emitter. The auditor is also preparing
+  a bounded symbolic n3 lower-cut transpose experiment. Neither is production
+  dispatch or a measured algorithmic speedup. Both remain source-only while
+  the blocking and denominator-reuse timing window is coordinated.
