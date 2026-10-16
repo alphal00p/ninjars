@@ -1,0 +1,295 @@
+{
+  "original_oneloop": "e9d14f7b5fa546af33fced2a421c616220178643",
+  "symbolica": "fd7bced5307e94e994d5deba63c60b8380aa7d02",
+  "generated_baseline_commit": "06e24194b30acc9dbc5a729f645894732756fad3",
+  "generated": {
+    "generated_a0.rs": {
+      "baseline_sha256": "1f40325286b2814b22460b89b645ee63f609b3731669eaa99b8b024fc8fe3945",
+      "fixed_sha256": "1f40325286b2814b22460b89b645ee63f609b3731669eaa99b8b024fc8fe3945",
+      "baseline_repeat_byte_identical": true,
+      "changed_by_guard": false
+    },
+    "generated_b0.rs": {
+      "baseline_sha256": "2efc2cf330b176c28421bf7d2ff91425e3c5dddcb0b44eb7538bfdb19fe52a42",
+      "fixed_sha256": "2efc2cf330b176c28421bf7d2ff91425e3c5dddcb0b44eb7538bfdb19fe52a42",
+      "baseline_repeat_byte_identical": true,
+      "changed_by_guard": false
+    },
+    "generated_c0.rs": {
+      "baseline_sha256": "1b19fc65d85407fa4f7c3ea5820731d6cfd052f4cc7a99534b27d8c10b22ede0",
+      "fixed_sha256": "59fff702efbd717c1895578f9e2fbfda43f3b8a3062e9f5a9b1b71d19a7ae256",
+      "baseline_repeat_byte_identical": true,
+      "changed_by_guard": true
+    },
+    "generated_constants.rs": {
+      "baseline_sha256": "6fb4b05de25c2f56da13679dfc65878f2257f86e73d0ea2507f611ca3c5a9d6a",
+      "fixed_sha256": "6fb4b05de25c2f56da13679dfc65878f2257f86e73d0ea2507f611ca3c5a9d6a",
+      "baseline_repeat_byte_identical": true,
+      "changed_by_guard": false
+    },
+    "generated_d0.rs": {
+      "baseline_sha256": "0ca320ace856ddd0dd71131a4096fd0297fa4aff50890509de028476ebc6ec11",
+      "fixed_sha256": "0ca320ace856ddd0dd71131a4096fd0297fa4aff50890509de028476ebc6ec11",
+      "baseline_repeat_byte_identical": true,
+      "changed_by_guard": false
+    },
+    "generated_db0.rs": {
+      "baseline_sha256": "c307ca7494078d22a8150ac999f78e62e1b9f46c0411256b1f192f9d16e8798c",
+      "fixed_sha256": "c307ca7494078d22a8150ac999f78e62e1b9f46c0411256b1f192f9d16e8798c",
+      "baseline_repeat_byte_identical": true,
+      "changed_by_guard": false
+    }
+  },
+  "global_derivative_acceptance": false,
+  "performance_acceptance": false,
+  "artifacts": {
+    "baseline-c0_projective.rs": {
+      "bytes": 6799,
+      "sha256": "ba6110f942a9576b77be68486efc43ec419b5655907a2801b0025a495af71641"
+    },
+    "baseline-c0_projective.tsv": {
+      "bytes": 1701,
+      "sha256": "8f51d9c24911f0cbe9b0559c7bebca390052560d70194125564175ecbf9b4343"
+    },
+    "baseline-c0_projective_conditioning.rs": {
+      "bytes": 20138,
+      "sha256": "2738954a21569ee64d3dc33d11037f1942151f26cf605b521191dc72af29099e"
+    },
+    "c0-projective-sheet-guard.md": {
+      "bytes": 6191,
+      "sha256": "234328ae0b2fa8ddca5a5d568200f72bdb57d7cfab3948df9601d3e590f33e2e"
+    },
+    "c0_derivatives.rs": {
+      "bytes": 20203,
+      "sha256": "60959d77cd7fa7551f97338323b54b754bc02a539a9bab6c07157f7ce0881954"
+    },
+    "c0_projective.rs": {
+      "bytes": 6799,
+      "sha256": "ba6110f942a9576b77be68486efc43ec419b5655907a2801b0025a495af71641"
+    },
+    "c0_projective.tsv": {
+      "bytes": 1701,
+      "sha256": "8f51d9c24911f0cbe9b0559c7bebca390052560d70194125564175ecbf9b4343"
+    },
+    "generate_c0_projective_fixtures.py": {
+      "bytes": 1581,
+      "sha256": "738846fef06dccab08d8b94d19a2a4171ed053c39edd7452c4b901d43cf92c53"
+    },
+    "ninjars-c0-exception-baseline-conditioning.log": {
+      "bytes": 2251,
+      "sha256": "49e02e8c9d72af467441bab6e84ce4c93496b62f50d4ae9e8decbc7f6e746f05"
+    },
+    "ninjars-c0-exception-baseline-generation.log": {
+      "bytes": 2273,
+      "sha256": "dd7b9e1c26be496b4f7268698b92780a8f47119d047bb50ec7766d129a191eb9"
+    },
+    "ninjars-c0-exception-baseline-repeat.log": {
+      "bytes": 505,
+      "sha256": "a54c829bf4a6ba82e972a737b78f4746c5f7da6dfe26c3b3982e8aa86ec29875"
+    },
+    "ninjars-c0-exception-baseline-test.log": {
+      "bytes": 1790,
+      "sha256": "61e9889dda76714646c9effe628f4a488e70ba95722f6dcfcd33dd5f3678a930"
+    },
+    "ninjars-c0-exception-clippy.log": {
+      "bytes": 1212,
+      "sha256": "616b50add3bc4f65a4204f2d9d09785a6c2e1bcb6a2dc93c77159fa156e4b651"
+    },
+    "ninjars-c0-exception-dual-guard.log": {
+      "bytes": 1239,
+      "sha256": "39413870fbacc1ba3ea173fda88de6958aee81cbd988e98d67aaf9c6d0fe684b"
+    },
+    "ninjars-c0-exception-final-continuation.log": {
+      "bytes": 1293,
+      "sha256": "aae57d8f3212323c509c43ffaef061f37d02e1bba859fc11b2ded998acb0579f"
+    },
+    "ninjars-c0-exception-final-derivatives.log": {
+      "bytes": 8955,
+      "sha256": "a2fd04542500bf8bcd18d65a8f8429a228d027876f1e3778f12296b35e583c3e"
+    },
+    "ninjars-c0-exception-final-evaluators.log": {
+      "bytes": 592,
+      "sha256": "8b2144b78fb0943e06665f4fbc53b9314f14f4c2cc5dddf198de5245f8609cbe"
+    },
+    "ninjars-c0-exception-final-fixed-conditioning.log": {
+      "bytes": 1088,
+      "sha256": "9dc57c1d71f404a9b074ec2aa349851dafcbafce66ab5d9f7b757a2ae2782398"
+    },
+    "ninjars-c0-exception-final-lib.log": {
+      "bytes": 7244,
+      "sha256": "10ec4795d14b4d0298798fa836d071b72a1cad0c4e75b121f3144fae617b6388"
+    },
+    "ninjars-c0-exception-final-native-contract.log": {
+      "bytes": 340,
+      "sha256": "78e3334d7d8d47433edb686b0075bf5897d08fe6cbe0b56ac314da5c8169b0cd"
+    },
+    "ninjars-c0-exception-final-native.log": {
+      "bytes": 540,
+      "sha256": "df43d09194c5ad6fd1d12c9bee875ad9409ded758b630df195cae021f6bdd84a"
+    },
+    "ninjars-c0-exception-final-projective.log": {
+      "bytes": 184,
+      "sha256": "b9ba5130af7752e7d93a8d879301a482c0fbc06ec5a24b3a4f2930008be4d7d8"
+    },
+    "ninjars-c0-exception-final-results.json": {
+      "bytes": 1065,
+      "sha256": "382a253e5f3378af04628fa6fde9cb49adeeb52b142fbbdae42d31c2f50cbea7"
+    },
+    "ninjars-c0-exception-fmt.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ninjars-c0-exception-generation.log": {
+      "bytes": 1875,
+      "sha256": "160c43426fe8562d813414fd5bb83642d517f983d0d9df6249658016c11f64a2"
+    },
+    "ninjars-c0-exception-initial.log": {
+      "bytes": 14571,
+      "sha256": "a9f0de4b4cff04818c831eabc0e3b53515d248dec1bb1ec20629889cbaa89576"
+    },
+    "ninjars-c0-exception-quadrature.log": {
+      "bytes": 43,
+      "sha256": "98f1b22bcf3cb8856b5f246723df74e301a814c16352763d6cce76f82db01a13"
+    },
+    "probe_c0_exception.rs": {
+      "bytes": 2987,
+      "sha256": "2c8c35a4fe4b735c3775540c24996a41a4b94e1151069be96fa96a8ef8a33f4f"
+    },
+    "triangle_hv.rs": {
+      "bytes": 8208,
+      "sha256": "f65187efdcf2370127f6d3f0992c18465f1f4e7f514ca11ff72bc62e64fe7207"
+    }
+  },
+  "selected_checks": {
+    "passed": 82,
+    "ignored": 3,
+    "intentional_old_exceptional_failure": true,
+    "explicit_old_and_fixed_conditioning_failure": true,
+    "conditioning_component_log_byte_identical": true
+  },
+  "conditioning_failure": {
+    "inputs": [
+      "-1",
+      "-2",
+      "-3",
+      "129/64",
+      "3",
+      "5",
+      "7"
+    ],
+    "first_direction": {
+      "mass0_squared": "i"
+    },
+    "second_direction": {
+      "p2": "2-i"
+    },
+    "taylor_component": [
+      3,
+      0
+    ],
+    "scaled_error": 1.0968975723146756e-08,
+    "unchanged_bound": 9.320206339632216e-10
+  },
+  "fixed_commit": "c838e8ed728eb50e5a92457a1ac5520a5720e20d",
+  "recorded_utc": "2026-10-16T20:44:27.457096+00:00",
+  "upstream_url": "https://github.com/alphal00p/oneloopmaster",
+  "upstream_main_commit": "c838e8ed728eb50e5a92457a1ac5520a5720e20d",
+  "primary_checkouts_unchanged": {
+    "oneloopmaster": "e9d14f7b5fa546af33fced2a421c616220178643",
+    "symbolica": "fd7bced5307e94e994d5deba63c60b8380aa7d02"
+  },
+  "runtimes": [
+    {
+      "name": "lib",
+      "returncode": 0,
+      "seconds": 38.46200756900362,
+      "log": "/tmp/ninjars-c0-exception-final-lib.log"
+    },
+    {
+      "name": "projective",
+      "returncode": 0,
+      "seconds": 25.30539408401819,
+      "log": "/tmp/ninjars-c0-exception-final-projective.log"
+    },
+    {
+      "name": "derivatives",
+      "returncode": 0,
+      "seconds": 141.0901681809919,
+      "log": "/tmp/ninjars-c0-exception-final-derivatives.log"
+    },
+    {
+      "name": "native",
+      "returncode": 0,
+      "seconds": 22.563127450004686,
+      "log": "/tmp/ninjars-c0-exception-final-native.log"
+    },
+    {
+      "name": "native-contract",
+      "returncode": 0,
+      "seconds": 0.008429625973803923,
+      "log": "/tmp/ninjars-c0-exception-final-native-contract.log"
+    },
+    {
+      "name": "evaluators",
+      "returncode": 0,
+      "seconds": 32.39006873400649,
+      "log": "/tmp/ninjars-c0-exception-final-evaluators.log"
+    },
+    {
+      "name": "fixed-conditioning",
+      "returncode": 101,
+      "seconds": 8.594495883997297,
+      "log": "/tmp/ninjars-c0-exception-final-fixed-conditioning.log"
+    }
+  ],
+  "commands": {
+    "generate_native": "cargo run --features rust-codegen --example generate_native -- <output-directory>",
+    "fixed_suite": "RUST_MIN_STACK=134217728 cargo test --features generated-evaluators --lib --test c0_projective --test c0_derivatives --test native --test native_contract --test evaluators -- --test-threads=1",
+    "known_failure": "RUST_MIN_STACK=134217728 cargo test --features generated-evaluators --test c0_derivatives c0_near_projective_f64_derivative_conditioning -- --ignored --exact --test-threads=1",
+    "independent_quadrature": "python tests/generate_c0_projective_fixtures.py"
+  },
+  "independent_oracle": {
+    "library": "mpmath1.4.1",
+    "decimal_digits": [
+      60,
+      90
+    ],
+    "agreement": "1e-58",
+    "central_value": "-0.1352123962254360745373718279434923061705967697749937342472049596370662190371044766001",
+    "rows": 13,
+    "cyclic_routings_per_row": 3,
+    "binary64_input_promotion": false
+  },
+  "retained_diagnostics": {
+    "old_exceptional": {
+      "sha256": "61e9889dda76714646c9effe628f4a488e70ba95722f6dcfcd33dd5f3678a930",
+      "returncode": 101,
+      "relevant_output": [
+        "interpreter projective_zero rotation0: [(NaN+NaNi), (0.0+0.0i), (0.0+0.0i)]",
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.46s"
+      ]
+    },
+    "old_nearby_derivative": {
+      "sha256": "49e02e8c9d72af467441bab6e84ce4c93496b62f50d4ae9e8decbc7f6e746f05",
+      "returncode": 101,
+      "relevant_output": [
+        "f64/Float384 component 5: error=1.09689757231467573722051051472948415064725062181199174170112671670133142140670412073588583427640178269e-8, bound=9.320206339632216482448219141218755557386515151225285718317621429163168764004092328874778071035243037752973354e-10, actual=(-4.148585584069269734295885371450421374994732559571275487542152404785156250000000000000000000000000000000000000000000e-9+-7.495286969158224251938427151742416754132136702537536621093750000000000000000000000000000000000000000000000000000000e-4i), expected=(-1.01e-107+-7.495355173059615026814806243940175198333451480274122107513044691147622281579640670412073588583427640178369e-4i)",
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 8.65s"
+      ]
+    },
+    "fixed_nearby_derivative": {
+      "sha256": "9dc57c1d71f404a9b074ec2aa349851dafcbafce66ab5d9f7b757a2ae2782398",
+      "returncode": 101,
+      "relevant_output": [
+        "f64/Float384 component 5: error=1.09689757231467573722051051472948415064725062181199174170112671670133142140670412073588583427640178269e-8, bound=9.320206339632216482448219141218755557386515151225285718317621429163168764004092328874778071035243037752973354e-10, actual=(-4.148585584069269734295885371450421374994732559571275487542152404785156250000000000000000000000000000000000000000000e-9+-7.495286969158224251938427151742416754132136702537536621093750000000000000000000000000000000000000000000000000000000e-4i), expected=(-1.01e-107+-7.495355173059615026814806243940175198333451480274122107513044691147622281579640670412073588583427640178369e-4i)",
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 8.54s"
+      ]
+    }
+  },
+  "limitations": [
+    "Nearby binary64 third-derivative conditioning remains an explicit identical old/fixed failure.",
+    "No global derivative-domain or performance acceptance is claimed.",
+    "Primary NinjaRS dependency pins remain frozen pending separate coordination.",
+    "Generated baseline source refresh is separate from the formula fix; no generated arithmetic was hand-edited."
+  ]
+}

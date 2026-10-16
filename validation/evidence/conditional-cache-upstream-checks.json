@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "scope": "Completed-conditional reuse in the parent evaluator scope; no arithmetic reassociation or production native batch dispatch.",
+  "focused_pr": "https://github.com/symbolica-dev/symbolica/pull/88",
+  "focused_head": "f629ebc4283bfeca6104e889028f841a7e52ca6a",
+  "integration_head": "2c06f245835d57535418b5d78f711fe191db49cc",
+  "layout": {
+    "before_symbolica": "fd7bced5307e94e994d5deba63c60b8380aa7d02",
+    "oneloopmaster": "e9d14f7b5fa546af33fced2a421c616220178643",
+    "after_worktree": "/shared/external/ninja/references/symbolica_conditional_cache",
+    "after_diff_sha256": "dd2703dfa4cf97aa14805805b827a329b1f38f5c57b51f5558fa86be705b3ab0",
+    "generation_only": true,
+    "generated_master_batches_compiled": false,
+    "production_dispatch_changed": false,
+    "performance_acceptance": false,
+    "timing_note": "Diagnostic construction times, not controlled performance measurements. Baseline uses opt-in draft with policy disabled; generated before source matches prior fd7 source.",
+    "before": [
+      {
+        "mode": "baseline",
+        "family": "a0",
+        "counts": {
+          "bodies": 4,
+          "instructions": 73,
+          "arithmetic": 14,
+          "calls": 7,
+          "branches": 10,
+          "max_arity": 3,
+          "temporary_slots": 9
+        },
+        "scalar_source_bytes": 2277,
+        "batch_source_bytes": 14710,
+        "construction_seconds": 0.008151,
+        "generation_seconds": 0.012216
+      },
+      {
+        "mode": "baseline",
+        "family": "b0",
+        "counts": {
+          "bodies": 4,
+          "instructions": 606,
+          "arithmetic": 142,
+          "calls": 36,
+          "branches": 87,
+          "max_arity": 3,
+          "temporary_slots": 16
+        },
+        "scalar_source_bytes": 13957,
+        "batch_source_bytes": 97199,
+        "construction_seconds": 0.019792,
+        "generation_seconds": 0.038982
+      },
+      {
+        "mode": "baseline",
+        "family": "db0",
+        "counts": {
+          "bodies": 4,
+          "instructions": 2858,
+          "arithmetic": 760,
+          "calls": 188,
+          "branches": 392,
+          "max_arity": 5,
+          "temporary_slots": 23
+        },
+        "scalar_source_bytes": 36952,
+        "batch_source_bytes": 438758,
+        "construction_seconds": 0.018836,
+        "generation_seconds": 0.11715
+      },
+      {
+        "mode": "baseline",
+        "family": "c0",
+        "counts": {
+          "bodies": 33,
+          "instructions": 11014,
+          "arithmetic": 4577,
+          "calls": 2171,
+          "branches": 922,
+          "max_arity": 6,
+          "temporary_slots": 337
+        },
+        "scalar_source_bytes": 193880,
+        "batch_source_bytes": 2590518,
+        "construction_seconds": 1.11761,
+        "generation_seconds": 1.747774
+      },
+      {
+        "mode": "baseline",
+        "family": "d0",
+        "counts": {
+          "bodies": 54,
+          "instructions": 209051,
+          "arithmetic": 58422,
+          "calls": 25503,
+          "branches": 25772,
+          "max_arity": 8,
+          "temporary_slots": 1061
+        },
+        "scalar_source_bytes": 1841627,
+        "batch_source_bytes": 57591828,
+        "construction_seconds": 3.452853,
+        "generation_seconds": 39.533604
+      }
+    ],
+    "after": [
+      {
+        "mode": "baseline",
+        "family": "a0",
+        "counts": {
+          "bodies": 4,
+          "instructions": 43,
+          "arithmetic": 14,
+          "calls": 7,
+          "branches": 4,
+          "max_arity": 3,
+          "temporary_slots": 9
+        },
+        "scalar_source_bytes": 2271,
+        "batch_source_bytes": 10228,
+        "construction_seconds": 0.006515,
+        "generation_seconds": 0.009983,
+        "source_sha256": "1f7e94b7232a64f794a47db676c62751245d09577586c0b65fbe3c9aa12f532c"
+      },
+      {
+        "mode": "baseline",
+        "family": "b0",
+        "counts": {
+          "bodies": 4,
+          "instructions": 366,
+          "arithmetic": 142,
+          "calls": 36,
+          "branches": 39,
+          "max_arity": 3,
+          "temporary_slots": 16
+        },
+        "scalar_source_bytes": 13949,
+        "batch_source_bytes": 60295,
+        "construction_seconds": 0.005637,
+        "generation_seconds": 0.019986,
+        "source_sha256": "35b2c41b1c741d39560e01f82b798032dfdd3da04a27f18e403cda10ca9d811f"
+      },
+      {
+        "mode": "baseline",
+        "family": "db0",
+        "counts": {
+          "bodies": 4,
+          "instructions": 1568,
+          "arithmetic": 712,
+          "calls": 170,
+          "branches": 146,
+          "max_arity": 5,
+          "temporary_slots": 23
+        },
+        "scalar_source_bytes": 36950,
+        "batch_source_bytes": 240248,
+        "construction_seconds": 0.039711,
+        "generation_seconds": 0.113475,
+        "source_sha256": "e64ccdc02f2240f98d595f4b0f630a2c9f758a37915586e781b0911282bf1737"
+      },
+      {
+        "mode": "baseline",
+        "family": "c0",
+        "counts": {
+          "bodies": 33,
+          "instructions": 6851,
+          "arithmetic": 2954,
+          "calls": 1699,
+          "branches": 508,
+          "max_arity": 6,
+          "temporary_slots": 324
+        },
+        "scalar_source_bytes": 193769,
+        "batch_source_bytes": 1928995,
+        "construction_seconds": 1.125674,
+        "generation_seconds": 1.543586,
+        "source_sha256": "7af45b1b1fae70b03454d5ab0042fd36a4395c967ea25476f181e137c1efd304"
+      },
+      {
+        "mode": "baseline",
+        "family": "d0",
+        "counts": {
+          "bodies": 54,
+          "instructions": 78040,
+          "arithmetic": 33472,
+          "calls": 10839,
+          "branches": 7437,
+          "max_arity": 8,
+          "temporary_slots": 939
+        },
+        "scalar_source_bytes": 1829632,
+        "batch_source_bytes": 14349679,
+        "construction_seconds": 3.142954,
+        "generation_seconds": 10.413142,
+        "source_sha256": "0dc9b9f1a9d7d830d3f626ca57cccbada7b4e5fe7881b362e04cfd7e5efd4af7"
+      }
+    ],
+    "source": "/shared/external/ninja/references/oneloopmaster_conditional_cache/examples/inspect_conditional_cache.rs",
+    "after_symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "focused_pr": "https://github.com/symbolica-dev/symbolica/pull/88",
+    "focused_upstream_head": "f629ebc4283bfeca6104e889028f841a7e52ca6a"
+  },
+  "validation": {
+    "integration_evaluators": {
+      "passed": 69,
+      "log": "integration-evaluator-tests.log",
+      "log_sha256": "af7c8de2b686e210da633e479890b8bf4f25851104b3f5a6bf0bc844be5843ca"
+    },
+    "master_numeric_matrix": {
+      "passed": 1,
+      "rows": 293,
+      "precisions": [
+        "f64",
+        "DoubleFloat",
+        "Float256"
+      ],
+      "batch_sizes": [
+        0,
+        1,
+        3,
+        31,
+        256
+      ],
+      "includes_scalar": true,
+      "input_oracle": "promoted binary64 original fixtures; not an arbitrary-precision input oracle",
+      "log": "master-fixtures.log",
+      "log_sha256": "3adf602bef72637637a1d44fd45536b6a950b9512bb09dd8f448019c9b46b1b3"
+    },
+    "existing_rust_batch_codegen": {
+      "passed": 1,
+      "log": "rust-batch-codegen.log",
+      "log_sha256": "5f24264691debc35e88d877546d3e14aa4a36a21997040daa0337a3e7bc32c35"
+    },
+    "existing_jit_master_fixtures": {
+      "passed": 2,
+      "rows": 293,
+      "includes_eager_initialize_and_restored_cache": true,
+      "log": "jit-fixtures.log",
+      "log_sha256": "1d73d1872e982798910740f7f9988ff48e114297b4836bd04079097385744e26"
+    },
+    "existing_c0_derivatives": {
+      "passed": 2,
+      "log": "c0-derivatives.log",
+      "log_sha256": "ba1825a3e3cb27fbd8a6cf86b1b3a8c436381675d8bf376dfe62ab4833474ccd"
+    },
+    "upstream_evaluators": {
+      "passed": 51,
+      "log": "upstream-evaluator-tests.log",
+      "log_sha256": "82f43f93f11c7809cf4bb52b8e9a281bbe165e60fa963cb894f8e80ddc64f482"
+    }
+  },
+  "logs": {
+    "baseline-failing-tests.log": {
+      "sha256": "9bcfaf26e5d79603991a5d37e2e3ab9623d8623f9754b276310849ff9c9bf84b",
+      "text": "\nrunning 2 tests\ntest evaluate::test::completed_conditionals_reuse_only_their_parent_scope ... \nthread 'evaluate::test::completed_conditionals_reuse_only_their_parent_scope' (3953700) panicked at src/evaluate.rs:596:9:\nassertion `left == right` failed\n  left: 2\n right: 1\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nFAILED\ntest evaluate::test::completed_shared_conditionals_keep_captures_and_mixed_dual_components ... \nthread 'evaluate::test::completed_shared_conditionals_keep_captures_and_mixed_dual_components' (3953703) panicked at src/evaluate.rs:652:9:\nassertion `left == right` failed\n  left: 2\n right: 1\nFAILED\n\nfailures:\n\nfailures:\n    evaluate::test::completed_conditionals_reuse_only_their_parent_scope\n    evaluate::test::completed_shared_conditionals_keep_captures_and_mixed_dual_components\n\ntest result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 842 filtered out; finished in 0.01s\n\n"
+    },
+    "c0-derivatives.log": {
+      "sha256": "ba1825a3e3cb27fbd8a6cf86b1b3a8c436381675d8bf376dfe62ab4833474ccd",
+      "text": "\nrunning 2 tests\ntest c0_degree_five_complex_scaling ... ok\ntest massive_spacelike_c0_higher_mixed_controls ... negative K\u00e4ll\u00e9n: directions 0/4, component=1,0, final error=3.28277685017750875063720102226313591197185078396140520879e-52\nnegative K\u00e4ll\u00e9n: directions 0/4, component=0,1, final error=4.064646161339395346202854996101589499503237367345047286747804e-48\nnegative K\u00e4ll\u00e9n: directions 0/4, component=2,0, final error=2.502747326274128763930166145015569206740626654106e-53\nnegative K\u00e4ll\u00e9n: directions 0/4, component=1,1, final error=8.95526539604028471223736070177253416021063624872838700e-49\nnegative K\u00e4ll\u00e9n: directions 0/4, component=3,0, final error=1.257693259306937533074860075987085989024536377645270384304e-37\nnegative K\u00e4ll\u00e9n: directions 0/4, component=2,1, final error=1.749367796753692528879258707458609931823433667e-49\nnegative K\u00e4ll\u00e9n: directions 3/2, component=1,0, final error=1.3940295797698138765285738782561275119965932417995946334376666e-47\nnegative K\u00e4ll\u00e9n: directions 3/2, component=0,1, final error=5.2247133941770224553781535686225195905615733036057832844e-53\nnegative K\u00e4ll\u00e9n: directions 3/2, component=2,0, final error=5.36907853678425841388568058435890286497120814571409259e-48\nnegative K\u00e4ll\u00e9n: directions 3/2, component=1,1, final error=3.9538212645662652362414014783421995796474917473851821479e-48\nnegative K\u00e4ll\u00e9n: directions 3/2, component=3,0, final error=5.34078825874555971492091404799892514878370521026619162471830356e-33\nnegative K\u00e4ll\u00e9n: directions 3/2, component=2,1, final error=1.5562901685464976819090471801302861161042215974e-48\npositive K\u00e4ll\u00e9n: directions 0/4, component=1,0, final error=2.9833512876954309535585657196440812161379388524926211939691e-52\npositive K\u00e4ll\u00e9n: directions 0/4, component=0,1, final error=5.0151018510441472469209324311186236924152340419671768751006398e-48\npositive K\u00e4ll\u00e9n: directions 0/4, component=2,0, final error=2.2707330395334023588189909831319589190540490506984e-53\npositive K\u00e4ll\u00e9n: directions 0/4, component=1,1, final error=1.0312394938277079126969065750052255440594014073812160539e-48\npositive K\u00e4ll\u00e9n: directions 0/4, component=3,0, final error=1.1429777215823631425755129834173263101397753528899650349160e-37\npositive K\u00e4ll\u00e9n: directions 0/4, component=2,1, final error=1.924650192894716607919431502571647657186344563996e-49\npositive K\u00e4ll\u00e9n: directions 3/2, component=1,0, final error=9.59190878038442903004462424995556892612293125276041552545410436e-48\npositive K\u00e4ll\u00e9n: directions 3/2, component=0,1, final error=1.07373112512299517107918861344110156033368974384598026255e-53\npositive K\u00e4ll\u00e9n: directions 3/2, component=2,0, final error=3.661625415862466817823072376318556714030651084826210185e-48\npositive K\u00e4ll\u00e9n: directions 3/2, component=1,1, final error=1.9002229647477896515345673253051911383509330578355378117e-48\npositive K\u00e4ll\u00e9n: directions 3/2, component=3,0, final error=3.674839797997297278316520188881082582023046070471751231528651598e-33\npositive K\u00e4ll\u00e9n: directions 3/2, component=2,1, final error=7.341101147476831241855919236220563130738487564948e-49\nnegative K\u00e4ll\u00e9n/equal masses: directions 0/4, component=1,0, final error=1.0715385664645963732559066093965813162399884436405108010e-52\nnegative K\u00e4ll\u00e9n/equal masses: directions 0/4, component=0,1, final error=3.953932108260105155454602068892682469423858186748557064688098e-48\nnegative K\u00e4ll\u00e9n/equal masses: directions 0/4, component=2,0, final error=6.8555677830002116088982507020690115177515509330e-54\nnegative K\u00e4ll\u00e9n/equal masses: directions 0/4, component=1,1, final error=6.8453941757335353504530996727835999953104609775566920e-49\nnegative K\u00e4ll\u00e9n/equal masses: directions 0/4, component=3,0, final error=4.10526482193594635651679549509398109494927479324920639081e-38\nnegative K\u00e4ll\u00e9n/equal masses: directions 0/4, component=2,1, final error=1.06998092962860094722824753955909399478113449e-49\nnegative K\u00e4ll\u00e9n/equal masses: directions 3/2, component=1,0, final error=1.451348266594112251866406036393553092977615874475956319149505e-48\nnegative K\u00e4ll\u00e9n/equal masses: directions 3/2, component=0,1, final error=9.2594657679892714588487816489680296350604229799245770223e-53\nnegative K\u00e4ll\u00e9n/equal masses: directions 3/2, component=2,0, final error=3.766631603643757497651518404695059444743301752097549e-49\nnegative K\u00e4ll\u00e9n/equal masses: directions 3/2, component=1,1, final error=4.9343836963335429121369254755178330730224799443197472e-49\nnegative K\u00e4ll\u00e9n/equal masses: directions 3/2, component=3,0, final error=5.560386877053556322593833897964581890408160522844231959535793e-34\nnegative K\u00e4ll\u00e9n/equal masses: directions 3/2, component=2,1, final error=1.31976420857681136200492744133922249711431721e-49\npositive K\u00e4ll\u00e9n/equal masses: directions 0/4, component=1,0, final error=9.904506395141578877055029880131903315060248120253233913043e-53\npositive K\u00e4ll\u00e9n/equal masses: directions 0/4, component=0,1, final error=5.3142462289871864546512615981214611530777927705669506858798100e-48\npositive K\u00e4ll\u00e9n/equal masses: directions 0/4, component=2,0, final error=6.3286802930165351473989339270998564280907495363743e-54\npositive K\u00e4ll\u00e9n/equal masses: directions 0/4, component=1,1, final error=8.4871879521719797670481377773322703694110259848061079474e-49\npositive K\u00e4ll\u00e9n/equal masses: directions 0/4, component=3,0, final error=3.7946017955068873770799976588965459002187755404824261332394e-38\npositive K\u00e4ll\u00e9n/equal masses: directions 0/4, component=2,1, final error=1.25637460164260237377324622527678466095836456644e-49\npositive K\u00e4ll\u00e9n/equal masses: directions 3/2, component=1,0, final error=9.4585572809971263364528592323060444678164878735613261611773577e-49\npositive K\u00e4ll\u00e9n/equal masses: directions 3/2, component=0,1, final error=1.73574572424900571179644232805851014949614223360344947120e-53\npositive K\u00e4ll\u00e9n/equal masses: directions 3/2, component=2,0, final error=2.42139340658802280006140500494752245990102550172777418e-49\npositive K\u00e4ll\u00e9n/equal masses: directions 3/2, component=1,1, final error=2.144631999976736362810667295393482928596188463301390953e-49\npositive K\u00e4ll\u00e9n/equal masses: directions 3/2, component=3,0, final error=3.6237503424685694128895895551066086017923581862782219108985694e-34\npositive K\u00e4ll\u00e9n/equal masses: directions 3/2, component=2,1, final error=5.57438618810849552353314958229581953014166845656e-50\nok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 85.27s\n\n"
+    },
+    "integration-evaluator-tests.log": {
+      "sha256": "af7c8de2b686e210da633e479890b8bf4f25851104b3f5a6bf0bc844be5843ca",
+      "text": "\nrunning 69 tests\ntest evaluate::backend::tests::compiled_dimensions_survive_reload_and_function_switch ... \nthread 'evaluate::backend::tests::compiled_dimensions_survive_reload_and_function_switch' (3984347) panicked at src/evaluate/backend.rs:1836:9:\nassertion `left == right` failed: Incorrect compiled evaluator input length\n  left: 1\n right: 2\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\nthread 'evaluate::backend::tests::compiled_dimensions_survive_reload_and_function_switch' (3984347) panicked at src/evaluate/backend.rs:1841:9:\nassertion `left == right` failed: Incorrect compiled evaluator output length\n  left: 0\n right: 1\nok\ntest evaluate::backend::tests::generic_cpp_nonoverlapping_complex_buffers ... ok\ntest evaluate::backend::tests::generic_cpp_nonoverlapping_real_buffers ... ok\ntest evaluate::batch::tests::batch_calls_are_instruction_major_and_skip_inactive_lanes ... ok\ntest evaluate::batch::tests::batch_complex_precision_domains_and_flattened_duals ... ok\ntest evaluate::batch::tests::batch_constant_outputs_and_oversized_dimensions ... ok\ntest evaluate::batch::tests::batch_polynomial_and_buffer_shapes ... ok\ntest evaluate::batch::tests::batch_shared_functions_keep_inactive_branches_lazy ... ok\ntest evaluate::domain::ball_tests::polynomial_evaluators_enclose_exact_rational_values ... ok\ntest evaluate::domain::ball_tests::rounded_constants_and_float_callback_fallbacks_are_not_admitted ... ok\ntest evaluate::dual::test::absolute_value_preserves_extreme_primal_scales ... ok\ntest evaluate::dual::test::absolute_value_preserves_real_higher_input_components ... ok\ntest evaluate::dual::test::automatic_custom_function_reuses_scalar_output ... ok\ntest evaluate::dual::test::automatic_mixed_derivatives_and_multiple_arguments ... ok\ntest evaluate::dual::test::automatic_tanh_higher_derivatives ... ok\ntest evaluate::dual::test::complex_absolute_value_real_parameter_derivatives ... ok\ntest evaluate::dual::test::deep_shared_dual_constants_stay_bounded ... shared Dual depth=1, constants=30, max_parameters=40\nshared Dual depth=2, constants=30, max_parameters=40\nshared Dual depth=4, constants=30, max_parameters=40\nshared Dual depth=8, constants=30, max_parameters=40\nok\ntest evaluate::dual::test::explicit_vector_function_still_overrides_generation ... ok\ntest evaluate::dual::test::generated_derivatives_preserve_branches_and_labels ... ok\ntest evaluate::dual::test::imported_registered_constants_keep_distinct_placeholders ... ok\ntest evaluate::dual::test::missing_derivatives_report_an_error ... ok\ntest evaluate::dual::test::nested_shared_branches_preserve_all_vector_components ... ok\ntest evaluate::dual::test::scalar_constant_import_keeps_vectorizers_without_equality_supported ... ok\ntest evaluate::dual::test::shared_function_parameters_do_not_inherit_root_zero_assumptions ... ok\ntest evaluate::dual::test::shared_functions_preserve_captures_branches_and_higher_derivatives ... ok\ntest evaluate::dual::test::shared_vectorized_functions_export_merge_and_serialize ... ok\ntest evaluate::dual::test::unknown_constant ... ok\ntest evaluate::evaluator::cse_tests::dependent_duplicates_collapse_in_one_pass ... ok\ntest evaluate::evaluator::cse_tests::nested_multi_result_branches_keep_common_operations_in_scope ... ok\ntest evaluate::evaluator::tests::callback_stack_survives_stack_rewrites_and_unwinding ... \nthread 'evaluate::evaluator::tests::callback_stack_survives_stack_rewrites_and_unwinding' (3985108) panicked at src/evaluate/evaluator.rs:1550:13:\ntest callback failure\n\nthread 'evaluate::evaluator::tests::callback_stack_survives_stack_rewrites_and_unwinding' (3985108) panicked at src/evaluate/evaluator.rs:1550:13:\ntest callback failure\nok\ntest evaluate::evaluator::tests::coefficient_conversion_shares_function_bodies ... ok\ntest evaluate::evaluator::tests::common_pair_elimination_revalidates_multiplicity ... ok\ntest evaluate::evaluator::tests::evaluated_stacks_can_be_merged_with_nested_callbacks ... ok\ntest evaluate::evaluator::tests::loading_legacy_function_bodies_requires_rebuilding ... ok\ntest evaluate::evaluator::tests::merged_functions_share_one_global_table_and_reuse_their_stacks ... ok\ntest evaluate::test::arb_prec ... ok\ntest evaluate::test::branching ... ok\ntest evaluate::test::completed_conditionals_reuse_only_their_parent_scope ... ok\ntest evaluate::test::completed_shared_conditionals_keep_captures_and_mixed_dual_components ... ok\ntest evaluate::test::constant_with_args ... ok\ntest evaluate::test::cpp_asm_export_includes_nested_sub_evaluators ... ok\ntest evaluate::test::eval_fun ... ok\ntest evaluate::test::evaluate ... ok\ntest evaluate::test::export_cpp_includes_evaluation_info_snippet ... ok\ntest evaluate::test::exported_sub_evaluator_preserves_external_calls ... ok\ntest evaluate::test::function_map_inconsistent_tag_count_returns_evaluation_error ... ok\ntest evaluate::test::function_registration_options_can_be_serialized ... ok\ntest evaluate::test::function_registration_options_control_inlining ... ok\ntest evaluate::test::jit_compile ... ok\ntest evaluate::test::jit_compiles_nested_sub_evaluators ... ok\ntest evaluate::test::jit_compiles_non_inlined_function_registered_with_options ... ok\ntest evaluate::test::jit_compiles_repeated_nested_sub_evaluator_calls ... ok\ntest evaluate::test::nested ... ok\ntest evaluate::test::non_inlined_alias_recursion_cannot_be_broken_by_caller_bindings ... ok\ntest evaluate::test::non_inlined_function_capture_inputs ... ok\ntest evaluate::test::non_inlined_function_discovers_only_required_captures ... ok\ntest evaluate::test::non_inlined_function_hoists_external_constants_without_changing_call_indices ... ok\ntest evaluate::test::non_inlined_function_ignores_caller_function_parameters ... ok\ntest evaluate::test::non_inlined_function_requires_declared_arguments_when_used_as_a_variable ... ok\ntest evaluate::test::non_inlined_function_resolves_capture_alias_with_explicit_arguments ... ok\ntest evaluate::test::non_inlined_function_reuses_body_across_scopes ... ok\ntest evaluate::test::non_inlined_function_reuses_body_for_repeated_nested_calls ... ok\ntest evaluate::test::non_inlined_function_reuses_temporary_stack_slots ... ok\ntest evaluate::test::non_inlined_function_uses_sub_evaluator ... ok\ntest evaluate::test::non_inlined_recursive_function_returns_error ... ok\ntest evaluate::test::non_inlined_stack_reuse_preserves_nested_lazy_branches ... ok\ntest evaluate::test::vectorize_dual ... ok\ntest evaluate::test::vectorize_dual_with_external ... ok\ntest evaluate::tree::external_cache_tests::direct_external_calls_share_across_vector_outputs_without_optimizer ... ok\n\ntest result: ok. 69 passed; 0 failed; 0 ignored; 0 measured; 775 filtered out; finished in 3.57s\n\n"
+    },
+    "jit-fixtures.log": {
+      "sha256": "1d73d1872e982798910740f7f9988ff48e114297b4836bd04079097385744e26",
+      "text": "\nrunning 2 tests\ntest eager_initialization_compiles_every_shared_master_body ... ok\ntest portable_scalar_caches_and_mixed_batches_match_original_fixtures ... A0: 4 scalar fixtures, six batch layouts, 1890 serialized bytes\nB0: 13 scalar fixtures, six batch layouts, 14879 serialized bytes\ndB0: 12 scalar fixtures, six batch layouts, 71900 serialized bytes\nC0: 125 scalar fixtures, six batch layouts, 179715 serialized bytes\nD0: 139 scalar fixtures, six batch layouts, 4333474 serialized bytes\nok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 34.96s\n\n"
+    },
+    "master-fixtures.log": {
+      "sha256": "3adf602bef72637637a1d44fd45536b6a950b9512bb09dd8f448019c9b46b1b3",
+      "text": "\nrunning 1 test\ntest cached_conditionals_match_scalar_native_and_batches_in_three_precisions ... A0 4 rows precision=53 bits max_scaled_native_error=0e0\nA0 4 rows precision=106 bits max_scaled_native_error=0e0\nA0 4 rows precision=256 bits max_scaled_native_error=0e0\nB0 13 rows precision=53 bits max_scaled_native_error=4.440892098500626e-16\nB0 13 rows precision=106 bits max_scaled_native_error=1.5407439555097887e-32\nB0 13 rows precision=256 bits max_scaled_native_error=1.727233711018889e-77\ndB0 12 rows precision=53 bits max_scaled_native_error=2.220446049250313e-16\ndB0 12 rows precision=106 bits max_scaled_native_error=2.1570415377137042e-32\ndB0 12 rows precision=256 bits max_scaled_native_error=5.397605346934028e-78\nC0 125 rows precision=53 bits max_scaled_native_error=1.324462836451307e-12\nC0 125 rows precision=106 bits max_scaled_native_error=1.653593451781318e-28\nC0 125 rows precision=256 bits max_scaled_native_error=6.833445302753719e-74\nD0 139 rows precision=53 bits max_scaled_native_error=8.838855177238928e-15\nD0 139 rows precision=106 bits max_scaled_native_error=2.3159474187892994e-30\nD0 139 rows precision=256 bits max_scaled_native_error=8.843436600416711e-74\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 46.44s\n\n"
+    },
+    "rust-batch-codegen.log": {
+      "sha256": "5f24264691debc35e88d877546d3e14aa4a36a21997040daa0337a3e7bc32c35",
+      "text": "\nrunning 1 test\ntest generated_batch_numeric_precision_dual_trace_and_allocation_contracts ... ordinary source: scalar_bytes=1049 scalar_plus_batch_bytes=4309\nlazy source: scalar_plus_batch_bytes=10011 flattened_dual_bytes=117108\nnative batch probe: source_bytes=233799 prepare_and_emit_seconds=0.025791 optimized_rustc_seconds=26.459034; instruction-major trace=[(\"log\", 1.0), (\"log\", 4.0), (\"log\", 9.0), (\"sqrt\", 1.0), (\"sqrt\", 4.0), (\"sqrt\", 9.0), (\"abs\", 1.0), (\"abs\", 4.0), (\"abs\", 9.0)]\nwarmed f64 allocation count=0; fresh single-row allocation count=0; numeric/precision/Dual controls passed\nlazy active-lane trace=[(\"log\", 4.0), (\"log\", 9.0), (\"sqrt\", 4.0), (\"sqrt\", 9.0), (\"powi\", 2.0), (\"powi\", 4.0)]; retained stride=128\nlazy warmed allocation count=0; inactive singular arms skipped\n\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 26.89s\n\n"
+    },
+    "upstream-evaluator-tests.log": {
+      "sha256": "82f43f93f11c7809cf4bb52b8e9a281bbe165e60fa963cb894f8e80ddc64f482",
+      "text": "\nrunning 51 tests\ntest evaluate::backend::tests::compiled_dimensions_survive_reload_and_function_switch ... \nthread 'evaluate::backend::tests::compiled_dimensions_survive_reload_and_function_switch' (4138707) panicked at src/evaluate/backend.rs:1836:9:\nassertion `left == right` failed: Incorrect compiled evaluator input length\n  left: 1\n right: 2\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\nthread 'evaluate::backend::tests::compiled_dimensions_survive_reload_and_function_switch' (4138707) panicked at src/evaluate/backend.rs:1841:9:\nassertion `left == right` failed: Incorrect compiled evaluator output length\n  left: 0\n right: 1\nok\ntest evaluate::backend::tests::generic_cpp_nonoverlapping_complex_buffers ... ok\ntest evaluate::backend::tests::generic_cpp_nonoverlapping_real_buffers ... ok\ntest evaluate::domain::ball_tests::polynomial_evaluators_enclose_exact_rational_values ... ok\ntest evaluate::domain::ball_tests::rounded_constants_and_float_callback_fallbacks_are_not_admitted ... ok\ntest evaluate::dual::test::automatic_custom_function_reuses_scalar_output ... ok\ntest evaluate::dual::test::automatic_mixed_derivatives_and_multiple_arguments ... ok\ntest evaluate::dual::test::automatic_tanh_higher_derivatives ... ok\ntest evaluate::dual::test::explicit_vector_function_still_overrides_generation ... ok\ntest evaluate::dual::test::generated_derivatives_preserve_branches_and_labels ... ok\ntest evaluate::dual::test::missing_derivatives_report_an_error ... ok\ntest evaluate::dual::test::unknown_constant ... ok\ntest evaluate::evaluator::cse_tests::dependent_duplicates_collapse_in_one_pass ... ok\ntest evaluate::evaluator::tests::callback_stack_survives_stack_rewrites_and_unwinding ... \nthread 'evaluate::evaluator::tests::callback_stack_survives_stack_rewrites_and_unwinding' (4139023) panicked at src/evaluate/evaluator.rs:1538:13:\ntest callback failure\n\nthread 'evaluate::evaluator::tests::callback_stack_survives_stack_rewrites_and_unwinding' (4139023) panicked at src/evaluate/evaluator.rs:1538:13:\ntest callback failure\nok\ntest evaluate::evaluator::tests::coefficient_conversion_shares_function_bodies ... ok\ntest evaluate::evaluator::tests::common_pair_elimination_revalidates_multiplicity ... ok\ntest evaluate::evaluator::tests::evaluated_stacks_can_be_merged_with_nested_callbacks ... ok\ntest evaluate::evaluator::tests::loading_legacy_function_bodies_requires_rebuilding ... ok\ntest evaluate::evaluator::tests::merged_functions_share_one_global_table_and_reuse_their_stacks ... ok\ntest evaluate::test::arb_prec ... ok\ntest evaluate::test::branching ... ok\ntest evaluate::test::completed_conditionals_reuse_only_their_parent_scope ... ok\ntest evaluate::test::completed_shared_conditionals_preserve_captures_and_calls ... ok\ntest evaluate::test::constant_with_args ... ok\ntest evaluate::test::cpp_asm_export_includes_nested_sub_evaluators ... ok\ntest evaluate::test::eval_fun ... ok\ntest evaluate::test::evaluate ... ok\ntest evaluate::test::export_cpp_includes_evaluation_info_snippet ... ok\ntest evaluate::test::exported_sub_evaluator_preserves_external_calls ... ok\ntest evaluate::test::function_map_inconsistent_tag_count_returns_evaluation_error ... ok\ntest evaluate::test::function_registration_options_can_be_serialized ... ok\ntest evaluate::test::function_registration_options_control_inlining ... ok\ntest evaluate::test::jit_compile ... ok\ntest evaluate::test::jit_compiles_nested_sub_evaluators ... ok\ntest evaluate::test::jit_compiles_non_inlined_function_registered_with_options ... ok\ntest evaluate::test::jit_compiles_repeated_nested_sub_evaluator_calls ... ok\ntest evaluate::test::nested ... ok\ntest evaluate::test::non_inlined_alias_recursion_cannot_be_broken_by_caller_bindings ... ok\ntest evaluate::test::non_inlined_function_capture_inputs ... ok\ntest evaluate::test::non_inlined_function_discovers_only_required_captures ... ok\ntest evaluate::test::non_inlined_function_hoists_external_constants_without_changing_call_indices ... ok\ntest evaluate::test::non_inlined_function_ignores_caller_function_parameters ... ok\ntest evaluate::test::non_inlined_function_requires_declared_arguments_when_used_as_a_variable ... ok\ntest evaluate::test::non_inlined_function_resolves_capture_alias_with_explicit_arguments ... ok\ntest evaluate::test::non_inlined_function_reuses_body_across_scopes ... ok\ntest evaluate::test::non_inlined_function_reuses_body_for_repeated_nested_calls ... ok\ntest evaluate::test::non_inlined_function_uses_sub_evaluator ... ok\ntest evaluate::test::non_inlined_recursive_function_returns_error ... ok\ntest evaluate::test::vectorize_dual ... ok\ntest evaluate::test::vectorize_dual_with_external ... ok\ntest evaluate::tree::external_cache_tests::direct_external_calls_share_across_vector_outputs_without_optimizer ... ok\n\ntest result: ok. 51 passed; 0 failed; 0 ignored; 0 measured; 772 filtered out; finished in 3.52s\n\n"
+    }
+  },
+  "source_sha256": {
+    "validation/symbolica/conditional_cache/conditional_cache.rs": "50ccd04673a4edb2baa47e655a5105e1731ce17060f7641e0d5114ab25141b86",
+    "validation/symbolica/conditional_cache/inspect_conditional_cache.rs": "a12eecd5bc2227f2befc5b0870ff9b7155b8b39a17fc1a449e3de86ce4459b45"
+  },
+  "performance_acceptance": false
+}

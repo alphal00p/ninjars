@@ -1094,3 +1094,34 @@ connects the existing kernels into integrated amplitudes and a standalone
   cross-basis rational-separation acceptance is claimed. The Euclidean C0
   exceptional point remains a separately documented failing regression at these
   pins; its isolated fix is still under validation.
+
+### Upstream conditional reuse and regular C0 limit (2026-10-16)
+
+- Symbolica [PR 88](https://github.com/symbolica-dev/symbolica/pull/88), focused
+  head `f629ebc4`, reuses completed conditional expressions in their parent
+  scope while preserving branch-local evaluation and arithmetic order. The
+  downstream integration is `2c06f245`. It passes 51 upstream and 69 integration
+  evaluator tests, all 293 original master fixtures across three precisions,
+  existing batch/JIT controls and C0 derivative tests. The new shape tests fail
+  on the old revision. Supplementary sources and reproduction instructions are
+  in `validation/symbolica/conditional_cache`; raw logs and identities are in
+  `validation/evidence/conditional-cache-upstream-checks.json`.
+- The D0 instruction graph shrinks from 209,051 to 78,040 instructions and its
+  generated batch source from 57.59 MB to 14.35 MB. These master batches have
+  not been compiled or enabled in production; diagnostic construction timings
+  are not a runtime performance result.
+- The regular Euclidean C0 failure is fixed on oneloopmaster `main` at
+  `c838e8ed`, following separately recorded mechanical regeneration `06e24194`.
+  An inactive, locally constant sheet correction now skips its singular
+  logarithm through the existing lazy helper. Native and interpreted values
+  previously returned NaN at `(-1,-2,-3; 2,3,5; scale_squared=7)`. Independent
+  60/90-digit parameter quadrature supplies the finite control; 39 nearby
+  point/routing controls and central higher/mixed derivatives pass.
+- The selected upstream suite passes 82 tests with three explicitly ignored
+  diagnostics. The nearby f64 third derivative still misses its unchanged gate
+  identically before and after the patch (`1.09690e-8` error versus `9.32021e-10`
+  bound). Both asserting failures are retained. Evidence, source hashes and
+  commands are in `validation/evidence/c0-projective-validation.json`.
+- The upstream push was a verified fast-forward, without a new oneloopmaster
+  PR. Primary dependency checkouts remain on `fd7bced5/e9d14f7` until the frozen
+  physical matrix completes; adopting these tested changes is the next step.
