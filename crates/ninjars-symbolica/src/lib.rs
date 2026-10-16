@@ -21,6 +21,7 @@ pub use native_kernels::{KernelBackend, KernelBackendSelection, KernelFamily};
 mod pentagon_kernels;
 mod polynomial;
 mod projection;
+mod rank_specialization;
 #[cfg(feature = "reference-codegen")]
 mod reference;
 #[cfg(feature = "rust-codegen")]

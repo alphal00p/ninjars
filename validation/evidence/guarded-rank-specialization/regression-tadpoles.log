@@ -1,0 +1,10 @@
+
+running 6 tests
+test double_double_and_arbitrary_precision_tadpole_coefficients ... ok
+test exact_propagator_cancellation_and_both_nonzero_parent_families ... ok
+test higher_mixed_dual_mu_coefficients_and_nonfinite_components ... ok
+test higher_mixed_dual_parent_residue_is_removed_componentwise ... ok
+test parent_failures_provenance_and_unchanged_outputs ... ok
+test single_propagator_projection_and_lane_permutations ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.06s

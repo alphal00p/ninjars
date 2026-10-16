@@ -1,0 +1,24 @@
+
+running 19 tests
+test bubble_kernels::denominator_reuse_tests::full_higher_mixed_dual_components_and_failed_retry ... ok
+test bubble_kernels::denominator_reuse_tests::native_full_coefficients_and_exact_executed_denominator_counts ... ok
+test bubble_kernels::denominator_reuse_tests::ordinary_full_coefficients_and_exact_executed_denominator_counts ... ok
+test bubble_kernels::denominator_reuse_tests::precision_and_changed_batch_metadata_match_standalone ... ok
+test bubble_kernels::denominator_reuse_tests::rank_specialization_full_lower_stage_coefficient_parity ... ok
+test bubble_kernels::denominator_reuse_tests::selected_parent_errors_are_skipped_only_for_failed_bubble_targets_and_retry_is_clean ... ok
+test bubble_kernels::denominator_reuse_tests::tadpole_parent_failures_standalone_and_distinct_borrows_remain_correct ... ok
+test bubble_kernels::denominator_reuse_tests::zero_parent_and_empty_combined_calls_use_no_denominator_rows ... ok
+test kernel::jit_probe::complex_reduction_jit_matches_interpreter ... JIT_REDUCTION_CONTROL components=48720 max_scaled_error=0.000000000000004643260276654372
+ok
+test kernel::jit_probe::reduction_jit_microbenchmark ... ignored, diagnostic microbenchmark; run optimized, alone, with --nocapture
+test polynomial::coefficient_preservation_tests::coefficient_preserving_callbacks_equal_full_expansion_exactly ... ok
+test polynomial::coefficient_preservation_tests::factored_external_coefficients_preserve_mixed_dual_lanes ... ok
+test rank_specialization::tests::amplitude_builder_orders_report_both_backends ... ok
+test rank_specialization::tests::exceptional_overflow_is_classified_by_independent_float_control ... ok
+test rank_specialization::tests::higher_mixed_derivative_only_coefficients_force_fallback ... ok
+test rank_specialization::tests::masks_are_exact_projection_zeros ... ok
+test rank_specialization::tests::native_generic_fallback_is_preserved ... ok
+test rank_specialization::tests::nonempty_failed_batches_keep_sentinels_and_retry_cleanly ... ok
+test rank_specialization::tests::ordinary_specialized_and_all_masked_slot_fallbacks ... ok
+
+test result: ok. 18 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 4.23s
