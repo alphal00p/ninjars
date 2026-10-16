@@ -15,12 +15,18 @@ batch-size-one path. No parallel polynomial representation or algebra is added.
 | Triangle-to-bubble, ordinary quotient degree 1 | 28 / 3 | f64, DoubleFloat, Float | Interpreter fallback |
 | Triangle-to-bubble, ordinary quotient degree 2 | 28 / 7 | f64, DoubleFloat, Float | Interpreter fallback |
 | Triangle-to-bubble, higher quotient degree 3 | 33 / 13 | f64, DoubleFloat, Float | Interpreter fallback |
+| Tadpole source projection, triangle parent | 24 / 6 | f64, DoubleFloat, Float | Existing ordered five-component shape |
+| Tadpole source projection, bubble parent | 28 / 9 | f64, DoubleFloat, Float | Existing ordered five-component shape |
 
 `with_native_denominators()` and CLI `native-denominators` retain the original
 narrow selection. `with_native_kernels()` and CLI `native` select all currently
-available families. Reports identify the two new families separately, alongside
+available families. Reports identify source-projection/correction families separately, alongside
 other interpreted reduction, integration and accumulation. Numerator callbacks,
 cut geometry and master providers are independently selected objects.
+`TadpoleSourceProjection` is one reporting family with two variants selected
+by the parent cut's identity. Its geometry reference probe remains interpreted
+and outside this reduction selector. Unsupported Dual shapes retain the
+interpreter for all newly available source projections.
 
 The projection's ordered row is `[a0,a1,e3,e4_effective,V_triangle,E3,E4]`,
 using shared FeynKit four-momenta, and outputs projections of
@@ -37,6 +43,8 @@ Regenerate the new files with:
 ```sh
 cargo run --locked -p ninjars-symbolica --features rust-codegen \
   --example generate_native_bubbles
+cargo run --locked -p ninjars-symbolica --features rust-codegen \
+  --example generate_native_tadpoles
 ```
 
 The committed metadata lists each plan's exact dimensions and instruction

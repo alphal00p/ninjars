@@ -1,4 +1,4 @@
-//! Export existing tadpole plans; runtime native selection is deliberately separate.
+//! Export existing tadpole plans; geometry selection remains independent.
 use std::{error::Error, fs, path::Path};
 
 use ninjars::Complex;
@@ -79,7 +79,10 @@ fn main() -> Result<(), Box<dyn Error>> {
             "plans":records,"constant_count":emitter.constants().len(),
             "algebra":"Existing tadpole source-axis and reference-probe expressions; Symbolica Dualizer",
             "runtime":"oneloopmaster RustEmitter instruction-major batches; width-one scalar path",
-            "production_dispatch":"deferred"
+            "production_dispatch":{
+                "source_projections":"opt-in native ordinary and supported ordered Dual shape",
+                "geometry_probe":"deferred"
+            }
         }))? + "\n",
     )?;
     Ok(())

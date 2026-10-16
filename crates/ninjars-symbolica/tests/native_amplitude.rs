@@ -28,8 +28,13 @@ fn vars() -> [Atom; 5] {
         parse!("mu2"),
     ]
 }
-fn coverage(report: &[ninjars_symbolica::KernelBackendSelection], native: bool, corrections: bool) {
-    assert_eq!(report.len(), 7);
+fn coverage(
+    report: &[ninjars_symbolica::KernelBackendSelection],
+    native: bool,
+    corrections: bool,
+    tadpole_projections: bool,
+) {
+    assert_eq!(report.len(), 8);
     for entry in report {
         let selected = (native
             && matches!(
@@ -40,7 +45,8 @@ fn coverage(report: &[ninjars_symbolica::KernelBackendSelection], native: bool, 
                 && matches!(
                     entry.family,
                     KernelFamily::BubbleSourceProjection | KernelFamily::TriangleBubbleCorrection
-                ));
+                ))
+            || (tadpole_projections && entry.family == KernelFamily::TadpoleSourceProjection);
         assert_eq!(
             entry.backend,
             if selected {
@@ -82,7 +88,7 @@ fn scalar_expression<T: NativeFloat + Into<Float>>(
         .set_parameter_batch(&[c(1), c(2), c(3)], 3)
         .unwrap();
     let default = SymbolicaAmplitudeKernels::new(n, rank, p.clone()).unwrap();
-    coverage(&default.kernel_backends(), false, false);
+    coverage(&default.kernel_backends(), false, false, false);
     let selected = SymbolicaAmplitudeKernels::new(n, rank, p.clone())
         .unwrap()
         .with_native_denominators();
@@ -91,7 +97,7 @@ fn scalar_expression<T: NativeFloat + Into<Float>>(
     } else {
         selected
     };
-    coverage(&selected.kernel_backends(), true, catalog);
+    coverage(&selected.kernel_backends(), true, catalog, catalog);
     let mut interpreted = default.into_amplitude(3).unwrap();
     let mut native = selected.into_amplitude(3).unwrap();
     let routing = if n <= 4 {
@@ -184,72 +190,110 @@ fn partial_native_amplitudes_keep_results_failure_isolation_and_reset() {
     scalar(Float::new(192), 2, 45, false);
 }
 
+fn dual_amplitude(n: usize, shape: Vec<Vec<usize>>) {
+    let d = HyperDual::from_values(shape.clone(), vec![Complex::new(0., 0.); 5]);
+    let c = |v: i64| d.from_i64(v);
+    let source =
+        PolynomialNumerator::new(parse!("a*(q0-q1)^3"), vars(), vec![parse!("a")], 0.).unwrap();
+    let mut numerator = DualPolynomialNumerator::new(source, d.clone()).unwrap();
+    let mut a = c(2);
+    a.values[1] = Complex::new(1., 2.);
+    a.values[2] = Complex::new(2., -1.);
+    numerator.set_parameter_batch(&[a.clone(), a], 2).unwrap();
+    let default = SymbolicaDualAmplitudeKernels::new(n, 3, 0., &d).unwrap();
+    let selected = SymbolicaDualAmplitudeKernels::new(n, 3, 0., &d)
+        .unwrap()
+        .with_native_denominators();
+    let selected = selected.with_native_kernels();
+    coverage(
+        &selected.kernel_backends(),
+        shape[0].len() == 2,
+        false,
+        shape[0].len() == 2,
+    );
+    let mut interpreted = default.into_amplitude(2).unwrap();
+    let mut native = selected.into_amplitude(2).unwrap();
+    let shifts: Vec<_> = (0..2)
+        .flat_map(|_| {
+            [[0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0]][..n]
+                .iter()
+                .map(|q| FourMomentum::from(q.map(c)))
+        })
+        .collect();
+    let mut masses = vec![c(1); 2 * n];
+    if n == 3 {
+        masses = [2, 3, 5, 2, 3, 5].map(c).to_vec();
+    }
+    masses[0].values[1] = Complex::new(1. / 8., 0.);
+    masses[1].values[2] = Complex::new(1. / 4., 0.);
+    let scales = vec![c(1); 2];
+    let mut geometry = SymbolicaDualCuts::new(0., d.clone()).unwrap();
+    let mut masters = SymbolicaDualMasters::new(0., &d);
+    for run in 0..2 {
+        if run == 1 {
+            masses[n].values[4].re = f64::NAN;
+        }
+        for amplitude in [&mut interpreted, &mut native] {
+            amplitude
+                .evaluate_batch(
+                    &shifts,
+                    &masses,
+                    &scales,
+                    &mut numerator,
+                    &mut geometry,
+                    &mut masters,
+                )
+                .unwrap();
+        }
+        assert_eq!(native.statuses(), interpreted.statuses());
+        let expected = if n == 3 {
+            EvaluationStatus::IntegrationFailed {
+                cut_index: 0,
+                status: ninjars::IntegrationStatus::MasterFailed {
+                    integral: ninjars::MasterIntegral::C0,
+                    failure: ninjars::MasterFailure::UnsupportedDerivativeDomain,
+                },
+            }
+        } else {
+            EvaluationStatus::Success
+        };
+        assert_eq!(native.statuses()[0], expected);
+        if run == 1 {
+            assert_ne!(native.statuses()[1], EvaluationStatus::Success);
+        }
+        for (a, b) in native
+            .results()
+            .iter()
+            .flatten()
+            .zip(interpreted.results().iter().flatten())
+        {
+            assert_eq!(a.get_shape(), b.get_shape());
+            for (a, b) in a.values.iter().zip(&b.values) {
+                assert!((a - b).norm().re < 1e-9 * (1. + b.norm().re), "{a} != {b}");
+            }
+        }
+    }
+}
+
 #[test]
 fn dual_amplitude_all_components_and_unknown_shape_fallback() {
     for shape in [
         vec![vec![0, 0], vec![1, 0], vec![0, 1], vec![2, 0], vec![1, 1]],
         vec![vec![0], vec![1], vec![2], vec![3], vec![4]],
     ] {
-        let d = HyperDual::from_values(shape.clone(), vec![Complex::new(0., 0.); 5]);
-        let c = |v: i64| d.from_i64(v);
-        let source =
-            PolynomialNumerator::new(parse!("a*(q0-q1)^3"), vars(), vec![parse!("a")], 0.).unwrap();
-        let mut numerator = DualPolynomialNumerator::new(source, d.clone()).unwrap();
-        let mut a = c(2);
-        a.values[1] = Complex::new(1., 2.);
-        a.values[2] = Complex::new(2., -1.);
-        numerator.set_parameter_batch(&[a.clone(), a], 2).unwrap();
-        let default = SymbolicaDualAmplitudeKernels::new(2, 3, 0., &d).unwrap();
-        let selected = SymbolicaDualAmplitudeKernels::new(2, 3, 0., &d)
-            .unwrap()
-            .with_native_denominators();
-        let selected = selected.with_native_kernels();
-        coverage(&selected.kernel_backends(), shape[0].len() == 2, false);
-        let mut interpreted = default.into_amplitude(2).unwrap();
-        let mut native = selected.into_amplitude(2).unwrap();
-        let shifts: Vec<_> = (0..2)
-            .flat_map(|_| [[0, 0, 0, 0], [0, 1, 0, 0]].map(|q| FourMomentum::from(q.map(c))))
-            .collect();
-        let mut masses = vec![c(1); 4];
-        masses[0].values[1] = Complex::new(1. / 8., 0.);
-        masses[1].values[2] = Complex::new(1. / 4., 0.);
-        let scales = vec![c(1); 2];
-        let mut geometry = SymbolicaDualCuts::new(0., d.clone()).unwrap();
-        let mut masters = SymbolicaDualMasters::new(0., &d);
-        for run in 0..2 {
-            if run == 1 {
-                masses[2].values[4].re = f64::NAN;
-            }
-            for amplitude in [&mut interpreted, &mut native] {
-                amplitude
-                    .evaluate_batch(
-                        &shifts,
-                        &masses,
-                        &scales,
-                        &mut numerator,
-                        &mut geometry,
-                        &mut masters,
-                    )
-                    .unwrap();
-            }
-            assert_eq!(native.statuses(), interpreted.statuses());
-            assert_eq!(native.statuses()[0], EvaluationStatus::Success);
-            if run == 1 {
-                assert_ne!(native.statuses()[1], EvaluationStatus::Success);
-            }
-            for (a, b) in native
-                .results()
-                .iter()
-                .flatten()
-                .zip(interpreted.results().iter().flatten())
-            {
-                assert_eq!(a.get_shape(), b.get_shape());
-                for (a, b) in a.values.iter().zip(&b.values) {
-                    assert!((a - b).norm().re < 1e-9 * (1. + b.norm().re), "{a} != {b}");
-                }
-            }
-        }
+        dual_amplitude(2, shape);
     }
+}
+
+#[test]
+fn native_triangle_dual_preserves_existing_c0_derivative_domain_rejection() {
+    // Projection derivatives are covered directly. The production C0 provider
+    // does not yet accept Dual requests, so this is a domain/status regression,
+    // not a claim of integrated three-propagator Dual parity.
+    dual_amplitude(
+        3,
+        vec![vec![0, 0], vec![1, 0], vec![0, 1], vec![2, 0], vec![1, 1]],
+    );
 }
 
 #[test]
@@ -264,5 +308,5 @@ fn growing_catalog_covers_lower_quotient_degrees_and_complex_precisions() {
         .unwrap()
         .with_native_kernels()
         .with_native_denominators();
-    coverage(&selection.kernel_backends(), true, false);
+    coverage(&selection.kernel_backends(), true, false, false);
 }

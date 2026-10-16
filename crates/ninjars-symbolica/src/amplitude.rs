@@ -48,6 +48,8 @@ pub struct SymbolicaAmplitudeKernels<T> {
     #[cfg(feature = "native-kernels")]
     native_bubble_corrections: bool,
     #[cfg(feature = "native-kernels")]
+    native_tadpole_projections: bool,
+    #[cfg(feature = "native-kernels")]
     native_triangle: Option<StageFactory<T, SymbolicaTriangleKernels<T>>>,
     #[cfg(feature = "native-kernels")]
     native_bubble: Option<StageFactory<T, SymbolicaBubbleKernels<T>>>,
@@ -71,6 +73,8 @@ where
             native_triangle: None,
             #[cfg(feature = "native-kernels")]
             native_bubble_corrections: false,
+            #[cfg(feature = "native-kernels")]
+            native_tadpole_projections: false,
             #[cfg(feature = "native-kernels")]
             native_bubble: None,
             #[cfg(feature = "native-kernels")]
@@ -162,6 +166,8 @@ where
 /// The same kernels transformed by Symbolica for a static or dynamic Dual shape.
 pub struct SymbolicaDualAmplitudeKernels<T, D> {
     #[cfg(feature = "native-kernels")]
+    native_tadpole_projections: bool,
+    #[cfg(feature = "native-kernels")]
     native_triangle: Option<DualStageFactory<T, D, SymbolicaDualTriangleKernels<T, D>>>,
     #[cfg(feature = "native-kernels")]
     native_bubble: Option<DualStageFactory<T, D, SymbolicaDualBubbleKernels<T, D>>>,
@@ -182,6 +188,8 @@ where
     pub fn new(propagators: usize, rank: usize, prototype: T, dual: &D) -> Result<Self> {
         let accumulation = accumulation(propagators, rank)?.compile_dual(&prototype, dual)?;
         Ok(Self {
+            #[cfg(feature = "native-kernels")]
+            native_tadpole_projections: false,
             #[cfg(feature = "native-kernels")]
             native_triangle: None,
             #[cfg(feature = "native-kernels")]
@@ -293,6 +301,7 @@ where
     /// change backend; callbacks, geometry, masters and other kernels do not.
     pub fn with_native_denominators(mut self) -> Self {
         self.native_bubble_corrections = false;
+        self.native_tadpole_projections = false;
         self.native_triangle = Some(SymbolicaTriangleKernels::new_with_native_denominators);
         self.native_bubble = Some(SymbolicaBubbleKernels::new_with_native_denominators);
         self.native_tadpole = Some(SymbolicaTadpoleKernels::new_with_native_denominators);
@@ -301,11 +310,14 @@ where
 
     /// Select all currently catalogued native kernels. This includes T2/T3
     /// denominators and ordinary bubble source projections and triangle-parent
-    /// corrections. Other reduction, geometry and integration stay interpreted.
+    /// corrections, plus tadpole parent-axis projections. Other reduction,
+    /// geometry and integration stay interpreted.
     pub fn with_native_kernels(mut self) -> Self {
         self = self.with_native_denominators();
         self.native_bubble = Some(SymbolicaBubbleKernels::new_with_native_kernels);
         self.native_bubble_corrections = true;
+        self.native_tadpole = Some(SymbolicaTadpoleKernels::new_with_native_kernels);
+        self.native_tadpole_projections = true;
         self
     }
 }
@@ -316,10 +328,11 @@ where
     Complex<T>: Real + EvaluationDomain,
 {
     /// Per-family selection; this does not claim a fully native amplitude.
-    pub fn kernel_backends(&self) -> [crate::KernelBackendSelection; 7] {
+    pub fn kernel_backends(&self) -> [crate::KernelBackendSelection; 8] {
         crate::native_kernels::coverage(
             self.native_triangle.is_some(),
             self.native_bubble_corrections,
+            self.native_tadpole_projections,
         )
     }
 }
@@ -333,16 +346,20 @@ where
     /// Opt into the partial native catalog. Only T2/T3 denominator expansions
     /// change backend; callbacks, geometry, masters and other kernels do not.
     pub fn with_native_denominators(mut self) -> Self {
+        self.native_tadpole_projections = false;
         self.native_triangle = Some(SymbolicaDualTriangleKernels::new_with_native_denominators);
         self.native_bubble = Some(SymbolicaDualBubbleKernels::new_with_native_denominators);
         self.native_tadpole = Some(SymbolicaDualTadpoleKernels::new_with_native_denominators);
         self
     }
 
-    /// Select the available Dual catalog. Only supported ordered T2/T3
-    /// denominator shapes are native; bubble corrections remain interpreted.
-    pub fn with_native_kernels(self) -> Self {
-        self.with_native_denominators()
+    /// Select available Dual denominators and tadpole parent-axis projections
+    /// for the supported ordered shape. Bubble corrections stay interpreted.
+    pub fn with_native_kernels(mut self) -> Self {
+        self = self.with_native_denominators();
+        self.native_tadpole = Some(SymbolicaDualTadpoleKernels::new_with_native_kernels);
+        self.native_tadpole_projections = true;
+        self
     }
 }
 
@@ -352,11 +369,12 @@ where
     Complex<T>: Real + EvaluationDomain,
 {
     /// Per-family selection; this does not claim a fully native amplitude.
-    pub fn kernel_backends(&self) -> [crate::KernelBackendSelection; 7] {
+    pub fn kernel_backends(&self) -> [crate::KernelBackendSelection; 8] {
+        let supported = crate::native_kernels::supported_shape(&self.dual.get_shape());
         crate::native_kernels::coverage(
-            self.native_triangle.is_some()
-                && crate::native_kernels::supported_shape(&self.dual.get_shape()),
+            self.native_triangle.is_some() && supported,
             false,
+            self.native_tadpole_projections && supported,
         )
     }
 }

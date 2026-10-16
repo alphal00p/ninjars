@@ -478,6 +478,7 @@ where
             "t3_denominators": denominator_backend,
             "bubble_source_projection": correction_backend,
             "triangle_bubble_correction": correction_backend,
+            "tadpole_source_projection": correction_backend,
             "other_reduction": "symbolica-interpreter",
             "integration": "symbolica-interpreter",
             "accumulation": "symbolica-interpreter",
