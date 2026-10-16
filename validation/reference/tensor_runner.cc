@@ -1,6 +1,7 @@
 // Independent validation executable. Never linked into the Rust implementation.
 #include <ninja/ninja.hh>
 #include <ninja/tensor_ninja.hh>
+#include <ninja/avholo.hh>
 #include <chrono>
 #include <cmath>
 #include <iomanip>
@@ -36,6 +37,9 @@ int main() {
   unsigned n, rank, repetitions;
   double scale;
   while (std::cin >> n) {
+    // Original Ninja's D0 key omits s14. Never reuse it across changed
+    // phase-space requests. Within a request the warm/timed inputs are identical.
+    ninja::avh_olo.clearIntegralCache();
     if (!(std::cin >> rank >> repetitions) || !read_real(scale) || n == 0 || n > 6 || rank > n + 1 ||
         repetitions == 0 || scale <= 0) {
       std::cerr << "invalid request header\n";

@@ -1,0 +1,101 @@
+{
+  "reference": {
+    "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+    "MG5_aMC_v3_7_0": {
+      "source": "release directory",
+      "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+    },
+    "compiler": "g++ (GCC) 15.3.0",
+    "libraries_sha256": {
+      "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+      "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+    }
+  },
+  "probe_sha256": "5d3c27bccdbbd56cf7dae55ab6902438fad1cbb4099ff8be54025e8f1d5d786e",
+  "numerator_sha256": "58f61a2d432ac60ab74907f68348bb5859894a9aacdfdea1d43072f4edd5897d",
+  "numerator": "(q dot Vort)*mu2^2, with Vfirst=0 and Vort taken from the original cut",
+  "method": "Call unchanged original evaluateFullBox through access-control-only header macro; generated Symbolica numerator and direct original residue evaluation",
+  "observations": [
+    {
+      "use_mu_expansion": 0,
+      "scale_choice": 15,
+      "status": 0,
+      "coefficients": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          3.592358729856101e-14,
+          7.8159700933611e-15
+        ],
+        [
+          14.000000000000002,
+          -2.1749582076343822e-33
+        ],
+        [
+          1.6472928546422802e-15,
+          6.5843626847102615e-15
+        ],
+        [
+          1.0000000000000002,
+          2.1749582076343822e-33
+        ]
+      ],
+      "numerator": [
+        -0.6790605460959964,
+        -1.041982257579451
+      ],
+      "reconstructed": [
+        -18.740086344139797,
+        -16.72133432401308
+      ],
+      "reconstruction_matches": false
+    },
+    {
+      "use_mu_expansion": 1,
+      "scale_choice": 15,
+      "status": 0,
+      "coefficients": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          5.591121402180498e-14,
+          6.661338147750939e-14
+        ],
+        [
+          -1.7763568394002505e-15,
+          0
+        ],
+        [
+          3.147844064260155e-16,
+          2.6645352591003753e-15
+        ],
+        [
+          1.0000000000000002,
+          0
+        ]
+      ],
+      "numerator": [
+        -0.6790605460959964,
+        -1.041982257579451
+      ],
+      "reconstructed": [
+        -0.6790605460959687,
+        -1.04198225757939
+      ],
+      "reconstruction_matches": true
+    }
+  ],
+  "scope": "Spurious c3 reconstruction only; c0/c4 and hence direct box integrated contribution are unaffected."
+}

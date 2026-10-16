@@ -73,7 +73,7 @@ fn original_indices_and_higher_rank_rational_weights() {
         }
     }
     assert!(MasterContraction::new(0, false).is_err());
-    assert!(MasterContraction::new(4, true).is_err());
+    assert!(MasterContraction::new(5, true).is_err());
 }
 
 #[test]

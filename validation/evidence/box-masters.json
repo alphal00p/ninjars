@@ -1,0 +1,715 @@
+{
+  "invariant_order": [
+    "s21",
+    "s32",
+    "s43",
+    "s14",
+    "s31",
+    "s42"
+  ],
+  "epsilon_order": [
+    "finite",
+    "single_pole",
+    "double_pole"
+  ],
+  "cases": [
+    {
+      "name": "unequal_real_spacelike",
+      "invariants": [
+        -1,
+        -5,
+        -13,
+        -9,
+        -4,
+        -10
+      ],
+      "masses_squared": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "scale_squared": 1,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          2,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          3
+        ]
+      ],
+      "epsilon": [
+        [
+          0.010010797997189838,
+          -1.827063705593345e-18
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "constant_numerator_reduction": {
+        "status": 0,
+        "epsilon": [
+          [
+            0.010010797997189838,
+            -1.827063705593345e-18
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          0.010010797997189838,
+          -1.827063705593345e-18
+        ],
+        "nanoseconds_per_evaluation": 1890,
+        "repetitions": 1
+      }
+    },
+    {
+      "name": "unequal_complex_timelike",
+      "invariants": [
+        3,
+        -1,
+        -1,
+        15,
+        8,
+        2
+      ],
+      "masses_squared": [
+        [
+          1,
+          "-1/8"
+        ],
+        [
+          2,
+          "-1/4"
+        ],
+        [
+          3,
+          "-3/8"
+        ],
+        [
+          4,
+          "-1/2"
+        ]
+      ],
+      "scale_squared": 1,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          3,
+          0,
+          1,
+          0
+        ],
+        [
+          4,
+          0,
+          0,
+          1
+        ]
+      ],
+      "epsilon": [
+        [
+          -0.08620300443766171,
+          0.07700168829270539
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "constant_numerator_reduction": {
+        "status": 0,
+        "epsilon": [
+          [
+            -0.08620300443766171,
+            0.07700168829270539
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          -0.08620300443766171,
+          0.07700168829270539
+        ],
+        "nanoseconds_per_evaluation": 1120,
+        "repetitions": 1
+      }
+    },
+    {
+      "name": "massless_offshell",
+      "invariants": [
+        -1,
+        -5,
+        -13,
+        -9,
+        -4,
+        -10
+      ],
+      "masses_squared": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "scale_squared": 1,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          2,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          3
+        ]
+      ],
+      "epsilon": [
+        [
+          0.07863724102108281,
+          7.424210496279738e-19
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "constant_numerator_reduction": {
+        "status": 0,
+        "epsilon": [
+          [
+            0.07863724102108281,
+            7.424210496279738e-19
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          0.07863724102108281,
+          7.424210496279738e-19
+        ],
+        "nanoseconds_per_evaluation": 1790,
+        "repetitions": 1
+      }
+    },
+    {
+      "name": "two_massive_offshell",
+      "invariants": [
+        -1,
+        -5,
+        -13,
+        -9,
+        -4,
+        -10
+      ],
+      "masses_squared": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "scale_squared": 1,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          2,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          3
+        ]
+      ],
+      "epsilon": [
+        [
+          0.037542692666664726,
+          -2.5000703673856475e-18
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "constant_numerator_reduction": {
+        "status": 0,
+        "epsilon": [
+          [
+            0.037542692666664726,
+            -2.5000703673856475e-18
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          0.037542692666664726,
+          -2.5000703673856475e-18
+        ],
+        "nanoseconds_per_evaluation": 1550,
+        "repetitions": 1
+      }
+    },
+    {
+      "name": "timelike_unit_mass",
+      "invariants": [
+        3,
+        -1,
+        -1,
+        15,
+        8,
+        2
+      ],
+      "masses_squared": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "scale_squared": 1,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          3,
+          0,
+          1,
+          0
+        ],
+        [
+          4,
+          0,
+          0,
+          1
+        ]
+      ],
+      "epsilon": [
+        [
+          -0.16972535836878644,
+          -0.025205297270606716
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "constant_numerator_reduction": {
+        "status": 0,
+        "epsilon": [
+          [
+            -0.16972535836878644,
+            -0.025205297270606716
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          -0.16972535836878644,
+          -0.025205297270606716
+        ],
+        "nanoseconds_per_evaluation": 1031,
+        "repetitions": 1
+      }
+    },
+    {
+      "name": "massless_onshell_poles",
+      "invariants": [
+        0,
+        0,
+        0,
+        0,
+        -3,
+        -5
+      ],
+      "masses_squared": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "scale_squared": 2,
+      "shifts": null,
+      "epsilon": [
+        [
+          -0.6084371039849088,
+          0
+        ],
+        [
+          -0.17623411199764255,
+          0
+        ],
+        [
+          0.26666666666666666,
+          0
+        ]
+      ]
+    }
+  ],
+  "reference": {
+    "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+    "MG5_aMC_v3_7_0": {
+      "source": "release directory",
+      "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+    },
+    "compiler": "g++ (GCC) 15.3.0",
+    "libraries_sha256": {
+      "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+      "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+    },
+    "probe_sha256": "5dacfc56e82448e16691851bcb0afa307b12e06de3790160477f0c31df15baa9"
+  },
+  "timings_are_acceptance_evidence": false,
+  "cache_key_probe": {
+    "argument_order": "six invariants, four complex squared masses, squared scale",
+    "inputs": [
+      [
+        -1,
+        -5,
+        -13,
+        -9,
+        -4,
+        -10,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        1
+      ],
+      [
+        -1,
+        -5,
+        -13,
+        -8,
+        -4,
+        -10,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        1
+      ]
+    ],
+    "cache_cleared": [
+      {
+        "epsilon": [
+          [
+            0.010010797997189838,
+            -1.827063705593345e-18
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "epsilon": [
+          [
+            0.010231290366029707,
+            2.0774520059568535e-33
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      }
+    ],
+    "cache_retained": [
+      {
+        "epsilon": [
+          [
+            0.010010797997189838,
+            -1.827063705593345e-18
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "epsilon": [
+          [
+            0.010010797997189838,
+            -1.827063705593345e-18
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      }
+    ],
+    "finding": "Original cached D0 key omits s14; changing only this invariant incorrectly reuses the first result. All acceptance controls in cases clear the cache."
+  },
+  "exceptional_reference_points": [
+    {
+      "invariants": [
+        -1,
+        -5,
+        -13,
+        -9,
+        -4,
+        -10
+      ],
+      "masses_squared": [
+        [
+          1,
+          "-1/8"
+        ],
+        [
+          2,
+          "-1/4"
+        ],
+        [
+          3,
+          "-3/8"
+        ],
+        [
+          4,
+          "-1/2"
+        ]
+      ],
+      "scale_squared": 1,
+      "epsilon": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "reason": "OneLOop 3.4 boxc returns zero when all candidate Kallen lambdas are nonpositive; avh_olo_foriregi.f90:5689. Ninja suppresses the Fortran diagnostic. These zeros are not correctness controls."
+    }
+  ]
+}

@@ -40,7 +40,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
         valid_scale: fn(&V) -> bool,
     ) -> Result<Self> {
         let plan = MasterContraction::new(size, higher)?;
-        let parameters: Vec<_> = (0..4 * size + 4)
+        let parameters: Vec<_> = (0..4 * size + if size == 2 { 4 } else { 0 })
             .map(|i| Atom::var(symbol!(format!("ninjars_integration_momentum::p{i}"))))
             .collect();
         let vectors: Vec<_> = parameters
@@ -55,6 +55,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
         for (first, second) in match size {
             2 => vec![(0, 1)],
             3 => vec![(0, 1), (1, 2), (2, 0)],
+            4 => vec![(0, 1), (1, 2), (2, 3), (3, 0), (0, 2), (1, 3)],
             _ => Vec::new(),
         } {
             let difference = vectors[second].clone() - vectors[first].clone();
@@ -109,17 +110,13 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
                 .flat_map(FourMomentum::components)
                 .chain(request.masses_squared)
                 .chain(request.coefficients)
-                .chain(
-                    [
-                        &request.basis.e1,
-                        &request.basis.e2,
-                        &request.basis.e3,
-                        &request.basis.e4,
-                    ]
-                    .into_iter()
-                    .flat_map(FourMomentum::components),
-                )
-                .chain([&request.basis.e12, request.scale_squared])
+                .chain(request.basis.into_iter().flat_map(|basis| {
+                    [&basis.e1, &basis.e2, &basis.e3, &basis.e4]
+                        .into_iter()
+                        .flat_map(FourMomentum::components)
+                        .chain(std::iter::once(&basis.e12))
+                }))
+                .chain([request.scale_squared])
                 .all(|v| (self.compatible)(v, &self.zero) && (self.finite)(v))
                 && (self.valid_scale)(request.scale_squared);
             if !valid[row] {
@@ -130,8 +127,17 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
                 self.arguments
                     .extend(request.shifts[line].components().into_iter().cloned());
             }
-            self.arguments
-                .extend(request.basis.e2.components().into_iter().cloned());
+            if self.size == 2 {
+                self.arguments.extend(
+                    request
+                        .basis
+                        .expect("validated basis")
+                        .e2
+                        .components()
+                        .into_iter()
+                        .cloned(),
+                );
+            }
         }
         let kinematic_columns = inv + usize::from(self.size == 2);
         self.kinematics
@@ -151,7 +157,9 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
                     .map(|&line| request.masses_squared[line].clone()),
             );
             match self.size {
-                1 => self.arguments.push(request.basis.e12.clone()),
+                1 => self
+                    .arguments
+                    .push(request.basis.expect("validated basis").e12.clone()),
                 2 => self.arguments.push(kin[inv].clone()),
                 _ => (),
             }

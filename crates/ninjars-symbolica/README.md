@@ -52,7 +52,7 @@ while evaluating all eligible rows through one batched instruction graph.
 ## Integrated amplitudes
 
 `SymbolicaAmplitudeKernels::new(n, rank, prototype)?.into_amplitude(lanes)`
-constructs a core `Amplitude` for one through three propagators and rank at most
+constructs a core `Amplitude` for one through six propagators and rank at most
 n+1. Supply shared lane-major shifts/masses, one squared scale per lane, a
 numerator, `SymbolicaCuts` and a master provider to `evaluate_batch`. Successful
 lanes accumulate into `[finite, single pole, double pole, cut-constructible finite,
@@ -61,6 +61,16 @@ for the last attempt and call `reset()` or `reset_batch(lanes)` to clear results
 `SymbolicaDualAmplitudeKernels` provides the same interface for static and dynamic
 Dual carriers; supported integrated derivatives remain limited by the master
 provider's validated domains.
+
+For four or more propagators, use `evaluate_batch_with_high_cuts` with a
+`SymbolicaHighCuts` provider and one nonzero mu-squared sampling scale per lane.
+The scale should be comparable to the largest squared mass or invariant.
+`with_box_options(BoxReductionOptions { coefficients, mu_extraction })` selects
+integrated or full box coefficients, and expansion or finite-mu sampling.
+The default is integrated coefficients with mu expansion; it avoids pentagons.
+Other modes construct pentagons only when needed for subtraction. Box integration
+is `c0*D0-c4/6`; pentagon residues have no direct master contribution. Box requests
+to `ResidueIntegrator` use `basis: None`; lower cuts require their extraction basis.
 
 Run `cargo run -p ninjars-symbolica --example bubble` for a complete batched
 rank-three example. The example provides a 128 MiB worker stack for master
@@ -87,6 +97,15 @@ support spatial and null kinematics. Chart decisions use primal values, while
 the selected arithmetic propagates every derivative component. Degenerate Gram
 determinants and singular sampling parameters produce per-lane failures.
 
+`SymbolicaHighCuts` and `SymbolicaDualHighCuts` generate four/five-cut solutions
+with Symbolica's exact matrix solver over FeynKit momenta. Four coordinate charts
+cover the box linear constraints; the remaining quadratic equation generates
+paired samples. `PentagonReducer` computes the residue `coefficient*mu_squared`.
+`BoxReducer` subtracts containing pentagons where needed and keeps an explicit
+computed-coefficient mask. Scalar and higher/mixed Dual implementations share
+the generated expressions. The independent [reference audit](../../docs/box-reference-audit.md)
+records original Ninja reconstruction and caching defects relevant to validation.
+
 `LaurentDivision`, `DenominatorExpansion`, `ResidueProjection`,
 `TriangleBubbleSubtraction` and `TadpoleSubtraction` expose the constituent
 arithmetic kernels. Their plans contain coefficient layouts, while all
@@ -98,8 +117,8 @@ depends on the selected residue basis, as in original Ninja.
 Kernel inputs and preconditions are documented on their public types. Low-level
 division and projection expect nonsingular active rows. The triangle coordinator
 compacts invalid rows and restores cut/lane order. A scaled small-denominator
-test, precision rescue, full reconstruction diagnostics, box/pentagon
-coordination, and S-matrix/cut controls remain unfinished. Bubble coordination
+test, precision rescue, full reconstruction diagnostics and S-matrix/cut controls
+remain unfinished. Bubble coordination
 subtracts every containing triangle; tadpole coordination subtracts triangle and
 corrected bubble parents. Tadpoles expose an explicit mask for the integrated
 coefficients c0 and, at higher rank, c14/c15; other entries are uncomputed. The

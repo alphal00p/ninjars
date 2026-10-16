@@ -54,7 +54,7 @@ fn bubble_null_moments_match_original_ninja_integrals() {
             shifts: &shifts,
             masses_squared: &masses,
             coefficients,
-            basis: &basis,
+            basis: Some(&basis),
             scale_squared: &scale,
         })
         .collect();
@@ -124,7 +124,7 @@ fn explicit_mu_terms_skip_zero_master_weights_and_keep_rational_separation() {
             shifts: &shifts,
             masses_squared: &masses,
             coefficients,
-            basis: &basis,
+            basis: Some(&basis),
             scale_squared: &scale,
         })
         .collect();
@@ -200,7 +200,7 @@ fn compact_master_batches_and_transactional_failed_rows() {
                 shifts: &shifts,
                 masses_squared: &masses[lane..lane + 1],
                 coefficients: &coefficients[lane],
-                basis: &basis,
+                basis: Some(&basis),
                 scale_squared: &scales[lane],
             })
             .collect();
@@ -287,7 +287,7 @@ fn derivative_only_weights_retain_higher_mixed_master_products() {
         shifts: &shifts,
         masses_squared: &mass,
         coefficients: &coefficients,
-        basis: &basis,
+        basis: Some(&basis),
         scale_squared: &one,
     }];
     let kernels = SymbolicaDualIntegrationKernels::new(1, false, 0., &zero).unwrap();

@@ -1,21 +1,33 @@
-//! Integrated one-, two- and three-propagator amplitudes with lane-local accumulation.
+//! Integrated amplitudes through six propagators with lane-local accumulation.
 
 use crate::{
-    BatchShape, BubbleReducer, BubbleReductionKernels, BubbleResidue, CutBasis, CutFailure,
-    CutOutcome, CutProvider, Error, FloatLike, FourMomentum, IntegratedContribution,
-    IntegratedTadpoleResidue, IntegrationKernels, IntegrationStatus, MasterProvider, Numerator,
+    BatchShape, BoxCoefficientMode, BoxMuMode, BoxReducer, BoxReductionKernels,
+    BoxReductionOptions, BoxResidue, BubbleReducer, BubbleReductionKernels, BubbleResidue,
+    CutBasis, CutFailure, CutOutcome, CutProvider, Error, FloatLike, FourMomentum, HighCutProvider,
+    IntegratedContribution, IntegratedTadpoleResidue, IntegrationKernels, IntegrationStatus,
+    MasterProvider, Numerator, PentagonReducer, PentagonReductionKernels, PentagonResidue,
     ResidueIntegrationRequest, ResidueIntegrator, Result, SampleId, TadpoleReducer,
     TadpoleReductionKernels, Topology, TriangleReducer, TriangleReductionKernels, TriangleResidue,
 };
 
 /// Factory and generated arithmetic used by the integrated coordinator.
 pub trait AmplitudeKernels<T> {
+    type Boxes: BoxReductionKernels<T>;
+    type Pentagons: PentagonReductionKernels<T>;
     type Triangles: TriangleReductionKernels<T>;
     type Bubbles: BubbleReductionKernels<T>;
     type Tadpoles: TadpoleReductionKernels<T>;
     type Integration: IntegrationKernels<T>;
     fn propagators(&self) -> usize;
     fn rank(&self) -> usize;
+    fn box_options(&self) -> BoxReductionOptions {
+        BoxReductionOptions {
+            coefficients: BoxCoefficientMode::Integrated,
+            mu_extraction: BoxMuMode::Expansion,
+        }
+    }
+    fn box_kernels(&self) -> Result<Self::Boxes>;
+    fn pentagon_kernels(&self) -> Result<Self::Pentagons>;
     fn triangle_kernels(&self) -> Result<Self::Triangles>;
     fn bubble_kernels(&self) -> Result<Self::Bubbles>;
     fn tadpole_kernels(&self) -> Result<Self::Tadpoles>;
@@ -45,7 +57,7 @@ pub enum EvaluationStatus {
 
 /// Ninja-style accumulation over a fixed phase-space batch.
 ///
-/// This implementation currently accepts up to three propagators and rank n+1.
+/// This implementation accepts up to six propagators and rank n+1.
 /// Calls add successful lanes to existing results. Every field of a failed lane
 /// remains unchanged; its last-attempt status is recorded separately. Structural
 /// errors leave results and last-attempt statuses unchanged. Shifts and masses
@@ -56,10 +68,14 @@ pub struct Amplitude<T, K: AmplitudeKernels<T>> {
     lanes: usize,
     kernels: K,
     zero: T,
+    box_stage: Option<BoxReducer<T, K::Boxes>>,
+    pentagon: Option<PentagonReducer<T, K::Pentagons>>,
     triangle: Option<TriangleReducer<T, K::Triangles>>,
     bubble: Option<BubbleReducer<T, K::Bubbles>>,
     tadpole: Option<TadpoleReducer<T, K::Tadpoles>>,
-    integration: [Option<ResidueIntegrator<T, K::Integration>>; 3],
+    integration: [Option<ResidueIntegrator<T, K::Integration>>; 4],
+    boxes: Vec<CutOutcome<BoxResidue<T>>>,
+    pentagons: Vec<CutOutcome<PentagonResidue<T>>>,
     triangles: Vec<CutOutcome<TriangleResidue<T>>>,
     bubbles: Vec<CutOutcome<BubbleResidue<T>>>,
     tadpoles: Vec<CutOutcome<IntegratedTadpoleResidue<T>>>,
@@ -73,14 +89,30 @@ pub struct Amplitude<T, K: AmplitudeKernels<T>> {
 impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
     pub fn new(kernels: K, prototype: T, lanes: usize) -> Result<Self> {
         let topology = Topology::new(kernels.propagators(), kernels.rank())?;
-        if topology.propagators() > 3 {
+        if topology.propagators() > 6 {
             return Err(Error::Unsupported(
-                "integrated reduction currently supports at most three propagators".into(),
+                "integrated reduction currently supports at most six propagators".into(),
             ));
         }
         let active = |size| {
             size <= topology.propagators()
-                && topology.rank().saturating_add(size) >= topology.propagators()
+                && (size == 4 || topology.rank().saturating_add(size) >= topology.propagators())
+        };
+        let box_stage = if active(4) {
+            Some(BoxReducer::new(kernels.box_kernels()?, prototype.clone())?)
+        } else {
+            None
+        };
+        let pentagon = if kernels
+            .box_options()
+            .needs_pentagons(topology.propagators(), topology.rank())
+        {
+            Some(PentagonReducer::new(
+                kernels.pentagon_kernels()?,
+                prototype.clone(),
+            )?)
+        } else {
+            None
         };
         let triangle = if active(3) {
             Some(TriangleReducer::new(
@@ -106,8 +138,8 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
         } else {
             None
         };
-        let mut integration = [None, None, None];
-        for size in 1..=3 {
+        let mut integration = [None, None, None, None];
+        for size in 1..=4 {
             if active(size) {
                 integration[size - 1] = Some(ResidueIntegrator::new(
                     kernels.integration_kernels(size)?,
@@ -120,10 +152,14 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
             topology,
             lanes,
             kernels,
+            box_stage,
+            pentagon,
             triangle,
             bubble,
             tadpole,
             integration,
+            boxes: Vec::new(),
+            pentagons: Vec::new(),
             triangles: Vec::new(),
             bubbles: Vec::new(),
             tadpoles: Vec::new(),
@@ -162,6 +198,12 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
     pub fn triangles(&self) -> &[CutOutcome<TriangleResidue<T>>] {
         &self.triangles
     }
+    pub fn boxes(&self) -> &[CutOutcome<BoxResidue<T>>] {
+        &self.boxes
+    }
+    pub fn pentagons(&self) -> &[CutOutcome<PentagonResidue<T>>] {
+        &self.pentagons
+    }
     pub fn bubbles(&self) -> &[CutOutcome<BubbleResidue<T>>] {
         &self.bubbles
     }
@@ -182,6 +224,8 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
         self.statuses.resize(lanes, EvaluationStatus::NotEvaluated);
         self.statuses.fill(EvaluationStatus::NotEvaluated);
         self.triangles.clear();
+        self.boxes.clear();
+        self.pentagons.clear();
         self.bubbles.clear();
         self.tadpoles.clear();
     }
@@ -193,6 +237,42 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
         scales_squared: &[T],
         numerator: &mut N,
         geometry: &mut C,
+        masters: &mut M,
+    ) -> Result<()> {
+        if self.topology.propagators() > 3 {
+            return Err(Error::Unsupported(
+                "four or more propagators require evaluate_batch_with_high_cuts".into(),
+            ));
+        }
+        self.evaluate_batch_with_high_cuts(
+            shifts,
+            masses_squared,
+            scales_squared,
+            &[],
+            numerator,
+            geometry,
+            &mut UnavailableHighCuts,
+            masters,
+        )
+    }
+
+    /// Evaluate with four/five-cut geometry. One sampling scale per lane is
+    /// required when boxes are present; it is independent of the master scale.
+    #[allow(clippy::too_many_arguments)]
+    pub fn evaluate_batch_with_high_cuts<
+        N: Numerator<T>,
+        C: CutProvider<T>,
+        H: HighCutProvider<T>,
+        M: MasterProvider<T>,
+    >(
+        &mut self,
+        shifts: &[FourMomentum<T>],
+        masses_squared: &[T],
+        scales_squared: &[T],
+        sampling_scales: &[T],
+        numerator: &mut N,
+        geometry: &mut C,
+        high_geometry: &mut H,
         masters: &mut M,
     ) -> Result<()> {
         let n = self.topology.propagators();
@@ -212,6 +292,13 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
             columns: 1,
         }
         .validate("amplitude scales", scales_squared.len())?;
+        if self.box_stage.is_some() {
+            BatchShape {
+                rows: lanes,
+                columns: 1,
+            }
+            .validate("amplitude box sampling scales", sampling_scales.len())?;
+        }
         if numerator.rank() > self.topology.rank() {
             return Err(Error::Unsupported(format!(
                 "numerator rank {} exceeds configured rank {}",
@@ -239,6 +326,37 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                     }
                 }
             }
+        }
+        if let Some(stage) = &mut self.pentagon {
+            self.pentagons.resize(
+                stage.cut_count() * lanes,
+                CutOutcome::Unstable(CutFailure::NonFiniteResult),
+            );
+            stage.evaluate_batch(
+                shifts,
+                masses_squared,
+                lanes,
+                numerator,
+                high_geometry,
+                &mut self.pentagons,
+            )?;
+        }
+        if let Some(stage) = &mut self.box_stage {
+            self.boxes.resize(
+                stage.cut_count() * lanes,
+                CutOutcome::Unstable(CutFailure::NonFiniteResult),
+            );
+            stage.evaluate_batch(
+                shifts,
+                masses_squared,
+                sampling_scales,
+                lanes,
+                &self.topology,
+                &self.pentagons,
+                numerator,
+                high_geometry,
+                &mut self.boxes,
+            )?;
         }
         if let Some(stage) = &mut self.triangle {
             self.triangles.resize(
@@ -294,11 +412,24 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
             .resize_with(cuts * lanes, || std::array::from_fn(|_| self.zero.clone()));
         self.contributions
             .fill(std::array::from_fn(|_| self.zero.clone()));
-        for size in (1..=3).rev() {
+        for size in (1..=4).rev() {
             let Some(integration) = &mut self.integration[size - 1] else {
                 continue;
             };
             match size {
+                4 => integrate_stage(
+                    &self.topology,
+                    lanes,
+                    shifts,
+                    masses_squared,
+                    scales_squared,
+                    &self.boxes,
+                    integration,
+                    masters,
+                    &self.zero,
+                    &mut self.contributions,
+                    &mut statuses,
+                )?,
                 3 => integrate_stage(
                     &self.topology,
                     lanes,
@@ -373,7 +504,7 @@ trait ResidueView<T> {
     fn id(&self) -> SampleId;
     fn index(&self) -> usize;
     fn coefficients(&self) -> &[T];
-    fn basis(&self) -> &CutBasis<T>;
+    fn basis(&self) -> Option<&CutBasis<T>>;
 }
 macro_rules! residue_view {
     ($name:ident) => {
@@ -387,8 +518,8 @@ macro_rules! residue_view {
             fn coefficients(&self) -> &[T] {
                 &self.coefficients
             }
-            fn basis(&self) -> &CutBasis<T> {
-                &self.geometry.basis
+            fn basis(&self) -> Option<&CutBasis<T>> {
+                Some(&self.geometry.basis)
             }
         }
     };
@@ -396,6 +527,49 @@ macro_rules! residue_view {
 residue_view!(TriangleResidue);
 residue_view!(BubbleResidue);
 residue_view!(IntegratedTadpoleResidue);
+
+impl<T> ResidueView<T> for BoxResidue<T> {
+    fn id(&self) -> SampleId {
+        self.id
+    }
+    fn index(&self) -> usize {
+        self.cut_index
+    }
+    fn coefficients(&self) -> &[T] {
+        &self.coefficients
+    }
+    fn basis(&self) -> Option<&CutBasis<T>> {
+        None
+    }
+}
+
+/// Allows existing low-cut clients to keep their provider implementation.
+struct UnavailableHighCuts;
+impl<T> HighCutProvider<T> for UnavailableHighCuts {
+    fn box_batch(
+        &mut self,
+        _: &[crate::BoxCutRequest<'_, T>],
+        _: &mut [CutOutcome<crate::BoxCut<T>>],
+    ) -> Result<()> {
+        Err(Error::Unsupported("box geometry was not provided".into()))
+    }
+    fn pentagon_batch(
+        &mut self,
+        _: &[crate::PentagonCutRequest<'_, T>],
+        _: &mut [CutOutcome<crate::PentagonCut<T>>],
+    ) -> Result<()> {
+        Err(Error::Unsupported(
+            "pentagon geometry was not provided".into(),
+        ))
+    }
+    fn sample_box_batch(
+        &mut self,
+        _: &[crate::BoxSampleRequest<'_, T>],
+        _: &mut [CutOutcome<[FourMomentum<T>; 2]>],
+    ) -> Result<()> {
+        Err(Error::Unsupported("box geometry was not provided".into()))
+    }
+}
 
 #[allow(clippy::too_many_arguments)]
 fn integrate_stage<
@@ -423,18 +597,23 @@ fn integrate_stage<
         .enumerate()
         .filter_map(|(i, c)| (c.partition.len() == integration.cut_size()).then_some(i))
         .collect();
+    // Classify every cut first so a later failed cut cannot leave earlier
+    // requests for the same lane queued for expensive master evaluation.
+    for (row, outcome) in residues.iter().enumerate() {
+        let lane = row % lanes;
+        if let CutOutcome::Unstable(failure) = outcome
+            && statuses[lane] == EvaluationStatus::Success
+        {
+            statuses[lane] = EvaluationStatus::CutFailed {
+                cut_index: cuts[row / lanes],
+                failure: *failure,
+            };
+        }
+    }
     let mut requests = Vec::new();
     for (row, outcome) in residues.iter().enumerate() {
         let lane = row % lanes;
         match outcome {
-            CutOutcome::Unstable(failure) => {
-                if statuses[lane] == EvaluationStatus::Success {
-                    statuses[lane] = EvaluationStatus::CutFailed {
-                        cut_index: cuts[row / lanes],
-                        failure: *failure,
-                    };
-                }
-            }
             CutOutcome::Stable(residue) if statuses[lane] == EvaluationStatus::Success => requests
                 .push(ResidueIntegrationRequest {
                     id: residue.id(),

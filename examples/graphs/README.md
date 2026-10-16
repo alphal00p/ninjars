@@ -1,6 +1,6 @@
 # Graph fixtures
 
-`bubble.dot` and `triangle.dot` use FeynKit's compact DOT dialect with the
+`bubble.dot`, `triangle.dot` and `box.dot` use FeynKit's compact DOT dialect with the
 built-in phi3 model. Local vertex and edge factors are one. The graph-level
 `num` contains the entire synthetic numerator. `ninjars::q0` through
 `ninjars::q3` are contravariant loop-momentum components; `ninjars::mu2` is
@@ -20,9 +20,11 @@ infer their order from DOT statements. Only independent momenta are required.
 Supplied dependent momenta are checked against that routing (for this triangle,
 `P(2)=P(0)-P(1)`).
 
-The examples are off-shell Euclidean configurations intended for deterministic
-reduction checks. They are not physical scattering events. Bubble rank is two,
-triangle rank is three, and each contains an explicit mu-squared term.
+The examples are synthetic off-shell configurations for deterministic reduction
+checks. They are not physical scattering events. Bubble rank is two, triangle
+rank is three, and each contains an explicit mu-squared term. The timelike box
+has rank four and an explicit mu-to-the-fourth term, contributing -1/6 to the
+finite integral. Its three samples exercise changing kinematics and batch tails.
 
 `triangle-reference.json` supplies a separate timelike configuration for checking
 original Ninja's generated and tensor callbacks. The Euclidean triangle remains

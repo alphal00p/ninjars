@@ -5,12 +5,12 @@ physics types, Symbolica's algebra and evaluators, and oneloopmaster's scalar
 integrals. The intended interface carries batches and generic numerical domains
 through numerator callbacks, reduction, and master integrals.
 
-This is a development version. The library integrates one-, two- and
-three-propagator amplitudes through rank n+1, with batched polynomial/Dual
-callbacks, lower-cut subtraction, master integrals and lane-local accumulation.
+This is a development version. The library provides reduction stages through
+six propagators and rank n+1, with batched polynomial/Dual callbacks, both box
+mu-extraction modes, lower-cut subtraction, master integrals and lane-local accumulation.
 Analytic and original Ninja controls validate an initial synthetic suite.
 It also includes independent DOT preparation and an original Ninja reference
-harness. Full topology coverage, physical validation, derivative continuation
+harness. Full reconstruction controls, physical validation, derivative continuation
 and performance acceptance remain in development.
 The complete specification and evidence ledger are in [the plan](references/PLAN.md).
 
@@ -27,6 +27,7 @@ RUST_MIN_STACK=134217728 nix develop path:. --command cargo test --workspace --l
 nix develop path:. --command cargo run -p ninjars-cli -- prepare examples/graphs/bubble.json
 nix develop path:. --command cargo run -p ninjars-cli -- reduce examples/graphs/bubble.json --batch-size 2
 nix develop path:. --command cargo run -p ninjars-cli -- reduce examples/graphs/triangle-reference.json --precision float --bits 256
+nix develop path:. --command cargo run -p ninjars-cli -- reduce examples/graphs/box.json --mu-extraction sampling --mu-sampling-scale 64 --full-box-coefficients
 nix develop path:. --command cargo run -p ninjars-symbolica --example bubble
 ```
 
@@ -60,6 +61,12 @@ results as decimal strings. It accepts `--precision f64`, `double-float` or
 `float --bits N`. Working precision and the actual precision of each result
 component are recorded separately. Failed numerical lanes have no reported
 value and cause a nonzero exit status; successful neighboring lanes are retained.
+Box sampling accepts an explicit squared-momentum scale independent of the
+renormalization scale. Use a scale comparable to the largest mass squared or
+kinematic invariant; a much smaller scale can amplify cancellation. The default
+mu-expansion mode obtains the integrated rational coefficient directly from
+the numerator expansion. Automatic scale selection and precision rescue remain
+under development.
 
 See [synthetic graph fixtures](examples/graphs/README.md) and the
 [original Ninja reference harness](validation/reference/README.md).

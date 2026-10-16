@@ -315,3 +315,75 @@ connects the existing kernels into integrated amplitudes and a standalone
   allocation removal/native Rust specialization and all performance gates.
   `docs/box-pentagon-design.md` records next-stage research, including an
   explicitly unconfirmed original higher-rank box reconstruction hypothesis.
+
+### Four/five-cut and six-line integration milestone (2026-10-16)
+
+- Added shared-momentum `HighCutProvider`, `BoxCut` and `PentagonCut`, with
+  scalar and static/dynamic Dual Symbolica adapters. Four box coordinate charts
+  and the five-cut solution use Symbolica's exact matrix solver; branch/chart
+  selection remains lane-local. Four test groups check every chart, on-shell
+  identities, complex roots/masses, singularities, permutations/tails, higher
+  and mixed derivatives, and DoubleFloat/Float256 residuals below 1e-25/1e-65.
+- Added `PentagonReducer` and generated division kernels. Its residue is
+  `coefficient*mu_squared`, with no direct E0 master. Three test groups cover
+  five/six propagators, dense cut/lane identity, mixed derivatives, failed
+  lanes, zero mu, zero uncut denominators and API transactionality.
+- Added `BoxReducer`, full/integrated coefficient masks and both mu-expansion
+  and finite-mu sampling. Pentagon parents are constructed/subtracted only
+  when the selected mode needs them. Seven test groups cover all four-line
+  ranks through n+1, five/six-line nonzero parent subtraction, independent
+  reconstruction, higher/mixed Dual, malformed uncut values/provenance,
+  complex masses and coefficients below binary64 resolution.
+- Extended `MasterContraction`, `ResidueIntegrator` and `Amplitude` through
+  six propagators. Box integration uses `c0*D0-c4/6`, invariants ordered
+  `[s21,s32,s43,s14,s31,s42]`, and no artificial basis. Existing low-cut clients
+  retain `evaluate_batch`; higher topologies use `evaluate_batch_with_high_cuts`
+  with explicit sampling scales. Integration excludes every failed lane before
+  master requests. Three added boundary groups verify argument order/scales,
+  failure/history/reset semantics, late API errors, and rational-only Dual boxes.
+- Independent Symbolica-constructed box/pentagon numerator ansätze, multiplied
+  by actual complementary propagators, produce zero lower-cut coefficients in
+  ten source/rank cases and two lanes. These controls include c5*mu4*u, shifted
+  origins and permuted source partitions and use no box/pentagon reducer to
+  construct the expected result. No extra higher-parent subtraction is needed.
+- Six independent D0 controls validate all Laurent coefficients and mixed
+  lazy branches. DoubleFloat versus Float256 agrees below 1e-25; Float160
+  versus Float256 agrees below 1e-42, improving on f64. Decimal test inputs
+  were replaced by exact fractions to respect Symbolica's literal precision.
+  Dual C0/D0 domains have deliberately not been extended by these tests.
+- The CLI now accepts four-to-six-line reduction, both box extraction modes,
+  full box diagnostics and an exact mu sampling scale. The new box DOT fixture
+  has three phase-space samples. All 36 original-Ninja comparisons across
+  f64/DoubleFloat/Float256, both modes and batch sizes 1/2 pass, with maximum
+  scaled difference 1.34e-14. Independent tensor plus analytic mu4 controls
+  verify the prepared reference polynomial. Evidence: `box-cli.json`.
+- Eighteen independent original-Ninja controls cover n=4,5,6, ranks 0,2,n+1,
+  and real/complex masses. The 36 Rust comparisons across both extraction
+  modes pass the fixed 1e-9 criterion, with maximum scaled difference
+  2.58e-11. `high-reduction.json` records source controls and two nonfinite
+  reference configurations separately; `high-stage.json` records Rust results.
+- Numerical limitation: mu-sampling scale 3 at the rank-seven six-line real
+  case produced a scaled error about 2.6e-9 through cancellation. A scale
+  comparable to the largest invariant passes without changing the tolerance.
+  The observation is retained in `high-stage.json`; callers currently supply
+  sampling scales. Automatic scale choice, reconstruction certification and
+  precision rescue remain required. Finite success is not an accuracy certificate.
+- Confirmed two original Ninja defects using unchanged production libraries:
+  higher-rank full-box finite-mu extraction misses a scale factor in c3 (the
+  integrated c0/c4 are unaffected), and the D0 cache omits s14. The streaming
+  validation runner now clears caches between distinct requests. Also recorded
+  OneLOop 3.4's zero-return restriction at a complex-mass spacelike box.
+  `docs/box-reference-audit.md` gives reproductions and comparison policy.
+- No new upstream patches were needed; pinned FeynKit/Symbolica PR revisions
+  remain unchanged. All **128 workspace tests** pass with all features and
+  ignored reference tests enabled, with no failures or skips. Strict all-target
+  workspace Clippy, formatting and diff checks pass. All five streaming
+  reference protocol tests pass, including an exactly dyadic changing-s14
+  regression for the new between-request cache clearing. Evidence is retained
+  in `high-stage.json`.
+- The goal remains active. Remaining work includes S-matrix/cut controls,
+  full reconstruction and stability/rescue; automatic sampling scales;
+  C0/D0 Dual continuation and removable neighborhoods; tensor and physical
+  FeynKit/MadLoop preparation/validation through pentagons; CLI compare/bench
+  and derivative controls; generated native Rust execution, workspace
+  allocation removal and every performance acceptance gate.

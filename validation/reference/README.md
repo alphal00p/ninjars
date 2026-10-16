@@ -84,3 +84,21 @@ and `-(V0[0]+V1[0]+V2[0])/6` for the triangle's mu²*q0 term. Fixture masses are
 Results, tensor controls and reference artifact hashes are written to
 `target/reference/prepared-graph-validation.json`; a recorded passing run is
 committed in `validation/evidence/prepared-graphs.json`.
+
+Box controls and two confirmed original-reference limitations are described in
+[`docs/box-reference-audit.md`](../../docs/box-reference-audit.md). Run
+`python3 validation/reference/test_box_masters.py` for six independent D0
+controls, an unsupported complex-mass reference point, and a cache-key probe.
+Run `python3 validation/reference/test_box_full.py` after building the generator
+example to reproduce the higher-rank full-box c3 discrepancy. The original
+reference cache must be cleared between changing phase-space points: its D0 key
+omits s14. These probes do not modify the original production implementation.
+The streaming tensor/generated-callback runner clears the original cache before
+each new request. Its warm-up and timed repetitions reuse identical kinematics.
+
+`python3 validation/reference/test_box_cli.py --cli target/debug/ninjars` rebuilds
+the prepared box callback bundle and compares three graph samples with original
+Ninja, an independent tensor-plus-analytic control, and 12 Rust CLI precision,
+extraction-mode, and batch-size configurations. Build the CLI with
+`--features reference-codegen` and serialize this script with other Symbolica
+runtime processes. Its committed evidence is `validation/evidence/box-cli.json`.

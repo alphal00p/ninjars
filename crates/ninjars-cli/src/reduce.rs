@@ -3,9 +3,13 @@
 use std::{collections::HashMap, error::Error, fs, num::NonZeroUsize, path::PathBuf};
 
 use clap::{Args as ClapArgs, ValueEnum};
-use ninjars::{Complex, EvaluationStatus, FourMomentum, Numerator};
+use ninjars::{
+    BoxCoefficientMode, BoxMuMode, BoxReductionOptions, Complex, EvaluationStatus, FloatLike,
+    FourMomentum, Numerator,
+};
 use ninjars_symbolica::{
-    PolynomialNumerator, SymbolicaAmplitudeKernels, SymbolicaCuts, SymbolicaMasters,
+    PolynomialNumerator, SymbolicaAmplitudeKernels, SymbolicaCuts, SymbolicaHighCuts,
+    SymbolicaMasters,
 };
 use oneloop::NativeFloat;
 use serde_json::{Value, json};
@@ -13,6 +17,7 @@ use symbolica::{
     atom::{Atom, AtomCore},
     domains::float::{DoubleFloat, Float},
     evaluate::EvaluationDomain,
+    parser::ParseSettings,
     symbol,
 };
 
@@ -26,6 +31,12 @@ pub enum Precision {
     #[value(alias = "dd")]
     DoubleFloat,
     Float,
+}
+
+#[derive(Clone, Copy, ValueEnum)]
+pub enum MuExtraction {
+    Expansion,
+    Sampling,
 }
 
 #[derive(ClapArgs)]
@@ -50,6 +61,15 @@ pub struct Args {
     /// Include cut counts and the common parameterized numerator.
     #[arg(long)]
     pub diagnostics: bool,
+    /// Box rational extraction through the mu callback or finite-mu samples.
+    #[arg(long, value_enum, default_value = "expansion")]
+    pub mu_extraction: MuExtraction,
+    /// Extract all box residue coefficients for reconstruction diagnostics.
+    #[arg(long)]
+    pub full_box_coefficients: bool,
+    /// Exact expression for the nonzero mu² sampling scale, independent of the master scale.
+    #[arg(long, default_value = "1")]
+    pub mu_sampling_scale: String,
     #[arg(short, long)]
     pub output: Option<PathBuf>,
 }
@@ -102,11 +122,36 @@ where
     )?;
     let n = prepared.propagators;
     let rank = numerator.rank();
-    let mut amplitude =
-        SymbolicaAmplitudeKernels::new(n, rank, prototype.clone())?.into_amplitude(0)?;
+    let box_options = BoxReductionOptions {
+        coefficients: if args.full_box_coefficients {
+            BoxCoefficientMode::Full
+        } else {
+            BoxCoefficientMode::Integrated
+        },
+        mu_extraction: match args.mu_extraction {
+            MuExtraction::Expansion => BoxMuMode::Expansion,
+            MuExtraction::Sampling => BoxMuMode::Sampling,
+        },
+    };
+    let mut amplitude = SymbolicaAmplitudeKernels::new(n, rank, prototype.clone())?
+        .with_box_options(box_options)
+        .into_amplitude(0)?;
     let mut geometry = SymbolicaCuts::new(prototype.clone())?;
+    let mut high_geometry = if n >= 4 {
+        Some(SymbolicaHighCuts::new(prototype.clone())?)
+    } else {
+        None
+    };
     let mut masters = SymbolicaMasters::new(prototype.clone());
     let scale = numerical(&prepared.scale_squared, &prototype, "scale_squared")?;
+    let sampling_scale = numerical(
+        &Atom::parse(&args.mu_sampling_scale, "ninjars", ParseSettings::default())?,
+        &prototype,
+        "mu_sampling_scale",
+    )?;
+    if sampling_scale.is_fully_zero() {
+        return Err("mu_sampling_scale must be nonzero".into());
+    }
     if !scale.im.is_zero() || scale.re <= prototype.zero() {
         return Err("scale_squared must be positive and real".into());
     }
@@ -177,14 +222,27 @@ where
         }
         numerator.set_parameter_batch(&parameters, chunk.len())?;
         amplitude.reset_batch(chunk.len());
-        amplitude.evaluate_batch(
-            &shifts,
-            &masses,
-            &vec![scale.clone(); chunk.len()],
-            &mut numerator,
-            &mut geometry,
-            &mut masters,
-        )?;
+        if let Some(high_geometry) = high_geometry.as_mut() {
+            amplitude.evaluate_batch_with_high_cuts(
+                &shifts,
+                &masses,
+                &vec![scale.clone(); chunk.len()],
+                &vec![sampling_scale.clone(); chunk.len()],
+                &mut numerator,
+                &mut geometry,
+                high_geometry,
+                &mut masters,
+            )?;
+        } else {
+            amplitude.evaluate_batch(
+                &shifts,
+                &masses,
+                &vec![scale.clone(); chunk.len()],
+                &mut numerator,
+                &mut geometry,
+                &mut masters,
+            )?;
+        }
         for (local, sample) in chunk.iter().enumerate() {
             let status = amplitude.statuses()[local];
             let valid = status == EvaluationStatus::Success;
@@ -202,7 +260,7 @@ where
                 Value::Null
             };
             if args.diagnostics {
-                row["cut_counts"] = json!({"triangles":amplitude.triangles().len()/chunk.len(),"bubbles":amplitude.bubbles().len()/chunk.len(),"tadpoles":amplitude.tadpoles().len()/chunk.len()});
+                row["cut_counts"] = json!({"pentagons":amplitude.pentagons().len()/chunk.len(),"boxes":amplitude.boxes().len()/chunk.len(),"triangles":amplitude.triangles().len()/chunk.len(),"bubbles":amplitude.bubbles().len()/chunk.len(),"tadpoles":amplitude.tadpoles().len()/chunk.len()});
             }
             rows.push(row);
         }
@@ -211,6 +269,7 @@ where
     prepared.document["precision"] = json!({"carrier":match args.precision {Precision::F64=>"f64",Precision::DoubleFloat=>"double-float",Precision::Float=>"float"},"bits":prototype.get_precision()});
     prepared.document["batch_size"] = args.batch_size.get().into();
     prepared.document["rank"] = rank.into();
+    prepared.document["box_reduction"] = json!({"mu_extraction":match args.mu_extraction {MuExtraction::Expansion=>"expansion",MuExtraction::Sampling=>"sampling"},"coefficient_mode":if args.full_box_coefficients {"full"}else{"integrated"},"mu_sampling_scale":args.mu_sampling_scale});
     prepared.document["success"] = success.into();
     prepared.document["result_order"] = json!([
         "finite",

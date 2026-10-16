@@ -1,8 +1,9 @@
-# Future box and pentagon stage
+# Box and pentagon stage design
 
-This is a design note for work after the integrated one-, two- and
-three-propagator milestone. It records inspected interfaces and proposed
-extensions, not implementation or acceptance evidence. Reference source is
+This note records the inspected interfaces and algebra behind the implemented
+box/pentagon stages. Its original proposals are retained below; tests and
+acceptance evidence are recorded separately in `references/PLAN.md` and the
+[reference audit](box-reference-audit.md). Reference source is
 original Ninja revision `05fb0d3a0f47f216eceef411a09ac19e1b9a19f0`.
 
 ## Residue conventions to preserve
@@ -155,7 +156,7 @@ validated. Extend the shared evaluator/helper bodies, preserving lazy
 branches, rather than bypassing the current rejection. Keep all components in
 cache keys and failure checks; primal equality is insufficient.
 
-## Reference audit hypothesis, not an established defect
+## Reference audit hypothesis and subsequent confirmation
 
 In original `src/ninja_implem.cxx:717-724`, the higher-rank full-box branch with
 `use_mu_exp=false` reconstructs c5 from the two nonzero-mu samples, then updates
@@ -166,8 +167,10 @@ only subtracts c5. Confirm this by Symbolica substitution of the residue
 polynomial and a synthetic c5-only numerator at `scale_choice != 1`, without
 modifying the reference. Integrated box contributions depend only on c0/c4,
 so this hypothesis does not imply an integrated-result discrepancy.
+The independent unchanged-reference probe now confirms it; see
+`validation/evidence/box-full-reconstruction.json` and the reference audit.
 
 Original higher-rank global reconstruction is already incomplete; a future
 spurious-coefficient mismatch should be checked against the exact residue
 identity before attributing it to NinjaRS. No acceptance gate is satisfied by
-this note.
+this design note alone.

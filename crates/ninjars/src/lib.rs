@@ -7,17 +7,24 @@
 
 mod amplitude;
 mod batch;
+mod boxes;
 mod bubbles;
 mod cuts;
+mod high_cuts;
 mod integration;
 mod masters;
 mod numerator;
+mod pentagons;
 mod tadpoles;
 mod topology;
 mod triangles;
 
 pub use amplitude::{Amplitude, AmplitudeKernels, EvaluationStatus};
 pub use batch::{BatchShape, SampleId};
+pub use boxes::{
+    BoxCoefficientMode, BoxDivisionRequest, BoxMuDivisionRequest, BoxMuMode, BoxProjectionRequest,
+    BoxReducer, BoxReductionKernels, BoxReductionOptions, BoxResidue,
+};
 pub use bubbles::{
     BubbleDivisionRequest, BubbleReducer, BubbleReductionKernels, BubbleResidue,
     BubbleTriangleCorrectionRequest,
@@ -28,12 +35,18 @@ pub use cuts::{
 };
 pub use cuts::{BubbleSampleRequest, CutSampler, TriangleSampleRequest};
 pub use feynkit_kinematics::{Energy, FourMomentum, MomentumSignature, ThreeMomentum};
+pub use high_cuts::{
+    BoxCut, BoxCutRequest, BoxSampleRequest, HighCutProvider, PentagonCut, PentagonCutRequest,
+};
 pub use integration::{
     IntegratedContribution, IntegrationKernels, IntegrationStatus, ResidueIntegrationRequest,
     ResidueIntegrator,
 };
 pub use masters::{MasterFailure, MasterIntegral, MasterProvider, MasterRequest, MasterStatus};
 pub use numerator::{ExpansionKind, ExpansionRequest, Numerator, NumeratorRequest};
+pub use pentagons::{
+    PentagonDivisionRequest, PentagonReducer, PentagonReductionKernels, PentagonResidue,
+};
 pub use symbolica::domains::float::{Complex, DoubleFloat, Float, FloatLike, Real, SingleFloat};
 pub use tadpoles::{
     IntegratedTadpoleResidue, TadpoleCorrectionRequest, TadpoleDivisionRequest, TadpoleReducer,

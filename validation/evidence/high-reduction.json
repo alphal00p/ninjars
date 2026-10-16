@@ -1,0 +1,1940 @@
+{
+  "cases": [
+    {
+      "name": "high-4-constant-real",
+      "expression": "1",
+      "rank": 0,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            -0.02147688804019389,
+            -0.025264567447903598
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          -0.02147688804019389,
+          -0.025264567447903598
+        ],
+        "nanoseconds_per_evaluation": 1180,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "637de24d5565149a8c25616ab50e35590bb7c20950b58a9da9bbf4f6f294c94c",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-4-constant-complex",
+      "expression": "1",
+      "rank": 0,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          -0.0625
+        ],
+        [
+          2,
+          -0.125
+        ],
+        [
+          3,
+          -0.1875
+        ],
+        [
+          4,
+          -0.25
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            -0.019669192820109226,
+            -0.023669201393212484
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          -0.019669192820109226,
+          -0.023669201393212484
+        ],
+        "nanoseconds_per_evaluation": 1100,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "637de24d5565149a8c25616ab50e35590bb7c20950b58a9da9bbf4f6f294c94c",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-4-polynomial-real",
+      "expression": "1+q0+2*q1*q2+mu2",
+      "rank": 2,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            0.03871239138587043,
+            0.04260986899823398
+          ],
+          [
+            -3.122502256758253e-16,
+            -5.551115123125783e-17
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          0.03871239138587043,
+          0.04260986899823398
+        ],
+        "nanoseconds_per_evaluation": 9840,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "08c4b2a2061e6b48aa4cc72905e69bc8ba97b9b27b8ba8c89d380d866719fbc5",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-4-polynomial-complex",
+      "expression": "1+q0+2*q1*q2+mu2",
+      "rank": 2,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          -0.0625
+        ],
+        [
+          2,
+          -0.125
+        ],
+        [
+          3,
+          -0.1875
+        ],
+        [
+          4,
+          -0.25
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            0.03539877547231228,
+            0.03997532730813475
+          ],
+          [
+            -3.122502256758253e-16,
+            -5.551115123125783e-17
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          0.03539877547231228,
+          0.03997532730813475
+        ],
+        "nanoseconds_per_evaluation": 9050,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "08c4b2a2061e6b48aa4cc72905e69bc8ba97b9b27b8ba8c89d380d866719fbc5",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-4-higher-real",
+      "expression": "q0^5+mu2^2*q1^1+mu2*q2^2+1",
+      "rank": 5,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            14.932338164325724,
+            27.28472735836362
+          ],
+          [
+            -2.0312500000000027,
+            -7.769036883807942e-15
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0.23029273846172238,
+          0
+        ],
+        "cut_constructible": [
+          14.702045425864002,
+          27.28472735836362
+        ],
+        "nanoseconds_per_evaluation": 36910,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "dab6b735495403feae5315b7a88e701ca73a9f159623c794bdbc4b82053b460b",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-4-higher-complex",
+      "expression": "q0^5+mu2^2*q1^1+mu2*q2^2+1",
+      "rank": 5,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          -0.0625
+        ],
+        [
+          2,
+          -0.125
+        ],
+        [
+          3,
+          -0.1875
+        ],
+        [
+          4,
+          -0.25
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            13.130312414255291,
+            25.586081705498707
+          ],
+          [
+            -2.031249999999996,
+            -6.279698983036042e-15
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0.23028132713380423,
+          0.004176180769626114
+        ],
+        "cut_constructible": [
+          12.900031087121487,
+          25.58190552472908
+        ],
+        "nanoseconds_per_evaluation": 35300,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "dab6b735495403feae5315b7a88e701ca73a9f159623c794bdbc4b82053b460b",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-5-constant-real",
+      "expression": "1",
+      "rank": 0,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ],
+        [
+          11,
+          1,
+          2,
+          1
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            -0.0005014635368332489,
+            -0.0004979346926007595
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          -0.0005014635368332489,
+          -0.0004979346926007595
+        ],
+        "nanoseconds_per_evaluation": 3189,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "5dad17d0ef2c9e97810e55d7a5343ea9e24fd65eb703288264f96dfaeb911f3a",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-5-constant-complex",
+      "expression": "1",
+      "rank": 0,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ],
+        [
+          11,
+          1,
+          2,
+          1
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          -0.0625
+        ],
+        [
+          2,
+          -0.125
+        ],
+        [
+          3,
+          -0.1875
+        ],
+        [
+          4,
+          -0.25
+        ],
+        [
+          5,
+          -0.3125
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            -0.0004600323768865258,
+            -0.0004628284143719789
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          -0.0004600323768865258,
+          -0.0004628284143719789
+        ],
+        "nanoseconds_per_evaluation": 3100,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "5dad17d0ef2c9e97810e55d7a5343ea9e24fd65eb703288264f96dfaeb911f3a",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-5-polynomial-real",
+      "expression": "1+q0+2*q1*q2+mu2",
+      "rank": 2,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ],
+        [
+          11,
+          1,
+          2,
+          1
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            0.0013222773897777033,
+            0.001314061673337221
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          0.0013222773897777033,
+          0.001314061673337221
+        ],
+        "nanoseconds_per_evaluation": 8210,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "38c6068f5920ed78de24fa7d6b94515bfa027f26cdf25704e7af322935b8043b",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-5-polynomial-complex",
+      "expression": "1+q0+2*q1*q2+mu2",
+      "rank": 2,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ],
+        [
+          11,
+          1,
+          2,
+          1
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          -0.0625
+        ],
+        [
+          2,
+          -0.125
+        ],
+        [
+          3,
+          -0.1875
+        ],
+        [
+          4,
+          -0.25
+        ],
+        [
+          5,
+          -0.3125
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            0.0012047205275753927,
+            0.001221505909202141
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          0.0012047205275753927,
+          0.001221505909202141
+        ],
+        "nanoseconds_per_evaluation": 8170,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "38c6068f5920ed78de24fa7d6b94515bfa027f26cdf25704e7af322935b8043b",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-5-higher-real",
+      "expression": "q0^6+mu2^2*q1^2+mu2*q2^2+1",
+      "rank": 6,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ],
+        [
+          11,
+          1,
+          2,
+          1
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            -7.148022367946008,
+            -20.045036252802735
+          ],
+          [
+            0.07812499999999001,
+            2.0656845913305613e-14
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0.05505357670909028,
+          0
+        ],
+        "cut_constructible": [
+          -7.203075944655098,
+          -20.045036252802735
+        ],
+        "nanoseconds_per_evaluation": 71211,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "d6223b3203c6a5695dcf1c335aeb9335e23fe046bb3681169340ca343ff5f2f9",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-5-higher-complex",
+      "expression": "q0^6+mu2^2*q1^2+mu2*q2^2+1",
+      "rank": 6,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ],
+        [
+          11,
+          1,
+          2,
+          1
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          -0.0625
+        ],
+        [
+          2,
+          -0.125
+        ],
+        [
+          3,
+          -0.1875
+        ],
+        [
+          4,
+          -0.25
+        ],
+        [
+          5,
+          -0.3125
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            -6.165924253373083,
+            -18.75878742365639
+          ],
+          [
+            0.07812500000002083,
+            1.5155411647871375e-14
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0.05505199698516883,
+          0.0009483347169343403
+        ],
+        "cut_constructible": [
+          -6.220976250358252,
+          -18.759735758373324
+        ],
+        "nanoseconds_per_evaluation": 70381,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "d6223b3203c6a5695dcf1c335aeb9335e23fe046bb3681169340ca343ff5f2f9",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-6-constant-real",
+      "expression": "1",
+      "rank": 0,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ],
+        [
+          11,
+          1,
+          2,
+          1
+        ],
+        [
+          16,
+          2,
+          -1,
+          2
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            -4.180927817922796e-06,
+            -4.1487535411536136e-06
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          -4.180927817922796e-06,
+          -4.1487535411536136e-06
+        ],
+        "nanoseconds_per_evaluation": 8240,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "25e1bbfbdf50163f74d9c2d07c83d2d25e183287dccbb0d9747e8d39add9e8ba",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-6-constant-complex",
+      "expression": "1",
+      "rank": 0,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ],
+        [
+          11,
+          1,
+          2,
+          1
+        ],
+        [
+          16,
+          2,
+          -1,
+          2
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          -0.0625
+        ],
+        [
+          2,
+          -0.125
+        ],
+        [
+          3,
+          -0.1875
+        ],
+        [
+          4,
+          -0.25
+        ],
+        [
+          5,
+          -0.3125
+        ],
+        [
+          6,
+          -0.375
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            -3.828339274631704e-06,
+            -3.84414723004387e-06
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          -3.828339274631704e-06,
+          -3.84414723004387e-06
+        ],
+        "nanoseconds_per_evaluation": 8000,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "25e1bbfbdf50163f74d9c2d07c83d2d25e183287dccbb0d9747e8d39add9e8ba",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-6-polynomial-real",
+      "expression": "1+q0+2*q1*q2+mu2",
+      "rank": 2,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ],
+        [
+          11,
+          1,
+          2,
+          1
+        ],
+        [
+          16,
+          2,
+          -1,
+          2
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            1.354992474230995e-05,
+            1.4769096362460743e-05
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          1.354992474230995e-05,
+          1.4769096362460743e-05
+        ],
+        "nanoseconds_per_evaluation": 8450,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "f55770e04c1fb0858066387ca1bbe2b86366400fac59807fbb74675e7d5a9467",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-6-polynomial-complex",
+      "expression": "1+q0+2*q1*q2+mu2",
+      "rank": 2,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ],
+        [
+          11,
+          1,
+          2,
+          1
+        ],
+        [
+          16,
+          2,
+          -1,
+          2
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          -0.0625
+        ],
+        [
+          2,
+          -0.125
+        ],
+        [
+          3,
+          -0.1875
+        ],
+        [
+          4,
+          -0.25
+        ],
+        [
+          5,
+          -0.3125
+        ],
+        [
+          6,
+          -0.375
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            1.2308196777241059e-05,
+            1.3700082389000198e-05
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          1.2308196777241059e-05,
+          1.3700082389000198e-05
+        ],
+        "nanoseconds_per_evaluation": 8170,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "f55770e04c1fb0858066387ca1bbe2b86366400fac59807fbb74675e7d5a9467",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-6-higher-real",
+      "expression": "q0^7+mu2^2*q1^3+mu2*q2^2+1",
+      "rank": 7,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ],
+        [
+          11,
+          1,
+          2,
+          1
+        ],
+        [
+          16,
+          2,
+          -1,
+          2
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            1.9801698987280438,
+            5.987492702615848
+          ],
+          [
+            -3.161533534967731e-15,
+            4.6846370996192035e-15
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          -0.00399801611972439,
+          -1.7763568394002505e-15
+        ],
+        "cut_constructible": [
+          1.9841679148477682,
+          5.9874927026158495
+        ],
+        "nanoseconds_per_evaluation": 135500,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "f229db52b2491c0ca410a16aa87ee95f3b825acd9d9e9fc5de4df01762fa2360",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "name": "high-6-higher-complex",
+      "expression": "q0^7+mu2^2*q1^3+mu2*q2^2+1",
+      "rank": 7,
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          4,
+          0,
+          1,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ],
+        [
+          11,
+          1,
+          2,
+          1
+        ],
+        [
+          16,
+          2,
+          -1,
+          2
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          -0.0625
+        ],
+        [
+          2,
+          -0.125
+        ],
+        [
+          3,
+          -0.1875
+        ],
+        [
+          4,
+          -0.25
+        ],
+        [
+          5,
+          -0.3125
+        ],
+        [
+          6,
+          -0.375
+        ]
+      ],
+      "scale_squared": 1,
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            1.712139143781314,
+            5.590999469426474
+          ],
+          [
+            -1.5612511283791264e-16,
+            1.2130324956310945e-15
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          -0.003998083649719764,
+          3.6643236207112295e-05
+        ],
+        "cut_constructible": [
+          1.7161372274310338,
+          5.590962826190267
+        ],
+        "nanoseconds_per_evaluation": 134450,
+        "repetitions": 1
+      },
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "f229db52b2491c0ca410a16aa87ee95f3b825acd9d9e9fc5de4df01762fa2360",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    }
+  ],
+  "timings_are_acceptance_evidence": false,
+  "full_ninja_acceptance": false,
+  "reference_exceptions": [
+    {
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          2,
+          0,
+          1
+        ],
+        [
+          3,
+          -1,
+          1,
+          0
+        ],
+        [
+          -2,
+          1,
+          3,
+          2
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "rank": 2,
+      "expression": "1+q0+2*q1*q2+mu2",
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          null,
+          null,
+          null
+        ],
+        "rational": null,
+        "cut_constructible": null,
+        "nanoseconds_per_evaluation": 15030,
+        "repetitions": 1
+      },
+      "reason": "original returns nonfinite coefficients; diagnostic pending"
+    },
+    {
+      "shifts": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          1,
+          0,
+          0
+        ],
+        [
+          3,
+          0,
+          1,
+          0
+        ],
+        [
+          4,
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          2,
+          3,
+          4
+        ]
+      ],
+      "masses_squared": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ]
+      ],
+      "rank": 0,
+      "expression": "1",
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          null,
+          null,
+          null
+        ],
+        "rational": null,
+        "cut_constructible": null,
+        "nanoseconds_per_evaluation": 5330,
+        "repetitions": 1
+      },
+      "reason": "original returns nonfinite coefficients; diagnostic pending"
+    }
+  ]
+}

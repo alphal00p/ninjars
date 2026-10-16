@@ -21,7 +21,8 @@ use crate::kernel::{CompiledDualKernel, CompiledKernel, ExactKernel};
 pub struct MasterContractionInputLayout {
     /// Original Ninja c-index order, including unused entries.
     pub coefficients: Range<usize>,
-    /// Bubble: s21. Triangle: [s21, s32, s13]. Tadpole: empty.
+    /// Bubble: s21. Triangle: [s21, s32, s13]. Box:
+    /// [s21, s32, s43, s14, s31, s42]. Tadpole: empty.
     pub invariants: Range<usize>,
     /// Squared masses in cut-partition order.
     pub masses_squared: Range<usize>,
@@ -31,9 +32,9 @@ pub struct MasterContractionInputLayout {
     pub ke2: Option<usize>,
 }
 
-/// Exact contraction of a tadpole, bubble, or triangle residue.
+/// Exact contraction of a tadpole, bubble, triangle, or box residue.
 ///
-/// Ordinary/higher-rank coefficient counts are 5/16, 10/20, and 10/15. Higher
+/// Ordinary/higher-rank coefficient counts are 5/16, 10/20, 10/15, and 5/6. Higher
 /// rank means numerator rank n+1. In particular, the higher-rank tadpole retains
 /// original unused c[9]; c[14] and c[15] are never compacted or renumbered.
 ///
@@ -61,16 +62,19 @@ impl MasterContraction {
             (2 | 3, false) => 10,
             (2, true) => 20,
             (3, true) => 15,
+            (4, false) => 5,
+            (4, true) => 6,
             _ => {
                 return Err(Error::Unsupported(
-                    "master contraction currently supports cuts of size one through three".into(),
+                    "master contraction currently supports cuts of size one through four".into(),
                 ));
             }
         };
         let invariant_count = match cut_size {
             1 => 0,
             2 => 1,
-            _ => 3,
+            3 => 3,
+            _ => 6,
         };
         let invariant_start = coefficient_count;
         let mass_start = invariant_start + invariant_count;
@@ -113,13 +117,14 @@ impl MasterContraction {
                 }
                 (masters, expressions, rational)
             }
-            _ => {
+            3 => {
                 let mut rational = &c[7] / 2;
                 if higher_rank {
                     rational += &c[14] * ((&s[0] + &s[1] + &s[2]) / 4 - &m[0] - &m[1] - &m[2]) / 6;
                 }
                 (vec![MasterIntegral::C0], vec![c[0].clone()], rational)
             }
+            _ => (vec![MasterIntegral::D0], vec![c[0].clone()], -&c[4] / 6),
         };
         expressions.push(rational);
         let weights = ExactKernel {

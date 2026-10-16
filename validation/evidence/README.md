@@ -28,3 +28,27 @@ subtraction comparisons, upstream dependency regressions and reproduction
 commands. It validates triple-cut residues and constituent kernels; it is not
 integrated amplitude or performance acceptance evidence. The corresponding
 scope and remaining work are recorded in `references/PLAN.md`.
+
+## Integrated and high-cut evidence
+
+`integrated-stage.json` records the tadpole/bubble/triangle milestone and its
+103-test workspace validation. `box-masters.json`, `box-full-reconstruction.json`
+and `box-cli.json` record independent D0 controls, two original Ninja defects,
+and 36 prepared-box comparisons. Reproduction commands and reference-domain
+restrictions are in [the box audit](../../docs/box-reference-audit.md).
+
+`high-reduction.json` contains 18 original Ninja controls covering four through
+six propagators, ranks 0, 2 and n+1, and real/complex masses. Regenerate it with
+`python3 validation/reference/test_high_reduction.py` after building the
+`generate_reference` example. Original nonfinite responses at two initial
+kinematic configurations are retained separately as `reference_exceptions`.
+
+`high-stage.json` records 36 full Rust amplitude comparisons against those
+controls in mu-expansion and finite-mu sampling modes, using sampling scales
+comparable to the kinematic invariants. Run the `amplitude_high` Rust test with
+`--nocapture --test-threads=1` and `RUST_MIN_STACK=134217728`; its
+`NINJARS_HIGH_REDUCTION` line contains the machine-readable report. The maximum
+scaled difference is 2.58e-11 at a fixed 1e-9 gate. An observed small-scale
+cancellation failure is retained explicitly; automatic scale selection and
+precision rescue remain outstanding. These records establish neither physical
+validation nor performance acceptance.

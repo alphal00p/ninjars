@@ -14,7 +14,8 @@ pub struct ResidueIntegrationRequest<'a, T> {
     pub shifts: &'a [FourMomentum<T>],
     pub masses_squared: &'a [T],
     pub coefficients: &'a [T],
-    pub basis: &'a CutBasis<T>,
+    /// Required for cuts of size 1–3; box contraction is independent of a basis.
+    pub basis: Option<&'a CutBasis<T>>,
     pub scale_squared: &'a T,
 }
 
@@ -249,6 +250,11 @@ pub(crate) fn validate_request<T>(
     cut_size: usize,
     coefficients: usize,
 ) -> Result<()> {
+    if cut_size <= 3 && request.basis.is_none() {
+        return Err(Error::Expansion(
+            "cuts of size 1–3 require their extraction basis".into(),
+        ));
+    }
     if request.partition.len() != cut_size
         || request.shifts.len() != request.masses_squared.len()
         || request.partition.iter().any(|&i| i >= request.shifts.len())
