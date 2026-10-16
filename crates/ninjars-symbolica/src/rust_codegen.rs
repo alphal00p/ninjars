@@ -12,8 +12,8 @@ use symbolica::domains::dual::DualNumberStructure;
 pub use oneloop::rust_codegen::{EmitOptions, GeneratedModule, RustEmitter, runtime};
 
 use crate::{
-    DenominatorExpansion, LaurentDivision, TadpoleGeometryProbe, TadpoleSourceProjection,
-    TriangleBubbleSubtraction,
+    BubbleSourceProjection, DenominatorExpansion, LaurentDivision, TadpoleGeometryProbe,
+    TadpoleSourceProjection, TriangleBubbleSubtraction,
 };
 
 /// Mechanical Rust export for a prepared reduction kernel.
@@ -117,5 +117,6 @@ macro_rules! export_kernel {
 export_kernel!(LaurentDivision);
 export_kernel!(TriangleBubbleSubtraction);
 export_kernel!(DenominatorExpansion);
+export_kernel!(BubbleSourceProjection);
 export_kernel!(TadpoleSourceProjection);
 export_kernel!(TadpoleGeometryProbe);

@@ -3,43 +3,35 @@
 use crate::{
     MasterContraction,
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor},
+    value_checks::{DualChecks, IntegrationChecks, OrdinaryChecks},
 };
 use ninjars::{
     BatchShape, Complex, FloatLike, FourMomentum, IntegratedContribution, IntegrationKernels,
     Laurent, MasterIntegral, Real, ResidueIntegrationRequest, Result, SingleFloat,
 };
+use std::marker::PhantomData;
 use symbolica::{atom::Atom, domains::dual::DualNumber, evaluate::EvaluationDomain, symbol};
 
-struct Engine<V, K> {
+struct Engine<V, K, Checks> {
     size: usize,
     plan: MasterContraction,
     momentum: K,
     weights: K,
     contraction: K,
     zero: V,
-    finite: fn(&V) -> bool,
-    compatible: fn(&V, &V) -> bool,
-    equal: fn(&V, &V) -> bool,
-    is_zero: fn(&V) -> bool,
-    valid_scale: fn(&V) -> bool,
+    checks: PhantomData<fn() -> Checks>,
     active: Vec<usize>,
     arguments: Vec<V>,
     kinematics: Vec<V>,
     values: Vec<V>,
 }
 
-impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
-    #[allow(clippy::too_many_arguments)]
+impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V, K, Checks> {
     fn new(
         size: usize,
         higher: bool,
         prototype: &V,
         mut compile: impl FnMut(&ExactKernel) -> Result<K>,
-        finite: fn(&V) -> bool,
-        compatible: fn(&V, &V) -> bool,
-        equal: fn(&V, &V) -> bool,
-        is_zero: fn(&V) -> bool,
-        valid_scale: fn(&V) -> bool,
     ) -> Result<Self> {
         let plan = MasterContraction::new(size, higher)?;
         let parameters: Vec<_> = (0..4 * size + if size == 2 { 4 } else { 0 })
@@ -76,11 +68,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
             contraction: compile(&plan.contraction)?,
             plan,
             zero: prototype.zero(),
-            finite,
-            compatible,
-            equal,
-            is_zero,
-            valid_scale,
+            checks: PhantomData,
             active: Vec::new(),
             arguments: Vec::new(),
             kinematics: Vec::new(),
@@ -121,13 +109,13 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
                 }))
                 .chain([request.scale_squared])
                 .chain(request.s_matrix.into_iter().flatten())
-                .all(|v| (self.compatible)(v, &self.zero) && (self.finite)(v))
-                && (self.valid_scale)(request.scale_squared);
+                .all(|v| Checks::shape_matches(v, &self.zero) && Checks::finite(v))
+                && Checks::valid_scale(request.scale_squared);
             if let Some(matrix) = request.s_matrix {
                 let n = request.shifts.len();
                 valid[row] &= (0..n).all(|i| {
-                    (self.is_zero)(&matrix[i * n + i])
-                        && (0..i).all(|j| (self.equal)(&matrix[i * n + j], &matrix[j * n + i]))
+                    Checks::is_zero(&matrix[i * n + i])
+                        && (0..i).all(|j| Checks::equal(&matrix[i * n + j], &matrix[j * n + i]))
                 });
             }
             if !valid[row] {
@@ -196,13 +184,21 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
         for (index, &row) in self.active.iter().enumerate() {
             let kin = &self.kinematics[index * kinematic_columns..(index + 1) * kinematic_columns];
             let value = &self.values[index * columns..(index + 1) * columns];
-            valid[row] = kin.iter().chain(value).all(self.finite);
+            valid[row] = kin.iter().chain(value).all(Checks::finite);
             if valid[row] {
                 invariants[row * inv..(row + 1) * inv].clone_from_slice(&kin[..inv]);
                 weights[row * columns..(row + 1) * columns].clone_from_slice(value);
             }
         }
         Ok(())
+    }
+
+    fn value_is_zero(&self, value: &V) -> bool {
+        Checks::is_zero(value)
+    }
+
+    fn values_are_finite(&self, values: &[V]) -> bool {
+        values.iter().all(Checks::finite)
     }
 
     fn contract(
@@ -243,7 +239,7 @@ impl<V: FloatLike, K: KernelExecutor<V>> Engine<V, K> {
 
 /// Batched integration kernels for complex scalar numerical carriers.
 pub struct SymbolicaIntegrationKernels<T> {
-    engine: Engine<Complex<T>, CompiledKernel<T>>,
+    engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks>,
 }
 
 impl<T: Real + SingleFloat> SymbolicaIntegrationKernels<T>
@@ -253,29 +249,14 @@ where
     pub fn new(cut_size: usize, higher_rank: bool, prototype: T) -> Result<Self> {
         let zero = Complex::new(prototype.zero(), prototype.zero());
         Ok(Self {
-            engine: Engine::new(
-                cut_size,
-                higher_rank,
-                &zero,
-                |k| k.compile(&prototype),
-                |v| v.re.is_finite() && v.im.is_finite(),
-                // Float tracks significant bits per component. Cancellation
-                // changes that count; it does not change the scalar carrier.
-                |_, _| true,
-                |a, b| a == b,
-                |v| v.re.is_zero() && v.im.is_zero(),
-                |v| {
-                    v.im.is_zero()
-                        && v.re.real_cmp(&v.re.zero()) == Some(std::cmp::Ordering::Greater)
-                },
-            )?,
+            engine: Engine::new(cut_size, higher_rank, &zero, |k| k.compile(&prototype))?,
         })
     }
 }
 
 /// The same exact arithmetic transformed by Symbolica for every Dual component.
 pub struct SymbolicaDualIntegrationKernels<T, D> {
-    engine: Engine<D, CompiledDualKernel<T, D>>,
+    engine: Engine<D, CompiledDualKernel<T, D>, DualChecks<T>>,
 }
 
 impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualIntegrationKernels<T, D>
@@ -284,25 +265,9 @@ where
 {
     pub fn new(cut_size: usize, higher_rank: bool, prototype: T, dual: &D) -> Result<Self> {
         Ok(Self {
-            engine: Engine::new(
-                cut_size,
-                higher_rank,
-                dual,
-                |k| k.compile_dual(&prototype, dual),
-                |v| {
-                    v.values()
-                        .iter()
-                        .all(|v| v.re.is_finite() && v.im.is_finite())
-                },
-                |v, p| v.values().len() == p.values().len() && v.get_shape() == p.get_shape(),
-                |a, b| a.get_shape() == b.get_shape() && a.values() == b.values(),
-                |v| v.values().iter().all(|v| v.re.is_zero() && v.im.is_zero()),
-                |v| {
-                    v.values()[0].im.is_zero()
-                        && v.values()[0].re.real_cmp(&v.values()[0].re.zero())
-                            == Some(std::cmp::Ordering::Greater)
-                },
-            )?,
+            engine: Engine::new(cut_size, higher_rank, dual, |k| {
+                k.compile_dual(&prototype, dual)
+            })?,
         })
     }
 }
@@ -322,8 +287,8 @@ macro_rules! implement {
             }
             fn contract_batch(&mut self, weights: &[implement!(@value T $(,$dual)?)], masters: &[Laurent<implement!(@value T $(,$dual)?)>],
                 output: &mut [IntegratedContribution<implement!(@value T $(,$dual)?)>]) -> Result<()> { self.engine.contract(weights, masters, output) }
-            fn value_is_zero(&self, value: &implement!(@value T $(,$dual)?)) -> bool { (self.engine.is_zero)(value) }
-            fn values_are_finite(&self, values: &[implement!(@value T $(,$dual)?)]) -> bool { values.iter().all(self.engine.finite) }
+            fn value_is_zero(&self, value: &implement!(@value T $(,$dual)?)) -> bool { self.engine.value_is_zero(value) }
+            fn values_are_finite(&self, values: &[implement!(@value T $(,$dual)?)]) -> bool { self.engine.values_are_finite(values) }
         }
     };
     (@value $t:ident) => { Complex<$t> };

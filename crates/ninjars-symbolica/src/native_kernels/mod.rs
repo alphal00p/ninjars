@@ -1,6 +1,8 @@
 //! Explicit, partial native dispatch for named existing Symbolica plans.
 //! No dimension-based or carrier-type inference selects generated arithmetic.
 
+pub(crate) mod bubbles;
+
 use ninjars::{Complex, Error, Real, Result};
 use oneloop::rust_codegen::runtime::{
     BatchWorkspace, C, ConstantSpec, Context, NativeFloat, batch, primitives,
@@ -45,6 +47,8 @@ pub enum KernelBackend {
 pub enum KernelFamily {
     T2Denominators,
     T3Denominators,
+    BubbleSourceProjection,
+    TriangleBubbleCorrection,
     OtherReduction,
     Integration,
     Accumulation,
@@ -56,18 +60,23 @@ pub struct KernelBackendSelection {
     pub backend: KernelBackend,
 }
 
-pub(crate) fn coverage(native: bool) -> [KernelBackendSelection; 5] {
+pub(crate) fn coverage(native: bool, bubble_corrections: bool) -> [KernelBackendSelection; 7] {
     use KernelFamily::*;
     [
         T2Denominators,
         T3Denominators,
+        BubbleSourceProjection,
+        TriangleBubbleCorrection,
         OtherReduction,
         Integration,
         Accumulation,
     ]
     .map(|family| KernelBackendSelection {
         family,
-        backend: if native && matches!(family, T2Denominators | T3Denominators) {
+        backend: if (native && matches!(family, T2Denominators | T3Denominators))
+            || (bubble_corrections
+                && matches!(family, BubbleSourceProjection | TriangleBubbleCorrection))
+        {
             KernelBackend::NativeRust
         } else {
             KernelBackend::SymbolicaInterpreter

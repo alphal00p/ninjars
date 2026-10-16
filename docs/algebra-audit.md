@@ -131,3 +131,21 @@ and Dualization are unchanged. A rank-five control checks 798 exact
 Mu/T3/T2 coefficients against independent full Symbolica expansion. A second
 control checks first, second and mixed Dual components on reordered, repeated
 and empty batches, including a lane with a vanishing external coefficient.
+
+## Native bubble-correction plan extraction
+
+`BubbleSourceProjection` moves the existing bubble engine's exact source-axis
+projection construction into a shared plan. It still constructs `FourMomentum<Atom>`
+and calls FeynKit's `dot`; no contraction or component algebra was reimplemented.
+`TriangleBubbleSubtraction::for_quotient` moves the existing explicit `(t,x,mu²)`
+selection into the subtraction plan, using the validated `LaurentDivision`
+layout. The underlying Symbolica series/polynomial extraction is unchanged.
+
+The native generator delegates these exact evaluator graphs to the existing
+oneloopmaster `RustEmitter::emit_batch`, as documented in the code-generation
+audit. Ordinary source projections and correction degrees0/1/2/higher3 are
+emitted separately. No handwritten recurrence, new symbolic representation,
+precision conversion, or custom Dual transformation is introduced. Source
+origin and higher/mixed component regressions compare against shared momentum
+operations; quotient selection is checked against every corresponding output
+of the full original exact plan.
