@@ -1,0 +1,533 @@
+{
+  "schema_version": 1,
+  "upstream_revision": "e9d14f7b5fa546af33fced2a421c616220178643",
+  "symbolica_integration": "fd7bced5307e94e994d5deba63c60b8380aa7d02",
+  "symbolica_pr": "https://github.com/symbolica-dev/symbolica/pull/87",
+  "counts": {
+    "passed": 123,
+    "failed": 0,
+    "ignored": 5
+  },
+  "scope": "Combined selected upstream targets and actual-git Python locked compilation; no production-native dispatch or performance acceptance",
+  "open_oneloopmaster_prs": 0,
+  "evidence": {
+    "results.json": {
+      "build": {
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "-j4",
+          "--all-features",
+          "--target-dir",
+          "/shared/external/ninja/target/oneloop-main-validation",
+          "--lib",
+          "--test",
+          "evaluators",
+          "--test",
+          "master_callbacks_jit",
+          "--test",
+          "initialization",
+          "--test",
+          "rust_batch_codegen",
+          "--test",
+          "c0_derivatives",
+          "--test",
+          "native",
+          "--test",
+          "native_contract",
+          "--test",
+          "native_primitives",
+          "--test",
+          "native_evaluator",
+          "--test",
+          "native_hooks",
+          "--test",
+          "native_hook_errors",
+          "--test",
+          "native_startup",
+          "--test",
+          "function_definitions",
+          "--no-run",
+          "--message-format=json"
+        ],
+        "returncode": 0,
+        "seconds": 77.51641719200416
+      },
+      "tests": [
+        {
+          "target": "oneloop",
+          "command": [
+            "/common/build-cache/external/f6/3bfb1b8b940281/debug/deps/oneloop-0bfe144f522b247c",
+            "--test-threads=1",
+            "--nocapture"
+          ],
+          "returncode": 0,
+          "seconds": 39.13710706902202,
+          "summary": [
+            "test result: ok. 83 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 39.08s"
+          ]
+        },
+        {
+          "target": "evaluators",
+          "command": [
+            "/common/build-cache/external/f6/3bfb1b8b940281/debug/deps/evaluators-55e7b89a45feb824",
+            "--test-threads=1",
+            "--nocapture"
+          ],
+          "returncode": 0,
+          "seconds": 32.21697532001417,
+          "summary": [
+            "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 32.17s"
+          ]
+        },
+        {
+          "target": "master_callbacks_jit",
+          "command": [
+            "/common/build-cache/external/f6/3bfb1b8b940281/debug/deps/master_callbacks_jit-5ec487a42b6fddbc",
+            "--test-threads=1",
+            "--nocapture"
+          ],
+          "returncode": 0,
+          "seconds": 37.0878750999982,
+          "summary": [
+            "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 37.04s"
+          ]
+        },
+        {
+          "target": "initialization",
+          "command": [
+            "/common/build-cache/external/f6/3bfb1b8b940281/debug/deps/initialization-2e5dcbd93964617f",
+            "--test-threads=1",
+            "--nocapture"
+          ],
+          "returncode": 0,
+          "seconds": 82.80929486101377,
+          "summary": [
+            "test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 82.80s"
+          ]
+        },
+        {
+          "target": "rust_batch_codegen",
+          "command": [
+            "/common/build-cache/external/f6/3bfb1b8b940281/debug/deps/rust_batch_codegen-7cce6beda08f526a",
+            "--test-threads=1",
+            "--nocapture"
+          ],
+          "returncode": 0,
+          "seconds": 22.894137263996527,
+          "summary": [
+            "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 22.89s"
+          ]
+        },
+        {
+          "target": "c0_derivatives",
+          "command": [
+            "/common/build-cache/external/f6/3bfb1b8b940281/debug/deps/c0_derivatives-853322dbb5f92044",
+            "--test-threads=1",
+            "--nocapture"
+          ],
+          "returncode": 0,
+          "seconds": 89.01975020300597,
+          "summary": [
+            "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 88.96s"
+          ]
+        },
+        {
+          "target": "native",
+          "command": [
+            "/common/build-cache/external/f6/3bfb1b8b940281/debug/deps/native-789c3dec4433450a",
+            "--test-threads=1",
+            "--nocapture"
+          ],
+          "returncode": 0,
+          "seconds": 23.102541981003014,
+          "summary": [
+            "test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 23.06s"
+          ]
+        },
+        {
+          "target": "native_contract",
+          "command": [
+            "/common/build-cache/external/f6/3bfb1b8b940281/debug/deps/native_contract-d7be2bd078f660c3",
+            "--test-threads=1",
+            "--nocapture"
+          ],
+          "returncode": 0,
+          "seconds": 0.008519487018929794,
+          "summary": [
+            "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+          ]
+        },
+        {
+          "target": "native_primitives",
+          "command": [
+            "/common/build-cache/external/f6/3bfb1b8b940281/debug/deps/native_primitives-aca9b15498a881ff",
+            "--test-threads=1",
+            "--nocapture"
+          ],
+          "returncode": 0,
+          "seconds": 0.12860991299385205,
+          "summary": [
+            "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s"
+          ]
+        },
+        {
+          "target": "native_evaluator",
+          "command": [
+            "/common/build-cache/external/f6/3bfb1b8b940281/debug/deps/native_evaluator-7bb5f28a3d8bda29",
+            "--test-threads=1",
+            "--nocapture"
+          ],
+          "returncode": 0,
+          "seconds": 0.012497298012021929,
+          "summary": [
+            "test result: ok. 2 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.01s"
+          ]
+        },
+        {
+          "target": "native_hooks",
+          "command": [
+            "/common/build-cache/external/f6/3bfb1b8b940281/debug/deps/native_hooks-459dc8c8d953c3b8",
+            "--test-threads=1",
+            "--nocapture"
+          ],
+          "returncode": 0,
+          "seconds": 15.372272426000563,
+          "summary": [
+            "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.33s"
+          ]
+        },
+        {
+          "target": "native_hook_errors",
+          "command": [
+            "/common/build-cache/external/f6/3bfb1b8b940281/debug/deps/native_hook_errors-d239fc4acff07da3",
+            "--test-threads=1",
+            "--nocapture"
+          ],
+          "returncode": 0,
+          "seconds": 13.970713640999747,
+          "summary": [
+            "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.87s"
+          ]
+        },
+        {
+          "target": "native_startup",
+          "command": [
+            "/common/build-cache/external/f6/3bfb1b8b940281/debug/deps/native_startup-a9b1affd71f0c434",
+            "--test-threads=1",
+            "--nocapture"
+          ],
+          "returncode": 0,
+          "seconds": 44.403824893001,
+          "summary": [
+            "test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 44.40s"
+          ]
+        },
+        {
+          "target": "function_definitions",
+          "command": [
+            "/common/build-cache/external/f6/3bfb1b8b940281/debug/deps/function_definitions-d858ff8178e721a4",
+            "--test-threads=1",
+            "--nocapture"
+          ],
+          "returncode": 0,
+          "seconds": 0.026896641997154802,
+          "summary": [
+            "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s"
+          ]
+        }
+      ]
+    },
+    "python-results.json": [
+      {
+        "name": "python",
+        "command": [
+          "cargo",
+          "check",
+          "--locked",
+          "-j4",
+          "--manifest-path",
+          "python/Cargo.toml",
+          "--target-dir",
+          "/shared/external/ninja/target/oneloop-helper-pin-python"
+        ],
+        "returncode": 0,
+        "seconds": 29.589684013015358
+      },
+      {
+        "name": "host",
+        "command": [
+          "cargo",
+          "check",
+          "--locked",
+          "-j4",
+          "--manifest-path",
+          "python/host/Cargo.toml",
+          "--target-dir",
+          "/shared/external/ninja/target/oneloop-helper-pin-python"
+        ],
+        "returncode": 0,
+        "seconds": 39.92124804400373
+      }
+    ],
+    "dependency-resolution.json": {
+      "root": [
+        {
+          "name": "symbolica",
+          "version": "3.0.1",
+          "source": "git+https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5307e94e994d5deba63c60b8380aa7d02",
+          "manifest_path": "/home/external/.cargo/git/checkouts/symbolica-cc465e8cf60c7b8e/fd7bced/Cargo.toml"
+        },
+        {
+          "name": "numerica",
+          "version": "3.0.1",
+          "source": "git+https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5307e94e994d5deba63c60b8380aa7d02",
+          "manifest_path": "/home/external/.cargo/git/checkouts/symbolica-cc465e8cf60c7b8e/fd7bced/lib/numerica/Cargo.toml"
+        },
+        {
+          "name": "graphica",
+          "version": "3.0.1",
+          "source": "git+https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5307e94e994d5deba63c60b8380aa7d02",
+          "manifest_path": "/home/external/.cargo/git/checkouts/symbolica-cc465e8cf60c7b8e/fd7bced/lib/graphica/Cargo.toml"
+        },
+        {
+          "name": "symjit",
+          "version": "2.27.3",
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "manifest_path": "/home/external/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/symjit-2.27.3/Cargo.toml"
+        }
+      ],
+      "python": [
+        {
+          "name": "symbolica",
+          "version": "3.0.1",
+          "source": "git+https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5307e94e994d5deba63c60b8380aa7d02",
+          "manifest_path": "/home/external/.cargo/git/checkouts/symbolica-cc465e8cf60c7b8e/fd7bced/Cargo.toml"
+        },
+        {
+          "name": "numerica",
+          "version": "3.0.1",
+          "source": "git+https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5307e94e994d5deba63c60b8380aa7d02",
+          "manifest_path": "/home/external/.cargo/git/checkouts/symbolica-cc465e8cf60c7b8e/fd7bced/lib/numerica/Cargo.toml"
+        },
+        {
+          "name": "graphica",
+          "version": "3.0.1",
+          "source": "git+https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5307e94e994d5deba63c60b8380aa7d02",
+          "manifest_path": "/home/external/.cargo/git/checkouts/symbolica-cc465e8cf60c7b8e/fd7bced/lib/graphica/Cargo.toml"
+        },
+        {
+          "name": "symjit",
+          "version": "2.27.3",
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "manifest_path": "/home/external/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/symjit-2.27.3/Cargo.toml"
+        }
+      ],
+      "host": [
+        {
+          "name": "symbolica",
+          "version": "3.0.1",
+          "source": "git+https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5307e94e994d5deba63c60b8380aa7d02",
+          "manifest_path": "/home/external/.cargo/git/checkouts/symbolica-cc465e8cf60c7b8e/fd7bced/Cargo.toml"
+        },
+        {
+          "name": "numerica",
+          "version": "3.0.1",
+          "source": "git+https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5307e94e994d5deba63c60b8380aa7d02",
+          "manifest_path": "/home/external/.cargo/git/checkouts/symbolica-cc465e8cf60c7b8e/fd7bced/lib/numerica/Cargo.toml"
+        },
+        {
+          "name": "graphica",
+          "version": "3.0.1",
+          "source": "git+https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5307e94e994d5deba63c60b8380aa7d02",
+          "manifest_path": "/home/external/.cargo/git/checkouts/symbolica-cc465e8cf60c7b8e/fd7bced/lib/graphica/Cargo.toml"
+        },
+        {
+          "name": "symjit",
+          "version": "2.27.3",
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "manifest_path": "/home/external/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/symjit-2.27.3/Cargo.toml"
+        }
+      ]
+    },
+    "provenance.json": {
+      "oneloop_base": "5091653086b32428c6e024ee89404b4b21214e88",
+      "symbolica_revision": "fd7bced5307e94e994d5deba63c60b8380aa7d02",
+      "symbolica_tree": "ec93de75f96cc3b4d2530b3a27c2cc7e024bdac0",
+      "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+      "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+      "files": {
+        "Cargo.toml": "5e089a19d5d1f72562d81726f6d3fb18e6437a587e5bb47cd105531750c56068",
+        "Cargo.lock": "99614a034bb9ac4c28edf841ffd4ad02f311b40021f0c580db549b34560dec9c",
+        "python/Cargo.toml": "fdfd88d4e6fb1cd9150f12606c17cdc7d50ad24eec25622544ca93d7ddf258ff",
+        "python/Cargo.lock": "09f8b48c26a888ef6d01e045a351b7e5213e57d9c771c3173d48ab9a68955f7d",
+        "python/host/Cargo.toml": "69282aa505559fed5757d6111e057c09cb4dd2412cc9a8686e89e426669490aa",
+        "python/host/Cargo.lock": "31f89c5686d49354c8da73b417c8b33f092cbb222a93075c917663c88300bd2d"
+      },
+      "RUST_MIN_STACK": 134217728,
+      "jobs": 4,
+      "performance_acceptance": false,
+      "symbolica_fetched_tree": "ec93de75f96cc3b4d2530b3a27c2cc7e024bdac0",
+      "passed": 123,
+      "ignored": 5,
+      "selected_targets": [
+        [
+          "oneloop",
+          83,
+          0,
+          1
+        ],
+        [
+          "evaluators",
+          2,
+          0,
+          0
+        ],
+        [
+          "master_callbacks_jit",
+          1,
+          0,
+          0
+        ],
+        [
+          "initialization",
+          1,
+          0,
+          1
+        ],
+        [
+          "rust_batch_codegen",
+          1,
+          0,
+          0
+        ],
+        [
+          "c0_derivatives",
+          2,
+          0,
+          0
+        ],
+        [
+          "native",
+          5,
+          0,
+          1
+        ],
+        [
+          "native_contract",
+          4,
+          0,
+          0
+        ],
+        [
+          "native_primitives",
+          11,
+          0,
+          0
+        ],
+        [
+          "native_evaluator",
+          2,
+          0,
+          1
+        ],
+        [
+          "native_hooks",
+          1,
+          0,
+          0
+        ],
+        [
+          "native_hook_errors",
+          1,
+          0,
+          0
+        ],
+        [
+          "native_startup",
+          1,
+          0,
+          1
+        ],
+        [
+          "function_definitions",
+          8,
+          0,
+          0
+        ]
+      ]
+    }
+  },
+  "logs": {
+    "oneloop.log": {
+      "sha256": "017f4863a242a7db29a3cc5e9a9dd6f4bc5002bab4d6d6a75f42bfed1bcc5ee9",
+      "text": "\nrunning 84 tests\ntest analytic_continuation_tests::lower_log_complex_axis_derivatives ... ok\ntest analytic_continuation_tests::lower_sqrt_complex_axis_derivatives ... ok\ntest analytic_continuation_tests::upper_log_complex_axis_derivatives ... ok\ntest box_complex::tests::complex_box_finite_continuation_regression ... ok\ntest box_complex::tests::contour_quadratic_roots_preserve_exact_axes ... ok\ntest box_complex::tests::principal_sqrt_complex_axis_derivatives ... ok\ntest coincident_dilog_tests::coincident_and_unit_endpoint_jets_match_converged_float_differences ... ok\ntest coincident_dilog_tests::coincident_sheet_dilog_preserves_independent_jets_and_primal ... ok\ntest coincident_dilog_tests::incompatible_sheets_and_zero_do_not_get_removable_derivatives ... ok\ntest coincident_dilog_tests::nonlinear_mixed_unit_seeds_match_native_polynomial_integral ... ok\ntest evaluators::tests::coefficient_groups_evict_fifo_without_reusing_consumed_tags ... ok\ntest evaluators::tests::coefficient_groups_execute_again_for_signed_zeros_and_changed_points ... ok\ntest evaluators::tests::coefficient_groups_execute_once_per_point_in_every_tag_order ... ok\ntest evaluators::tests::coefficient_groups_invalidate_explicitly_and_before_backend_failure ... \nthread 'evaluators::tests::coefficient_groups_invalidate_explicitly_and_before_backend_failure' (3627894) panicked at src/evaluators.rs:749:17:\nsimulated backend failure after partial output\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nok\ntest evaluators::tests::coefficient_groups_manual_invalidation_clears_all_lanes ... ok\ntest evaluators::tests::coefficient_groups_repeated_tags_always_start_another_execution ... ok\ntest evaluators::tests::coefficient_groups_tag_major_lanes_reuse_oldest_matching_point ... ok\ntest evaluators::tests::jit_argument_slots_reject_overflow_and_backend_clamping ... Warning! Max number of arguments is 2048.\nWarning! Max number of arguments is 2048.\nok\ntest evaluators::tests::jit_nested_wide_calls_survive_source_cache_and_mixed_batches ... ok\ntest inspection::tests::probe_rules_prune_dead_definitions_and_never_substitute_bodies ... ok\ntest inspection::tests::substitution_is_scoped_and_dead_branches_are_not_expanded ... ok\ntest inspection_formulas::box_complex::tests::complex_box_finite_continuation_regression ... ok\ntest inspection_formulas::box_complex::tests::contour_quadratic_roots_preserve_exact_axes ... ok\ntest inspection_formulas::box_complex::tests::principal_sqrt_complex_axis_derivatives ... ok\ntest inspection_formulas::sheet_exact::tests::continued_log_representation_preserves_sheet_operations ... ok\ntest inspection_formulas::triangle_hv::tests::hv_continuation_regression ... ok\ntest masters::normalization_tests::exact_untagged_symbolic_and_invalid_calls_are_preserved ... ok\ntest masters::normalization_tests::finite_normalization_retains_supplied_precision ... ok\ntest masters::normalization_tests::mixed_floating_calls_fold_for_every_master ... ok\ntest native::batch::tests::controlled_workspace_reuses_parent_stride_and_keeps_inactive_values ... ok\ntest native::batch::tests::workspace_dimensions_overflow_without_mutation_and_copies_preserve_precision ... ok\ntest native::constants::tests::generated_constants_preserve_working_precision ... ok\ntest native::constants::tests::invalid_constant_tables_and_precisions_are_rejected ... ok\ntest quotient_tests::derivative_constructor_does_not_invent_a_zero_over_zero_jet ... ok\ntest quotient_tests::equal_nonzero_sheet_arguments_keep_independent_mixed_jets ... ok\ntest removable_log_tests::euclidean_c0_preserves_primal_and_zero_seeds ... ok\ntest removable_log_tests::log_ratio_degree_eight_static_dynamic_and_precision ... ok\ntest removable_log_tests::log_ratio_mixed_near_unit_keeps_small_complex_displacement ... ok\ntest removable_log_tests::log_ratio_mixed_transverse_lanes_and_lazy_branches ... ok\ntest removable_log_tests::log_ratio_unit_argument_on_wound_sheet_is_not_removable ... ok\ntest rust_codegen::batch::tests::outlined_instruction_boundaries_preserve_branch_state_and_aliased_joins ... ok\ntest rust_codegen::batch::tests::rejection_checks_nested_malformed_control_flow_and_is_transactional ... ok\ntest rust_codegen::batch::tests::reused_slots_and_aliases_keep_operand_order_and_bound_storage ... ok\ntest rust_codegen::tests::common_branch_alias_overwrites_the_old_live_slot ... ok\ntest rust_codegen::tests::consecutive_joins_keep_edge_liveness_and_sequential_slot_aliases ... ok\ntest rust_codegen::tests::failed_export_does_not_change_previously_generated_constant_indices ... ok\ntest rust_codegen::tests::native_branches_merge_live_slots_without_eager_evaluation ... ok\ntest rust_codegen::tests::nested_native_branch_phi_liveness_is_edge_specific ... ok\ntest rust_codegen::tests::public_emitter_supports_non_master_output_counts_and_shared_constants ... ok\ntest rust_codegen::tests::registered_constants_are_exported_symbolically_not_as_zero_placeholders ... ok\ntest rust_codegen::tests::scoped_cse_reuses_dominating_values_but_not_sibling_or_escaped_bindings ... ok\ntest rust_codegen::tests::shared_nested_branches_deduplicate_and_keep_selected_tuple_outputs ... ok\ntest rust_codegen::tests::whole_if_keys_keep_capture_identity_aliases_constants_and_output_order ... ok\ntest rust_codegen::tests::whole_if_reuse_executes_once_without_conflating_inputs_or_tuple_outputs ... ok\ntest sheet_exact::tests::continued_dilog_reference_values ... ok\ntest sheet_exact::tests::sheet_product_and_quotient_reference_values ... ok\ntest tests::a0_is_a_transparent_native_expression ... ok\ntest tests::a0_matches_the_existing_rust_reference ... ok\ntest tests::a0_zero_mass_is_scaleless ... ok\ntest tests::b001_matches_existing_reference_branches ... ok\ntest tests::b00_matches_existing_reference_branches ... ok\ntest tests::b0_is_a_transparent_native_expression ... ok\ntest tests::b0_matches_existing_reference_and_elementary_limits ... ok\ntest tests::b111_matches_existing_reference_branches ... ok\ntest tests::b11_matches_existing_reference_branches ... ok\ntest tests::b1_is_a_transparent_native_expression ... ok\ntest tests::b1_matches_existing_reference_branches ... ok\ntest tests::bubble_axis_lips_survive_arbitrary_precision_arithmetic ... branch diagnostic 256bits: [(2.828427124746190097603377448419396157139343750753896146353359475981464956924204+0i), (2.265409196609864215997587536843288459186183035175788466890457517156096459339848e-1+-0i), (-3.414213562373095048801688724209698078569671875376948073176679737990732478462085+0i), (0+0i), (1.227947177299515679941225385708880593065910395441763037813635613400073995206866+3.141592653589793238462643383279502884197169399375105820974944592307816406286198i), (1.227947177299515679941225385708880593065910395441763037813635613400073995206866+-3.141592653589793238462643383279502884197169399375105820974944592307816406286198i)]\nbranch diagnostic 384bits: [(2.82842712474619009760337744841939615713934375075389614635335947598146495692421407770077506865528314547002769246182459+0i), (2.26540919660986421599758753684328845918618303517578846689045751715609645933984708735658923667479775323569450538441106e-1+-0i), (-3.41421356237309504880168872420969807856967187537694807317667973799073247846210703885038753432764157273501384623091224+0i), (0+0i), (1.227947177299515679941225385708880593065910395441763037813635613400073995206873445636638555408465386627740556702391817+3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328229i), (1.227947177299515679941225385708880593065910395441763037813635613400073995206873445636638555408465386627740556702391817+-3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328229i)]\nok\ntest tests::c0_matches_reference_sectors ... ok\ntest tests::db0_is_a_transparent_native_expression ... ok\ntest tests::db0_matches_existing_reference_branches ... ok\ntest tests::equal_mass_box_vacuum_limit ... ok\ntest tests::mapped_d0_routes_reference_sectors ... ok\ntest tests::massive_d0_infrared_formulas_match_reference ... ok\ntest tests::massless_d0_infrared_sectors_match_reference ... ok\ntest tests::native_definition_construction_stages ... ignored, diagnoses construction cost of individual native definition groups\ntest tests::rank_four_bubbles_match_existing_reference ... ok\ntest tests::reciprocal_root_real_axis_preserves_its_sheet ... ok\ntest tests::removable_log_and_dilog_limits_are_finite ... ok\ntest tests::scaleless_db0_is_not_silently_zero ... ok\ntest tests::tensor_rank_contract_matches_oneloop ... ok\ntest tests::tensor_tadpoles_use_exact_rationals ... ok\ntest tests::triangle_single_width_regression ... ok\ntest triangle_hv::tests::hv_continuation_regression ... ok\n\ntest result: ok. 83 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 39.08s\n\n"
+    },
+    "c0_derivatives.log": {
+      "sha256": "23fd95d76982d7cff0d4a6945402279457d57deb7d1df481e83410e131371dc7",
+      "text": "\nrunning 2 tests\ntest c0_degree_five_complex_scaling ... ok\ntest massive_spacelike_c0_higher_mixed_controls ... negative K\u00e4ll\u00e9n: directions 0/4, component=1,0, final error=3.28277685017750875063720102226313591197185078396140520879e-52\nnegative K\u00e4ll\u00e9n: directions 0/4, component=0,1, final error=4.064646161339395346202854996101589499503237367345047286747804e-48\nnegative K\u00e4ll\u00e9n: directions 0/4, component=2,0, final error=2.502747326274128763930166145015569206740626654106e-53\nnegative K\u00e4ll\u00e9n: directions 0/4, component=1,1, final error=8.95526539604028471223736070177253416021063624872838700e-49\nnegative K\u00e4ll\u00e9n: directions 0/4, component=3,0, final error=1.257693259306937533074860075987085989024536377645270384304e-37\nnegative K\u00e4ll\u00e9n: directions 0/4, component=2,1, final error=1.749367796753692528879258707458609931823433667e-49\nnegative K\u00e4ll\u00e9n: directions 3/2, component=1,0, final error=1.3940295797698138765285738782561275119965932417995946334376666e-47\nnegative K\u00e4ll\u00e9n: directions 3/2, component=0,1, final error=5.2247133941770224553781535686225195905615733036057832844e-53\nnegative K\u00e4ll\u00e9n: directions 3/2, component=2,0, final error=5.36907853678425841388568058435890286497120814571409259e-48\nnegative K\u00e4ll\u00e9n: directions 3/2, component=1,1, final error=3.9538212645662652362414014783421995796474917473851821479e-48\nnegative K\u00e4ll\u00e9n: directions 3/2, component=3,0, final error=5.34078825874555971492091404799892514878370521026619162471830356e-33\nnegative K\u00e4ll\u00e9n: directions 3/2, component=2,1, final error=1.5562901685464976819090471801302861161042215974e-48\npositive K\u00e4ll\u00e9n: directions 0/4, component=1,0, final error=2.9833512876954309535585657196440812161379388524926211939691e-52\npositive K\u00e4ll\u00e9n: directions 0/4, component=0,1, final error=5.0151018510441472469209324311186236924152340419671768751006398e-48\npositive K\u00e4ll\u00e9n: directions 0/4, component=2,0, final error=2.2707330395334023588189909831319589190540490506984e-53\npositive K\u00e4ll\u00e9n: directions 0/4, component=1,1, final error=1.0312394938277079126969065750052255440594014073812160539e-48\npositive K\u00e4ll\u00e9n: directions 0/4, component=3,0, final error=1.1429777215823631425755129834173263101397753528899650349160e-37\npositive K\u00e4ll\u00e9n: directions 0/4, component=2,1, final error=1.924650192894716607919431502571647657186344563996e-49\npositive K\u00e4ll\u00e9n: directions 3/2, component=1,0, final error=9.59190878038442903004462424995556892612293125276041552545410436e-48\npositive K\u00e4ll\u00e9n: directions 3/2, component=0,1, final error=1.07373112512299517107918861344110156033368974384598026255e-53\npositive K\u00e4ll\u00e9n: directions 3/2, component=2,0, final error=3.661625415862466817823072376318556714030651084826210185e-48\npositive K\u00e4ll\u00e9n: directions 3/2, component=1,1, final error=1.9002229647477896515345673253051911383509330578355378117e-48\npositive K\u00e4ll\u00e9n: directions 3/2, component=3,0, final error=3.674839797997297278316520188881082582023046070471751231528651598e-33\npositive K\u00e4ll\u00e9n: directions 3/2, component=2,1, final error=7.341101147476831241855919236220563130738487564948e-49\nnegative K\u00e4ll\u00e9n/equal masses: directions 0/4, component=1,0, final error=1.0715385664645963732559066093965813162399884436405108010e-52\nnegative K\u00e4ll\u00e9n/equal masses: directions 0/4, component=0,1, final error=3.953932108260105155454602068892682469423858186748557064688098e-48\nnegative K\u00e4ll\u00e9n/equal masses: directions 0/4, component=2,0, final error=6.8555677830002116088982507020690115177515509330e-54\nnegative K\u00e4ll\u00e9n/equal masses: directions 0/4, component=1,1, final error=6.8453941757335353504530996727835999953104609775566920e-49\nnegative K\u00e4ll\u00e9n/equal masses: directions 0/4, component=3,0, final error=4.10526482193594635651679549509398109494927479324920639081e-38\nnegative K\u00e4ll\u00e9n/equal masses: directions 0/4, component=2,1, final error=1.06998092962860094722824753955909399478113449e-49\nnegative K\u00e4ll\u00e9n/equal masses: directions 3/2, component=1,0, final error=1.451348266594112251866406036393553092977615874475956319149505e-48\nnegative K\u00e4ll\u00e9n/equal masses: directions 3/2, component=0,1, final error=9.2594657679892714588487816489680296350604229799245770223e-53\nnegative K\u00e4ll\u00e9n/equal masses: directions 3/2, component=2,0, final error=3.766631603643757497651518404695059444743301752097549e-49\nnegative K\u00e4ll\u00e9n/equal masses: directions 3/2, component=1,1, final error=4.9343836963335429121369254755178330730224799443197472e-49\nnegative K\u00e4ll\u00e9n/equal masses: directions 3/2, component=3,0, final error=5.560386877053556322593833897964581890408160522844231959535793e-34\nnegative K\u00e4ll\u00e9n/equal masses: directions 3/2, component=2,1, final error=1.31976420857681136200492744133922249711431721e-49\npositive K\u00e4ll\u00e9n/equal masses: directions 0/4, component=1,0, final error=9.904506395141578877055029880131903315060248120253233913043e-53\npositive K\u00e4ll\u00e9n/equal masses: directions 0/4, component=0,1, final error=5.3142462289871864546512615981214611530777927705669506858798100e-48\npositive K\u00e4ll\u00e9n/equal masses: directions 0/4, component=2,0, final error=6.3286802930165351473989339270998564280907495363743e-54\npositive K\u00e4ll\u00e9n/equal masses: directions 0/4, component=1,1, final error=8.4871879521719797670481377773322703694110259848061079474e-49\npositive K\u00e4ll\u00e9n/equal masses: directions 0/4, component=3,0, final error=3.7946017955068873770799976588965459002187755404824261332394e-38\npositive K\u00e4ll\u00e9n/equal masses: directions 0/4, component=2,1, final error=1.25637460164260237377324622527678466095836456644e-49\npositive K\u00e4ll\u00e9n/equal masses: directions 3/2, component=1,0, final error=9.4585572809971263364528592323060444678164878735613261611773577e-49\npositive K\u00e4ll\u00e9n/equal masses: directions 3/2, component=0,1, final error=1.73574572424900571179644232805851014949614223360344947120e-53\npositive K\u00e4ll\u00e9n/equal masses: directions 3/2, component=2,0, final error=2.42139340658802280006140500494752245990102550172777418e-49\npositive K\u00e4ll\u00e9n/equal masses: directions 3/2, component=1,1, final error=2.144631999976736362810667295393482928596188463301390953e-49\npositive K\u00e4ll\u00e9n/equal masses: directions 3/2, component=3,0, final error=3.6237503424685694128895895551066086017923581862782219108985694e-34\npositive K\u00e4ll\u00e9n/equal masses: directions 3/2, component=2,1, final error=5.57438618810849552353314958229581953014166845656e-50\nok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 88.96s\n\n"
+    },
+    "master_callbacks_jit.log": {
+      "sha256": "6af5cd3273fc337f6cf6bddfa9f541412e7638aedb3e40fc7d3275cfac7a24dd",
+      "text": "\nrunning 1 test\ntest bare_master_outer_jit_and_portable_batches_match_all_acceptance_rows ... A0: 4 acceptance rows, scalar + five batch layouts, six tag orders, original/restored bare JIT\nB0: 13 acceptance rows, scalar + five batch layouts, six tag orders, original/restored bare JIT\ndB0: 12 acceptance rows, scalar + five batch layouts, six tag orders, original/restored bare JIT\nC0: 125 acceptance rows, scalar + five batch layouts, six tag orders, original/restored bare JIT\nD0: 139 acceptance rows, scalar + five batch layouts, six tag orders, original/restored bare JIT\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 37.04s\n\n"
+    },
+    "native_primitives.log": {
+      "sha256": "dbaf97b0d7aa816626cb720ecbf6036c53e7a0cb556559343bc15fd2e151e0c9",
+      "text": "\nrunning 11 tests\ntest native_float_hypot_tracks_component_precision ... ok\ntest native_integer_powers_preserve_real_axis_signed_lips ... ok\ntest native_inverse_three_halves_avoids_overflowing_intermediates ... ok\ntest native_primitives_binary64_hypot_exact_axes_and_nonfinite_values ... ok\ntest native_primitives_binary64_subnormals_and_extremes ... ok\ntest native_primitives_disparate_component_precision ... ok\ntest native_primitives_double_float_retains_low_components ... ok\ntest native_primitives_exact_axes_all_types ... ok\ntest native_primitives_general_powers_and_quadrants ... ok\ntest native_primitives_thousand_decimal_digits ... ok\ntest native_scalar_half_powers_preserve_unbalanced_precision ... ok\n\ntest result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s\n\n"
+    },
+    "initialization.log": {
+      "sha256": "920974b84a21a11c4b44d98faeb876df84e94f7804acca9dd6313d5c1518a920",
+      "text": "\nrunning 2 tests\ntest first_entries_leave_full_warmup_opt_in ... ok\ntest initialization_child ... ignored, fresh-process helper invoked by first_entries_leave_full_warmup_opt_in\n\ntest result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 82.80s\n\n"
+    },
+    "native_hooks.log": {
+      "sha256": "cd7af953bb6e14f3f3fb705117766e307b86191d2af21f5b11dfe531147fbd6b",
+      "text": "\nrunning 1 test\ntest double_float_master_hooks_preserve_the_numeric_domain ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.33s\n\n"
+    },
+    "host-check.log": {
+      "sha256": "4bcd192acfcad5406ab03f4814c97a90ac832e02fc043fb6cddb01352b1249ca",
+      "text": "   Compiling autocfg v1.5.1\n   Compiling zerocopy v0.8.57\n   Compiling proc-macro2 v1.0.107\n   Compiling unicode-ident v1.0.26\n   Compiling quote v1.0.47\n   Compiling libc v0.2.189\n   Compiling target-lexicon v0.13.5\n   Compiling num-traits v0.2.19\n   Compiling pyo3-build-config v0.28.3\n   Compiling syn v2.0.119\n   Compiling cfg-if v1.0.5\n   Compiling getrandom v0.2.17\n   Compiling rand_core v0.6.4\n   Compiling siphasher v1.0.3\n   Compiling phf_shared v0.11.3\n   Compiling heck v0.5.0\n    Checking once_cell v1.21.4\n    Checking bytemuck v1.25.2\n   Compiling version_check v0.9.5\n   Compiling getrandom v0.3.4\n   Compiling anyhow v1.0.104\n   Compiling crossbeam-utils v0.8.23\n    Checking num-complex v0.4.6\n   Compiling crossbeam-epoch v0.9.21\n   Compiling serde_core v1.0.229\n   Compiling pyo3-macros-backend v0.28.3\n   Compiling pyo3-ffi v0.28.3\n    Checking num-integer v0.1.47\n   Compiling unicode-width v0.2.2\n   Compiling crunchy v0.2.4\n   Compiling crossbeam-deque v0.8.8\n   Compiling getopts v0.2.24\n   Compiling ppv-lite86 v0.2.21\n   Compiling rand_chacha v0.3.1\n   Compiling rand v0.8.8\n   Compiling matrixmultiply v0.3.11\n   Compiling tiny-keccak v2.0.2\n   Compiling paste v1.0.15\n   Compiling rayon-core v1.13.0\n   Compiling log v0.4.34\n   Compiling phf_generator v0.11.3\n   Compiling virtue v0.0.18\n   Compiling phf_codegen v0.11.3\n   Compiling gmp-mpfr-sys v1.7.1\n   Compiling libm v0.2.16\n   Compiling unicode_names2_generator v1.3.0\n   Compiling bincode_derive v2.0.1\n    Checking rand_core v0.9.5\n   Compiling ahash v0.8.12\n    Checking safe_arch v0.7.4\n   Compiling pyo3 v0.28.3\n   Compiling memchr v2.8.3\n    Checking rawpointer v0.2.1\n    Checking either v1.18.0\n   Compiling unic-common v0.9.0\n   Compiling unic-char-range v0.9.0\n   Compiling unic-char-property v0.9.0\n   Compiling rustpython-parser-vendored v0.4.0\n   Compiling unic-ucd-version v0.9.0\n    Checking wide v0.7.33\n    Checking rand_chacha v0.9.0\n   Compiling unicode_names2 v1.3.0\n   Compiling is-macro v0.3.8\n    Checking safe_arch v1.2.0\n   Compiling numpy v0.28.0\n    Checking approx v0.5.1\n   Compiling rug v1.30.0\n   Compiling unty v0.0.4\n   Compiling zmij v1.0.23\n   Compiling bincode v2.0.1\n    Checking simba v0.9.1\n    Checking wide v1.7.1\n   Compiling rustpython-parser v0.4.0\n   Compiling pyo3-macros v0.28.3\n   Compiling rustpython-parser-core v0.4.0\n    Checking rayon v1.12.0\n    Checking rand v0.9.5\n    Checking ndarray v0.17.2\n   Compiling num-bigint v0.4.8\n    Checking tracing-core v0.1.36\n   Compiling phf v0.11.3\n   Compiling syn v3.0.6\n   Compiling corosensei v0.3.4\n    Checking smallvec v1.16.1\n   Compiling serde v1.0.229\n    Checking alloc-no-stdlib v2.0.4\n   Compiling serde_json v1.0.151\n    Checking az v1.3.0\n    Checking regex-syntax v0.8.11\n    Checking lazy_static v1.5.0\n   Compiling static_assertions v1.1.0\n    Checking rustc-hash v2.1.3\n    Checking winnow v1.0.4\n    Checking regex-automata v0.4.18\n    Checking toml_parser v1.1.3+spec-1.1.0\n   Compiling rustpython-ast v0.4.0\n   Compiling serde_derive v1.0.229\n    Checking alloc-stdlib v0.2.4\n   Compiling itertools v0.11.0\n    Checking xprec v0.2.2\n   Compiling bincode-trait-derive v0.1.1\n   Compiling unic-emoji-char v0.9.0\n   Compiling unic-ucd-ident v0.9.0\n    Checking itertools v0.14.0\n    Checking toml_datetime v1.1.1+spec-1.1.0\n    Checking serde_spanned v1.1.1\n   Compiling tracing-attributes v0.1.31\n   Compiling smartstring v1.0.1\n    Checking toml_writer v1.1.2+spec-1.1.0\n   Compiling hashbrown v0.17.1\n    Checking scopeguard v1.2.0\n    Checking foldhash v0.2.0\n    Checking dyn-clone v1.0.20\n    Checking option-ext v0.2.0\n    Checking allocator-api2 v0.2.21\n    Checking pin-project-lite v0.2.17\n    Checking equivalent v1.0.2\n    Checking itoa v1.0.18\n   Compiling rustc-hash v1.1.0\n    Checking colored v3.1.1\n    Checking bitflags v1.3.2\n   Compiling lalrpop-util v0.20.2\n    Checking region v3.0.2\n   Compiling indexmap v2.14.2\n    Checking tracing-log v0.2.0\n    Checking hashbrown v0.16.1\n    Checking tracing v0.1.44\n    Checking dirs-sys v0.5.0\n    Checking toml v1.1.6+spec-1.1.0\n    Checking wasmtime-jit-icache-coherence v34.0.2\n    Checking numerica v3.0.1 (https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5)\n    Checking num-rational v0.4.2\n    Checking brotli-decompressor v5.0.3\n    Checking matchers v0.2.0\n    Checking sharded-slab v0.1.7\n    Checking thread_local v1.1.10\n    Checking hugepage-rs v0.1.1\n    Checking nu-ansi-term v0.50.3\n    Checking spec_math v0.1.6\n   Compiling symbolica v3.0.1 (https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5)\n    Checking symjit v2.27.3\n    Checking tracing-subscriber v0.3.23\n    Checking brotli v8.0.4\n   Compiling pyo3-stub-gen-derive v0.17.2\n    Checking graphica v3.0.1 (https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5)\n    Checking directories v6.0.0\n    Checking libloading v0.9.0\n    Checking tinyjson v2.5.1\n    Checking byteorder v1.5.0\n    Checking inventory v0.3.24\n    Checking append-only-vec v0.1.8\n    Checking ed25519-compact v2.4.2\n    Checking data-encoding v2.11.1\n    Checking bytes v1.12.1\n    Checking self_cell v1.3.0\n    Checking oneloop v0.1.0 (/shared/external/ninja/references/oneloopmaster_helper_stack_integration)\n    Checking oneloop-python v0.1.0 (/shared/external/ninja/references/oneloopmaster_helper_stack_integration/python)\n    Checking oneloop-symbolica-host v0.1.0 (/shared/external/ninja/references/oneloopmaster_helper_stack_integration/python/host)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 39.90s\n"
+    },
+    "native_contract.log": {
+      "sha256": "78e3334d7d8d47433edb686b0075bf5897d08fe6cbe0b56ac314da5c8169b0cd",
+      "text": "\nrunning 4 tests\ntest native_double_float_keeps_compensated_mass ... ok\ntest native_float_validation_precedes_precision_rounding ... ok\ntest native_precision_and_clone_contract ... ok\ntest native_shape_domain_and_batch_errors_are_atomic ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+    },
+    "python-check.log": {
+      "sha256": "f251527bd11c8a72e07e3551320abf877071fadff964cf3b83e0f3a4a44c0a86",
+      "text": "    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n   Compiling libc v0.2.189\n   Compiling autocfg v1.5.1\n   Compiling proc-macro2 v1.0.107\n   Compiling unicode-ident v1.0.26\n   Compiling quote v1.0.47\n   Compiling target-lexicon v0.13.5\n    Checking cfg-if v1.0.5\n   Compiling num-traits v0.2.19\n   Compiling pyo3-build-config v0.28.3\n   Compiling syn v2.0.119\n   Compiling version_check v0.9.5\n    Checking bytemuck v1.25.2\n   Compiling zerocopy v0.8.57\n    Checking once_cell v1.21.4\n   Compiling getrandom v0.3.4\n   Compiling crossbeam-utils v0.8.23\n   Compiling crossbeam-epoch v0.9.21\n   Compiling serde_core v1.0.229\n   Compiling crossbeam-deque v0.8.8\n   Compiling rayon-core v1.13.0\n   Compiling virtue v0.0.18\n   Compiling paste v1.0.15\n   Compiling gmp-mpfr-sys v1.7.1\n   Compiling libm v0.2.16\n   Compiling bincode_derive v2.0.1\n    Checking rand_core v0.9.5\n   Compiling ahash v0.8.12\n    Checking safe_arch v0.7.4\n    Checking num-complex v0.4.6\n    Checking either v1.18.0\n    Checking wide v0.7.33\n    Checking ppv-lite86 v0.2.21\n    Checking safe_arch v1.2.0\n    Checking rand_chacha v0.9.0\n    Checking approx v0.5.1\n   Compiling rug v1.30.0\n   Compiling anyhow v1.0.104\n   Compiling zmij v1.0.23\n   Compiling unty v0.0.4\n   Compiling bincode v2.0.1\n    Checking simba v0.9.1\n    Checking wide v1.7.1\n    Checking rand v0.9.5\n    Checking rayon v1.12.0\n    Checking tracing-core v0.1.36\n    Checking num-integer v0.1.47\n   Compiling syn v3.0.6\n   Compiling corosensei v0.3.4\n   Compiling serde v1.0.229\n    Checking winnow v1.0.4\n   Compiling serde_json v1.0.151\n    Checking alloc-no-stdlib v2.0.4\n    Checking regex-syntax v0.8.11\n    Checking smallvec v1.16.1\n    Checking az v1.3.0\n    Checking lazy_static v1.5.0\n    Checking regex-automata v0.4.18\n    Checking xprec v0.2.2\n   Compiling serde_derive v1.0.229\n    Checking alloc-stdlib v0.2.4\n    Checking toml_parser v1.1.3+spec-1.1.0\n    Checking num-bigint v0.4.8\n   Compiling bincode-trait-derive v0.1.1\n   Compiling tracing-attributes v0.1.31\n    Checking itertools v0.14.0\n    Checking toml_datetime v1.1.1+spec-1.1.0\n    Checking serde_spanned v1.1.1\n   Compiling pyo3-ffi v0.28.3\n   Compiling pyo3-macros-backend v0.28.3\n   Compiling smartstring v1.0.1\n    Checking foldhash v0.2.0\n    Checking itoa v1.0.18\n    Checking log v0.4.34\n    Checking memchr v2.8.3\n    Checking option-ext v0.2.0\n    Checking equivalent v1.0.2\n    Checking toml_writer v1.1.2+spec-1.1.0\n    Checking dyn-clone v1.0.20\n    Checking scopeguard v1.2.0\n    Checking allocator-api2 v0.2.21\n    Checking bitflags v1.3.2\n    Checking pin-project-lite v0.2.17\n    Checking colored v3.1.1\n    Checking tracing v0.1.44\n    Checking hashbrown v0.16.1\n    Checking region v3.0.2\n    Checking toml v1.1.6+spec-1.1.0\n    Checking dirs-sys v0.5.0\n    Checking tracing-log v0.2.0\n    Checking wasmtime-jit-icache-coherence v34.0.2\n    Checking num-rational v0.4.2\n    Checking brotli-decompressor v5.0.3\n    Checking matchers v0.2.0\n    Checking sharded-slab v0.1.7\n    Checking hugepage-rs v0.1.1\n    Checking thread_local v1.1.10\n    Checking spec_math v0.1.6\n    Checking static_assertions v1.1.0\n    Checking nu-ansi-term v0.50.3\n    Checking numerica v3.0.1 (https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5)\n   Compiling symbolica v3.0.1 (https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5)\n   Compiling heck v0.5.0\n    Checking tracing-subscriber v0.3.23\n    Checking symjit v2.27.3\n    Checking brotli v8.0.4\n    Checking directories v6.0.0\n   Compiling pyo3 v0.28.3\n    Checking libloading v0.9.0\n    Checking graphica v3.0.1 (https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5)\n    Checking ed25519-compact v2.4.2\n    Checking bytes v1.12.1\n    Checking data-encoding v2.11.1\n    Checking inventory v0.3.24\n    Checking append-only-vec v0.1.8\n    Checking tinyjson v2.5.1\n    Checking byteorder v1.5.0\n    Checking self_cell v1.3.0\n   Compiling pyo3-macros v0.28.3\n    Checking oneloop v0.1.0 (/shared/external/ninja/references/oneloopmaster_helper_stack_integration)\n    Checking oneloop-python v0.1.0 (/shared/external/ninja/references/oneloopmaster_helper_stack_integration/python)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 29.56s\n"
+    },
+    "native_startup.log": {
+      "sha256": "8101c7192cad54c2e643aa07e33c040c727b4b43ac6170cc6646027d9290e4d0",
+      "text": "\nrunning 2 tests\ntest first_transcendental_call_initializes_linked_inventory ... ok\ntest native_startup_child ... ignored, fresh-process helper; the parent supplies a timeout\n\ntest result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 44.40s\n\n"
+    },
+    "evaluators.log": {
+      "sha256": "30a957bb6d64db3ceb18f902594621e3718c2d07e9a1c15d93d9176159abc3e9",
+      "text": "\nrunning 2 tests\ntest eager_initialization_compiles_every_shared_master_body ... ok\ntest portable_scalar_caches_and_mixed_batches_match_original_fixtures ... A0: 4 scalar fixtures, six batch layouts, 1890 serialized bytes\nB0: 13 scalar fixtures, six batch layouts, 14879 serialized bytes\ndB0: 12 scalar fixtures, six batch layouts, 71900 serialized bytes\nC0: 125 scalar fixtures, six batch layouts, 179715 serialized bytes\nD0: 139 scalar fixtures, six batch layouts, 4333474 serialized bytes\nok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 32.17s\n\n"
+    },
+    "native_hook_errors.log": {
+      "sha256": "4d39242b80ec32942fe0c2841ffa893cbf63a9a6cd65055ed56b2ce013345c13",
+      "text": "\nrunning 1 test\ntest invalid_native_hook_domains_leave_all_numeric_caches_usable ... \nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/backend.rs:201:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:317:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"squared masses require nonpositive imaginary parts\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\n\nthread '<unnamed>' (3688653) panicked at src/masters.rs:362:12:\nvalid master arguments: \"mu_squared must be positive and real\"\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.87s\n\n"
+    },
+    "function_definitions.log": {
+      "sha256": "0a546c7648a2d4b28799ada0bb0ff4e13d4a56c5549774782e17264928f2d2e3",
+      "text": "\nrunning 8 tests\ntest explicit_constants_preserve_nested_tagged_calls_and_inspection ... ok\ntest functions_capture_global_inputs_and_shadow_only_their_own_parameters ... ok\ntest helpers_preserve_the_original_floating_point_sum_order ... ok\ntest interpreted_log_retains_accuracy_with_a_weak_tiny_component ... ok\ntest interpreted_log_retains_the_precise_small_real_part_near_one ... ok\ntest jit_lowering_preserves_complex_branches_in_nested_and_restored_evaluators ... ok\ntest jit_square_root_callback_preserves_extreme_finite_scales ... ok\ntest replacing_a_helper_keeps_tagged_callees_and_the_original_map ... ok\n\ntest result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n"
+    },
+    "build.log": {
+      "sha256": "b191ed899b2e587137dfcb24d525c3e6adb807f6ba4622a10c072170c7a644cc",
+      "text": "    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n   Compiling autocfg v1.5.1\n   Compiling libc v0.2.190\n   Compiling proc-macro2 v1.0.107\n   Compiling quote v1.0.47\n   Compiling unicode-ident v1.0.27\n   Compiling cfg-if v1.0.5\n   Compiling zerocopy v0.8.63\n   Compiling num-traits v0.2.19\n   Compiling crossbeam-utils v0.8.23\n   Compiling version_check v0.9.5\n   Compiling getrandom v0.3.4\n   Compiling bytemuck v1.25.2\n   Compiling crossbeam-epoch v0.9.21\n   Compiling serde_core v1.0.229\n   Compiling once_cell v1.21.4\n   Compiling crossbeam-deque v0.8.8\n   Compiling syn v2.0.119\n   Compiling rayon-core v1.13.0\n   Compiling gmp-mpfr-sys v1.7.1\n   Compiling paste v1.0.15\n   Compiling libm v0.2.16\n   Compiling rand_core v0.9.5\n   Compiling safe_arch v0.7.4\n   Compiling num-complex v0.4.6\n   Compiling ahash v0.8.12\n   Compiling either v1.19.0\n   Compiling virtue v0.0.18\n   Compiling wide v0.7.33\n   Compiling bincode_derive v2.0.1\n   Compiling ppv-lite86 v0.2.21\n   Compiling rand_chacha v0.9.0\n   Compiling safe_arch v1.2.0\n   Compiling approx v0.5.1\n   Compiling anyhow v1.0.104\n   Compiling unty v0.0.4\n   Compiling zmij v1.0.23\n   Compiling rug v1.30.0\n   Compiling bincode v2.0.1\n   Compiling wide v1.7.1\n   Compiling simba v0.9.1\n   Compiling rayon v1.12.0\n   Compiling rand v0.9.5\n   Compiling tracing-core v0.1.36\n   Compiling num-integer v0.1.47\n   Compiling syn v3.0.9\n   Compiling corosensei v0.3.4\n   Compiling serde_json v1.0.154\n   Compiling az v1.3.0\n   Compiling alloc-no-stdlib v2.0.4\n   Compiling smallvec v1.16.3\n   Compiling winnow v1.0.4\n   Compiling lazy_static v1.5.1\n   Compiling regex-syntax v0.8.11\n   Compiling serde v1.0.229\n   Compiling toml_parser v1.1.5+spec-1.1.0\n   Compiling serde_derive v1.0.229\n   Compiling regex-automata v0.4.18\n   Compiling alloc-stdlib v0.2.4\n   Compiling xprec v0.2.3\n   Compiling num-bigint v0.4.8\n   Compiling bincode-trait-derive v0.1.1\n   Compiling tracing-attributes v0.1.31\n   Compiling itertools v0.14.0\n   Compiling toml_datetime v1.1.2+spec-1.1.0\n   Compiling serde_spanned v1.1.2\n   Compiling smartstring v1.0.1\n   Compiling pin-project-lite v0.2.17\n   Compiling foldhash v0.2.0\n   Compiling colored v3.1.1\n   Compiling toml_writer v1.1.3+spec-1.1.0\n   Compiling bitflags v1.3.2\n   Compiling scopeguard v1.2.0\n   Compiling log v0.4.34\n   Compiling allocator-api2 v0.2.21\n   Compiling itoa v1.0.18\n   Compiling equivalent v1.0.3\n   Compiling memchr v2.8.3\n   Compiling option-ext v0.2.0\n   Compiling dyn-clone v1.0.20\n   Compiling dirs-sys v0.5.0\n   Compiling hashbrown v0.16.1\n   Compiling tracing-log v0.2.0\n   Compiling region v3.0.2\n   Compiling toml v1.1.8+spec-1.1.0\n   Compiling tracing v0.1.44\n   Compiling wasmtime-jit-icache-coherence v34.0.2\n   Compiling num-rational v0.4.2\n   Compiling matchers v0.2.0\n   Compiling brotli-decompressor v5.0.3\n   Compiling sharded-slab v0.1.7\n   Compiling hugepage-rs v0.1.1\n   Compiling thread_local v1.1.10\n   Compiling spec_math v0.1.6\n   Compiling static_assertions v1.1.0\n   Compiling symbolica v3.0.1 (https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5)\n   Compiling nu-ansi-term v0.50.3\n   Compiling symjit v2.27.3\n   Compiling numerica v3.0.1 (https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5)\n   Compiling tracing-subscriber v0.3.23\n   Compiling brotli v8.0.4\n   Compiling directories v6.0.0\n   Compiling libloading v0.9.0\n   Compiling data-encoding v2.11.1\n   Compiling graphica v3.0.1 (https://github.com/ValentinHirschi/symbolica?rev=fd7bced5307e94e994d5deba63c60b8380aa7d02#fd7bced5)\n   Compiling byteorder v1.5.0\n   Compiling self_cell v1.3.0\n   Compiling tinyjson v2.5.1\n   Compiling bytes v1.12.1\n   Compiling inventory v0.3.25\n   Compiling append-only-vec v0.1.8\n   Compiling ed25519-compact v2.6.0\n   Compiling oneloop v0.1.0 (/shared/external/ninja/references/oneloopmaster_helper_stack_integration)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 17s\n"
+    },
+    "native.log": {
+      "sha256": "8d9aefd71ed182425e2f7fe2285740064659297d23c2ad165b45b366962b8c47",
+      "text": "\nrunning 6 tests\ntest native_arbitrary_precision_matches_expressions_at_1000_digits ... ok\ntest native_double_float_acceptance ... ok\ntest native_expanded_binary64_diagnostic ... ignored, exploratory binary64 stress audit; report failures without accepting them\ntest native_expanded_fortran_fixtures_at_256_bits ... ok\ntest native_f64_acceptance_scalar_and_mixed_batches ... ok\ntest native_shape_and_domain_errors_do_not_modify_outputs ... ok\n\ntest result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 23.06s\n\n"
+    },
+    "native_evaluator.log": {
+      "sha256": "f7a6c4e211975f29e0e23b0b4ebc5b28b8607e8cc12093a820a7359374921c25",
+      "text": "\nrunning 3 tests\ntest audit_near_zero_bubble_precision ... ignored, targeted precision diagnostic for the exploratory scalar audit\ntest native_predicates_and_noninlined_functions ... ok\ntest polylog_preserves_high_precision_endpoint_neighborhoods ... ok\n\ntest result: ok. 2 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n"
+    },
+    "rust_batch_codegen.log": {
+      "sha256": "9d920229adad9e43b82e8c2bf6b5f1358c7d0aa50adf82a05473e4da6e690c66",
+      "text": "\nrunning 1 test\ntest generated_batch_numeric_precision_dual_trace_and_allocation_contracts ... ordinary source: scalar_bytes=1049 scalar_plus_batch_bytes=4309\nlazy source: scalar_plus_batch_bytes=10011 flattened_dual_bytes=117108\nnative batch probe: source_bytes=233799 prepare_and_emit_seconds=0.026918 optimized_rustc_seconds=22.516086; instruction-major trace=[(\"log\", 1.0), (\"log\", 4.0), (\"log\", 9.0), (\"sqrt\", 1.0), (\"sqrt\", 4.0), (\"sqrt\", 9.0), (\"abs\", 1.0), (\"abs\", 4.0), (\"abs\", 9.0)]\nwarmed f64 allocation count=0; fresh single-row allocation count=0; numeric/precision/Dual controls passed\nlazy active-lane trace=[(\"log\", 4.0), (\"log\", 9.0), (\"sqrt\", 4.0), (\"sqrt\", 9.0), (\"powi\", 2.0), (\"powi\", 4.0)]; retained stride=128\nlazy warmed allocation count=0; inactive singular arms skipped\n\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 22.89s\n\n"
+    }
+  },
+  "reproduction_note": "# Shared-helper stack integration pin\n\nThis update starts from oneloopmaster `5091653086b32428c6e024ee89404b4b21214e88` and pins all three standalone build roots to Symbolica integration `fd7bced5307e94e994d5deba63c60b8380aa7d02`. The contributor branch `codex/oneloopmaster-integration` was fast-forwarded from `58b72d4`; the added implementation is [Symbolica PR 87](https://github.com/symbolica-dev/symbolica/pull/87).\n\nThe patch runs Symbolica's existing stack allocator once on freshly lowered shared-function bodies. Explicit arguments and captured inputs remain reserved. It neither introduces a register allocator nor changes integral expressions. The previous exact Dual constant-pool, vector branch-scope and polylog series fixes remain included. No oneloopmaster runtime Rust source or generated evaluator changes in this pin update.\n\n## Dependency checks\n\n`cargo metadata --format-version 1` for the Rust, Python and Python-host manifests resolves exactly one Symbolica, Numerica and Graphica, all at the published git revision above, and SymJIT 2.27.3. Both tracked Python lockfiles change only those three git source revisions; package versions are unchanged. The fetched git source and the clean local Symbolica integration have identical tree `ec93de75f96cc3b4d2530b3a27c2cc7e024bdac0`.\n\nBoth of these checks pass using the actual public git source without local path overrides:\n\n```sh\ncargo check --locked -j4 --manifest-path python/Cargo.toml\ncargo check --locked -j4 --manifest-path python/host/Cargo.toml\n```\n\nThese validate compilation, not Python extension import or loading.\n\n## Combined Rust validation\n\nValidation uses Rust 1.98.1, Linux x86_64, `RUST_MIN_STACK=134217728`, four Cargo jobs and serial test execution. The selected unit/integration targets are compiled together with all features and run in separate processes to preserve initialization and cache isolation.\n\nThe reproducible Cargo command is:\n\n```sh\ncargo test --locked -j4 --all-features --lib \\\n  --test evaluators --test master_callbacks_jit --test initialization \\\n  --test rust_batch_codegen --test c0_derivatives \\\n  --test native --test native_contract --test native_primitives \\\n  --test native_evaluator --test native_hooks --test native_hook_errors \\\n  --test native_startup --test function_definitions \\\n  -- --test-threads=1 --nocapture\n```\n\nAll selected targets pass: **123 passed, 5 existing ignored, zero failures**. This is a combined selected-target run, not a claim that every repository test target was rerun.\n\n| Target | Passed | Existing ignored |\n|---|---:|---:|\n| `oneloop` | 83 | 1 |\n| `evaluators` | 2 | 0 |\n| `master_callbacks_jit` | 1 | 0 |\n| `initialization` | 1 | 1 |\n| `rust_batch_codegen` | 1 | 0 |\n| `c0_derivatives` | 2 | 0 |\n| `native` | 5 | 1 |\n| `native_contract` | 4 | 0 |\n| `native_primitives` | 11 | 0 |\n| `native_evaluator` | 2 | 1 |\n| `native_hooks` | 1 | 0 |\n| `native_hook_errors` | 1 | 0 |\n| `native_startup` | 1 | 1 |\n| `function_definitions` | 8 | 0 |\n\nThe ignored entries are existing diagnostic checks and fresh-process child helpers. The two startup parent tests execute their six and three child entry routes respectively; these routes passed. The checks cover all 293 original scalar master fixtures, restored JIT caches, mixed batches, native DoubleFloat/Float controls, output transactionality and generated instruction-major primitive/allocation traces. C0 controls verify degree-five complex scaling and seven Taylor components, including third and mixed orders, at four nonsingular massive spacelike points with equal/unequal masses and both K\u00e4ll\u00e9n signs. Existing tolerances and input domains are unchanged.\n\n`cargo fmt --all --check` and `git diff --check` also pass. No production code changed that would require a new Clippy run beyond the upstream helper patch's completed checks. Both Python compilation checks above pass after the pin update.\n\n## Storage and remaining limitations\n\nBefore this pin, the isolated Symbolica patch passed 51 upstream-main evaluator tests and 67 tests on the existing integration, including interpreter, batch, JIT, C++ export, bincode and higher/mixed Dual controls. The oneloopmaster Rust batch probe and all 293 original scalar master fixtures also passed against the patched source.\n\nA separate generation-only audit reduces the emitted D0 numerical arena from 210,393 to 2,405 complex cells per batch lane, or about 3.21 GiB to 37.6 MiB for 1,024 complex f64 lanes. The generated D0 source remains approximately 59.4 MB. That large module was not compiled or enabled in production. These figures describe storage/source size, not an accepted runtime performance improvement. Production native master batching and broader source-size work remain separate tasks.\n\nCommand logs, exact build/runtime arguments, dependency metadata, file hashes and per-target return codes are retained under `/tmp/ninjars-oneloop-helper-pin-validation/`. Reproduction uses the published pin and commands above; the temporary directory is evidence rather than a prerequisite. This update follows the user's direct-main policy for oneloopmaster and opens no oneloopmaster pull request.\n"
+}

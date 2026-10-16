@@ -940,3 +940,51 @@ connects the existing kernels into integrated amplitudes and a standalone
   labeled explicitly; the full benchmark must include the latter operations
   before coefficient evaluation. The validation-only bridge and detailed
   measurement design are being developed separately from the reduction core.
+
+### Shared helper storage and gg→HH validation (2026-10-16)
+
+- [Symbolica PR #87](https://github.com/symbolica-dev/symbolica/pull/87)
+  applies the existing stack allocator to freshly lowered shared-function
+  bodies, reserving explicit and captured inputs. It adds no allocator or
+  algebra. The focused upstream head is `417414bdebd9a8395a409d8cd216594cc7e47d50`;
+  the tested integration is `fd7bced5307e94e994d5deba63c60b8380aa7d02`.
+  Source and generation-only layout evidence are archived in
+  `validation/evidence/helper-stack-generation.json`. D0 arena storage falls
+  from 210,393 to 2,405 complex cells per lane; its generated batch source is
+  still about 59.4 MB and has not been compiled or enabled in production.
+- oneloopmaster main `e9d14f7b5fa546af33fced2a421c616220178643` pins all three
+  build roots to that public Symbolica integration. The combined selected
+  upstream run passes 123 tests with five existing diagnostic/child-helper
+  ignores, including all 293 scalar master fixtures, JIT/cache controls,
+  native batch controls and C0 higher/mixed derivative controls. Both Python
+  roots compile with their actual public git dependencies and locked files.
+  `validation/evidence/helper-stack-upstream-checks.json` retains commands,
+  logs and dependency identities. Zero open oneloopmaster PRs were verified
+  after this direct-main push. NinjaRS dependency pins and reproducible patch
+  bundle now include these changes. Combined validation again passes **185
+  tests across 51 suites**, with no failures or ignored tests, strict Clippy,
+  formatting and dependency bootstrap verification. Full logs and source
+  hashes are retained in `validation/evidence/helper-stack-workspace-checks.json`.
+- Independently generated **gg→HH** fixtures contain two Higgs-channel
+  triangles and six top-quark boxes. FeynKit's existing preparation correctly
+  moves the Higgs bridge into the overall factor. Exact shared-family mappings
+  and color controls fix the raw factor `−1/2` and integrated factor `−8π²`.
+  All 4,480 independent raw numerator checks pass; 8,960 separate MadLoop
+  raw/wrapper checks also pass. The retained DOT graphs keep symbolic momenta,
+  wavefunctions and model couplings.
+- The integrated matrix passes **192 physical rows** at four helicities,
+  f64/DoubleFloat/Float256, both mu modes, with per-graph Laurent/decomposition,
+  physical sums and mu-mode agreement. All 192 generic/Ward per-graph rows
+  pass fixed reference mode four. Independent Symbolica differentiation gives
+  triangle poles `Delta_q N / 8` and box poles `Delta_q² N / 192`; the eight
+  graph poles cancel exactly for all eight states. Physical pole errors are
+  at most `4.20e-14`, `2.70e-30`, and `2.01e-75`, below the fixed respective
+  `1e-9`, `1e-25`, and `1e-65` gates. Evidence and reproduction instructions
+  live under `validation/evidence/gg-hh-*` and `validation/madloop/gg_hh/`.
+- Diagnostic limitations are retained: 36 of 144 individual Ward rows fail
+  reference mode one; the summed both-Ward pole misses the fixed target for
+  both f64 mu modes (`1.015e-9`, `1.053e-9`) and both DoubleFloat mu modes
+  (`2.244e-25`, `2.157e-25`). Float256 passes. These are not physical-helicity
+  gates, and are not reported as Ward acceptance. MadLoop finite-part inputs
+  remain binary64 even in mode four. Fifteen aggregation mutation regressions
+  pass. No performance acceptance is implied.

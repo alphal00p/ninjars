@@ -1,0 +1,51 @@
+{
+  "emitter": "abee950fbbf8510f86cca812a2f537fcb217ffa6",
+  "symbolica": "fd7bced5307e94e994d5deba63c60b8380aa7d02",
+  "generation_only": true,
+  "compiled": false,
+  "layouts": [
+    {
+      "file": "generated_a0.rs",
+      "bytes": 16987,
+      "slots": 30,
+      "control_frames": 4
+    },
+    {
+      "file": "generated_b0.rs",
+      "bytes": 111156,
+      "slots": 52,
+      "control_frames": 4
+    },
+    {
+      "file": "generated_c0.rs",
+      "bytes": 2784398,
+      "slots": 829,
+      "control_frames": 32
+    },
+    {
+      "file": "generated_d0.rs",
+      "bytes": 59433455,
+      "slots": 2405,
+      "control_frames": 53
+    },
+    {
+      "file": "generated_db0.rs",
+      "bytes": 475710,
+      "slots": 61,
+      "control_frames": 4
+    }
+  ],
+  "scope": "Generation-only shared-function arena layout; D0 source has not been compiled or enabled in production",
+  "performance_acceptance": false,
+  "probe_source": "//! Generate generic Rust scalar statements from the repaired exact expressions.\n//! Run: cargo run --features rust-codegen --example generate_native -- src/native\nuse oneloop::rust_codegen::{EmitOptions, RustEmitter};\nuse oneloop::{A0, B0, C0, D0, OneLoopExpressions, ScalarIntegral, dB0};\nuse std::path::PathBuf;\nuse symbolica::atom::Atom;\n\nfn generate(directory: PathBuf) -> Result<(), String> {\n    let context = OneLoopExpressions::new();\n    let mut emitter = RustEmitter::default();\n    let mut files = Vec::new();\n    for (family, symbol, file) in [\n        (ScalarIntegral::A0, A0(), \"generated_a0.rs\"),\n        (ScalarIntegral::B0, B0(), \"generated_b0.rs\"),\n        (ScalarIntegral::DB0, dB0(), \"generated_db0.rs\"),\n        (ScalarIntegral::C0, C0(), \"generated_c0.rs\"),\n        (ScalarIntegral::D0, D0(), \"generated_d0.rs\"),\n    ] {\n        eprintln!(\"exporting native {}\", family.name());\n        let parameters = (0..family.arity())\n            .map(|index| {\n                symbolica::symbol!(format!(\"native_codegen_{}_{index}\", family.name())).to_atom()\n            })\n            .collect::<Vec<_>>();\n        let calls = [0, -1, -2].map(|tag| {\n            let mut arguments = vec![Atom::num(tag)];\n            arguments.extend(parameters.iter().cloned());\n            symbol.call(&arguments)\n        });\n        // Sharing compensated arithmetic pays off in the large triangle/box\n        // graphs, but call overhead is significant for the small families.\n        let inline_arithmetic = matches!(\n            family,\n            ScalarIntegral::A0 | ScalarIntegral::B0 | ScalarIntegral::DB0\n        );\n        let module = emitter.emit_batch(\n            context\n                .evaluator(&calls, &parameters)\n                .map_err(|error| error.to_string())?,\n            EmitOptions { inline_arithmetic },\n        )?;\n        eprintln!(\n            \"{}: {} instructions, {} canonical helpers, {} outlined branches, {} bytes\",\n            family.name(),\n            module.instruction_count,\n            module.helper_count,\n            module.outlined_branch_count,\n            module.source.len()\n        );\n        files.push((file, module.source));\n    }\n    files.push((\"generated_constants.rs\", emitter.constants_source()));\n    // Construct every file before replacing any generated module. Unknown\n    // instructions or unresolved constants cannot leave a partial new set.\n    std::fs::create_dir_all(&directory).map_err(|error| error.to_string())?;\n    for (file, source) in files {\n        std::fs::write(directory.join(file), source).map_err(|error| error.to_string())?;\n    }\n    eprintln!(\"{} exact cached constants\", emitter.constants().len());\n    Ok(())\n}\n\nfn main() {\n    let mut arguments = std::env::args().skip(1);\n    let directory = PathBuf::from(arguments.next().unwrap_or_else(|| \"src/native\".into()));\n    assert!(\n        arguments.next().is_none(),\n        \"usage: generate_native [output-directory]\"\n    );\n    std::thread::Builder::new()\n        .stack_size(128 * 1024 * 1024)\n        .spawn(move || generate(directory))\n        .unwrap()\n        .join()\n        .unwrap()\n        .unwrap();\n}\n",
+  "source_sha256": {
+    "target/helper-stack-inspection/inspect_helper_stack.rs": "bcc6479ed476a92f8e6d295e90ce54545ee55b5c1238e0806c8d5d747ae80aa3",
+    "target/helper-stack-inspection/layout.json": "4e515402c1a639656f55188b40f2e9c7cd2e113bb439888fa9a7f2d739811811",
+    "target/helper-stack-inspection/generated/generated_a0.rs": "7e5950b5dda4198ea5979a7bf38e2285d94be4dc6cd6f902aaadee0bd3b8de72",
+    "target/helper-stack-inspection/generated/generated_b0.rs": "0ba72cf3578ad5e87ffd713f9dfaee4036f13d21ee8bce8925b0b397f7a992e6",
+    "target/helper-stack-inspection/generated/generated_c0.rs": "37aec296dcd329c2a8cce977a4161e2c9acac5043684bfe45227a6d5b0d77869",
+    "target/helper-stack-inspection/generated/generated_constants.rs": "6fb4b05de25c2f56da13679dfc65878f2257f86e73d0ea2507f611ca3c5a9d6a",
+    "target/helper-stack-inspection/generated/generated_d0.rs": "7ad011c45968bb4c691afba526f9a72f3cc836994c5a70f682713c2a698a4f96",
+    "target/helper-stack-inspection/generated/generated_db0.rs": "fcc7df389e2f823e08fc96dbfdbd08f144fef983b86d3a9ff2c2e3634ad7b565"
+  }
+}
