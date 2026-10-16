@@ -58,7 +58,10 @@ build. They include timer effects and are not comparable parity timings.
 The remainder includes numerator callbacks, coordinator and FFI work, frozen
 master lookup, validation/packing, and instrumentation overhead. The separate
 measurement harness must compare numerator spans for original and Rust at
-widths1/8. Equal callback row counts alone do not imply equal batch overhead.
+widths1/8. Equal callback row counts alone do not imply equal batch overhead or
+equal coefficient work: original Ninja requests less depth for the swapped
+bubble orientation, while the current Rust coordinator requests full depth for
+both. The common provider builds a separate evaluator for each expansion layout.
 
 For n5 width1, the largest individual exact plans are:
 

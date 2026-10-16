@@ -56,6 +56,13 @@ vectors and beta, and T2 takes four vectors and three betas. The reference
 exporter and direct callback probes check coefficient ordering and expansion
 depths separately from integrated results.
 
+Equal callback row totals do not establish equal numerator arithmetic. Original
+Ninja requests a shallower expansion for the swapped bubble orientation; the
+current Rust coordinator requests the full depth for both orientations. The
+common provider builds different evaluators for these layouts. This is part of
+the measured algorithm difference. Comparisons of coefficient-pruning changes
+must record requested heads and powers as well as rows and callback time.
+
 The frozen master table contains the union of requests actually made by both
 reducers. Its keys retain integral kind, scale, ordered invariants and squared
 masses, using exact f64 component bits, including signed zero. Both reducers use

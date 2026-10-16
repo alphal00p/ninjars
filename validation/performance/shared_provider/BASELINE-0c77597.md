@@ -62,9 +62,13 @@ Intervals describe these blocks only, not uncontrolled host variability.
 All twelve records passed the paired and independent Laurent checks. Source and
 artifact hashes stayed unchanged. Callback row totals match exactly: 10 direct,
 25 T3 and 20 T2 rows per phase-space sample, with no Mu callback for this graph.
-NinjaRS batches those rows into fewer ABI calls. Preparation and actual master
-backend counters are zero inside every timed block, and the frozen union has
-no misses. Frozen master lookup time is not called master computation time.
+NinjaRS batches those rows into fewer ABI calls. Equal rows do not imply equal
+requested coefficient heads: original Ninja uses a shallower swapped bubble
+expansion, whereas this Rust checkpoint requests full depth in both orientations.
+Both use the same provider, with different evaluators for those layouts.
+Preparation and actual master backend counters are zero inside every timed
+block, and the frozen union has no misses. Frozen master lookup time is not
+called master computation time.
 
 The separately instrumented report measures actual live/production master
 execution directly rather than subtracting unrelated timing runs. Its additive
