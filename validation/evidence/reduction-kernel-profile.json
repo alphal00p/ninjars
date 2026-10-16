@@ -1,0 +1,25 @@
+{
+  "success": true,
+  "performance_acceptance": false,
+  "compressed_sha256": "a7b756537d3fc71ad0081a0886a901b3fd9992932a36be0c73fd31e2047f6ca6",
+  "uncompressed_sha256": "0ec803584c47c2000f925e3dfb0eb81be3dde23fa806853580be567a748ae54c",
+  "compressed_bytes": 805643,
+  "uncompressed_bytes": 3129280,
+  "external_profiles": 2,
+  "semantic_runs": 6,
+  "harness_tests_passed": 11,
+  "native_reduction_enabled": false,
+  "numerator_execution": "External physical coefficient-head preparation uses SymJIT O2; actual shared PolynomialNumerator direct/T3/T2 reduction callbacks are interpreted for both physical and synthetic profiles.",
+  "reference_post_run_audit": {
+    "matched": true,
+    "revisions_sha256": "bf5171bc8cd5534c23077f5f38a247852b22540ff76b5d5978b02819fe621094"
+  },
+  "limitations": [
+    "Own-process CPU sampling and intrusive diagnostic spans; not parity timings or host-isolation evidence.",
+    "Optimized immutable library has incomplete unwind chains: self-symbol percentages are available, but inclusive caller attribution is incomplete.",
+    "Per-kernel spans include timer and map overhead, change code layout, and cannot be used to infer the cost of empty paths.",
+    "Kernel span totals exclude shared numerator callbacks, frozen-master lookup, and much coordinator/FFI work.",
+    "Bubble polynomial controls differ from the historical 10\u201316x benchmark fixture; that complete gate remains outstanding.",
+    "All workloads here repeat one point. The separate measurement harness owns changing-input and paired-provider spans."
+  ]
+}
