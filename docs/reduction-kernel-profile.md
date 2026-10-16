@@ -62,7 +62,7 @@ For n5 width1, the largest individual exact plans are:
 | T2 uncut denominator for triangle→bubble correction | 29→7 | 1/60 | 14.41 |
 | T3 uncut denominators for tadpole corrections | 23→4 | 2/80 | 13.04 |
 | Bubble correction source-axis projections | 28→8 | 1/60 | 10.52 |
-| Tadpole geometry finish | 8→28 | 1/20 | 9.87 |
+| Tadpole geometry reference probe | 8→28 | 1/20 | 9.87 |
 | T3 uncut denominators for triangle division | 23→4 | 1/40 | 7.45 |
 | Two tadpole source-axis projection plans | 24→6, 28→9 | 1/30, 1/20 | 5.08, 3.99 |
 | Triangle Laurent division | 12→4 | 1/20 | 3.32 |
@@ -72,6 +72,12 @@ At width8 the same selected subtraction/source projection process480 rows in
 131.36/82.05µs. These plans merit the next ordinary native catalog increment
 after measuring the existing T2/T3 native option. Division alone is a smaller
 part of this workload.
+
+The original profile summary called the 8→28 tadpole plan a geometry finish.
+Source inspection identifies it as the complementary-shift reference probe:
+four difference components plus four projections for each of six candidate
+bases. The separate per-candidate geometry finish is 5→30. This label correction
+does not change the retained raw profile archive or its measured counters.
 
 Ordinary bubble geometry and non-arithmetic overhead remain material. The
 higher-rank bubble additionally exercises bubble→tadpole subtraction34→4:

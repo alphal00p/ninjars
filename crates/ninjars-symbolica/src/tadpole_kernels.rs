@@ -1,7 +1,7 @@
 //! Symbolica arithmetic for the minimal integrated tadpole stage.
 
 use crate::{
-    DenominatorExpansion, LaurentDivision, TadpoleSubtraction,
+    DenominatorExpansion, LaurentDivision, TadpoleSourceProjection, TadpoleSubtraction,
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor},
     value_checks::{DualChecks, OrdinaryChecks, ValueChecks},
 };
@@ -41,15 +41,6 @@ fn vars(n: usize, scope: &str) -> Vec<Atom> {
         .map(|i| Atom::var(symbol!(format!("ninjars_tadpole_{scope}::p{i}"))))
         .collect()
 }
-fn momentum(p: &[Atom], start: usize) -> FourMomentum<Atom> {
-    FourMomentum::from_args(
-        p[start].clone(),
-        p[start + 1].clone(),
-        p[start + 2].clone(),
-        p[start + 3].clone(),
-    )
-}
-
 impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Checks> {
     fn new(
         n: usize,
@@ -131,29 +122,8 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
                     .collect::<Result<_>>()?;
             }
             subtraction[kind] = Some(compile(&plan.exact)?);
-            let axes = if source_size == 3 { 2 } else { 3 };
-            let p = vars(
-                16 + 4 * axes,
-                if kind == 0 {
-                    "triangle_axes"
-                } else {
-                    "bubble_axes"
-                },
-            );
-            let offset = momentum(&p, 0) + momentum(&p, 12);
-            let mut expressions = Vec::new();
-            for axis in 0..axes {
-                let e = momentum(&p, 16 + axis * 4);
-                expressions.extend([
-                    offset.dot(&e),
-                    momentum(&p, 4).dot(&e),
-                    momentum(&p, 8).dot(&e),
-                ]);
-            }
-            source_projection[kind] = Some(compile(&ExactKernel {
-                expressions,
-                parameters: p,
-            })?);
+            source_projection[kind] =
+                Some(compile(&TadpoleSourceProjection::new(source_size)?.exact)?);
         }
         let extras = topology
             .cuts()

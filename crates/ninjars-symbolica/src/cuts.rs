@@ -28,7 +28,7 @@ use symbolica::{
     symbol,
 };
 
-use crate::PolynomialNumerator;
+use crate::{PolynomialNumerator, TadpoleGeometryProbe, tadpole_plans::tadpole_reference_bases};
 
 /// Complex cut geometry at the supplied coefficient precision.
 pub struct SymbolicaCuts<T> {
@@ -145,32 +145,12 @@ where
     Complex<T>: Real + EvaluationDomain,
 {
     let p = variables(8);
-    let difference = vector(&p, 4) - vector(&p, 0);
-    let mut probe = Vec::new();
-    append_vector(&mut probe, &difference);
+    let probe = TadpoleGeometryProbe::new();
     let mut finishes = Vec::new();
     // Exact rational Weyl components give six distinct null bases without
     // introducing constant square-root branches or f64 parameter round trips.
     // Every component modulus is below 32, used in the conditioning check.
-    for (a, b, c, d) in [
-        (1, 2, -2, 1),
-        (2, -1, 1, 3),
-        (-1, 3, 2, 1),
-        (3, 1, -1, -2),
-        (1, -3, 3, -2),
-        (2, 3, -3, 1),
-    ] {
-        let angle1 = [Atom::num(1), Atom::num(a) + Atom::i() * b];
-        let square1 = [Atom::num(1), Atom::num(a) - Atom::i() * b];
-        let angle2 = [Atom::num(1), Atom::num(c) + Atom::i() * d];
-        let square2 = [Atom::num(1), Atom::num(c) - Atom::i() * d];
-        let e1 = FourMomentum::from_weyl_spinors(&angle1, &square1);
-        let e2 = FourMomentum::from_weyl_spinors(&angle2, &square2);
-        let e3 = FourMomentum::from_weyl_spinors(&angle1, &square2);
-        let e4 = FourMomentum::from_weyl_spinors(&angle2, &square1);
-        for e in [&e1, &e2, &e3, &e4] {
-            probe.push(difference.dot(e));
-        }
+    for [e1, e2, e3, e4] in tadpole_reference_bases() {
         let g = e1.dot(&e2);
         let mut output = Vec::new();
         for e in [&e1, &e2, &e3, &e4] {
@@ -183,7 +163,15 @@ where
         output.push(p[4].clone());
         finishes.push(Kernel::new(&output, &p[..5], prototype, shape)?);
     }
-    Ok((Kernel::new(&probe, &p, prototype, shape)?, finishes))
+    Ok((
+        Kernel::new(
+            &probe.exact.expressions,
+            &probe.exact.parameters,
+            prototype,
+            shape,
+        )?,
+        finishes,
+    ))
 }
 
 impl<T: Real + SingleFloat> CutEngine<T>
