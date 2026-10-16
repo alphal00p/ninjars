@@ -125,7 +125,7 @@ acceptance remains outstanding; the existing timing evidence predates this
 mode. See [coefficient provider details](numerator-coefficients.md) for its
 precision and preparation-error policy.
 
-## Optional generated denominator kernels
+## Optional generated reduction kernels
 
 Build with `--features native-kernels` and select
 `--reduction-kernels native-denominators` on `reduce`, `compare` or `bench`
@@ -141,3 +141,19 @@ It is independent of `--numerator-evaluator`; for example, build with
 execution with `--numerator-evaluator symjit-o2-factored`. Record both choices
 when comparing timings. Numerical parity tests do not establish a speedup;
 controlled performance comparisons for this selection remain outstanding.
+
+`--reduction-kernels native` selects the growing partial catalog. It adds
+ordinary bubble source-axis projections and triangle-to-bubble correction
+kernels for quotient degrees 0, 1, 2 and the rank n+1 degree 3. Selection follows
+the existing exact plan's rank class and explicit Laurent powers. The JSON
+report names `bubble_source_projection` and `triangle_bubble_correction`
+separately; unused cut stages need not execute. Other reduction kernels,
+integration and accumulation remain interpreted. The library equivalent is
+`SymbolicaAmplitudeKernels::with_native_kernels()`.
+
+The library Dual factory supports its existing ordered five-component native
+denominator catalog. New bubble projection/correction kernels use the shared
+flattened Symbolica evaluator for all Dual shapes. Calling
+`with_native_denominators()` after `with_native_kernels()` restores the narrower
+selection. See [catalog details](native-reduction-catalog.md) for generation and
+validation; neither mode claims complete native execution or acceptance parity.

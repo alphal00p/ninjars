@@ -1,0 +1,60 @@
+{
+  "algebra": "Existing BubbleSourceProjection and explicit-power TriangleBubbleSubtraction subset",
+  "constant_count": 11,
+  "dual_generated": false,
+  "plans": [
+    {
+      "bytes": 15644,
+      "inputs": 28,
+      "instructions": 60,
+      "module": "bubble_source_projection",
+      "outputs": 8,
+      "semantic_plan": "BubbleSourceProjection"
+    },
+    {
+      "bytes": 12618,
+      "higher_rank": false,
+      "inputs": 28,
+      "instructions": 44,
+      "module": "bubble_correction_degree0",
+      "outputs": 1,
+      "quotient_degree": 0,
+      "quotient_powers": "T2 { powers: [(0, 0, 0)] }",
+      "semantic_plan": "TriangleBubbleSubtraction::for_quotient"
+    },
+    {
+      "bytes": 22603,
+      "higher_rank": false,
+      "inputs": 28,
+      "instructions": 102,
+      "module": "bubble_correction_degree1",
+      "outputs": 3,
+      "quotient_degree": 1,
+      "quotient_powers": "T2 { powers: [(1, 0, 0), (0, 0, 0), (0, 1, 0)] }",
+      "semantic_plan": "TriangleBubbleSubtraction::for_quotient"
+    },
+    {
+      "bytes": 33092,
+      "higher_rank": false,
+      "inputs": 28,
+      "instructions": 161,
+      "module": "bubble_correction_degree2",
+      "outputs": 7,
+      "quotient_degree": 2,
+      "quotient_powers": "T2 { powers: [(2, 0, 0), (1, 0, 0), (1, 1, 0), (0, 0, 0), (0, 0, 1), (0, 1, 0), (0, 2, 0)] }",
+      "semantic_plan": "TriangleBubbleSubtraction::for_quotient"
+    },
+    {
+      "bytes": 104898,
+      "higher_rank": true,
+      "inputs": 33,
+      "instructions": 557,
+      "module": "bubble_correction_higher",
+      "outputs": 13,
+      "quotient_degree": 3,
+      "quotient_powers": "T2 { powers: [(3, 0, 0), (2, 0, 0), (2, 1, 0), (1, 0, 0), (1, 0, 1), (1, 1, 0), (1, 2, 0), (0, 0, 0), (0, 0, 1), (0, 1, 0), (0, 1, 1), (0, 2, 0), (0, 3, 0)] }",
+      "semantic_plan": "TriangleBubbleSubtraction::for_quotient"
+    }
+  ],
+  "runtime": "oneloopmaster RustEmitter instruction-major batches with width-one scalar path"
+}

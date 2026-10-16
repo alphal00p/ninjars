@@ -15,7 +15,10 @@ use symbolica::{
     symbol,
 };
 
-use crate::kernel::{CompiledDualKernel, CompiledKernel, ExactKernel};
+use crate::{
+    LaurentDivision,
+    kernel::{CompiledDualKernel, CompiledKernel, ExactKernel},
+};
 
 fn triangle_residue(c: &[Atom], u: &Atom, v: &Atom, mu: &Atom, higher: bool) -> Atom {
     let mut residue = &c[0]
@@ -90,6 +93,7 @@ pub struct TriangleBubbleInputLayout {
 /// Lower-rank reducers can select the matching subset by explicit powers.
 /// The caller must reject singular leading denominator coefficients first.
 pub struct TriangleBubbleSubtraction {
+    higher_rank: bool,
     layout: TriangleBubbleInputLayout,
     denominator: ExpansionKind,
     output: ExpansionKind,
@@ -97,6 +101,40 @@ pub struct TriangleBubbleSubtraction {
 }
 
 impl TriangleBubbleSubtraction {
+    /// Restrict the existing correction to a validated bubble quotient layout.
+    ///
+    /// Selection follows explicit `(t,x,mu²)` powers, preserving their order.
+    /// It does not infer semantics from input/output buffer dimensions.
+    pub fn for_quotient(division: &LaurentDivision) -> Result<Self> {
+        if division.cut_size() != 2 {
+            return Err(Error::Unsupported(
+                "triangle-to-bubble correction requires a bubble quotient".into(),
+            ));
+        }
+        let mut plan = Self::new(division.higher_rank())?;
+        let ExpansionKind::T2 { powers: full } = &plan.output else {
+            unreachable!()
+        };
+        let ExpansionKind::T2 { powers: selected } = division.quotient_expansion() else {
+            unreachable!()
+        };
+        plan.exact.expressions = selected
+            .iter()
+            .map(|power| {
+                full.iter()
+                    .position(|p| p == power)
+                    .map(|index| plan.exact.expressions[index].clone())
+                    .ok_or_else(|| {
+                        Error::Expansion(
+                            "bubble quotient power is absent from triangle correction".into(),
+                        )
+                    })
+            })
+            .collect::<Result<_>>()?;
+        plan.output = division.quotient_expansion().clone();
+        Ok(plan)
+    }
+
     pub fn new(higher_rank: bool) -> Result<Self> {
         let count = if higher_rank { 15 } else { 10 };
         let layout = TriangleBubbleInputLayout {
@@ -175,6 +213,7 @@ impl TriangleBubbleSubtraction {
             }
         }
         Ok(Self {
+            higher_rank,
             layout,
             denominator,
             output: ExpansionKind::T2 { powers },
@@ -183,6 +222,10 @@ impl TriangleBubbleSubtraction {
                 parameters,
             },
         })
+    }
+
+    pub fn higher_rank(&self) -> bool {
+        self.higher_rank
     }
 
     pub fn input_layout(&self) -> &TriangleBubbleInputLayout {
@@ -462,5 +505,45 @@ where
 {
     pub fn evaluate_batch(&mut self, input: &[D], output: &mut [D], rows: usize) -> Result<()> {
         self.kernel.evaluate_batch(input, output, rows)
+    }
+}
+
+#[cfg(feature = "native-kernels")]
+impl TriangleBubbleSubtraction {
+    /// Select the catalogued ordinary correction body by rank class and explicit
+    /// quotient degree. An empty quotient keeps its empty interpreter body.
+    pub fn compile_native<T: oneloop::rust_codegen::runtime::NativeFloat>(
+        &self,
+        prototype: &T,
+    ) -> Result<TriangleBubbleEvaluator<T>>
+    where
+        Complex<T>: Real + EvaluationDomain,
+    {
+        let mut result = self.compile(prototype)?;
+        if let Some(plan) =
+            crate::native_kernels::bubbles::BubblePlan::correction(self.higher_rank, &self.output)?
+        {
+            crate::native_kernels::bubbles::install(&mut result.kernel, plan, prototype)?;
+        }
+        Ok(result)
+    }
+}
+#[cfg(feature = "native-kernels")]
+impl<T: Real + SingleFloat> TriangleBubbleEvaluator<T>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    pub fn backend(&self) -> crate::KernelBackend {
+        self.kernel.backend()
+    }
+}
+#[cfg(feature = "native-kernels")]
+impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> DualTriangleBubbleEvaluator<T, D>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    /// No generated Dual correction is selected in the current catalog.
+    pub fn backend(&self) -> crate::KernelBackend {
+        self.kernel.backend()
     }
 }

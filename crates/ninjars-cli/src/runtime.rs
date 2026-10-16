@@ -462,19 +462,26 @@ where
         let kernels = match args.reduction_kernels {
             ReductionKernels::Symbolica => kernels,
             ReductionKernels::NativeDenominators => kernels.with_native_denominators(),
+            ReductionKernels::Native => kernels.with_native_kernels(),
         };
         let denominator_backend = match args.reduction_kernels {
             ReductionKernels::Symbolica => "symbolica-interpreter",
-            ReductionKernels::NativeDenominators => "native-rust",
+            ReductionKernels::NativeDenominators | ReductionKernels::Native => "native-rust",
+        };
+        let correction_backend = match args.reduction_kernels {
+            ReductionKernels::Native => "native-rust",
+            _ => "symbolica-interpreter",
         };
         let kernel_info = serde_json::json!({
             "selection": args.reduction_kernels.name(),
             "t2_denominators": denominator_backend,
             "t3_denominators": denominator_backend,
+            "bubble_source_projection": correction_backend,
+            "triangle_bubble_correction": correction_backend,
             "other_reduction": "symbolica-interpreter",
             "integration": "symbolica-interpreter",
             "accumulation": "symbolica-interpreter",
-            "scope": "Selected denominator execution; numerator callbacks, cut geometry and masters retain their separate providers. Unused cut stages need not execute."
+            "scope": "Partial generated reduction catalog; numerator callbacks, cut geometry and masters retain their separate providers. Unused cut stages need not execute."
         });
         let mut amplitude = kernels.into_amplitude(0)?;
         amplitude.set_cut_stop(args.cut_stop);

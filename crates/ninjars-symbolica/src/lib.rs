@@ -48,6 +48,7 @@ pub use masters::{SymbolicaDualMasters, SymbolicaMasters};
 pub use pentagon_kernels::{SymbolicaDualPentagonKernels, SymbolicaPentagonKernels};
 pub use polynomial::PolynomialNumerator;
 pub use projection::{
+    BubbleSourceProjection, BubbleSourceProjectionEvaluator, DualBubbleSourceProjectionEvaluator,
     DualResidueProjectionEvaluator, ResidueProjection, ResidueProjectionEvaluator,
 };
 pub use subtraction::{
