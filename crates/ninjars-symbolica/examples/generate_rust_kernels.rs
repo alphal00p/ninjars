@@ -25,9 +25,9 @@ fn export<K: RustKernelExport>(
     ]);
     for dual in [false, true] {
         let generated = if dual {
-            plan.export_rust_dual(&structure, emitter, EmitOptions::default())?
+            plan.export_rust_batch_dual(&structure, emitter, EmitOptions::default())?
         } else {
-            plan.export_rust(emitter, EmitOptions::default())?
+            plan.export_rust_batch(emitter, EmitOptions::default())?
         };
         let module = format!("{name}{}", if dual { "_dual" } else { "" });
         let provenance = format!("// NinjaRS existing exact {name} plan; flattened Dual={dual}.\n");
@@ -109,6 +109,17 @@ fn main() -> Result<(), Box<dyn Error>> {
         )?;
     }
     dispatch.push_str("_ => unreachable!(),\n}\n}\n");
+    dispatch.push_str("fn generated_batch<T: NativeFloat>(kernel:usize,dual:bool,input:&[C<T>],output:&mut[C<T>],rows:usize,ctx:&Context<T>,workspace:&mut BatchWorkspace<T>) -> std::result::Result<(), String> {\nmatch (kernel,dual) {\n");
+    for (index, record) in records.iter().enumerate() {
+        writeln!(
+            dispatch,
+            "({}, {}) => {}::evaluate_batch(input,output,rows,ctx,workspace),",
+            index / 2,
+            record["dual"],
+            record["module"].as_str().unwrap()
+        )?;
+    }
+    dispatch.push_str("_ => unreachable!(),\n}\n}\n");
     fs::write(directory.join("dispatch.rs"), dispatch)?;
     fs::write(
         directory.join("metadata.json"),
@@ -120,7 +131,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 "denominator": "DenominatorExpansion::new(2)"
             },
             "dual_shape":[[0,0],[1,0],[0,1],[2,0],[1,1]],
-            "execution":"compiled scalar rows; validation control only; not pipeline batching"
+            "execution":"compiled instruction-major batch kernels with scalar controls; no production dispatch"
         }))?,
     )?;
     println!("{}", directory.display());

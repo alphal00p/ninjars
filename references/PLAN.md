@@ -156,6 +156,28 @@ Delegate parallel audits of shared APIs, numerical correctness, reference matchi
 - Compare reduction with a shared master provider and complete evaluation with production backends.
 - Benchmark DoubleFloat, arbitrary precision, and Dual separately, recording accuracy and derivative order.
 
+**Additional performance scope (user clarification, 2026-10-16)**
+
+- Retain reduction-only NinjaRS versus original Ninja measurements with the same
+  prepared numerator provider and matching master policy. Also measure complete
+  end-to-end evaluation of a fixed large physical graph, including numerator
+  coefficient evaluation, reduction and masters. Report cold graph/model
+  preparation and compilation separately from warmed repeated/changing
+  phase-space evaluation; neither component may disappear from the report.
+- Add a CLI-selectable numerator preparation path using one multi-output-head
+  SymJIT evaluator at optimization level O2 for the polynomial coefficients,
+  reusing the existing Symbolica/FeynKit evaluation APIs. Evaluate those
+  coefficients once per phase-space sample before cut callbacks. Keep this
+  capability in the CLI's numerator-preparation package, with ordinary shared
+  polynomial data and NinjaRS callbacks at the boundary. The reduction engine
+  acquires no graph/model/JIT responsibilities.
+- Validate the compiled numerator against the exact/preexisting provider before
+  timing, and explicitly retain precision-preserving paths for carriers not
+  supported by the selected JIT backend. Record compilation/cache policy,
+  coefficient preparation, callbacks, reduction, masters and total evaluation
+  for both providers. End-to-end speed and accuracy are independent acceptance
+  evidence from reduction-only speed.
+
 Completion requires reproducible correctness/performance evidence, usable library and CLI examples, recorded Symbolica and FeynKit/gammaloop PRs, and an updated plan with all remaining limitations stated.
 
 ## Implementation record
@@ -751,3 +773,119 @@ connects the existing kernels into integrated amplitudes and a standalone
   H→gg longitudinal f64 failures, derivative-domain gates, performance gaps and
   remaining reconstruction/physical validation work are unchanged. The overall
   goal remains active.
+
+### Native batch integration and remaining setup costs (2026-10-16)
+
+- The reduction adapter now uses oneloopmaster's existing `RustEmitter::emit_batch`
+  for ordinary and Symbolica-flattened Dual graphs. The API audit checked the
+  public emitter, `rust_codegen/batch.rs`, `native/batch.rs`, and upstream batch
+  regressions; the adapter introduces no algebra or alternate instruction
+  representation. A compiled probe covers the existing Laurent division,
+  triangle/bubble subtraction and denominator expansion plans. Its first
+  monolithic compilation was stopped after 1,364 seconds and approximately
+  5.6 GB resident memory without reaching numerical validation. This incomplete
+  attempt is recorded in `validation/evidence/rust-kernel-batch-unoutlined-build.json`.
+  Bounded extraction of generated batch functions is now tested and pushed to
+  oneloopmaster main at `5091653086b32428c6e024ee89404b4b21214e88`, the new
+  NinjaRS dependency pin. The isolated full probe passes 108 groups; combined
+  upstream validation passes 14 emitter tests and the compiled numerical probe.
+  The former giant subtraction/Dual batch body is split at existing instruction
+  boundaries into 69 functions, preserving scalar source and arithmetic order.
+  Its dev-profile build completed in 57.10 seconds with 2,362,496 KiB peak RSS;
+  this demonstrates build feasibility, not a controlled performance ratio.
+  Evidence is in `validation/evidence/native-batch-outlining.json`. Root probe
+  verification on the final pins also passes all 108 groups, covering 118,581
+  scalar outputs and 592,905 higher/mixed Dual components. This includes empty,
+  single, large and tail batches, permutations, malformed/overflow dimensions,
+  retained workspace reuse and zero warmed/fresh-single-row f64 allocations.
+  Exact source, executable and dependency hashes are retained in
+  `validation/evidence/rust-kernel-batch-codegen.json`. Production dispatch and
+  performance acceptance remain outstanding.
+- An isolated Symbolica audit found that importing every scalar in an already
+  flattened Dual constant pool padded it with another full derivative group at
+  each helper level. A defaulted vectorizer hook can reuse the existing exact
+  literal interner without adding equality bounds to generic vectorizers.
+  Registered constants are excluded from interning before literal import, so
+  equal placeholder zeros retain distinct identities. The focused helper-depth,
+  registered-constant and carrier-compatibility controls pass. On the same C0
+  primal/zero-seed regression, diagnostic debug runs changed from 132.74 s /
+  15,038,696 KiB peak RSS to 5.19 s / 406,324 KiB. These shared-host measurements
+  are not a performance acceptance result. The fix is submitted in the
+  existing Symbolica PR #82, now updated at `6af8de565eb3908eacbb93390355f2bdb98bfa9e`.
+  The tested integration is `58b72d438e7bcfce158d132612db7d35fdefa4ba`, available
+  on the public contributor fork. Its 17 Dual and five batch tests pass; the
+  PR-only tree passes 16 Dual and five batch tests. All 65 active oneloopmaster
+  unit tests pass against the integration, with one existing ignored control.
+  The exact C0 stored scalar count drops from 46,106,630 to 110. Reproduction
+  commands, measurements and logs are archived in
+  `validation/evidence/symbolica-dual-constant-pool.{md,json}`. NinjaRS now pins
+  this integration through its reproducible patch bundle. oneloopmaster also
+  pins all three compatible packages at this revision in its Rust and Python
+  build roots, pushed directly to main at
+  `aedc2ec145d26701922f66794e96e89522301be3`. Combined validation passes 82 unit
+  tests (one existing ignored diagnostic), the compiled native batch probe,
+  and locked checks of both Python build roots. Evidence is archived in
+  `validation/evidence/oneloop-dual-pool-integration.json`.
+- Pushed tested lazy batch emission directly to oneloopmaster main at
+  `df99fb48c2f87a6fec9199cccefc83587b381737`; GitHub still reports zero open PRs.
+  It uses exported forward control flow, retained active/resume frames and
+  parent-stride lane subsets through shared helpers. Higher/mixed Dual tests
+  also exposed and fixed scalar-emitter liveness for consecutive branch joins.
+  The focused validation passes 38 tests with one existing ignored control,
+  including the existing production native integration suites. Primitive traces
+  prove inactive singular arms are skipped and arithmetic runs across active
+  lanes. Warmed f64 and fresh single-row calls allocate zero times. Scoped strict
+  Clippy passes with the three recorded baseline lint allowances; formatting
+  passes. Evidence is in upstream `patches/lazy-native-batch-validation.md` at
+  that commit. Production native master dispatch still uses scalar row loops;
+  the reusable emitter is ready for a separate integration. These changes are
+  included in the combined main revision `5091653` pinned above.
+- The integrated four-photon preflight exposed expensive expansion of external
+  coefficients during exact callback preparation. The repair uses existing
+  Symbolica `map_coeff`, `flatten(false)`, selective `expand_in`, and evaluator
+  `add_aliases` to preserve those coefficients while extracting cut powers.
+  The same aliases serve every lane and are resolved before Dualization.
+  Independent full-expansion controls check 798 exact coefficients through
+  rank five, including explicit mu powers and negative Laurent powers; a
+  second regression checks higher/mixed Dual values on reordered and repeated
+  lanes. No polynomial implementation or algebraic representation was added.
+  `replace_all` requires positive exponent types and therefore
+  cannot be used directly with the existing signed-exponent polynomial API.
+  The complete six-graph physical matrix passes with an immutable compiled
+  CLI and recorded source/dependency hashes at Symbolica `58b72d4` and
+  oneloopmaster `aedc2ec`. It covers 108 physical rows and 36 generic-polarization
+  diagnostics, three precisions, both mu-extraction modes and incomplete tails.
+  All physical Laurent coefficients, finite/rational decomposition, mu-mode
+  controls and summed graphs pass against fixed MadLoop mode 4 at `1e-9`.
+  Independent Symbolica double-Laplacian controls establish each graph's pole
+  and exact cancellation across all six graphs. Physical pole errors improve
+  from `2.23e-15` (f64) to `1.87e-31` (DoubleFloat) and `1.92e-76` (Float256),
+  passing the predeclared `1e-9`, `1e-25`, `1e-65` targets. Finite-part MadLoop
+  inputs remain binary64 and are not a high-precision input oracle. Generic
+  polarization mode-1 diagnostics fail, while every mode-4 generic diagnostic
+  passes; these failures are recorded without changing gates. The aggregation
+  checks coverage, process success, source identity and all physical controls.
+  Reports are `validation/evidence/four-photon-{integrated,integrated-matrix,uv,cli-build}.json`.
+- The H→gg comparison rerun with the coefficient-alias CLI passes all 36 rows
+  at the unchanged `1e-9` criterion. The four previously failing f64 longitudinal
+  pole rows now have error `5.06e-10`, compared with historical `1.07e-9`.
+  The earlier report remains intact; the new report
+  `validation/evidence/physical-hgg-cli-coefficient-aliases.json` records the
+  actual binary build and distinguishes dependency snapshots. This is not a
+  general precision-rescue implementation or proof of isolated causality.
+- The combined NinjaRS workspace passes 171 tests across 49 suites, with no
+  failures or ignored tests under `--include-ignored`. Strict workspace Clippy,
+  formatting, the dependency bootstrap and diff checks pass. Commands, source
+  hashes and logs are retained in
+  `validation/evidence/batch-dependency-workspace-checks.json`.
+- C0 derivative controls and their domain audit are pushed directly to
+  oneloopmaster main at `7ed9f6e49a56e1018a5dbac8c859187be2a3e7df`; no PR was
+  created. Both new tests pass on the combined main tree. They cover four
+  massive spacelike real centers with both Källén signs, equal/unequal masses,
+  higher/mixed complex seeds, degree-five scaling and mixed batches. Independent
+  Float384 differences converge, with largest final discrepancy `5.34e-33`.
+  Evidence is in `validation/evidence/c0-derivative-controls.json`. An apparent
+  complex-invariant scalar discontinuity was traced to bypassing the documented
+  real-invariant contract through unchecked exact expressions. The tested local
+  complex derivatives do not require arbitrary complex scalar invariants.
+  No NinjaRS master domain gate is broadened by these fixed-point controls.

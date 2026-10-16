@@ -66,14 +66,15 @@ currently disabled and its attempts are reported as zero.
 
 Every report sets `performance_acceptance` to `false`. The command measures Rust
 execution with warmed compiled evaluators and no numerical master-result cache.
-It does not yet run original Ninja, and does not establish the project's 5%
-latency or batched-throughput acceptance gates.
+The separate [matched runner](../validation/performance/README.md) compares this
+command with original Ninja. Neither tool currently establishes the project's
+5% latency or batched-throughput acceptance gates.
 
 The reference comparison must use matching cache policies. Original Ninja's
 default OneLOop integration can cache numerical master results, unlike the
-current Rust provider. A dedicated reference build with
+current Rust provider. The matched runner uses a dedicated reference build with
 `--disable-avholo_cache`, a persistent in-process sample loop, and a common
-parameterized numerator are needed for the initial complete-evaluation baseline.
+parameterized numerator for its complete-evaluation baseline.
 Reduction with a shared master provider is a separate experiment. Compiler and
 dependency revisions, host load, thread settings, accuracy, timing uncertainty,
 and rescue rates must accompany those acceptance measurements.
@@ -87,3 +88,28 @@ compiler identity, revision hashes, CPU model, or affinity. Available parallelis
 alone does not establish that two runs used the same processor placement or
 thread settings. Record host contention and any processor-frequency controls as
 well before comparing timings from separate runs.
+
+## Physical graphs and compiled coefficient preparation
+
+The acceptance suite must include a large physical graph, in addition to
+reduction-only comparisons using the same supplied numerator provider. Report
+both cold preparation/compilation and warmed end-to-end evaluation. Warmed
+evaluation must include physical numerator coefficient evaluation for every
+phase-space point, cut callbacks, reduction and masters. Precomputed fixture
+coefficients alone cannot establish this end-to-end result.
+
+A planned CLI provider will collect the loop polynomial's coefficient Atoms
+with Symbolica and compile all coefficient outputs into one SymJIT evaluator at
+O2. One call per sample will populate the existing reduction callback's
+coefficient parameters. This belongs to the CLI's numerator-preparation package;
+the NinjaRS reduction engine remains independent of graphs, models and JIT
+compilation. The ordinary provider remains a correctness and timing control,
+with precision-preserving evaluation for carriers unsupported by SymJIT.
+
+Before timing, compare every compiled coefficient and complete reduction with
+the existing provider on the same physical inputs. Record the compilation and
+cache policy, coefficient evaluation, callback, reduction, master and total
+times separately. Compare f64 with original Ninja under matching accuracy,
+cache and thread settings; report higher precision and Dual workloads
+separately. The compiled coefficient mode and this large-graph benchmark are
+not implemented or accepted by the existing timing evidence.

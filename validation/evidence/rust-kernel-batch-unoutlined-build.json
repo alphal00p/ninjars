@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "completed": false,
+  "numerical_validation_performed": false,
+  "performance_acceptance": false,
+  "reason": "Stopped owned monolithic generated-kernel compilation to validate bounded function extraction; no numerical result had been produced.",
+  "elapsed_seconds_at_stop": 1364,
+  "compiler_command": [
+    "rustc",
+    "--crate-name",
+    "ninjars_rust_kernel_probe_generated",
+    "--edition=2024",
+    "crates/ninjars-symbolica/examples/ninjars_rust_kernel_probe_generated.rs",
+    "--error-format=json",
+    "--json=diagnostic-rendered-ansi,artifacts,future-incompat",
+    "--crate-type",
+    "bin",
+    "--emit=dep-info,link",
+    "-C",
+    "embed-bitcode=no",
+    "-C",
+    "debuginfo=2",
+    "--cfg",
+    "feature=\"rust-codegen\"",
+    "--check-cfg",
+    "cfg(docsrs,test)",
+    "--check-cfg",
+    "cfg(feature, values(\"reference-codegen\", \"rust-codegen\"))",
+    "-C",
+    "metadata=45de0c5c9009443f",
+    "-C",
+    "extra-filename=-d9a4617e042d0905",
+    "--out-dir",
+    "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/examples",
+    "-C",
+    "incremental=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/incremental",
+    "-L",
+    "dependency=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps",
+    "--extern",
+    "ninjars=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libninjars-1ec7e0d84695cf3f.rlib",
+    "--extern",
+    "ninjars_symbolica=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libninjars_symbolica-f11042e4f91aee64.rlib",
+    "--extern",
+    "oneloop=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/liboneloop-ec7c6601c969af3a.rlib",
+    "--extern",
+    "serde_json=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libserde_json-116ef9b7dba087ae.rlib",
+    "--extern",
+    "symbolica=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libsymbolica-46b4143f33dc3388.rlib",
+    "--extern",
+    "symbolica_utils=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libsymbolica_utils-faf8c86d463aad4e.rlib",
+    "-L",
+    "native=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/build/psm-a4ec3c13a980714c/out",
+    "-L",
+    "native=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/build/gmp-mpfr-sys-47160db5b4fc76c7/out/lib"
+  ],
+  "compiler_memory": {
+    "VmHWM": "5578348 kB",
+    "VmRSS": "5578348 kB"
+  },
+  "profile": "dev",
+  "generated_files": {
+    "constants.rs": {
+      "bytes": 936,
+      "sha256": "44485f9e9927c7efb127c49d0c87273c38545f56778f9d7507b478a71d044bf6"
+    },
+    "denominator.rs": {
+      "bytes": 21189,
+      "sha256": "79a72bb91f77d858875d68a0a5a83838895c0e93c23d0630c4af54da14ca7a71"
+    },
+    "denominator_dual.rs": {
+      "bytes": 211789,
+      "sha256": "293d37cff2a7124889173129bf3477f6a3d13c815ed0ce7c77afd7936d33eb77"
+    },
+    "dispatch.rs": {
+      "bytes": 2084,
+      "sha256": "946d306eb6469eadaf76edce6208f90f0d23c43b8047cc89579a030302aac6f6"
+    },
+    "laurent.rs": {
+      "bytes": 18424,
+      "sha256": "862229cca92483d49ed0e4fb076662cf23105cb4423337829a4b81631da24fd1"
+    },
+    "laurent_dual.rs": {
+      "bytes": 236302,
+      "sha256": "783bf1463f2c0d2ec1444c7637c48a07767fb3d61ae1e5ad99ae9518268c80e8"
+    },
+    "probe.rs": {
+      "bytes": 18194,
+      "sha256": "81a1f5539557aa9111f4ac25d82c2558a5d8f63e6354041b6b7f044676d1c099"
+    },
+    "subtraction.rs": {
+      "bytes": 104091,
+      "sha256": "c9f97a61bc5a0e64bb9428ecf6bae0969f32fa028d500c164801ccdb147927a3"
+    },
+    "subtraction_dual.rs": {
+      "bytes": 1491751,
+      "sha256": "c013fbc66f1867334456308f100021f158c6ca66cbdad5ac67f1e588977bd491"
+    }
+  },
+  "metadata": {
+    "constant_count": 14,
+    "dual_shape": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "execution": "compiled instruction-major batch kernels with scalar controls; no production dispatch",
+    "kernels": [
+      {
+        "dual": false,
+        "helpers": 0,
+        "inputs": 13,
+        "instructions": 87,
+        "module": "laurent",
+        "outlined_branches": 0,
+        "outputs": 9
+      },
+      {
+        "dual": true,
+        "helpers": 0,
+        "inputs": 65,
+        "instructions": 1333,
+        "module": "laurent_dual",
+        "outlined_branches": 0,
+        "outputs": 45
+      },
+      {
+        "dual": false,
+        "helpers": 0,
+        "inputs": 33,
+        "instructions": 557,
+        "module": "subtraction",
+        "outlined_branches": 0,
+        "outputs": 13
+      },
+      {
+        "dual": true,
+        "helpers": 0,
+        "inputs": 165,
+        "instructions": 8605,
+        "module": "subtraction_dual",
+        "outlined_branches": 0,
+        "outputs": 65
+      },
+      {
+        "dual": false,
+        "helpers": 0,
+        "inputs": 29,
+        "instructions": 87,
+        "module": "denominator",
+        "outlined_branches": 0,
+        "outputs": 7
+      },
+      {
+        "dual": true,
+        "helpers": 0,
+        "inputs": 145,
+        "instructions": 1133,
+        "module": "denominator_dual",
+        "outlined_branches": 0,
+        "outputs": 35
+      }
+    ],
+    "plans": {
+      "denominator": "DenominatorExpansion::new(2)",
+      "laurent": "LaurentDivision::new(4, 5, 3)",
+      "subtraction": "TriangleBubbleSubtraction::new(true)"
+    }
+  },
+  "dependencies": {
+    "schema_version": 1,
+    "dependencies": [
+      {
+        "name": "symbolica",
+        "path": "references/symbolica",
+        "url": "https://github.com/symbolica-dev/symbolica.git",
+        "revision": "c78cffc20f318df1fce50539a587cbe8ffc717c0",
+        "patches": [
+          {
+            "path": "dependencies/patches/symbolica-batch-dual.patch",
+            "sha256": "77cc61b074379cca0f68398759fb5d838de7affa78b8fbdf3d89dc6f470e52d8"
+          }
+        ],
+        "patched_revisions": [
+          "8e23925ed7b5cbb91607c8633dda114cb43be8ce"
+        ]
+      },
+      {
+        "name": "feynkit",
+        "path": "references/gammaloop_ninja_shared",
+        "url": "https://github.com/alphal00p/gammaloop.git",
+        "revision": "d3b91d31461e50d91dce4702d68c45294faca350",
+        "patches": [
+          {
+            "path": "dependencies/patches/feynkit-shared-types.patch",
+            "sha256": "7bc15975562034a01a5eb1d1ebe662f9c5c44697ebac3ecf5935e992118e39d6"
+          }
+        ],
+        "patched_revisions": [
+          "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+        ]
+      },
+      {
+        "name": "oneloopmaster",
+        "path": "references/oneloopmaster",
+        "url": "https://github.com/alphal00p/oneloopmaster.git",
+        "revision": "69761cdf8ffc0c02dbc2e36ce41ee6fa365268ae"
+      },
+      {
+        "name": "ninja-reference",
+        "path": "references/ninja",
+        "url": "https://github.com/peraro/ninja.git",
+        "revision": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0"
+      }
+    ]
+  }
+}

@@ -872,19 +872,20 @@ index 00000000..0cd1f07f
 +    }
 +}
 diff --git a/src/evaluate/dual.rs b/src/evaluate/dual.rs
-index 0b33aa61..25db6410 100644
+index 0b33aa61..06735284 100644
 --- a/src/evaluate/dual.rs
 +++ b/src/evaluate/dual.rs
-@@ -1,15 +1,13 @@
+@@ -1,25 +1,42 @@
  use super::*;
  
  impl<T: Default + Clone> ExpressionEvaluator<T> {
 -    /// Inline generated scalar instructions without dualizing them again.
 -    fn inline_vector_components(
 +    /// Import a generated evaluator's scalar constants and shared function table.
-+    fn import_vector_context(
++    fn import_vector_context<V: Vectorize<T>>(
          &self,
 -        args: &[Slot],
++        vectorizer: &V,
          ins: &mut InstructionList<T>,
          external_functions: &mut Vec<ExternalFunctionContainer<T>>,
 -        next_label: &mut usize,
@@ -893,17 +894,45 @@ index 0b33aa61..25db6410 100644
 +    ) -> (Vec<Slot>, Vec<usize>) {
 +        let mut slots = Vec::new();
          let mut constants = Vec::new();
-         for value in &self.stack[self.param_count..self.reserved_indices] {
-             constants.push(ins.constants.len());
-@@ -19,7 +17,6 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
-             ins.constants.extend((1..ins.dim).map(|_| T::default()));
-             ins.unknown_constants.push(false);
+-        for value in &self.stack[self.param_count..self.reserved_indices] {
+-            constants.push(ins.constants.len());
+-            slots.push(Slot::Const(ins.constants.len()));
+-            // InstructionList tracks constants in vector-sized groups.
+-            ins.constants.push(value.clone());
+-            ins.constants.extend((1..ins.dim).map(|_| T::default()));
+-            ins.unknown_constants.push(false);
++        let unknown: HashSet<_> = self
++            .external_fns
++            .iter()
++            .filter_map(|external| external.constant_index)
++            .collect();
++        for (index, value) in self.stack[self.param_count..self.reserved_indices]
++            .iter()
++            .enumerate()
++        {
++            let slot = if unknown.contains(&index) {
++                // Registered constants can have equal placeholder values. Keep
++                // their identities distinct and exclude them from interning
++                // before any later literal is imported.
++                let slot = Slot::Const(ins.constants.len());
++                ins.constants.push(value.clone());
++                ins.constants.extend((1..ins.dim).map(|_| T::default()));
++                ins.unknown_constants.push(true);
++                slot
++            } else {
++                vectorizer.import_scalar_constant(value.clone(), ins)
++            };
++            let Slot::Const(index) = slot else {
++                panic!("Imported scalar constants must use constant slots");
++            };
++            constants.push(index);
++            slots.push(slot);
          }
 -        slots.resize(self.stack.len(), Slot::Temp(0));
          let mut functions = Vec::new();
          for external in &self.external_fns {
              let mut external = external.clone();
-@@ -27,6 +24,14 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+@@ -27,6 +44,14 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
                  *index = constants[*index];
                  ins.unknown_constants[*index / ins.dim] = true;
              }
@@ -918,7 +947,7 @@ index 0b33aa61..25db6410 100644
              let index = external_functions
                  .iter()
                  .position(|f| f == &external && f.constant_index == external.constant_index)
-@@ -36,6 +41,21 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+@@ -36,6 +61,23 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
                  });
              functions.push(index);
          }
@@ -926,21 +955,23 @@ index 0b33aa61..25db6410 100644
 +    }
 +
 +    /// Inline generated scalar instructions without dualizing them again.
-+    fn inline_vector_components(
++    fn inline_vector_components<V: Vectorize<T>>(
 +        &self,
++        vectorizer: &V,
 +        args: &[Slot],
 +        ins: &mut InstructionList<T>,
 +        external_functions: &mut Vec<ExternalFunctionContainer<T>>,
 +        next_label: &mut usize,
 +    ) -> Vec<Slot> {
-+        let (constants, functions) = self.import_vector_context(ins, external_functions);
++        let (constants, functions) =
++            self.import_vector_context(vectorizer, ins, external_functions);
 +        let mut slots = args.to_vec();
 +        slots.extend(constants);
 +        slots.resize(self.stack.len(), Slot::Temp(0));
          let mut labels = HashMap::default();
          for (instr, _) in &self.instructions {
              if let Instr::Label(label) = instr {
-@@ -88,6 +108,63 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+@@ -88,6 +130,63 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
          self.result_indices.iter().map(|i| slots[*i]).collect()
      }
  
@@ -1004,7 +1035,7 @@ index 0b33aa61..25db6410 100644
      /// Redefine every operation to take `n` components in and
      /// yield `n` components. This can be used to define efficient
      /// evaluation over dual numbers.
-@@ -99,6 +176,9 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+@@ -99,6 +198,9 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
      /// The input to the functions
      /// is the flattened vector of all components of all parameters,
      /// followed by all previously computed output components.
@@ -1014,7 +1045,7 @@ index 0b33aa61..25db6410 100644
      ///
      /// # Example
      ///
-@@ -124,16 +204,22 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+@@ -124,16 +226,22 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
      ///
      /// assert!(dest.iter().all(|x| x.abs() < 1e-10));
      /// ```
@@ -1042,7 +1073,7 @@ index 0b33aa61..25db6410 100644
              }
  
              if let Some(c_index) = external_fn.constant_index {
-@@ -240,6 +326,7 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+@@ -240,6 +348,7 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
          };
  
          let mut generated_functions = HashMap::default();
@@ -1050,7 +1081,7 @@ index 0b33aa61..25db6410 100644
          let mut next_label = self
              .instructions
              .iter()
-@@ -269,6 +356,102 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+@@ -269,6 +378,102 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
                      (o, VectorInstruction::BuiltinFun(f, get_slot!(slot_map[&a])))
                  }
                  Instr::ExternalFun(o, f, a) => {
@@ -1081,7 +1112,7 @@ index 0b33aa61..25db6410 100644
 +                                }
 +                                let generated = &bodies[&key];
 +                                let (constants, function_indices) = generated
-+                                    .import_vector_context(&mut ins, &mut new_external_fns);
++                                    .import_vector_context(v, &mut ins, &mut new_external_fns);
 +                                let mut functions = Vec::with_capacity(v.get_dimension());
 +                                for component in 0..v.get_dimension() {
 +                                    let mut evaluator = generated.clone();
@@ -1153,7 +1184,15 @@ index 0b33aa61..25db6410 100644
                      if !external_fn_index_map.contains_key(&(self.external_fns[f].clone(), 0)) {
                          let external = &self.external_fns[f];
                          let generated = match generated_functions.entry((f, a.len())) {
-@@ -366,7 +549,11 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+@@ -299,6 +504,7 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
+                             })
+                             .collect::<Vec<_>>();
+                         let results = generated.inline_vector_components(
++                            v,
+                             &args,
+                             &mut ins,
+                             &mut new_external_fns,
+@@ -366,7 +572,11 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
                  ),
              };
  
@@ -1166,7 +1205,34 @@ index 0b33aa61..25db6410 100644
              assert_eq!(r.len(), v.get_dimension());
              for ii in r {
                  ins.add(ii);
-@@ -498,6 +685,17 @@ pub trait Vectorize<T> {
+@@ -490,6 +700,26 @@ pub trait Vectorize<T> {
+     /// `false` if each constant only appears in the first slot and has zeros for all other slots.
+     fn duplicate_constants(&self) -> bool;
+ 
++    /// Import an already-generated scalar constant, without vectorizing it again.
++    /// The returned slot must be a [`Slot::Const`] holding `value`. Implementations
++    /// may reuse an existing literal constant. Registered constants are imported
++    /// separately so equal placeholders cannot merge distinct symbolic values.
++    ///
++    /// The default keeps a separate vector-sized storage group for each scalar,
++    /// preserving compatibility with vectorizers over types without equality.
++    fn import_scalar_constant(&self, value: T, instructions: &mut InstructionList<T>) -> Slot
++    where
++        T: Default + Clone,
++    {
++        let slot = Slot::Const(instructions.constants.len());
++        instructions.constants.push(value);
++        instructions
++            .constants
++            .extend((1..instructions.dim).map(|_| T::default()));
++        instructions.unknown_constants.push(false);
++        slot
++    }
++
+     /// Map an instruction applied to a vector of slots (components accessible with [Slot::index])
+     /// to a vector of instructions of [Vectorize::get_dimension] length.
+     fn map_instruction(
+@@ -498,6 +728,17 @@ pub trait Vectorize<T> {
          instr_addr: &mut InstructionList<T>,
      ) -> Vec<VectorInstruction>;
  
@@ -1184,7 +1250,7 @@ index 0b33aa61..25db6410 100644
      /// Get the dimension of the vectorization.
      fn get_dimension(&self) -> usize;
  
-@@ -519,7 +717,7 @@ pub trait Vectorize<T> {
+@@ -519,7 +760,7 @@ pub trait Vectorize<T> {
  /// You can specify which components of the dual numbers are always zero
  /// by providing a list of `(component index, dual index)` pairs in the constructor.
  pub struct Dualizer<T: DualNumberStructure> {
@@ -1193,7 +1259,7 @@ index 0b33aa61..25db6410 100644
      zero_components: HashSet<(usize, usize)>, // component, index
  }
  
-@@ -529,7 +727,7 @@ impl<T: DualNumberStructure> Dualizer<T> {
+@@ -529,7 +770,7 @@ impl<T: DualNumberStructure> Dualizer<T> {
      /// by providing a list of `(component index, dual index)` pairs.
      pub fn new(dual: T, zero_components_per_parameter: Vec<(usize, usize)>) -> Self {
          Self {
@@ -1202,10 +1268,18 @@ index 0b33aa61..25db6410 100644
              zero_components: zero_components_per_parameter.into_iter().collect(),
          }
      }
-@@ -540,6 +738,18 @@ impl<T: DualNumberStructure> Vectorize<Complex<Rational>> for Dualizer<T> {
+@@ -540,6 +781,26 @@ impl<T: DualNumberStructure> Vectorize<Complex<Rational>> for Dualizer<T> {
          false
      }
  
++    fn import_scalar_constant(
++        &self,
++        value: Complex<Rational>,
++        instructions: &mut InstructionList<Complex<Rational>>,
++    ) -> Slot {
++        instructions.add_constant_in_first_component(value)
++    }
++
 +    fn map_instruction_in_function(
 +        &self,
 +        instr: &VectorInstruction,
@@ -1221,7 +1295,7 @@ index 0b33aa61..25db6410 100644
      fn vectorize_function(
          &self,
          symbol: Symbol,
-@@ -937,13 +1147,45 @@ impl<T: DualNumberStructure> Vectorize<Complex<Rational>> for Dualizer<T> {
+@@ -937,13 +1198,45 @@ impl<T: DualNumberStructure> Vectorize<Complex<Rational>> for Dualizer<T> {
                      e.iter().map(|x| VectorInstruction::Assign(*x)).collect()
                  }
                  Symbol::ABS_ID => {
@@ -1274,16 +1348,29 @@ index 0b33aa61..25db6410 100644
                          .collect()
                  }
                  Symbol::CONJ_ID => {
-@@ -1040,7 +1282,7 @@ mod test {
+@@ -1036,11 +1329,18 @@ impl<T: DualNumberStructure> Vectorize<Complex<Rational>> for Dualizer<T> {
+ 
+ #[cfg(test)]
+ mod test {
+-    use numerica::domains::{dual::HyperDual, float::Complex, rational::Rational};
++    use numerica::domains::{
++        dual::HyperDual,
++        float::{Complex, Float},
++        rational::Rational,
++    };
  
      use crate::{
-         atom::{Atom, AtomCore, EvaluationInfo},
+-        atom::{Atom, AtomCore, EvaluationInfo},
 -        evaluate::Dualizer,
-+        evaluate::{Dualizer, FunctionMap, FunctionRegistrationOptions, InliningPolicy},
++        atom::{Atom, AtomCore, EvaluationInfo, Symbol},
++        evaluate::{
++            Dualizer, FunctionMap, FunctionRegistrationOptions, InliningPolicy, InstructionList,
++            Slot, VectorInstruction, Vectorize,
++        },
          function, parse, symbol,
      };
  
-@@ -1271,6 +1513,271 @@ mod test {
+@@ -1271,6 +1571,453 @@ mod test {
          }
      }
  
@@ -1346,6 +1433,188 @@ index 0b33aa61..25db6410 100644
 +                }
 +            }
 +        }
++    }
++
++    #[test]
++    fn deep_shared_dual_constants_stay_bounded() {
++        let shape = vec![vec![0, 0], vec![1, 0], vec![0, 1], vec![2, 0], vec![1, 1]];
++        let build = |depth, inlining| {
++            let x = symbol!("dual_pool_x");
++            let z = symbol!("dual_pool_z");
++            let condition = symbol!("dual_pool_condition");
++            let functions: Vec<_> = (0..depth)
++                .map(|i| symbol!(format!("dual_pool_function_{i}")))
++                .collect();
++            let mut map = FunctionMap::new();
++            for (index, &function) in functions.iter().enumerate() {
++                let body = if index == 0 {
++                    Symbol::IF.call((
++                        condition,
++                        (z.to_atom() + 2).sqrt() + Symbol::PI,
++                        z.to_atom().pow(2),
++                    ))
++                } else {
++                    functions[index - 1].call((z,)) + z.to_atom().pow(2)
++                };
++                map.add_function_with_options(
++                    function,
++                    vec![z],
++                    body,
++                    FunctionRegistrationOptions::new().inlining(inlining),
++                )
++                .unwrap();
++            }
++            functions[depth - 1]
++                .call((x,))
++                .evaluator(&[x.to_atom(), condition.to_atom()])
++                .function_map(map)
++                .build()
++                .unwrap()
++                .vectorize(&Dualizer::new(HyperDual::<f64>::new(shape.clone()), vec![]))
++                .unwrap()
++        };
++        for depth in [1, 2, 4, 8] {
++            let exact = build(depth, InliningPolicy::Never);
++            let constants = exact.reserved_indices - exact.param_count;
++            // This family introduces the same literals at every level. Its
++            // constant pool must not grow by the Dual dimension per level.
++            assert!(
++                constants <= 64 * shape.len(),
++                "depth={depth}, constants={constants}"
++            );
++            let max_parameters = exact
++                .external_fns
++                .iter()
++                .filter_map(|external| external.body.as_ref().map(|body| body.param_count))
++                .max()
++                .unwrap();
++            assert!(
++                max_parameters <= 128 * shape.len(),
++                "depth={depth}, captures={max_parameters}"
++            );
++            eprintln!(
++                "shared Dual depth={depth}, constants={constants}, max_parameters={max_parameters}"
++            );
++            let map = |v: &Complex<Rational>| Complex::new(v.re.to_f64(), v.im.to_f64());
++            let mut shared = exact.map_coeff(&map);
++            let mut inline = build(depth, InliningPolicy::Always).map_coeff(&map);
++            let c = |re, im| Complex::new(re, im);
++            for (x, condition) in [(c(0.3, 0.2), 1.), (c(-2., 0.), 0.), (c(1.2, -0.1), 1.)] {
++                let input = [
++                    x,
++                    c(0., 1.),
++                    c(1., -0.5),
++                    c(0.25, 0.),
++                    c(0., 0.5),
++                    c(condition, 0.),
++                    c(0., 0.),
++                    c(0., 0.),
++                    c(0., 0.),
++                    c(0., 0.),
++                ];
++                let mut actual = [c(0., 0.); 5];
++                let mut expected = actual;
++                shared.evaluate(&input, &mut actual);
++                inline.evaluate(&input, &mut expected);
++                for (actual, expected) in actual.into_iter().zip(expected) {
++                    assert!((actual.re - expected.re).abs() < 1e-11);
++                    assert!((actual.im - expected.im).abs() < 1e-11);
++                }
++            }
++        }
++    }
++
++    #[test]
++    fn imported_registered_constants_keep_distinct_placeholders() {
++        let first = symbol!(
++            "dual_pool_registered_first",
++            eval =
++                EvaluationInfo::constant(|_, precision| Ok(Float::with_val(precision, 2).into()))
++        );
++        let second = symbol!(
++            "dual_pool_registered_second",
++            eval =
++                EvaluationInfo::constant(|_, precision| Ok(Float::with_val(precision, 3).into()))
++        );
++        let x = symbol!("dual_pool_registered_x");
++        let source = (first.to_atom() * x + second + 1)
++            .evaluator(&[x.to_atom()])
++            .build()
++            .unwrap();
++        let expected = source.clone().map_coeff_with_prec(
++            &|v| Complex::new(v.re.to_multi_prec_float(192), v.im.to_multi_prec_float(192)),
++            192,
++        );
++        let vectorizer = Dualizer::new(HyperDual::<f64>::new(vec![vec![0], vec![1]]), vec![]);
++        let mut instructions = InstructionList {
++            instructions: vec![],
++            constants: vec![],
++            unknown_constants: vec![],
++            dim: 2,
++        };
++        let mut functions = vec![];
++        let (slots, _) =
++            source.import_vector_context(&vectorizer, &mut instructions, &mut functions);
++        let registered: Vec<_> = functions.iter().filter_map(|f| f.constant_index).collect();
++        assert_eq!(registered.len(), 2);
++        assert_ne!(registered[0], registered[1]);
++        let zero = vectorizer.import_scalar_constant(Complex::default(), &mut instructions);
++        assert!(registered.iter().all(|index| zero != Slot::Const(*index)));
++        let mut values: Vec<_> = instructions
++            .constants
++            .iter()
++            .map(|v| Complex::new(v.re.to_multi_prec_float(192), v.im.to_multi_prec_float(192)))
++            .collect();
++        for function in functions {
++            if let Some(index) = function.constant_index {
++                values[index] = function.evaluate_constant::<Complex<Float>>(192).unwrap();
++            }
++        }
++        for (slot, expected) in slots
++            .iter()
++            .zip(&expected.stack[expected.param_count..expected.reserved_indices])
++        {
++            let Slot::Const(index) = slot else {
++                unreachable!()
++            };
++            assert_eq!(&values[*index], expected);
++            assert_eq!(values[*index].re.prec(), expected.re.prec());
++            assert_eq!(values[*index].im.prec(), expected.im.prec());
++        }
++    }
++
++    #[test]
++    fn scalar_constant_import_keeps_vectorizers_without_equality_supported() {
++        #[derive(Clone, Default)]
++        struct Value(i32);
++        struct Custom;
++        impl Vectorize<Value> for Custom {
++            fn duplicate_constants(&self) -> bool {
++                false
++            }
++            fn get_dimension(&self) -> usize {
++                2
++            }
++            fn map_instruction(
++                &self,
++                _: &VectorInstruction,
++                _: &mut InstructionList<Value>,
++            ) -> Vec<VectorInstruction> {
++                unreachable!()
++            }
++        }
++        let mut instructions = InstructionList {
++            instructions: vec![],
++            constants: vec![],
++            unknown_constants: vec![],
++            dim: 2,
++        };
++        assert_eq!(
++            Custom.import_scalar_constant(Value(7), &mut instructions),
++            Slot::Const(0)
++        );
++        assert_eq!(instructions.constants[0].0, 7);
++        assert_eq!(instructions.constants[1].0, 0);
 +    }
 +
 +    #[test]

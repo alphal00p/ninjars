@@ -3,8 +3,8 @@
 //! This adapter introduces no algebra or intermediate representation. The
 //! exported evaluator is the same Symbolica graph used by the interpreted
 //! kernels. The upstream emitter preserves shared bodies and lazy branches.
-//! Emitted code evaluates one row; a loop around it is a scalar control, not a
-//! replacement for NinjaRS's instruction-major batch execution.
+//! Scalar exports evaluate one row. Batch exports additionally evaluate every
+//! instruction across the batch using an upstream reusable workspace.
 
 use ninjars::{Error, Result};
 use symbolica::domains::dual::DualNumberStructure;
@@ -38,6 +38,29 @@ pub trait RustKernelExport {
         emitter: &mut RustEmitter,
         options: EmitOptions,
     ) -> Result<GeneratedModule>;
+
+    /// Export instruction-major batch arithmetic, including a scalar fast path.
+    ///
+    /// The generated `evaluate_batch` takes row-major inputs and outputs, a row
+    /// count, the shared constant context, and a reusable `runtime::BatchWorkspace`.
+    /// Buffer dimensions are checked before output writes. Export fails if the
+    /// pinned upstream emitter does not support an instruction in the graph.
+    fn export_rust_batch(
+        &self,
+        emitter: &mut RustEmitter,
+        options: EmitOptions,
+    ) -> Result<GeneratedModule>;
+
+    /// Export the same batch execution after Symbolica's Dual transformation.
+    ///
+    /// Component ordering matches [`Self::export_rust_dual`]. Derivative
+    /// components remain contiguous within each parameter and each batch row.
+    fn export_rust_batch_dual<D: DualNumberStructure + Clone>(
+        &self,
+        structure: &D,
+        emitter: &mut RustEmitter,
+        options: EmitOptions,
+    ) -> Result<GeneratedModule>;
 }
 
 macro_rules! export_kernel {
@@ -61,6 +84,27 @@ macro_rules! export_kernel {
             ) -> Result<GeneratedModule> {
                 emitter
                     .emit(self.exact.dual_evaluator(structure)?, options)
+                    .map_err(Error::Symbolic)
+            }
+
+            fn export_rust_batch(
+                &self,
+                emitter: &mut RustEmitter,
+                options: EmitOptions,
+            ) -> Result<GeneratedModule> {
+                emitter
+                    .emit_batch(self.exact.evaluator()?, options)
+                    .map_err(Error::Symbolic)
+            }
+
+            fn export_rust_batch_dual<D: DualNumberStructure + Clone>(
+                &self,
+                structure: &D,
+                emitter: &mut RustEmitter,
+                options: EmitOptions,
+            ) -> Result<GeneratedModule> {
+                emitter
+                    .emit_batch(self.exact.dual_evaluator(structure)?, options)
                     .map_err(Error::Symbolic)
             }
         }

@@ -1,0 +1,143 @@
+{
+  "baseline_symbolica": "8e23925ed7b5cbb91607c8633dda114cb43be8ce",
+  "patched_integration": "58b72d438e7bcfce158d132612db7d35fdefa4ba",
+  "published_pr82": "6af8de565eb3908eacbb93390355f2bdb98bfa9e",
+  "pr82_base": "b6edbce2d9b805b481b85a8699bb061e93cd83fb",
+  "oneloop": "384b6375fc01fe5de03fd4cd1116f22803e3dffe",
+  "test": "removable_log_tests::euclidean_c0_preserves_primal_and_zero_seeds",
+  "build_profile": "debug; default oneloop features; no feature or compiler option changes",
+  "measurement_scope": "Whole test: graph preparation, scalar and Dual construction, f64/Float256 mapping and evaluation. Shared host with unrelated computations: diagnostic only.",
+  "controls": {
+    "scalar_f64_primal": true,
+    "float256_primal": true,
+    "all_zero_higher_and_mixed_seeds": true
+  },
+  "c0_stored_scalar_slots": {
+    "baseline": 46106630,
+    "patched": 110
+  },
+  "diagnostic_runs": [
+    {
+      "variant": "baseline",
+      "wall_seconds": 132.74,
+      "peak_rss_kib": 15038696,
+      "log_prefix": "/tmp/ninjars-dual-pool-c0-baseline"
+    },
+    {
+      "variant": "patched",
+      "wall_seconds": 5.19,
+      "peak_rss_kib": 406324,
+      "log_prefix": "/tmp/ninjars-dual-pool-c0-after"
+    },
+    {
+      "variant": "baseline_with_count_print",
+      "wall_seconds": 128.11,
+      "peak_rss_kib": 15178604,
+      "log_prefix": "/tmp/ninjars-dual-pool-c0-baseline-counts"
+    },
+    {
+      "variant": "patched_with_count_print",
+      "wall_seconds": 5.47,
+      "peak_rss_kib": 371120,
+      "log_prefix": "/tmp/ninjars-dual-pool-c0-after-counts"
+    }
+  ],
+  "nested_helper_controls": {
+    "shape": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "depths": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "patched_constant_slots": [
+      30,
+      30,
+      30,
+      30
+    ],
+    "patched_max_parameters": [
+      40,
+      40,
+      40,
+      40
+    ],
+    "no_interning_control_slots": {
+      "1": 110,
+      "2": 510
+    },
+    "no_interning_control_result": "fails at depth2"
+  },
+  "tests": {
+    "integration_dual": 17,
+    "pr82_dual": 16,
+    "batch_each_tree": 5,
+    "oneloop_unit_passed": 65,
+    "oneloop_unit_ignored": 1,
+    "neighborhood_subset_passed": 11
+  },
+  "format": "rustfmt --edition2024 --check and git diff --check pass",
+  "clippy": "cargo clippy -p symbolica --no-deps --lib --tests with no-default-features integer-gmp,float-mpfr,native_code_generation,bincode completes with -A clippy::never_loop. Existing warnings remain; strict -Dwarnings blocked by existing diagnostics. No changed-line diagnostics.",
+  "limitations": [
+    "No general C0 or D0 nonzero derivative domain claim",
+    "No constant/capture liveness pruning or multi-result helper redesign",
+    "No native/SIMD runtime performance acceptance",
+    "Main vendored checkouts and pins unchanged"
+  ],
+  "upstream_pr": "https://github.com/symbolica-dev/symbolica/pull/82",
+  "measurement_logs": {
+    "ninjars-dual-pool-c0-baseline.log": {
+      "sha256": "7f8d73f5a4e7574b40b89f5c43ff28f0af3316b4ebec1c16d6cc0fe86eba331c",
+      "text": "\nrunning 1 test\ntest removable_log_tests::euclidean_c0_preserves_primal_and_zero_seeds ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 65 filtered out; finished in 131.87s\n\n"
+    },
+    "ninjars-dual-pool-c0-baseline.time": {
+      "sha256": "3d90f978b724932b93dab8c34cce27b35a710502a6a2a297070fbc6c788b45bf",
+      "text": "\tCommand being timed: \"/common/build-cache/external/e9/c3927972849f58/debug/deps/oneloop-225c946de346d344 --exact removable_log_tests::euclidean_c0_preserves_primal_and_zero_seeds --test-threads=1 --nocapture\"\n\tUser time (seconds): 101.78\n\tSystem time (seconds): 29.90\n\tPercent of CPU this job got: 99%\n\tElapsed (wall clock) time (h:mm:ss or m:ss): 2:12.74\n\tAverage shared text size (kbytes): 0\n\tAverage unshared data size (kbytes): 0\n\tAverage stack size (kbytes): 0\n\tAverage total size (kbytes): 0\n\tMaximum resident set size (kbytes): 15038696\n\tAverage resident set size (kbytes): 0\n\tMajor (requiring I/O) page faults: 1\n\tMinor (reclaiming a frame) page faults: 12180106\n\tVoluntary context switches: 16\n\tInvoluntary context switches: 726\n\tSwaps: 0\n\tFile system inputs: 16\n\tFile system outputs: 0\n\tSocket messages sent: 0\n\tSocket messages received: 0\n\tSignals delivered: 0\n\tPage size (bytes): 4096\n\tExit status: 0\n"
+    },
+    "ninjars-dual-pool-c0-after.log": {
+      "sha256": "e68e05494e21a886236550eaffaabc41962f32a8d4975f4f9a1194c6dd14cb73",
+      "text": "\nrunning 1 test\ntest removable_log_tests::euclidean_c0_preserves_primal_and_zero_seeds ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 65 filtered out; finished in 5.14s\n\n"
+    },
+    "ninjars-dual-pool-c0-after.time": {
+      "sha256": "d3fd50397ddf410f67388b18d9a59784c96543cf3edff16187aaf1802bf64dfa",
+      "text": "\tCommand being timed: \"/common/build-cache/external/e9/c3927972849f58/debug/deps/oneloop-d85e83f3ebfa68eb --exact removable_log_tests::euclidean_c0_preserves_primal_and_zero_seeds --test-threads=1 --nocapture\"\n\tUser time (seconds): 4.78\n\tSystem time (seconds): 0.36\n\tPercent of CPU this job got: 99%\n\tElapsed (wall clock) time (h:mm:ss or m:ss): 0:05.19\n\tAverage shared text size (kbytes): 0\n\tAverage unshared data size (kbytes): 0\n\tAverage stack size (kbytes): 0\n\tAverage total size (kbytes): 0\n\tMaximum resident set size (kbytes): 406324\n\tAverage resident set size (kbytes): 0\n\tMajor (requiring I/O) page faults: 191\n\tMinor (reclaiming a frame) page faults: 173788\n\tVoluntary context switches: 8\n\tInvoluntary context switches: 13\n\tSwaps: 0\n\tFile system inputs: 0\n\tFile system outputs: 0\n\tSocket messages sent: 0\n\tSocket messages received: 0\n\tSignals delivered: 0\n\tPage size (bytes): 4096\n\tExit status: 0\n"
+    },
+    "ninjars-dual-pool-c0-baseline-counts.log": {
+      "sha256": "5559d95b4ea45b61faf64c8088741fc7e45eae450c76b5ac316e170f5092e26a",
+      "text": "\nrunning 1 test\ntest removable_log_tests::euclidean_c0_preserves_primal_and_zero_seeds ... C0 root stored scalar constant slots: 46106630\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 65 filtered out; finished in 127.13s\n\n"
+    },
+    "ninjars-dual-pool-c0-baseline-counts.time": {
+      "sha256": "aa2bac13bb554d326e0e8fccd48536f96c30e5924a1e74df91b45b305b899784",
+      "text": "\tCommand being timed: \"/common/build-cache/external/e9/c3927972849f58/debug/deps/oneloop-225c946de346d344 --exact removable_log_tests::euclidean_c0_preserves_primal_and_zero_seeds --test-threads=1 --nocapture\"\n\tUser time (seconds): 99.47\n\tSystem time (seconds): 27.66\n\tPercent of CPU this job got: 99%\n\tElapsed (wall clock) time (h:mm:ss or m:ss): 2:08.11\n\tAverage shared text size (kbytes): 0\n\tAverage unshared data size (kbytes): 0\n\tAverage stack size (kbytes): 0\n\tAverage total size (kbytes): 0\n\tMaximum resident set size (kbytes): 15178604\n\tAverage resident set size (kbytes): 0\n\tMajor (requiring I/O) page faults: 191\n\tMinor (reclaiming a frame) page faults: 11970663\n\tVoluntary context switches: 8\n\tInvoluntary context switches: 717\n\tSwaps: 0\n\tFile system inputs: 0\n\tFile system outputs: 0\n\tSocket messages sent: 0\n\tSocket messages received: 0\n\tSignals delivered: 0\n\tPage size (bytes): 4096\n\tExit status: 0\n"
+    },
+    "ninjars-dual-pool-c0-after-counts.log": {
+      "sha256": "2a31947a7ffccb3f73690a1a0ccb837f27e970325231fbbd7502f7263c32ae57",
+      "text": "\nrunning 1 test\ntest removable_log_tests::euclidean_c0_preserves_primal_and_zero_seeds ... C0 root stored scalar constant slots: 110\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 65 filtered out; finished in 5.43s\n\n"
+    },
+    "ninjars-dual-pool-c0-after-counts.time": {
+      "sha256": "3a9c9abf57dbb64b840e316a355902abf63332c66defa1f04a91991b139008bc",
+      "text": "\tCommand being timed: \"/common/build-cache/external/e9/c3927972849f58/debug/deps/oneloop-d85e83f3ebfa68eb --exact removable_log_tests::euclidean_c0_preserves_primal_and_zero_seeds --test-threads=1 --nocapture\"\n\tUser time (seconds): 5.08\n\tSystem time (seconds): 0.33\n\tPercent of CPU this job got: 99%\n\tElapsed (wall clock) time (h:mm:ss or m:ss): 0:05.47\n\tAverage shared text size (kbytes): 0\n\tAverage unshared data size (kbytes): 0\n\tAverage stack size (kbytes): 0\n\tAverage total size (kbytes): 0\n\tMaximum resident set size (kbytes): 371120\n\tAverage resident set size (kbytes): 0\n\tMajor (requiring I/O) page faults: 191\n\tMinor (reclaiming a frame) page faults: 161815\n\tVoluntary context switches: 7\n\tInvoluntary context switches: 15\n\tSwaps: 0\n\tFile system inputs: 0\n\tFile system outputs: 0\n\tSocket messages sent: 0\n\tSocket messages received: 0\n\tSignals delivered: 0\n\tPage size (bytes): 4096\n\tExit status: 0\n"
+    }
+  }
+}

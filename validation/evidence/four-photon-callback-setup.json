@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "performance_acceptance": false,
+  "purpose": "Nonacceptance setup diagnosis on graph0 before the final dependency-pin update; operational elapsed times only. The host also ran independent builds.",
+  "initial_full_expansion": {
+    "stopped_at_utc": "2026-10-16T19:02:45.683308+00:00",
+    "reason": "Owned graph0 f64 expansion preflight still had no numerical result after seven minutes; stop it to validate coefficient-preserving Symbolica substitution before the full matrix. This is a setup diagnosis, not steady-state timing evidence.",
+    "processes": [
+      {
+        "pid": 2406955,
+        "command_line": "/nix/store/0srdpi18gkibqqrzllfvphsykkq0kdnx-python3-3.14.7-env/bin/python3 validation/madloop/four_photon/compare.py --ninjars target/physical/four-photon/integrated-binary/ninjars --output-dir target/physical/four-photon/preflight --orientations 0 --precisions f64 double-float float --mu-modes expansion ",
+        "process_state": "    PID     ELAPSED %CPU   RSS COMMAND\n2406955       07:18  0.1 31516 python3.14\n"
+      },
+      {
+        "pid": 2407049,
+        "command_line": "/shared/external/ninja/target/physical/four-photon/integrated-binary/ninjars reduce /shared/external/ninja/examples/graphs/physical/four-photon/top-box-0.json --precision f64 --batch-size 3 --mu-extraction expansion --diagnostics ",
+        "process_state": "    PID     ELAPSED %CPU   RSS COMMAND\n2407049       07:15 98.6 282104 ninjars\n"
+      }
+    ],
+    "binary_sha256": "30d2d497c3fa1219f274176b6db3f1a39b2e9d67a6ae7cef72521f84ee4701d9",
+    "prepared_sha256": "952c37deccea6b3911e65db9187768b6017f54ec2011fc63df9b48983f1228fc"
+  },
+  "selective_expansion_only": {
+    "total_seconds": 119.255361892,
+    "phase_log": "prepared 2.071401419s, parameters 28\nnumerator 6.961151101s, rank 4\nphase flatten 2.047615ms\nphase substitute 163.516065ms\nphase selective_expand 227.020066ms\nphase polynomial_conversion 6.685438507s\nphase extraction 6.734607692s\nphase evaluator_build 6.751388595s\ncallback 13.854226365s, outputs 1\nphase flatten 1.281183ms\nphase substitute 163.263214ms\nphase selective_expand 404.854836ms\nphase polynomial_conversion 20.639801911s\nphase extraction 20.844873911s\nphase evaluator_build 29.099498051s\ncallback 43.105964252s, outputs 9\nphase flatten 5.253564ms\nphase substitute 167.821886ms\nphase selective_expand 1.214003632s\nphase polynomial_conversion 60.623817229s\nphase extraction 61.398163799s\nphase evaluator_build 75.984692042s\ncallback 119.255361892s, outputs 22\n",
+    "source_sha256": "3502bcd9b362a1b5c942e67f698c0a49783cf4c246e627393af45153191e74a0"
+  },
+  "shared_symbolica_aliases": {
+    "total_seconds": 15.967775958,
+    "phase_log": "prepared 2.039832197s, parameters 28\nnumerator 6.767636082s, rank 4\nphase flatten 306.63\u00b5s\nphase substitute 713.161\u00b5s\nphase selective_expand 1.662094ms\nphase polynomial_conversion 6.462856ms\nphase extraction 6.624426ms\nphase evaluator_build 66.094168ms\ncallback 7.44954905s, outputs 1\nphase flatten 330.581\u00b5s\nphase substitute 696.112\u00b5s\nphase selective_expand 9.840255ms\nphase polynomial_conversion 66.094628ms\nphase extraction 67.207831ms\nphase evaluator_build 3.351587351s\ncallback 11.419419386s, outputs 9\nphase flatten 309.71\u00b5s\nphase substitute 694.471\u00b5s\nphase selective_expand 64.904605ms\nphase polynomial_conversion 536.428607ms\nphase extraction 544.436107ms\nphase evaluator_build 3.940506732s\ncallback 15.967775958s, outputs 22\n",
+    "source_sha256": "08a5e1b48518aeecf9ab6854054b321795550e86b4554c30d6cba1c0e6a1ca1b",
+    "implementation": "Symbolica MultivariatePolynomial::map_coeff, selected expand_in, EvaluatorBuilder::add_aliases; final production implementation is in crates/ninjars-symbolica/src/polynomial.rs."
+  },
+  "validation": {
+    "exact_coefficients": 798,
+    "mixed_dual_shape": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "regression_tests": 2,
+    "scratch_integrated_rows": 4,
+    "scratch_mode4_passed": true
+  },
+  "dependency_heads": {
+    "symbolica": "8e23925ed7b5cbb91607c8633dda114cb43be8ce",
+    "feynkit": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93",
+    "oneloopmaster": "69761cdf8ffc0c02dbc2e36ce41ee6fa365268ae"
+  },
+  "limits": "No steady-state latency/throughput or original-Ninja performance gate is established here; the original full-expansion process was stopped before returning a numerical row.",
+  "template": {
+    "graph_orientation": 0,
+    "rank": 4,
+    "external_parameters": 28,
+    "sample_specific_compilation": false,
+    "callback_output_counts": {
+      "mu": 1,
+      "t3": 9,
+      "t2": 22
+    }
+  }
+}

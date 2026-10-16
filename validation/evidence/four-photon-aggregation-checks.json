@@ -1,0 +1,86 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "case": "missing physical row",
+      "rejected_by": [
+        "complete_matrix",
+        "physical_row_count_108"
+      ]
+    },
+    {
+      "case": "duplicate row replaces another sample",
+      "rejected_by": [
+        "complete_matrix"
+      ]
+    },
+    {
+      "case": "unsuccessful process with readable output",
+      "rejected_by": [
+        "process_success"
+      ]
+    },
+    {
+      "case": "mu-mode mismatch",
+      "rejected_by": [
+        "physical_mu_mode_equivalence"
+      ]
+    },
+    {
+      "case": "missing all mu-mode controls",
+      "rejected_by": [
+        "complete_mu_mode_controls"
+      ]
+    },
+    {
+      "case": "summed-graph mismatch",
+      "rejected_by": [
+        "physical_summed_graphs_mode4"
+      ]
+    },
+    {
+      "case": "missing independent pole row",
+      "rejected_by": [
+        "complete_integrated_pole_controls"
+      ]
+    },
+    {
+      "case": "DoubleFloat misses fixed accuracy target",
+      "rejected_by": [
+        "physical_integrated_pole_accuracy"
+      ]
+    },
+    {
+      "case": "relaxed precision target",
+      "rejected_by": [
+        "fixed_precision_targets"
+      ]
+    },
+    {
+      "case": "changed runtime source",
+      "rejected_by": [
+        "unchanged_runtime_sources"
+      ]
+    },
+    {
+      "case": "Float result at wrong working precision",
+      "rejected_by": [
+        "working_precision"
+      ]
+    },
+    {
+      "case": "generic mismatch remains diagnostic",
+      "physical_gate_passed": true,
+      "diagnostic_passed": false
+    },
+    {
+      "case": "mode1 mismatch remains diagnostic",
+      "physical_gate_passed": true,
+      "diagnostic_passed": false
+    }
+  ],
+  "matrix_sha256": "b453965402b242877b16fb240955792b84ac6e22cbb1edbebe263f5e2b0b3af7",
+  "poles_sha256": "f5863365c2d055e7d77fac70fa5e15a48ee119bf0ee4c0ffa1f346c1a9df96be",
+  "test_source_sha256": "f6ba94b342ed860930c77d65c3733dd9a60ae1c66e4d12d151b04b8a2f4b8c3d",
+  "aggregator_sha256": "a1e4e8820ba15efc60be68188954c8b850588ff9e5542f72901317d7a4d97c4f"
+}

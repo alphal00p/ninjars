@@ -87,3 +87,47 @@ delegates C++ emission to Symbolica. The compiler rounds the emitted literals
 at the reference's binary64 boundary. The exact prepared expressions remain in
 the reference manifest. This changes neither production constants nor original
 Ninja, and introduces no custom constant evaluation or algebra.
+
+## Preserve external numerator coefficients during Laurent extraction
+
+Three API checks preceded the change:
+
+1. Symbolica exposes `MultivariatePolynomial::flatten(false)` to retain
+   coefficient sums as factors (`src/poly.rs:2135`) and `AtomCore::expand_in`
+   for selected-variable expansion (`src/atom/core.rs:608–628`). Its public
+   `to_polynomial_in_vars_with_field` retains other expressions in AtomField
+   coefficients. `replace_all`, `map_coeff`, `expand_via_poly` and AliasedAtom
+   were inspected too. `replace_all` requires positive exponents, while our
+   polynomial stores signed exponents.
+2. `flatten(false)` preserves coefficient factors (`src/poly.rs:2165–2194`).
+   Selective expansion specifically retains unrelated sums in multiplication
+   (`src/expand.rs:359–368`), and its regression at line678 retains an unrelated
+   hundredth power. The selected Laurent conversion (`src/poly.rs:1563–1658`)
+   and AtomField arithmetic (`src/domains/atom.rs:138–200`) need no independent
+   NinjaRS polynomial operations. Direct conversion of unexpanded powered
+   Laurent sums was probed and rejected because the polynomial powering path
+   required excessive memory; applying the supported selective expansion first
+   avoids that path. No upstream defect is claimed by this setup observation.
+3. FeynKit momentum decomposition uses `flatten(false)` in
+   `feynkit-kinematics/src/symbolic.rs:312`. Spenso protects complete unselected
+   coefficients with Symbolica AliasedAtom (`shadowing/collect.rs:170–216`).
+   Idenso delegates selected expansion to Symbolica, with a regression in
+   `tensor/inference.rs:2880–2910`.
+
+The numerator adapter reuses its existing collected polynomial, temporarily maps
+its coefficients to fresh symbols through Symbolica `map_coeff`, and supplies
+those exact definitions directly to `EvaluatorBuilder::add_aliases`. This is the
+same supported mechanism used by `AliasedAtom::evaluator_multiple`
+(`src/atom/alias.rs:178–189`); NinjaRS adds no alias owner or registry. It then
+flattens without coefficient distribution, substitutes cut momenta, selectively
+expands `t`, `x`, and `mu2`, and extracts the existing Laurent layout. Definitions
+are restored in Symbolica's evaluator graph before numerical evaluation or
+Dualization. There is no independent polynomial representation, multiplication
+algorithm or lane specialization. A measured selective-expansion-only control
+showed that repeatedly traversing the full external coefficients during selected
+polynomial conversion still dominated setup, motivating the shared alias API.
+External parameter ordering, batched execution
+and Dualization are unchanged. A rank-five control checks 798 exact
+Mu/T3/T2 coefficients against independent full Symbolica expansion. A second
+control checks first, second and mixed Dual components on reordered, repeated
+and empty batches, including a lane with a vanishing external coefficient.

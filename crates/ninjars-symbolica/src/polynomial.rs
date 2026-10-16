@@ -225,7 +225,7 @@ where
         // Fresh symbols prevent collisions with caller-owned parameter names.
         let symbols = loop {
             let id = NEXT_NAMESPACE.fetch_add(1, Ordering::Relaxed);
-            let symbols: Vec<_> = (0..22)
+            let symbols: Vec<_> = (0..22 + self.polynomial.coefficients.len())
                 .map(|i| Atom::var(symbol!(format!("ninjars_cut::c{id}v{i}"))))
                 .collect();
             if symbols.iter().all(|value| {
@@ -276,7 +276,25 @@ where
                 Replacement::new(Pattern::Literal(from.clone()), Pattern::Literal(to.clone()))
             })
             .collect();
-        let substituted = self.expression.replace_multiple(&replacements).expand();
+        // Protect the already collected external coefficients through Symbolica
+        // evaluator aliases. Polynomial conversion then handles only the small
+        // cut-variable expressions. Alias definitions stay exact and are shared
+        // by every phase-space lane, including when the evaluator is Dualized.
+        let protected = self.polynomial.map_coeff(
+            |coefficient| {
+                let index = self
+                    .polynomial
+                    .coefficients
+                    .iter()
+                    .position(|candidate| candidate == coefficient)
+                    .unwrap();
+                symbols[22 + index].clone()
+            },
+            exact_field(),
+        );
+        let collected = protected.flatten(false);
+        let substituted = collected.replace_multiple(&replacements);
+        let substituted = substituted.expand_in(t).expand_in(x).expand_in(mu2);
         // Signed exponents in Symbolica already support finite Laurent polynomials.
         let variables = [t.clone(), x.clone(), mu2.clone()];
         let polynomial =
@@ -310,6 +328,14 @@ where
             .cloned()
             .collect();
         Atom::evaluator_multiple(&expressions, &parameters)
+            .add_aliases(
+                self.polynomial
+                    .coefficients
+                    .iter()
+                    .enumerate()
+                    .map(|(index, coefficient)| (symbols[22 + index].clone(), coefficient.clone())),
+            )
+            .map_err(symbolic_error)?
             .cores(1)
             .build()
             .map_err(symbolic_error)
@@ -415,3 +441,7 @@ where
             .map_err(symbolic_error)
     }
 }
+
+#[cfg(test)]
+#[path = "polynomial_tests.rs"]
+mod coefficient_preservation_tests;

@@ -1,8 +1,9 @@
 # Rust instruction export audit
 
 Source audit and implementation checkpoint on 2026-10-16. The reusable emitter
-and the first scalar/Dual correctness probe are now implemented. Native batch
-execution and performance measurements remain outstanding. Line numbers in the
+and scalar/Dual correctness probes are implemented. The owning emitter now also
+provides instruction-major batch execution; production dispatch and performance
+acceptance remain outstanding. Line numbers in the
 original source audit refer to its inspected revisions.
 
 ## Existing mechanism and exact APIs
@@ -43,7 +44,7 @@ each selected arithmetic kernel rather than rebuilding chart decisions in
 generated code. Reusing oneloopmaster's instruction lowering does not require
 copying its custom complex numerical primitives into NinjaRS.
 
-There are two distinct batch mechanisms:
+There are three distinct batch mechanisms:
 
 - `NativeEvaluator::evaluate_batch`, [native/mod.rs](../references/oneloopmaster/src/native/mod.rs):165,
   validates rows and then loops over `evaluate_row`. Each complete scalar
@@ -56,11 +57,17 @@ There are two distinct batch mechanisms:
   for `rows == 1` at line 158, avoiding batch packing and batch-workspace
   allocations. Tests at lines 486 and 536 cover instruction-major calls and
   inactive shared-function branches.
+- `RustEmitter::emit_batch`, [rust_codegen/batch.rs](../references/oneloopmaster/src/rust_codegen/batch.rs),
+  emits one loop over lanes per instruction and invokes shared helper bodies
+  once for their batch. Its `BatchWorkspace` retains disjoint slot-major storage,
+  validates sizes before writes, and bypasses packing for a single row. The
+  pinned main revision `5091653` includes lazy active-lane execution, validated
+  with conditional shared helpers, higher/mixed Dual components, inactive
+  singular arms, retained workspaces and allocation controls.
 
-A first compiled specialization can handle batch size one and keep the existing
-instruction-major evaluator for larger batches. A later compiled batch emitter
-must distribute each instruction over lanes, with reusable storage and active
-lane subsets for branches/shared calls. A scalar row-loop wrapper is only a
+A compiled specialization can use the scalar fast path at batch size one and
+the same emitter's instruction-major entry point for larger batches. Lazy
+branches require the validated active-lane extension. A scalar row-loop wrapper is only a
 measurement control. SIMD remains a separate specialization with independent
 accuracy checks; generic batched scalar arithmetic is sufficient for `Float`.
 
@@ -99,8 +106,9 @@ Do not fork the existing emitter into NinjaRS or introduce another symbolic
 graph representation. If its owner prefers a general upstream home, move the
 same implementation to Symbolica or FeynKit's `symbolica-utils` in a focused PR
 and make oneloopmaster use it too. A truly instruction-major native batch
-exporter is a separate extension; its lazy-branch lowering must be tested before
-replacing the current Symbolica batch path.
+exporter is now available with tested lazy-branch lowering. Native dispatch
+still requires integration and comparison before replacing the current
+Symbolica batch path.
 
 ## Correctness probe and remaining measurements
 
@@ -130,10 +138,10 @@ permutations, timings and production dispatch remain to be measured.
    including complex inputs, zero coefficients, permutations, invalid shapes
    and unchanged outputs on errors. Validate `f64`, `DoubleFloat` and 256-bit
    `Float` separately, against higher-precision controls where appropriate.
-4. Measure three routes with the same preallocated row-major buffers: current
+4. Measure four routes with the same preallocated row-major buffers: current
    batch evaluator; generated scalar entry for size one; generated scalar row
-   loop as a labeled control. Add generated instruction-major batches only in
-   the subsequent experiment. Use batches 1, 8, 32, 128 and 1024, with 31/129
+   loop as a labeled control; generated instruction-major batches. Use batches
+   1, 8, 32, 128 and 1024, with incomplete
    tails, repeated inputs and changing fixtures.
 5. Build release mode on the same host, without fast-math, using one thread and
    one recorded allowed CPU. Run no concurrent builds/tests during timing.
@@ -155,3 +163,20 @@ it excludes construction and allocation from steady-state timings. Its
 [recorded report](../references/oneloopmaster/performance/2026-09-08-native/README.md)
 explicitly retains target misses. Those measurements are not evidence for the
 new NinjaRS kernels, and this audit claims no speedup or acceptance-gate result.
+
+The expanded instruction-major batch probe passes all 108 groups on the final
+pins, checking 118,581 scalar outputs and 592,905 flattened higher/mixed Dual
+components. It includes permutations, changing workspace sizes, malformed and
+overflowing shapes, and zero warmed/fresh-single-row f64 allocations. Source,
+executable and dependency hashes are in
+`validation/evidence/rust-kernel-batch-codegen.json`.
+
+Its first monolithic dev-profile compilation was stopped after 1,364 seconds
+and about 5.6 GB resident memory, before any numerical result. The retained
+report is `validation/evidence/rust-kernel-batch-unoutlined-build.json`. The
+owning emitter now extracts bounded functions at instruction boundaries without
+changing scalar source or arithmetic order. The isolated build completed in
+57.10 seconds with about 2.4 GB peak RSS; these shared-host observations establish
+build feasibility, not a controlled speed ratio. The final pinned probe also
+builds and passes. Native production dispatch and runtime performance acceptance
+are still outstanding.

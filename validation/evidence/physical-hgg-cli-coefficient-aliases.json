@@ -1,0 +1,3680 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "maximum_scaled_error": 5.062690174549114e-10,
+  "criterion": "each complex Laurent coefficient: abs(a-b)/max(1,abs(b)) <= 1e-9; finite=cc+rational",
+  "reference_mode": 4,
+  "reference_sha256": "b3ba0a9bc42be29447b32dc0542eb2260bfbc03a4fcbfa3f1fe24fe951061a35",
+  "reference_input_precision": "binary64 couplings and wavefunctions, promoted exactly for fixed quadruple arithmetic",
+  "high_precision_input_oracle": false,
+  "reference_precision_note": "fixed quadruple arithmetic promotes the same binary64 physical inputs; this is not an independently high-precision physical-input oracle",
+  "raw_numerator_gate": "separate Rust physical test, 90 points on degree-two unisolvent complex grids",
+  "performance_acceptance": false,
+  "provenance": {
+    "binary": {
+      "path": "/shared/external/ninja/target/physical/four-photon/final-binary/ninjars",
+      "sha256": "22a96a442d27b1b40982632af307d89351e8f66dded1324a6679cc378392229d"
+    },
+    "source_sha256": {
+      "examples/graphs/physical/hgg/top-triangle-0.dot": "46d52e724a4098e499f83ada20d7302547d543117786510797faa84fa4201d0b",
+      "examples/graphs/physical/hgg/top-triangle-0.json": "1c5db9603a406210e0ab9a93dd7bfd573a0428b7966236e61fc2aeaea4e2b64d",
+      "examples/graphs/physical/hgg/top-triangle-1.dot": "951909a832a03c1d666828b5f27b464636d5dfb29f5c942469fdfeaba3fd3f91",
+      "examples/graphs/physical/hgg/top-triangle-1.json": "aecce6128c342f4c1e374d6c04799fd6dd402f1e31f7df5a26fab70645971946",
+      "validation/madloop/compare_hgg.py": "43bcd8f6c199498f1064621df14596452c82c339735ee91f443bb7cc5ca117ab",
+      "crates/ninjars-graph/src/physical.rs": "9e034d8fcfbfc92f7ffd616ead2be54ca7d47fe244c1fe39b28897cc93e676c4",
+      "crates/ninjars-cli/src/prepare.rs": "a3294efdd90bf13a00cf72af9ec164cac179bfb28bf1ea496a9ffb792663dbc1",
+      "crates/ninjars-cli/src/runtime.rs": "d51b12552e3538a71f10bb6203a09f24ced406b2c1ee10d5905e6dd3d121c3b3"
+    },
+    "dependency_manifest": {
+      "path": "dependencies/manifest.json",
+      "sha256": "7734d3712264e072c9cb1440297f841c097a705a2a2d80f84397f01c32e06f6e"
+    },
+    "working_directory": "/shared/external/ninja",
+    "runs": [
+      {
+        "orientation": 0,
+        "precision": "f64",
+        "batch_size": 1,
+        "command": [
+          "/shared/external/ninja/target/physical/four-photon/final-binary/ninjars",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/physical/hgg/top-triangle-0.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "1"
+        ],
+        "returncode": 0
+      },
+      {
+        "orientation": 0,
+        "precision": "f64",
+        "batch_size": 2,
+        "command": [
+          "/shared/external/ninja/target/physical/four-photon/final-binary/ninjars",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/physical/hgg/top-triangle-0.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "2"
+        ],
+        "returncode": 0
+      },
+      {
+        "orientation": 0,
+        "precision": "double-float",
+        "batch_size": 1,
+        "command": [
+          "/shared/external/ninja/target/physical/four-photon/final-binary/ninjars",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/physical/hgg/top-triangle-0.json",
+          "--precision",
+          "double-float",
+          "--batch-size",
+          "1"
+        ],
+        "returncode": 0
+      },
+      {
+        "orientation": 0,
+        "precision": "double-float",
+        "batch_size": 2,
+        "command": [
+          "/shared/external/ninja/target/physical/four-photon/final-binary/ninjars",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/physical/hgg/top-triangle-0.json",
+          "--precision",
+          "double-float",
+          "--batch-size",
+          "2"
+        ],
+        "returncode": 0
+      },
+      {
+        "orientation": 0,
+        "precision": "float",
+        "batch_size": 1,
+        "command": [
+          "/shared/external/ninja/target/physical/four-photon/final-binary/ninjars",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/physical/hgg/top-triangle-0.json",
+          "--precision",
+          "float",
+          "--batch-size",
+          "1",
+          "--bits",
+          "256"
+        ],
+        "returncode": 0
+      },
+      {
+        "orientation": 0,
+        "precision": "float",
+        "batch_size": 2,
+        "command": [
+          "/shared/external/ninja/target/physical/four-photon/final-binary/ninjars",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/physical/hgg/top-triangle-0.json",
+          "--precision",
+          "float",
+          "--batch-size",
+          "2",
+          "--bits",
+          "256"
+        ],
+        "returncode": 0
+      },
+      {
+        "orientation": 1,
+        "precision": "f64",
+        "batch_size": 1,
+        "command": [
+          "/shared/external/ninja/target/physical/four-photon/final-binary/ninjars",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/physical/hgg/top-triangle-1.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "1"
+        ],
+        "returncode": 0
+      },
+      {
+        "orientation": 1,
+        "precision": "f64",
+        "batch_size": 2,
+        "command": [
+          "/shared/external/ninja/target/physical/four-photon/final-binary/ninjars",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/physical/hgg/top-triangle-1.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "2"
+        ],
+        "returncode": 0
+      },
+      {
+        "orientation": 1,
+        "precision": "double-float",
+        "batch_size": 1,
+        "command": [
+          "/shared/external/ninja/target/physical/four-photon/final-binary/ninjars",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/physical/hgg/top-triangle-1.json",
+          "--precision",
+          "double-float",
+          "--batch-size",
+          "1"
+        ],
+        "returncode": 0
+      },
+      {
+        "orientation": 1,
+        "precision": "double-float",
+        "batch_size": 2,
+        "command": [
+          "/shared/external/ninja/target/physical/four-photon/final-binary/ninjars",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/physical/hgg/top-triangle-1.json",
+          "--precision",
+          "double-float",
+          "--batch-size",
+          "2"
+        ],
+        "returncode": 0
+      },
+      {
+        "orientation": 1,
+        "precision": "float",
+        "batch_size": 1,
+        "command": [
+          "/shared/external/ninja/target/physical/four-photon/final-binary/ninjars",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/physical/hgg/top-triangle-1.json",
+          "--precision",
+          "float",
+          "--batch-size",
+          "1",
+          "--bits",
+          "256"
+        ],
+        "returncode": 0
+      },
+      {
+        "orientation": 1,
+        "precision": "float",
+        "batch_size": 2,
+        "command": [
+          "/shared/external/ninja/target/physical/four-photon/final-binary/ninjars",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/physical/hgg/top-triangle-1.json",
+          "--precision",
+          "float",
+          "--batch-size",
+          "2",
+          "--bits",
+          "256"
+        ],
+        "returncode": 0
+      }
+    ],
+    "binary_build_record": {
+      "path": "validation/evidence/four-photon-cli-build.json",
+      "sha256": "20c545600d6e8ac52ee9b34d6d2592b7943f7bc9c436260a75dfa0c28ad442d1",
+      "actual_dependency_heads": {
+        "symbolica": "58b72d438e7bcfce158d132612db7d35fdefa4ba",
+        "oneloopmaster": "aedc2ec145d26701922f66794e96e89522301be3",
+        "feynkit": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+      }
+    },
+    "callback_source_at_build": {
+      "crates/ninjars-symbolica/src/polynomial.rs": "c27a0abdf92d24c3e699b71cb8c9c30cb75d28ea4dfcbf931cbadfb9df2a05b4"
+    },
+    "raw_run_report_sha256": "eacf69d7a3b27438894cd0e7a2a050654f50fcc55886898b46f797c67149b513"
+  },
+  "checks": [
+    {
+      "orientation": 0,
+      "lane": 0,
+      "state": "pp",
+      "precision": "f64",
+      "working_bits": 53,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000e4",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-1.478684334962249238e2",
+            "5.646719263553734572e-13"
+          ],
+          [
+            "0.000000000000000000e0",
+            "8.029777250726082995e-14"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-3.281135347935146456e2",
+            "5.646719263553734572e-13"
+          ],
+          [
+            "1.802451012972898070e2",
+            "0.000000000000000000e0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -147.86843349622436,
+          -7.858873763913609e-28
+        ],
+        [
+          2.1890890119883078e-29,
+          -4.936262982983271e-32
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        5.418542790248804e-15,
+        8.029777250726083e-14,
+        0.0,
+        5.766283328712537e-16,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 1,
+      "state": "pm",
+      "precision": "f64",
+      "working_bits": 53,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 1,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000e4",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "6.414389171883337410e-14",
+            "-1.465865612821811916e-13"
+          ],
+          [
+            "9.626873459511741510e-14",
+            "-9.398731792842340838e-14"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "6.414389171883337410e-14",
+            "-1.465865612821811916e-13"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -3.995917897501723e-27,
+          4.593177007671879e-27
+        ],
+        [
+          2.726903049627237e-29,
+          3.164171107326159e-29
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        1.6000643359994606e-13,
+        1.345410167641218e-13,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 2,
+      "state": "ww",
+      "precision": "f64",
+      "working_bits": 53,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 2,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000e4",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "1.408164853885076242e6",
+            "2.305455555840852014e-10"
+          ],
+          [
+            "4.656612873077392578e-10",
+            "1.986652549835036969e-10"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "2.328306436538696289e-10",
+            "2.305455555840852014e-10"
+          ],
+          [
+            "1.408164853885076009e6",
+            "0.000000000000000000e0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          1408164.8538850758,
+          -8.80486981312637e-24
+        ],
+        [
+          1.5186519058590742e-25,
+          -9.257888831534144e-26
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        3.6899603214632437e-16,
+        5.062690174549114e-10,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 0,
+      "state": "pp",
+      "precision": "f64",
+      "working_bits": 53,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000e4",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-1.478684334962249238e2",
+            "5.646719263553734572e-13"
+          ],
+          [
+            "0.000000000000000000e0",
+            "8.029777250726082995e-14"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-3.281135347935146456e2",
+            "5.646719263553734572e-13"
+          ],
+          [
+            "1.802451012972898070e2",
+            "0.000000000000000000e0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -147.86843349622436,
+          -7.858873763913609e-28
+        ],
+        [
+          2.1890890119883078e-29,
+          -4.936262982983271e-32
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        5.418542790248804e-15,
+        8.029777250726083e-14,
+        0.0,
+        5.766283328712537e-16,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 1,
+      "state": "pm",
+      "precision": "f64",
+      "working_bits": 53,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 1,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000e4",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "6.414389171883337410e-14",
+            "-1.465865612821811916e-13"
+          ],
+          [
+            "9.626873459511741510e-14",
+            "-9.398731792842340838e-14"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "6.414389171883337410e-14",
+            "-1.465865612821811916e-13"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -3.995917897501723e-27,
+          4.593177007671879e-27
+        ],
+        [
+          2.726903049627237e-29,
+          3.164171107326159e-29
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        1.6000643359994606e-13,
+        1.345410167641218e-13,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 2,
+      "state": "ww",
+      "precision": "f64",
+      "working_bits": 53,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 2,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000e4",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "1.408164853885076242e6",
+            "2.305455555840852014e-10"
+          ],
+          [
+            "4.656612873077392578e-10",
+            "1.986652549835036969e-10"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "2.328306436538696289e-10",
+            "2.305455555840852014e-10"
+          ],
+          [
+            "1.408164853885076009e6",
+            "0.000000000000000000e0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          1408164.8538850758,
+          -8.80486981312637e-24
+        ],
+        [
+          1.5186519058590742e-25,
+          -9.257888831534144e-26
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        3.6899603214632437e-16,
+        5.062690174549114e-10,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 0,
+      "state": "pp",
+      "precision": "double-float",
+      "working_bits": 106,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-1.478684334962243614612179071221330e2",
+            "5.552477954431421106833396637959511e-30"
+          ],
+          [
+            "0",
+            "3.261239199541963163470241964881063e-30"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "-3.281135347935140916615443933973340e2",
+            "5.552477954431421106833396637959511e-30"
+          ],
+          [
+            "1.802451012972897302003264862751946e2",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -147.86843349622436,
+          -7.858873763913609e-28
+        ],
+        [
+          2.1890890119883078e-29,
+          -4.936262982983271e-32
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        5.35232460122059e-30,
+        2.2139809274549645e-29,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 1,
+      "state": "pm",
+      "precision": "double-float",
+      "working_bits": 106,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ]
+        ],
+        "lane": 1,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "4.792027461042497354223778879940772e-30",
+            "5.844034935221165116918055820932243e-30"
+          ],
+          [
+            "1.368977486007182568845168641286077e-29",
+            "-2.895981079063940782719986145852070e-29"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "4.792027461042497354223778879940772e-30",
+            "5.844034935221165116918055820932243e-30"
+          ],
+          [
+            "0",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -3.995917897501723e-27,
+          4.593177007671879e-27
+        ],
+        [
+          2.726903049627237e-29,
+          3.164171107326159e-29
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        6.086813920800645e-27,
+        6.210427228342794e-29,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 2,
+      "state": "ww",
+      "precision": "double-float",
+      "working_bits": 106,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ]
+        ],
+        "lane": 2,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "1.408164853885076017190050674024853e6",
+            "1.263749244335560583299265418557817e-28"
+          ],
+          [
+            "-2.067951531382569187178521730174907e-25",
+            "3.610255319942603734088250189554856e-28"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "-7.754818242684634451919456488155902e-26",
+            "1.263749244335560583299265418557817e-28"
+          ],
+          [
+            "1.408164853885076017190050674024956e6",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          1408164.8538850758,
+          -8.80486981312637e-24
+        ],
+        [
+          1.5186519058590742e-25,
+          -9.257888831534144e-26
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        1.6534331403847947e-16,
+        3.705065043238592e-25,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 0,
+      "state": "pp",
+      "precision": "double-float",
+      "working_bits": 106,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-1.478684334962243614612179071221330e2",
+            "5.552477954431421106833396637959511e-30"
+          ],
+          [
+            "0",
+            "3.261239199541963163470241964881063e-30"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "-3.281135347935140916615443933973340e2",
+            "5.552477954431421106833396637959511e-30"
+          ],
+          [
+            "1.802451012972897302003264862751946e2",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -147.86843349622436,
+          -7.858873763913609e-28
+        ],
+        [
+          2.1890890119883078e-29,
+          -4.936262982983271e-32
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        5.35232460122059e-30,
+        2.2139809274549645e-29,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 1,
+      "state": "pm",
+      "precision": "double-float",
+      "working_bits": 106,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ]
+        ],
+        "lane": 1,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "4.792027461042497354223778879940772e-30",
+            "5.844034935221165116918055820932243e-30"
+          ],
+          [
+            "1.368977486007182568845168641286077e-29",
+            "-2.895981079063940782719986145852070e-29"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "4.792027461042497354223778879940772e-30",
+            "5.844034935221165116918055820932243e-30"
+          ],
+          [
+            "0",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -3.995917897501723e-27,
+          4.593177007671879e-27
+        ],
+        [
+          2.726903049627237e-29,
+          3.164171107326159e-29
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        6.086813920800645e-27,
+        6.210427228342794e-29,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 2,
+      "state": "ww",
+      "precision": "double-float",
+      "working_bits": 106,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ]
+        ],
+        "lane": 2,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "1.408164853885076017190050674024853e6",
+            "1.263749244335560583299265418557817e-28"
+          ],
+          [
+            "-2.067951531382569187178521730174907e-25",
+            "3.610255319942603734088250189554856e-28"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "-7.754818242684634451919456488155902e-26",
+            "1.263749244335560583299265418557817e-28"
+          ],
+          [
+            "1.408164853885076017190050674024956e6",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          1408164.8538850758,
+          -8.80486981312637e-24
+        ],
+        [
+          1.5186519058590742e-25,
+          -9.257888831534144e-26
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        1.6534331403847947e-16,
+        3.705065043238592e-25,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 0,
+      "state": "pp",
+      "precision": "float",
+      "working_bits": 256,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            255,
+            4
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            256,
+            256
+          ],
+          [
+            255,
+            4
+          ],
+          [
+            256,
+            256
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.9929000000000000000000000000000000000000000000000000000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-1.4786843349622436146121790712210555168407847206067735513119954736868206382641043e2",
+            "1.4149498560666738074232998892012174657316454997092403421222835765524220810301320e-73"
+          ],
+          [
+            "2.2108591501041778240989060768769022902056960932956880345660680883631595016095813e-74",
+            "-3.3162887251562667361483591153153534353085441399435320518491021325447392524143720e-75"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "-3.2811353479351409166154439339729276957598874698719663032296401099222747571311056e2",
+            "1.4149498560666738074232998892012174657316454997092403421222835765524220810301320e-73"
+          ],
+          [
+            "1.8024510129728973020032648627518721789191027492651927519176446362354541188670234e2",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -147.86843349622436,
+          -7.858873763913609e-28
+        ],
+        [
+          2.1890890119883078e-29,
+          -4.936262982983271e-32
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        5.314774477619847e-30,
+        2.1890945774680872e-29,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 1,
+      "state": "pm",
+      "precision": "float",
+      "working_bits": 256,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            2,
+            3
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            256,
+            256
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            256,
+            256
+          ]
+        ],
+        "lane": 1,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.9929000000000000000000000000000000000000000000000000000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-2.2108591501041778240989060768769022902056960932956880345660680883631595016095813e-75",
+            "-1.3265154900625066944593436461261413741234176559774128207396408530178957009657488e-74"
+          ],
+          [
+            "-4.4217183002083556481978121537538045804113921865913760691321361767263190032191627e-75",
+            "1.3265154900625066944593436461261413741234176559774128207396408530178957009657488e-74"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "-2.2108591501041778240989060768769022902056960932956880345660680883631595016095813e-75",
+            "-1.3265154900625066944593436461261413741234176559774128207396408530178957009657488e-74"
+          ],
+          [
+            "0",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -3.995917897501723e-27,
+          4.593177007671879e-27
+        ],
+        [
+          2.726903049627237e-29,
+          3.164171107326159e-29
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        6.088073165409577e-27,
+        4.1770778109228437e-29,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 2,
+      "state": "ww",
+      "precision": "float",
+      "working_bits": 256,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            256,
+            3
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            256,
+            256
+          ],
+          [
+            255,
+            3
+          ],
+          [
+            256,
+            256
+          ]
+        ],
+        "lane": 2,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.9929000000000000000000000000000000000000000000000000000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "1.4081648538850760171900506740249001397805490228634318374356598720589485303648094e6",
+            "-9.0556790788267123675091192908877917806825311981391381895826148899355013185928451e-72"
+          ],
+          [
+            "1.0866814894592054841010943149065350136819037437766965827499137867922601582311414e-70",
+            "-2.7167037236480137102527357872663375342047593594417414568747844669806503955778535e-71"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "-9.0556790788267123675091192908877917806825311981391381895826148899355013185928451e-72"
+          ],
+          [
+            "1.4081648538850760171900506740249001397805490228634318374356598720589485303648276e6",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          1408164.8538850758,
+          -8.80486981312637e-24
+        ],
+        [
+          1.5186519058590742e-25,
+          -9.257888831534144e-26
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        1.6534331403847947e-16,
+        1.7785917652288411e-25,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 0,
+      "state": "pp",
+      "precision": "float",
+      "working_bits": 256,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            255,
+            4
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            256,
+            256
+          ],
+          [
+            255,
+            4
+          ],
+          [
+            256,
+            256
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.9929000000000000000000000000000000000000000000000000000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-1.4786843349622436146121790712210555168407847206067735513119954736868206382641043e2",
+            "1.4149498560666738074232998892012174657316454997092403421222835765524220810301320e-73"
+          ],
+          [
+            "2.2108591501041778240989060768769022902056960932956880345660680883631595016095813e-74",
+            "-3.3162887251562667361483591153153534353085441399435320518491021325447392524143720e-75"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "-3.2811353479351409166154439339729276957598874698719663032296401099222747571311056e2",
+            "1.4149498560666738074232998892012174657316454997092403421222835765524220810301320e-73"
+          ],
+          [
+            "1.8024510129728973020032648627518721789191027492651927519176446362354541188670234e2",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -147.86843349622436,
+          -7.858873763913609e-28
+        ],
+        [
+          2.1890890119883078e-29,
+          -4.936262982983271e-32
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        5.314774477619847e-30,
+        2.1890945774680872e-29,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 1,
+      "state": "pm",
+      "precision": "float",
+      "working_bits": 256,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            2,
+            3
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            256,
+            256
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            256,
+            256
+          ]
+        ],
+        "lane": 1,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.9929000000000000000000000000000000000000000000000000000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-2.2108591501041778240989060768769022902056960932956880345660680883631595016095813e-75",
+            "-1.3265154900625066944593436461261413741234176559774128207396408530178957009657488e-74"
+          ],
+          [
+            "-4.4217183002083556481978121537538045804113921865913760691321361767263190032191627e-75",
+            "1.3265154900625066944593436461261413741234176559774128207396408530178957009657488e-74"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "-2.2108591501041778240989060768769022902056960932956880345660680883631595016095813e-75",
+            "-1.3265154900625066944593436461261413741234176559774128207396408530178957009657488e-74"
+          ],
+          [
+            "0",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -3.995917897501723e-27,
+          4.593177007671879e-27
+        ],
+        [
+          2.726903049627237e-29,
+          3.164171107326159e-29
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        6.088073165409577e-27,
+        4.1770778109228437e-29,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 0,
+      "lane": 2,
+      "state": "ww",
+      "precision": "float",
+      "working_bits": 256,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            256,
+            3
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            256,
+            256
+          ],
+          [
+            255,
+            3
+          ],
+          [
+            256,
+            256
+          ]
+        ],
+        "lane": 2,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.9929000000000000000000000000000000000000000000000000000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "1.4081648538850760171900506740249001397805490228634318374356598720589485303648094e6",
+            "-9.0556790788267123675091192908877917806825311981391381895826148899355013185928451e-72"
+          ],
+          [
+            "1.0866814894592054841010943149065350136819037437766965827499137867922601582311414e-70",
+            "-2.7167037236480137102527357872663375342047593594417414568747844669806503955778535e-71"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "-9.0556790788267123675091192908877917806825311981391381895826148899355013185928451e-72"
+          ],
+          [
+            "1.4081648538850760171900506740249001397805490228634318374356598720589485303648276e6",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          1408164.8538850758,
+          -8.80486981312637e-24
+        ],
+        [
+          1.5186519058590742e-25,
+          -9.257888831534144e-26
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        1.6534331403847947e-16,
+        1.7785917652288411e-25,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 0,
+      "state": "pp",
+      "precision": "f64",
+      "working_bits": 53,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000e4",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-1.478684334962249238e2",
+            "5.646719263553734572e-13"
+          ],
+          [
+            "0.000000000000000000e0",
+            "8.029777250726082995e-14"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-3.281135347935146456e2",
+            "5.646719263553734572e-13"
+          ],
+          [
+            "1.802451012972898070e2",
+            "0.000000000000000000e0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -147.86843349622436,
+          -2.1412091351776573e-27
+        ],
+        [
+          2.2482535798798834e-29,
+          -1.3167763574800376e-31
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        5.41854279024881e-15,
+        8.029777250726083e-14,
+        0.0,
+        5.766283328712537e-16,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 1,
+      "state": "pm",
+      "precision": "f64",
+      "working_bits": 53,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 1,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000e4",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "6.414389171883337410e-14",
+            "-1.465865612821811916e-13"
+          ],
+          [
+            "9.626873459511741510e-14",
+            "-9.398731792842340838e-14"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "6.414389171883337410e-14",
+            "-1.465865612821811916e-13"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -2.3684738759150935e-27,
+          3.1302062105028826e-27
+        ],
+        [
+          2.3246799744303682e-29,
+          2.8853621005121685e-29
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        1.6000643359994406e-13,
+        1.3454101676412177e-13,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 2,
+      "state": "ww",
+      "precision": "f64",
+      "working_bits": 53,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 2,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000e4",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "1.408164853885076242e6",
+            "2.305455555840852014e-10"
+          ],
+          [
+            "4.656612873077392578e-10",
+            "1.986652549835036969e-10"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "2.328306436538696289e-10",
+            "2.305455555840852014e-10"
+          ],
+          [
+            "1.408164853885076009e6",
+            "0.000000000000000000e0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          1408164.8538850758,
+          -8.612442650282e-24
+        ],
+        [
+          1.1632227364026952e-25,
+          -7.436967565845692e-26
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        3.689960321463243e-16,
+        5.062690174549114e-10,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 0,
+      "state": "pp",
+      "precision": "f64",
+      "working_bits": 53,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000e4",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-1.478684334962249238e2",
+            "5.646719263553734572e-13"
+          ],
+          [
+            "0.000000000000000000e0",
+            "8.029777250726082995e-14"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-3.281135347935146456e2",
+            "5.646719263553734572e-13"
+          ],
+          [
+            "1.802451012972898070e2",
+            "0.000000000000000000e0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -147.86843349622436,
+          -2.1412091351776573e-27
+        ],
+        [
+          2.2482535798798834e-29,
+          -1.3167763574800376e-31
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        5.41854279024881e-15,
+        8.029777250726083e-14,
+        0.0,
+        5.766283328712537e-16,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 1,
+      "state": "pm",
+      "precision": "f64",
+      "working_bits": 53,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 1,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000e4",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "6.414389171883337410e-14",
+            "-1.465865612821811916e-13"
+          ],
+          [
+            "9.626873459511741510e-14",
+            "-9.398731792842340838e-14"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "6.414389171883337410e-14",
+            "-1.465865612821811916e-13"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -2.3684738759150935e-27,
+          3.1302062105028826e-27
+        ],
+        [
+          2.3246799744303682e-29,
+          2.8853621005121685e-29
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        1.6000643359994406e-13,
+        1.3454101676412177e-13,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 2,
+      "state": "ww",
+      "precision": "f64",
+      "working_bits": 53,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 2,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000e4",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "1.408164853885076242e6",
+            "2.305455555840852014e-10"
+          ],
+          [
+            "4.656612873077392578e-10",
+            "1.986652549835036969e-10"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "2.328306436538696289e-10",
+            "2.305455555840852014e-10"
+          ],
+          [
+            "1.408164853885076009e6",
+            "0.000000000000000000e0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          1408164.8538850758,
+          -8.612442650282e-24
+        ],
+        [
+          1.1632227364026952e-25,
+          -7.436967565845692e-26
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        3.689960321463243e-16,
+        5.062690174549114e-10,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 0,
+      "state": "pp",
+      "precision": "double-float",
+      "working_bits": 106,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-1.478684334962243614612179071221330e2",
+            "5.552477954431421106833396637959511e-30"
+          ],
+          [
+            "0",
+            "3.261239199541963163470241964881063e-30"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "-3.281135347935140916615443933973340e2",
+            "5.552477954431421106833396637959511e-30"
+          ],
+          [
+            "1.802451012972897302003264862751946e2",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -147.86843349622436,
+          -2.1412091351776573e-27
+        ],
+        [
+          2.2482535798798834e-29,
+          -1.3167763574800376e-31
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        1.451805204379137e-29,
+        2.2737112846521767e-29,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 1,
+      "state": "pm",
+      "precision": "double-float",
+      "working_bits": 106,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ]
+        ],
+        "lane": 1,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "4.792027461042497354223778879940772e-30",
+            "5.844034935221165116918055820932243e-30"
+          ],
+          [
+            "1.368977486007182568845168641286077e-29",
+            "-2.895981079063940782719986145852070e-29"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "4.792027461042497354223778879940772e-30",
+            "5.844034935221165116918055820932243e-30"
+          ],
+          [
+            "0",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -2.3684738759150935e-27,
+          3.1302062105028826e-27
+        ],
+        [
+          2.3246799744303682e-29,
+          2.8853621005121685e-29
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        3.923522658561517e-27,
+        5.859803427284013e-29,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 2,
+      "state": "ww",
+      "precision": "double-float",
+      "working_bits": 106,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ]
+        ],
+        "lane": 2,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "1.408164853885076017190050674024853e6",
+            "1.263749244335560583299265418557817e-28"
+          ],
+          [
+            "-2.067951531382569187178521730174907e-25",
+            "3.610255319942603734088250189554856e-28"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "-7.754818242684634451919456488155902e-26",
+            "1.263749244335560583299265418557817e-28"
+          ],
+          [
+            "1.408164853885076017190050674024956e6",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          1408164.8538850758,
+          -8.612442650282e-24
+        ],
+        [
+          1.1632227364026952e-25,
+          -7.436967565845692e-26
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        1.6534331403847947e-16,
+        3.316467234700094e-25,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 0,
+      "state": "pp",
+      "precision": "double-float",
+      "working_bits": 106,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-1.478684334962243614612179071221330e2",
+            "5.552477954431421106833396637959511e-30"
+          ],
+          [
+            "0",
+            "3.261239199541963163470241964881063e-30"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "-3.281135347935140916615443933973340e2",
+            "5.552477954431421106833396637959511e-30"
+          ],
+          [
+            "1.802451012972897302003264862751946e2",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -147.86843349622436,
+          -2.1412091351776573e-27
+        ],
+        [
+          2.2482535798798834e-29,
+          -1.3167763574800376e-31
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        1.451805204379137e-29,
+        2.2737112846521767e-29,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 1,
+      "state": "pm",
+      "precision": "double-float",
+      "working_bits": 106,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ]
+        ],
+        "lane": 1,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "4.792027461042497354223778879940772e-30",
+            "5.844034935221165116918055820932243e-30"
+          ],
+          [
+            "1.368977486007182568845168641286077e-29",
+            "-2.895981079063940782719986145852070e-29"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "4.792027461042497354223778879940772e-30",
+            "5.844034935221165116918055820932243e-30"
+          ],
+          [
+            "0",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -2.3684738759150935e-27,
+          3.1302062105028826e-27
+        ],
+        [
+          2.3246799744303682e-29,
+          2.8853621005121685e-29
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        3.923522658561517e-27,
+        5.859803427284013e-29,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 2,
+      "state": "ww",
+      "precision": "double-float",
+      "working_bits": 106,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ],
+          [
+            106,
+            106
+          ]
+        ],
+        "lane": 2,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.992900000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "1.408164853885076017190050674024853e6",
+            "1.263749244335560583299265418557817e-28"
+          ],
+          [
+            "-2.067951531382569187178521730174907e-25",
+            "3.610255319942603734088250189554856e-28"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "-7.754818242684634451919456488155902e-26",
+            "1.263749244335560583299265418557817e-28"
+          ],
+          [
+            "1.408164853885076017190050674024956e6",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          1408164.8538850758,
+          -8.612442650282e-24
+        ],
+        [
+          1.1632227364026952e-25,
+          -7.436967565845692e-26
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        1.6534331403847947e-16,
+        3.316467234700094e-25,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 0,
+      "state": "pp",
+      "precision": "float",
+      "working_bits": 256,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            255,
+            4
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            256,
+            256
+          ],
+          [
+            255,
+            4
+          ],
+          [
+            256,
+            256
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.9929000000000000000000000000000000000000000000000000000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-1.4786843349622436146121790712210555168407847206067735513119954736868206382641043e2",
+            "1.4149498560666738074232998892012174657316454997092403421222835765524220810301320e-73"
+          ],
+          [
+            "2.2108591501041778240989060768769022902056960932956880345660680883631595016095813e-74",
+            "-3.3162887251562667361483591153153534353085441399435320518491021325447392524143720e-75"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "-3.2811353479351409166154439339729276957598874698719663032296401099222747571311056e2",
+            "1.4149498560666738074232998892012174657316454997092403421222835765524220810301320e-73"
+          ],
+          [
+            "1.8024510129728973020032648627518721789191027492651927519176446362354541188670234e2",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -147.86843349622436,
+          -2.1412091351776573e-27
+        ],
+        [
+          2.2482535798798834e-29,
+          -1.3167763574800376e-31
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        1.448050192019063e-29,
+        2.2482921405903356e-29,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 1,
+      "state": "pm",
+      "precision": "float",
+      "working_bits": 256,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            2,
+            3
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            256,
+            256
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            256,
+            256
+          ]
+        ],
+        "lane": 1,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.9929000000000000000000000000000000000000000000000000000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-2.2108591501041778240989060768769022902056960932956880345660680883631595016095813e-75",
+            "-1.3265154900625066944593436461261413741234176559774128207396408530178957009657488e-74"
+          ],
+          [
+            "-4.4217183002083556481978121537538045804113921865913760691321361767263190032191627e-75",
+            "1.3265154900625066944593436461261413741234176559774128207396408530178957009657488e-74"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "-2.2108591501041778240989060768769022902056960932956880345660680883631595016095813e-75",
+            "-1.3265154900625066944593436461261413741234176559774128207396408530178957009657488e-74"
+          ],
+          [
+            "0",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -2.3684738759150935e-27,
+          3.1302062105028826e-27
+        ],
+        [
+          2.3246799744303682e-29,
+          2.8853621005121685e-29
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        3.9252846293183736e-27,
+        3.705327439591482e-29,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 2,
+      "state": "ww",
+      "precision": "float",
+      "working_bits": 256,
+      "batch_size": 1,
+      "result": {
+        "component_precision_bits": [
+          [
+            256,
+            3
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            256,
+            256
+          ],
+          [
+            255,
+            3
+          ],
+          [
+            256,
+            256
+          ]
+        ],
+        "lane": 2,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.9929000000000000000000000000000000000000000000000000000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "1.4081648538850760171900506740249001397805490228634318374356598720589485303648094e6",
+            "-9.0556790788267123675091192908877917806825311981391381895826148899355013185928451e-72"
+          ],
+          [
+            "1.0866814894592054841010943149065350136819037437766965827499137867922601582311414e-70",
+            "-2.7167037236480137102527357872663375342047593594417414568747844669806503955778535e-71"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "-9.0556790788267123675091192908877917806825311981391381895826148899355013185928451e-72"
+          ],
+          [
+            "1.4081648538850760171900506740249001397805490228634318374356598720589485303648276e6",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          1408164.8538850758,
+          -8.612442650282e-24
+        ],
+        [
+          1.1632227364026952e-25,
+          -7.436967565845692e-26
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        1.6534331403847947e-16,
+        1.3806418797930845e-25,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 0,
+      "state": "pp",
+      "precision": "float",
+      "working_bits": 256,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            255,
+            4
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            256,
+            256
+          ],
+          [
+            255,
+            4
+          ],
+          [
+            256,
+            256
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.9929000000000000000000000000000000000000000000000000000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-1.4786843349622436146121790712210555168407847206067735513119954736868206382641043e2",
+            "1.4149498560666738074232998892012174657316454997092403421222835765524220810301320e-73"
+          ],
+          [
+            "2.2108591501041778240989060768769022902056960932956880345660680883631595016095813e-74",
+            "-3.3162887251562667361483591153153534353085441399435320518491021325447392524143720e-75"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "-3.2811353479351409166154439339729276957598874698719663032296401099222747571311056e2",
+            "1.4149498560666738074232998892012174657316454997092403421222835765524220810301320e-73"
+          ],
+          [
+            "1.8024510129728973020032648627518721789191027492651927519176446362354541188670234e2",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -147.86843349622436,
+          -2.1412091351776573e-27
+        ],
+        [
+          2.2482535798798834e-29,
+          -1.3167763574800376e-31
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        1.448050192019063e-29,
+        2.2482921405903356e-29,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 1,
+      "state": "pm",
+      "precision": "float",
+      "working_bits": 256,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            2,
+            3
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            256,
+            256
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            256,
+            256
+          ]
+        ],
+        "lane": 1,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.9929000000000000000000000000000000000000000000000000000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-2.2108591501041778240989060768769022902056960932956880345660680883631595016095813e-75",
+            "-1.3265154900625066944593436461261413741234176559774128207396408530178957009657488e-74"
+          ],
+          [
+            "-4.4217183002083556481978121537538045804113921865913760691321361767263190032191627e-75",
+            "1.3265154900625066944593436461261413741234176559774128207396408530178957009657488e-74"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "-2.2108591501041778240989060768769022902056960932956880345660680883631595016095813e-75",
+            "-1.3265154900625066944593436461261413741234176559774128207396408530178957009657488e-74"
+          ],
+          [
+            "0",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          -2.3684738759150935e-27,
+          3.1302062105028826e-27
+        ],
+        [
+          2.3246799744303682e-29,
+          2.8853621005121685e-29
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        3.9252846293183736e-27,
+        3.705327439591482e-29,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    },
+    {
+      "orientation": 1,
+      "lane": 2,
+      "state": "ww",
+      "precision": "float",
+      "working_bits": 256,
+      "batch_size": 2,
+      "result": {
+        "component_precision_bits": [
+          [
+            256,
+            3
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            256,
+            256
+          ],
+          [
+            255,
+            3
+          ],
+          [
+            256,
+            256
+          ]
+        ],
+        "lane": 2,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "mass_squared",
+            "propagator": 0
+          },
+          "used": false,
+          "value": [
+            "2.9929000000000000000000000000000000000000000000000000000000000000000000000000000e4",
+            "0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "1.4081648538850760171900506740249001397805490228634318374356598720589485303648094e6",
+            "-9.0556790788267123675091192908877917806825311981391381895826148899355013185928451e-72"
+          ],
+          [
+            "1.0866814894592054841010943149065350136819037437766965827499137867922601582311414e-70",
+            "-2.7167037236480137102527357872663375342047593594417414568747844669806503955778535e-71"
+          ],
+          [
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "-9.0556790788267123675091192908877917806825311981391381895826148899355013185928451e-72"
+          ],
+          [
+            "1.4081648538850760171900506740249001397805490228634318374356598720589485303648276e6",
+            "0"
+          ]
+        ]
+      },
+      "reference": [
+        [
+          1408164.8538850758,
+          -8.612442650282e-24
+        ],
+        [
+          1.1632227364026952e-25,
+          -7.436967565845692e-26
+        ],
+        [
+          -0.0,
+          -0.0
+        ]
+      ],
+      "scaled_errors": [
+        1.6534331403847947e-16,
+        1.3806418797930845e-25,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true
+    }
+  ],
+  "historical_baseline": {
+    "path": "validation/evidence/physical-hgg-cli.json",
+    "sha256": "ed00dcff595db233a267b8fb56ce3e119970d49df0ce1c56614f4ea9c5604fee",
+    "passed_rows": 32,
+    "maximum_scaled_error": 1.0669202114373578e-09,
+    "previously_failed_rows": [
+      {
+        "orientation": 0,
+        "lane": 2,
+        "precision": "f64",
+        "batch_size": 1,
+        "previous_errors": [
+          2.0995629525997578e-16,
+          1.0669202114373578e-09,
+          0.0,
+          1.6534331403847944e-16,
+          0.0
+        ],
+        "current_errors": [
+          3.6899603214632437e-16,
+          5.062690174549114e-10,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "current_passed": true
+      },
+      {
+        "orientation": 0,
+        "lane": 2,
+        "precision": "f64",
+        "batch_size": 2,
+        "previous_errors": [
+          2.0995629525997578e-16,
+          1.0669202114373578e-09,
+          0.0,
+          1.6534331403847944e-16,
+          0.0
+        ],
+        "current_errors": [
+          3.6899603214632437e-16,
+          5.062690174549114e-10,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "current_passed": true
+      },
+      {
+        "orientation": 1,
+        "lane": 2,
+        "precision": "f64",
+        "batch_size": 1,
+        "previous_errors": [
+          2.099562952599757e-16,
+          1.0669202114373578e-09,
+          0.0,
+          1.6534331403847944e-16,
+          0.0
+        ],
+        "current_errors": [
+          3.689960321463243e-16,
+          5.062690174549114e-10,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "current_passed": true
+      },
+      {
+        "orientation": 1,
+        "lane": 2,
+        "precision": "f64",
+        "batch_size": 2,
+        "previous_errors": [
+          2.099562952599757e-16,
+          1.0669202114373578e-09,
+          0.0,
+          1.6534331403847944e-16,
+          0.0
+        ],
+        "current_errors": [
+          3.689960321463243e-16,
+          5.062690174549114e-10,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "current_passed": true
+      }
+    ]
+  },
+  "scope_note": "The current immutable build passes the fixed36-row suite, including the four previously failing f64 longitudinal rows. This rerun does not isolate every change since the historical dependency/build snapshot and is not a general precision-rescue guarantee. Criteria and historical evidence are unchanged."
+}

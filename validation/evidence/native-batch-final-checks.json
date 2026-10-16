@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "dependencies": {
+    "schema_version": 1,
+    "dependencies": [
+      {
+        "name": "symbolica",
+        "path": "references/symbolica",
+        "url": "https://github.com/symbolica-dev/symbolica.git",
+        "revision": "c78cffc20f318df1fce50539a587cbe8ffc717c0",
+        "patches": [
+          {
+            "path": "dependencies/patches/symbolica-batch-dual.patch",
+            "sha256": "5c0abd7b1ca85f4ed3a6b956938cfd3fceab6d3577d579a91c183ba848580268"
+          }
+        ],
+        "patched_revisions": [
+          "58b72d438e7bcfce158d132612db7d35fdefa4ba"
+        ]
+      },
+      {
+        "name": "feynkit",
+        "path": "references/gammaloop_ninja_shared",
+        "url": "https://github.com/alphal00p/gammaloop.git",
+        "revision": "d3b91d31461e50d91dce4702d68c45294faca350",
+        "patches": [
+          {
+            "path": "dependencies/patches/feynkit-shared-types.patch",
+            "sha256": "7bc15975562034a01a5eb1d1ebe662f9c5c44697ebac3ecf5935e992118e39d6"
+          }
+        ],
+        "patched_revisions": [
+          "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+        ]
+      },
+      {
+        "name": "oneloopmaster",
+        "path": "references/oneloopmaster",
+        "url": "https://github.com/alphal00p/oneloopmaster.git",
+        "revision": "5091653086b32428c6e024ee89404b4b21214e88"
+      },
+      {
+        "name": "ninja-reference",
+        "path": "references/ninja",
+        "url": "https://github.com/peraro/ninja.git",
+        "revision": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0"
+      }
+    ]
+  },
+  "commands": [
+    "cargo clippy --workspace --all-targets --all-features --locked -j8 -- -D warnings",
+    "cargo fmt --all --check",
+    "python3 tools/bootstrap.py",
+    "git diff --check"
+  ],
+  "logs": {
+    "clippy": {
+      "sha256": "625eb86578645ce37d12c83d7417c955db8e07529953eb0cdef576c2e7781332",
+      "text": "warning: patch `clarabel v0.11.1 (/shared/external/ninja/references/gammaloop_ninja_shared/vendor/clarabel)` was not used in the crate graph\nwarning: patch `typst-library v0.15.1 (/shared/external/ninja/references/gammaloop_ninja_shared/vendor/typst-library)` was not used in the crate graph\nwarning: patch `typst-svg v0.15.1 (/shared/external/ninja/references/gammaloop_ninja_shared/vendor/typst-svg)` was not used in the crate graph\nhelp: Check that the patched package version and available features are compatible\n      with the dependency requirements. If the patch has a different version from\n      what is locked in the Cargo.lock file, run `cargo update` to use the new\n      version. This may also occur with an optional dependency that is not enabled.\nwarning: unused import: `ComplexField`\n --> references/symbolica/lib/numerica/src/domains/float/double.rs:9:21\n  |\n9 | use simba::scalar::{ComplexField, RealField};\n  |                     ^^^^^^^^^^^^\n  |\n  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default\n\nwarning: unnecessary `unsafe` block\n  --> references/symbolica/lib/numerica/src/domains/float/double.rs:48:28\n   |\n48 |             Ok(DoubleFloat(unsafe { Df64::new_full(hi, lo) }))\n   |                            ^^^^^^ unnecessary `unsafe` block\n   |\n   = note: `#[warn(unused_unsafe)]` (part of `#[warn(unused)]`) on by default\n\nwarning: unnecessary `unsafe` block\n  --> references/symbolica/lib/numerica/src/domains/float/double.rs:75:35\n   |\n75 |             return Ok(DoubleFloat(unsafe { Df64::new_full(hi, lo) }));\n   |                                   ^^^^^^ unnecessary `unsafe` block\n\nwarning: `numerica` (lib) generated 3 warnings\nwarning: `numerica` (lib) generated 3 warnings (3 duplicates)\n    Checking symbolica v3.0.1 (/shared/external/ninja/references/symbolica)\nwarning: unused `Result` that must be used\n   --> references/symbolica/src/atom.rs:776:9\n    |\n776 |         self.export(&mut data);\n    |         ^^^^^^^^^^^^^^^^^^^^^^\n    |\n    = note: this `Result` may be an `Err` variant, which should be handled\n    = note: `#[warn(unused_must_use)]` (part of `#[warn(unused)]`) on by default\nhelp: use `let _ = ...` to ignore the resulting value\n    |\n776 |         let _ = self.export(&mut data);\n    |         +++++++\n\nwarning: `symbolica` (lib) generated 1 warning\n    Checking symbolica-utils v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/symbolica-utils)\n    Checking oneloop v0.1.0 (/shared/external/ninja/references/oneloopmaster)\nwarning: `symbolica` (lib) generated 1 warning (1 duplicate)\n   Compiling gammaloop-workspace-hack v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/gammaloop-workspace-hack)\n    Checking linnet v0.17.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/linnet)\n    Checking spenso v0.6.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/spenso)\n    Checking feynkit-model v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/feynkit-model)\n    Checking feynkit-kinematics v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/feynkit-kinematics)\n    Checking idenso v0.3.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/idenso)\n    Checking ninjars v0.1.0 (/shared/external/ninja/crates/ninjars)\n    Checking feynkit-graph v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/feynkit-graph)\n    Checking ninjars-symbolica v0.1.0 (/shared/external/ninja/crates/ninjars-symbolica)\n    Checking feynkit-amplitude v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/feynkit-amplitude)\n    Checking spenso-hep-lib v0.1.7 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/spenso-hep-lib)\n    Checking feynkit-generator v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/feynkit-generator)\n    Checking ninjars-graph v0.1.0 (/shared/external/ninja/crates/ninjars-graph)\n    Checking ninjars-cli v0.1.0 (/shared/external/ninja/crates/ninjars-cli)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 10.99s\n"
+    },
+    "fmt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "bootstrap": {
+      "sha256": "2a7ca91f06312436743bd07cc18623441671eb3d2fad81e5041428bcdc877e3c",
+      "text": "Ready: symbolica (58b72d438e7bcfce158d132612db7d35fdefa4ba, 1 patches)\nReady: feynkit (474478a7a80bc9f9f21bead0e1cde6acbcffbe93, 1 patches)\nReady: oneloopmaster (5091653086b32428c6e024ee89404b4b21214e88, 0 patches)\nReady: ninja-reference (05fb0d3a0f47f216eceef411a09ac19e1b9a19f0, 0 patches)\n"
+    }
+  },
+  "native_probe": {
+    "path": "validation/evidence/rust-kernel-batch-codegen.json",
+    "sha256": "216ff226d280cfb3d040acab3e14df906abda67c59474a08324702ffa5bf3eb2",
+    "groups": 108,
+    "passed": true
+  }
+}

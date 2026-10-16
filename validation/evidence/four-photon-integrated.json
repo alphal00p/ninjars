@@ -1,0 +1,69 @@
+{
+  "physical_passed": true,
+  "gates": {
+    "complete_matrix": true,
+    "physical_row_count_108": true,
+    "generic_row_count_36": true,
+    "state_and_diagnostic_contract": true,
+    "working_precision": true,
+    "process_success": true,
+    "unchanged_runtime_sources": true,
+    "physical_mode4_laurents_and_decomposition": true,
+    "complete_mu_mode_controls": true,
+    "physical_mu_mode_equivalence": true,
+    "complete_summed_graph_controls": true,
+    "physical_summed_graphs_mode4": true,
+    "same_cli_for_exact_poles": true,
+    "complete_exact_pole_reference_controls": true,
+    "physical_exact_poles_reference_mode4": true,
+    "exact_uv_cancellation": true,
+    "complete_integrated_pole_controls": true,
+    "fixed_precision_targets": true,
+    "physical_integrated_pole_accuracy": true,
+    "matching_build_binary": true
+  },
+  "diagnostics": {
+    "physical_mode1_laurents_and_decomposition": true,
+    "generic_mode1_laurents_and_decomposition": false,
+    "generic_mode4_laurents_and_decomposition": true,
+    "generic_mu_mode_equivalence": true,
+    "generic_summed_graphs_mode4": true,
+    "generic_integrated_pole_accuracy": true
+  },
+  "physical_rows": 108,
+  "generic_rows": 36,
+  "independent_pole_error_maxima": {
+    "f64": {
+      "physical": "2.22893562341779192010814795345281748182798038707323085641933289606725157786749067610774757342473337454927403631351439204E-15",
+      "including_generic_diagnostics": "2.58936868470953663064083653703335518911036413466522254958376543810198483523730795007007958691957246979543826566193707009E-12"
+    },
+    "double-float": {
+      "physical": "1.86677165033152979596701655920811449659018395294275952696069743056071231059511186560763383057114078533015943618467089857E-31",
+      "including_generic_diagnostics": "6.06667430676639459451231997187939075041617882508751751086362049651120632187978564075740792495268197650291730855122626227E-29"
+    },
+    "float": {
+      "physical": "1.91907469784153684213332118059631835739021306223177357465201074094047434610572418087408052149875663483739757513362485059E-76",
+      "including_generic_diagnostics": "3.94780030485328066298535809331481134332673593661113244757155933563673829270661781971168587396102106879481629246366673204E-73"
+    }
+  },
+  "precision_convergence": "The matrix Float256 convergence rows are informational; the independent analytic pole targets above are gated.",
+  "performance_acceptance": false,
+  "scope": "Six separate unsquared top-quark boxes at the fixed phase-space point and three helicity states; generic complex polarizations are diagnostic. Four-dimensional numerators retain R1 and exclude explicit R2/UV counterterms.",
+  "finite_part_input_oracle": "MadLoop wavefunctions/couplings are binary64, including fixed mode4. No independent higher-precision physical-input oracle is claimed for finite parts.",
+  "schema_version": 1,
+  "provenance": {
+    "matrix": {
+      "path": "validation/evidence/four-photon-integrated-matrix.json",
+      "sha256": "b453965402b242877b16fb240955792b84ac6e22cbb1edbebe263f5e2b0b3af7"
+    },
+    "poles": {
+      "path": "validation/evidence/four-photon-uv.json",
+      "sha256": "f5863365c2d055e7d77fac70fa5e15a48ee119bf0ee4c0ffa1f346c1a9df96be"
+    },
+    "build_record": {
+      "path": "validation/evidence/four-photon-cli-build.json",
+      "sha256": "20c545600d6e8ac52ee9b34d6d2592b7943f7bc9c436260a75dfa0c28ad442d1"
+    },
+    "aggregator_sha256": "a1e4e8820ba15efc60be68188954c8b850588ff9e5542f72901317d7a4d97c4f"
+  }
+}

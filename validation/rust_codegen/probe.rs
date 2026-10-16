@@ -1,6 +1,13 @@
-//! Compiled scalar control against the existing batched Symbolica evaluators.
+//! Instruction-major Rust kernels against scalar and Symbolica batch controls.
+use std::{
+    alloc::{GlobalAlloc, Layout, System},
+    cell::Cell,
+};
+
 use ninjars::{BatchShape, Result};
-use ninjars_symbolica::rust_codegen::runtime::{C, ConstantSpec, Context, NativeFloat, primitives};
+use ninjars_symbolica::rust_codegen::runtime::{
+    BatchWorkspace, C, ConstantSpec, Context, NativeFloat, batch, primitives,
+};
 use ninjars_symbolica::{DenominatorExpansion, LaurentDivision, TriangleBubbleSubtraction};
 use serde_json::{Value, json};
 use symbolica::{
@@ -13,6 +20,52 @@ use symbolica::{
 };
 
 include!("dispatch.rs");
+
+struct CountingAllocator;
+
+thread_local! {
+    static ALLOCATIONS: Cell<Option<usize>> = const { Cell::new(None) };
+}
+
+fn count_allocation() {
+    let _ = ALLOCATIONS.try_with(|count| {
+        if let Some(value) = count.get() {
+            count.set(Some(value + 1));
+        }
+    });
+}
+
+// Count only this thread's calls so independent runtime workers cannot affect
+// the warmed-kernel measurement. Every allocation still belongs to System.
+unsafe impl GlobalAlloc for CountingAllocator {
+    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+        count_allocation();
+        unsafe { System.alloc(layout) }
+    }
+
+    unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
+        count_allocation();
+        unsafe { System.alloc_zeroed(layout) }
+    }
+
+    unsafe fn realloc(&self, ptr: *mut u8, layout: Layout, size: usize) -> *mut u8 {
+        count_allocation();
+        unsafe { System.realloc(ptr, layout, size) }
+    }
+
+    unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+        unsafe { System.dealloc(ptr, layout) }
+    }
+}
+
+#[global_allocator]
+static ALLOCATOR: CountingAllocator = CountingAllocator;
+
+fn allocations(run: impl FnOnce()) -> usize {
+    ALLOCATIONS.with(|count| assert!(count.replace(Some(0)).is_none()));
+    run();
+    ALLOCATIONS.with(|count| count.replace(None).unwrap())
+}
 
 fn scalar_rows<T: NativeFloat>(
     kernel: usize,
@@ -102,9 +155,14 @@ fn domain<T: NativeFloat + RealLike>(
         plans.1.compile_dual(&prototype, &dual).unwrap(),
         plans.2.compile_dual(&prototype, &dual).unwrap(),
     );
+    // Reuse one workspace across kernel/derivative layouts and changing widths.
+    let mut workspace = BatchWorkspace::new(prototype.clone());
     for kernel in 0..3 {
         let (inputs, outputs) = LAYOUTS[kernel];
-        for rows in [0, 1, 3, 8] {
+        for (iteration, rows) in [0, 1, 8, 32, 128, 1024, 3, 31, 127, 0, 8, 1]
+            .into_iter()
+            .enumerate()
+        {
             let mut input = (0..rows * inputs)
                 .map(|index| {
                     let (row, col) = (index / inputs, index % inputs);
@@ -141,6 +199,19 @@ fn domain<T: NativeFloat + RealLike>(
             let mut actual = vec![zero.clone(); rows * outputs];
             scalar_rows(kernel, false, &input, &mut actual, rows, &context).unwrap();
             let scalar_error = compare(&actual, &expected, tolerance);
+            let mut batched = vec![zero.clone(); actual.len()];
+            generated_batch(
+                kernel,
+                false,
+                &input,
+                &mut batched,
+                rows,
+                &context,
+                &mut workspace,
+            )
+            .unwrap();
+            let batch_error = compare(&batched, &expected, tolerance);
+            let batch_scalar_error = compare(&batched, &actual, tolerance);
             let input_dual = input
                 .iter()
                 .enumerate()
@@ -179,6 +250,139 @@ fn domain<T: NativeFloat + RealLike>(
             let mut flat_actual = vec![zero.clone(); flat_expected.len()];
             scalar_rows(kernel, true, &flat_input, &mut flat_actual, rows, &context).unwrap();
             let dual_error = compare(&flat_actual, &flat_expected, tolerance);
+            let mut flat_batched = vec![zero.clone(); flat_expected.len()];
+            generated_batch(
+                kernel,
+                true,
+                &flat_input,
+                &mut flat_batched,
+                rows,
+                &context,
+                &mut workspace,
+            )
+            .unwrap();
+            let dual_batch_error = compare(&flat_batched, &flat_expected, tolerance);
+            let dual_batch_scalar_error = compare(&flat_batched, &flat_actual, tolerance);
+            let mut warmed_allocations = Vec::new();
+            let mut single_row_allocations = Vec::new();
+            for (is_dual, input, output, expected) in [
+                (false, &input, &mut batched, &expected),
+                (true, &flat_input, &mut flat_batched, &flat_expected),
+            ] {
+                if name == "f64" {
+                    let count = allocations(|| {
+                        generated_batch(
+                            kernel,
+                            is_dual,
+                            input,
+                            output,
+                            rows,
+                            &context,
+                            &mut workspace,
+                        )
+                        .unwrap();
+                    });
+                    assert_eq!(count, 0, "warmed f64 kernel allocated");
+                    warmed_allocations.push(count);
+                }
+                if rows == 1 {
+                    let mut fresh = BatchWorkspace::new(prototype.clone());
+                    let count = allocations(|| {
+                        generated_batch(kernel, is_dual, input, output, rows, &context, &mut fresh)
+                            .unwrap();
+                    });
+                    assert_eq!(fresh.capacity(), 0);
+                    assert_eq!(fresh.storage_len(), 0);
+                    if name == "f64" {
+                        assert_eq!(count, 0, "fresh single-row f64 kernel allocated");
+                        single_row_allocations.push(count);
+                    }
+                    compare(output, expected, tolerance);
+                }
+                if rows > 1 {
+                    let components = if is_dual { 5 } else { 1 };
+                    let reversed_input = input
+                        .chunks_exact(inputs * components)
+                        .rev()
+                        .flatten()
+                        .cloned()
+                        .collect::<Vec<_>>();
+                    let reversed_expected = expected
+                        .chunks_exact(outputs * components)
+                        .rev()
+                        .flatten()
+                        .cloned()
+                        .collect::<Vec<_>>();
+                    generated_batch(
+                        kernel,
+                        is_dual,
+                        &reversed_input,
+                        output,
+                        rows,
+                        &context,
+                        &mut workspace,
+                    )
+                    .unwrap();
+                    compare(output, &reversed_expected, tolerance);
+                }
+                // Invalid calls must not mutate output or grow the workspace.
+                let before = output.clone();
+                let storage = (workspace.capacity(), workspace.storage_len());
+                assert!(
+                    generated_batch(
+                        kernel,
+                        is_dual,
+                        input,
+                        output,
+                        usize::MAX,
+                        &context,
+                        &mut workspace,
+                    )
+                    .is_err()
+                );
+                if rows > 0 {
+                    assert!(
+                        generated_batch(
+                            kernel,
+                            is_dual,
+                            &input[..input.len() - 1],
+                            output,
+                            rows,
+                            &context,
+                            &mut workspace,
+                        )
+                        .is_err()
+                    );
+                    let short = output.len() - 1;
+                    assert!(
+                        generated_batch(
+                            kernel,
+                            is_dual,
+                            input,
+                            &mut output[..short],
+                            rows,
+                            &context,
+                            &mut workspace,
+                        )
+                        .is_err()
+                    );
+                } else {
+                    assert!(
+                        generated_batch(
+                            kernel,
+                            is_dual,
+                            &[zero.clone()],
+                            output,
+                            rows,
+                            &context,
+                            &mut workspace,
+                        )
+                        .is_err()
+                    );
+                }
+                assert_eq!(compare(output, &before, 0.), 0.);
+                assert_eq!((workspace.capacity(), workspace.storage_len()), storage);
+            }
             if rows > 0 {
                 let before = actual.clone();
                 assert!(
@@ -236,7 +440,19 @@ fn domain<T: NativeFloat + RealLike>(
                 assert_eq!(compare(&after, &before, 0.), 0.);
             }
             let kernel_name = ["laurent", "subtraction", "denominator"][kernel];
-            records.push(json!({"domain":name,"bits":bits,"kernel":kernel_name,"rows":rows,"scalar_components":actual.len(),"dual_components":flat_actual.len(),"maximum_scalar_error":scalar_error,"maximum_dual_error":dual_error,"tolerance":tolerance}));
+            records.push(json!({
+                "domain":name,"bits":bits,"kernel":kernel_name,"iteration":iteration,"rows":rows,
+                "scalar_components":actual.len(),"dual_components":flat_actual.len(),
+                "maximum_scalar_error":scalar_error,"maximum_dual_error":dual_error,
+                "maximum_batch_error":batch_error,"maximum_dual_batch_error":dual_batch_error,
+                "maximum_batch_scalar_error":batch_scalar_error,
+                "maximum_dual_batch_scalar_error":dual_batch_scalar_error,
+                "warmed_f64_allocations":warmed_allocations,
+                "fresh_single_row_f64_allocations":single_row_allocations,
+                "workspace_capacity":workspace.capacity(),"workspace_cells":workspace.storage_len(),
+                "permutation_checked":rows > 1,"malformed_buffers_checked":true,
+                "overflow_checked":true,"tolerance":tolerance
+            }));
         }
     }
 }
@@ -252,5 +468,5 @@ pub fn run() {
         &mut records,
     );
     domain(Float::new(256), 256, 1e-65, "Float256", &mut records);
-    println!("{}",serde_json::to_string_pretty(&json!({"passed":true,"execution":"compiled scalar row-loop control; not pipeline batching","performance_acceptance":false,"metadata":serde_json::from_str::<Value>(include_str!("metadata.json")).unwrap(),"checks":records})).unwrap());
+    println!("{}",serde_json::to_string_pretty(&json!({"passed":true,"execution":"compiled instruction-major batch kernels with scalar and interpreted batch controls","production_dispatch":false,"performance_acceptance":false,"metadata":serde_json::from_str::<Value>(include_str!("metadata.json")).unwrap(),"checks":records})).unwrap());
 }
