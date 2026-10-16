@@ -1,7 +1,9 @@
 This standalone validation workspace checks original Ninja's callback adapter
-against the **same Rust `PolynomialNumerator<f64>` implementation**. It does not
-link C++ into a production package or measure timing. A second probe supplies
-both reducers with the same captured union of scalar/tensor master requests.
+against the **same Rust `PolynomialNumerator<f64>` implementation**. Its
+correctness probes supply both reducers with the same captured union of
+scalar/tensor master requests. The separate [timing runner](TIMING.md) measures
+reduction and complete physical evaluation; the probes described here collect
+correctness evidence. C++ remains confined to validation tools.
 
 With the pinned compiler environment and Symbolica license available, run:
 
@@ -89,11 +91,11 @@ capacities across empty/reactivated batches. The numerator bridge retains numeri
 outputs and expansion layouts; its singleton request is a stack array. C++
 master argument packing uses fixed stack arrays.
 
-This is still a correctness prototype. Borrowed request descriptors for larger
-batches, master-key capture/replay staging, and underlying providers retain
-allocation work that has not yet been measured or removed. The earlier direct
+These probes establish correctness at the provider boundary. The earlier direct
 Rust control deliberately still constructs its topology and geometry per call;
-only the separate session is a candidate for a warmed timing path. No speed or
-allocation-free claim follows from passing these controls.
-See `docs/matched-provider-benchmark.md` for the complete
-measurement boundaries and remaining physical preparation work.
+the separate retained session supports the warmed timing path. Allocation and
+performance measurements have their own evidence and are not inferred from
+passing these controls. See the [measurement boundaries](../../../docs/matched-provider-benchmark.md)
+and [interpreted baseline](BASELINE-0c77597.md) for the measured scopes and
+remaining performance limitations. Actual master expression execution is
+reported separately from reduction and frozen-table lookup.
