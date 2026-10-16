@@ -66,6 +66,21 @@ fn warmed_runtime_matches_reduce_for_all_precisions_and_both_workloads() {
             assert_eq!(case["timed_points_per_round"], 6);
             assert_eq!(case["diagnostic"]["points"], 3);
             assert_eq!(case["diagnostic"]["failed_lanes"], 0);
+            assert_eq!(case["diagnostic"]["additivity_checked"], true);
+            let stages = &case["diagnostic"]["same_pass_nanoseconds"];
+            let ns = |name: &str| stages[name].as_u64().unwrap();
+            assert_eq!(
+                ns("total"),
+                ns("numerator_coefficients")
+                    + ns("numerator_callbacks")
+                    + ns("actual_master_provider")
+                    + ns("residual_reduction")
+            );
+            assert_eq!(
+                ns("reduction_excluding_masters_and_coefficients"),
+                ns("numerator_callbacks") + ns("residual_reduction")
+            );
+            assert!(ns("actual_master_provider") > 0);
             assert_eq!(case["precision_rescue"]["attempts"], 0);
             assert!(case["diagnostic"]["masters"]["calls"].as_u64().unwrap() > 0);
             assert!(
@@ -79,6 +94,34 @@ fn warmed_runtime_matches_reduce_for_all_precisions_and_both_workloads() {
                 assert_eq!(case["tail_lanes"], 1);
             }
         }
+    }
+}
+
+#[test]
+fn stopped_reduction_reports_exactly_zero_actual_master_work() {
+    let report = value(run(
+        "bench",
+        &[
+            "examples/graphs/bubble.json",
+            "--cut-stop",
+            "3",
+            "--points",
+            "3",
+            "--batch-sizes",
+            "2",
+            "--rounds",
+            "1",
+        ],
+    ));
+    for case in report["cases"].as_array().unwrap() {
+        let diagnostic = &case["diagnostic"];
+        assert_eq!(diagnostic["masters"]["calls"], 0);
+        assert_eq!(diagnostic["masters"]["rows"], 0);
+        assert_eq!(
+            diagnostic["same_pass_nanoseconds"]["actual_master_provider"],
+            0
+        );
+        assert_eq!(diagnostic["additivity_checked"], true);
     }
 }
 

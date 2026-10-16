@@ -50,10 +50,20 @@ consumed through `black_box` to retain the work.
 
 A separate diagnostic pass wraps the numerator and master-provider interfaces.
 It preserves every request batch and records calls, rows, and elapsed time.
-`residual_reduction_ns` is the diagnostic total minus callback and master time;
+`residual_reduction_ns` is the diagnostic total minus coefficient preparation,
+callback and master time;
 its scope includes scale selection, binding, reset, geometry, contraction,
 bookkeeping, and timer overhead. It is an attribution measurement, not an isolated
 kernel benchmark. The instrumented pass cannot affect primary round timings.
+
+`same_pass_nanoseconds` records integer durations for the total, numerator
+coefficients, numerator callbacks, actual master-provider execution, and residual
+reduction. The four stages must sum exactly to the total; inconsistent nested
+timings produce an error instead of clamping a negative remainder to zero.
+`reduction_excluding_masters_and_coefficients` adds callbacks to the residual,
+giving the inclusive reduction boundary with actual master computation excluded.
+The CLI's direct master provider has no numerical result cache. Shared frozen
+master lookup is a separate validation-harness scope, never master computation.
 
 The report retains all round timings, observed quantiles, per-point latency, and
 throughput. These observed ranges are not confidence intervals. Numerical failure
