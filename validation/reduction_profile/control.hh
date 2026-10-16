@@ -25,4 +25,3 @@ struct Control {
       throw std::runtime_error("perf control acknowledgement failed");
   }
 };
-
