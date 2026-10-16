@@ -1,0 +1,3718 @@
+{
+  "schema": "ninjars-shared-reduction-native-catalog-release-validation-v1",
+  "success": true,
+  "source_commit": "de0f1908b711db1959d535ed08d399f9d40ad1bd",
+  "scope": "Fresh corrected-domain optimized physical oracle and all-three selection reduction checks, followed by separate instrumented execution accounting. No primary timing samples.",
+  "performance_acceptance": false,
+  "primary_timing_samples_collected": false,
+  "dependency_heads": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "oneloopmaster": "53106429b849e5bcf843f111429be76227b4e0ce",
+    "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+  },
+  "archives": {
+    "oracle": {
+      "path": "validation/evidence/shared-reduction-catalog-release-de0f190-oracle.json.gz",
+      "uncompressed_sha256": "1d295185ef93e9af06aef83cb4bc4d5a8d033884ab1ca8e5da2f143889e60991",
+      "compressed_sha256": "78cb2cc016432bfeda74093fc58fe179f1bf7b90c5e65f27bdee60d31e0906a6",
+      "uncompressed_bytes": 304371,
+      "compressed_bytes": 98357,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-release-oracle-de0f190/result.json"
+    },
+    "check-symbolica": {
+      "path": "validation/evidence/shared-reduction-catalog-release-de0f190-check-symbolica.json.gz",
+      "uncompressed_sha256": "276863dcabe35d76905feee5afc6bf4e4564b2afcbffbfe417b5555de142409d",
+      "compressed_sha256": "c770a8b03578fd3e3f81f4d502f3c5c9273c8ca7334f4c4f6a608be5255f8bb5",
+      "uncompressed_bytes": 2561387,
+      "compressed_bytes": 324334,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-release-check-de0f190-symbolica/result.json"
+    },
+    "check-native-denominators": {
+      "path": "validation/evidence/shared-reduction-catalog-release-de0f190-check-native-denominators.json.gz",
+      "uncompressed_sha256": "6761da3f2d3d564d37d8d1e00a10d116955f76ec9e87d29622b3fe466f6382d7",
+      "compressed_sha256": "4e1b3e4a01b907d0beedb4470c099c1f3d04f3682f3fdcf2abdea989045fae82",
+      "uncompressed_bytes": 2557557,
+      "compressed_bytes": 325290,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-release-check-de0f190-native-denominators/result.json"
+    },
+    "check-native": {
+      "path": "validation/evidence/shared-reduction-catalog-release-de0f190-check-native.json.gz",
+      "uncompressed_sha256": "03b4ed72df24150d49d6822ffdfc6378ef687b50d7f8ef9c28dc2d434ca8db60",
+      "compressed_sha256": "879615d292ab8cafb96d3e77ac00537151d650f1368e34b7399065f577885803",
+      "uncompressed_bytes": 2558788,
+      "compressed_bytes": 325295,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-release-check-de0f190-native/result.json"
+    },
+    "execution-symbolica": {
+      "path": "validation/evidence/shared-reduction-catalog-release-de0f190-execution-symbolica.json.gz",
+      "uncompressed_sha256": "c424a0e2031cfec046a7c71064bb12adc9145571760221ceeb647b727d9292c1",
+      "compressed_sha256": "8860e66bade7a6e16aab31330dade3ddaad73395ecb1517caaa487d7e1c43c20",
+      "uncompressed_bytes": 3021412,
+      "compressed_bytes": 337121,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-release-execution-de0f190-symbolica/result.json"
+    },
+    "execution-native-denominators": {
+      "path": "validation/evidence/shared-reduction-catalog-release-de0f190-execution-native-denominators.json.gz",
+      "uncompressed_sha256": "477b5f1a16e08c39d7611d3b6614d4247e38d7f1eff5338e94223ea4474614f3",
+      "compressed_sha256": "e295d6ec00c0c694478ffafb58c69383cb76c2cafb96da1b411576d16347bf68",
+      "uncompressed_bytes": 3025021,
+      "compressed_bytes": 339106,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-release-execution-de0f190-native-denominators/result.json"
+    },
+    "execution-native": {
+      "path": "validation/evidence/shared-reduction-catalog-release-de0f190-execution-native.json.gz",
+      "uncompressed_sha256": "a34338fbadfaf20eeff1603232b3e387c48265f4f4a15cf7b06120a7f8bd26af",
+      "compressed_sha256": "635c6f6fbc34cc5a753989df1cfb255bca337ba2bd452892cd9257e6b96b6a08",
+      "uncompressed_bytes": 3015594,
+      "compressed_bytes": 337281,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-release-execution-de0f190-native/result.json"
+    }
+  },
+  "runtime_source_manifest_sha256": "45813753dc4486b2fd3e9aea3d2138ed8523dfcf8d828927eaeb675cec0ee96b",
+  "all_reports_exact_runtime_source_match": true,
+  "release_profile": {
+    "opt_level": 3,
+    "lto": "thin",
+    "codegen_units": 1,
+    "matches_main_workspace_profile": true
+  },
+  "same_artifact_policy": {
+    "ordinary": "All three reduction selections use one identical copied native-enabled Rust library and one identical C++ runner. The physical oracle uses that same Rust library, with a separate C++ oracle driver.",
+    "execution": "All three selections use one identical copied instrumented library/runner, distinct from ordinary primary timing artifacts."
+  },
+  "frozen_master_policy": "Per-process captures of the same ordered request union/backend policy, original and Rust sharing one frozen handle within each process. The physical oracle checks all three selections against literally one union/handle.",
+  "callback_work_policy": "Identical PolynomialNumerator provider and equal sampled callback row counts. Requested expansion heads/depths can differ between reducers; equal rows do not mean equal callback arithmetic. Original Ninja reduces the swapped bubble expansion depth, whereas this Rust baseline requests full depth for both orientations.",
+  "corrected_domain_regression": {
+    "upstream_commit": "53106429b849e5bcf843f111429be76227b4e0ce",
+    "before_after_evidence": "validation/evidence/native-domain/summary.json",
+    "integrated_regression": "validation/evidence/native-inverse-combined.json",
+    "superseded_control_index": "validation/evidence/shared-reduction-catalog-ee1f152-superseded.json",
+    "result": "At the retained extreme finite correction input, native f64 now exposes nonfinite failure instead of incorrect finite zero. Float256 resolves the finite answer; this guard does not restore f64 arithmetic accuracy."
+  },
+  "oracle": {
+    "integrated_widths": [
+      0,
+      1,
+      3,
+      8,
+      31,
+      32,
+      128,
+      1024
+    ],
+    "preparation_widths": [
+      0,
+      1,
+      8,
+      32,
+      128,
+      1024,
+      31
+    ],
+    "raw_components_checked": 210,
+    "raw_max_scaled_error": 3.771063304099544e-15,
+    "coefficient_oracle_max_scaled_error": 2.3581169793365375e-15,
+    "jit_interpreter_max_scaled_error": 1.3021791046214033e-15,
+    "integrated_max_scaled_error": 2.1453487309187703e-16,
+    "madloop_integrated_max_scaled_error": 1.162555970610204e-16,
+    "batch_laurent_components_checked": 3681,
+    "catalog_parity": [
+      {
+        "coverage": {
+          "selection": "symbolica",
+          "native_feature_enabled": true,
+          "families": {
+            "t2_denominators": "symbolica-interpreter",
+            "t3_denominators": "symbolica-interpreter",
+            "bubble_source_projection": "symbolica-interpreter",
+            "triangle_bubble_correction": "symbolica-interpreter",
+            "tadpole_source_projection": "symbolica-interpreter",
+            "other_reduction": "symbolica-interpreter",
+            "integration": "symbolica-interpreter",
+            "accumulation": "symbolica-interpreter"
+          },
+          "selection_scope": "Setup-only partial catalog; unused stages need not execute. Numerator, geometry and masters are independent."
+        },
+        "complex_components_checked": 6135,
+        "max_scaled_error": 0
+      },
+      {
+        "coverage": {
+          "selection": "native-denominators",
+          "native_feature_enabled": true,
+          "families": {
+            "t2_denominators": "native-rust",
+            "t3_denominators": "native-rust",
+            "bubble_source_projection": "symbolica-interpreter",
+            "triangle_bubble_correction": "symbolica-interpreter",
+            "tadpole_source_projection": "symbolica-interpreter",
+            "other_reduction": "symbolica-interpreter",
+            "integration": "symbolica-interpreter",
+            "accumulation": "symbolica-interpreter"
+          },
+          "selection_scope": "Setup-only partial catalog; unused stages need not execute. Numerator, geometry and masters are independent."
+        },
+        "complex_components_checked": 6135,
+        "max_scaled_error": 2.311115933264683e-33
+      },
+      {
+        "coverage": {
+          "selection": "native",
+          "native_feature_enabled": true,
+          "families": {
+            "t2_denominators": "native-rust",
+            "t3_denominators": "native-rust",
+            "bubble_source_projection": "native-rust",
+            "triangle_bubble_correction": "native-rust",
+            "tadpole_source_projection": "native-rust",
+            "other_reduction": "symbolica-interpreter",
+            "integration": "symbolica-interpreter",
+            "accumulation": "symbolica-interpreter"
+          },
+          "selection_scope": "Setup-only partial catalog; unused stages need not execute. Numerator, geometry and masters are independent."
+        },
+        "complex_components_checked": 6135,
+        "max_scaled_error": 3.496446946337351e-18
+      }
+    ],
+    "precision_oracle_boundary": "Float256 exactly promotes binary64 physical component inputs after wavefunction evaluation; this checks coefficient arithmetic, not high-precision physical wavefunctions."
+  },
+  "correctness": {
+    "symbolica": {
+      "records": 12,
+      "widths": [
+        1,
+        8,
+        31,
+        32,
+        128,
+        1024
+      ],
+      "workloads": [
+        "changing",
+        "repeated"
+      ],
+      "maximum_scaled_error": 2.089315818533712e-16,
+      "frozen_backend_calls": 0,
+      "frozen_backend_rows": 0,
+      "union_misses": 0
+    },
+    "native-denominators": {
+      "records": 12,
+      "widths": [
+        1,
+        8,
+        31,
+        32,
+        128,
+        1024
+      ],
+      "workloads": [
+        "changing",
+        "repeated"
+      ],
+      "maximum_scaled_error": 2.089315818533712e-16,
+      "frozen_backend_calls": 0,
+      "frozen_backend_rows": 0,
+      "union_misses": 0
+    },
+    "native": {
+      "records": 12,
+      "widths": [
+        1,
+        8,
+        31,
+        32,
+        128,
+        1024
+      ],
+      "workloads": [
+        "changing",
+        "repeated"
+      ],
+      "maximum_scaled_error": 2.089315818533712e-16,
+      "frozen_backend_calls": 0,
+      "frozen_backend_rows": 0,
+      "union_misses": 0
+    }
+  },
+  "execution": {
+    "symbolica": {
+      "records": 16,
+      "maximum_scaled_error": 2.236549047241113e-16,
+      "accounting": {
+        "enabled": true,
+        "observed_phase_index": 1,
+        "calls_per_implementation_record": 1,
+        "unit": "integer nanoseconds from monotonic clocks, calls and evaluated rows",
+        "nesting": "Shared backend execution is nested in shared ABI spans; Rust preparation provider is nested in full C++ preparation. Additive accounting subtracts each nested span once; numerator and full preparation are disjoint from masters.",
+        "master_backend_scope": "Actual provider execution, including its ordinary validation/conversion and expression arithmetic; no result-cache hits. Original rank2/3 bubbles are grouped calls, not fabricated individual family timings. Scale initialization is separate and retained in remainder.",
+        "master_lookup_transport_scope": "Rust shared-master ABI, decoding, exact-key lookup, output copying and validation, excluding its nested backend. Caller-side C++/Rust packing remains in remainder.",
+        "remainder_scope": "Core reduction, contraction, caller-side staging/transport, unassigned initialization and instrumentation overhead; not a pure arithmetic measurement.",
+        "cross_run_subtraction": false,
+        "aggregate_timing_instrumented": false
+      },
+      "records_summary": [
+        {
+          "scope": "preparation",
+          "workload": "repeated",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 5110,
+              "preparation_total_ns": 4790,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 320,
+              "reduction_excluding_master_and_preparation_ns": 320,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 4140,
+              "preparation_total_ns": 4080,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 60,
+              "reduction_excluding_master_and_preparation_ns": 60,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "preparation",
+          "workload": "repeated",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 29790,
+              "preparation_total_ns": 29710,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 80,
+              "reduction_excluding_master_and_preparation_ns": 80,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 29850,
+              "preparation_total_ns": 29790,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 60,
+              "reduction_excluding_master_and_preparation_ns": 60,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "preparation",
+          "workload": "changing",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 4070,
+              "preparation_total_ns": 4010,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 60,
+              "reduction_excluding_master_and_preparation_ns": 60,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 4020,
+              "preparation_total_ns": 3960,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 60,
+              "reduction_excluding_master_and_preparation_ns": 60,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "preparation",
+          "workload": "changing",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 30410,
+              "preparation_total_ns": 30350,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 60,
+              "reduction_excluding_master_and_preparation_ns": 60,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 29630,
+              "preparation_total_ns": 29570,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 60,
+              "reduction_excluding_master_and_preparation_ns": 60,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-reduction",
+          "workload": "repeated",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 147750,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 83762,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 13140,
+              "remainder_ns": 50848,
+              "reduction_excluding_master_and_preparation_ns": 147750,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  5672
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  51540
+                ],
+                [
+                  20,
+                  20,
+                  26550
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 319901,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 85690,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 7970,
+              "remainder_ns": 226241,
+              "reduction_excluding_master_and_preparation_ns": 319901,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  5310
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  48420
+                ],
+                [
+                  10,
+                  20,
+                  31960
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-reduction",
+          "workload": "repeated",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 903723,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 512055,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 100545,
+              "remainder_ns": 291123,
+              "reduction_excluding_master_and_preparation_ns": 903723,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  33737
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  325516
+                ],
+                [
+                  160,
+                  160,
+                  152802
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 2010796,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 463572,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 54460,
+              "remainder_ns": 1492764,
+              "reduction_excluding_master_and_preparation_ns": 2010796,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  27280
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  274112
+                ],
+                [
+                  10,
+                  160,
+                  162180
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-reduction",
+          "workload": "changing",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 158450,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 83770,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 19680,
+              "remainder_ns": 55000,
+              "reduction_excluding_master_and_preparation_ns": 158450,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  6100
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  51030
+                ],
+                [
+                  20,
+                  20,
+                  26640
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 458312,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 93407,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 14080,
+              "remainder_ns": 350825,
+              "reduction_excluding_master_and_preparation_ns": 458312,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  5538
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  54229
+                ],
+                [
+                  10,
+                  20,
+                  33640
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-reduction",
+          "workload": "changing",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 934853,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 518346,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 117609,
+              "remainder_ns": 298898,
+              "reduction_excluding_master_and_preparation_ns": 934853,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  37503
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  322312
+                ],
+                [
+                  160,
+                  160,
+                  158531
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 2302287,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 469881,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 64580,
+              "remainder_ns": 1767826,
+              "reduction_excluding_master_and_preparation_ns": 2302287,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  28551
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  275780
+                ],
+                [
+                  10,
+                  160,
+                  165550
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-live-complete",
+          "workload": "repeated",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 48997026,
+              "preparation_total_ns": 25191,
+              "numerator_provider_abi_ns": 85510,
+              "master_backend_ns": 48801766,
+              "master_lookup_transport_ns": 16637,
+              "remainder_ns": 67922,
+              "reduction_excluding_master_and_preparation_ns": 170069,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  7330
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  45900
+                ],
+                [
+                  20,
+                  20,
+                  32280
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 50601681,
+              "preparation_total_ns": 18300,
+              "numerator_provider_abi_ns": 92260,
+              "master_backend_ns": 50052069,
+              "master_lookup_transport_ns": 5290,
+              "remainder_ns": 433762,
+              "reduction_excluding_master_and_preparation_ns": 531312,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  9111
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  51429
+                ],
+                [
+                  10,
+                  20,
+                  31720
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-live-complete",
+          "workload": "repeated",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 393112639,
+              "preparation_total_ns": 67200,
+              "numerator_provider_abi_ns": 615896,
+              "master_backend_ns": 391770658,
+              "master_lookup_transport_ns": 138122,
+              "remainder_ns": 520763,
+              "reduction_excluding_master_and_preparation_ns": 1274781,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  59751
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  375190
+                ],
+                [
+                  160,
+                  160,
+                  180955
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 378884207,
+              "preparation_total_ns": 65440,
+              "numerator_provider_abi_ns": 462462,
+              "master_backend_ns": 376382860,
+              "master_lookup_transport_ns": 31909,
+              "remainder_ns": 1941536,
+              "reduction_excluding_master_and_preparation_ns": 2435907,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  31870
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  259251
+                ],
+                [
+                  10,
+                  160,
+                  171341
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-live-complete",
+          "workload": "changing",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 51940225,
+              "preparation_total_ns": 20610,
+              "numerator_provider_abi_ns": 75447,
+              "master_backend_ns": 51759408,
+              "master_lookup_transport_ns": 17637,
+              "remainder_ns": 67123,
+              "reduction_excluding_master_and_preparation_ns": 160207,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  6720
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  45478
+                ],
+                [
+                  20,
+                  20,
+                  23249
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 53495189,
+              "preparation_total_ns": 23590,
+              "numerator_provider_abi_ns": 97561,
+              "master_backend_ns": 52903558,
+              "master_lookup_transport_ns": 4839,
+              "remainder_ns": 465641,
+              "reduction_excluding_master_and_preparation_ns": 568041,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  9330
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  55100
+                ],
+                [
+                  10,
+                  20,
+                  33131
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-live-complete",
+          "workload": "changing",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 349500150,
+              "preparation_total_ns": 97200,
+              "numerator_provider_abi_ns": 630604,
+              "master_backend_ns": 348111976,
+              "master_lookup_transport_ns": 138559,
+              "remainder_ns": 521811,
+              "reduction_excluding_master_and_preparation_ns": 1290974,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  67770
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  379473
+                ],
+                [
+                  160,
+                  160,
+                  183361
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 336886412,
+              "preparation_total_ns": 62970,
+              "numerator_provider_abi_ns": 446672,
+              "master_backend_ns": 334452795,
+              "master_lookup_transport_ns": 32210,
+              "remainder_ns": 1891765,
+              "reduction_excluding_master_and_preparation_ns": 2370647,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  30670
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  259392
+                ],
+                [
+                  10,
+                  160,
+                  156610
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "production-complete",
+          "workload": "repeated",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 310912,
+              "preparation_total_ns": 22740,
+              "numerator_provider_abi_ns": 74290,
+              "master_backend_ns": 156880,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 57002,
+              "reduction_excluding_master_and_preparation_ns": 131292,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  6760
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  45160
+                ],
+                [
+                  20,
+                  20,
+                  22370
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 51094731,
+              "preparation_total_ns": 5840,
+              "numerator_provider_abi_ns": 84110,
+              "master_backend_ns": 50538350,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 466431,
+              "reduction_excluding_master_and_preparation_ns": 550541,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  6639
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  47361
+                ],
+                [
+                  10,
+                  20,
+                  30110
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "production-complete",
+          "workload": "repeated",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 1806246,
+              "preparation_total_ns": 68920,
+              "numerator_provider_abi_ns": 496299,
+              "master_backend_ns": 916811,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 324216,
+              "reduction_excluding_master_and_preparation_ns": 820515,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  38382
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  309519
+                ],
+                [
+                  160,
+                  160,
+                  148398
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 373997772,
+              "preparation_total_ns": 33470,
+              "numerator_provider_abi_ns": 430681,
+              "master_backend_ns": 371613105,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 1920516,
+              "reduction_excluding_master_and_preparation_ns": 2351197,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  28460
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  247311
+                ],
+                [
+                  10,
+                  160,
+                  154910
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "production-complete",
+          "workload": "changing",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 295930,
+              "preparation_total_ns": 19941,
+              "numerator_provider_abi_ns": 71850,
+              "master_backend_ns": 150553,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 53586,
+              "reduction_excluding_master_and_preparation_ns": 125436,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  6020
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  43470
+                ],
+                [
+                  20,
+                  20,
+                  22360
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 53638289,
+              "preparation_total_ns": 5380,
+              "numerator_provider_abi_ns": 82541,
+              "master_backend_ns": 53194408,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 355960,
+              "reduction_excluding_master_and_preparation_ns": 438501,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  6031
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  47030
+                ],
+                [
+                  10,
+                  20,
+                  29480
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "production-complete",
+          "workload": "changing",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 1835985,
+              "preparation_total_ns": 66690,
+              "numerator_provider_abi_ns": 497283,
+              "master_backend_ns": 951099,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 320913,
+              "reduction_excluding_master_and_preparation_ns": 818196,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  38579
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  309827
+                ],
+                [
+                  160,
+                  160,
+                  148877
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 364255394,
+              "preparation_total_ns": 33261,
+              "numerator_provider_abi_ns": 437532,
+              "master_backend_ns": 361890665,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 1893936,
+              "reduction_excluding_master_and_preparation_ns": 2331468,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  28100
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  253881
+                ],
+                [
+                  10,
+                  160,
+                  155551
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "native-denominators": {
+      "records": 16,
+      "maximum_scaled_error": 2.236549047241113e-16,
+      "accounting": {
+        "enabled": true,
+        "observed_phase_index": 1,
+        "calls_per_implementation_record": 1,
+        "unit": "integer nanoseconds from monotonic clocks, calls and evaluated rows",
+        "nesting": "Shared backend execution is nested in shared ABI spans; Rust preparation provider is nested in full C++ preparation. Additive accounting subtracts each nested span once; numerator and full preparation are disjoint from masters.",
+        "master_backend_scope": "Actual provider execution, including its ordinary validation/conversion and expression arithmetic; no result-cache hits. Original rank2/3 bubbles are grouped calls, not fabricated individual family timings. Scale initialization is separate and retained in remainder.",
+        "master_lookup_transport_scope": "Rust shared-master ABI, decoding, exact-key lookup, output copying and validation, excluding its nested backend. Caller-side C++/Rust packing remains in remainder.",
+        "remainder_scope": "Core reduction, contraction, caller-side staging/transport, unassigned initialization and instrumentation overhead; not a pure arithmetic measurement.",
+        "cross_run_subtraction": false,
+        "aggregate_timing_instrumented": false
+      },
+      "records_summary": [
+        {
+          "scope": "preparation",
+          "workload": "repeated",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 4960,
+              "preparation_total_ns": 4740,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 220,
+              "reduction_excluding_master_and_preparation_ns": 220,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 4180,
+              "preparation_total_ns": 4120,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 60,
+              "reduction_excluding_master_and_preparation_ns": 60,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "preparation",
+          "workload": "repeated",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 30000,
+              "preparation_total_ns": 29840,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 160,
+              "reduction_excluding_master_and_preparation_ns": 160,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 29860,
+              "preparation_total_ns": 29800,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 60,
+              "reduction_excluding_master_and_preparation_ns": 60,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "preparation",
+          "workload": "changing",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 4130,
+              "preparation_total_ns": 4070,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 60,
+              "reduction_excluding_master_and_preparation_ns": 60,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 4110,
+              "preparation_total_ns": 4050,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 60,
+              "reduction_excluding_master_and_preparation_ns": 60,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "preparation",
+          "workload": "changing",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 29680,
+              "preparation_total_ns": 29620,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 60,
+              "reduction_excluding_master_and_preparation_ns": 60,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 29530,
+              "preparation_total_ns": 29470,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 60,
+              "reduction_excluding_master_and_preparation_ns": 60,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-reduction",
+          "workload": "repeated",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 150190,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 84283,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 13700,
+              "remainder_ns": 52207,
+              "reduction_excluding_master_and_preparation_ns": 150190,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  5842
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  51051
+                ],
+                [
+                  20,
+                  20,
+                  27390
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 331661,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 85677,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 8250,
+              "remainder_ns": 237734,
+              "reduction_excluding_master_and_preparation_ns": 331661,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  5480
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  48670
+                ],
+                [
+                  10,
+                  20,
+                  31527
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-reduction",
+          "workload": "repeated",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 925983,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 519373,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 107513,
+              "remainder_ns": 299097,
+              "reduction_excluding_master_and_preparation_ns": 925983,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  35015
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  323909
+                ],
+                [
+                  160,
+                  160,
+                  160449
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 2200766,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 469350,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 74301,
+              "remainder_ns": 1657115,
+              "reduction_excluding_master_and_preparation_ns": 2200766,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  30520
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  270850
+                ],
+                [
+                  10,
+                  160,
+                  167980
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-reduction",
+          "workload": "changing",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 155081,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 81859,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 19587,
+              "remainder_ns": 53635,
+              "reduction_excluding_master_and_preparation_ns": 155081,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  6220
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  50480
+                ],
+                [
+                  20,
+                  20,
+                  25159
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 378901,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 87171,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 9380,
+              "remainder_ns": 282350,
+              "reduction_excluding_master_and_preparation_ns": 378901,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  5370
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  50321
+                ],
+                [
+                  10,
+                  20,
+                  31480
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-reduction",
+          "workload": "changing",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 914092,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 517041,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 106456,
+              "remainder_ns": 290595,
+              "reduction_excluding_master_and_preparation_ns": 914092,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  35170
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  329886
+                ],
+                [
+                  160,
+                  160,
+                  151985
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 1965636,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 448700,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 64640,
+              "remainder_ns": 1452296,
+              "reduction_excluding_master_and_preparation_ns": 1965636,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  27030
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  261040
+                ],
+                [
+                  10,
+                  160,
+                  160630
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-live-complete",
+          "workload": "repeated",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 50479642,
+              "preparation_total_ns": 63451,
+              "numerator_provider_abi_ns": 181461,
+              "master_backend_ns": 50117294,
+              "master_lookup_transport_ns": 19687,
+              "remainder_ns": 97749,
+              "reduction_excluding_master_and_preparation_ns": 298897,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  14100
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  129991
+                ],
+                [
+                  20,
+                  20,
+                  37370
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 51016853,
+              "preparation_total_ns": 25810,
+              "numerator_provider_abi_ns": 149200,
+              "master_backend_ns": 50322081,
+              "master_lookup_transport_ns": 6350,
+              "remainder_ns": 513412,
+              "reduction_excluding_master_and_preparation_ns": 668962,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  10110
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  104990
+                ],
+                [
+                  10,
+                  20,
+                  34100
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-live-complete",
+          "workload": "repeated",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 392196289,
+              "preparation_total_ns": 68920,
+              "numerator_provider_abi_ns": 630947,
+              "master_backend_ns": 390806172,
+              "master_lookup_transport_ns": 146806,
+              "remainder_ns": 543444,
+              "reduction_excluding_master_and_preparation_ns": 1321197,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  65580
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  374578
+                ],
+                [
+                  160,
+                  160,
+                  190789
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 365129907,
+              "preparation_total_ns": 64690,
+              "numerator_provider_abi_ns": 459413,
+              "master_backend_ns": 362768651,
+              "master_lookup_transport_ns": 35589,
+              "remainder_ns": 1801564,
+              "reduction_excluding_master_and_preparation_ns": 2296566,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  32142
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  265901
+                ],
+                [
+                  10,
+                  160,
+                  161370
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-live-complete",
+          "workload": "changing",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 52137407,
+              "preparation_total_ns": 28320,
+              "numerator_provider_abi_ns": 79681,
+              "master_backend_ns": 51937696,
+              "master_lookup_transport_ns": 18829,
+              "remainder_ns": 72881,
+              "reduction_excluding_master_and_preparation_ns": 171391,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  7921
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  47548
+                ],
+                [
+                  20,
+                  20,
+                  24212
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 53720001,
+              "preparation_total_ns": 28610,
+              "numerator_provider_abi_ns": 103188,
+              "master_backend_ns": 53063449,
+              "master_lookup_transport_ns": 6410,
+              "remainder_ns": 518344,
+              "reduction_excluding_master_and_preparation_ns": 627942,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  10070
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  57458
+                ],
+                [
+                  10,
+                  20,
+                  35660
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-live-complete",
+          "workload": "changing",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 347354603,
+              "preparation_total_ns": 65000,
+              "numerator_provider_abi_ns": 628023,
+              "master_backend_ns": 345974964,
+              "master_lookup_transport_ns": 139007,
+              "remainder_ns": 547609,
+              "reduction_excluding_master_and_preparation_ns": 1314639,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  63497
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  375217
+                ],
+                [
+                  160,
+                  160,
+                  189309
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 333112330,
+              "preparation_total_ns": 65390,
+              "numerator_provider_abi_ns": 455506,
+              "master_backend_ns": 330739384,
+              "master_lookup_transport_ns": 29969,
+              "remainder_ns": 1822081,
+              "reduction_excluding_master_and_preparation_ns": 2307556,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  32400
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  260382
+                ],
+                [
+                  10,
+                  160,
+                  162724
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "production-complete",
+          "workload": "repeated",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 316190,
+              "preparation_total_ns": 23531,
+              "numerator_provider_abi_ns": 76380,
+              "master_backend_ns": 160457,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 55822,
+              "reduction_excluding_master_and_preparation_ns": 132202,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  7320
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  45790
+                ],
+                [
+                  20,
+                  20,
+                  23270
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 50915104,
+              "preparation_total_ns": 5540,
+              "numerator_provider_abi_ns": 85580,
+              "master_backend_ns": 50322921,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 501063,
+              "reduction_excluding_master_and_preparation_ns": 586643,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  6870
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  47480
+                ],
+                [
+                  10,
+                  20,
+                  31230
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "production-complete",
+          "workload": "repeated",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 1783466,
+              "preparation_total_ns": 66321,
+              "numerator_provider_abi_ns": 498101,
+              "master_backend_ns": 897105,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 321939,
+              "reduction_excluding_master_and_preparation_ns": 820040,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  37194
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  311159
+                ],
+                [
+                  160,
+                  160,
+                  149748
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 356152679,
+              "preparation_total_ns": 31920,
+              "numerator_provider_abi_ns": 439760,
+              "master_backend_ns": 353887293,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 1793706,
+              "reduction_excluding_master_and_preparation_ns": 2233466,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  28420
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  255230
+                ],
+                [
+                  10,
+                  160,
+                  156110
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "production-complete",
+          "workload": "changing",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 303881,
+              "preparation_total_ns": 19790,
+              "numerator_provider_abi_ns": 75181,
+              "master_backend_ns": 153730,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 55180,
+              "reduction_excluding_master_and_preparation_ns": 130361,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  6630
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  46091
+                ],
+                [
+                  20,
+                  20,
+                  22460
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 53714551,
+              "preparation_total_ns": 5950,
+              "numerator_provider_abi_ns": 85531,
+              "master_backend_ns": 53206210,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 416860,
+              "reduction_excluding_master_and_preparation_ns": 502391,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  7170
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  46901
+                ],
+                [
+                  10,
+                  20,
+                  31460
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "production-complete",
+          "workload": "changing",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 1828555,
+              "preparation_total_ns": 65200,
+              "numerator_provider_abi_ns": 498900,
+              "master_backend_ns": 939443,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 325012,
+              "reduction_excluding_master_and_preparation_ns": 823912,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  37381
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  312395
+                ],
+                [
+                  160,
+                  160,
+                  149124
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 336591522,
+              "preparation_total_ns": 32850,
+              "numerator_provider_abi_ns": 434314,
+              "master_backend_ns": 334308615,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 1815743,
+              "reduction_excluding_master_and_preparation_ns": 2250057,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  28190
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  249462
+                ],
+                [
+                  10,
+                  160,
+                  156662
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "native": {
+      "records": 16,
+      "maximum_scaled_error": 2.236549047241113e-16,
+      "accounting": {
+        "enabled": true,
+        "observed_phase_index": 1,
+        "calls_per_implementation_record": 1,
+        "unit": "integer nanoseconds from monotonic clocks, calls and evaluated rows",
+        "nesting": "Shared backend execution is nested in shared ABI spans; Rust preparation provider is nested in full C++ preparation. Additive accounting subtracts each nested span once; numerator and full preparation are disjoint from masters.",
+        "master_backend_scope": "Actual provider execution, including its ordinary validation/conversion and expression arithmetic; no result-cache hits. Original rank2/3 bubbles are grouped calls, not fabricated individual family timings. Scale initialization is separate and retained in remainder.",
+        "master_lookup_transport_scope": "Rust shared-master ABI, decoding, exact-key lookup, output copying and validation, excluding its nested backend. Caller-side C++/Rust packing remains in remainder.",
+        "remainder_scope": "Core reduction, contraction, caller-side staging/transport, unassigned initialization and instrumentation overhead; not a pure arithmetic measurement.",
+        "cross_run_subtraction": false,
+        "aggregate_timing_instrumented": false
+      },
+      "records_summary": [
+        {
+          "scope": "preparation",
+          "workload": "repeated",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 5100,
+              "preparation_total_ns": 4860,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 240,
+              "reduction_excluding_master_and_preparation_ns": 240,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 4030,
+              "preparation_total_ns": 3970,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 60,
+              "reduction_excluding_master_and_preparation_ns": 60,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "preparation",
+          "workload": "repeated",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 30460,
+              "preparation_total_ns": 30390,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 70,
+              "reduction_excluding_master_and_preparation_ns": 70,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 29470,
+              "preparation_total_ns": 29410,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 60,
+              "reduction_excluding_master_and_preparation_ns": 60,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "preparation",
+          "workload": "changing",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 4020,
+              "preparation_total_ns": 3970,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 50,
+              "reduction_excluding_master_and_preparation_ns": 50,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 4030,
+              "preparation_total_ns": 3970,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 60,
+              "reduction_excluding_master_and_preparation_ns": 60,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "preparation",
+          "workload": "changing",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 29680,
+              "preparation_total_ns": 29590,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 90,
+              "reduction_excluding_master_and_preparation_ns": 90,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 29520,
+              "preparation_total_ns": 29450,
+              "numerator_provider_abi_ns": 0,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 70,
+              "reduction_excluding_master_and_preparation_ns": 70,
+              "numerator_calls_rows_ns": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-reduction",
+          "workload": "repeated",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 237011,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 115113,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 32620,
+              "remainder_ns": 89278,
+              "reduction_excluding_master_and_preparation_ns": 237011,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  13970
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  66590
+                ],
+                [
+                  20,
+                  20,
+                  34553
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 756802,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 93280,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 20510,
+              "remainder_ns": 643012,
+              "reduction_excluding_master_and_preparation_ns": 756802,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  6810
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  53660
+                ],
+                [
+                  10,
+                  20,
+                  32810
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-reduction",
+          "workload": "repeated",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 939843,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 528071,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 104489,
+              "remainder_ns": 307283,
+              "reduction_excluding_master_and_preparation_ns": 939843,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  35651
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  328292
+                ],
+                [
+                  160,
+                  160,
+                  164128
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 2447188,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 496593,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 87341,
+              "remainder_ns": 1863254,
+              "reduction_excluding_master_and_preparation_ns": 2447188,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  29020
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  284061
+                ],
+                [
+                  10,
+                  160,
+                  183512
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-reduction",
+          "workload": "changing",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 172280,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 96602,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 18150,
+              "remainder_ns": 57528,
+              "reduction_excluding_master_and_preparation_ns": 172280,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  6442
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  62760
+                ],
+                [
+                  20,
+                  20,
+                  27400
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 337991,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 87790,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 8250,
+              "remainder_ns": 241951,
+              "reduction_excluding_master_and_preparation_ns": 337991,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  5750
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  50560
+                ],
+                [
+                  10,
+                  20,
+                  31480
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-reduction",
+          "workload": "changing",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 909463,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 505354,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 101760,
+              "remainder_ns": 302349,
+              "reduction_excluding_master_and_preparation_ns": 909463,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  35129
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  319339
+                ],
+                [
+                  160,
+                  160,
+                  150886
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 1816965,
+              "preparation_total_ns": 0,
+              "numerator_provider_abi_ns": 458044,
+              "master_backend_ns": 0,
+              "master_lookup_transport_ns": 54648,
+              "remainder_ns": 1304273,
+              "reduction_excluding_master_and_preparation_ns": 1816965,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  28073
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  266461
+                ],
+                [
+                  10,
+                  160,
+                  163510
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-live-complete",
+          "workload": "repeated",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 49216668,
+              "preparation_total_ns": 23810,
+              "numerator_provider_abi_ns": 77729,
+              "master_backend_ns": 49018375,
+              "master_lookup_transport_ns": 19143,
+              "remainder_ns": 77611,
+              "reduction_excluding_master_and_preparation_ns": 174483,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  7730
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  46458
+                ],
+                [
+                  20,
+                  20,
+                  23541
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 51531445,
+              "preparation_total_ns": 23930,
+              "numerator_provider_abi_ns": 101051,
+              "master_backend_ns": 50843152,
+              "master_lookup_transport_ns": 7640,
+              "remainder_ns": 555672,
+              "reduction_excluding_master_and_preparation_ns": 664363,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  9731
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  57890
+                ],
+                [
+                  10,
+                  20,
+                  33430
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-live-complete",
+          "workload": "repeated",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 395796659,
+              "preparation_total_ns": 63620,
+              "numerator_provider_abi_ns": 632399,
+              "master_backend_ns": 394289870,
+              "master_lookup_transport_ns": 174297,
+              "remainder_ns": 636473,
+              "reduction_excluding_master_and_preparation_ns": 1443169,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  63331
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  386888
+                ],
+                [
+                  160,
+                  160,
+                  182180
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 374881275,
+              "preparation_total_ns": 68750,
+              "numerator_provider_abi_ns": 499311,
+              "master_backend_ns": 372359667,
+              "master_lookup_transport_ns": 34361,
+              "remainder_ns": 1919186,
+              "reduction_excluding_master_and_preparation_ns": 2452858,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  36330
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  290420
+                ],
+                [
+                  10,
+                  160,
+                  172561
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-live-complete",
+          "workload": "changing",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 52573968,
+              "preparation_total_ns": 31250,
+              "numerator_provider_abi_ns": 82578,
+              "master_backend_ns": 52292176,
+              "master_lookup_transport_ns": 30232,
+              "remainder_ns": 137732,
+              "reduction_excluding_master_and_preparation_ns": 250542,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  8830
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  49578
+                ],
+                [
+                  20,
+                  20,
+                  24170
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 54584264,
+              "preparation_total_ns": 29610,
+              "numerator_provider_abi_ns": 109370,
+              "master_backend_ns": 53815132,
+              "master_lookup_transport_ns": 9949,
+              "remainder_ns": 620203,
+              "reduction_excluding_master_and_preparation_ns": 739522,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  10510
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  61740
+                ],
+                [
+                  10,
+                  20,
+                  37120
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "shared-live-complete",
+          "workload": "changing",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 352462018,
+              "preparation_total_ns": 67811,
+              "numerator_provider_abi_ns": 660296,
+              "master_backend_ns": 350827508,
+              "master_lookup_transport_ns": 206925,
+              "remainder_ns": 699478,
+              "reduction_excluding_master_and_preparation_ns": 1566699,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  72050
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  394837
+                ],
+                [
+                  160,
+                  160,
+                  193409
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 340467952,
+              "preparation_total_ns": 68640,
+              "numerator_provider_abi_ns": 479853,
+              "master_backend_ns": 338006116,
+              "master_lookup_transport_ns": 32848,
+              "remainder_ns": 1880495,
+              "reduction_excluding_master_and_preparation_ns": 2393196,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  35641
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  280473
+                ],
+                [
+                  10,
+                  160,
+                  163739
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "production-complete",
+          "workload": "repeated",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 336471,
+              "preparation_total_ns": 24790,
+              "numerator_provider_abi_ns": 78450,
+              "master_backend_ns": 164282,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 68949,
+              "reduction_excluding_master_and_preparation_ns": 147399,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  7100
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  47720
+                ],
+                [
+                  20,
+                  20,
+                  23630
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 51682345,
+              "preparation_total_ns": 5490,
+              "numerator_provider_abi_ns": 91449,
+              "master_backend_ns": 50921243,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 664163,
+              "reduction_excluding_master_and_preparation_ns": 755612,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  7970
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  51410
+                ],
+                [
+                  10,
+                  20,
+                  32069
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "production-complete",
+          "workload": "repeated",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 1838756,
+              "preparation_total_ns": 77870,
+              "numerator_provider_abi_ns": 503146,
+              "master_backend_ns": 924319,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 333421,
+              "reduction_excluding_master_and_preparation_ns": 836567,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  38113
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  314799
+                ],
+                [
+                  160,
+                  160,
+                  150234
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 371258105,
+              "preparation_total_ns": 36670,
+              "numerator_provider_abi_ns": 462044,
+              "master_backend_ns": 368880178,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 1879213,
+              "reduction_excluding_master_and_preparation_ns": 2341257,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  30162
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  267012
+                ],
+                [
+                  10,
+                  160,
+                  164870
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "production-complete",
+          "workload": "changing",
+          "width": 1,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 314031,
+              "preparation_total_ns": 23210,
+              "numerator_provider_abi_ns": 76118,
+              "master_backend_ns": 158440,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 56263,
+              "reduction_excluding_master_and_preparation_ns": 132381,
+              "numerator_calls_rows_ns": [
+                [
+                  10,
+                  10,
+                  7782
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  25,
+                  25,
+                  46296
+                ],
+                [
+                  20,
+                  20,
+                  22040
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 53806272,
+              "preparation_total_ns": 5380,
+              "numerator_provider_abi_ns": 92283,
+              "master_backend_ns": 53272670,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 435939,
+              "reduction_excluding_master_and_preparation_ns": 528222,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  10,
+                  6711
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  25,
+                  53102
+                ],
+                [
+                  10,
+                  20,
+                  32470
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "scope": "production-complete",
+          "workload": "changing",
+          "width": 8,
+          "implementations": [
+            {
+              "implementation": "original",
+              "overall_ns": 1909565,
+              "preparation_total_ns": 71210,
+              "numerator_provider_abi_ns": 506294,
+              "master_backend_ns": 940392,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 391669,
+              "reduction_excluding_master_and_preparation_ns": 897963,
+              "numerator_calls_rows_ns": [
+                [
+                  80,
+                  80,
+                  39183
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  200,
+                  200,
+                  315140
+                ],
+                [
+                  160,
+                  160,
+                  151971
+                ]
+              ]
+            },
+            {
+              "implementation": "rust",
+              "overall_ns": 338448086,
+              "preparation_total_ns": 41600,
+              "numerator_provider_abi_ns": 460853,
+              "master_backend_ns": 336006680,
+              "master_lookup_transport_ns": 0,
+              "remainder_ns": 1938953,
+              "reduction_excluding_master_and_preparation_ns": 2399806,
+              "numerator_calls_rows_ns": [
+                [
+                  5,
+                  80,
+                  30440
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  15,
+                  200,
+                  262360
+                ],
+                [
+                  10,
+                  160,
+                  168053
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "numerator_provider": {
+    "shared_out_of_line_abi": true,
+    "coefficient_heads": "Factored multi-output SymJIT O2, evaluated only in physical preparation",
+    "reduction_callbacks": "Same PolynomialNumerator<f64> and generic Symbolica batched interpreter for direct/Mu/T3/T2; callbacks are not JIT compiled",
+    "execution_span_scope": "Individual direct/Mu/T3/T2 provider ABI decoding, interpreted evaluation and output writing; calls/rows/ns reported separately"
+  },
+  "limitations": [
+    "Busy shared host; no performance acceptance or primary timing samples.",
+    "Single-call instrumented records are attribution diagnostics, not paired uninstrumented benchmark samples.",
+    "Native catalog covers two denominator and three correction/source-projection families; geometry and remaining reduction/integration/accumulation remain interpreted.",
+    "The same numerator provider still interprets direct/Mu/T3/T2 callbacks. SymJIT compiles coefficient heads only.",
+    "Frozen lookup/transport remains included in reduction controls, but actual master backend execution is structurally zero.",
+    "Real f64 overflow remains a numerical failure; no silent rescue or domain expansion is claimed.",
+    "Physical Float256 oracle promotes represented binary64 component inputs; no high-precision wavefunction oracle."
+  ]
+}
