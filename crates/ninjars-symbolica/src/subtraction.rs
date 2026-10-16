@@ -20,6 +20,10 @@ use crate::{
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel},
 };
 
+#[cfg(all(test, feature = "rust-codegen"))]
+#[path = "algorithm_rank_probe.rs"]
+mod algorithm_rank_probe;
+
 fn triangle_residue(c: &[Atom], u: &Atom, v: &Atom, mu: &Atom, higher: bool) -> Atom {
     let mut residue = &c[0]
         + &c[7] * mu
