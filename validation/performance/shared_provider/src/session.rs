@@ -161,6 +161,8 @@ impl MasterProvider<C> for ProductionMasters {
         self.rows += request.rows() as u64;
         #[cfg(feature = "allocation-diagnostics")]
         let _allocation_scope = super::allocation::Scope::new(1);
+        #[cfg(feature = "execution-diagnostics")]
+        let _execution_scope = super::execution::Scope::master(request.integral, 3, request.rows());
         self.inner.evaluate(request, output)
     }
     fn evaluate_batch(
@@ -173,6 +175,8 @@ impl MasterProvider<C> for ProductionMasters {
         self.rows += request.rows() as u64;
         #[cfg(feature = "allocation-diagnostics")]
         let _allocation_scope = super::allocation::Scope::new(1);
+        #[cfg(feature = "execution-diagnostics")]
+        let _execution_scope = super::execution::Scope::master(request.integral, 3, request.rows());
         self.inner.evaluate_batch(request, output, statuses)
     }
 }
