@@ -16,8 +16,17 @@ use crate::PolynomialNumerator;
 #[path = "kernel_jit_probe.rs"]
 mod jit_probe;
 
+#[cfg(all(test, feature = "native-kernels"))]
+#[path = "native_blocking_probe.rs"]
+mod blocking_probe;
+
 pub(crate) trait KernelExecutor<V> {
     fn evaluate(&mut self, input: &[V], output: &mut [V], rows: usize) -> Result<()>;
+
+    #[cfg(test)]
+    fn probe_workspace(&self) -> Option<(usize, usize)> {
+        None
+    }
 }
 
 impl<T: Real + SingleFloat> KernelExecutor<Complex<T>> for CompiledKernel<T>
@@ -153,6 +162,8 @@ where
                 "native kernel plan dimensions differ".into(),
             ));
         }
+        #[cfg(test)]
+        let executor = blocking_probe::wrap(executor, inputs, outputs);
         self.native = Some(executor);
         self.evaluator = None;
         Ok(())
