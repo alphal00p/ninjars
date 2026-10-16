@@ -1,0 +1,923 @@
+{
+  "schema": "ninjars-shared-reduction-paired-timing-v1",
+  "success": true,
+  "performance_acceptance": false,
+  "source_commit": "0c775975c713b2078e8a128e17393ab880bf73d4",
+  "source_scope": "Immutable interpreted baseline; no optional generated reduction kernels. Distinct measurement identity from the old dba7411 diagnostic.",
+  "archives": {
+    "1": {
+      "path": "validation/evidence/shared-reduction-timing-0c77597-w1.json.gz",
+      "uncompressed_sha256": "f6addce332895d908bd4868a23fd88f3f2a42470c620322355bc470e3cec6275",
+      "compressed_sha256": "37b4c22cc1cc1c2c35e3708e88e9cd9c4914fd55c086849f3cd5af5ec089ce6f",
+      "uncompressed_bytes": 2546784,
+      "compressed_bytes": 321976,
+      "original_report": "/shared/external/ninja/target/performance/reduction-methodology-release-timing-0c77597-w1/result.json"
+    },
+    "8": {
+      "path": "validation/evidence/shared-reduction-timing-0c77597-w8.json.gz",
+      "uncompressed_sha256": "5042bfcd62784925db2840f8ca7916156e939dbfb88d48069ef78012b2af7e0d",
+      "compressed_sha256": "268a441851823e6438d60dab8496959f3cc836a6e0f3621e4efd317759b4c58e",
+      "uncompressed_bytes": 2542389,
+      "compressed_bytes": 321587,
+      "original_report": "/shared/external/ninja/target/performance/reduction-methodology-release-timing-0c77597-w8/result.json"
+    },
+    "32": {
+      "path": "validation/evidence/shared-reduction-timing-0c77597-w32.json.gz",
+      "uncompressed_sha256": "2f4855bd57a96f1a50d9a32662408b1e1a5e36434bcaa89eae7ef4255fc37840",
+      "compressed_sha256": "ea8940adbf1f67fdf939da8e48381198df21469f13a194f6afd28fe32c811f6a",
+      "uncompressed_bytes": 2540040,
+      "compressed_bytes": 320956,
+      "original_report": "/shared/external/ninja/target/performance/reduction-methodology-release-timing-0c77597-w32/result.json"
+    },
+    "128": {
+      "path": "validation/evidence/shared-reduction-timing-0c77597-w128.json.gz",
+      "uncompressed_sha256": "268d8ec4d3a6b74e898a085bc0193932d5de3cce9d7658127366a2797627020c",
+      "compressed_sha256": "874ed86b2d9a7640e7e6130619701c2612864cc8091ccab201ed08d96cbf95d7",
+      "uncompressed_bytes": 2542676,
+      "compressed_bytes": 321393,
+      "original_report": "/shared/external/ninja/target/performance/reduction-methodology-release-timing-0c77597-w128/result.json"
+    },
+    "1024": {
+      "path": "validation/evidence/shared-reduction-timing-0c77597-w1024.json.gz",
+      "uncompressed_sha256": "079cc90f7ec4dc5dd4d19277810a6282438198e08923d394c2135dc57bd7f9c4",
+      "compressed_sha256": "8330529b4bc037ec557bf695361de21e1dbbbe31e45b8e44047fac41245a22ae",
+      "uncompressed_bytes": 2543143,
+      "compressed_bytes": 321317,
+      "original_report": "/shared/external/ninja/target/performance/reduction-methodology-release-timing-0c77597-w1024/result.json"
+    },
+    "31": {
+      "path": "validation/evidence/shared-reduction-timing-0c77597-w31.json.gz",
+      "uncompressed_sha256": "21782559cab0620c2a8eaeb43964b44a8f232cc9fce4a96fdbba0db6ff5e9c27",
+      "compressed_sha256": "2f472bb87d6f33b7647b8343de759ecdb61691a9f8921a908357009753793f0a",
+      "uncompressed_bytes": 2536973,
+      "compressed_bytes": 320347,
+      "original_report": "/shared/external/ninja/target/performance/reduction-methodology-release-timing-0c77597-w31/result.json"
+    }
+  },
+  "release_profile": {
+    "opt_level": 3,
+    "lto": "thin",
+    "codegen_units": 1,
+    "matches_main_workspace_profile": true
+  },
+  "compiler_versions": {
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+    "cxx": "g++ (GCC) 15.3.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+  },
+  "runtime_source_manifest_sha256": "ff858d2270c8faed0793b742416f0eb325abd57f2e1d17bf2294c2f28f776768",
+  "artifact_hashes": {
+    "/shared/external/ninja/target/performance/reduction-methodology-release-check-0c77597/libninjars_shared_provider_probe.so": "a6bd7a14ccb5bb8346155609faa9d9926dc3e903c4aaea311146f474bffa976d",
+    "/shared/external/ninja/target/performance/reduction-methodology-release-check-0c77597/physical-timing": "84ff350cdbafff199ee68600ccdf1f5ef1026ffcdc818d59f71e9783dc87f6f9",
+    "/shared/external/ninja/target/reference-uncached-v2/ninja-build/src/.libs/libninja.a": "8f4d39dad292a28a05dd4e56bd4cbb7014cf08532ef4d8484c00ea44e0b097a3",
+    "/shared/external/ninja/target/reference-uncached-v2/oneloop/libavh_olo.a": "28c37c328fadd6f4f09f973bfb961b3bccb3c729583a92dc2186fd947ccbe4dd",
+    "/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib/libgfortran.so": "dce24abf076b71460d7df11c8bf00dcc2bb7eb69489f79aff48b53ae07e57b38",
+    "/shared/external/ninja/target/performance/reduction-methodology-release-check-0c77597/input.txt": "01c34e7c21fd3063ec86ea6d9ee559c3a70975214ae3756b0f8783a3e06477ba"
+  },
+  "dependency_heads": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "oneloopmaster": "bf7632a916528073464870f1b515d3e62f4e0060",
+    "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+  },
+  "all_source_and_artifact_guards_unchanged": true,
+  "no_compilation_or_linking_during_sampling": true,
+  "input_boundary": "Three immutable prepared numerator/input states, one retained reducer/session; provider pointer selection, numerical geometry/reduction, common numerator calls, frozen lookup/contraction and ordinary staging included. No coefficient preparation or backend arithmetic.",
+  "numerator_provider": {
+    "shared_out_of_line_abi": true,
+    "coefficient_heads": "Factored multi-output SymJIT O2, evaluated only in physical preparation",
+    "reduction_callbacks": "Same PolynomialNumerator<f64> and generic Symbolica batched interpreter for direct/Mu/T3/T2; callbacks are not JIT compiled",
+    "execution_span_scope": "Individual direct/Mu/T3/T2 provider ABI decoding, interpreted evaluation and output writing; calls/rows/ns reported separately"
+  },
+  "input_pool": "validation/evidence/gg-hhh-changing-pool.json",
+  "independent_reference": "validation/evidence/gg-hhh-changing-madloop.json",
+  "correctness_and_stage_accounting": "validation/evidence/shared-reduction-methodology-release-0c77597.json",
+  "timed_scope": "Shared-provider reduction, including identical numerator callback ABI, frozen master lookup/contraction, pointer selection and ordinary staging/allocations. Excludes coefficient preparation and actual master arithmetic.",
+  "measurement": {
+    "selected_cpu": 75,
+    "smt_sibling": 331,
+    "sibling_reserved": false,
+    "host_isolation_verified": false,
+    "team_heavy_work_paused": true,
+    "unrelated_host_work_active": true,
+    "clock": "C++ steady_clock monotonic nanoseconds",
+    "contiguous_blocks": true,
+    "counters_and_checksum_outside_blocks": true,
+    "retained_reducer_sessions_per_implementation": 1,
+    "immutable_prepared_numerator_states": 3,
+    "raw_individual_blocks": 192,
+    "minimum_block_ns": 38883888,
+    "all_blocks_at_least_20ms": true,
+    "method": "Eight paired blocks per record, four original-first and four Rust-first. Three-point phase cycles; phase varies inside the same retained reducer/workspace. Raw block durations retained."
+  },
+  "structural_controls": {
+    "numerator_rows_identical_between_implementations": true,
+    "coefficient_preparation_counter_delta": 0,
+    "frozen_master_backend_calls": 0,
+    "frozen_master_backend_rows": 0,
+    "live_direct_master_backend_counter_delta": 0,
+    "frozen_master_union_misses": 0,
+    "numerical_reduction_result_cache_used": false
+  },
+  "records": [
+    {
+      "width": 1,
+      "workload": "repeated",
+      "rounds_per_block": 384,
+      "paired_blocks": 8,
+      "minimum_observed_block_ns": 39491118,
+      "block_duration_below_20ms": false,
+      "max_scaled_error": 2.089315818533712e-16,
+      "summary": {
+        "width": 1,
+        "rounds_per_block": 384,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 102939.22916666666,
+              "mad": 93.81640624999272
+            },
+            "ns_per_point": {
+              "median": 102939.22916666666,
+              "mad": 93.81640624999272
+            },
+            "points_per_second": {
+              "median": 9714.47184254526,
+              "mad": 8.85926811752961
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 308899.53515625,
+              "mad": 402.59244791665697
+            },
+            "ns_per_point": {
+              "median": 308899.53515625,
+              "mad": 402.59244791665697
+            },
+            "points_per_second": {
+              "median": 3237.299923750088,
+              "mad": 4.21998033652676
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 3.000052131296078,
+          "mad": 0.004278056787987206,
+          "median_by_order": {
+            "original-first": 3.003110629122056,
+            "rust-first": 2.9968679409650942
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.9966793881500733,
+            3.004330188084065
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      }
+    },
+    {
+      "width": 1,
+      "workload": "changing",
+      "rounds_per_block": 384,
+      "paired_blocks": 8,
+      "minimum_observed_block_ns": 39486119,
+      "block_duration_below_20ms": false,
+      "max_scaled_error": 2.089315818533712e-16,
+      "summary": {
+        "width": 1,
+        "rounds_per_block": 384,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 103165.47916666666,
+              "mad": 224.0625
+            },
+            "ns_per_point": {
+              "median": 103165.47916666666,
+              "mad": 224.0625
+            },
+            "points_per_second": {
+              "median": 9693.165134415094,
+              "mad": 21.062481571798344
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 309732.9752604166,
+              "mad": 345.86067708334303
+            },
+            "ns_per_point": {
+              "median": 309732.9752604166,
+              "mad": 345.86067708334303
+            },
+            "points_per_second": {
+              "median": 3228.587464833526,
+              "mad": 3.606195685787725
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 3.0037016758143507,
+          "mad": 0.008331084165795088,
+          "median_by_order": {
+            "original-first": 3.0071990944237785,
+            "rust-first": 2.999588195368167
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.992730777245338,
+            3.013175262932273
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      }
+    },
+    {
+      "width": 8,
+      "workload": "repeated",
+      "rounds_per_block": 48,
+      "paired_blocks": 8,
+      "minimum_observed_block_ns": 39360648,
+      "block_duration_below_20ms": false,
+      "max_scaled_error": 2.089315818533712e-16,
+      "summary": {
+        "width": 8,
+        "rounds_per_block": 48,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 822898.8125,
+              "mad": 2519.479166666628
+            },
+            "ns_per_point": {
+              "median": 102862.3515625,
+              "mad": 314.9348958333285
+            },
+            "points_per_second": {
+              "median": 9721.731615598395,
+              "mad": 29.76995168004396
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 2124222.3229166665,
+              "mad": 49340.77083333337
+            },
+            "ns_per_point": {
+              "median": 265527.7903645833,
+              "mad": 6167.5963541666715
+            },
+            "points_per_second": {
+              "median": 3766.3360897571492,
+              "mad": 87.2646885588922
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.587769038838543,
+          "mad": 0.06452071502960366,
+          "median_by_order": {
+            "original-first": 2.6511486583945847,
+            "rust-first": 2.5218024250000646
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.5644221639967584,
+            2.609670014871453
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      }
+    },
+    {
+      "width": 8,
+      "workload": "changing",
+      "rounds_per_block": 48,
+      "paired_blocks": 8,
+      "minimum_observed_block_ns": 39556299,
+      "block_duration_below_20ms": false,
+      "max_scaled_error": 2.089315818533712e-16,
+      "summary": {
+        "width": 8,
+        "rounds_per_block": 48,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 826787.90625,
+              "mad": 1786.364583333314
+            },
+            "ns_per_point": {
+              "median": 103348.48828125,
+              "mad": 223.29557291666424
+            },
+            "points_per_second": {
+              "median": 9676.003922855496,
+              "mad": 20.95950294026352
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 2188470.4375,
+              "mad": 78453.05208333326
+            },
+            "ns_per_point": {
+              "median": 273558.8046875,
+              "mad": 9806.631510416657
+            },
+            "points_per_second": {
+              "median": 3656.0914073800286,
+              "mad": 131.45747519931297
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.6381746917667166,
+          "mad": 0.0869087743748711,
+          "median_by_order": {
+            "original-first": 2.5734972028069807,
+            "rust-first": 2.703892524010759
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.494387774771904,
+            2.7135266056699296
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      }
+    },
+    {
+      "width": 32,
+      "workload": "repeated",
+      "rounds_per_block": 12,
+      "paired_blocks": 8,
+      "minimum_observed_block_ns": 39265438,
+      "block_duration_below_20ms": false,
+      "max_scaled_error": 2.089315818533712e-16,
+      "summary": {
+        "width": 32,
+        "rounds_per_block": 12,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3292914.833333333,
+              "mad": 13699.625
+            },
+            "ns_per_point": {
+              "median": 102903.58854166666,
+              "mad": 428.11328125
+            },
+            "points_per_second": {
+              "median": 9717.83484850233,
+              "mad": 40.58990317273492
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 9549321.25,
+              "mad": 228892.33333333395
+            },
+            "ns_per_point": {
+              "median": 298416.2890625,
+              "mad": 7152.885416666686
+            },
+            "points_per_second": {
+              "median": 3351.7056833007127,
+              "mad": 80.67766705306235
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.8999486020230147,
+          "mad": 0.0702146933707195,
+          "median_by_order": {
+            "original-first": 2.8815806708390435,
+            "rust-first": 2.9027661652440755
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.7782714820480168,
+            2.9630839722200477
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      }
+    },
+    {
+      "width": 32,
+      "workload": "changing",
+      "rounds_per_block": 12,
+      "paired_blocks": 8,
+      "minimum_observed_block_ns": 39082428,
+      "block_duration_below_20ms": false,
+      "max_scaled_error": 2.089315818533712e-16,
+      "summary": {
+        "width": 32,
+        "rounds_per_block": 12,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3282338.25,
+              "mad": 13080.875
+            },
+            "ns_per_point": {
+              "median": 102573.0703125,
+              "mad": 408.77734375
+            },
+            "points_per_second": {
+              "median": 9749.147984159012,
+              "mad": 38.7872717841974
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 9390735.333333332,
+              "mad": 156435.0416666679
+            },
+            "ns_per_point": {
+              "median": 293460.4791666666,
+              "mad": 4888.595052083372
+            },
+            "points_per_second": {
+              "median": 3407.669177682955,
+              "mad": 55.88273166858471
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.864319923867071,
+          "mad": 0.04873286853522596,
+          "median_by_order": {
+            "original-first": 2.8858676625363326,
+            "rust-first": 2.7624714948478886
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.611925987772757,
+            2.882859453189491
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      }
+    },
+    {
+      "width": 128,
+      "workload": "repeated",
+      "rounds_per_block": 3,
+      "paired_blocks": 8,
+      "minimum_observed_block_ns": 38883888,
+      "block_duration_below_20ms": false,
+      "max_scaled_error": 2.089315818533712e-16,
+      "summary": {
+        "width": 128,
+        "rounds_per_block": 3,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 13009924.166666666,
+              "mad": 24978.50000000093
+            },
+            "ns_per_point": {
+              "median": 101640.03255208333,
+              "mad": 195.14453125000728
+            },
+            "points_per_second": {
+              "median": 9838.643343329803,
+              "mad": 18.851751631451407
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 37333152.16666667,
+              "mad": 1134133.5
+            },
+            "ns_per_point": {
+              "median": 291665.2513020834,
+              "mad": 8860.41796875
+            },
+            "points_per_second": {
+              "median": 3429.099912285793,
+              "mad": 101.87746830412016
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.8714516883778964,
+          "mad": 0.08979236140750224,
+          "median_by_order": {
+            "original-first": 2.8332860217620164,
+            "rust-first": 2.9006415567141053
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.767495609329799,
+            2.9506925682257714
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      }
+    },
+    {
+      "width": 128,
+      "workload": "changing",
+      "rounds_per_block": 3,
+      "paired_blocks": 8,
+      "minimum_observed_block_ns": 39262559,
+      "block_duration_below_20ms": false,
+      "max_scaled_error": 2.089315818533712e-16,
+      "summary": {
+        "width": 128,
+        "rounds_per_block": 3,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 13136722.666666668,
+              "mad": 34308.333333333954
+            },
+            "ns_per_point": {
+              "median": 102630.64583333334,
+              "mad": 268.0338541666715
+            },
+            "points_per_second": {
+              "median": 9743.725347689428,
+              "mad": 25.467513089412023
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 36020918.33333333,
+              "mad": 174742.33333332837
+            },
+            "ns_per_point": {
+              "median": 281413.4244791666,
+              "mad": 1365.1744791666279
+            },
+            "points_per_second": {
+              "median": 3553.490786944545,
+              "mad": 17.327516179790564
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.744846368101908,
+          "mad": 0.031186239889515965,
+          "median_by_order": {
+            "original-first": 2.744846368101908,
+            "rust-first": 2.7544449886472604
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.7102359342127174,
+            2.8300540662232265
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      }
+    },
+    {
+      "width": 1024,
+      "workload": "repeated",
+      "rounds_per_block": 3,
+      "paired_blocks": 8,
+      "minimum_observed_block_ns": 309009200,
+      "block_duration_below_20ms": false,
+      "max_scaled_error": 2.089315818533712e-16,
+      "summary": {
+        "width": 1024,
+        "rounds_per_block": 3,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 103421632.83333334,
+              "mad": 266075.8333333358
+            },
+            "ns_per_point": {
+              "median": 100997.6883138021,
+              "mad": 259.83968098958576
+            },
+            "points_per_second": {
+              "median": 9901.2200195403,
+              "mad": 25.479671838934337
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 345611223.8333333,
+              "mad": 2479227.1666666865
+            },
+            "ns_per_point": {
+              "median": 337510.96077473956,
+              "mad": 2421.120279947936
+            },
+            "points_per_second": {
+              "median": 2962.9092454759984,
+              "mad": 21.144642117791136
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 3.344597326163451,
+          "mad": 0.029934710852342672,
+          "median_by_order": {
+            "original-first": 3.3672080438454293,
+            "rust-first": 3.320007232285751
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            3.312683239115387,
+            3.3716053762883305
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      }
+    },
+    {
+      "width": 1024,
+      "workload": "changing",
+      "rounds_per_block": 3,
+      "paired_blocks": 8,
+      "minimum_observed_block_ns": 312056909,
+      "block_duration_below_20ms": false,
+      "max_scaled_error": 2.089315818533712e-16,
+      "summary": {
+        "width": 1024,
+        "rounds_per_block": 3,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 104320545.83333334,
+              "mad": 209672.5
+            },
+            "ns_per_point": {
+              "median": 101875.5330403646,
+              "mad": 204.75830078125
+            },
+            "points_per_second": {
+              "median": 9815.903342689066,
+              "mad": 19.728659233771396
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 346562211.8333334,
+              "mad": 3462003.6666667163
+            },
+            "ns_per_point": {
+              "median": 338439.6599934896,
+              "mad": 3380.862955729215
+            },
+            "points_per_second": {
+              "median": 2954.834162141603,
+              "mad": 29.716648061467822
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 3.3027916885872566,
+          "mad": 0.03307295249699993,
+          "median_by_order": {
+            "original-first": 3.2864550378546684,
+            "rust-first": 3.326468538982092
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            3.2874020682736407,
+            3.3500793227677366
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      }
+    },
+    {
+      "width": 31,
+      "workload": "repeated",
+      "rounds_per_block": 15,
+      "paired_blocks": 8,
+      "minimum_observed_block_ns": 47451213,
+      "block_duration_below_20ms": false,
+      "max_scaled_error": 2.089315818533712e-16,
+      "summary": {
+        "width": 31,
+        "rounds_per_block": 15,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3175614.5666666664,
+              "mad": 7422.033333333209
+            },
+            "ns_per_point": {
+              "median": 102439.17956989247,
+              "mad": 239.4204301075224
+            },
+            "points_per_second": {
+              "median": 9761.890003749893,
+              "mad": 22.871219742700305
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 8714739.933333334,
+              "mad": 123639.7333333334
+            },
+            "ns_per_point": {
+              "median": 281120.6430107526,
+              "mad": 3988.378494623583
+            },
+            "points_per_second": {
+              "median": 3557.231620840288,
+              "mad": 51.165744149482634
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.718728699936003,
+          "mad": 0.05764019471198112,
+          "median_by_order": {
+            "original-first": 2.7430006279820116,
+            "rust-first": 2.718535060889172
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.6599105654419626,
+            2.7930208986851377
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      }
+    },
+    {
+      "width": 31,
+      "workload": "changing",
+      "rounds_per_block": 15,
+      "paired_blocks": 8,
+      "minimum_observed_block_ns": 47212472,
+      "block_duration_below_20ms": false,
+      "max_scaled_error": 2.089315818533712e-16,
+      "summary": {
+        "width": 31,
+        "rounds_per_block": 15,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3167594.9,
+              "mad": 10917.666666666744
+            },
+            "ns_per_point": {
+              "median": 102180.4806451613,
+              "mad": 352.1827956989291
+            },
+            "points_per_second": {
+              "median": 9786.608750541156,
+              "mad": 33.76035855884675
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 8908740.5,
+              "mad": 238954.06666666642
+            },
+            "ns_per_point": {
+              "median": 287378.72580645164,
+              "mad": 7708.195698924741
+            },
+            "points_per_second": {
+              "median": 3479.838509167882,
+              "mad": 96.56814964514206
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.767980329893501,
+          "mad": 0.07406742108831543,
+          "median_by_order": {
+            "original-first": 2.816753409464256,
+            "rust-first": 2.71753551805715
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.6849234244713984,
+            2.835462870868287
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      }
+    }
+  ],
+  "limitations": [
+    "Shared host remains uncontrolled; bootstrap intervals describe these observed blocks only. No acceptance or portable speedup claim.",
+    "The frozen master lookup table deliberately caches master results for reduction isolation; it does not skip geometry, reduction or numerator callbacks.",
+    "Only graph26 n5rank4 is measured here; this is not the complete synthetic/physical performance acceptance suite.",
+    "The common numerator is the interpreted PolynomialNumerator callback provider; only its coefficient preparation uses SymJIT, outside this timing scope.",
+    "Reduction timing includes frozen lookup/transport and ordinary staging. Actual master execution is exactly zero here and is separately reported in the linked instrumented execution report.",
+    "Original and Rust use the same preparation batching policy outside this reduction timer; original reduction remains scalar per lane.",
+    "This baseline uses one retained reducer per implementation and three immutable prepared provider states, with input/parameter pointer selection included each call."
+  ]
+}
