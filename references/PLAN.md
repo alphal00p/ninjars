@@ -1700,3 +1700,26 @@ connects the existing kernels into integrated amplitudes and a standalone
   numerator callback expansion depths differ. Actual masters remain separately
   accounted for. No source-only operation or memory saving is promoted to a
   measured improvement; the next experiments must retain those boundaries.
+
+### Bounded native execution probe validated (2026-10-16)
+
+- Integrated test-only source `7e68928` and evidence `b3c69ae` as
+  `e9a016e`/`2e0c741`. Existing generated reduction arithmetic and production
+  dispatch remain unchanged. The experiment compares whole rows with natural
+  blocks of 8, 16, 32 and 64, including scalar tails and fresh workspaces.
+- Eight controls pass. Each of f64, DoubleFloat and Float192 compares 421,872
+  complex components exactly, including supported native Dual components.
+  Complete reducer residues/statuses, retries, mixed significant bits,
+  signed zeros and lazy shared-helper invocation counts are covered. Strict
+  Clippy includes the generator example; feature-off and format checks pass.
+  Root verified 11 source hashes, nine logs and the test executable hash.
+- The ignored benchmark has not run. It requires a coordinated quiet window
+  and retains raw JSONL blocks and provenance. No blocking execution policy
+  has been added to production; a supported general policy belongs in
+  oneloopmaster after measurement and validation.
+- Guarded rank-specialization candidate `7f1591e` passed 56 tests but remains
+  isolated: independent review found that its Dual alternate could derive
+  working precision from the shape prototype rather than the explicit scalar
+  prototype. A focused correction and mixed-prototype regression are required
+  before integration. See `docs/native-blocking-probe.md` for the completed
+  execution probe; rank specialization remains a separate experiment.
