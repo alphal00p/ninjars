@@ -19,6 +19,11 @@ Ninja `05fb0d3a0f47f216eceef411a09ac19e1b9a19f0`. The optional native catalog is
 under further correctness validation; this audit did not compile, benchmark,
 change production code, or change dependencies.
 
+A later isolated [rank-specialization inventory](rank-specialization-probe.md)
+compiled and passed its symbolic test. It quantifies selected-head and
+structural-zero simplifications without changing production dispatch or claiming
+numerical/performance acceptance.
+
 The [immutable interpreted baseline](../../validation/evidence/shared-reduction-timing-0c77597.json)
 measures graph26, n=5/rank4, with the same numerator callback provider and frozen
 masters. Changing-point batch-one medians are approximately 309.7 microseconds
