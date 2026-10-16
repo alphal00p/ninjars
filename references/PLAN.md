@@ -1202,3 +1202,51 @@ connects the existing kernels into integrated amplitudes and a standalone
   and older pins. Updated-pin optimized shared-physical controls and preliminary
   timing diagnostics are being run separately. No performance acceptance or
   global derivative-accuracy completion is implied by this pin update.
+
+### Matched large-graph preparation and complete timings (2026-10-16)
+
+- The validation harness now separates physical preparation, reduction with a
+  common numerator and frozen master union, complete evaluation with common live
+  masters, and complete evaluation using original Ninja/OneLOop versus
+  NinjaRS/SymbolicaMasters. Every complete call includes raw-momentum staging,
+  FeynKit wavefunctions, dependent model values, all factored SymJIT O2 coefficient
+  heads, propagators, reduction and integration. Both reducers receive the same
+  batched preparation; original Ninja subsequently reduces individual lanes.
+  Setup and driver I/O are excluded, ordinary allocations and common callback
+  FFI/staging are included. This is not unmodified CLI latency.
+- At current pins `2c06f245/bf7632a9`, the optimized physical oracle passes
+  210 independent raw numerator checks, a Float256 coefficient oracle and 3,681
+  Laurent components over widths 0, 1, 3, 8, 31, 32, 128 and 1024. All 16
+  scope/workload/width-one-or-eight correctness records pass, including the two
+  production master backends. Seven standalone Rust tests, eight paired-statistics
+  tests, strict all-feature Clippy and formatting pass. Source guards remain
+  unchanged. See `shared-physical-release-probe.json` and the three
+  `shared-workload-{release-correctness,allocations,diagnostic-timing}.json`
+  indexes with lossless deterministic gzip archives. Root independently verified
+  every archive hash/size and current source identity.
+- The first changing-point diagnostic finds a reduction gap independently of
+  master execution: paired Rust/original median ratios are 3.44 at width one and
+  3.15 at width eight. Complete common-live ratios are 1.027 and 0.966; complete
+  production-backend ratios are 161.8 and 200.7. The current interpreted
+  production masters dominate complete Rust evaluation. These results identify
+  optimization work; performance gates are **not met or accepted**.
+- Measurements used CPU35 with other host workloads present, four balanced
+  pairs, and one call per block. The standalone release profile has no explicit
+  LTO/codegen-unit override, unlike the main CLI. For multi-round records the
+  current driver sums individual call intervals with counters between calls.
+  Final gates require aligned profiles, contiguous longer timed blocks, all
+  requested widths, repeated runs and reviewed host conditions. Full raw paired
+  samples, uncertainty, counters and CPU/process snapshots remain archived.
+- Separate Rust-allocator diagnostics observe 162 allocations at width one and
+  559 at width eight for changing complete production evaluation. Preparation
+  accounts for 6/48, validation numerator transport for 25/30, and residual
+  reduction/transport for 131/481; direct warmed masters allocate no Rust heap
+  objects in this control. C++ and native GMP/MPFR allocations are unobserved.
+  A source audit matches the residual counts to repeated temporary containers,
+  residues and box-projection copies. Persistent workspace reuse and compiled
+  batched master execution are the next independent optimization targets.
+- The shared raw physical-input library and explicit generated denominator
+  dispatch are being validated in isolated branches. Main production sources,
+  dependency pins and earlier evidence were held fixed throughout this baseline.
+  Rational-separation parity, broader Dual domains and final performance
+  acceptance remain outstanding.

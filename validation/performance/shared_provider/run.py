@@ -71,10 +71,6 @@ def main():
         executables[name]=executable
     # All compilers have completed before either runtime check begins.
     run('rust-tests',[test_bins[0],'--test-threads=1'])
-    run('known-c0-reproducer',[test_bins[0],'--ignored','--exact',
-        'masters::tests::euclidean_c0_exceptional_point_must_be_finite','--test-threads=1'],
-        accepted_codes=(0,101))
-    c0_bug_reproduced=commands[-1]['returncode']==101
     results={}
     for name,executable in executables.items():
         rows=run('cpp-'+name+'-probe',[executable],True)
@@ -85,10 +81,10 @@ def main():
         raise RuntimeError('probe source changed during validation')
     report={'success':True,'probes':results, 'scope':'shared Rust numerator and union-master replay correctness; not a matched-provider performance run',
         'production_core_ffi':False,'shared_master_provider_implemented':True,'performance_acceptance':False,
-        'outstanding_c0_exception':{'reproduced':c0_bug_reproduced,'integral':'C0',
+        'c0_regression':{'passed_in_rust_suite':True,'integral':'C0',
             'invariants':[-1,-2,-3],'masses_squared':[2,3,5],'scale_squared':7,
-            'current_failure':'MasterFailure::NonFiniteResult','required_behavior':'finite result; positive-mass Euclidean point',
-            'acceptance_blocker':True},
+            'finite_expected':-0.13521239622543608,'absolute_tolerance':1e-12,
+            'poles_required_exact_zero':True,'previous_failure':'MasterFailure::NonFiniteResult'},
         'source_sha256':initial,'artifacts_sha256':{str(p):digest(p) for p in [library,*executables.values(),ninja,olo]},
         'reference_revision_record_sha256':digest(reference/'revisions.json'),
         'commands':commands,'rustc':run('rustc-version',['rustc','--version']).strip(),

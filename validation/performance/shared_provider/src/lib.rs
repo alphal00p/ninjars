@@ -6,6 +6,8 @@ use ninjars::{
     Complex, ExpansionKind, ExpansionRequest, FourMomentum, Numerator, NumeratorRequest, SampleId,
 };
 use ninjars_symbolica::PolynomialNumerator;
+#[cfg(feature = "allocation-diagnostics")]
+mod allocation;
 mod foreign;
 mod masters;
 mod physical;
@@ -45,6 +47,7 @@ pub struct Provider {
     n: usize,
     parameters: usize,
     scratch: CallScratch,
+    calls_and_rows: [u64; 8],
 }
 #[derive(Default)]
 struct CallScratch {
@@ -116,6 +119,7 @@ fn fixture(number: u32) -> Result<Provider> {
         n,
         parameters: parameter_count,
         scratch: CallScratch::default(),
+        calls_and_rows: [0; 8],
     })
 }
 fn dimensions(actual: usize, rows: usize, columns: usize, label: &str) -> Result<()> {
@@ -418,8 +422,27 @@ pub unsafe extern "C" fn sp_call(
         let ids = unsafe { read(ids, rows) }?;
         let data = unsafe { read(data, data_len) }?;
         let partition = unsafe { read(partition, partition_len) }?;
+        #[cfg(feature = "allocation-diagnostics")]
+        let _allocation_scope = allocation::Scope::new(0);
         let values = call(provider, which, powers, ids, data, partition, out_len)?;
-        unsafe { write(out, out_len, values) }
+        unsafe { write(out, out_len, values) }?;
+        provider.calls_and_rows[which as usize] += 1;
+        provider.calls_and_rows[4 + which as usize] += rows as u64;
+        Ok(())
+    })
+}
+/// # Safety
+/// Live exclusive handle and eight writable cells: successful calls for
+/// direct/Mu/T3/T2, followed by corresponding callback rows.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sp_provider_stats(
+    handle: *mut Provider,
+    out: *mut u64,
+    len: usize,
+) -> i32 {
+    guard(|| {
+        let state = unsafe { provider(handle) }?;
+        unsafe { write(out, len, &state.calls_and_rows) }
     })
 }
 /// # Safety

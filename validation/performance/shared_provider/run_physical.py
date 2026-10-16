@@ -39,6 +39,7 @@ def main():
     parser.add_argument('--output-dir', type=Path, required=True)
     parser.add_argument('--reference-build-dir', type=Path, default=ROOT/'target/reference-uncached-v2')
     parser.add_argument('--maximum-integrated-batch', type=int, default=32)
+    parser.add_argument('--release', action='store_true', help='use the optimized Rust configuration used by timing probes')
     args = parser.parse_args()
     if args.maximum_integrated_batch < 3:
         parser.error('maximum integrated batch must include the three distinct points')
@@ -96,7 +97,10 @@ def main():
             raise RuntimeError(f'{label} failed: {out}/{label}.stderr')
         return (out/f'{label}.stdout').read_text()
 
-    build = run('cargo-build', ['cargo', 'build', '--manifest-path', HERE/'Cargo.toml', '--locked', '--message-format=json'])
+    build_command = ['cargo', 'build', '--manifest-path', HERE/'Cargo.toml', '--locked', '--message-format=json']
+    if args.release:
+        build_command.append('--release')
+    build = run('cargo-build', build_command)
     artifacts = [Path(p) for line in build.splitlines() if line.startswith('{')
                  for row in [json.loads(line)] if row.get('reason') == 'compiler-artifact' and row['target']['name'] == 'ninjars_shared_provider_probe'
                  for p in row['filenames'] if p.endswith('.so')]
@@ -128,6 +132,7 @@ def main():
     result['unchanged_runtime_sources'] = before == after
     result['success'] &= before == after
     result['madloop_mode1_diagnostic'] = mode1
+    result['rust_profile'] = 'release' if args.release else 'dev'
     result['scope'] = 'Same factored SymJIT coefficient provider, FeynKit wavefunctions/model binding/routing and shared live masters; separate frozen-union reduction controls. No production-backend or timing acceptance.'
     result['physical_input_boundary'] = 'Explicit five positive-energy binary64 four-momenta, five helicities, seven free model values and scale squared; wavefunctions, dependent model coefficients, coefficient heads, propagators and S matrix evaluated within every complete-path call.'
     result['precision_oracle_boundary'] = 'Float256 exactly promotes binary64 physical component inputs after wavefunction evaluation; this checks coefficient arithmetic, not high-precision physical wavefunctions.'

@@ -13,7 +13,6 @@ use std::{collections::BTreeMap, fs};
 use symbolica::{
     atom::{Atom, AtomCore},
     domains::{
-        atom::AtomField,
         float::{Complex, Float, RealLike, SingleFloat},
         rational::Rational,
     },
@@ -196,27 +195,9 @@ impl Physical {
             .apply(&(&graph.numerator * &graph.overall_factor))
             .replace_multiple(&replacements)
             .expand();
-        let raw = PolynomialCoefficientPlan::new(expression, q.clone(), parameters.clone())
-            .map_err(error)?;
-        // Public factor/map_coeff/flatten, poly/factor implementation/examples,
-        // and FeynKit usages were audited in the coefficient-factor experiment.
-        // This exact composition is temporary until the optional public method
-        // lands; no parallel polynomial or algebra implementation is introduced.
-        let factored = raw
-            .polynomial()
-            .map_coeff(
-                |coefficient| {
-                    let factored = coefficient.factor();
-                    assert!((&factored - coefficient).expand().is_zero());
-                    factored
-                },
-                AtomField {
-                    statistical_zero_test: false,
-                    ..AtomField::new()
-                },
-            )
-            .flatten(false);
-        let plan = PolynomialCoefficientPlan::new(factored, q.clone(), parameters.clone())
+        let plan = PolynomialCoefficientPlan::new(expression, q.clone(), parameters.clone())
+            .map_err(error)?
+            .factor_coefficients()
             .map_err(error)?;
         if plan.rank() != 4 {
             return Err(format!(
@@ -264,6 +245,7 @@ impl Physical {
             n: 5,
             parameters: plan.coefficient_symbols().len(),
             scratch: CallScratch::default(),
+            calls_and_rows: [0; 8],
         });
         Ok(Self {
             provider,
@@ -509,6 +491,8 @@ pub unsafe extern "C" fn sp_physical_prepare(
         dimensions(no, rows, 51, "physical output")?;
         output(out, no)?;
         let state = unsafe { physical(handle) }?;
+        #[cfg(feature = "allocation-diagnostics")]
+        let _allocation_scope = super::allocation::Scope::new(2);
         state.prepare(
             unsafe { read(momenta, np) }?,
             unsafe { read(helicities, nh) }?,

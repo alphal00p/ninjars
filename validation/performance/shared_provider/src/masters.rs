@@ -266,6 +266,8 @@ pub unsafe extern "C" fn sp_master_call(
     no: usize,
 ) -> i32 {
     guard(|| {
+        #[cfg(feature = "allocation-diagnostics")]
+        let _allocation_scope = super::allocation::Scope::new(1);
         let state = unsafe { masters(handle) }?;
         let integral = integral(which)?;
         dimensions(ni, rows, integral.invariant_count(), "master invariants")?;
@@ -600,7 +602,6 @@ mod tests {
     /// produces a nonfinite result here; this is an outstanding evaluation bug,
     /// not an accepted physical singularity or a supported-domain exclusion.
     #[test]
-    #[ignore = "known C0 exceptional-point bug; run explicitly to reproduce"]
     fn euclidean_c0_exceptional_point_must_be_finite() {
         let mut provider = SymbolicaMasters::new(0.);
         let mut output = [[c(77.); 3]];
@@ -623,5 +624,10 @@ mod tests {
                 .iter()
                 .all(|v| v.re.is_finite() && v.im.is_finite())
         );
+        // Independent 60-digit Feynman-parameter quadrature:
+        // -0.135212396225436074537371827943492306170596769774993734247205.
+        assert!((output[0][0].re + 0.135_212_396_225_436_08).abs() < 1e-12);
+        assert!(output[0][0].im.abs() < 1e-12);
+        assert_eq!(output[0][1..], [c(0.), c(0.)]);
     }
 }

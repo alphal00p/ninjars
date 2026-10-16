@@ -1,0 +1,2707 @@
+{
+  "success": true,
+  "mode": "timing",
+  "clock_pair_median_ns": 30,
+  "performance_acceptance": false,
+  "original_production_backend_counters_available": false,
+  "counter_columns": [
+    "numerator_direct_calls",
+    "numerator_mu_calls",
+    "numerator_t3_calls",
+    "numerator_t2_calls",
+    "numerator_direct_rows",
+    "numerator_mu_rows",
+    "numerator_t3_rows",
+    "numerator_t2_rows",
+    "preparation_calls",
+    "preparation_rows",
+    "wavefunction_calls",
+    "rust_numerator_wire_calls",
+    "rust_numerator_wire_rows",
+    "rust_master_wire_calls",
+    "rust_master_wire_rows",
+    "shared_live_backend_calls",
+    "shared_live_backend_rows",
+    "live_flag_delta",
+    "direct_rust_master_calls",
+    "direct_rust_master_rows"
+  ],
+  "records": [
+    {
+      "scope": "preparation",
+      "workload": "repeated",
+      "width": 1,
+      "rounds": 1,
+      "correctness_components": 153,
+      "max_scaled_error": 0,
+      "samples": [
+        {
+          "original_ns": 4151,
+          "rust_ns": 3900,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 3891,
+          "rust_ns": 4009,
+          "order": "rust-first"
+        },
+        {
+          "original_ns": 3951,
+          "rust_ns": 3871,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 3869,
+          "rust_ns": 3940,
+          "order": "rust-first"
+        }
+      ],
+      "original_counter_deltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        4,
+        20,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        4,
+        20,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "summary": {
+        "width": 1,
+        "rounds_per_block": 1,
+        "paired_blocks": 4,
+        "counts_by_order": {
+          "original-first": 2,
+          "rust-first": 2
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3921.0,
+              "mad": 41.0
+            },
+            "ns_per_point": {
+              "median": 3921.0,
+              "mad": 41.0
+            },
+            "points_per_second": {
+              "median": 255051.91096717364,
+              "mad": 2682.119337432785
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 3920.0,
+              "mad": 34.5
+            },
+            "ns_per_point": {
+              "median": 3920.0,
+              "mad": 34.5
+            },
+            "points_per_second": {
+              "median": 255108.6815046206,
+              "mad": 2262.0369872552255
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 0.9990514783089486,
+          "mad": 0.025287216357199105,
+          "median_by_order": {
+            "original-first": 0.9596423021327084,
+            "rust-first": 1.0243386946661477
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            0.9789418189129301,
+            1.005039177885926
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "minimum_observed_block_ns": 3869,
+      "block_duration_below_20ms": true,
+      "shared_preparation_width": 1,
+      "original_reduction_batch_width": null,
+      "rust_reduction_batch_width": null
+    },
+    {
+      "scope": "preparation",
+      "workload": "repeated",
+      "width": 8,
+      "rounds": 1,
+      "correctness_components": 1224,
+      "max_scaled_error": 0,
+      "samples": [
+        {
+          "original_ns": 29840,
+          "rust_ns": 29660,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 35591,
+          "rust_ns": 29700,
+          "order": "rust-first"
+        },
+        {
+          "original_ns": 29850,
+          "rust_ns": 29470,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 29650,
+          "rust_ns": 29650,
+          "order": "rust-first"
+        }
+      ],
+      "original_counter_deltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        32,
+        160,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        32,
+        160,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "summary": {
+        "width": 8,
+        "rounds_per_block": 1,
+        "paired_blocks": 4,
+        "counts_by_order": {
+          "original-first": 2,
+          "rust-first": 2
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 29845.0,
+              "mad": 100.0
+            },
+            "ns_per_point": {
+              "median": 3730.625,
+              "mad": 12.5
+            },
+            "points_per_second": {
+              "median": 268051.60745640623,
+              "mad": 903.901181003399
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 29655.0,
+              "mad": 25.0
+            },
+            "ns_per_point": {
+              "median": 3706.875,
+              "mad": 3.125
+            },
+            "points_per_second": {
+              "median": 269769.0179538991,
+              "mad": 227.11658462078776
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 0.9906187550801371,
+          "mad": 0.006365159128978226,
+          "median_by_order": {
+            "original-first": 0.9906187550801371,
+            "rust-first": 0.9172403135624174
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            0.9108751544334392,
+            0.9969839142091153
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "minimum_observed_block_ns": 29470,
+      "block_duration_below_20ms": true,
+      "shared_preparation_width": 8,
+      "original_reduction_batch_width": null,
+      "rust_reduction_batch_width": null
+    },
+    {
+      "scope": "preparation",
+      "workload": "changing",
+      "width": 1,
+      "rounds": 1,
+      "correctness_components": 153,
+      "max_scaled_error": 0,
+      "samples": [
+        {
+          "original_ns": 3940,
+          "rust_ns": 3870,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 3890,
+          "rust_ns": 3910,
+          "order": "rust-first"
+        },
+        {
+          "original_ns": 3900,
+          "rust_ns": 3880,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 3870,
+          "rust_ns": 3910,
+          "order": "rust-first"
+        }
+      ],
+      "original_counter_deltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        4,
+        20,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        4,
+        20,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "summary": {
+        "width": 1,
+        "rounds_per_block": 1,
+        "paired_blocks": 4,
+        "counts_by_order": {
+          "original-first": 2,
+          "rust-first": 2
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3895.0,
+              "mad": 15.0
+            },
+            "ns_per_point": {
+              "median": 3895.0,
+              "mad": 15.0
+            },
+            "points_per_second": {
+              "median": 256739.83257530816,
+              "mad": 993.8382031405345
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 3895.0,
+              "mad": 15.0
+            },
+            "ns_per_point": {
+              "median": 3895.0,
+              "mad": 15.0
+            },
+            "points_per_second": {
+              "median": 256743.21723310568,
+              "mad": 988.7415297808911
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 1.000006591523301,
+          "mad": 0.0077320612204334616,
+          "median_by_order": {
+            "original-first": 0.988552648704933,
+            "rust-first": 1.0077386527437344
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            0.9936874453564392,
+            1.0026038560922284
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "minimum_observed_block_ns": 3870,
+      "block_duration_below_20ms": true,
+      "shared_preparation_width": 1,
+      "original_reduction_batch_width": null,
+      "rust_reduction_batch_width": null
+    },
+    {
+      "scope": "preparation",
+      "workload": "changing",
+      "width": 8,
+      "rounds": 1,
+      "correctness_components": 1224,
+      "max_scaled_error": 0,
+      "samples": [
+        {
+          "original_ns": 29690,
+          "rust_ns": 29560,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 29590,
+          "rust_ns": 30550,
+          "order": "rust-first"
+        },
+        {
+          "original_ns": 29970,
+          "rust_ns": 29590,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 29631,
+          "rust_ns": 29670,
+          "order": "rust-first"
+        }
+      ],
+      "original_counter_deltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        32,
+        160,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        32,
+        160,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "summary": {
+        "width": 8,
+        "rounds_per_block": 1,
+        "paired_blocks": 4,
+        "counts_by_order": {
+          "original-first": 2,
+          "rust-first": 2
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 29660.5,
+              "mad": 50.0
+            },
+            "ns_per_point": {
+              "median": 3707.5625,
+              "mad": 6.25
+            },
+            "points_per_second": {
+              "median": 269719.2533390295,
+              "mad": 455.30752551634214
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 29630.0,
+              "mad": 55.0
+            },
+            "ns_per_point": {
+              "median": 3703.75,
+              "mad": 6.875
+            },
+            "points_per_second": {
+              "median": 269997.11709963134,
+              "mad": 501.68451979444944
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 0.998468805240122,
+          "mad": 0.0069977675694661845,
+          "median_by_order": {
+            "original-first": 0.9914710376706559,
+            "rust-first": 1.016879791082221
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            0.9943184215567868,
+            1.01403240719609
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "minimum_observed_block_ns": 29560,
+      "block_duration_below_20ms": true,
+      "shared_preparation_width": 8,
+      "original_reduction_batch_width": null,
+      "rust_reduction_batch_width": null
+    },
+    {
+      "scope": "shared-reduction",
+      "workload": "repeated",
+      "width": 1,
+      "rounds": 1,
+      "correctness_components": 9,
+      "max_scaled_error": 2.089315818533712e-16,
+      "samples": [
+        {
+          "original_ns": 110160,
+          "rust_ns": 362631,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 108761,
+          "rust_ns": 365701,
+          "order": "rust-first"
+        },
+        {
+          "original_ns": 104870,
+          "rust_ns": 362811,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 105480,
+          "rust_ns": 372332,
+          "order": "rust-first"
+        }
+      ],
+      "original_counter_deltas": [
+        40,
+        0,
+        100,
+        80,
+        40,
+        0,
+        100,
+        80,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        20,
+        0,
+        60,
+        40,
+        40,
+        0,
+        100,
+        80,
+        0,
+        0,
+        0,
+        120,
+        220,
+        20,
+        160,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "summary": {
+        "width": 1,
+        "rounds_per_block": 1,
+        "paired_blocks": 4,
+        "counts_by_order": {
+          "original-first": 2,
+          "rust-first": 2
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 107120.5,
+              "mad": 1945.5
+            },
+            "ns_per_point": {
+              "median": 107120.5,
+              "mad": 1945.5
+            },
+            "points_per_second": {
+              "median": 9337.471257293388,
+              "mad": 170.57162035938563
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 364256.0,
+              "mad": 1535.0
+            },
+            "ns_per_point": {
+              "median": 364256.0,
+              "mad": 1535.0
+            },
+            "points_per_second": {
+              "median": 2745.365175204499,
+              "mad": 11.574901509605752
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 3.411026956166566,
+          "mad": 0.08372736685372972,
+          "median_by_order": {
+            "original-first": 3.3757417511732024,
+            "rust-first": 3.446155075315402
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            3.327142503468309,
+            3.4947543230202958
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "minimum_observed_block_ns": 104870,
+      "block_duration_below_20ms": true,
+      "shared_preparation_width": 1,
+      "original_reduction_batch_width": 1,
+      "rust_reduction_batch_width": 1
+    },
+    {
+      "scope": "shared-reduction",
+      "workload": "repeated",
+      "width": 8,
+      "rounds": 1,
+      "correctness_components": 72,
+      "max_scaled_error": 2.089315818533712e-16,
+      "samples": [
+        {
+          "original_ns": 847653,
+          "rust_ns": 2684298,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 859482,
+          "rust_ns": 2655528,
+          "order": "rust-first"
+        },
+        {
+          "original_ns": 826592,
+          "rust_ns": 2700358,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 856853,
+          "rust_ns": 2670928,
+          "order": "rust-first"
+        }
+      ],
+      "original_counter_deltas": [
+        320,
+        0,
+        800,
+        640,
+        320,
+        0,
+        800,
+        640,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        20,
+        0,
+        60,
+        40,
+        320,
+        0,
+        800,
+        640,
+        0,
+        0,
+        0,
+        120,
+        1760,
+        20,
+        1280,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "summary": {
+        "width": 8,
+        "rounds_per_block": 1,
+        "paired_blocks": 4,
+        "counts_by_order": {
+          "original-first": 2,
+          "rust-first": 2
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 852253.0,
+              "mad": 5914.5
+            },
+            "ns_per_point": {
+              "median": 106531.625,
+              "mad": 739.3125
+            },
+            "points_per_second": {
+              "median": 9387.157413626885,
+              "mad": 64.94610853351787
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 2677613.0,
+              "mad": 14385.0
+            },
+            "ns_per_point": {
+              "median": 334701.625,
+              "mad": 1798.125
+            },
+            "points_per_second": {
+              "median": 2987.7543414482375,
+              "mad": 16.14426361480855
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 3.1419391789084274,
+          "mad": 0.038528663859556556,
+          "median_by_order": {
+            "original-first": 3.2167993735702347,
+            "rust-first": 3.1034105150488713
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            3.1282129155367295,
+            3.191996973082376
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "minimum_observed_block_ns": 826592,
+      "block_duration_below_20ms": true,
+      "shared_preparation_width": 8,
+      "original_reduction_batch_width": 1,
+      "rust_reduction_batch_width": 8
+    },
+    {
+      "scope": "shared-reduction",
+      "workload": "changing",
+      "width": 1,
+      "rounds": 1,
+      "correctness_components": 9,
+      "max_scaled_error": 2.089315818533712e-16,
+      "samples": [
+        {
+          "original_ns": 107970,
+          "rust_ns": 378131,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 109380,
+          "rust_ns": 369922,
+          "order": "rust-first"
+        },
+        {
+          "original_ns": 106650,
+          "rust_ns": 379072,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 110970,
+          "rust_ns": 365962,
+          "order": "rust-first"
+        }
+      ],
+      "original_counter_deltas": [
+        40,
+        0,
+        100,
+        80,
+        40,
+        0,
+        100,
+        80,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        20,
+        0,
+        60,
+        40,
+        40,
+        0,
+        100,
+        80,
+        0,
+        0,
+        0,
+        120,
+        220,
+        20,
+        160,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "summary": {
+        "width": 1,
+        "rounds_per_block": 1,
+        "paired_blocks": 4,
+        "counts_by_order": {
+          "original-first": 2,
+          "rust-first": 2
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 108675.0,
+              "mad": 1365.0
+            },
+            "ns_per_point": {
+              "median": 108675.0,
+              "mad": 1365.0
+            },
+            "points_per_second": {
+              "median": 9202.135596573498,
+              "mad": 117.01293494415131
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 374026.5,
+              "mad": 4575.0
+            },
+            "ns_per_point": {
+              "median": 374026.5,
+              "mad": 4575.0
+            },
+            "points_per_second": {
+              "median": 2673.929358640119,
+              "mad": 32.62565439198329
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 3.4420875935601254,
+          "mad": 0.08618298662786494,
+          "median_by_order": {
+            "original-first": 3.52827058018799,
+            "rust-first": 3.3399178297633823
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            3.4000160285529835,
+            3.4681723813983893
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "minimum_observed_block_ns": 106650,
+      "block_duration_below_20ms": true,
+      "shared_preparation_width": 1,
+      "original_reduction_batch_width": 1,
+      "rust_reduction_batch_width": 1
+    },
+    {
+      "scope": "shared-reduction",
+      "workload": "changing",
+      "width": 8,
+      "rounds": 1,
+      "correctness_components": 72,
+      "max_scaled_error": 2.089315818533712e-16,
+      "samples": [
+        {
+          "original_ns": 848223,
+          "rust_ns": 2675728,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 855893,
+          "rust_ns": 2663828,
+          "order": "rust-first"
+        },
+        {
+          "original_ns": 824433,
+          "rust_ns": 2741058,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 852472,
+          "rust_ns": 2673908,
+          "order": "rust-first"
+        }
+      ],
+      "original_counter_deltas": [
+        320,
+        0,
+        800,
+        640,
+        320,
+        0,
+        800,
+        640,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        20,
+        0,
+        60,
+        40,
+        320,
+        0,
+        800,
+        640,
+        0,
+        0,
+        0,
+        120,
+        1760,
+        20,
+        1280,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "summary": {
+        "width": 8,
+        "rounds_per_block": 1,
+        "paired_blocks": 4,
+        "counts_by_order": {
+          "original-first": 2,
+          "rust-first": 2
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 850347.5,
+              "mad": 3835.0
+            },
+            "ns_per_point": {
+              "median": 106293.4375,
+              "mad": 479.375
+            },
+            "points_per_second": {
+              "median": 9407.977251590653,
+              "mad": 42.259644215732806
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 2674818.0,
+              "mad": 5950.0
+            },
+            "ns_per_point": {
+              "median": 334352.25,
+              "mad": 743.75
+            },
+            "points_per_second": {
+              "median": 2990.8580419090954,
+              "mad": 6.678190598395986
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 3.145581035689118,
+          "mad": 0.02108621771714292,
+          "median_by_order": {
+            "original-first": 3.239644825775671,
+            "rust-first": 3.124494817971975
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            3.133423858053026,
+            3.23071578569462
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "minimum_observed_block_ns": 824433,
+      "block_duration_below_20ms": true,
+      "shared_preparation_width": 8,
+      "original_reduction_batch_width": 1,
+      "rust_reduction_batch_width": 8
+    },
+    {
+      "scope": "shared-live-complete",
+      "workload": "repeated",
+      "width": 1,
+      "rounds": 1,
+      "correctness_components": 9,
+      "max_scaled_error": 2.089315818533712e-16,
+      "samples": [
+        {
+          "original_ns": 49000230,
+          "rust_ns": 50144223,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 49500551,
+          "rust_ns": 50222574,
+          "order": "rust-first"
+        },
+        {
+          "original_ns": 48930620,
+          "rust_ns": 58047298,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 49132341,
+          "rust_ns": 51041456,
+          "order": "rust-first"
+        }
+      ],
+      "original_counter_deltas": [
+        40,
+        0,
+        100,
+        80,
+        40,
+        0,
+        100,
+        80,
+        4,
+        4,
+        20,
+        0,
+        0,
+        0,
+        0,
+        200,
+        200,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        20,
+        0,
+        60,
+        40,
+        40,
+        0,
+        100,
+        80,
+        4,
+        4,
+        20,
+        120,
+        220,
+        20,
+        160,
+        20,
+        160,
+        0,
+        0,
+        0
+      ],
+      "summary": {
+        "width": 1,
+        "rounds_per_block": 1,
+        "paired_blocks": 4,
+        "counts_by_order": {
+          "original-first": 2,
+          "rust-first": 2
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 49066285.5,
+              "mad": 100860.5
+            },
+            "ns_per_point": {
+              "median": 49066285.5,
+              "mad": 100860.5
+            },
+            "points_per_second": {
+              "median": 20.380630043679762,
+              "mad": 0.041953958150285686
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 50632015.0,
+              "mad": 448616.5
+            },
+            "ns_per_point": {
+              "median": 50632015.0,
+              "mad": 448616.5
+            },
+            "points_per_second": {
+              "median": 19.751641277227836,
+              "mad": 0.17527956312743775
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 1.0311016358255554,
+          "mad": 0.012135212225015457,
+          "median_by_order": {
+            "original-first": 1.104832575564794,
+            "rust-first": 1.0267213730942146
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            1.0189664236005398,
+            1.1125875250584687
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "minimum_observed_block_ns": 48930620,
+      "block_duration_below_20ms": false,
+      "shared_preparation_width": 1,
+      "original_reduction_batch_width": 1,
+      "rust_reduction_batch_width": 1
+    },
+    {
+      "scope": "shared-live-complete",
+      "workload": "repeated",
+      "width": 8,
+      "rounds": 1,
+      "correctness_components": 72,
+      "max_scaled_error": 2.089315818533712e-16,
+      "samples": [
+        {
+          "original_ns": 390963605,
+          "rust_ns": 358984717,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 391686468,
+          "rust_ns": 358573246,
+          "order": "rust-first"
+        },
+        {
+          "original_ns": 391185806,
+          "rust_ns": 360210461,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 391461357,
+          "rust_ns": 359281488,
+          "order": "rust-first"
+        }
+      ],
+      "original_counter_deltas": [
+        320,
+        0,
+        800,
+        640,
+        320,
+        0,
+        800,
+        640,
+        4,
+        32,
+        160,
+        0,
+        0,
+        0,
+        0,
+        1600,
+        1600,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        20,
+        0,
+        60,
+        40,
+        320,
+        0,
+        800,
+        640,
+        4,
+        32,
+        160,
+        120,
+        1760,
+        20,
+        1280,
+        20,
+        1280,
+        0,
+        0,
+        0
+      ],
+      "summary": {
+        "width": 8,
+        "rounds_per_block": 1,
+        "paired_blocks": 4,
+        "counts_by_order": {
+          "original-first": 2,
+          "rust-first": 2
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 391323581.5,
+              "mad": 248876.0
+            },
+            "ns_per_point": {
+              "median": 48915447.6875,
+              "mad": 31109.5
+            },
+            "points_per_second": {
+              "median": 20.443442127849806,
+              "mad": 0.013009115730014287
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 359133102.5,
+              "mad": 354121.0
+            },
+            "ns_per_point": {
+              "median": 44891637.8125,
+              "mad": 44265.125
+            },
+            "points_per_second": {
+              "median": 22.275867387416348,
+              "mad": 0.021990188164059177
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 0.9180002451043814,
+          "mad": 0.0013725357804136307,
+          "median_by_order": {
+            "original-first": 0.9195108731244181,
+            "rust-first": 0.9166277093239679
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            0.9168324132454682,
+            0.9193061692029179
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "minimum_observed_block_ns": 358573246,
+      "block_duration_below_20ms": false,
+      "shared_preparation_width": 8,
+      "original_reduction_batch_width": 1,
+      "rust_reduction_batch_width": 8
+    },
+    {
+      "scope": "shared-live-complete",
+      "workload": "changing",
+      "width": 1,
+      "rounds": 1,
+      "correctness_components": 9,
+      "max_scaled_error": 2.089315818533712e-16,
+      "samples": [
+        {
+          "original_ns": 49100870,
+          "rust_ns": 50359605,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 52213020,
+          "rust_ns": 53692544,
+          "order": "rust-first"
+        },
+        {
+          "original_ns": 31239806,
+          "rust_ns": 32907660,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 49118291,
+          "rust_ns": 50320014,
+          "order": "rust-first"
+        }
+      ],
+      "original_counter_deltas": [
+        40,
+        0,
+        100,
+        80,
+        40,
+        0,
+        100,
+        80,
+        4,
+        4,
+        20,
+        0,
+        0,
+        0,
+        0,
+        200,
+        200,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        20,
+        0,
+        60,
+        40,
+        40,
+        0,
+        100,
+        80,
+        4,
+        4,
+        20,
+        120,
+        220,
+        20,
+        160,
+        20,
+        160,
+        0,
+        0,
+        0
+      ],
+      "summary": {
+        "width": 1,
+        "rounds_per_block": 1,
+        "paired_blocks": 4,
+        "counts_by_order": {
+          "original-first": 2,
+          "rust-first": 2
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 49109580.5,
+              "mad": 1556075.0
+            },
+            "ns_per_point": {
+              "median": 49109580.5,
+              "mad": 1556075.0
+            },
+            "points_per_second": {
+              "median": 20.36262621831272,
+              "mad": 0.6069634289598707
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 50339809.5,
+              "mad": 1686265.0
+            },
+            "ns_per_point": {
+              "median": 50339809.5,
+              "mad": 1686265.0
+            },
+            "points_per_second": {
+              "median": 19.86499680011189,
+              "mad": 0.6241242985294999
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 1.0269860001661084,
+          "mad": 0.0019352039213011984,
+          "median_by_order": {
+            "original-first": 1.0395122201553941,
+            "rust-first": 1.0264010999354762
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            1.0250507962448072,
+            1.0408625238460631
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "minimum_observed_block_ns": 31239806,
+      "block_duration_below_20ms": false,
+      "shared_preparation_width": 1,
+      "original_reduction_batch_width": 1,
+      "rust_reduction_batch_width": 1
+    },
+    {
+      "scope": "shared-live-complete",
+      "workload": "changing",
+      "width": 8,
+      "rounds": 1,
+      "correctness_components": 72,
+      "max_scaled_error": 2.089315818533712e-16,
+      "samples": [
+        {
+          "original_ns": 365960229,
+          "rust_ns": 352881148,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 346768230,
+          "rust_ns": 335557606,
+          "order": "rust-first"
+        },
+        {
+          "original_ns": 344509594,
+          "rust_ns": 333515690,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 365513058,
+          "rust_ns": 352683638,
+          "order": "rust-first"
+        }
+      ],
+      "original_counter_deltas": [
+        320,
+        0,
+        800,
+        640,
+        320,
+        0,
+        800,
+        640,
+        4,
+        32,
+        160,
+        0,
+        0,
+        0,
+        0,
+        1600,
+        1600,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        20,
+        0,
+        60,
+        40,
+        320,
+        0,
+        800,
+        640,
+        4,
+        32,
+        160,
+        120,
+        1760,
+        20,
+        1280,
+        20,
+        1280,
+        0,
+        0,
+        0
+      ],
+      "summary": {
+        "width": 8,
+        "rounds_per_block": 1,
+        "paired_blocks": 4,
+        "counts_by_order": {
+          "original-first": 2,
+          "rust-first": 2
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 356140644.0,
+              "mad": 9595999.5
+            },
+            "ns_per_point": {
+              "median": 44517580.5,
+              "mad": 1199499.9375
+            },
+            "points_per_second": {
+              "median": 22.478603568202086,
+              "mad": 0.6049326304730371
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 344120622.0,
+              "mad": 8661771.0
+            },
+            "ns_per_point": {
+              "median": 43015077.75,
+              "mad": 1082721.375
+            },
+            "points_per_second": {
+              "median": 23.2620661788554,
+              "mad": 0.5851957181053358
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 0.9662856873200603,
+          "mad": 0.0015940042146359024,
+          "median_by_order": {
+            "original-first": 0.9661745862838018,
+            "rust-first": 0.9662856873200603
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            0.964580582069166,
+            0.9678796915346961
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "minimum_observed_block_ns": 333515690,
+      "block_duration_below_20ms": false,
+      "shared_preparation_width": 8,
+      "original_reduction_batch_width": 1,
+      "rust_reduction_batch_width": 8
+    },
+    {
+      "scope": "production-complete",
+      "workload": "repeated",
+      "width": 1,
+      "rounds": 1,
+      "correctness_components": 9,
+      "max_scaled_error": 2.236549047241113e-16,
+      "samples": [
+        {
+          "original_ns": 300431,
+          "rust_ns": 50273214,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 318031,
+          "rust_ns": 50414594,
+          "order": "rust-first"
+        },
+        {
+          "original_ns": 220161,
+          "rust_ns": 50478264,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 328021,
+          "rust_ns": 50623905,
+          "order": "rust-first"
+        }
+      ],
+      "original_counter_deltas": [
+        40,
+        0,
+        100,
+        80,
+        40,
+        0,
+        100,
+        80,
+        4,
+        4,
+        20,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        20,
+        0,
+        60,
+        40,
+        40,
+        0,
+        100,
+        80,
+        4,
+        4,
+        20,
+        120,
+        220,
+        0,
+        0,
+        0,
+        0,
+        0,
+        20,
+        160
+      ],
+      "summary": {
+        "width": 1,
+        "rounds_per_block": 1,
+        "paired_blocks": 4,
+        "counts_by_order": {
+          "original-first": 2,
+          "rust-first": 2
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 309231.0,
+              "mad": 13795.0
+            },
+            "ns_per_point": {
+              "median": 309231.0,
+              "mad": 13795.0
+            },
+            "points_per_second": {
+              "median": 3236.449439106816,
+              "mad": 139.98300531082896
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 50446429.0,
+              "mad": 102525.0
+            },
+            "ns_per_point": {
+              "median": 50446429.0,
+              "mad": 102525.0
+            },
+            "points_per_second": {
+              "median": 19.823016575539974,
+              "mad": 0.04040068386045981
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 162.928989181668,
+          "mad": 6.50283986793373,
+          "median_by_order": {
+            "original-first": 198.30791832671696,
+            "rust-first": 156.42614931373424
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            160.8341326815036,
+            193.89993495894765
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "minimum_observed_block_ns": 220161,
+      "block_duration_below_20ms": true,
+      "shared_preparation_width": 1,
+      "original_reduction_batch_width": 1,
+      "rust_reduction_batch_width": 1
+    },
+    {
+      "scope": "production-complete",
+      "workload": "repeated",
+      "width": 8,
+      "rounds": 1,
+      "correctness_components": 72,
+      "max_scaled_error": 2.236549047241113e-16,
+      "samples": [
+        {
+          "original_ns": 1719355,
+          "rust_ns": 360475372,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 1720495,
+          "rust_ns": 359526049,
+          "order": "rust-first"
+        },
+        {
+          "original_ns": 1517705,
+          "rust_ns": 358175225,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 1719836,
+          "rust_ns": 358735857,
+          "order": "rust-first"
+        }
+      ],
+      "original_counter_deltas": [
+        320,
+        0,
+        800,
+        640,
+        320,
+        0,
+        800,
+        640,
+        4,
+        32,
+        160,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        20,
+        0,
+        60,
+        40,
+        320,
+        0,
+        800,
+        640,
+        4,
+        32,
+        160,
+        120,
+        1760,
+        0,
+        0,
+        0,
+        0,
+        0,
+        20,
+        1280
+      ],
+      "summary": {
+        "width": 8,
+        "rounds_per_block": 1,
+        "paired_blocks": 4,
+        "counts_by_order": {
+          "original-first": 2,
+          "rust-first": 2
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 1719595.5,
+              "mad": 570.0
+            },
+            "ns_per_point": {
+              "median": 214949.4375,
+              "mad": 71.25
+            },
+            "points_per_second": {
+              "median": 4652.256973505189,
+              "mad": 1.5415083157490699
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 359130953.0,
+              "mad": 675412.0
+            },
+            "ns_per_point": {
+              "median": 44891369.125,
+              "mad": 84426.5
+            },
+            "points_per_second": {
+              "median": 22.276023872990677,
+              "mad": 0.041959746424145905
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 209.31198008474576,
+          "mad": 0.53503943802707,
+          "median_by_order": {
+            "original-first": 222.8276236759322,
+            "rust-first": 208.77694064671869
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            209.12228671044141,
+            222.4822776122095
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "minimum_observed_block_ns": 1517705,
+      "block_duration_below_20ms": true,
+      "shared_preparation_width": 8,
+      "original_reduction_batch_width": 1,
+      "rust_reduction_batch_width": 8
+    },
+    {
+      "scope": "production-complete",
+      "workload": "changing",
+      "width": 1,
+      "rounds": 1,
+      "correctness_components": 9,
+      "max_scaled_error": 2.236549047241113e-16,
+      "samples": [
+        {
+          "original_ns": 291571,
+          "rust_ns": 50591095,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 327581,
+          "rust_ns": 53694824,
+          "order": "rust-first"
+        },
+        {
+          "original_ns": 212511,
+          "rust_ns": 32775271,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 315470,
+          "rust_ns": 50376414,
+          "order": "rust-first"
+        }
+      ],
+      "original_counter_deltas": [
+        40,
+        0,
+        100,
+        80,
+        40,
+        0,
+        100,
+        80,
+        4,
+        4,
+        20,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        20,
+        0,
+        60,
+        40,
+        40,
+        0,
+        100,
+        80,
+        4,
+        4,
+        20,
+        120,
+        220,
+        0,
+        0,
+        0,
+        0,
+        0,
+        20,
+        160
+      ],
+      "summary": {
+        "width": 1,
+        "rounds_per_block": 1,
+        "paired_blocks": 4,
+        "counts_by_order": {
+          "original-first": 2,
+          "rust-first": 2
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 303520.5,
+              "mad": 18005.0
+            },
+            "ns_per_point": {
+              "median": 303520.5,
+              "mad": 18005.0
+            },
+            "points_per_second": {
+              "median": 3299.7849455134624,
+              "mad": 188.50813424311264
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 50483754.5,
+              "mad": 1659205.0
+            },
+            "ns_per_point": {
+              "median": 50483754.5,
+              "mad": 1659205.0
+            },
+            "points_per_second": {
+              "median": 19.80844195948999,
+              "mad": 0.6133952028560774
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 161.79999079929553,
+          "mad": 4.842267454979279,
+          "median_by_order": {
+            "original-first": 163.8703403193133,
+            "rust-first": 161.79999079929553
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            156.95772334431626,
+            168.71260777429256
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "minimum_observed_block_ns": 212511,
+      "block_duration_below_20ms": true,
+      "shared_preparation_width": 1,
+      "original_reduction_batch_width": 1,
+      "rust_reduction_batch_width": 1
+    },
+    {
+      "scope": "production-complete",
+      "workload": "changing",
+      "width": 8,
+      "rounds": 1,
+      "correctness_components": 72,
+      "max_scaled_error": 2.236549047241113e-16,
+      "samples": [
+        {
+          "original_ns": 1751816,
+          "rust_ns": 351933586,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 1746936,
+          "rust_ns": 334576372,
+          "order": "rust-first"
+        },
+        {
+          "original_ns": 1522104,
+          "rust_ns": 332141006,
+          "order": "original-first"
+        },
+        {
+          "original_ns": 1755036,
+          "rust_ns": 351812265,
+          "order": "rust-first"
+        }
+      ],
+      "original_counter_deltas": [
+        320,
+        0,
+        800,
+        640,
+        320,
+        0,
+        800,
+        640,
+        4,
+        32,
+        160,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        20,
+        0,
+        60,
+        40,
+        320,
+        0,
+        800,
+        640,
+        4,
+        32,
+        160,
+        120,
+        1760,
+        0,
+        0,
+        0,
+        0,
+        0,
+        20,
+        1280
+      ],
+      "summary": {
+        "width": 8,
+        "rounds_per_block": 1,
+        "paired_blocks": 4,
+        "counts_by_order": {
+          "original-first": 2,
+          "rust-first": 2
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 1749376.0,
+              "mad": 4050.0
+            },
+            "ns_per_point": {
+              "median": 218672.0,
+              "mad": 506.25
+            },
+            "points_per_second": {
+              "median": 4573.068090215265,
+              "mad": 10.56773675228078
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 343194318.5,
+              "mad": 8678607.0
+            },
+            "ns_per_point": {
+              "median": 42899289.8125,
+              "mad": 1084825.875
+            },
+            "points_per_second": {
+              "median": 23.325117121294518,
+              "mad": 0.5896360484396155
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 200.67757513659615,
+          "mad": 4.6873037724470805,
+          "median_by_order": {
+            "original-first": 209.55410094833763,
+            "rust-first": 195.99027136414907
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            196.20912941459997,
+            209.33524289788676
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "minimum_observed_block_ns": 1522104,
+      "block_duration_below_20ms": true,
+      "shared_preparation_width": 8,
+      "original_reduction_batch_width": 1,
+      "rust_reduction_batch_width": 8
+    }
+  ],
+  "checksum": 320000,
+  "union_entries": 85,
+  "union_replay_rows": 11340,
+  "union_misses": 0,
+  "unchanged_runtime_sources": true,
+  "selected_cpu": 35,
+  "rust_profile": "release",
+  "thread_environment": {
+    "RAYON_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "host_isolation_verified": false,
+  "allocation_scope": "Rust GlobalAlloc only; C++ and native GMP/MPFR allocations are unobserved. Separate build, absent from primary timings.",
+  "normal_allocation_costs_excluded_from_timings": false,
+  "input_boundary": "Five raw positive-energy momenta, five helicities, seven free model inputs and scale squared. Both complete paths include the same FeynKit numerical preparation and coefficient evaluation.",
+  "original_preparation_batching": "Same width as NinjaRS; shared batched physical preparation precedes scalar original reduction.",
+  "warmup_validation_scope": "Integrated Laurent values and internal finite-split identities; preparation baseline checks equality. Raw and Float256 oracle controls are separate.",
+  "common_provider_ffi_included": true,
+  "production_complete_is_unmodified_cli_latency": false,
+  "artifacts_sha256": {
+    "/shared/external/ninja/target/performance/shared-workloads-diagnostic-newpins-release/libninjars_shared_provider_probe.so": "d3fcee765f683cad0b0273e85c5cda5c38b3e0a6e8f78a2ce72c163d7b79d984",
+    "/shared/external/ninja/target/performance/shared-workloads-diagnostic-newpins-release/physical-timing": "b13786288cc7f02a5d2e577cf4d451743ddf1260543fe9e6136adbe709ccb82b",
+    "/shared/external/ninja/target/reference-uncached-v2/ninja-build/src/.libs/libninja.a": "8f4d39dad292a28a05dd4e56bd4cbb7014cf08532ef4d8484c00ea44e0b097a3",
+    "/shared/external/ninja/target/reference-uncached-v2/oneloop/libavh_olo.a": "28c37c328fadd6f4f09f973bfb961b3bccb3c729583a92dc2186fd947ccbe4dd",
+    "/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib/libgfortran.so": "dce24abf076b71460d7df11c8bf00dcc2bb7eb69489f79aff48b53ae07e57b38",
+    "/shared/external/ninja/target/performance/shared-workloads-diagnostic-newpins-release/input.txt": "01c34e7c21fd3063ec86ea6d9ee559c3a70975214ae3756b0f8783a3e06477ba"
+  },
+  "reference_build_configuration": {
+    "config_sha256": "2468fc46b1fe8e5d2351ba81952a7c3432da07d771c421b8ad90efe7d32c191a",
+    "oneloop": true,
+    "master_result_cache": false,
+    "higher_rank": true
+  },
+  "dependency_heads": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "oneloopmaster": "bf7632a916528073464870f1b515d3e62f4e0060",
+    "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+  },
+  "compiler_versions": {
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+    "cxx": "g++ (GCC) 15.3.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+  },
+  "commands": [
+    {
+      "label": "cargo-build",
+      "argv": [
+        "cargo",
+        "build",
+        "--manifest-path",
+        "/shared/external/ninja/validation/performance/shared_provider/Cargo.toml",
+        "--locked",
+        "--message-format=json",
+        "--release"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "cpp-build",
+      "argv": [
+        "g++",
+        "-O3",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-I/shared/external/ninja/target/reference-uncached-v2/ninja-source/src",
+        "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build/src",
+        "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build",
+        "/shared/external/ninja/validation/performance/shared_provider/physical_timing.cc",
+        "/shared/external/ninja/target/performance/shared-workloads-diagnostic-newpins-release/libninjars_shared_provider_probe.so",
+        "/shared/external/ninja/target/reference-uncached-v2/ninja-build/src/.libs/libninja.a",
+        "/shared/external/ninja/target/reference-uncached-v2/oneloop/libavh_olo.a",
+        "/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib/libgfortran.so",
+        "-lquadmath",
+        "-Wl,-rpath,/shared/external/ninja/target/performance/shared-workloads-diagnostic-newpins-release",
+        "-Wl,-rpath,/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib",
+        "-o",
+        "/shared/external/ninja/target/performance/shared-workloads-diagnostic-newpins-release/physical-timing"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "physical-workloads",
+      "argv": [
+        "/shared/external/ninja/target/performance/shared-workloads-diagnostic-newpins-release/physical-timing",
+        "/shared/external/ninja/examples/graphs/physical/gg-hhh/top-pentagon-26.dot",
+        "timing",
+        "1",
+        "4",
+        "1,8",
+        "0,1,2,3"
+      ],
+      "returncode": 0
+    }
+  ],
+  "logs": {
+    "cpp-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "physical-workloads.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "cargo-build.stderr": {
+      "sha256": "ec8e03ee31d914c46d7f155310577894e737c9c4689018f7084d7eeb81305d93",
+      "text": "warning: patch `clarabel v0.11.1 (/shared/external/ninja/references/gammaloop_ninja_shared/vendor/clarabel)` was not used in the crate graph\nwarning: patch `typst-library v0.15.1 (/shared/external/ninja/references/gammaloop_ninja_shared/vendor/typst-library)` was not used in the crate graph\nwarning: patch `typst-svg v0.15.1 (/shared/external/ninja/references/gammaloop_ninja_shared/vendor/typst-svg)` was not used in the crate graph\nhelp: Check that the patched package version and available features are compatible\n      with the dependency requirements. If the patch has a different version from\n      what is locked in the Cargo.lock file, run `cargo update` to use the new\n      version. This may also occur with an optional dependency that is not enabled.\n   Compiling ninjars-shared-provider-probe v0.0.0 (/shared/external/ninja/validation/performance/shared_provider)\n    Finished `release` profile [optimized] target(s) in 10.60s\n"
+    }
+  },
+  "recorded_at_utc": "2026-10-16T21:17:56.355495+00:00",
+  "source_result_sha256": "4f94fd3c9623448f88d529b7671f516aa91f69e2e5ecaf95f79e24e64c069774",
+  "build_environment": {
+    "CARGO_BUILD_JOBS": 4,
+    "soft_open_file_limit": 65536,
+    "RUST_MIN_STACK": 134217728,
+    "RAYON_NUM_THREADS": 1,
+    "OMP_NUM_THREADS": 1,
+    "OPENBLAS_NUM_THREADS": 1
+  },
+  "standalone_release_profile": {
+    "opt_level": 3,
+    "lto": "No explicit LTO; Cargo release default",
+    "codegen_units": "Not set; Cargo release default",
+    "matches_main_cli_release_profile": false,
+    "main_cli_release_profile": "thin LTO, codegen-units1",
+    "scope": "Preliminary validation-only diagnostic; not final performance acceptance or unmodified CLI latency."
+  },
+  "sampling_boundary": {
+    "clock": "Each call is clocked separately; reported blocks sum call durations. Counter snapshots run between measured calls.",
+    "rounds_per_block": 1,
+    "blocks": 4,
+    "contiguous_repeat_block_acceptance_implemented": false,
+    "changing_point_phases_by_trial": [
+      0,
+      1,
+      2,
+      0
+    ],
+    "point_helicities": "Fixed pp; actual momenta/invariants vary.",
+    "independent_process_repeats": false
+  },
+  "outstanding_limitations": [
+    "Busy host with unrelated jobs; selected CPU35/SMT sibling291 not reserved.",
+    "Four paired blocks, widths1/8 only; final gate needs all widths and longer independently repeated balanced blocks.",
+    "Default standalone release profile differs from production thin LTO/codegen-units1.",
+    "Common validation numerator FFI and ordinary staging included; not unmodified CLI latency.",
+    "Rational/cut-constructible component parity across residue bases incomplete; total Laurent and internal finite splits pass.",
+    "Primary timing is uninstrumented; Rust allocator observations exclude C++/native allocation sites.",
+    "No SIMD/native master-batch optimization claimed."
+  ],
+  "complete_report_archive": {
+    "path": "validation/evidence/shared-workload-diagnostic-timing.json.gz",
+    "sha256": "52d2e21de5947a30dde08f76bb2619c56d9c1428e381e9b49498fff5ad40b7b9",
+    "uncompressed_sha256": "f0d5a546af84df973a3111dab60a28f8f2a2c9f380698b47af862cfb73a01a2f",
+    "compressed_bytes": 327396,
+    "uncompressed_bytes": 2659777,
+    "gzip_mtime": 0
+  },
+  "runtime_source_file_count": 1904,
+  "separate_physical_controls": {
+    "path": "/shared/external/ninja/target/performance/shared-physical-probe-newpins-release-2/result.json",
+    "sha256": "d96dacf9407367823ca18912c49be7f2617f6f97bcd53d944ece4e36b4bf97b4",
+    "dependency_heads": {
+      "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+      "oneloopmaster": "bf7632a916528073464870f1b515d3e62f4e0060",
+      "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+    },
+    "all_runtime_sources_match_this_run": true,
+    "integrated_widths": [
+      0,
+      1,
+      3,
+      8,
+      31,
+      32,
+      128,
+      1024
+    ],
+    "preparation_widths": [
+      0,
+      1,
+      8,
+      32,
+      128,
+      1024,
+      31
+    ],
+    "raw_components_checked": 210,
+    "raw_max_scaled_error": 3.771063304099544e-15,
+    "coefficient_oracle_max_scaled_error": 2.3581169793365375e-15,
+    "precision_oracle_boundary": "Float256 exactly promotes binary64 physical component inputs after wavefunction evaluation; this checks coefficient arithmetic, not high-precision physical wavefunctions.",
+    "archived_report": "validation/evidence/shared-physical-release-probe.json"
+  },
+  "cpu_selection_provenance": {
+    "sha256": "458ab1e4511823b9e8e9abd4c04a632143b8c6894412f76091c68538f928fce4",
+    "complete_snapshot_in_archive": true,
+    "chosen_candidate": {
+      "cpu": 35,
+      "busy_fraction": 0.0,
+      "siblings": [
+        35,
+        291
+      ],
+      "max_sibling_busy_fraction": 0.0
+    }
+  },
+  "host_before_summary": {
+    "loadavg": "37.70 41.32 51.47 67/39042 935648\n",
+    "cpu_models": [
+      "AMD EPYC 9754 128-Core Processor"
+    ],
+    "allowed_cpu_count": 384,
+    "busy_processes_top20": [
+      {
+        "pid": 1794472,
+        "comm": "gammaloop",
+        "percent_cpu": 2006.0,
+        "last_cpu": 233
+      },
+      {
+        "pid": 3393937,
+        "comm": "rustred-d044f0a",
+        "percent_cpu": 1630.0,
+        "last_cpu": 31
+      },
+      {
+        "pid": 3068354,
+        "comm": "rustred-8147451",
+        "percent_cpu": 424.0,
+        "last_cpu": 93
+      },
+      {
+        "pid": 935515,
+        "comm": "gammaloop",
+        "percent_cpu": 108.0,
+        "last_cpu": 127
+      },
+      {
+        "pid": 935345,
+        "comm": "gammaloop-rewri",
+        "percent_cpu": 103.0,
+        "last_cpu": 173
+      },
+      {
+        "pid": 904355,
+        "comm": "stage_replay",
+        "percent_cpu": 99.4,
+        "last_cpu": 15
+      },
+      {
+        "pid": 934891,
+        "comm": "codex",
+        "percent_cpu": 19.0,
+        "last_cpu": 109
+      },
+      {
+        "pid": 3140113,
+        "comm": "codex",
+        "percent_cpu": 4.9,
+        "last_cpu": 327
+      },
+      {
+        "pid": 25773,
+        "comm": "codex",
+        "percent_cpu": 4.7,
+        "last_cpu": 0
+      },
+      {
+        "pid": 25776,
+        "comm": "codex",
+        "percent_cpu": 4.4,
+        "last_cpu": 71
+      },
+      {
+        "pid": 930534,
+        "comm": "codex",
+        "percent_cpu": 4.3,
+        "last_cpu": 199
+      },
+      {
+        "pid": 917732,
+        "comm": "codex",
+        "percent_cpu": 3.7,
+        "last_cpu": 335
+      },
+      {
+        "pid": 7916,
+        "comm": ".tailscaled-wra",
+        "percent_cpu": 3.3,
+        "last_cpu": 33
+      },
+      {
+        "pid": 885851,
+        "comm": "codex",
+        "percent_cpu": 3.2,
+        "last_cpu": 318
+      },
+      {
+        "pid": 934474,
+        "comm": "python3.14",
+        "percent_cpu": 3.2,
+        "last_cpu": 124
+      },
+      {
+        "pid": 909042,
+        "comm": "python3.13",
+        "percent_cpu": 2.8,
+        "last_cpu": 172
+      },
+      {
+        "pid": 5464,
+        "comm": "txg_sync",
+        "percent_cpu": 2.0,
+        "last_cpu": 116
+      },
+      {
+        "pid": 638735,
+        "comm": "python3",
+        "percent_cpu": 2.0,
+        "last_cpu": 278
+      },
+      {
+        "pid": 920096,
+        "comm": "codex",
+        "percent_cpu": 1.9,
+        "last_cpu": 252
+      },
+      {
+        "pid": 891516,
+        "comm": "python3",
+        "percent_cpu": 1.8,
+        "last_cpu": 105
+      }
+    ],
+    "busy_process_count_at_least_1percent": 38,
+    "complete_snapshot_in_archive": true
+  },
+  "host_after_summary": {
+    "loadavg": "45.09 42.78 51.68 57/38997 940855\n",
+    "cpu_models": [
+      "AMD EPYC 9754 128-Core Processor"
+    ],
+    "allowed_cpu_count": 384,
+    "busy_processes_top20": [
+      {
+        "pid": 1794472,
+        "comm": "gammaloop",
+        "percent_cpu": 2006.0,
+        "last_cpu": 233
+      },
+      {
+        "pid": 3393937,
+        "comm": "rustred-d044f0a",
+        "percent_cpu": 1631.0,
+        "last_cpu": 28
+      },
+      {
+        "pid": 3068354,
+        "comm": "rustred-8147451",
+        "percent_cpu": 425.0,
+        "last_cpu": 92
+      },
+      {
+        "pid": 940003,
+        "comm": "gammaloop",
+        "percent_cpu": 107.0,
+        "last_cpu": 304
+      },
+      {
+        "pid": 938999,
+        "comm": "gammaloop-rewri",
+        "percent_cpu": 102.0,
+        "last_cpu": 173
+      },
+      {
+        "pid": 937790,
+        "comm": "stage_replay",
+        "percent_cpu": 100.0,
+        "last_cpu": 20
+      },
+      {
+        "pid": 937372,
+        "comm": "codex",
+        "percent_cpu": 11.2,
+        "last_cpu": 235
+      },
+      {
+        "pid": 934891,
+        "comm": "codex",
+        "percent_cpu": 5.6,
+        "last_cpu": 109
+      },
+      {
+        "pid": 3140113,
+        "comm": "codex",
+        "percent_cpu": 4.9,
+        "last_cpu": 327
+      },
+      {
+        "pid": 25773,
+        "comm": "codex",
+        "percent_cpu": 4.7,
+        "last_cpu": 0
+      },
+      {
+        "pid": 25776,
+        "comm": "codex",
+        "percent_cpu": 4.4,
+        "last_cpu": 71
+      },
+      {
+        "pid": 7916,
+        "comm": ".tailscaled-wra",
+        "percent_cpu": 3.3,
+        "last_cpu": 33
+      },
+      {
+        "pid": 917732,
+        "comm": "codex",
+        "percent_cpu": 3.1,
+        "last_cpu": 335
+      },
+      {
+        "pid": 885851,
+        "comm": "codex",
+        "percent_cpu": 2.9,
+        "last_cpu": 318
+      },
+      {
+        "pid": 930534,
+        "comm": "codex",
+        "percent_cpu": 2.7,
+        "last_cpu": 199
+      },
+      {
+        "pid": 909042,
+        "comm": "python3.13",
+        "percent_cpu": 2.5,
+        "last_cpu": 171
+      },
+      {
+        "pid": 5464,
+        "comm": "txg_sync",
+        "percent_cpu": 2.0,
+        "last_cpu": 116
+      },
+      {
+        "pid": 638735,
+        "comm": "python3",
+        "percent_cpu": 2.0,
+        "last_cpu": 278
+      },
+      {
+        "pid": 2449,
+        "comm": "kswapd0",
+        "percent_cpu": 1.6,
+        "last_cpu": 282
+      },
+      {
+        "pid": 2993,
+        "comm": "dbuf_evict",
+        "percent_cpu": 1.6,
+        "last_cpu": 372
+      }
+    ],
+    "busy_process_count_at_least_1percent": 37,
+    "complete_snapshot_in_archive": true
+  },
+  "standalone_checks": {
+    "rust_tests_passed": 7,
+    "rust_tests_ignored": 0,
+    "statistics_tests_passed": 8,
+    "strict_clippy_all_features": true,
+    "formatting": true,
+    "commands": [
+      "cargo test --manifest-path validation/performance/shared_provider/Cargo.toml --locked --all-features -- --test-threads=1",
+      "cargo clippy --manifest-path validation/performance/shared_provider/Cargo.toml --locked --all-targets --all-features -- -D warnings",
+      "cargo fmt --manifest-path validation/performance/shared_provider/Cargo.toml --check",
+      "python3 -m unittest discover -s validation/performance/shared_provider -p test_timing_statistics.py"
+    ],
+    "logs": {
+      "rust-tests.stdout": {
+        "sha256": "5aa04c972ad2de76c04e00a9aae18e756141d12c15549f927191c45900cda739",
+        "text": "\nrunning 7 tests\ntest foreign::tests::wire_groups_mixed_partitions_preserving_permuted_lanes_and_transactionality ... ok\ntest masters::tests::capture_union_replays_permuted_batches_and_rejects_changed_scale_and_order ... ok\ntest masters::tests::euclidean_c0_exceptional_point_must_be_finite ... ok\ntest masters::tests::failed_master_batch_preserves_output_and_status ... ok\ntest masters::tests::live_mode_reexecutes_repeated_rows_without_table_access ... ok\ntest tests::batched_direct_matches_safe_calls_and_errors_preserve_output ... ok\ntest tests::batched_laurent_responses_match_safe_rust_for_all_orders ... ok\n\ntest result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+      },
+      "rust-tests.stderr": {
+        "sha256": "d5c39adb86461aff639f01d02f1054009aee5fdeabac97e3d54de9022c4c9dd7",
+        "text": "warning: patch `clarabel v0.11.1 (/shared/external/ninja/references/gammaloop_ninja_shared/vendor/clarabel)` was not used in the crate graph\nwarning: patch `typst-library v0.15.1 (/shared/external/ninja/references/gammaloop_ninja_shared/vendor/typst-library)` was not used in the crate graph\nwarning: patch `typst-svg v0.15.1 (/shared/external/ninja/references/gammaloop_ninja_shared/vendor/typst-svg)` was not used in the crate graph\nhelp: Check that the patched package version and available features are compatible\n      with the dependency requirements. If the patch has a different version from\n      what is locked in the Cargo.lock file, run `cargo update` to use the new\n      version. This may also occur with an optional dependency that is not enabled.\nwarning: unused import: `ComplexField`\n --> /shared/external/ninja/references/symbolica/lib/numerica/src/domains/float/double.rs:9:21\n  |\n9 | use simba::scalar::{ComplexField, RealField};\n  |                     ^^^^^^^^^^^^\n  |\n  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default\n\nwarning: unnecessary `unsafe` block\n  --> /shared/external/ninja/references/symbolica/lib/numerica/src/domains/float/double.rs:48:28\n   |\n48 |             Ok(DoubleFloat(unsafe { Df64::new_full(hi, lo) }))\n   |                            ^^^^^^ unnecessary `unsafe` block\n   |\n   = note: `#[warn(unused_unsafe)]` (part of `#[warn(unused)]`) on by default\n\nwarning: unnecessary `unsafe` block\n  --> /shared/external/ninja/references/symbolica/lib/numerica/src/domains/float/double.rs:75:35\n   |\n75 |             return Ok(DoubleFloat(unsafe { Df64::new_full(hi, lo) }));\n   |                                   ^^^^^^ unnecessary `unsafe` block\n\nwarning: `numerica` (lib) generated 3 warnings\nwarning: `numerica` (lib) generated 3 warnings (3 duplicates)\n   Compiling symbolica v3.0.1 (/shared/external/ninja/references/symbolica)\nwarning: unused `Result` that must be used\n   --> /shared/external/ninja/references/symbolica/src/atom.rs:776:9\n    |\n776 |         self.export(&mut data);\n    |         ^^^^^^^^^^^^^^^^^^^^^^\n    |\n    = note: this `Result` may be an `Err` variant, which should be handled\n    = note: `#[warn(unused_must_use)]` (part of `#[warn(unused)]`) on by default\nhelp: use `let _ = ...` to ignore the resulting value\n    |\n776 |         let _ = self.export(&mut data);\n    |         +++++++\n\n   Compiling symbolica-utils v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/symbolica-utils)\n   Compiling oneloop v0.1.0 (/shared/external/ninja/references/oneloopmaster)\nwarning: `symbolica` (lib) generated 1 warning\n   Compiling gammaloop-workspace-hack v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/gammaloop-workspace-hack)\n   Compiling linnet v0.17.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/linnet)\n   Compiling spenso v0.6.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/spenso)\n   Compiling feynkit-kinematics v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/feynkit-kinematics)\n   Compiling idenso v0.3.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/idenso)\n   Compiling feynkit-model v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/feynkit-model)\n   Compiling feynkit-graph v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/feynkit-graph)\n   Compiling feynkit-amplitude v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/feynkit-amplitude)\n   Compiling spenso-hep-lib v0.1.7 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/spenso-hep-lib)\n   Compiling feynkit-generator v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/feynkit-generator)\n   Compiling ninjars v0.1.0 (/shared/external/ninja/crates/ninjars)\n   Compiling ninjars-symbolica v0.1.0 (/shared/external/ninja/crates/ninjars-symbolica)\n   Compiling ninjars-graph v0.1.0 (/shared/external/ninja/crates/ninjars-graph)\nwarning: `symbolica` (lib) generated 1 warning (1 duplicate)\n   Compiling ninjars-shared-provider-probe v0.0.0 (/shared/external/ninja/validation/performance/shared_provider)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 2m 52s\n     Running unittests src/lib.rs (/common/build-cache/external/82/28b01d95c7d0b7/debug/deps/ninjars_shared_provider_probe-9c09845157a69d13)\n   Doc-tests ninjars_shared_provider_probe\n"
+      },
+      "clippy.stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      },
+      "clippy.stderr": {
+        "sha256": "ae6c7697076d997ddb44c797bb39f49c3218958dec9f1630aae20763b31e7733",
+        "text": "warning: patch `clarabel v0.11.1 (/shared/external/ninja/references/gammaloop_ninja_shared/vendor/clarabel)` was not used in the crate graph\nwarning: patch `typst-library v0.15.1 (/shared/external/ninja/references/gammaloop_ninja_shared/vendor/typst-library)` was not used in the crate graph\nwarning: patch `typst-svg v0.15.1 (/shared/external/ninja/references/gammaloop_ninja_shared/vendor/typst-svg)` was not used in the crate graph\nhelp: Check that the patched package version and available features are compatible\n      with the dependency requirements. If the patch has a different version from\n      what is locked in the Cargo.lock file, run `cargo update` to use the new\n      version. This may also occur with an optional dependency that is not enabled.\nwarning: unused import: `ComplexField`\n --> /shared/external/ninja/references/symbolica/lib/numerica/src/domains/float/double.rs:9:21\n  |\n9 | use simba::scalar::{ComplexField, RealField};\n  |                     ^^^^^^^^^^^^\n  |\n  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default\n\nwarning: unnecessary `unsafe` block\n  --> /shared/external/ninja/references/symbolica/lib/numerica/src/domains/float/double.rs:48:28\n   |\n48 |             Ok(DoubleFloat(unsafe { Df64::new_full(hi, lo) }))\n   |                            ^^^^^^ unnecessary `unsafe` block\n   |\n   = note: `#[warn(unused_unsafe)]` (part of `#[warn(unused)]`) on by default\n\nwarning: unnecessary `unsafe` block\n  --> /shared/external/ninja/references/symbolica/lib/numerica/src/domains/float/double.rs:75:35\n   |\n75 |             return Ok(DoubleFloat(unsafe { Df64::new_full(hi, lo) }));\n   |                                   ^^^^^^ unnecessary `unsafe` block\n\nwarning: `numerica` (lib) generated 3 warnings\nwarning: `numerica` (lib) generated 3 warnings (3 duplicates)\n   Compiling symbolica v3.0.1 (/shared/external/ninja/references/symbolica)\nwarning: unused `Result` that must be used\n   --> /shared/external/ninja/references/symbolica/src/atom.rs:776:9\n    |\n776 |         self.export(&mut data);\n    |         ^^^^^^^^^^^^^^^^^^^^^^\n    |\n    = note: this `Result` may be an `Err` variant, which should be handled\n    = note: `#[warn(unused_must_use)]` (part of `#[warn(unused)]`) on by default\nhelp: use `let _ = ...` to ignore the resulting value\n    |\n776 |         let _ = self.export(&mut data);\n    |         +++++++\n\nwarning: `symbolica` (lib) generated 1 warning\n    Checking symbolica-utils v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/symbolica-utils)\n    Checking oneloop v0.1.0 (/shared/external/ninja/references/oneloopmaster)\nwarning: `symbolica` (lib) generated 1 warning (1 duplicate)\n   Compiling gammaloop-workspace-hack v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/gammaloop-workspace-hack)\n    Checking linnet v0.17.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/linnet)\n    Checking spenso v0.6.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/spenso)\n    Checking feynkit-model v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/feynkit-model)\n    Checking feynkit-kinematics v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/feynkit-kinematics)\n    Checking idenso v0.3.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/idenso)\n    Checking feynkit-graph v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/feynkit-graph)\n    Checking ninjars v0.1.0 (/shared/external/ninja/crates/ninjars)\n    Checking ninjars-symbolica v0.1.0 (/shared/external/ninja/crates/ninjars-symbolica)\n    Checking spenso-hep-lib v0.1.7 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/spenso-hep-lib)\n    Checking feynkit-amplitude v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/feynkit-amplitude)\n    Checking feynkit-generator v0.1.0 (/shared/external/ninja/references/gammaloop_ninja_shared/crates/feynkit-generator)\n    Checking ninjars-graph v0.1.0 (/shared/external/ninja/crates/ninjars-graph)\n    Checking ninjars-shared-provider-probe v0.0.0 (/shared/external/ninja/validation/performance/shared_provider)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 33s\n"
+      }
+    }
+  }
+}

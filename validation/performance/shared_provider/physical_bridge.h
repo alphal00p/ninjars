@@ -31,6 +31,12 @@ int32_t sp_physical_destroy(struct SpPhysical *);
 int32_t sp_master_set_live(struct SpMasters *);
 /* Backend calls (including failed), successful backend rows, live flag. */
 int32_t sp_master_execution_stats(struct SpMasters *,uint64_t *out,size_t length);
+int32_t sp_provider_stats(struct SpProvider *,uint64_t *out,size_t length);
+/* Production master backend, bypasses validation master wire/replay. */
+int32_t sp_session_run_production(struct SpSession *,struct SpProvider *,size_t rows,
+    const SpPair *shifts,size_t nv,const SpPair *masses,size_t nm,const SpPair *scales,size_t ns,
+    const SpPair *matrix,size_t nmat,SpPair *out,size_t no);
+int32_t sp_session_production_stats(struct SpSession *,uint64_t *out,size_t length);
 #ifdef __cplusplus
 }
 #endif

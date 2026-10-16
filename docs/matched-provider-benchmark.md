@@ -71,9 +71,12 @@ cover C0/D0 real/complex-mass virtual argument order and scale propagation.
 
 For complete physical evaluation, retain the raw phase-space parameter pool and
 invoke the same multi-output SymJIT coefficient evaluator inside every timed
-point/batch in both pipelines. Compilation remains setup. The original scalar
-pipeline uses rows=1; the Rust pipeline uses its requested batch width. Bind the
-result once per phase-space lane, then perform all callbacks, reduction and
+point/batch in both pipelines. Compilation remains setup. The retained physical
+bridge deliberately gives both pipelines the same preparation batch width:
+wavefunctions, parameter bindings and coefficient heads are prepared together
+for all rows. Original Ninja then reduces those rows one at a time; NinjaRS
+receives the complete reduction batch. Thus original preparation is batched,
+even though its reduction callbacks are scalar. Bind the result once per phase-space lane, then perform all callbacks, reduction and
 production master evaluation. Keep each production master backend named in the
 report; a shared live-master mode can be added separately. Precomputed
 coefficients are permitted only in the explicitly reduction-only mode.
@@ -102,3 +105,11 @@ uncertainty, and keep busy-host observations diagnostic. The validation bridge
 and shared master replay now have correctness controls; measured reduction
 throughput and a changing-kinematics large physical benchmark remain separate
 milestones.
+
+The concrete driver is documented in
+[`TIMING.md`](../validation/performance/shared_provider/TIMING.md). Its timing
+warmup checks integrated Laurent coefficients and internal finite-split
+identities. Independent raw numerator samples, Float256 coefficient oracles,
+transactional preparation and width-zero controls belong to the separate
+physical probe; their source and dependency revisions must be recorded beside
+timing results rather than described as re-executed by timing warmup.

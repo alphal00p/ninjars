@@ -67,16 +67,17 @@ rational part equal `8/3`. The `q0²` split differs between the two residue base
 the report retains both five-component results and marks rational-separation
 parity incomplete. This discrepancy is not hidden by comparing only a checksum.
 
-An explicit ignored regression preserves an unrelated oneloopmaster exceptional
-point: C0 invariants `[-1,-2,-3]`, squared masses `[2,3,5]`, and scale squared `7`
-currently return `MasterFailure::NonFiniteResult`. Positive masses and negative
-invariants make the Feynman-parameter denominator positive, so this is an
-outstanding evaluation bug, not a physical singularity. `run.py` runs that
-reproducer separately and records its failure without counting it as a passing
-correctness control. The adapter-order cases use noncoincident asymmetric masses.
-Run only the reproducer with `cargo test --manifest-path
+An active regression preserves the former oneloopmaster exceptional point:
+C0 invariants `[-1,-2,-3]`, squared masses `[2,3,5]`, and scale squared `7`.
+The fixed helper now keeps the inactive singular logarithm behind its locally
+constant sheet-correction guard. The test requires success, finite coefficient
+`-0.1352123962254360745` within `1e-12`, and exact zero poles. The value is
+independently supported by 60-digit Feynman-parameter quadrature. The older
+failing evidence is retained unchanged. `run.py` includes this regression in
+its required Rust suite; it is no longer ignored. The asymmetric adapter-order
+controls remain separate. Run it alone with `cargo test --manifest-path
 validation/performance/shared_provider/Cargo.toml --locked
-euclidean_c0_exceptional_point_must_be_finite -- --ignored --test-threads=1`.
+euclidean_c0_exceptional_point_must_be_finite -- --test-threads=1`.
 
 The retained-session control constructs topology and geometry once, retains its
 wire buffers, and routes the Rust numerator and master traits through the same

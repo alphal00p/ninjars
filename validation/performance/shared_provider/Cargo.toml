@@ -9,6 +9,9 @@ publish = false
 [lib]
 crate-type = ["rlib", "cdylib"]
 
+[features]
+allocation-diagnostics = []
+
 [dependencies]
 ninjars = { path = "../../../crates/ninjars" }
 ninjars-symbolica = { path = "../../../crates/ninjars-symbolica" }
