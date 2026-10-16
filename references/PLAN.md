@@ -1642,3 +1642,23 @@ connects the existing kernels into integrated amplitudes and a standalone
   component with generic fallback. Existing `IntegrationChecks::is_zero`
   supplies the complete-Dual predicate. The larger transpose experiment must
   keep master values symbolic to preserve current lazy zero-weight selection.
+
+### Same-call denominator reuse reviewed (2026-10-16)
+
+- Pushed isolated `codex/denominator-reuse` at `dc0100f`, pending integration
+  after the frozen `de0f190` timing run. Additive combined stage callbacks
+  retain third-party kernel compatibility; Symbolica reuses denominator rows
+  only within the same call and with verified live input provenance.
+- Seven new test groups and 38 existing regressions pass, with strict Clippy,
+  feature-off and formatting checks. Two independent reviews found no blocker;
+  root verified 19 source and retained-log hashes in `denominator-reuse.json`.
+  Complete residue coefficients, precision and every higher/mixed Dual
+  component agree with the separate-call control.
+- Instrumented execution confirms n5/r4 bubble denominator rows fall from
+  120 to 60 and tadpole rows from 100 to 20 per stable lane. These are operation
+  counts, not measured runtime gains. Default third-party implementations
+  retain temporary compact-buffer allocations.
+- Also pushed isolated native geometry commits `91add1c`/`a12b805` on
+  `codex/reduction-workspace-reuse`. The fixed-reciprocal dependency control
+  passes all six new geometry tests. This opt-in geometry dispatch remains
+  outside the current measured source, as does rank specialization.
