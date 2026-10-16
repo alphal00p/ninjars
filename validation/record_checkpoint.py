@@ -85,8 +85,10 @@ def main() -> None:
     for path in args.evidence:
         report = json.loads(path.read_text())
         relative = str(path.resolve().relative_to(ROOT))
-        related[relative] = {'sha256': digest(path), 'passed': report.get('passed'),
-                             'checks': len(report.get('checks', []))}
+        checks = report.get('checks', [])
+        related[relative] = {'sha256': digest(path),
+                             'passed': report.get('passed', report.get('pass')),
+                             'checks': checks if isinstance(checks, int) else len(checks)}
     cpu_info = Path('/proc/cpuinfo')
     cpu_models = sorted(set(re.findall(r'^model name\s*:\s*(.+)$', cpu_info.read_text(), re.M))) if cpu_info.exists() else []
     # Explicit allowlist: never serialize credentials or the Symbolica license.

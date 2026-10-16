@@ -1,0 +1,322 @@
+{
+  "checks": 1260,
+  "graphs": [
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "maximum_scaled_error": 2.603936829794693e-15,
+          "state": "pppp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.8843708407357944e-15,
+          "state": "ppmm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 5.481192747553504e-15,
+          "state": "mpmp"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        1,
+        4,
+        3,
+        2
+      ],
+      "feynkit_orientation": 0,
+      "madloop_filter_id": 182,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.8486186607249244e-15,
+          "state": "pppp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.1531840584547818e-15,
+          "state": "ppmm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.1697742660401556e-14,
+          "state": "mpmp"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        1,
+        2,
+        4,
+        3
+      ],
+      "feynkit_orientation": 1,
+      "madloop_filter_id": 183,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.8486186607249244e-15,
+          "state": "pppp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.1532023867361072e-15,
+          "state": "ppmm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.1412170066762114e-14,
+          "state": "mpmp"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        1,
+        3,
+        4,
+        2
+      ],
+      "feynkit_orientation": 2,
+      "madloop_filter_id": 181,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.372447729061182e-15,
+          "state": "pppp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 6.604293100860835e-16,
+          "state": "ppmm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 8.751689077492488e-16,
+          "state": "mpmp"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        1,
+        4,
+        2,
+        3
+      ],
+      "feynkit_orientation": 3,
+      "madloop_filter_id": 184,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "-gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "maximum_scaled_error": 2.603936829794693e-15,
+          "state": "pppp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.8843708407357944e-15,
+          "state": "ppmm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 5.481192747553504e-15,
+          "state": "mpmp"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "feynkit_orientation": 4,
+      "madloop_filter_id": 185,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    },
+    {
+      "cases": [
+        {
+          "checks": 70,
+          "maximum_scaled_error": 1.3724380372252786e-15,
+          "state": "pppp"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 6.604406463173509e-16,
+          "state": "ppmm"
+        },
+        {
+          "checks": 70,
+          "maximum_scaled_error": 8.751689077492488e-16,
+          "state": "mpmp"
+        }
+      ],
+      "denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "directed_physical_cycle": [
+        1,
+        3,
+        2,
+        4
+      ],
+      "feynkit_orientation": 5,
+      "madloop_filter_id": 186,
+      "momentum_rules": [
+        [
+          "gammalooprs::K(0)",
+          "gammalooprs::K(0)"
+        ]
+      ]
+    }
+  ],
+  "maximum_scaled_error": 1.1697742660401556e-14,
+  "pass": true,
+  "schema_version": 1,
+  "exit_code": 0,
+  "criterion": "hypot(actual-expected)/max(1,hypot(expected)) <= 1e-9 for every raw sample",
+  "normalization": {
+    "raw_factor": "-3",
+    "proof": "FeynKit exact temporal-polarization zero-momentum control is -12*GC_2^4*MT^4: fermion-loop sign(-1), internal color trace(3), Dirac trace(4). MadLoop LOOPNUM omits its separately audited color-amplitude factor (-1)*Nc=-3. No external color projector or spin/helicity average is applied.",
+    "linear_laurent_factor": "-48*pi^2",
+    "linear_laurent_derivation": "The audited stock CT_interface multiplies its Laurent result by 1/(16*pi^2). Undoing this normalization and applying the independently checked raw factor gives -48*pi^2.",
+    "integrated_comparison": "Not performed by this raw-numerator probe."
+  },
+  "scope": {
+    "polarization_states": [
+      "mpmp",
+      "ppmm",
+      "pppp"
+    ],
+    "polarizations": "Fixed polarization states listed above; polynomial unisolvence is in four loop components after polarization binding, not in arbitrary polarization variables.",
+    "precision": "The reference wavefunctions and coupling are binary64 inputs. This is not an independent high-precision physical-input oracle.",
+    "mode_selection": "Fixed mode4 rows only. Mode1 repeats in the input artifact are not counted again.",
+    "internal_madloop_checks": "The raw/LOOPNUM wrapper checks at both fixed modes comprise 2520 comparisons; the independent FeynKit check comprises 1260."
+  },
+  "provenance": {
+    "recorded_at_utc": "2026-10-16T18:48:04.571538+00:00",
+    "compile_command": [
+      "rustc",
+      "--edition=2024",
+      "/shared/external/ninja/validation/madloop/four_photon/match.rs",
+      "-o",
+      "/shared/external/ninja/target/physical/four-photon/raw-archived-final/match-four-photons",
+      "-L",
+      "dependency=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps",
+      "--extern",
+      "ninjars_graph=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libninjars_graph-fb60286ecec717ac.rlib",
+      "--extern",
+      "symbolica=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libsymbolica-46b4143f33dc3388.rlib",
+      "--extern",
+      "feynkit_graph=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libfeynkit_graph-69cd1a2d62a45712.rlib",
+      "--extern",
+      "serde_json=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libserde_json-09647a6f9731acd7.rlib"
+    ],
+    "run_command": [
+      "/shared/external/ninja/target/physical/four-photon/raw-archived-final/match-four-photons",
+      "/shared/external/ninja/validation/evidence/four-photon-madloop.json"
+    ],
+    "compiler": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+    "binary_sha256": "71c5297cf7e3bac2cd54d6e3138ce3d45ae3cf4c610e2cd0964ca6f4612bce58",
+    "rlib_sha256": {
+      "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libninjars_graph-fb60286ecec717ac.rlib": "6b65c563439c4d2266e7188b1ac01c5ab67c9227983ec022f920365b93b7ac30",
+      "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libsymbolica-46b4143f33dc3388.rlib": "7d189c0b88dcf7c74e1d6990e718e5c07ad2646f04d9fb79743b05e9c3b50001",
+      "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libfeynkit_graph-69cd1a2d62a45712.rlib": "611b5f035317e1fd84d4e45115d40db5b57e88c7435d4dd2a2dc7edd56582040",
+      "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libserde_json-09647a6f9731acd7.rlib": "e85495ed0ec94c4718d8c10c94aab00f819209c911583d5dd4435e8f22768f89"
+    },
+    "source_sha256": {
+      "validation/madloop/four_photon/match.rs": "49fb883baaea8f8cd062b005e6242e3fc87fc03aac8b969504ccd762b4a6057e",
+      "validation/madloop/four_photon/match.py": "748b7fc79130fca123010c815929a7f136483ad2d700e1d146822cb2a38bca1d",
+      "validation/evidence/four-photon-madloop.json": "4b9b7a3061b88b12773e699f2b6d2db3dcf00285d77472d1e892396f3ce3cbf2",
+      "crates/ninjars-graph/src/physical.rs": "9e034d8fcfbfc92f7ffd616ead2be54ca7d47fe244c1fe39b28897cc93e676c4",
+      "crates/ninjars-graph/src/components.rs": "102ead0096bace597d57e125ef5db6426e3dd117878596f7a27ebb70e7b18821",
+      "crates/ninjars-graph/tests/four_photons.rs": "7bb942b17837355cbd94534fb716753a9ec2e1d9643f48e4080e94ed071c48b3",
+      "Cargo.toml": "74ee51fef490da00d067cec2a526bd2b7272c05802af556b5f249b15d72ccba6",
+      "Cargo.lock": "1035b5beee28438bc1e0841e541f8a5d4986f46e50c0ee25820b4326c8b155b0",
+      "dependencies/manifest.json": "ecdbe31b9c87b4026efd8d661b7a3e3fc9354e90f9be917565211713e51628ec",
+      "examples/graphs/physical/four-photon/README.md": "00066c5b17bcbd271b5ca24cd98bac53527d49fb70aee56400e87c13ca90b180",
+      "examples/graphs/physical/four-photon/top-box-0.dot": "7dc1cae8536109d540c89ce553245eedeb0a1a552aa0fa1cadbcb4cfd8f7ec36",
+      "examples/graphs/physical/four-photon/top-box-0.json": "3e6a82c183db8949e0d405fa1de8e65e4b35e55a1f32365cbef06c13138366e2",
+      "examples/graphs/physical/four-photon/top-box-1.dot": "10713872c5f332aa255605098ebf1f86350c080d643fd6da1f670a0a92840d20",
+      "examples/graphs/physical/four-photon/top-box-1.json": "2c8f5a1135ca69a73f8888f4a0ea54c8c1d2269d1115d7fb384ba894b0755456",
+      "examples/graphs/physical/four-photon/top-box-2.dot": "c734a1c33b32d6d137bf5916cf3b08816d151ad270fa99e1cd43871cc3684f71",
+      "examples/graphs/physical/four-photon/top-box-2.json": "908461610e68fed3945e643e43da9eb4eccbd49e001c8ac5dec043dd2f672b9a",
+      "examples/graphs/physical/four-photon/top-box-3.dot": "94b3f0ce8aaea353b879e8e91f90ad4cc57bd3dbc3a3c5858c43c4ce794a2e9d",
+      "examples/graphs/physical/four-photon/top-box-3.json": "da2920071528506fbad8c4824f401ffa9e28907dfe47593bbe670e28b7dfa8a6",
+      "examples/graphs/physical/four-photon/top-box-4.dot": "d98355c766043981e3321a2422ad3b5a1f044a5825c6cd9a68e05df139efa081",
+      "examples/graphs/physical/four-photon/top-box-4.json": "9ceaf4088376536a872554d286e9243440eb4f5e1dde3783f988c5e4a25b65f9",
+      "examples/graphs/physical/four-photon/top-box-5.dot": "c3d86801e76317d7e01f6cc5e9cead599a9729512c6380d5db6921f3496a0429",
+      "examples/graphs/physical/four-photon/top-box-5.json": "f392607d990872420c81bdb1c26b24c445b6eff76973d580c329d388de040726"
+    },
+    "graph_dependency_heads": {
+      "symbolica": "8e23925ed7b5cbb91607c8633dda114cb43be8ce",
+      "feynkit": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+    }
+  }
+}

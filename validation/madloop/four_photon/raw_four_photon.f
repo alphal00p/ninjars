@@ -1,0 +1,148 @@
+      PROGRAM RAW_FOUR_PHOTON
+      IMPLICIT NONE
+      INCLUDE 'coupl.inc'
+      REAL*8 P(0:3,4), LSCALE, REF
+      COMPLEX*16 W(20,4),LC(4),ML(6),Q(0:3),NUM,RAW,RES(3)
+      COMPLEX*16 BASEQ(0:3),DQ(0:3)
+      COMPLEX*32 MPM, MPC
+      COMPLEX*32 MPW(20,4)
+      INTEGER WE(4),ID,SYMFACT,MULTIPLIER,AMPLNUM,HELPICKED
+      INTEGER CTMODE,NTRY,I,J,H1,H2,H3,H4,WARD,GENERIC
+      INTEGER N0,N1,N2,N3
+      LOGICAL CHECKPHASE,HELDOUBLECHECKED,GOODHEL(16),GOODAMP(1,16)
+      LOGICAL CTINIT,TIRINIT,GOLEMINIT,SAMURAIINIT,NINJAINIT
+      LOGICAL STABLE,UPDATELOOP
+      CHARACTER*512 CARD,ARG
+      COMMON/ML5_0_DP_LOOP/LC,ML
+      COMMON/ML5_0_LOOP/WE,ID,SYMFACT,MULTIPLIER,AMPLNUM
+      COMMON/ML5_0_WFCTS/W
+      COMMON/ML5_0_MP_WFS/MPW
+      COMMON/ML5_0_CT/LSCALE,CTMODE
+      COMMON/ML5_0_HELCHOICE/HELPICKED
+      COMMON/ML5_0_INIT/NTRY,CHECKPHASE,HELDOUBLECHECKED,REF
+      COMMON/ML5_0_FILTERS/GOODAMP,GOODHEL
+      COMMON/REDUCTIONCODEINIT/CTINIT,TIRINIT,GOLEMINIT,SAMURAIINIT,
+     $ NINJAINIT
+      COMMON/TO_UPDATELOOP/UPDATELOOP
+      CALL GET_COMMAND_ARGUMENT(1,CARD)
+      UPDATELOOP=.TRUE.
+      CALL SETPARAMLOG(.FALSE.)
+      CALL SETPARA2(CARD)
+      MU_R=100D0
+      ALL_MU_R=MU_R
+      P=0D0
+      P(0,:)=100D0
+      P(3,1)=100D0
+      P(3,2)=-100D0
+      P(1,3)=60D0
+      P(3,3)=80D0
+      P(1,4)=-60D0
+      P(3,4)=-80D0
+      W=DCMPLX(0D0,0D0)
+      H1=1
+      H2=1
+      H3=1
+      H4=1
+      CALL GET_COMMAND_ARGUMENT(2,ARG)
+      IF(LEN_TRIM(ARG).GT.0) READ(ARG,*) H1
+      CALL GET_COMMAND_ARGUMENT(3,ARG)
+      IF(LEN_TRIM(ARG).GT.0) READ(ARG,*) H2
+      CALL GET_COMMAND_ARGUMENT(4,ARG)
+      IF(LEN_TRIM(ARG).GT.0) READ(ARG,*) H3
+      CALL GET_COMMAND_ARGUMENT(5,ARG)
+      IF(LEN_TRIM(ARG).GT.0) READ(ARG,*) H4
+      CALL VXXXXX(P(0,1),0D0,H1,-1,W(1,1))
+      CALL VXXXXX(P(0,2),0D0,H2,-1,W(1,2))
+      CALL VXXXXX(P(0,3),0D0,H3,1,W(1,3))
+      CALL VXXXXX(P(0,4),0D0,H4,1,W(1,4))
+C     Optional arbitrary complex vectors test multilinear numerator bindings.
+C     Preserve the HELAS momentum entries W(1:4); replace only polarization.
+      GENERIC=0
+      CALL GET_COMMAND_ARGUMENT(8,ARG)
+      IF(LEN_TRIM(ARG).GT.0) READ(ARG,*) GENERIC
+      IF(GENERIC.EQ.1) THEN
+        W(5:8,1)=(/DCMPLX(1D0,1D0),DCMPLX(2D0,0D0),
+     $    DCMPLX(-1D0,2D0),DCMPLX(3D0,0D0)/)
+        W(5:8,2)=(/DCMPLX(2D0,0D0),DCMPLX(1D0,-1D0),
+     $    DCMPLX(3D0,0D0),DCMPLX(4D0,1D0)/)
+        W(5:8,3)=(/DCMPLX(-1D0,0D0),DCMPLX(2D0,1D0),
+     $    DCMPLX(1D0,0D0),DCMPLX(0D0,-2D0)/)
+        W(5:8,4)=(/DCMPLX(3D0,0D0),DCMPLX(-1D0,0D0),
+     $    DCMPLX(2D0,-1D0),DCMPLX(1D0,2D0)/)
+      ENDIF
+      WARD=0
+      CALL GET_COMMAND_ARGUMENT(6,ARG)
+      IF(LEN_TRIM(ARG).GT.0) READ(ARG,*) WARD
+      DO J=1,4
+        IF(BTEST(WARD,J-1)) THEN
+          DO I=0,3
+            W(5+I,J)=DCMPLX(P(I,J),0D0)
+          ENDDO
+        ENDIF
+      ENDDO
+      LC=GC_2
+      ML=DCMPLX(MDL_MT,0D0)
+      WE=(/@WAVEFUNCTION_ORDER@/)
+      ID=1
+      SYMFACT=1
+      MULTIPLIER=1
+      AMPLNUM=1
+      HELPICKED=1
+      CHECKPHASE=.TRUE.
+      HELDOUBLECHECKED=.FALSE.
+      GOODHEL=.TRUE.
+      GOODAMP=.TRUE.
+      NTRY=0
+      REF=1D0
+      CTMODE=1
+      CALL GET_COMMAND_ARGUMENT(7,ARG)
+      IF(LEN_TRIM(ARG).GT.0) READ(ARG,*) CTMODE
+      IF(CTMODE.NE.1.AND.CTMODE.NE.4) STOP 'explicit modes 1 or 4'
+C     Explicit QP reduction preserves the identical binary64 external
+C     wavefunctions and couplings. There is no adaptive precision switch.
+      MPW=CMPLX(W,KIND=16)
+      LSCALE=100D0
+      CTINIT=.FALSE.
+      TIRINIT=.FALSE.
+      GOLEMINIT=.FALSE.
+      SAMURAIINIT=.FALSE.
+      NINJAINIT=.FALSE.
+      CALL CTSINIT(1D-2,2,.TRUE.)
+      WRITE(*,*) 'STATE ',H1,H2,H3,H4,WARD
+      WRITE(*,*) 'CTMODE ',CTMODE
+      WRITE(*,'(A,4ES25.16)') 'INPUT ',MDL_MT,MU_R,GC_2
+      DO J=1,4
+        WRITE(*,'(A,I3,4ES25.16)') 'P ',J,P(:,J)
+        DO I=1,8
+          WRITE(*,'(A,2I3,2ES25.16)') 'W ',J,I,W(I,J)
+        ENDDO
+      ENDDO
+C     Seventy unisolvent points for total degree four in four components.
+C     Each coordinate increment is independently complex and nonzero.
+      BASEQ=(/DCMPLX(3D0,.25D0),DCMPLX(-1D0,.5D0),
+     $ DCMPLX(2D0,-.75D0),DCMPLX(4D0,.125D0)/)
+      DQ=(/DCMPLX(1D0,.5D0),DCMPLX(2D0,-.25D0),
+     $ DCMPLX(-1D0,.75D0),DCMPLX(3D0,.125D0)/)
+      J=0
+      DO N0=0,4
+       DO N1=0,4-N0
+        DO N2=0,4-N0-N1
+         DO N3=0,4-N0-N1-N2
+          J=J+1
+          Q=BASEQ+(/N0,N1,N2,N3/)*DQ
+          CALL ML5_0_LOOPNUMHEL(-Q,RAW,1)
+          CALL ML5_0_LOOPNUM(Q,NUM)
+          WRITE(*,'(A,I3,12ES25.16)') 'NUM ',J,Q,RAW,NUM
+         ENDDO
+        ENDDO
+       ENDDO
+      ENDDO
+      IF(J.NE.70) STOP 'quartic grid count'
+      MPM=CMPLX(MDL_MT,KIND=16)
+      MPC=CMPLX(GC_2,KIND=16)
+      CALL ML5_0_LOOP_4_4(1,@WAVEFUNCTION_ORDER@,
+     $ DCMPLX(MDL_MT),MPM,DCMPLX(MDL_MT),MPM,
+     $ DCMPLX(MDL_MT),MPM,DCMPLX(MDL_MT),MPM,
+     $ GC_2,MPC,GC_2,MPC,GC_2,MPC,GC_2,MPC,4,1,1,1,RES,STABLE)
+      WRITE(*,'(A,L2,6ES25.16)') 'LAURENT ',STABLE,RES
+      END

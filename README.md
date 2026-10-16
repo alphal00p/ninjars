@@ -12,7 +12,9 @@ Analytic and original Ninja controls validate an initial synthetic suite.
 Independent FeynKit preparation also matches raw MadLoop numerators for both
 top-quark H→gg orientations. Their physical helicity amplitudes agree in all
 three scalar precisions; four f64 longitudinal diagnostic rows still miss the
-fixed pole tolerance. Full reconstruction controls, broader physical validation,
+fixed pole tolerance. Six top-quark four-photon boxes also pass independent raw
+numerator comparisons for three helicities and generic complex polarizations;
+their integrated comparison is pending. Full reconstruction controls, broader physical validation,
 derivative continuation and performance acceptance remain in development.
 The complete specification and evidence ledger are in [the plan](references/PLAN.md).
 

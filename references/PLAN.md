@@ -694,3 +694,60 @@ connects the existing kernels into integrated amplitudes and a standalone
   No new oneloopmaster PRs will be opened. Symbolica and FeynKit/gammaloop continue
   to use focused upstream PRs. The consolidation must include PRs #7 and #8 even
   though their intermediate base branches were merged before these later changes.
+
+### Consolidated oneloopmaster main (2026-10-16)
+
+- Pushed the complete oneloopmaster PR ancestry to upstream `main` at
+  `317ce6b98bf310e88435fc8aac330bb5f70fd1f7`. GitHub marked PRs #3, #4 and #6
+  merged at 18:41:37 UTC and reports zero open PRs. The merged history also
+  retains the later PR #7/#8 changes, which were absent from PR #4's old head.
+  Subsequent changes are pushed directly to oneloopmaster `main`; Symbolica and
+  FeynKit/gammaloop continue through focused PRs.
+- The consolidated native emitter adds branch-free instruction-major execution
+  with shared helper bodies and reusable storage. Its 27 focused checks pass,
+  including f64/DoubleFloat/Float, flattened higher/mixed Dual components,
+  instruction-order tracing and zero warmed f64 allocations. Lazy active-lane
+  control flow and production reduction/master dispatch remain outstanding.
+- Standalone Rust and both Python build roots now select the identical Symbolica,
+  Numerica and Graphica integration `8e23925ed7b5cbb91607c8633dda114cb43be8ce`,
+  combining the already submitted Symbolica PRs #82/#83/#84. The integration is
+  available on the contributor fork, and both locked Python compilation checks
+  pass. NinjaRS uses the same Symbolica source via its updated verified bundle.
+  Its oneloopmaster dependency now pins upstream main without a local patch.
+- The full initial upstream run completed 35 targets: 169 passed, six failed,
+  six ignored. Every failure came from the independently reproduced D0 JIT
+  argument-capacity limit (70 required versus 64 configured). A focused repair
+  through the existing backend configuration API is being validated separately;
+  the initial run is retained rather than reported as passing.
+- Added independent FeynKit preparation and exact input fixtures for six oriented
+  top-quark four-photon boxes. Two graph controls pass, including topology,
+  four-dimensional rank, exact masses and the closed-color/Dirac trace. MadLoop's
+  six corresponding standalone exports pass their internal raw-driver checks.
+  Verified IntegralFamily mappings now establish all six loop orientations and
+  denominator permutations. Independent FeynKit/MadLoop comparison passes 1,680
+  checks over three helicities and generic complex polarizations, with maximum
+  scaled error 1.169774266e-14. The independent exact trace/color control fixes
+  the raw factor to -3; the audited CT normalization then gives -48*pi^2 for the
+  future integrated comparison. The separate internal MadLoop raw/wrapper checks
+  total 3,360 and are not counted as independent FeynKit checks. Reproducers and
+  source/library hashes are archived under `validation/madloop/four_photon` and
+  `validation/evidence/four-photon-*.json`. Integrated comparisons remain pending.
+- Pushed the JIT argument-capacity repair and completed validation records
+  directly to oneloopmaster main at `69761cdf8ffc0c02dbc2e36ce41ee6fa365268ae`.
+  The repair sizes nested complex calls using existing exported instructions and
+  backend configuration, checks overflow/capacity, and recomputes requirements
+  when loading serialized evaluators. All six previously failing targets pass
+  focused reruns. Controls include all 293 scalar fixtures, cache reloads,
+  multiple batch layouts, fresh-process entry routes and registered callbacks.
+  Both Python locked checks pass with SymJIT 2.27.3. This is combined regression
+  evidence, not a claim that the complete upstream suite was rerun afterward.
+  GitHub still reports zero open oneloopmaster PRs.
+- NinjaRS pins the final upstream commit and removes the obsolete oneloopmaster
+  patch bundle. All **169 workspace tests pass, zero failed and zero ignored**,
+  with all features and ignored reference controls enabled. Strict all-target
+  workspace Clippy, formatting and dependency bootstrap checks pass. Runtime
+  tests compiled oneloopmaster's identical Rust sources at `1bdcb28`; the final
+  commit adds only validation documentation and Python lock updates. Existing
+  H→gg longitudinal f64 failures, derivative-domain gates, performance gaps and
+  remaining reconstruction/physical validation work are unchanged. The overall
+  goal remains active.

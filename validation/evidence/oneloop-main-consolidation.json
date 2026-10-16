@@ -1,0 +1,889 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-10-16T18:50:55.346697+00:00",
+  "passed": true,
+  "scope": "PR consolidation, pinned dependencies and combined regression coverage. Not full-goal or performance acceptance.",
+  "upstream_head": "69761cdf8ffc0c02dbc2e36ce41ee6fa365268ae",
+  "symbolica_head": "8e23925ed7b5cbb91607c8633dda114cb43be8ce",
+  "open_prs": [],
+  "pull_requests": [
+    {
+      "baseRefName": "codex/sheet-quotient-seeds",
+      "headRefOid": "05c87c3c4dabf6a26b8f9396468406778af457e2",
+      "mergedAt": "2026-10-16T18:29:34Z",
+      "number": 8,
+      "state": "MERGED",
+      "url": "https://github.com/alphal00p/oneloopmaster/pull/8"
+    },
+    {
+      "baseRefName": "codex/removable-log-neighborhood",
+      "headRefOid": "aa6491450b22b4341abfffc6ce0d576c232811b8",
+      "mergedAt": "2026-10-16T17:41:14Z",
+      "number": 7,
+      "state": "MERGED",
+      "url": "https://github.com/alphal00p/oneloopmaster/pull/7"
+    },
+    {
+      "baseRefName": "main",
+      "headRefOid": "de0114add9937a2225a3e5d89af1d497ccd31d07",
+      "mergedAt": "2026-10-16T18:41:37Z",
+      "number": 6,
+      "state": "MERGED",
+      "url": "https://github.com/alphal00p/oneloopmaster/pull/6"
+    },
+    {
+      "baseRefName": "codex/analytic-complex-seeds",
+      "headRefOid": "33a2e89b76252fc22556c0da50d1689cfb2101ec",
+      "mergedAt": "2026-10-16T17:39:34Z",
+      "number": 5,
+      "state": "MERGED",
+      "url": "https://github.com/alphal00p/oneloopmaster/pull/5"
+    },
+    {
+      "baseRefName": "main",
+      "headRefOid": "115b2935b71d1d765f65aab399825d0fcc22802a",
+      "mergedAt": "2026-10-16T18:41:37Z",
+      "number": 4,
+      "state": "MERGED",
+      "url": "https://github.com/alphal00p/oneloopmaster/pull/4"
+    },
+    {
+      "baseRefName": "main",
+      "headRefOid": "62ae35d6b7ab4caa94ecf7d0caed95cc190d878d",
+      "mergedAt": "2026-10-16T18:41:37Z",
+      "number": 3,
+      "state": "MERGED",
+      "url": "https://github.com/alphal00p/oneloopmaster/pull/3"
+    },
+    {
+      "baseRefName": "main",
+      "headRefOid": "6c9874dc5670ed655b9cce84702ec27d36098a9f",
+      "mergedAt": "2026-10-15T11:02:00Z",
+      "number": 2,
+      "state": "MERGED",
+      "url": "https://github.com/alphal00p/oneloopmaster/pull/2"
+    },
+    {
+      "baseRefName": "main",
+      "headRefOid": "b82fab7024d7f65a24571f26495afc5020c0582d",
+      "mergedAt": "2026-10-06T11:35:55Z",
+      "number": 1,
+      "state": "MERGED",
+      "url": "https://github.com/alphal00p/oneloopmaster/pull/1"
+    }
+  ],
+  "before_jit_fix": {
+    "source": "/tmp/ninjars-oneloop-main-validation/results.json",
+    "sha256": "b024220f4d5b4c368641318fe74c90fd6523de1a70ffb618873af873d78f1917",
+    "record": [
+      {
+        "label": "unittests src/lib.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/oneloop-44bc20812ee5140f",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/oneloop-44bc20812ee5140f",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:35:39.279358+00:00",
+        "seconds": 162.493346637988,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 78 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 161.64s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/oneloop-44bc20812ee5140f.log",
+        "log_sha256": "2666552a4fe581152a04bb1e4502869ce6acd173b3cf23303c8e844d9499e630"
+      },
+      {
+        "label": "tests/backend_features.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/backend_features-a5b474e9e9a123bb",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/backend_features-a5b474e9e9a123bb",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:38:21.773289+00:00",
+        "seconds": 1.8466495239990763,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.84s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/backend_features-a5b474e9e9a123bb.log",
+        "log_sha256": "4635e47589086af892d82905187252246f1cddf824f22abc155a4ecf1b6547fd"
+      },
+      {
+        "label": "tests/box_limits.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/box_limits-3483b7ca0f39564c",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/box_limits-3483b7ca0f39564c",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:38:23.620464+00:00",
+        "seconds": 15.388426385005005,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.36s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/box_limits-3483b7ca0f39564c.log",
+        "log_sha256": "1fe0f3cca136f38681a78f22dd2369d76174a645627b865a1486f4d356a95b36"
+      },
+      {
+        "label": "tests/branch_expansion.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/branch_expansion-5d998af7170db609",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/branch_expansion-5d998af7170db609",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:38:39.009370+00:00",
+        "seconds": 0.2416883799887728,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/branch_expansion-5d998af7170db609.log",
+        "log_sha256": "f0c7f18a5e469a5bf1d91963ef19859d7c7cec2ca2f81b59fbf70c624f08802c"
+      },
+      {
+        "label": "tests/branch_limits.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/branch_limits-4b22553630d8da39",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/branch_limits-4b22553630d8da39",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:38:39.251538+00:00",
+        "seconds": 1.6338711220014375,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.63s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/branch_limits-4b22553630d8da39.log",
+        "log_sha256": "0120f642861a9ddb580467ce42ff671bd38499577f33036f66696a93e6d1e457"
+      },
+      {
+        "label": "tests/branch_selection.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/branch_selection-26a753dee0ac7586",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/branch_selection-26a753dee0ac7586",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:38:40.885832+00:00",
+        "seconds": 1.1855936920037493,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.18s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/branch_selection-26a753dee0ac7586.log",
+        "log_sha256": "a924080f4c19b0f77929d8966d2b902825f6018208926e77dbc0760c03c94c73"
+      },
+      {
+        "label": "tests/complex_precision_provenance.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/complex_precision_provenance-6e60156d845d91a0",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/complex_precision_provenance-6e60156d845d91a0",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:38:42.071846+00:00",
+        "seconds": 0.011145769007271156,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/complex_precision_provenance-6e60156d845d91a0.log",
+        "log_sha256": "cef3531b2fc8bece64d7ec4e5e37012fa40400750f8712ab2e80f7f8f87a51dc"
+      },
+      {
+        "label": "tests/complex_sqrt_precision.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/complex_sqrt_precision-a79e44be10c1b5ce",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/complex_sqrt_precision-a79e44be10c1b5ce",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:38:42.083371+00:00",
+        "seconds": 0.00543389399535954,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/complex_sqrt_precision-a79e44be10c1b5ce.log",
+        "log_sha256": "1e7b5c52a884c26cfcedc815eadce909e8ac9c619753cf6f4f5cbc26ec8ba59a"
+      },
+      {
+        "label": "tests/epsilon.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/epsilon-5a6c0fbec2ec343d",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/epsilon-5a6c0fbec2ec343d",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:38:42.089146+00:00",
+        "seconds": 8.115671009029029,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.09s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/epsilon-5a6c0fbec2ec343d.log",
+        "log_sha256": "5f890bf295a4d8fd5e8ab59ae94f53c747abcc9bc7d986ea43ed157a2e402f95"
+      },
+      {
+        "label": "tests/evaluators.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/evaluators-8a7be5b97275adb9",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/evaluators-8a7be5b97275adb9",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:38:50.205246+00:00",
+        "seconds": 12.929731951007852,
+        "returncode": 101,
+        "summary": [
+          "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.91s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/evaluators-8a7be5b97275adb9.log",
+        "log_sha256": "adef8b8cca47f24ca8a984809a0233b533a45d67aca741f791972744db3d56ce"
+      },
+      {
+        "label": "tests/float_zero_precision.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/float_zero_precision-32657cef241591dd",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/float_zero_precision-32657cef241591dd",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:39:03.135456+00:00",
+        "seconds": 0.006381536019034684,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/float_zero_precision-32657cef241591dd.log",
+        "log_sha256": "f10bff76a928c0a7f83f979a0ef240b893dbc1d8042ef1c91deae40384bc490d"
+      },
+      {
+        "label": "tests/full_expansion.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/full_expansion-7f7e0acfd1ce1623",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/full_expansion-7f7e0acfd1ce1623",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:39:03.142120+00:00",
+        "seconds": 65.53643127402756,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 65.43s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/full_expansion-7f7e0acfd1ce1623.log",
+        "log_sha256": "94e46dab5fcdd2d5ae440d961016313ebff9b6a4367c539a05f324e0a880d744"
+      },
+      {
+        "label": "tests/function_definitions.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/function_definitions-cddb5ebcfffc7621",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/function_definitions-cddb5ebcfffc7621",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:40:08.679018+00:00",
+        "seconds": 0.02447787200799212,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/function_definitions-cddb5ebcfffc7621.log",
+        "log_sha256": "0a546c7648a2d4b28799ada0bb0ff4e13d4a56c5549774782e17264928f2d2e3"
+      },
+      {
+        "label": "tests/initialization.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/initialization-951455c5dea443ad",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/initialization-951455c5dea443ad",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:40:08.703899+00:00",
+        "seconds": 9.65079934798996,
+        "returncode": 101,
+        "summary": [
+          "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1 filtered out; finished in 9.61s",
+          "test result: FAILED. 0 passed; 1 failed; 1 ignored; 0 measured; 0 filtered out; finished in 9.65s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/initialization-951455c5dea443ad.log",
+        "log_sha256": "0e4b1c7666b0ed73656190af12a34759c9620b368d22e0f5678e0752299011d9"
+      },
+      {
+        "label": "tests/inspection.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/inspection-7429c3d81a5dce51",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/inspection-7429c3d81a5dce51",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:40:18.355170+00:00",
+        "seconds": 8.842738234001445,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.82s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/inspection-7429c3d81a5dce51.log",
+        "log_sha256": "043a17c9aeacc3f8ca613fb437650e3f61d4bd708d78068c6c15037443ce4d80"
+      },
+      {
+        "label": "tests/inspection_complex.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/inspection_complex-4eb7a455556d816e",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/inspection_complex-4eb7a455556d816e",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:40:27.198457+00:00",
+        "seconds": 30.970817958994303,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 30.95s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/inspection_complex-4eb7a455556d816e.log",
+        "log_sha256": "50f65ea0e7c3af3be2ec90874c96cef15a8b3d45cb8d96dc5cccd815651cc65f"
+      },
+      {
+        "label": "tests/inspection_master.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/inspection_master-5ab02707f7747316",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/inspection_master-5ab02707f7747316",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:40:58.169796+00:00",
+        "seconds": 11.046074879996013,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.03s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/inspection_master-5ab02707f7747316.log",
+        "log_sha256": "1ce3579c37d739e8e6748a4a536037accdc5069e4adbf77e088b2d280d4f0318"
+      },
+      {
+        "label": "tests/manual_evaluators.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/manual_evaluators-ecfc71a324f43ee9",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/manual_evaluators-ecfc71a324f43ee9",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:41:09.216375+00:00",
+        "seconds": 6.780161701986799,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.75s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/manual_evaluators-ecfc71a324f43ee9.log",
+        "log_sha256": "9e46ba8a968b16511abc563fb94db323db1a993ae666932fd978847cac43f04a"
+      },
+      {
+        "label": "tests/master_callbacks_jit.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/master_callbacks_jit-e7592493851f6a1b",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/master_callbacks_jit-e7592493851f6a1b",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:41:15.997008+00:00",
+        "seconds": 9.562640926014865,
+        "returncode": 101,
+        "summary": [
+          "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.52s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/master_callbacks_jit-e7592493851f6a1b.log",
+        "log_sha256": "cea7e7c7460da84376905544802d704573dc6764ce8058a4dcbb3d1d9fcc7840"
+      },
+      {
+        "label": "tests/masters.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/masters-eebbec48ade54755",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/masters-eebbec48ade54755",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:41:25.560118+00:00",
+        "seconds": 11.508732444024645,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.48s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/masters-eebbec48ade54755.log",
+        "log_sha256": "bbba75242c9462ce83ef03d9825c5222c665f1f462cc9738330f8d19a261681b"
+      },
+      {
+        "label": "tests/mixed.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/mixed-43974710725552c3",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/mixed-43974710725552c3",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:41:37.069391+00:00",
+        "seconds": 4.063338954001665,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.03s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/mixed-43974710725552c3.log",
+        "log_sha256": "b6747dfd8e7baf38c5ee5f7c8859f7452904e5eea57daa6462aa5e7f4844bea8"
+      },
+      {
+        "label": "tests/native.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/native-48f26d1f6556e25e",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/native-48f26d1f6556e25e",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:41:41.133233+00:00",
+        "seconds": 22.560292857990135,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 22.53s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/native-48f26d1f6556e25e.log",
+        "log_sha256": "03d0264c632b11222b04626157ca91d5a81454f105f50d74438ce59deae65afb"
+      },
+      {
+        "label": "tests/native_contract.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_contract-ebe2653f1ec31be1",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_contract-ebe2653f1ec31be1",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:42:03.694019+00:00",
+        "seconds": 0.007623170007718727,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/native_contract-ebe2653f1ec31be1.log",
+        "log_sha256": "78e3334d7d8d47433edb686b0075bf5897d08fe6cbe0b56ac314da5c8169b0cd"
+      },
+      {
+        "label": "tests/native_evaluator.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_evaluator-37e781063fc64c76",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_evaluator-37e781063fc64c76",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:42:03.702066+00:00",
+        "seconds": 0.01159776997519657,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 2 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.01s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/native_evaluator-37e781063fc64c76.log",
+        "log_sha256": "f7a6c4e211975f29e0e23b0b4ebc5b28b8607e8cc12093a820a7359374921c25"
+      },
+      {
+        "label": "tests/native_hook_errors.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_hook_errors-c061ab6f4bce0e24",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_hook_errors-c061ab6f4bce0e24",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:42:03.714098+00:00",
+        "seconds": 9.623634244984714,
+        "returncode": 101,
+        "summary": [
+          "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.58s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/native_hook_errors-c061ab6f4bce0e24.log",
+        "log_sha256": "79237f8d1f25a53281b710745a6311d7675c97e1cfc2faf5cd86ed7fce4366fe"
+      },
+      {
+        "label": "tests/native_hooks.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_hooks-0ea29501c866ab56",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_hooks-0ea29501c866ab56",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:42:13.338247+00:00",
+        "seconds": 9.63149758198415,
+        "returncode": 101,
+        "summary": [
+          "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.59s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/native_hooks-0ea29501c866ab56.log",
+        "log_sha256": "265797c3641a52c3d9ddae033b4c231fd3161f935a9485a25a707e776dee2251"
+      },
+      {
+        "label": "tests/native_primitives.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_primitives-7a65a114fef7eba1",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_primitives-7a65a114fef7eba1",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:42:22.970252+00:00",
+        "seconds": 0.11720640299608931,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/native_primitives-7a65a114fef7eba1.log",
+        "log_sha256": "47abe465ee29afb2959b0294b5ae0c2f4d60df4a4e7f013e5c9c92ac706fc45f"
+      },
+      {
+        "label": "tests/native_simple.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_simple-083b43bb36d84667",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_simple-083b43bb36d84667",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:42:23.087950+00:00",
+        "seconds": 4.994685292011127,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.97s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/native_simple-083b43bb36d84667.log",
+        "log_sha256": "fb2c709fa632539b468ca5b303fa850e37e820352bb2f8b6c5d2af0b4912df2c"
+      },
+      {
+        "label": "tests/native_simple_primitives.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_simple_primitives-3d087511df47ca41",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_simple_primitives-3d087511df47ca41",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:42:28.083151+00:00",
+        "seconds": 0.07294667899259366,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/native_simple_primitives-3d087511df47ca41.log",
+        "log_sha256": "8ab75d22e52dd173a091b31c087b8cc9db4b3a3e42838b768cb4abf45195e06e"
+      },
+      {
+        "label": "tests/native_startup.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_startup-987e6052f6dc46ca",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_startup-987e6052f6dc46ca",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:42:28.156533+00:00",
+        "seconds": 9.103487747022882,
+        "returncode": 101,
+        "summary": [
+          "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1 filtered out; finished in 9.06s",
+          "test result: FAILED. 0 passed; 1 failed; 1 ignored; 0 measured; 0 filtered out; finished in 9.10s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/native_startup-987e6052f6dc46ca.log",
+        "log_sha256": "6b4bfba7ed2b39a3ce65cbb9a5dc43ab178774719300e6e7c07e4270272034d3"
+      },
+      {
+        "label": "tests/parity.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/parity-3a7a128c8a6d89aa",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/parity-3a7a128c8a6d89aa",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:42:37.260616+00:00",
+        "seconds": 6.021644888998708,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 6.00s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/parity-3a7a128c8a6d89aa.log",
+        "log_sha256": "e96f73ff0a56cc4adb78cb394273b88442334f133919793ddcca03ca384457e0"
+      },
+      {
+        "label": "tests/precision.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/precision-5847c84d9371ef93",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/precision-5847c84d9371ef93",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:42:43.282827+00:00",
+        "seconds": 7.1191803560068365,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.10s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/precision-5847c84d9371ef93.log",
+        "log_sha256": "51b0ddfad24020b707612e4c4a60477c0eb4c43d96a857099775b2b178d7d8ad"
+      },
+      {
+        "label": "tests/rust_batch_codegen.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/rust_batch_codegen-475bf13a95febbc1",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/rust_batch_codegen-475bf13a95febbc1",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:42:50.402599+00:00",
+        "seconds": 23.77436866000062,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 23.77s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/rust_batch_codegen-475bf13a95febbc1.log",
+        "log_sha256": "111ee2928e2f2174f3287e811b92f0ac162c2ca0335b04dd22eb907c3e3a023c"
+      },
+      {
+        "label": "tests/triangle_limits.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/triangle_limits-49d4e437e6c4a27a",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/triangle_limits-49d4e437e6c4a27a",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:43:14.177573+00:00",
+        "seconds": 2.0036516959953588,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.98s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/triangle_limits-49d4e437e6c4a27a.log",
+        "log_sha256": "71b0dceacea99db74961ffe01257c79777a394b7d4d5e9f5f955700eeb156d76"
+      },
+      {
+        "label": "tests/vacuum_symmetry.rs",
+        "executable": "/common/build-cache/external/5b/fa77294623597c/debug/deps/vacuum_symmetry-02adb243542d76b7",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/vacuum_symmetry-02adb243542d76b7",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:43:16.181784+00:00",
+        "seconds": 1.5958961279829964,
+        "returncode": 0,
+        "summary": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.58s"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/vacuum_symmetry-02adb243542d76b7.log",
+        "log_sha256": "595db89555ae25bc3a18b8030734293ed7396d5fc94b421c037138bed5517904"
+      }
+    ]
+  },
+  "priority_checks": {
+    "source": "/tmp/ninjars-oneloop-main-validation/priority-results.json",
+    "sha256": "17391f3bb4f11f53aca235e7f1d2b5c33163c2a5985c07b735023bc2f328c332",
+    "record": [
+      {
+        "label": "tests/function_definitions.rs",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/function_definitions-cddb5ebcfffc7621",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/priority-function_definitions.log",
+        "returncode": 0,
+        "seconds": 0.02286215900676325,
+        "summary": [
+          "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s"
+        ],
+        "log_sha256": "0a546c7648a2d4b28799ada0bb0ff4e13d4a56c5549774782e17264928f2d2e3"
+      },
+      {
+        "label": "tests/native_primitives.rs",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_primitives-7a65a114fef7eba1",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/priority-native_primitives.log",
+        "returncode": 0,
+        "seconds": 0.12056650099111721,
+        "summary": [
+          "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s"
+        ],
+        "log_sha256": "47abe465ee29afb2959b0294b5ae0c2f4d60df4a4e7f013e5c9c92ac706fc45f"
+      },
+      {
+        "label": "tests/rust_batch_codegen.rs",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/rust_batch_codegen-475bf13a95febbc1",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "log": "/tmp/ninjars-oneloop-main-validation/priority-rust_batch_codegen.log",
+        "returncode": 0,
+        "seconds": 24.030443900992395,
+        "summary": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.02s"
+        ],
+        "log_sha256": "2d031a433938c4a1dda1cfc95f9fde5c88672823f644776de5f594af23602c28"
+      }
+    ]
+  },
+  "remaining_jit_reruns": {
+    "source": "/tmp/ninjars-oneloop-main-validation/jit-followup-results.json",
+    "sha256": "e31859120553ba23ab06bb0dc3bf94302afd31e4965f1a7b9110daf02ea1c490",
+    "record": [
+      {
+        "label": "tests/native_hook_errors.rs",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_hook_errors-c061ab6f4bce0e24",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:47:31.881062+00:00",
+        "log": "/tmp/ninjars-oneloop-main-validation/jit-followup-native_hook_errors.log",
+        "returncode": 0,
+        "seconds": 13.920063454017509,
+        "summary": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.87s"
+        ],
+        "log_sha256": "8061ed586ff280530d992fe7e669a0d7c570495fddec0506f46308640440a0fd"
+      },
+      {
+        "label": "tests/native_hooks.rs",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_hooks-0ea29501c866ab56",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:47:45.801788+00:00",
+        "log": "/tmp/ninjars-oneloop-main-validation/jit-followup-native_hooks.log",
+        "returncode": 0,
+        "seconds": 15.76932803899399,
+        "summary": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.72s"
+        ],
+        "log_sha256": "21e797f7c31ec13559b9b12263a93de39cb61f8710476e2de1435d19bf5bee09"
+      },
+      {
+        "label": "tests/native_startup.rs",
+        "command": [
+          "/common/build-cache/external/5b/fa77294623597c/debug/deps/native_startup-987e6052f6dc46ca",
+          "--nocapture",
+          "--test-threads=1"
+        ],
+        "started_utc": "2026-10-16T18:48:01.571512+00:00",
+        "log": "/tmp/ninjars-oneloop-main-validation/jit-followup-native_startup.log",
+        "returncode": 0,
+        "seconds": 40.75904262799304,
+        "summary": [
+          "test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 40.75s"
+        ],
+        "log_sha256": "c5d7b42e8ba605c6745cec05d345a88c4bbd8fb3e8e7799905f7dac6042a14a6"
+      }
+    ]
+  },
+  "dependency_resolution": {
+    "source": "/tmp/ninjars-oneloop-main-validation/followup-dependency-resolution.json",
+    "sha256": "4ee9afad918f55124352519a069effb1a7b7f413e3c0528592ad8e8a2a2c7f7b",
+    "record": {
+      "python": {
+        "symbolica": [
+          {
+            "version": "3.0.1",
+            "source": "git+https://github.com/ValentinHirschi/symbolica?rev=8e23925ed7b5cbb91607c8633dda114cb43be8ce#8e23925ed7b5cbb91607c8633dda114cb43be8ce"
+          }
+        ],
+        "numerica": [
+          {
+            "version": "3.0.1",
+            "source": "git+https://github.com/ValentinHirschi/symbolica?rev=8e23925ed7b5cbb91607c8633dda114cb43be8ce#8e23925ed7b5cbb91607c8633dda114cb43be8ce"
+          }
+        ],
+        "graphica": [
+          {
+            "version": "3.0.1",
+            "source": "git+https://github.com/ValentinHirschi/symbolica?rev=8e23925ed7b5cbb91607c8633dda114cb43be8ce#8e23925ed7b5cbb91607c8633dda114cb43be8ce"
+          }
+        ],
+        "symjit": [
+          {
+            "version": "2.27.3",
+            "source": "registry+https://github.com/rust-lang/crates.io-index"
+          }
+        ]
+      },
+      "host": {
+        "symbolica": [
+          {
+            "version": "3.0.1",
+            "source": "git+https://github.com/ValentinHirschi/symbolica?rev=8e23925ed7b5cbb91607c8633dda114cb43be8ce#8e23925ed7b5cbb91607c8633dda114cb43be8ce"
+          }
+        ],
+        "numerica": [
+          {
+            "version": "3.0.1",
+            "source": "git+https://github.com/ValentinHirschi/symbolica?rev=8e23925ed7b5cbb91607c8633dda114cb43be8ce#8e23925ed7b5cbb91607c8633dda114cb43be8ce"
+          }
+        ],
+        "graphica": [
+          {
+            "version": "3.0.1",
+            "source": "git+https://github.com/ValentinHirschi/symbolica?rev=8e23925ed7b5cbb91607c8633dda114cb43be8ce#8e23925ed7b5cbb91607c8633dda114cb43be8ce"
+          }
+        ],
+        "symjit": [
+          {
+            "version": "2.27.3",
+            "source": "registry+https://github.com/rust-lang/crates.io-index"
+          }
+        ]
+      }
+    }
+  },
+  "focused_logs": {
+    "unit-final": {
+      "path": "/tmp/ninjars-jit-arity-unit-final.log",
+      "sha256": "64b43db61960489961dbfc04be6a307dac8b63a37175c6b6c1e906119c3ad1f5",
+      "test_summaries": [
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 64 filtered out; finished in 0.01s"
+      ],
+      "failed_test_marker": false
+    },
+    "evaluators": {
+      "path": "/tmp/ninjars-jit-arity-evaluators.log",
+      "sha256": "e6147c7cd6524ecbd62ecaff719f792e7478da88ebbe84c5f5bfb7a570a7b578",
+      "test_summaries": [
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 32.22s"
+      ],
+      "failed_test_marker": false
+    },
+    "additional": {
+      "path": "/tmp/ninjars-jit-arity-additional.log",
+      "sha256": "8c2661e6ee4cd4a53671597ac58d0c8240d941b80fc6bb4c71bd948a92c63929",
+      "test_summaries": [
+        "test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 109.29s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 44.20s"
+      ],
+      "failed_test_marker": false
+    },
+    "clippy-final": {
+      "path": "/tmp/ninjars-jit-arity-clippy-final.log",
+      "sha256": "c1506b48f35309a83416719fb1f7cad0d70fc1400f13d0c197ed0c4bc8db2bc5",
+      "test_summaries": [],
+      "failed_test_marker": false
+    },
+    "python-followup-check.log": {
+      "path": "/tmp/ninjars-oneloop-main-validation/python-followup-check.log",
+      "sha256": "e4f240baa456010fc4d6098687e846a5ba07b59f60cde3b7873065b060429e84",
+      "finished": true
+    },
+    "host-followup-check.log": {
+      "path": "/tmp/ninjars-oneloop-main-validation/host-followup-check.log",
+      "sha256": "88fbd346434ace2187b640c35f9825b5f6ffae817878a0857292cbab36d5b526",
+      "finished": true
+    }
+  },
+  "upstream_validation_doc_sha256": "840291cf7589b091917fd43977e748b1758b90fd2971c83813fb0eddd4eb45d9",
+  "ninjars_tested_oneloop_rust_revision": "1bdcb2893db667744c437e37add4b7212ff8ab60",
+  "final_oneloop_rust_sources_identical": true,
+  "performance_acceptance": false,
+  "full_goal_complete": false
+}

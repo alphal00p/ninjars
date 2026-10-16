@@ -35,8 +35,80 @@ pub enum PhysicalPreparationError {
     Vertex(&'static str, usize),
     #[error("expected two top-quark Higgs-to-gluon triangle orientations; found {0}")]
     Orientations(usize),
+    #[error("expected six oriented top-quark four-photon boxes; found {0}")]
+    PhotonBoxes(usize),
     #[error("generated Higgs-to-gluon graph has incompatible external states")]
     ExternalStates,
+}
+
+/// Prepare the six oriented top-quark boxes for `gamma gamma -> gamma gamma`.
+///
+/// Only the model's top-antitop-photon vertex is admitted. FeynKit supplies the
+/// graph sign, four-dimensional Feynman rules, momentum routing and the four
+/// external vector carriers. No external-color projector, spin sum, helicity
+/// average or identical-particle phase-space factor is applied. Idenso resolves
+/// the closed fundamental-color trace using its existing dimension identities.
+/// Thus the fermion-loop sign and internal color multiplicity occur exactly
+/// once, respectively in `overall_factor` and the contracted numerator.
+///
+/// Incoming `epsilon(edge)` and outgoing `epsilonbar(edge)` carriers remain
+/// symbolic. Bind their components through the shared component interface.
+/// Parameters also remain exact symbolic model inputs. This construction has
+/// no explicit mu-squared numerator, R2 vertex or UV counterterm; R1 is supplied
+/// by the reduction of the denominators. Graph ordering is generator metadata,
+/// not a promised correspondence to another program's diagram numbering.
+pub fn prepare_top_four_photons(
+    model: impl Into<Arc<Model>>,
+    kinematics: &Kinematics,
+) -> Result<Vec<PreparedIntegrand>, PhysicalPreparationError> {
+    if kinematics.dimension() != Dimension::Concrete(4) {
+        return Err(PhysicalPreparationError::Dimension);
+    }
+    let model = model.into();
+    let top = model.particle_id_by_pdg(6)?;
+    let antitop = model.particle_id_by_pdg(-6)?;
+    let photon = model.particle_id_by_pdg(22)?;
+    let mut required = vec![top, antitop, photon];
+    required.sort();
+    let vertices: Vec<_> = model
+        .vertex_rules()
+        .iter()
+        .filter(|vertex| {
+            let mut particles = vertex.particles.clone();
+            particles.sort();
+            particles == required
+        })
+        .map(|vertex| vertex.name.clone().into())
+        .collect();
+    if vertices.len() != 1 {
+        return Err(PhysicalPreparationError::Vertex("photon", vertices.len()));
+    }
+    let options = GenerationOptions::default()
+        .with_loop_count(1, 1)
+        .expect("the fixed one-loop range is valid")
+        .threads(1)
+        .max_vertices(4)
+        .numerator_grouping(NumeratorGrouping::None)
+        .with_graph_filter(GenerationFilter::MaxNumberOfBridges(0))
+        .with_graph_filter(GenerationFilter::VertexAllow(vertices));
+    let name = model.particle_by_id(photon)?.name.clone();
+    let process = Process::new([name.clone(), name.clone()], [name.clone(), name]);
+    let generated = process.generate_diagrams(model, &options)?;
+    if generated.diagrams.len() != 6 {
+        return Err(PhysicalPreparationError::PhotonBoxes(
+            generated.diagrams.len(),
+        ));
+    }
+    generated
+        .diagrams
+        .into_iter()
+        .map(|diagram| {
+            prepare_diagram(diagram, kinematics, NumeratorMode::Explicit)
+                .and_then(PreparedIntegrand::with_color_dimension_invariants)
+                .map_err(Box::new)
+                .map_err(PhysicalPreparationError::from)
+        })
+        .collect()
 }
 
 /// Generate and prepare the two oriented top-quark `H -> g g` triangles.
