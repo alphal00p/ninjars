@@ -94,3 +94,29 @@ The new driver passes all 16 developer-profile scope/workload/width controls at 
 For changing inputs, both reducers request 10 direct, 25 T3 and 20 T2 numerator rows per point. At width one, original Ninja makes 10/25/20 callback calls and NinjaRS makes 5/15/10. At width eight, original makes 80/200/160 calls while NinjaRS retains 5/15/10 calls over the same 80/200/160 rows. Frozen master lookup calls are 50 versus 5 at width one and 400 versus 5 at width eight; actual master backend calls, rows and time are exactly zero. These provider costs remain included in the reduction total.
 
 The [methodology validation index](../../evidence/shared-workload-methodology-validation.json) retains exact source identities and deterministic archives. Its execution durations are developer-profile accounting controls and must not be used for speed comparisons. The separate pool/static-predicate core checkpoint and optimized contiguous sampling are subsequent validation stages.
+
+
+## Reduction selection
+
+`--reduction-kernels symbolica|native-denominators|native` selects reduction
+factories only, independently of the fixed shared numerator and master scope.
+The default is interpreted and the standalone Cargo feature is optional.
+`--native-catalog` enables that feature while selecting interpreted execution,
+so a matched three-way experiment can use identical native-enabled library and
+C++ artifacts. The C++ runner accepts the same optional last argument; omitting
+it preserves interpreted behavior. Session selection and coverage validation
+happen during setup, before warmup or any block.
+
+Every JSON report includes the actual seven-family backend report and the
+compiled feature flag. Both frontends validate those values. The currently
+available `native` catalog additionally executes ordinary bubble source
+projections and triangle-parent corrections; other reduction, integration and
+accumulation remain interpreted. No metadata calls occur inside timed blocks.
+The `run_physical.py --all-reduction-kernels` check supplies a single-artifact
+frozen-master parity control. A separate controlled timing window and explicit
+artifact/source identity are still required for performance conclusions.
+
+For exact same-artifact timing comparisons, reuse one copied `physical-timing`
+executable and its library, changing only its final selection argument. Separate
+`run_timing.py` output directories rebuild the small C++ launcher with different
+library search paths; do not label those executable hashes as identical.

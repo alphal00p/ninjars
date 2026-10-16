@@ -35,7 +35,7 @@ static std::vector<Point> read_pool(){
 }
 struct Workload{
   std::vector<Point>pool;Physical physical;SharedMasters replay,live;ProductionOriginal oneloop;Runs runs;std::array<uint64_t,3> captured_backend{};
-  explicit Workload(const char*path):pool(read_pool()),physical(path,1),runs(physical){
+  explicit Workload(const char*path,unsigned selection):pool(read_pool()),physical(path,1),runs(physical,selection){
     const std::vector<size_t>all{0,1,2};
     const auto original=runs.run_original(pool,all,replay);const auto rust=runs.run_rust(pool,all,replay);
     for(size_t row=0;row<3;++row)for(size_t j=0;j<3;++j){near(complex(original[row*5+j]),complex(rust[row*5+j]),"capture shared Laurent");near(complex(rust[row*5+j]),complex(pool[row].integrated[j]),"capture independent MadLoop");}
@@ -50,7 +50,8 @@ struct Workload{
   }
 };
 int main(int argc,char**argv){try{
-  if(argc!=7)throw std::runtime_error("usage: physical-timing DOT check|timing|allocations|execution rounds trials widths scopes");
+  if(argc!=7&&argc!=8)throw std::runtime_error("usage: physical-timing DOT check|timing|allocations|execution rounds trials widths scopes [symbolica|native-denominators|native]");
+  const unsigned selection=argc==8?kernel_selection(argv[7]):static_cast<unsigned>(SP_KERNEL_SYMBOLICA);
   const std::string mode=argv[2];const bool timing=mode=="timing",allocations=mode=="allocations",execution=mode=="execution";
   if(!timing&&!allocations&&!execution&&mode!="check")throw std::runtime_error("unknown execution mode");
 #ifdef SP_ALLOCATION_DIAGNOSTICS
@@ -68,10 +69,10 @@ int main(int argc,char**argv){try{
   std::vector<size_t>widths;std::stringstream sizes(argv[5]);std::string entry;while(std::getline(sizes,entry,',')){auto n=std::stoul(entry);if(!n||n>1024)throw std::runtime_error("width must be1..1024");widths.push_back(n);}if(widths.empty())throw std::runtime_error("no batch widths");
   std::vector<unsigned>scopes;std::stringstream scope_input(argv[6]);while(std::getline(scope_input,entry,',')){auto n=std::stoul(entry);if(n>3)throw std::runtime_error("scope must be0..3");scopes.push_back(n);}if(scopes.empty())throw std::runtime_error("no scopes");
   const std::array<const char*,4> names{{"preparation","shared-reduction","shared-live-complete","production-complete"}};
-  ninja::setVerbosity(ninja::Verbose::NONE);ninja::setTest(ninja::Test::NONE);Workload workload(argv[1]);
+  ninja::setVerbosity(ninja::Verbose::NONE);ninja::setTest(ninja::Test::NONE);Workload workload(argv[1],selection);
   double clock_pair_ns=0.;if(timing){std::array<double,101>overhead{};for(auto&sample:overhead){auto start=Clock::now();auto end=Clock::now();sample=std::chrono::duration<double,std::nano>(end-start).count();}std::sort(overhead.begin(),overhead.end());clock_pair_ns=overhead[overhead.size()/2];}
   std::ostringstream report;
-  report<<std::setprecision(17)<<"{\"success\":true,\"mode\":\""<<mode<<"\",\"clock_pair_median_ns\":"<<clock_pair_ns<<",\"performance_acceptance\":false,\"original_production_backend_counters_available\":"<<(original_backend_counters?"true":"false")<<",\"counter_columns\":[\"numerator_direct_calls\",\"numerator_mu_calls\",\"numerator_t3_calls\",\"numerator_t2_calls\",\"numerator_direct_rows\",\"numerator_mu_rows\",\"numerator_t3_rows\",\"numerator_t2_rows\",\"preparation_calls\",\"preparation_rows\",\"wavefunction_calls\",\"rust_numerator_wire_calls\",\"rust_numerator_wire_rows\",\"rust_master_wire_calls\",\"rust_master_wire_rows\",\"shared_live_backend_calls\",\"shared_live_backend_rows\",\"live_flag_delta\",\"direct_rust_master_calls\",\"direct_rust_master_rows\"],\"records\":[";
+  report<<std::setprecision(17)<<"{\"success\":true,\"reduction_kernels\":";emit_kernel_info(report,workload.runs.session.info);report<<",\"mode\":\""<<mode<<"\",\"clock_pair_median_ns\":"<<clock_pair_ns<<",\"performance_acceptance\":false,\"original_production_backend_counters_available\":"<<(original_backend_counters?"true":"false")<<",\"counter_columns\":[\"numerator_direct_calls\",\"numerator_mu_calls\",\"numerator_t3_calls\",\"numerator_t2_calls\",\"numerator_direct_rows\",\"numerator_mu_rows\",\"numerator_t3_rows\",\"numerator_t2_rows\",\"preparation_calls\",\"preparation_rows\",\"wavefunction_calls\",\"rust_numerator_wire_calls\",\"rust_numerator_wire_rows\",\"rust_master_wire_calls\",\"rust_master_wire_rows\",\"shared_live_backend_calls\",\"shared_live_backend_rows\",\"live_flag_delta\",\"direct_rust_master_calls\",\"direct_rust_master_rows\"],\"records\":[";
   bool first=true;double checksum=0.;
   for(unsigned scope:scopes)for(bool changing:{false,true})for(size_t width:widths){
     std::array<std::vector<size_t>,3>indices;for(size_t phase=0;phase<3;++phase){indices[phase].resize(width);for(size_t row=0;row<width;++row)indices[phase][row]=changing?(row+phase)%3:0;}

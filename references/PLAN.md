@@ -1472,3 +1472,26 @@ connects the existing kernels into integrated amplitudes and a standalone
   controls contain no primary timing samples; paired contiguous measurements
   follow under a coordinated pause of our builds. Host/SMT isolation remains
   unverified, so performance acceptance stays false.
+
+### Paired interpreted reduction baseline (2026-10-16)
+
+- Integrated `84cabc2`: immutable `0c77597` was measured with matched
+  numerator callbacks and frozen master requests at widths 1/8/32/128/1024/31,
+  for repeated and changing physical inputs. Each record has eight balanced
+  paired blocks; all 192 individual blocks exceed 20 ms. Team builds paused,
+  but unrelated host jobs and the unreserved SMT sibling prevent acceptance.
+- Changing-input median NinjaRS/original time ratios are
+  3.004/2.638/2.864/2.745/3.303/2.768. Width-one medians are 309.73/103.17
+  microseconds per point. Reduction performance parity remains unmet. These
+  measurements establish a new baseline, not a gain versus older methodology.
+- Actual master backend calls/rows/time and coefficient preparation remain
+  zero in this frozen scope; lookup and contraction are included in reduction.
+  Both implementations have identical numerator sample counts. Live/production
+  master timing is retained in the separate same-pass execution report.
+- Root verified all six lossless archive hashes, recomputed twelve statistical
+  summaries and 192 block normalizations, and checked source guards and counter
+  equivalence. Evidence is `shared-reduction-timing-0c77597.json`; detailed
+  boundaries and confidence intervals are in `BASELINE-0c77597.md`.
+- Native-catalog comparisons remain next. A separate test-only probe is being
+  prepared for Symbolica's existing complex SymJIT compiler on unchanged exact
+  reduction plans; no production backend or generic carrier behavior changes.
