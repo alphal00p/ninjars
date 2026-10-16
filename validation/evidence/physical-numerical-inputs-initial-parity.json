@@ -1,0 +1,166 @@
+{
+  "batches": [
+    {
+      "coefficient_components": 0,
+      "propagator_components": 0,
+      "rows": 0
+    },
+    {
+      "coefficient_components": 70,
+      "propagator_components": 20,
+      "rows": 1
+    },
+    {
+      "coefficient_components": 560,
+      "propagator_components": 160,
+      "rows": 8
+    },
+    {
+      "coefficient_components": 2240,
+      "propagator_components": 640,
+      "rows": 32
+    },
+    {
+      "coefficient_components": 8960,
+      "propagator_components": 2560,
+      "rows": 128
+    },
+    {
+      "coefficient_components": 71680,
+      "propagator_components": 20480,
+      "rows": 1024
+    },
+    {
+      "coefficient_components": 210,
+      "propagator_components": 60,
+      "rows": 3
+    },
+    {
+      "coefficient_components": 2170,
+      "propagator_components": 620,
+      "rows": 31
+    }
+  ],
+  "coefficient_heads": 70,
+  "coefficient_max_scaled_error": 1.436216465821687e-10,
+  "distinct_momentum_points": 3,
+  "graph": "four-photon/top-box-0",
+  "helicity_states": 3,
+  "model_input_rows": [
+    [
+      173.0,
+      132.507
+    ],
+    [
+      179.0,
+      133.0
+    ],
+    [
+      167.0,
+      131.5
+    ]
+  ],
+  "parameter_count": 30,
+  "passed": true,
+  "performance_acceptance": false,
+  "reconstruction_max_scaled_error": 4.621577534780096e-13,
+  "scope": "FeynKit wavefunctions and routed propagators plus Symbolica/SymJIT coefficient preparation from numerical momenta, helicities, pole mass and inverse electromagnetic coupling; no reduction or timings",
+  "wavefunction_fixture_max_scaled_error": 1.1102230246251565e-16,
+  "unchanged_sources": true,
+  "provenance": {
+    "compile_command": [
+      "rustc",
+      "--edition=2024",
+      "/shared/external/ninja/validation/performance/physical_inputs/src/main.rs",
+      "-Dwarnings",
+      "-o",
+      "/shared/external/ninja/target/performance/physical-input-probe-2/physical-input-probe",
+      "-L",
+      "dependency=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps",
+      "--extern",
+      "serde_json=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libserde_json-116ef9b7dba087ae.rlib",
+      "--extern",
+      "symbolica=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libsymbolica-46b4143f33dc3388.rlib",
+      "--extern",
+      "feynkit_kinematics=/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libfeynkit_kinematics-14597159af832cd6.rlib",
+      "--extern",
+      "ninjars_graph=/shared/external/ninja/target/debug/libninjars_graph.rlib"
+    ],
+    "run_command": [
+      "/shared/external/ninja/target/performance/physical-input-probe-2/physical-input-probe"
+    ],
+    "compiler": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+    "binary_sha256": "8e582d1480e0c22b8bfb7976db858c32e36c8ce2a35f1cc067979acbe65068c3",
+    "source_sha256": {
+      "validation/performance/physical_inputs/src/main.rs": "7d289e13827ab75ecba5f9b349af9739be9f6d35bf6cbca9351d2d6a316f1533",
+      "validation/performance/physical_inputs/run.py": "f3f69817f2c59ed6d5196de8e3b6395c7ab57a9996959094903cb25e5131a8a5",
+      "Cargo.lock": "1035b5beee28438bc1e0841e541f8a5d4986f46e50c0ee25820b4326c8b155b0",
+      "dependencies/manifest.json": "d71dcb77b2f354dd604dd591009290d33d81ec7089bff3bf8291eb9e9faba89c",
+      "examples/graphs/physical/four-photon/top-box-0.json": "3e6a82c183db8949e0d405fa1de8e65e4b35e55a1f32365cbef06c13138366e2"
+    },
+    "dependency_manifest": {
+      "schema_version": 1,
+      "dependencies": [
+        {
+          "name": "symbolica",
+          "path": "references/symbolica",
+          "url": "https://github.com/symbolica-dev/symbolica.git",
+          "revision": "c78cffc20f318df1fce50539a587cbe8ffc717c0",
+          "patches": [
+            {
+              "path": "dependencies/patches/symbolica-batch-dual.patch",
+              "sha256": "b99a2ff66d4c347a20344052ae54d131ef874b79a6d97a29e2697393d9c7954d"
+            }
+          ],
+          "patched_revisions": [
+            "fd7bced5307e94e994d5deba63c60b8380aa7d02"
+          ]
+        },
+        {
+          "name": "feynkit",
+          "path": "references/gammaloop_ninja_shared",
+          "url": "https://github.com/alphal00p/gammaloop.git",
+          "revision": "d3b91d31461e50d91dce4702d68c45294faca350",
+          "patches": [
+            {
+              "path": "dependencies/patches/feynkit-shared-types.patch",
+              "sha256": "7bc15975562034a01a5eb1d1ebe662f9c5c44697ebac3ecf5935e992118e39d6"
+            }
+          ],
+          "patched_revisions": [
+            "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+          ]
+        },
+        {
+          "name": "oneloopmaster",
+          "path": "references/oneloopmaster",
+          "url": "https://github.com/alphal00p/oneloopmaster.git",
+          "revision": "e9d14f7b5fa546af33fced2a421c616220178643"
+        },
+        {
+          "name": "ninja-reference",
+          "path": "references/ninja",
+          "url": "https://github.com/peraro/ninja.git",
+          "revision": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0"
+        }
+      ]
+    },
+    "cargo_artifacts_sha256": "f794698249b3817bbdf9ce88a080d2b66c5098a0e2e67fd76eca5d5c1dcbfa54",
+    "rlib_sha256": {
+      "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libserde_json-116ef9b7dba087ae.rlib": "b59523ea6b430b07de5b266a3b18fe67d39d419c3e96bbfee228ecc80285da58",
+      "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libsymbolica-46b4143f33dc3388.rlib": "c57e2935cd150c0e66cc7a690d1d06da904b20ab6dffce4e90e99c6dacd978b8",
+      "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/libfeynkit_kinematics-14597159af832cd6.rlib": "dd09b22491362940492f08d705fca63dcd9802bffd1bc849c10ba04391d0872d",
+      "/shared/external/ninja/target/debug/libninjars_graph.rlib": "4da2e6634510d7a4924daf2a8b7f97260fc29f87f8bfd911b0b081ee15498f9f"
+    },
+    "logs": {
+      "build.log": {
+        "text": "",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr.log": {
+        "text": "",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  }
+}

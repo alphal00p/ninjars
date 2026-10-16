@@ -988,3 +988,47 @@ connects the existing kernels into integrated amplitudes and a standalone
   gates, and are not reported as Ward acceptance. MadLoop finite-part inputs
   remain binary64 even in mode four. Fifteen aggregation mutation regressions
   pass. No performance acceptance is implied.
+
+### Matched-provider bridge and physical numerical inputs (2026-10-16)
+
+- Added an independent validation workspace under
+  `validation/performance/shared_provider`. Both reducers can call the same
+  non-inlined Rust numerator and master entry points through dimensioned,
+  component-copied arrays. The retained Rust session constructs its topology
+  and geometry once. Production crates have no C++ dependency or FFI change.
+- Frozen evidence in `shared-retained-provider-probe.json` passes five Rust
+  regressions, 291 callback components, 48 bubble Laurent comparisons, 80
+  retained-session components, eight explicit mu-squared split comparisons and
+  12 C0/D0 adapter-order components. The union contains 12 exact master keys;
+  frozen replay covers 106 rows without additional backend execution and rejects
+  an intentional missing key. Strict Clippy and formatting pass. Earlier
+  numerator-only and master-union checkpoints are retained separately.
+- These controls are not timing acceptance. Larger integrated batches, physical
+  graph integration, descriptor/master staging allocations and measured provider
+  costs remain outstanding. A `q0^2` bubble has matching total Laurent values
+  but different cut/rational splits between residue bases; the discrepancy is
+  preserved and rational-separation acceptance remains incomplete.
+- The bridge exposed a nonsingular Euclidean C0 failure at invariants
+  `(-1,-2,-3)`, squared masses `(2,3,5)` and squared scale `7`:
+  `MasterFailure::NonFiniteResult`. A positive-result regression is explicitly
+  run separately and currently fails. It is recorded as an acceptance blocker,
+  not counted among passing controls; isolated upstream diagnosis is underway.
+- `validation/performance/physical_inputs` prepares a top-quark four-photon box
+  from numerical momenta, helicities, top mass and electromagnetic coupling.
+  It uses FeynKit's shared wavefunctions, model bindings and routing, plus
+  Symbolica's propagator and multi-output coefficient evaluators. Three distinct
+  momentum points and three helicities cover empty/single/tail/permuted batches
+  through 1024. Wavefunction phases agree with HELAS to `1.12e-16`; coefficient
+  provider parity and full polynomial reconstruction pass the fixed `1e-9` gate.
+- A stronger Float256 coefficient oracle finds a vanishing head evaluated as
+  `1.72346e-9` by both unfactored f64 providers. Accordingly the archived report
+  has `passed:false`; agreement between providers is not sufficient evidence.
+  An isolated exact Symbolica `factor()` experiment reduces maximum errors to
+  `7.45e-12` (interpreter) and `5.04e-12` (SymJIT O2), passing the same gate.
+  This is a candidate preparation policy, not a general stability guarantee.
+  Public API, factor implementation/examples, and FeynKit's installed FeynCalc
+  usages were checked before composition; no factoring algorithm was added.
+- Full physical timing must include per-point wavefunctions, dependent model
+  parameters, routed propagators and coefficient evaluation for both paths.
+  The existing prebound-component fixture benchmark remains explicitly narrower.
+  Large pentagon integration and controlled end-to-end measurements are pending.

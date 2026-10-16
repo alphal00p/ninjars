@@ -1,0 +1,163 @@
+{
+  "success": true,
+  "callback_components_checked": 291,
+  "analytic_triangle_rebindings": 2,
+  "shared_masters": false,
+  "performance_acceptance": false,
+  "scope": "shared Rust numerator callback correctness; not a matched-provider performance run",
+  "production_core_ffi": false,
+  "shared_master_provider_implemented": false,
+  "source_sha256": {
+    "validation/performance/shared_provider/Cargo.toml": "9eb9b82d8e4f0c03d4d498a6b1caf866ea1a1aae59c8b78c3d9b0e0396c6f263",
+    "validation/performance/shared_provider/run.py": "9e7c06aecf9599885162da903c73e36d763c189d1aa2a446d6565f4dbd26f314",
+    "validation/performance/shared_provider/probe.cc": "b27680cb8b292bcb48f7e3610a5dd97e64400342c8f7d5f05af95dea3c5efd7a",
+    "validation/performance/shared_provider/bridge.h": "c9a834f669407c152ff2196403d8a044534cd835be09fa5a860f0c6f99b26665",
+    "validation/performance/shared_provider/Cargo.lock": "91ac222e293d4ca5e19dfb8013ed202b7fb10dd165b92fbdc4eb7a27fedf9dcc",
+    "validation/performance/shared_provider/src/lib.rs": "74822203d7d1c7004d87f205880c44743c755aac9884ac9469705d5cb17e3811"
+  },
+  "artifacts_sha256": {
+    "/shared/external/ninja/target/performance/shared-provider-probe-1/libninjars_shared_provider_probe.so": "a6338377634498f90ded0b2d3d4a7fa09d247e44c4e93a4831ea928666ffc3b6",
+    "/shared/external/ninja/target/performance/shared-provider-probe-1/shared-provider-probe": "0ddd5653eb4459302fc791ed40ced173a360a169683639b86889247ffec9afc8",
+    "/shared/external/ninja/target/reference-uncached-v2/ninja-build/src/.libs/libninja.a": "8f4d39dad292a28a05dd4e56bd4cbb7014cf08532ef4d8484c00ea44e0b097a3",
+    "/shared/external/ninja/target/reference-uncached-v2/oneloop/libavh_olo.a": "28c37c328fadd6f4f09f973bfb961b3bccb3c729583a92dc2186fd947ccbe4dd"
+  },
+  "reference_revision_record_sha256": "bf5171bc8cd5534c23077f5f38a247852b22540ff76b5d5978b02819fe621094",
+  "commands": [
+    {
+      "label": "cargo-build",
+      "argv": [
+        "cargo",
+        "build",
+        "--manifest-path",
+        "/shared/external/ninja/validation/performance/shared_provider/Cargo.toml",
+        "--locked",
+        "--message-format=json"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "cargo-tests-build",
+      "argv": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "/shared/external/ninja/validation/performance/shared_provider/Cargo.toml",
+        "--locked",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "fortran-library",
+      "argv": [
+        "gfortran",
+        "-print-file-name=libgfortran.so"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "cpp-build",
+      "argv": [
+        "g++",
+        "-O2",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-I/shared/external/ninja/target/reference-uncached-v2/ninja-source/src",
+        "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build/src",
+        "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build",
+        "/shared/external/ninja/validation/performance/shared_provider/probe.cc",
+        "/shared/external/ninja/target/performance/shared-provider-probe-1/libninjars_shared_provider_probe.so",
+        "/shared/external/ninja/target/reference-uncached-v2/ninja-build/src/.libs/libninja.a",
+        "/shared/external/ninja/target/reference-uncached-v2/oneloop/libavh_olo.a",
+        "/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib/libgfortran.so",
+        "-lquadmath",
+        "-Wl,-rpath,/shared/external/ninja/target/performance/shared-provider-probe-1",
+        "-Wl,-rpath,/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib",
+        "-o",
+        "/shared/external/ninja/target/performance/shared-provider-probe-1/shared-provider-probe"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "rust-tests",
+      "argv": [
+        "/common/build-cache/external/82/28b01d95c7d0b7/debug/deps/ninjars_shared_provider_probe-59d26c95d779d7a4",
+        "--test-threads=1"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "cpp-probe",
+      "argv": [
+        "/shared/external/ninja/target/performance/shared-provider-probe-1/shared-provider-probe"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "rustc-version",
+      "argv": [
+        "rustc",
+        "--version"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "cxx-version",
+      "argv": [
+        "g++",
+        "--version"
+      ],
+      "returncode": 0
+    }
+  ],
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "cxx": "g++ (GCC) 15.3.0",
+  "symbolica_revision": "58b72d438e7bcfce158d132612db7d35fdefa4ba",
+  "schema_version": 1,
+  "evidence_kind": "numerator-only shared-provider correctness checkpoint",
+  "limitations": [
+    "No shared master provider yet",
+    "No timing or matched latency claim",
+    "The ABI prototype still allocates request/packing buffers",
+    "Fixed synthetic numerator fixtures; no physical preparation timing"
+  ],
+  "logs": {
+    "rust-tests.stdout": {
+      "sha256": "d52f97ed8c318217a9f11c58f4c6ec55fea1b685d01bd508304de8b9ad25f48c",
+      "text": "\nrunning 2 tests\ntest tests::batched_direct_matches_safe_calls_and_errors_preserve_output ... ok\ntest tests::batched_laurent_responses_match_safe_rust_for_all_orders ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s\n\n"
+    },
+    "cpp-probe.stdout": {
+      "sha256": "3c84b7f757b11f0e2e03969c97b3b1584b0ebcf03dea6e9aa81d0b08ec200f9d",
+      "numerical_result": {
+        "success": true,
+        "callback_components_checked": 291,
+        "analytic_triangle_rebindings": 2,
+        "shared_masters": false,
+        "performance_acceptance": false
+      }
+    },
+    "cpp-probe.stderr": {
+      "sha256": "2581967b324f479a04c34ca942c63019759076b4463614c4f722ad79669f8d0f",
+      "text": "\nthread '<unnamed>' (3746940) panicked at src/lib.rs:401:14:\nintentional shared-provider boundary control\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    "cargo-build.stderr": {
+      "sha256": "c6e5c8065546dbfd7b025281c40ae7048a5ec69b935185438d7bc1a803977509"
+    },
+    "cargo-tests-build.stderr": {
+      "sha256": "b050da5c60ec3c95b19122e6393226b5d73fdab0f51541ac0a98cb937f4bd5e1"
+    },
+    "cpp-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "standalone_clippy": {
+      "sha256": "522474a1b401d949b8238a1d75e1855bb08f948f54d7d6b1e44f52d20ee61c45",
+      "result": "one style lint; no runtime or type error"
+    }
+  },
+  "runtime_evidence_directory": "target/performance/shared-provider-probe-1",
+  "oneloop_revision": "5091653086b32428c6e024ee89404b4b21214e88",
+  "validation_status": "Runtime controls passed on the recorded old pins; standalone Clippy found one chunks_exact-to-as_chunks style lint, corrected in the next stage."
+}

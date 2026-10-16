@@ -1,0 +1,698 @@
+{
+  "success": true,
+  "probes": {
+    "numerator": {
+      "success": true,
+      "callback_components_checked": 291,
+      "analytic_triangle_rebindings": 2,
+      "shared_masters": false,
+      "performance_acceptance": false
+    },
+    "master": {
+      "success": true,
+      "full_bubble_laurent_components_checked": 48,
+      "retained_session_components_checked": 80,
+      "shared_out_of_line_entry_points": true,
+      "explicit_mu2_split_components_checked": 8,
+      "c0_d0_ordered_adapter_components_checked": 12,
+      "union_entries": 12,
+      "both_sources": 12,
+      "rust_only": 0,
+      "ninja_only": 0,
+      "captured_backend_rows": 12,
+      "replayed_rows": 106,
+      "intentional_misses": 1,
+      "higher_rank_b111_override": true,
+      "rational_separation_parity_complete": false,
+      "split_controls": [
+        {
+          "fixture": 3,
+          "scale": 1,
+          "time_origin": 1,
+          "original": [
+            [
+              1.214679798906089,
+              -3.623863843556664
+            ],
+            [
+              9.666666666666647,
+              2.3333333333333197
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              -1.4519868677605727,
+              1.7094694897766716
+            ],
+            [
+              2.6666666666666616,
+              -5.333333333333336
+            ]
+          ],
+          "rust": [
+            [
+              1.2146797989060856,
+              -3.6238638435566606
+            ],
+            [
+              9.66666666666667,
+              2.333333333333335
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              -3.4519868677605805,
+              0.7094694897766725
+            ],
+            [
+              4.666666666666666,
+              -4.333333333333333
+            ]
+          ]
+        },
+        {
+          "fixture": 3,
+          "scale": 7,
+          "time_origin": 1,
+          "original": [
+            [
+              20.02514457310741,
+              0.9165931709057062
+            ],
+            [
+              9.666666666666647,
+              2.3333333333333197
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              17.35847790644075,
+              6.249926504239042
+            ],
+            [
+              2.6666666666666607,
+              -5.333333333333336
+            ]
+          ],
+          "rust": [
+            [
+              20.02514457310745,
+              0.9165931709057418
+            ],
+            [
+              9.66666666666667,
+              2.333333333333335
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              15.358477906440786,
+              5.249926504239074
+            ],
+            [
+              4.666666666666666,
+              -4.333333333333333
+            ]
+          ]
+        },
+        {
+          "fixture": 4,
+          "scale": 1,
+          "time_origin": 1,
+          "original": [
+            [
+              -11.024483463843886,
+              3.589887858397095
+            ],
+            [
+              -5.000000000058076,
+              -5.000000000043947
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              -32.0148645206105,
+              -13.571969336653005
+            ],
+            [
+              20.990381056766616,
+              17.1618571950501
+            ]
+          ],
+          "rust": [
+            [
+              -11.024483463825089,
+              3.589887858411082
+            ],
+            [
+              -4.999999999999975,
+              -4.999999999999979
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              -20.758858463825096,
+              -7.943966308255584
+            ],
+            [
+              9.734375000000007,
+              11.533854166666666
+            ]
+          ]
+        },
+        {
+          "fixture": 4,
+          "scale": 7,
+          "time_origin": 1,
+          "original": [
+            [
+              -20.754034209233474,
+              -6.1396628869649845
+            ],
+            [
+              -5.000000000058076,
+              -5.000000000043947
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              -41.74441526600009,
+              -23.301520082015085
+            ],
+            [
+              20.990381056766616,
+              17.1618571950501
+            ]
+          ],
+          "rust": [
+            [
+              -20.754034209101597,
+              -6.139662886865439
+            ],
+            [
+              -4.999999999999975,
+              -4.999999999999979
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              -30.48840920910161,
+              -17.673517053532105
+            ],
+            [
+              9.734375000000007,
+              11.533854166666666
+            ]
+          ]
+        },
+        {
+          "fixture": 5,
+          "scale": 1,
+          "time_origin": 0,
+          "original": [
+            [
+              0.016987992572788713,
+              7.018622073984497e-16
+            ],
+            [
+              1.3333333333333248,
+              -4.023505599026091e-15
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              2.6836546592394575,
+              7.018622073984497e-16
+            ],
+            [
+              -2.6666666666666687,
+              0
+            ]
+          ],
+          "rust": [
+            [
+              0.01698799257278922,
+              5.180007039602616e-16
+            ],
+            [
+              1.3333333333333335,
+              1.1379786002407855e-15
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              1.6836546592394557,
+              5.180007039602616e-16
+            ],
+            [
+              -1.6666666666666665,
+              0
+            ]
+          ]
+        },
+        {
+          "fixture": 5,
+          "scale": 1,
+          "time_origin": 1,
+          "original": [
+            [
+              -0.9571971768899945,
+              -4.752280736303838e-16
+            ],
+            [
+              2.3333333333333233,
+              -2.544119692281023e-15
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              1.7094694897766742,
+              -4.752280736303838e-16
+            ],
+            [
+              -2.6666666666666687,
+              0
+            ]
+          ],
+          "rust": [
+            [
+              -0.9571971768899952,
+              4.416545683932889e-16
+            ],
+            [
+              2.3333333333333304,
+              9.992007221626409e-16
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0.7094694897766713,
+              4.416545683932889e-16
+            ],
+            [
+              -1.6666666666666665,
+              0
+            ]
+          ]
+        },
+        {
+          "fixture": 6,
+          "scale": 1,
+          "time_origin": 0,
+          "original": [
+            [
+              2.6666666666666665,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              2.6666666666666665,
+              0
+            ]
+          ],
+          "rust": [
+            [
+              2.6666666666666665,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              2.6666666666666665,
+              0
+            ]
+          ]
+        },
+        {
+          "fixture": 6,
+          "scale": 1,
+          "time_origin": 1,
+          "original": [
+            [
+              2.6666666666666665,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              2.6666666666666665,
+              0
+            ]
+          ],
+          "rust": [
+            [
+              2.6666666666666665,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              2.6666666666666665,
+              0
+            ]
+          ]
+        }
+      ],
+      "performance_acceptance": false
+    }
+  },
+  "scope": "shared Rust numerator and union-master replay correctness; not a matched-provider performance run",
+  "production_core_ffi": false,
+  "shared_master_provider_implemented": true,
+  "performance_acceptance": false,
+  "outstanding_c0_exception": {
+    "reproduced": true,
+    "integral": "C0",
+    "invariants": [
+      -1,
+      -2,
+      -3
+    ],
+    "masses_squared": [
+      2,
+      3,
+      5
+    ],
+    "scale_squared": 7,
+    "current_failure": "MasterFailure::NonFiniteResult",
+    "required_behavior": "finite result; positive-mass Euclidean point",
+    "acceptance_blocker": true
+  },
+  "source_sha256": {
+    "validation/performance/shared_provider/numerator.hh": "20456636dcebbcf5cbbaa6815e8f81c6434e0149d9a1184997bb155308425d40",
+    "validation/performance/shared_provider/master_probe.cc": "743adc11c28040c6f3e9f5b929fe1356d5aac99ec6f5ffc9834a8790563ffcda",
+    "validation/performance/shared_provider/Cargo.toml": "9eb9b82d8e4f0c03d4d498a6b1caf866ea1a1aae59c8b78c3d9b0e0396c6f263",
+    "validation/performance/shared_provider/README.md": "110a27bd9ec3f1cc100a14c3dde0457c5dcb741676def2c3f1b3d7281bc558d6",
+    "validation/performance/shared_provider/run.py": "0e8c1e81ea15b896e724bd689c8acb8763dcc121786a0740331f03bbe4f4a923",
+    "validation/performance/shared_provider/probe.cc": "1b17f120eae63882044701472b157292c383dd76fee17903dde29d8b738c4629",
+    "validation/performance/shared_provider/bridge.h": "d8e3946d7b471447366aa4e5a5ab26e6a0249f04c17b068fbb1210e1afd1b576",
+    "validation/performance/shared_provider/masters.hh": "481272ffa7197bb3d8bfea4d27787b70adbf879e007381c67a285b34064c64af",
+    "validation/performance/shared_provider/Cargo.lock": "91ac222e293d4ca5e19dfb8013ed202b7fb10dd165b92fbdc4eb7a27fedf9dcc",
+    "validation/performance/shared_provider/src/lib.rs": "8128030aa6fec279961cb840382504a67d72a6586e93b7eb5c47fae9958a2b71",
+    "validation/performance/shared_provider/src/foreign.rs": "11bb7b9fa5c208ebd2e5535cbc72a4356d29c1973e8bc71d05fd8660be4bf718",
+    "validation/performance/shared_provider/src/session.rs": "19099c6a54f69b5f29769659c3a22e89499ebedd72b5527e78ca237e2b0c6428",
+    "validation/performance/shared_provider/src/masters.rs": "485523273ea84ed3f49cef9a5f263e005c16d2f7025d9306f5efe83b451dd3a2"
+  },
+  "artifacts_sha256": {
+    "/shared/external/ninja/target/performance/shared-provider-probe-9/libninjars_shared_provider_probe.so": "f347bd146b574390dafeaf87d3a869a9512aeb6062208460bea59cf88d8a4a9d",
+    "/shared/external/ninja/target/performance/shared-provider-probe-9/shared-numerator-probe": "a5e0a15a64177ebdd8c2fbff7a1dba48e1af865d06d4013763f0f09a7e392590",
+    "/shared/external/ninja/target/performance/shared-provider-probe-9/shared-master-probe": "7b40c453cb6fb2ff41c871379e62f51b6220dd1a58c65fc5cac04a76a8606df0",
+    "/shared/external/ninja/target/reference-uncached-v2/ninja-build/src/.libs/libninja.a": "8f4d39dad292a28a05dd4e56bd4cbb7014cf08532ef4d8484c00ea44e0b097a3",
+    "/shared/external/ninja/target/reference-uncached-v2/oneloop/libavh_olo.a": "28c37c328fadd6f4f09f973bfb961b3bccb3c729583a92dc2186fd947ccbe4dd"
+  },
+  "reference_revision_record_sha256": "bf5171bc8cd5534c23077f5f38a247852b22540ff76b5d5978b02819fe621094",
+  "commands": [
+    {
+      "label": "cargo-build",
+      "argv": [
+        "cargo",
+        "build",
+        "--manifest-path",
+        "/shared/external/ninja/validation/performance/shared_provider/Cargo.toml",
+        "--locked",
+        "--message-format=json"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "cargo-tests-build",
+      "argv": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "/shared/external/ninja/validation/performance/shared_provider/Cargo.toml",
+        "--locked",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "fortran-library",
+      "argv": [
+        "gfortran",
+        "-print-file-name=libgfortran.so"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "cpp-numerator-build",
+      "argv": [
+        "g++",
+        "-O2",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-I/shared/external/ninja/target/reference-uncached-v2/ninja-source/src",
+        "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build/src",
+        "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build",
+        "/shared/external/ninja/validation/performance/shared_provider/probe.cc",
+        "/shared/external/ninja/target/performance/shared-provider-probe-9/libninjars_shared_provider_probe.so",
+        "/shared/external/ninja/target/reference-uncached-v2/ninja-build/src/.libs/libninja.a",
+        "/shared/external/ninja/target/reference-uncached-v2/oneloop/libavh_olo.a",
+        "/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib/libgfortran.so",
+        "-lquadmath",
+        "-Wl,-rpath,/shared/external/ninja/target/performance/shared-provider-probe-9",
+        "-Wl,-rpath,/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib",
+        "-o",
+        "/shared/external/ninja/target/performance/shared-provider-probe-9/shared-numerator-probe"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "cpp-master-build",
+      "argv": [
+        "g++",
+        "-O2",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-I/shared/external/ninja/target/reference-uncached-v2/ninja-source/src",
+        "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build/src",
+        "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build",
+        "/shared/external/ninja/validation/performance/shared_provider/master_probe.cc",
+        "/shared/external/ninja/target/performance/shared-provider-probe-9/libninjars_shared_provider_probe.so",
+        "/shared/external/ninja/target/reference-uncached-v2/ninja-build/src/.libs/libninja.a",
+        "/shared/external/ninja/target/reference-uncached-v2/oneloop/libavh_olo.a",
+        "/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib/libgfortran.so",
+        "-lquadmath",
+        "-Wl,-rpath,/shared/external/ninja/target/performance/shared-provider-probe-9",
+        "-Wl,-rpath,/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib",
+        "-o",
+        "/shared/external/ninja/target/performance/shared-provider-probe-9/shared-master-probe"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "rust-tests",
+      "argv": [
+        "/common/build-cache/external/82/28b01d95c7d0b7/debug/deps/ninjars_shared_provider_probe-59d26c95d779d7a4",
+        "--test-threads=1"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "known-c0-reproducer",
+      "argv": [
+        "/common/build-cache/external/82/28b01d95c7d0b7/debug/deps/ninjars_shared_provider_probe-59d26c95d779d7a4",
+        "--ignored",
+        "--exact",
+        "masters::tests::euclidean_c0_exceptional_point_must_be_finite",
+        "--test-threads=1"
+      ],
+      "returncode": 101
+    },
+    {
+      "label": "cpp-numerator-probe",
+      "argv": [
+        "/shared/external/ninja/target/performance/shared-provider-probe-9/shared-numerator-probe"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "cpp-master-probe",
+      "argv": [
+        "/shared/external/ninja/target/performance/shared-provider-probe-9/shared-master-probe"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "rustc-version",
+      "argv": [
+        "rustc",
+        "--version"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "cxx-version",
+      "argv": [
+        "g++",
+        "--version"
+      ],
+      "returncode": 0
+    }
+  ],
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "cxx": "g++ (GCC) 15.3.0",
+  "symbolica_revision": "fd7bced5307e94e994d5deba63c60b8380aa7d02",
+  "oneloopmaster_revision": "e9d14f7b5fa546af33fced2a421c616220178643",
+  "evidence_schema": 1,
+  "ninjars_revision": "cc1dfbb99e934f2aa68657dab849eaf4c4758533",
+  "reproduce": "source /tmp/ninjars-build-env-paths; export CC CXX PKG_CONFIG; source /tmp/ninjars-symbolica-env; export RUST_MIN_STACK=134217728; python3 validation/performance/shared_provider/run.py --output-dir target/performance/shared-provider-probe-fresh",
+  "runtime_logs": {
+    "cpp-master-probe.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "rust-tests.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "known-c0-reproducer.stdout": {
+      "sha256": "bd753907a49098d5ca6cd83df76f8c8da21fe0ac0dcf0bd3f5d1f0c3fe6b900a",
+      "text": "\nrunning 1 test\ntest masters::tests::euclidean_c0_exceptional_point_must_be_finite ... FAILED\n\nfailures:\n\n---- masters::tests::euclidean_c0_exceptional_point_must_be_finite stdout ----\n\nthread 'masters::tests::euclidean_c0_exceptional_point_must_be_finite' (4174536) panicked at src/masters.rs:524:9:\nassertion `left == right` failed\n  left: [Failed(NonFiniteResult)]\n right: [Success]\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    masters::tests::euclidean_c0_exceptional_point_must_be_finite\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.31s\n\n"
+    },
+    "rust-tests.stdout": {
+      "sha256": "7a7e4063087fa4f817682340b41a51a5568a7ce3c7af53d67e35532fe90037ec",
+      "text": "\nrunning 6 tests\ntest foreign::tests::wire_groups_mixed_partitions_preserving_permuted_lanes_and_transactionality ... ok\ntest masters::tests::capture_union_replays_permuted_batches_and_rejects_changed_scale_and_order ... ok\ntest masters::tests::euclidean_c0_exceptional_point_must_be_finite ... ignored, known C0 exceptional-point bug; run explicitly to reproduce\ntest masters::tests::failed_master_batch_preserves_output_and_status ... ok\ntest tests::batched_direct_matches_safe_calls_and_errors_preserve_output ... ok\ntest tests::batched_laurent_responses_match_safe_rust_for_all_orders ... ok\n\ntest result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.33s\n\n"
+    },
+    "cpp-numerator-probe.stderr": {
+      "sha256": "10e8caed3dd22e4662bfc5fd87705ed338820b6d7e79da5469bcad53c52627dc",
+      "text": "\nthread '<unnamed>' (4174610) panicked at src/lib.rs:463:14:\nintentional shared-provider boundary control\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    "known-c0-reproducer.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    }
+  },
+  "checks": {
+    "rustfmt": "cargo fmt --manifest-path validation/performance/shared_provider/Cargo.toml -- --check: passed",
+    "clippy": {
+      "command": "cargo clippy --manifest-path validation/performance/shared_provider/Cargo.toml --locked --all-targets --no-deps -- -D warnings",
+      "exit_code": 0,
+      "log_sha256": "7970e3001fc841b32a84ff1d60e6d7aaeab7bf8e168a75bb5b4e29599639685a",
+      "scope": "standalone bridge; existing dependency warnings remain"
+    }
+  },
+  "production_provider_source_sha256": {
+    "crates/ninjars/Cargo.toml": "6433d849efb8baaab44058fe5ada3944890bb492698baa09751dcc448f586bef",
+    "crates/ninjars/src/amplitude.rs": "4cd7bb5ae1de55496984b4762ef22fd98abbf33575b62ad7f2f7c7c1c5c81ee3",
+    "crates/ninjars/src/batch.rs": "cf00c1e974bbfbef0ebb695bc70735383d5f7fc1a9210a8c94f43dacf22ee9ad",
+    "crates/ninjars/src/boxes.rs": "9744b3f37fb74abc1f94dbf20e5c452fb5f42795c51cd83c6b9ffe81fede0bd4",
+    "crates/ninjars/src/bubbles.rs": "79314b00d1ebf57c0ce8364a83e1e24bb5e456891d33a941074eeeb55e6e7e52",
+    "crates/ninjars/src/cuts.rs": "fd5b57bcf3fc145f76113e3ebdd0b4a55aa5c07c3d7f0e434cc4251c1eb93291",
+    "crates/ninjars/src/high_cuts.rs": "07e67e98eff0716e7635f3002b6d7e7168fad06b9128306d744e0979b1e29467",
+    "crates/ninjars/src/integration.rs": "ca4e2841145bc767a378689eb5d4fd2d389549e837445e9cc8791a6fdb1cd147",
+    "crates/ninjars/src/kinematics.rs": "91ed1982ed0e1dc9058644df54d2c7df3b30235da799da65f4e69ed2a7dcf97e",
+    "crates/ninjars/src/lib.rs": "eb015d9d7f1d10cbd30e3cdf0a96f0ac93624269d647b969d26dd42dae5b1589",
+    "crates/ninjars/src/masters.rs": "ccbedc1d9f776f0d571628fbdf543fd82ac1d207ed9ce10b3f9dc8b54c03ab3d",
+    "crates/ninjars/src/numerator.rs": "c35aa30f19a07a6697bd001ea6577337bcf1cd199c818fe9005d977cb4e8c153",
+    "crates/ninjars/src/pentagons.rs": "7c1f8e2c804260bfdec23b5ec11d263998819a46bb4f1e145dead0bf0d8313fe",
+    "crates/ninjars/src/tadpoles.rs": "aeadfcddb05863bc3becef22b9e4923a245b9e6a16ae9dd8563a768b8de49863",
+    "crates/ninjars/src/topology.rs": "c6ae111b35f0b10b4906a8d6963a7e4e3db1b487f0f63df6b04021b4cc872d43",
+    "crates/ninjars/src/triangles.rs": "d860f85c2b2ffc18e7dc9c9fbdaf21121fc372791366e98b23a4700aea348092",
+    "crates/ninjars-symbolica/Cargo.toml": "81956da5cfcc89309ac8e4086b6426e961aaa07168980644ae54d7eac29bab9b",
+    "crates/ninjars-symbolica/src/amplitude.rs": "e22fa12af7ed20f66b79a8b25666e41e37a7db8411f7b704932e786e205d7a63",
+    "crates/ninjars-symbolica/src/box_kernels.rs": "1515ac9850140d5f142f3c6258c62c5c1bc4acd1bf9b7b104060b7571d378c43",
+    "crates/ninjars-symbolica/src/bubble_kernels.rs": "ceefae9c7f45915f134b2097d9171b533bbdc22fdd518156c47516c1fb59dc54",
+    "crates/ninjars-symbolica/src/contraction.rs": "0d484501c94c3378121a8bc08fe1b36b5f4b73a9d843e7a3ec06a38843431b5d",
+    "crates/ninjars-symbolica/src/cuts.rs": "9104c118871910ac95bad3ca6fcbe037e064cae5d6a607c8115648ffb56a8ae4",
+    "crates/ninjars-symbolica/src/denominators.rs": "030cce6e73af7fa959438bc5a3190c7f0a571416876e9c58b1a46a9e1eba197a",
+    "crates/ninjars-symbolica/src/dual_polynomial.rs": "51547f956ab457b81105b66722bf485596fa09c61a37b27ca6483a3e1a431438",
+    "crates/ninjars-symbolica/src/high_cuts.rs": "e13b2cf089305d0f656ec7d106f2183d89f963c519382444c1674963f7dc93a9",
+    "crates/ninjars-symbolica/src/integration.rs": "8312e8ae12fd328caec831a010620a9db6aa330ebd6dee2f02ddd8a7c995deb8",
+    "crates/ninjars-symbolica/src/kernel.rs": "3f5e82c438096d3a4dc7aa415a1c656f83c3f9c579d97fe168002be8f669994a",
+    "crates/ninjars-symbolica/src/kinematics.rs": "47abe545ca75252f3f964aa5e6166a66aeca634779dcabb039360abd107c9b2e",
+    "crates/ninjars-symbolica/src/laurent.rs": "e988ed2431f2392c97ae5cbe0284970f6fd3f0c419f3c920d943448abda9b815",
+    "crates/ninjars-symbolica/src/lib.rs": "e49bd2eba6d8cf402e40d740c8d6cb407e04f5b814658dc79ea1f5804787a17c",
+    "crates/ninjars-symbolica/src/masters.rs": "fe12aaa226fd14a8d0743ae41b172a70de59cf8fccc4790c7e1b0dcdee456d92",
+    "crates/ninjars-symbolica/src/pentagon_kernels.rs": "3150fe6ce5f0341ef75314f51ae5215a1a9bad348c84a02ad69806d9826555db",
+    "crates/ninjars-symbolica/src/polynomial.rs": "c27a0abdf92d24c3e699b71cb8c9c30cb75d28ea4dfcbf931cbadfb9df2a05b4",
+    "crates/ninjars-symbolica/src/polynomial_tests.rs": "4cc93493169754864aa47998e3b5f676b340f6100e1d380b6dd695aaacea4cd0",
+    "crates/ninjars-symbolica/src/projection.rs": "2fb1b77d9443df619fdbeef340e3c042a5f238cbdca7bb67c13bc1bc3f5ad42f",
+    "crates/ninjars-symbolica/src/reference.rs": "ad22c1be87f9dfa17288ae222df4ef6501bb14644d2a50622d4a13a371056d29",
+    "crates/ninjars-symbolica/src/rust_codegen.rs": "3fe2425aac70e2e92fcbc8956ee57d19e1f14415a1cd6fbf25b21caf1130e688",
+    "crates/ninjars-symbolica/src/subtraction.rs": "fa33456315f3fb92b324ccd323128a657722ff177bb7538de26c2694b6d1d9de",
+    "crates/ninjars-symbolica/src/tadpole_kernels.rs": "5f361965e5c12c2529cdb688cd4ebbebcd3fdfcb8a480cd93353b9c3dcec5409",
+    "crates/ninjars-symbolica/src/triangle_kernels.rs": "c6cf11781e36348b8afce13f212f8c636e466dd1f7407ce554085b4bfe3e8237",
+    "dependencies/manifest.json": "d71dcb77b2f354dd604dd591009290d33d81ec7089bff3bf8291eb9e9faba89c"
+  },
+  "limits": [
+    "Validation only; no performance acceptance or allocation-free claim.",
+    "Retained Session calls the same non-inlined sp_call/sp_master_call exports as C++ and retains topology, geometry and wire packing buffers. Larger borrowed-request lists, master capture/replay staging and core/provider allocations remain.",
+    "Initial safe Rust amplitude control is deliberately constructed per call; it is a numerical oracle for the retained Session, not the proposed timed path.",
+    "Retained integrated controls are f64 singleton ordinary/higher bubbles with empty/reactivation checks. The wire-level mixed-partition, lane-permutation and tail controls are batched; integrated large-batch/physical Session measurements remain.",
+    "Total Laurent coefficients agree. q0^2 and higher-rank explicit rational separation differs with residue basis and is not claimed as parity; exact five-component observations are retained.",
+    "C0/D0 virtual ordering checked against frozen keys; integrated C0/D0 shared-provider reductions remain unvalidated.",
+    "Known positive-mass Euclidean C0 exceptional point remains an acceptance blocker; explicit ignored regression is executed separately and fails as recorded.",
+    "Full physical numerical preparation and matched timing orchestration are separate work; no prebound wavefunction/coupling work is claimed timed."
+  ]
+}
