@@ -1,0 +1,12 @@
+
+running 7 tests
+test bubble_kernels::denominator_reuse_tests::full_higher_mixed_dual_components_and_failed_retry ... ok
+test bubble_kernels::denominator_reuse_tests::native_full_coefficients_and_exact_executed_denominator_counts ... ok
+test bubble_kernels::denominator_reuse_tests::ordinary_full_coefficients_and_exact_executed_denominator_counts ... ok
+test bubble_kernels::denominator_reuse_tests::precision_and_changed_batch_metadata_match_standalone ... ok
+test bubble_kernels::denominator_reuse_tests::selected_parent_errors_are_skipped_only_for_failed_bubble_targets_and_retry_is_clean ... ok
+test bubble_kernels::denominator_reuse_tests::tadpole_parent_failures_standalone_and_distinct_borrows_remain_correct ... ok
+test bubble_kernels::denominator_reuse_tests::zero_parent_and_empty_combined_calls_use_no_denominator_rows ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 2.46s
+

@@ -1662,3 +1662,23 @@ connects the existing kernels into integrated amplitudes and a standalone
   `codex/reduction-workspace-reuse`. The fixed-reciprocal dependency control
   passes all six new geometry tests. This opt-in geometry dispatch remains
   outside the current measured source, as does rank specialization.
+
+### Reviewed reuse integrated after baseline sampling (2026-10-16)
+
+- The frozen `de0f190` baseline completed all 18 cached timing processes
+  (three backend selections, six batch widths). All source/artifact/counter
+  guards passed, with no timing block below 20 ms. The shared-host results
+  remain diagnostic and do not meet the original Ninja performance target.
+  Actual master computation was zero in this reduction-only scope; separate
+  complete-evaluation controls retain actual master execution accounting.
+- Integrated denominator reuse as `ef6ab23`, and the symbolic rank inventory
+  as `a7189ef`/`88a0d1f`. Production sources match the independently reviewed
+  reuse commit exactly. The combined seven reuse test groups and one symbolic
+  inventory pass, along with strict core/adapter library-and-tests Clippy,
+  formatting and whitespace checks. Evidence: `denominator-reuse-integrated.json`.
+- An isolated implementation now tests guarded n5/r4 rank specialization with
+  complete-component zero checks and a generic fallback. Another isolated
+  probe examines bounded native instruction batches: current native temporary
+  arenas can retain about 240 MiB at phase-space width 1024 for the n5/r4 case.
+  These experiments have no accepted timing result or production integration.
+  The more ambitious transposed reduction-map experiment remains research.

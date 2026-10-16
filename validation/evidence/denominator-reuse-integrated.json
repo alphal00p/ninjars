@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "source_commit": "88a0d1fd0cd9c46244907d34c7b1d3547fc2c3a8",
+  "purpose": "Combined main-branch validation after denominator reuse and isolated symbolic rank inventory integration.",
+  "dependency_revisions": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "oneloopmaster": "53106429b849e5bcf843f111429be76227b4e0ce",
+    "gammaloop_feynkit": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+  },
+  "production_difference_from_reviewed_dc0100f": "None. Only a cfg(test,rust-codegen) symbolic inventory and module hook differ in core/adapter sources.",
+  "source_sha256": {
+    "crates/ninjars/src/bubbles.rs": "be211b6fefd0b0a14ebc4372cdf5aa4e876b46c2d1d20b8d55ef9905e9be9325",
+    "crates/ninjars/src/tadpoles.rs": "4b14a061afb8e6e0ae1e9b1c3005a9751cf6312051ecd473d3a7b97bc512df6f",
+    "crates/ninjars-symbolica/src/bubble_kernels.rs": "187fb7f2da7f200cc164f8047328b2fd38b528e9a6f08398d6a28915e61937cd",
+    "crates/ninjars-symbolica/src/tadpole_kernels.rs": "94e24e77c4ff3416873730dcaf83522182dbc3099baf7d32e28522ecbf447d30",
+    "crates/ninjars-symbolica/src/denominator_reuse_tests.rs": "09c7fbecc4d63c6ee41bc0f9b12a55dbd98719c385a93ee57220e593c3a7f724",
+    "docs/denominator-reuse.md": "d26e3a918b412368aacdc156e9104c073f61aa4bbcda3c4be14f5bc548db4162",
+    "crates/ninjars-symbolica/src/algorithm_rank_probe.rs": "cc895453daa93e8cb320fa49c253c9c846c2ab2f3159d3db1dfc54120253802d",
+    "crates/ninjars-symbolica/src/subtraction.rs": "6ba171ce328bd8f2055e0e3e1dd16e2f47ff70eff61b3218cefeede1481f6c0c",
+    "dependencies/manifest.json": "b823d8e21987b9248d9797c3db1b16af06b45410ae3b5d653a3883d6b020247e"
+  },
+  "tests": {
+    "denominator_reuse": {
+      "passed": 7,
+      "failed": 0
+    },
+    "symbolic_inventory": {
+      "passed": 1,
+      "failed": 0,
+      "production_dispatch": false
+    },
+    "previous_reviewed_regressions": 38,
+    "previous_evidence": "validation/evidence/denominator-reuse.json"
+  },
+  "checks": {
+    "strict_core_adapter_library_and_tests_clippy": true,
+    "workspace_format": true,
+    "git_diff_check": true
+  },
+  "test_executable": {
+    "path": "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+    "sha256": "450ab2d71717ac99214ab99cb1e069333b7510f1cdf3822f86f18c91163c53d2"
+  },
+  "logs": {
+    "build": {
+      "path": "validation/evidence/denominator-reuse-integrated-logs/ninjars-reuse-integrated-build.log",
+      "sha256": "4dc46e79187f7d81506909dab5fb386bef619e9a3b6d3362937ad7a075e86430"
+    },
+    "tests": {
+      "path": "validation/evidence/denominator-reuse-integrated-logs/ninjars-reuse-integrated-tests.log",
+      "sha256": "14fab953a7c15d5610e22cd8982fe2993fbe6bf0ebcfdf69aa8e1b6e2a7c79c8"
+    },
+    "inventory": {
+      "path": "validation/evidence/denominator-reuse-integrated-logs/ninjars-reuse-integrated-inventory.log",
+      "sha256": "8c5dfb3ce3e24c965c5c3b006a41fa2d93a32853dab3bb556c5d298cd6a9e598"
+    },
+    "clippy": {
+      "path": "validation/evidence/denominator-reuse-integrated-logs/ninjars-reuse-integrated-clippy.log",
+      "sha256": "48e959c97921c4c4a9fdf94f0f5b841fa7d3d0ecaeca07f5b1adb9c0bd36a4a3"
+    }
+  },
+  "performance_acceptance": false,
+  "new_performance_measurements": false,
+  "limitations": [
+    "Tests establish correctness and executed-row savings, not wall-clock improvement.",
+    "Default external kernel compatibility path retains temporary allocations.",
+    "Native geometry opt-in, rank-specialized execution and blocked native execution remain separate work."
+  ]
+}
