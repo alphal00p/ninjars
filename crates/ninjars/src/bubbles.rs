@@ -28,6 +28,14 @@ pub struct BubbleTriangleCorrectionRequest<'a, T> {
     pub parameters: &'a [T; 3],
 }
 
+// These descriptors borrow all numerical data; copying never clones a carrier.
+impl<T> Copy for BubbleTriangleCorrectionRequest<'_, T> {}
+impl<T> Clone for BubbleTriangleCorrectionRequest<'_, T> {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
 /// Arithmetic boundary. Implementations perform numerical arithmetic across
 /// complete batches; request packing and dependency handling remain in core.
 pub trait BubbleReductionKernels<T> {
@@ -54,6 +62,77 @@ pub trait BubbleReductionKernels<T> {
         output: &mut [T],
         stable: &mut [bool],
     ) -> Result<()>;
+    /// Divide and correct one immutable batch. Parent requests are ordered by
+    /// division row, then parent. The two orientation division rows are adjacent,
+    /// each followed by its own parent block. Only
+    /// targets whose two divisions succeed reach parent validation/arithmetic.
+    /// The default preserves standalone implementations and makes one compact
+    /// correction call. Implementations may reuse denominators within this call.
+    /// Buffer-shape errors are rejected before writes. As with separate calls,
+    /// a later correction error may leave successful quotients/statuses written;
+    /// these are stage scratch outputs, not transactionally published residues.
+    #[allow(clippy::too_many_arguments)]
+    fn divide_with_corrections_batch(
+        &mut self,
+        divisions: &[BubbleDivisionRequest<'_, T>],
+        numerator: &[T],
+        quotients: &mut [T],
+        quotient_stable: &mut [bool],
+        requests: &[BubbleTriangleCorrectionRequest<'_, T>],
+        corrections: &mut [T],
+        correction_stable: &mut [bool],
+    ) -> Result<()>
+    where
+        T: Clone,
+    {
+        let parents = self.propagators() - 2;
+        let width = self.quotient_columns();
+        if !divisions.len().is_multiple_of(2) {
+            return Err(Error::Expansion(
+                "bubble division orientations are incomplete".into(),
+            ));
+        }
+        BatchShape {
+            rows: divisions.len(),
+            columns: parents,
+        }
+        .validate("bubble parent request rows", requests.len())?;
+        BatchShape {
+            rows: requests.len(),
+            columns: width,
+        }
+        .validate("bubble parent correction output", corrections.len())?;
+        BatchShape {
+            rows: requests.len(),
+            columns: 1,
+        }
+        .validate("bubble parent correction status", correction_stable.len())?;
+        self.divide_batch(divisions, numerator, quotients, quotient_stable)?;
+        correction_stable.fill(false);
+        let selected: Vec<_> = (0..requests.len())
+            .filter(|&row| {
+                let target = row / parents / 2;
+                quotient_stable[2 * target..2 * target + 2]
+                    .iter()
+                    .all(|&v| v)
+            })
+            .collect();
+        let selected_requests: Vec<_> = selected.iter().map(|&row| requests[row]).collect();
+        let mut values: Vec<_> = selected
+            .iter()
+            .flat_map(|&row| corrections[row * width..(row + 1) * width].iter().cloned())
+            .collect();
+        let mut stable = vec![false; selected.len()];
+        self.triangle_corrections_batch(&selected_requests, &mut values, &mut stable)?;
+        for (index, &row) in selected.iter().enumerate() {
+            correction_stable[row] = stable[index];
+            if stable[index] {
+                corrections[row * width..(row + 1) * width]
+                    .clone_from_slice(&values[index * width..(index + 1) * width]);
+            }
+        }
+        Ok(())
+    }
     /// Correction rows are [orientation row, triangle parent, quotient column].
     fn subtract_batch(
         &mut self,
@@ -381,13 +460,6 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
         self.quotients
             .resize(expansions.len() * width, self.zero.clone());
         self.quotient_stable.resize(expansions.len(), false);
-        self.kernels.divide_batch(
-            &divisions,
-            &self.numerator,
-            &mut self.quotients,
-            &mut self.quotient_stable,
-        )?;
-
         let parent_count = n - 2;
         let mut correction_requests = Vec::with_capacity(active.len() * 2 * parent_count);
         // Every eligible bubble has exactly n-2 triangle parents, in cached order.
@@ -395,9 +467,6 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
         correction_starts.resize(active.len(), None);
         correction_starts.fill(None);
         for (index, &request_row) in active.iter().enumerate() {
-            if !self.quotient_stable[2 * index] || !self.quotient_stable[2 * index + 1] {
-                continue;
-            }
             correction_starts[index] = Some(correction_requests.len());
             let id = requests[request_row].id;
             let target_row = requested_rows[request_row] / lanes;
@@ -428,7 +497,11 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
             .resize(correction_requests.len() * width, self.zero.clone());
         self.correction_stable
             .resize(correction_requests.len(), false);
-        self.kernels.triangle_corrections_batch(
+        self.kernels.divide_with_corrections_batch(
+            &divisions,
+            &self.numerator,
+            &mut self.quotients,
+            &mut self.quotient_stable,
             &correction_requests,
             &mut self.corrections,
             &mut self.correction_stable,
@@ -440,6 +513,12 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
         let e12 = &mut self.e12;
         e12.clear();
         for (index, start) in correction_starts.iter().copied().enumerate() {
+            if !self.quotient_stable[2 * index..2 * index + 2]
+                .iter()
+                .all(|&v| v)
+            {
+                continue;
+            }
             let Some(start) = start else {
                 continue;
             };

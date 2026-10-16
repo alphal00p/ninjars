@@ -1,0 +1,22 @@
+
+running 9 tests
+test exact_ordered_shape_dispatch_and_malformed_dual_transactionality ... ok
+test float_inputs_keep_their_own_precision ... ok
+test geometry_probe_and_denominator_only_selection_remain_independent ... ok
+test malformed_dual_prototypes_are_rejected_before_output_reconstruction ... ok
+test native_feature_preserves_send_sync_for_standard_evaluators ... ok
+test native_warm_f64_storage_and_width_one_do_not_allocate ... ok
+test scalar_precision_batches_and_transactionality ... ok
+test static_and_dynamic_higher_mixed_components ... ok
+test warm_dual_native_dispatch_adds_no_allocations_to_existing_shape_validation ... source=3,rows=1,native_allocations=30,interpreted_allocations=30
+source=3,rows=32,native_allocations=960,interpreted_allocations=960
+source=3,rows=8,native_allocations=240,interpreted_allocations=240
+source=3,rows=1,native_allocations=30,interpreted_allocations=30
+source=2,rows=1,native_allocations=37,interpreted_allocations=37
+source=2,rows=32,native_allocations=1184,interpreted_allocations=1184
+source=2,rows=8,native_allocations=296,interpreted_allocations=296
+source=2,rows=1,native_allocations=37,interpreted_allocations=37
+ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.70s
+

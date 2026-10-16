@@ -12,6 +12,11 @@ use ninjars::{
 };
 use symbolica::{atom::Atom, domains::dual::DualNumber, evaluate::EvaluationDomain, symbol};
 
+#[cfg(test)]
+thread_local! {
+    pub(crate) static DENOMINATOR_ROWS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
 struct Engine<V, K, Checks> {
     topology: Topology,
     layout: LaurentDivision,
@@ -30,6 +35,7 @@ struct Engine<V, K, Checks> {
     checks: std::marker::PhantomData<fn() -> Checks>,
     input: Vec<V>,
     denominators: Vec<V>,
+    division_offsets: Vec<Option<usize>>,
     projections: Vec<V>,
     values: Vec<V>,
     eligible: Vec<usize>,
@@ -162,6 +168,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             checks: std::marker::PhantomData,
             input: Vec::new(),
             denominators: Vec::new(),
+            division_offsets: Vec::new(),
             projections: Vec::new(),
             values: Vec::new(),
             eligible: Vec::new(),
@@ -220,6 +227,8 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         }
         self.input.clear();
         self.eligible.clear();
+        self.division_offsets.clear();
+        self.division_offsets.resize(rows, None);
         for (row, r) in requests.iter().enumerate() {
             stable[row] = r
                 .shifts
@@ -233,6 +242,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             if !stable[row] {
                 continue;
             }
+            self.division_offsets[row] = Some(self.eligible.len() * uncut * 4);
             self.eligible.push(row);
             for &line in r.complement {
                 for v in r.vectors {
@@ -249,6 +259,8 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         }
         self.denominators
             .resize(self.eligible.len() * uncut * 4, self.zero.clone());
+        #[cfg(test)]
+        DENOMINATOR_ROWS.with(|count| count.set(count.get() + self.eligible.len() * uncut));
         self.denominator.evaluate(
             &self.input,
             &mut self.denominators,
@@ -290,6 +302,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         requests: &[TadpoleCorrectionRequest<'_, V>],
         output: &mut [V],
         stable: &mut [bool],
+        prepared: Option<(&[TadpoleDivisionRequest<'_, V>], &[bool])>,
     ) -> Result<()> {
         let n = self.topology.propagators();
         let higher = self.topology.rank() > n;
@@ -302,7 +315,20 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         .validate("tadpole parent corrections", output.len())?;
         BatchShape { rows, columns: 1 }
             .validate("tadpole parent correction status", stable.len())?;
-        for request in requests {
+        let parents = self.parents;
+        let orientations = if higher { 2 } else { 1 };
+        let selected = |row: usize| {
+            prepared.is_none_or(|(_, stable)| {
+                let target = row / parents / orientations;
+                stable[target * orientations..(target + 1) * orientations]
+                    .iter()
+                    .all(|&v| v)
+            })
+        };
+        for (row, request) in requests.iter().enumerate() {
+            if !selected(row) {
+                continue;
+            }
             let (index, id, size, count) = match &request.source {
                 TadpoleSource::Triangle(r) => (r.cut_index, r.id, 3, r.coefficients.len()),
                 TadpoleSource::Bubble(r) => (r.cut_index, r.id, 2, r.coefficients.len()),
@@ -330,6 +356,20 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
                 ));
             }
         }
+        let reuse = prepared.is_some_and(|(divisions, _)| {
+            requests
+                .iter()
+                .enumerate()
+                .filter(|(row, _)| selected(*row))
+                .all(|(row, r)| {
+                    let d = &divisions[row / parents];
+                    self.topology.cuts()[r.id.sample].partition == d.partition
+                        && std::ptr::eq(r.vectors, d.vectors)
+                        && std::ptr::eq(r.beta, d.beta)
+                        && std::ptr::eq(r.shifts, d.shifts)
+                        && std::ptr::eq(r.masses_squared, d.masses_squared)
+                })
+        });
         stable.fill(false);
         for kind in 0..2 {
             let source_size = if kind == 0 { 3 } else { 2 };
@@ -341,6 +381,9 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             self.eligible.clear();
             self.input.clear();
             for (row, request) in requests.iter().enumerate() {
+                if !selected(row) {
+                    continue;
+                }
                 let (index, coefficients, basis) = match &request.source {
                     TadpoleSource::Triangle(r) if kind == 0 => {
                         (r.cut_index, &r.coefficients, &r.geometry.basis)
@@ -394,44 +437,72 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
                 self.eligible.len(),
             )?;
             self.input.clear();
-            for &row in &self.eligible {
-                let r = &requests[row];
-                let source = match &r.source {
-                    TadpoleSource::Triangle(r) => r.cut_index,
-                    TadpoleSource::Bubble(r) => r.cut_index,
-                };
-                let target = self.topology.cuts()[r.id.sample].partition[0];
-                for &line in &self.extras[source * n + target] {
-                    for v in r.vectors {
-                        self.input.extend(v.components().into_iter().cloned());
+            if !reuse {
+                for &row in &self.eligible {
+                    let r = &requests[row];
+                    let source = match &r.source {
+                        TadpoleSource::Triangle(r) => r.cut_index,
+                        TadpoleSource::Bubble(r) => r.cut_index,
+                    };
+                    let target = self.topology.cuts()[r.id.sample].partition[0];
+                    for &line in &self.extras[source * n + target] {
+                        for v in r.vectors {
+                            self.input.extend(v.components().into_iter().cloned());
+                        }
+                        self.input.push(r.beta.clone());
+                        self.input
+                            .extend(r.shifts[target].components().into_iter().cloned());
+                        self.input.push(r.masses_squared[target].clone());
+                        self.input
+                            .extend(r.shifts[line].components().into_iter().cloned());
+                        self.input.push(r.masses_squared[line].clone());
                     }
-                    self.input.push(r.beta.clone());
-                    self.input
-                        .extend(r.shifts[target].components().into_iter().cloned());
-                    self.input.push(r.masses_squared[target].clone());
-                    self.input
-                        .extend(r.shifts[line].components().into_iter().cloned());
-                    self.input.push(r.masses_squared[line].clone());
                 }
+                self.denominators
+                    .resize(self.eligible.len() * uncut * 4, self.zero.clone());
+                #[cfg(test)]
+                DENOMINATOR_ROWS.with(|count| count.set(count.get() + self.eligible.len() * uncut));
+                self.denominator.evaluate(
+                    &self.input,
+                    &mut self.denominators,
+                    self.eligible.len() * uncut,
+                )?;
             }
-            self.denominators
-                .resize(self.eligible.len() * uncut * 4, self.zero.clone());
-            self.denominator.evaluate(
-                &self.input,
-                &mut self.denominators,
-                self.eligible.len() * uncut,
-            )?;
             self.input.clear();
             self.active.clear();
             for (index, &row) in self.eligible.iter().enumerate() {
-                let den = &self.denominators[index * uncut * 4..(index + 1) * uncut * 4];
+                let mut denominators = [&[][..]; 2];
+                if reuse {
+                    let division = row / parents;
+                    let d = &prepared.unwrap().0[division];
+                    let r = &requests[row];
+                    let source = match &r.source {
+                        TadpoleSource::Triangle(r) => r.cut_index,
+                        TadpoleSource::Bubble(r) => r.cut_index,
+                    };
+                    let target = self.topology.cuts()[r.id.sample].partition[0];
+                    for (out, line) in denominators
+                        .iter_mut()
+                        .zip(&self.extras[source * n + target])
+                    {
+                        let offset = self.division_offsets[division].unwrap()
+                            + 4 * d.complement.iter().position(|i| i == line).unwrap();
+                        *out = &self.denominators[offset..offset + 4];
+                    }
+                } else {
+                    for (column, out) in denominators[..uncut].iter_mut().enumerate() {
+                        let offset = (index * uncut + column) * 4;
+                        *out = &self.denominators[offset..offset + 4];
+                    }
+                }
+                let denominators = &denominators[..uncut];
                 let projections = &self.projections[index * axes * 3..(index + 1) * axes * 3];
-                if !den.iter().chain(projections).all(Checks::finite)
-                    || !den
-                        .as_chunks::<4>()
-                        .0
-                        .iter()
-                        .all(|d| Checks::nonzero(&d[0]))
+                if !denominators
+                    .iter()
+                    .flat_map(|d| d.iter())
+                    .chain(projections)
+                    .all(Checks::finite)
+                    || !denominators.iter().all(|d| Checks::nonzero(&d[0]))
                 {
                     continue;
                 }
@@ -444,7 +515,9 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
                 self.input.extend_from_slice(coefficients);
                 self.input.extend_from_slice(projections);
                 self.input.push(r.beta.clone());
-                self.input.extend_from_slice(den);
+                for den in denominators {
+                    self.input.extend_from_slice(den);
+                }
             }
             self.values.resize(
                 self.active.len() * self.correction_columns,
@@ -467,6 +540,52 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             }
         }
         Ok(())
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn divide_with_corrections(
+        &mut self,
+        divisions: &[TadpoleDivisionRequest<'_, V>],
+        numerator: &[V],
+        quotients: &mut [V],
+        quotient_stable: &mut [bool],
+        requests: &[TadpoleCorrectionRequest<'_, V>],
+        corrections: &mut [V],
+        correction_stable: &mut [bool],
+    ) -> Result<()> {
+        let n = self.topology.propagators();
+        let parents = n
+            .checked_mul(n - 1)
+            .ok_or_else(|| Error::Expansion("tadpole parent count overflows".into()))?
+            / 2;
+        let orientations = if self.topology.rank() > n { 2 } else { 1 };
+        if !divisions.len().is_multiple_of(orientations) {
+            return Err(Error::Expansion(
+                "tadpole division orientations are incomplete".into(),
+            ));
+        }
+        BatchShape {
+            rows: divisions.len(),
+            columns: parents,
+        }
+        .validate("tadpole parent request rows", requests.len())?;
+        BatchShape {
+            rows: requests.len(),
+            columns: self.layout.quotient_expansion().len(),
+        }
+        .validate("tadpole parent correction output", corrections.len())?;
+        BatchShape {
+            rows: requests.len(),
+            columns: 1,
+        }
+        .validate("tadpole parent correction status", correction_stable.len())?;
+        self.divide(divisions, numerator, quotients, quotient_stable)?;
+        self.correction(
+            requests,
+            corrections,
+            correction_stable,
+            Some((divisions, quotient_stable)),
+        )
     }
 
     fn combine(
@@ -575,7 +694,8 @@ macro_rules! implement {
             fn computed_coefficients(&self)->&[bool] {&self.engine.mask}
             fn value_status(&self,values:&[$value])->Option<CutFailure> {self.engine.status(values)}
             fn divide_batch(&mut self,requests:&[TadpoleDivisionRequest<'_,$value>],numerator:&[$value],output:&mut[$value],stable:&mut[bool])->Result<()> {self.engine.divide(requests,numerator,output,stable)}
-            fn correction_batch(&mut self,requests:&[TadpoleCorrectionRequest<'_,$value>],output:&mut[$value],stable:&mut[bool])->Result<()> {self.engine.correction(requests,output,stable)}
+            fn correction_batch(&mut self,requests:&[TadpoleCorrectionRequest<'_,$value>],output:&mut[$value],stable:&mut[bool])->Result<()> {self.engine.correction(requests,output,stable,None)}
+            fn divide_with_corrections_batch(&mut self,divisions:&[TadpoleDivisionRequest<'_,$value>],numerator:&[$value],quotients:&mut[$value],quotient_stable:&mut[bool],requests:&[TadpoleCorrectionRequest<'_,$value>],corrections:&mut[$value],correction_stable:&mut[bool])->Result<()> {self.engine.divide_with_corrections(divisions,numerator,quotients,quotient_stable,requests,corrections,correction_stable)}
             fn combine_batch(&mut self,raw:&[$value],corrections:&[$value],rows:usize,output:&mut[$value])->Result<()> {self.engine.combine(raw,corrections,rows,output)}
             fn project_batch(&mut self,corrected:&[$value],e12:&[$value],output:&mut[$value])->Result<()> {self.engine.project(corrected,e12,output)}
         }

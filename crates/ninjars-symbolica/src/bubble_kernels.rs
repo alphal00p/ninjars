@@ -13,6 +13,11 @@ use ninjars::{
 };
 use symbolica::{atom::Atom, domains::dual::DualNumber, evaluate::EvaluationDomain, symbol};
 
+#[cfg(test)]
+thread_local! {
+    pub(crate) static DENOMINATOR_ROWS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
 struct Engine<V, K, Checks> {
     n: usize,
     rank: usize,
@@ -30,6 +35,7 @@ struct Engine<V, K, Checks> {
     checks: std::marker::PhantomData<fn() -> Checks>,
     input: Vec<V>,
     denominators: Vec<V>,
+    division_offsets: Vec<Option<usize>>,
     projections: Vec<V>,
     values: Vec<V>,
     eligible: Vec<usize>,
@@ -116,6 +122,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             checks: std::marker::PhantomData,
             input: Vec::new(),
             denominators: Vec::new(),
+            division_offsets: Vec::new(),
             projections: Vec::new(),
             values: Vec::new(),
             eligible: Vec::new(),
@@ -188,6 +195,8 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         }
         self.input.clear();
         self.eligible.clear();
+        self.division_offsets.clear();
+        self.division_offsets.resize(rows, None);
         for (row, r) in requests.iter().enumerate() {
             stable[row] = r
                 .shifts
@@ -201,6 +210,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             if !stable[row] {
                 continue;
             }
+            self.division_offsets[row] = Some(self.eligible.len() * uncut * 7);
             self.eligible.push(row);
             for &line in r.complement {
                 append_denominator(
@@ -216,6 +226,8 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         }
         self.denominators
             .resize(self.eligible.len() * uncut * 7, self.zero.clone());
+        #[cfg(test)]
+        DENOMINATOR_ROWS.with(|count| count.set(count.get() + self.eligible.len() * uncut));
         self.denominator.evaluate(
             &self.input,
             &mut self.denominators,
@@ -257,6 +269,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         requests: &[BubbleTriangleCorrectionRequest<'_, V>],
         output: &mut [V],
         stable: &mut [bool],
+        prepared: Option<(&[BubbleDivisionRequest<'_, V>], &[bool])>,
     ) -> Result<()> {
         let rows = requests.len();
         let width = self.layout.quotient_expansion().len();
@@ -267,7 +280,17 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         .validate("triangle bubble corrections", output.len())?;
         BatchShape { rows, columns: 1 }
             .validate("triangle bubble correction status", stable.len())?;
-        for r in requests {
+        let parents = self.n - 2;
+        let selected = |row: usize| {
+            prepared.is_none_or(|(_, stable)| {
+                let target = row / parents / 2;
+                stable[2 * target..2 * target + 2].iter().all(|&v| v)
+            })
+        };
+        for (row, r) in requests.iter().enumerate() {
+            if !selected(row) {
+                continue;
+            }
             if r.partition.len() != 2
                 || r.source_partition.len() != 3
                 || r.shifts.len() != self.n
@@ -287,9 +310,27 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
                 return Err(Error::Expansion("triangle parent does not contain the requested bubble or has incompatible data".into()));
             }
         }
+        let reuse = prepared.is_some_and(|(divisions, _)| {
+            requests
+                .iter()
+                .enumerate()
+                .filter(|(row, _)| selected(*row))
+                .all(|(row, r)| {
+                    let d = &divisions[row / parents];
+                    r.partition == d.partition
+                        && std::ptr::eq(r.vectors, d.vectors)
+                        && std::ptr::eq(r.parameters, d.parameters)
+                        && std::ptr::eq(r.shifts, d.shifts)
+                        && std::ptr::eq(r.masses_squared, d.masses_squared)
+                })
+        });
         self.input.clear();
         self.eligible.clear();
+        stable.fill(false);
         for (row, r) in requests.iter().enumerate() {
+            if !selected(row) {
+                continue;
+            }
             stable[row] = r
                 .shifts
                 .iter()
@@ -309,20 +350,26 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
                 .iter()
                 .find(|i| !r.partition.contains(i))
                 .unwrap();
-            append_denominator(
-                &mut self.input,
-                r.vectors,
-                r.parameters,
-                r.shifts,
-                r.masses_squared,
-                r.partition[0],
-                line,
-            );
+            if !reuse {
+                append_denominator(
+                    &mut self.input,
+                    r.vectors,
+                    r.parameters,
+                    r.shifts,
+                    r.masses_squared,
+                    r.partition[0],
+                    line,
+                );
+            }
         }
-        self.denominators
-            .resize(self.eligible.len() * 7, self.zero.clone());
-        self.denominator
-            .evaluate(&self.input, &mut self.denominators, self.eligible.len())?;
+        if !reuse {
+            self.denominators
+                .resize(self.eligible.len() * 7, self.zero.clone());
+            #[cfg(test)]
+            DENOMINATOR_ROWS.with(|count| count.set(count.get() + self.eligible.len()));
+            self.denominator
+                .evaluate(&self.input, &mut self.denominators, self.eligible.len())?;
+        }
         self.input.clear();
         for &row in &self.eligible {
             let r = &requests[row];
@@ -347,7 +394,21 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         self.input.clear();
         self.active.clear();
         for (index, &row) in self.eligible.iter().enumerate() {
-            let den = &self.denominators[index * 7..(index + 1) * 7];
+            let offset = if reuse {
+                let division = row / parents;
+                let d = &prepared.unwrap().0[division];
+                let r = &requests[row];
+                let line = r
+                    .source_partition
+                    .iter()
+                    .find(|i| !r.partition.contains(i))
+                    .unwrap();
+                self.division_offsets[division].unwrap()
+                    + 7 * d.complement.iter().position(|i| i == line).unwrap()
+            } else {
+                index * 7
+            };
+            let den = &self.denominators[offset..offset + 7];
             let proj = &self.projections[index * 8..(index + 1) * 8];
             stable[row] = den.iter().chain(proj).all(Checks::finite) && Checks::nonzero(&den[0]);
             if stable[row] {
@@ -371,6 +432,46 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             }
         }
         Ok(())
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn divide_with_corrections(
+        &mut self,
+        divisions: &[BubbleDivisionRequest<'_, V>],
+        numerator: &[V],
+        quotients: &mut [V],
+        quotient_stable: &mut [bool],
+        requests: &[BubbleTriangleCorrectionRequest<'_, V>],
+        corrections: &mut [V],
+        correction_stable: &mut [bool],
+    ) -> Result<()> {
+        if !divisions.len().is_multiple_of(2) {
+            return Err(Error::Expansion(
+                "bubble division orientations are incomplete".into(),
+            ));
+        }
+        BatchShape {
+            rows: divisions.len(),
+            columns: self.n - 2,
+        }
+        .validate("bubble parent request rows", requests.len())?;
+        BatchShape {
+            rows: requests.len(),
+            columns: self.layout.quotient_expansion().len(),
+        }
+        .validate("bubble parent correction output", corrections.len())?;
+        BatchShape {
+            rows: requests.len(),
+            columns: 1,
+        }
+        .validate("bubble parent correction status", correction_stable.len())?;
+        self.divide(divisions, numerator, quotients, quotient_stable)?;
+        self.corrections(
+            requests,
+            corrections,
+            correction_stable,
+            Some((divisions, quotient_stable)),
+        )
     }
 
     fn subtract(
@@ -470,7 +571,8 @@ macro_rules! implementation {
             fn coefficient_count(&self)->usize {self.engine.coefficient_count}
             fn swapped_effective_batch(&mut self,cuts:&[&BubbleCut<$value>],output:&mut[FourMomentum<$value>])->Result<()> {self.engine.swapped(cuts,output)}
             fn divide_batch(&mut self,requests:&[BubbleDivisionRequest<'_,$value>],numerator:&[$value],output:&mut[$value],stable:&mut[bool])->Result<()> {self.engine.divide(requests,numerator,output,stable)}
-            fn triangle_corrections_batch(&mut self,requests:&[BubbleTriangleCorrectionRequest<'_,$value>],output:&mut[$value],stable:&mut[bool])->Result<()> {self.engine.corrections(requests,output,stable)}
+            fn triangle_corrections_batch(&mut self,requests:&[BubbleTriangleCorrectionRequest<'_,$value>],output:&mut[$value],stable:&mut[bool])->Result<()> {self.engine.corrections(requests,output,stable,None)}
+            fn divide_with_corrections_batch(&mut self,divisions:&[BubbleDivisionRequest<'_,$value>],numerator:&[$value],quotients:&mut[$value],quotient_stable:&mut[bool],requests:&[BubbleTriangleCorrectionRequest<'_,$value>],corrections:&mut[$value],correction_stable:&mut[bool])->Result<()> {self.engine.divide_with_corrections(divisions,numerator,quotients,quotient_stable,requests,corrections,correction_stable)}
             fn subtract_batch(&mut self,quotients:&[$value],corrections:&[$value],output:&mut[$value],rows:usize)->Result<()> {self.engine.subtract(quotients,corrections,output,rows)}
             fn project_batch(&mut self,quotients:&[$value],e12:&[$value],output:&mut[$value])->Result<()> {self.engine.project(quotients,e12,output)}
             fn values_are_finite(&self,values:&[$value])->bool {self.engine.values_are_finite(values)}
@@ -542,3 +644,7 @@ where
         Ok(kernels)
     }
 }
+
+#[cfg(test)]
+#[path = "denominator_reuse_tests.rs"]
+mod denominator_reuse_tests;

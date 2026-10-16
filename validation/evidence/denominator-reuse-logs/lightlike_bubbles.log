@@ -1,0 +1,7 @@
+
+running 2 tests
+test canceled_triangle_denominator_leaves_equal_mass_lightlike_bubble ... ok
+test lightlike_bubble_keeps_mixed_dual_coefficients_and_isolates_failed_lanes ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.68s
+

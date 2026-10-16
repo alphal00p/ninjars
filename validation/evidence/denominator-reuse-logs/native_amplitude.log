@@ -1,0 +1,9 @@
+
+running 4 tests
+test dual_amplitude_all_components_and_unknown_shape_fallback ... ok
+test growing_catalog_covers_lower_quotient_degrees_and_complex_precisions ... ok
+test native_triangle_dual_preserves_existing_c0_derivative_domain_rejection ... ok
+test partial_native_amplitudes_keep_results_failure_isolation_and_reset ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.15s
+

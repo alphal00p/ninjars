@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "purpose": "Correctness and exact executed-row evidence for same-call lower-cut denominator reuse.",
+  "base_commit": "de0f1908b711db1959d535ed08d399f9d40ad1bd",
+  "dependency_revisions": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "oneloopmaster": "53106429b849e5bcf843f111429be76227b4e0ce",
+    "gammaloop_feynkit": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+  },
+  "source_sha256": {
+    "crates/ninjars/src/bubbles.rs": "be211b6fefd0b0a14ebc4372cdf5aa4e876b46c2d1d20b8d55ef9905e9be9325",
+    "crates/ninjars/src/tadpoles.rs": "4b14a061afb8e6e0ae1e9b1c3005a9751cf6312051ecd473d3a7b97bc512df6f",
+    "crates/ninjars-symbolica/src/bubble_kernels.rs": "187fb7f2da7f200cc164f8047328b2fd38b528e9a6f08398d6a28915e61937cd",
+    "crates/ninjars-symbolica/src/tadpole_kernels.rs": "94e24e77c4ff3416873730dcaf83522182dbc3099baf7d32e28522ecbf447d30",
+    "crates/ninjars-symbolica/src/denominator_reuse_tests.rs": "09c7fbecc4d63c6ee41bc0f9b12a55dbd98719c385a93ee57220e593c3a7f724",
+    "docs/denominator-reuse.md": "d26e3a918b412368aacdc156e9104c073f61aa4bbcda3c4be14f5bc548db4162"
+  },
+  "scope": {
+    "production_files": [
+      "crates/ninjars/src/bubbles.rs",
+      "crates/ninjars/src/tadpoles.rs",
+      "crates/ninjars-symbolica/src/bubble_kernels.rs",
+      "crates/ninjars-symbolica/src/tadpole_kernels.rs"
+    ],
+    "no_new_algebra": true,
+    "no_cross_call_cache": true,
+    "geometry_dispatch_change_included": false,
+    "reuse_identity": "Ordered target partition plus same-call live immutable vectors, parameters/beta, shift and mass slices; source projection retains its separate origin.",
+    "fallback": "Distinct borrows and standalone calls recompute through the existing Symbolica/native denominator plans.",
+    "failure_contract": "Buffer shape errors precede writes. A selected parent error may leave stage scratch quotients/statuses written. Published residues and accumulated amplitude results preserve their existing transactional contract.",
+    "custom_kernel_compatibility": "Additive provided trait method divides, compacts stable target groups, then invokes one existing batched correction call; compact default scratch allocations remain."
+  },
+  "executed_rows_per_stable_lane": [
+    {
+      "propagators": 5,
+      "rank": 4,
+      "bubble_before": 120,
+      "bubble_after": 60,
+      "tadpole_before": 100,
+      "tadpole_after": 20
+    },
+    {
+      "propagators": 2,
+      "rank": 2,
+      "bubble_before": 0,
+      "bubble_after": 0,
+      "tadpole_before": 4,
+      "tadpole_after": 2
+    },
+    {
+      "propagators": 2,
+      "rank": 3,
+      "bubble_before": 0,
+      "bubble_after": 0,
+      "tadpole_before": 8,
+      "tadpole_after": 4
+    }
+  ],
+  "new_unit_tests": {
+    "passed": 7,
+    "failed": 0,
+    "filtered_out": 4,
+    "executable": "/common/build-cache/external/cd/5d62942031e3ee/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+    "executable_sha256": "b093fd07ac0db3b65d460649bcace238e27c98aad36ea90a58a3c762ffb826c7",
+    "log": {
+      "path": "validation/evidence/denominator-reuse-logs/tests.log",
+      "sha256": "914abde4dadfc7eb39565d995fb4380ae0f3e5ebb8a74693ca2e62a277549d3d"
+    },
+    "test_names": [
+      "bubble_kernels::denominator_reuse_tests::full_higher_mixed_dual_components_and_failed_retry",
+      "bubble_kernels::denominator_reuse_tests::native_full_coefficients_and_exact_executed_denominator_counts",
+      "bubble_kernels::denominator_reuse_tests::ordinary_full_coefficients_and_exact_executed_denominator_counts",
+      "bubble_kernels::denominator_reuse_tests::precision_and_changed_batch_metadata_match_standalone",
+      "bubble_kernels::denominator_reuse_tests::selected_parent_errors_are_skipped_only_for_failed_bubble_targets_and_retry_is_clean",
+      "bubble_kernels::denominator_reuse_tests::tadpole_parent_failures_standalone_and_distinct_borrows_remain_correct",
+      "bubble_kernels::denominator_reuse_tests::zero_parent_and_empty_combined_calls_use_no_denominator_rows"
+    ],
+    "coverage": [
+      "ordinary and native full coefficient equality against default combined implementation",
+      "exact denominator executor row counts",
+      "permuted/tail/empty/failed/retry batches",
+      "DoubleFloat and Float192 equality plus tracked precision",
+      "all higher/mixed Dual components and nonprimal NaN",
+      "standalone and distinct-borrow recomputation",
+      "selected versus skipped malformed parents",
+      "pre-write shape rejection",
+      "zero-parent default trait-object calls"
+    ]
+  },
+  "existing_regressions": [
+    {
+      "name": "bubbles",
+      "executable": "/common/build-cache/external/cd/5d62942031e3ee/debug/deps/bubbles-290d622ec18a6a5c",
+      "sha256": "3abae6928c3f8b539074fba3e725086711433340eb36bdd66eb0ab134c3c8278",
+      "log": {
+        "path": "validation/evidence/denominator-reuse-logs/bubbles.log",
+        "sha256": "3d0b1357ecd9ff71a258d486c90fd93ad643ca84017629449900cf0aacd82b86"
+      },
+      "exit_code": 0,
+      "summary": "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.21s",
+      "elapsed_including_lock": 13.503117385989754,
+      "timing_note": "Correctness runtime includes scheduling/lock wait; not a performance measurement."
+    },
+    {
+      "name": "tadpoles",
+      "executable": "/common/build-cache/external/cd/5d62942031e3ee/debug/deps/tadpoles-72184a2903554d43",
+      "sha256": "49c54786bc748545065a2439b80bf4eed59ae49557d50cda2240c2fbea51dbd4",
+      "log": {
+        "path": "validation/evidence/denominator-reuse-logs/tadpoles.log",
+        "sha256": "93dd39ffa5f07cdc63c03240e785d13f035d2bf174dd076df9217339d2ae8ecb"
+      },
+      "exit_code": 0,
+      "summary": "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.03s",
+      "elapsed_including_lock": 58.858361450984376,
+      "timing_note": "Correctness runtime includes scheduling/lock wait; not a performance measurement."
+    },
+    {
+      "name": "workspace_reuse",
+      "executable": "/common/build-cache/external/cd/5d62942031e3ee/debug/deps/workspace_reuse-c5dde0f6700de650",
+      "sha256": "c748bfa37a313bd9fb97d7f4ba7cf5b21d39085d5aad3e853fe0fd79d6f7be0f",
+      "log": {
+        "path": "validation/evidence/denominator-reuse-logs/workspace_reuse.log",
+        "sha256": "07790ad87180c035e2132ec7ea7a4916f2bcd390873b7069b7ad26311dbff140"
+      },
+      "exit_code": 0,
+      "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.37s",
+      "elapsed_including_lock": 6.681211855990114,
+      "timing_note": "Correctness runtime includes scheduling/lock wait; not a performance measurement."
+    },
+    {
+      "name": "high_parent_cancellation",
+      "executable": "/common/build-cache/external/cd/5d62942031e3ee/debug/deps/high_parent_cancellation-92b1885a29b33558",
+      "sha256": "b92b278ff397b8df7639f0640524d8b9295d04ce08e7808b199e52942e4cb8e0",
+      "log": {
+        "path": "validation/evidence/denominator-reuse-logs/high_parent_cancellation.log",
+        "sha256": "1892a6bbda90685a79f4c8c574b0ab8a02940f49941ad4f4afd887f1bfbff494"
+      },
+      "exit_code": 0,
+      "summary": "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.54s",
+      "elapsed_including_lock": 14.809950344002573,
+      "timing_note": "Correctness runtime includes scheduling/lock wait; not a performance measurement."
+    },
+    {
+      "name": "native_amplitude",
+      "executable": "/common/build-cache/external/cd/5d62942031e3ee/debug/deps/native_amplitude-b29120e262eff61e",
+      "sha256": "a6f1ee6fde869f3f997b6b23abd62c1314eb1a7426b9044bdbad5ba5da7fd601",
+      "log": {
+        "path": "validation/evidence/denominator-reuse-logs/native_amplitude.log",
+        "sha256": "d87d35de6ac75b5420376a20122e3751555c90f298b08411ed2c48dd3ab5d92f"
+      },
+      "exit_code": 0,
+      "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.15s",
+      "elapsed_including_lock": 9.66648630099371,
+      "timing_note": "Correctness runtime includes scheduling/lock wait; not a performance measurement."
+    },
+    {
+      "name": "native_bubbles",
+      "executable": "/common/build-cache/external/cd/5d62942031e3ee/debug/deps/native_bubbles-e0f5492c99468a33",
+      "sha256": "9507ae9c55c36e2ce2d5bcfc65459af62b1f4357c3dfb2d8016320568634ae4f",
+      "log": {
+        "path": "validation/evidence/denominator-reuse-logs/native_bubbles.log",
+        "sha256": "ab135ed06178b550140d01befbd766c1700170cf8621dde86cb2833f4a4d2c53"
+      },
+      "exit_code": 0,
+      "summary": "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.94s",
+      "elapsed_including_lock": 5.1439388770086225,
+      "timing_note": "Correctness runtime includes scheduling/lock wait; not a performance measurement."
+    },
+    {
+      "name": "native_tadpole_dispatch",
+      "executable": "/common/build-cache/external/cd/5d62942031e3ee/debug/deps/native_tadpole_dispatch-e7f1cf62ebf9266e",
+      "sha256": "867b72f5978f5e5dd014aa075a97a489e21e4d84260ba7968f5de88415002e9e",
+      "log": {
+        "path": "validation/evidence/denominator-reuse-logs/native_tadpole_dispatch.log",
+        "sha256": "aac72db6c0b6bf431cbd198de6575fcad5ecfe6de22a1320230f019c5802c73e"
+      },
+      "exit_code": 0,
+      "summary": "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.70s",
+      "elapsed_including_lock": 2.9580607259995304,
+      "timing_note": "Correctness runtime includes scheduling/lock wait; not a performance measurement."
+    },
+    {
+      "name": "lightlike_bubbles",
+      "executable": "/common/build-cache/external/cd/5d62942031e3ee/debug/deps/lightlike_bubbles-226a29a6a2466940",
+      "sha256": "f5d6d30dfaf4a29f28e81f44677ff5e029b446d558742a82852b7c396196b7a2",
+      "log": {
+        "path": "validation/evidence/denominator-reuse-logs/lightlike_bubbles.log",
+        "sha256": "297b32f0f2ef25d01e996da67480a650b4241969aae67bbc1ccf875f4227ed03"
+      },
+      "exit_code": 0,
+      "summary": "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.68s",
+      "elapsed_including_lock": 2.0827775899961125,
+      "timing_note": "Correctness runtime includes scheduling/lock wait; not a performance measurement."
+    }
+  ],
+  "existing_regression_test_count": 38,
+  "checks": {
+    "strict_clippy": {
+      "passed": true,
+      "log": {
+        "path": "validation/evidence/denominator-reuse-logs/clippy.log",
+        "sha256": "719ab4d0d085f1d40770843a7ada2bf4c328f8557a6b19c1febe9cfc10d486e4"
+      }
+    },
+    "feature_off_library_check": {
+      "passed": true,
+      "log": {
+        "path": "validation/evidence/denominator-reuse-logs/featureoff.log",
+        "sha256": "ec162614c4a549ec31d796aac929d6d715e6b462980c7ada397bfef0ff98f180"
+      }
+    },
+    "format_check": {
+      "passed": true,
+      "log": {
+        "path": "validation/evidence/denominator-reuse-logs/fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "production_check": {
+      "passed": true,
+      "log": {
+        "path": "validation/evidence/denominator-reuse-logs/bubble-check.log",
+        "sha256": "f2058b4e96a86fd6f80f7616a9da3995b657e1a20ca2ddb281fce0550535e8e7"
+      }
+    },
+    "dependency_warnings": "Existing Numerica unused import/unsafe and Symbolica unused_must_use warnings remain; no dependency edits."
+  },
+  "reproduction": {
+    "environment": [
+      "source /tmp/ninjars-build-env-paths",
+      "source /tmp/ninjars-symbolica-env",
+      "export CC CXX PKG_CONFIG RUST_MIN_STACK=134217728 CARGO_BUILD_JOBS=4",
+      "ulimit -Sn 65536"
+    ],
+    "compile_new_tests": "cargo test -p ninjars-symbolica --features native-kernels --locked --lib denominator_reuse_tests --no-run -j 4",
+    "runtime_new_tests": "flock /tmp/ninjars-symbolica-tests.lock <compiled-library-test-executable> denominator_reuse_tests --test-threads=1 --nocapture",
+    "compile_regressions": "cargo test -p ninjars-symbolica --features native-kernels --locked --no-run -j 4 --test bubbles --test tadpoles --test workspace_reuse --test high_parent_cancellation --test native_amplitude --test native_bubbles --test native_tadpole_dispatch --test lightlike_bubbles",
+    "runtime_regressions": "Run each compiled test executable with flock /tmp/ninjars-symbolica-tests.lock <executable> --test-threads=1 --nocapture; builds run outside this runtime lock.",
+    "clippy": "cargo clippy -p ninjars -p ninjars-symbolica --features native-kernels --locked --lib --tests -- -D warnings",
+    "feature_off": "cargo check -p ninjars-symbolica --locked --lib",
+    "format": "cargo fmt --all --check"
+  },
+  "performance_acceptance": false,
+  "timing_measured": false,
+  "limitations": [
+    "Exact denominator row reduction is not a measured wall-clock speedup.",
+    "Default third-party compatibility implementations retain temporary allocation overhead.",
+    "No numerator provider, master implementation, precision policy or rank specialization changes."
+  ]
+}
