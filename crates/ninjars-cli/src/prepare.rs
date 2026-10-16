@@ -36,6 +36,10 @@ pub struct Args {
     /// Write JSON to a file; default writes JSON to standard output.
     #[arg(short, long)]
     pub output: Option<PathBuf>,
+    /// Export per-sample C++ callbacks and binary64 inputs for original Ninja validation.
+    #[cfg(feature = "reference-codegen")]
+    #[arg(long)]
+    pub reference_dir: Option<PathBuf>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -229,6 +233,8 @@ pub fn run(args: Args) -> Result<()> {
         parse("ninjars::q3")?,
     );
     let mut samples = Vec::<Value>::new();
+    #[cfg(feature = "reference-codegen")]
+    let mut reference_samples = Vec::new();
     if let Some(fixture) = &fixture {
         for (lane, sample) in fixture.samples.iter().enumerate() {
             let external = bind_external(sample, &prepared, &replacements)
@@ -240,20 +246,33 @@ pub fn run(args: Args) -> Result<()> {
                 .shifts(&external)?
                 .iter()
                 .map(|vector| {
-                    vector
-                        .components()
-                        .iter()
-                        .map(|component| canonical(&specialize(component)))
-                        .collect::<Vec<_>>()
+                    let [e, x, y, z] = vector.components().map(&specialize);
+                    FourMomentum::from_args(e, x, y, z)
                 })
                 .collect::<Vec<_>>();
+            let mass_squared = prepared
+                .squared_masses()
+                .iter()
+                .map(&specialize)
+                .collect::<Vec<_>>();
+            let overall_factor = specialize(&prepared.overall_factor);
             samples.push(json!({
                 "lane": lane,
                 "numerator": canonical(&numerator),
-                "shifts": shifts,
-                "mass_squared": prepared.squared_masses().iter().map(|mass| canonical(&specialize(mass))).collect::<Vec<_>>(),
-                "overall_factor": canonical(&specialize(&prepared.overall_factor)),
+                "shifts": shifts.iter().map(|vector| vector.components().map(canonical)).collect::<Vec<_>>(),
+                "mass_squared": mass_squared.iter().map(canonical).collect::<Vec<_>>(),
+                "overall_factor": canonical(&overall_factor),
             }));
+            #[cfg(feature = "reference-codegen")]
+            if args.reference_dir.is_some() {
+                reference_samples.push(crate::reference::ExportSample {
+                    lane,
+                    numerator,
+                    overall_factor,
+                    shifts,
+                    mass_squared,
+                });
+            }
         }
     }
     let scale = parse(
@@ -262,6 +281,15 @@ pub fn run(args: Args) -> Result<()> {
             .map(|f| f.scale_squared.as_str())
             .unwrap_or("1"),
     )?;
+    let scale = substitute(&scale, &replacements);
+    #[cfg(feature = "reference-codegen")]
+    let reference_export = args
+        .reference_dir
+        .as_ref()
+        .map(|directory| crate::reference::export(directory, &reference_samples, &scale))
+        .transpose()?;
+    #[cfg(not(feature = "reference-codegen"))]
+    let reference_export: Option<Value> = None;
     let result = json!({
         "schema_version": 1,
         "operation": "prepare",
@@ -273,7 +301,7 @@ pub fn run(args: Args) -> Result<()> {
         "model_fingerprint": model.fingerprint().to_string(),
         "numerator_mode": if args.feynman_rules { "feynman_rules" } else { "explicit" },
         "metric": "+---",
-        "scale_squared": canonical(&substitute(&scale, &replacements)),
+        "scale_squared": canonical(&scale),
         "propagator_edges": prepared.propagator_edges.iter().map(|edge| edge.0).collect::<Vec<_>>(),
         "denominators": prepared.family.denominators().iter().map(|denominator| canonical(&substitute(denominator, &replacements))).collect::<Vec<_>>(),
         "external_basis": prepared.family.external_momenta().iter().map(canonical).collect::<Vec<_>>(),
@@ -282,8 +310,13 @@ pub fn run(args: Args) -> Result<()> {
         "overall_factor": canonical(&substitute(&prepared.overall_factor, &replacements)),
         "input_fixture": fixture,
         "samples": samples,
+        "reference_export": reference_export,
     });
     let output = serde_json::to_string_pretty(&result)? + "\n";
+    #[cfg(feature = "reference-codegen")]
+    if let Some(directory) = args.reference_dir {
+        fs::write(directory.join("prepared.json"), &output)?;
+    }
     if let Some(path) = args.output {
         fs::write(path, output)?;
     } else {

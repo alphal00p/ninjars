@@ -1,0 +1,298 @@
+{
+  "checks": [
+    {
+      "fixture": "examples/graphs/bubble.json",
+      "lane": 0,
+      "prepared_numerator": "1+2*ninjars::{}::q1^2+ninjars::{}::mu2+ninjars::{}::q0",
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            -0.06140039056336355,
+            0
+          ],
+          [
+            0.4999999999999999,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          1.1666666666666667,
+          0
+        ],
+        "cut_constructible": [
+          -1.2280670572300303,
+          0
+        ],
+        "nanoseconds_per_evaluation": 1740,
+        "repetitions": 1
+      },
+      "tensor": {
+        "status": 0,
+        "epsilon": [
+          [
+            -1.2280670572300303,
+            0
+          ],
+          [
+            0.4999999999999999,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          -1.2280670572300303,
+          0
+        ],
+        "nanoseconds_per_evaluation": 1849.6666666666667,
+        "repetitions": 3
+      },
+      "analytic_mu_rational": 1.1666666666666667,
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "d204bfeb3018ad91e5356e40cdbb5d861739d13685722f2b44993ee4168cbe96",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "fixture": "examples/graphs/bubble.json",
+      "lane": 1,
+      "prepared_numerator": "1+2*ninjars::{}::q1^2+ninjars::{}::mu2+ninjars::{}::q0",
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            -0.8120362150160998,
+            1.035393514156478e-18
+          ],
+          [
+            1.9999999999999998,
+            1.035393514156478e-18
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          1.6666666666666667,
+          0
+        ],
+        "cut_constructible": [
+          -2.4787028816827665,
+          1.035393514156478e-18
+        ],
+        "nanoseconds_per_evaluation": 1880,
+        "repetitions": 1
+      },
+      "tensor": {
+        "status": 0,
+        "epsilon": [
+          [
+            -2.4787028816827665,
+            1.035393514156478e-18
+          ],
+          [
+            1.9999999999999998,
+            1.035393514156478e-18
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0,
+          0
+        ],
+        "cut_constructible": [
+          -2.4787028816827665,
+          1.035393514156478e-18
+        ],
+        "nanoseconds_per_evaluation": 1866.6666666666667,
+        "repetitions": 3
+      },
+      "analytic_mu_rational": 1.6666666666666667,
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "d204bfeb3018ad91e5356e40cdbb5d861739d13685722f2b44993ee4168cbe96",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "fixture": "examples/graphs/bubble.json",
+      "lane": 2,
+      "prepared_numerator": "1+2*ninjars::{}::q1^2+ninjars::{}::mu2+ninjars::{}::q0",
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            -0.28760828339536215,
+            -5.551115123125783e-17
+          ],
+          [
+            1.114583333333333,
+            -5.551115123125783e-17
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          1.3288690476190477,
+          0
+        ],
+        "cut_constructible": [
+          -1.6164773310144098,
+          -5.551115123125783e-17
+        ],
+        "nanoseconds_per_evaluation": 1790,
+        "repetitions": 1
+      },
+      "tensor": {
+        "status": 0,
+        "epsilon": [
+          [
+            -1.673024950062029,
+            -5.551115123125783e-17
+          ],
+          [
+            1.114583333333333,
+            -5.551115123125783e-17
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          -0.05654761904761907,
+          0
+        ],
+        "cut_constructible": [
+          -1.6164773310144098,
+          -5.551115123125783e-17
+        ],
+        "nanoseconds_per_evaluation": 2033.3333333333333,
+        "repetitions": 3
+      },
+      "analytic_mu_rational": 1.3854166666666667,
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "d204bfeb3018ad91e5356e40cdbb5d861739d13685722f2b44993ee4168cbe96",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    },
+    {
+      "fixture": "examples/graphs/triangle-reference.json",
+      "lane": 0,
+      "prepared_numerator": "1+ninjars::{}::mu2*ninjars::{}::q0+ninjars::{}::q0*ninjars::{}::q1+ninjars::{}::q2^3",
+      "reference": {
+        "status": 0,
+        "epsilon": [
+          [
+            -0.24681539497804234,
+            -1.5871595069646447
+          ],
+          [
+            -0.5000000000000009,
+            8.731441495749936e-17
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0.12736896819808985,
+          0
+        ],
+        "cut_constructible": [
+          -0.3741843631761322,
+          -1.5871595069646447
+        ],
+        "nanoseconds_per_evaluation": 6830,
+        "repetitions": 1
+      },
+      "tensor": {
+        "status": 0,
+        "epsilon": [
+          [
+            -0.9134820616447095,
+            -1.5871595069646438
+          ],
+          [
+            -0.500000000000002,
+            3.2670625464229874e-16
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          -0.5392976984685767,
+          0
+        ],
+        "cut_constructible": [
+          -0.37418436317613285,
+          -1.5871595069646438
+        ],
+        "nanoseconds_per_evaluation": 10626.666666666666,
+        "repetitions": 3
+      },
+      "analytic_mu_rational": 0.6666666666666666,
+      "artifact": {
+        "ninja": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "MG5_aMC_v3_7_0": {
+          "source": "release directory",
+          "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        "compiler": "g++ (GCC) 15.3.0",
+        "generated_numerator_sha256": "4002c0839dc21e2f14dc9c7288a866331fea237fe59298d4b8d48e09798e5198",
+        "libraries_sha256": {
+          "libninja.a": "32d8ee777fe887f73870533b05e928e8eb39b0c74cb2cd7104d93a20749f4066",
+          "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+        }
+      }
+    }
+  ],
+  "comparison": "original generated callbacks versus original tensor interface plus analytic mu controls",
+  "timings_are_acceptance_evidence": false
+}

@@ -225,3 +225,10 @@ Final checks for this foundation:
 - `cargo fmt --all --check` and `git diff --check`: pass.
 - Original reference protocol: **4 tests pass**. Integrated generated callback controls: **5 checks pass**, including triangle mu-squared = +1/2, box mu-fourth = -1/6, ordinary polynomial/TensorNumerator parity, changing complex parameters, and higher-rank integrated linearity. The latter is explicitly not an independent closed-form higher-rank result.
 - Full reduction kernels, accumulation/stability handling, derivative continuation and removable limits, physical matching, and performance acceptance remain unfinished. Dual shape inspection currently allocates through the upstream shape API; a fully allocation-free warmed scalar path is still an optimization requirement.
+
+### Prepared graph reference milestone
+
+- `ninjars prepare --reference-dir DIR` (opt-in `reference-codegen` feature) exports exact preparation metadata and per-sample original Ninja callbacks, runner inputs and conversion metadata. The callback includes graph weights and loop-independent propagators exactly once.
+- Eleven CLI tests pass, including six reference-export regressions. Precision is preserved until the explicit reference binary64 boundary. Unbound parameters, nonfinite or overflowing/underflowing values, and unsupported complex external shifts are rejected before writing the bundle; complex squared masses remain supported.
+- Four integrated prepared-graph comparisons pass: three changing bubble samples and one timelike triangle. Original Ninja's independent tensor interface plus analytic mu-dependent rational terms provide the controls. Reproduction script: `validation/reference/test_prepared_runner.py`; evidence: `validation/evidence/prepared-graphs.json`.
+- CLI default-feature checking, strict feature Clippy, formatting and whitespace checks pass. Timings in this evidence are protocol smoke measurements, not performance acceptance. Actual Rust reduction remains in development.

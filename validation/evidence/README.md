@@ -11,3 +11,12 @@ and OneLOop. They do not establish integrated Rust-reducer parity. Higher-rank
 linearity checks use separate generated and tensor terms, not an independent
 closed-form higher-rank integral. Recorded timings are diagnostic and are not
 performance acceptance evidence.
+
+`prepared-graphs.json` records four DOT-to-reference comparisons: three bubble
+samples and one triangle. Reproduce them with
+`validation/reference/test_prepared_runner.py --cli target/debug/ninjars` after
+building the CLI with `reference-codegen`. The independent tensor interface
+checks the mu-free polynomial, and analytic rational controls check the explicit
+mu terms. Exact prepared expressions are retained in the export bundles; the
+reference's binary64 conversion is explicit. This is preparation/reference
+validation and does not add an integrated Rust-reducer claim.

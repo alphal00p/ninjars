@@ -1,4 +1,6 @@
 mod prepare;
+#[cfg(feature = "reference-codegen")]
+mod reference;
 
 use clap::{Parser, Subcommand};
 

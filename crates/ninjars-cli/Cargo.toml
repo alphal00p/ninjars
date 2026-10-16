@@ -6,11 +6,16 @@ rust-version.workspace = true
 license.workspace = true
 description = "Standalone graph preparation and reduction with NinjaRS"
 
+[features]
+reference-codegen = ["dep:ninjars", "dep:ninjars-symbolica", "ninjars-symbolica/reference-codegen"]
+
 [[bin]]
 name = "ninjars"
 path = "src/main.rs"
 
 [dependencies]
+ninjars = { workspace = true, optional = true }
+ninjars-symbolica = { workspace = true, optional = true }
 ninjars-graph.workspace = true
 symbolica.workspace = true
 feynkit-model.workspace = true

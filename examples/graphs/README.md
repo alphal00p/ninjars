@@ -23,3 +23,9 @@ Supplied dependent momenta are checked against that routing (for this triangle,
 The examples are off-shell Euclidean configurations intended for deterministic
 reduction checks. They are not physical scattering events. Bubble rank is two,
 triangle rank is three, and each contains an explicit mu-squared term.
+
+`triangle-reference.json` supplies a separate timelike configuration for checking
+original Ninja's generated and tensor callbacks. The Euclidean triangle remains
+useful for preparation and future complex-basis tests, but original Ninja's real
+basis can produce nonfinite higher-rank results there. See the documented
+reproducer under `validation/reference`.

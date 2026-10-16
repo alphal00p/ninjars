@@ -72,3 +72,15 @@ when the reported status is zero. Integrated callback checks therefore use
 separate stable timelike points. This does not establish support for these
 exceptional points in NinjaRS; that requires complex bases or explicit instability
 reporting from the reduction engine.
+
+The CLI can export the same prepared DOT numerator with its graph factor included
+once: build `ninjars-cli` with `--features reference-codegen`, then use
+`prepare examples/graphs/bubble.json --reference-dir target/reference/bubble-export`.
+See `crates/ninjars-cli/README.md` for the bundle contract and commands.
+`test_prepared_runner.py --cli target/debug/ninjars` checks three bubble samples
+and one timelike triangle through both original callback interfaces. The
+mu-dependent analytic controls are `(3*(m0²+m1²)-p²)/6` for the bubble's mu² term,
+and `-(V0[0]+V1[0]+V2[0])/6` for the triangle's mu²*q0 term. Fixture masses are one.
+Results, tensor controls and reference artifact hashes are written to
+`target/reference/prepared-graph-validation.json`; a recorded passing run is
+committed in `validation/evidence/prepared-graphs.json`.
