@@ -275,7 +275,10 @@ fn reused_integration_values_preserve_float_precision_and_every_dual_component()
         DualPolynomialNumerator, SymbolicaDualAmplitudeKernels, SymbolicaDualCuts,
         SymbolicaDualMasters,
     };
-    use symbolica::domains::{dual::HyperDual, float::FloatLike};
+    use symbolica::domains::{
+        dual::{DualNumberStructure, HyperDual},
+        float::FloatLike,
+    };
     let shape = vec![
         vec![0, 0],
         vec![1, 0],
@@ -298,6 +301,7 @@ fn reused_integration_values_preserve_float_precision_and_every_dual_component()
     let source =
         PolynomialNumerator::new(parse!("a"), vars(), vec![parse!("a")], Float::new(192)).unwrap();
     let mut numerator = DualPolynomialNumerator::new(source, prototype.clone()).unwrap();
+    let mut retired_buffer = None;
     for lanes in [3, 1, 0, 2, 3] {
         let parameters: Vec<_> = (0..lanes)
             .map(|lane| dual([53, 192, 256][lane], [0, 0, 1, 0, 0, 0]))
@@ -320,6 +324,19 @@ fn reused_integration_values_preserve_float_precision_and_every_dual_component()
                 &mut masters,
             )
             .unwrap();
+        if lanes == 3 && retired_buffer.is_none() {
+            let ninjars::CutOutcome::Stable(last) = &reused.tadpoles()[2] else {
+                panic!("expected stable tadpole");
+            };
+            retired_buffer = Some(last.coefficients.as_ptr());
+        } else if lanes == 1 {
+            let ninjars::CutOutcome::Stable(first) = &reused.tadpoles()[0] else {
+                panic!("expected stable tadpole");
+            };
+            // The former256-bit lane's coefficient allocation now holds the
+            // 53-bit lane. The comparisons below check its updated metadata.
+            assert_eq!(Some(first.coefficients.as_ptr()), retired_buffer);
+        }
         let mut fresh = SymbolicaDualAmplitudeKernels::new(1, 0, Float::new(192), &prototype)
             .unwrap()
             .into_amplitude(lanes)
@@ -354,5 +371,274 @@ fn reused_integration_values_preserve_float_precision_and_every_dual_component()
             let expected = Float::with_val(192, -1) / Float::with_val(192, 2);
             assert!((got[0].values[5].re.clone() - expected).norm() < Float::with_val(192, 1e-14));
         }
+        for (got, expected) in reused.tadpoles().iter().zip(fresh.tadpoles()) {
+            let (ninjars::CutOutcome::Stable(got), ninjars::CutOutcome::Stable(expected)) =
+                (got, expected)
+            else {
+                panic!("expected stable tadpoles");
+            };
+            assert_eq!(got.computed, expected.computed);
+            for (got, expected) in got.coefficients.iter().zip(&expected.coefficients) {
+                assert_eq!(got.get_shape(), expected.get_shape());
+                for (got, expected) in got.values.iter().zip(&expected.values) {
+                    assert_eq!(got.re, expected.re);
+                    assert_eq!(got.im, expected.im);
+                    assert_eq!(got.re.get_precision(), expected.re.get_precision());
+                    assert_eq!(got.im.get_precision(), expected.im.get_precision());
+                }
+            }
+        }
     }
+}
+
+#[test]
+fn reset_and_cut_stops_recycle_discarded_residues_without_changing_accumulation() {
+    let routing = [
+        [0., 0., 0., 0.],
+        [2., 1., 0., 0.],
+        [3., 0., 1., 0.],
+        [4., 0., 0., 1.],
+        [5., 2., 1., -1.],
+    ];
+    let mut numerator =
+        PolynomialNumerator::new(parse!("q0^4+q1*mu2"), vars(), vec![], 0.).unwrap();
+    let mut reused = SymbolicaAmplitudeKernels::new(5, 4, 0.)
+        .unwrap()
+        .into_amplitude(0)
+        .unwrap();
+    let mut low = SymbolicaCuts::new(0.).unwrap();
+    let mut high = SymbolicaHighCuts::new(0.).unwrap();
+    let mut masters = FixedMasters { fail: false };
+    for lanes in [3, 1, 0, 4, 1] {
+        reused.reset_batch(lanes);
+        numerator.set_parameter_batch(&[], lanes).unwrap();
+        assert!(reused.boxes().is_empty());
+        assert!(reused.triangles().is_empty());
+        assert!(reused.bubbles().is_empty());
+        assert!(reused.tadpoles().is_empty());
+        let shifts: Vec<_> = (0..lanes)
+            .flat_map(|_| routing.map(|p| FourMomentum::from(p.map(c))))
+            .collect();
+        let masses = vec![c(100.); 5 * lanes];
+        let scales = vec![c(1.); lanes];
+        let sampling = vec![c(100.); lanes];
+        let mut expected = vec![[c(0.); 5]; lanes];
+        for stop in [1, 4, 2, 6, 3, 1] {
+            reused.set_cut_stop(stop);
+            let mut fresh = SymbolicaAmplitudeKernels::new(5, 4, 0.)
+                .unwrap()
+                .into_amplitude(lanes)
+                .unwrap();
+            fresh.set_cut_stop(stop);
+            for amplitude in [&mut reused, &mut fresh] {
+                amplitude
+                    .evaluate_batch_with_high_cuts(
+                        &shifts,
+                        &masses,
+                        &scales,
+                        &sampling,
+                        &mut numerator,
+                        &mut low,
+                        &mut high,
+                        &mut masters,
+                    )
+                    .unwrap();
+            }
+            assert_eq!(reused.statuses(), fresh.statuses());
+            for ((actual, expected), increment) in reused
+                .results()
+                .iter()
+                .zip(&mut expected)
+                .zip(fresh.results())
+            {
+                for (total, term) in expected.iter_mut().zip(increment) {
+                    *total += term;
+                }
+                near(actual, expected, 1.);
+            }
+            // The full public outcomes, including masks and identities, match
+            // fresh execution even after a previously active stage was skipped.
+            assert_eq!(
+                format!("{:?}", reused.boxes()),
+                format!("{:?}", fresh.boxes())
+            );
+            assert_eq!(
+                format!("{:?}", reused.triangles()),
+                format!("{:?}", fresh.triangles())
+            );
+            assert_eq!(
+                format!("{:?}", reused.bubbles()),
+                format!("{:?}", fresh.bubbles())
+            );
+            assert_eq!(
+                format!("{:?}", reused.tadpoles()),
+                format!("{:?}", fresh.tadpoles())
+            );
+        }
+    }
+}
+
+#[test]
+fn pooled_direct_reducers_preserve_published_buffers_after_late_callback_errors() {
+    use ninjars::{
+        BoxReducer, BubbleReducer, CutFailure, CutOutcome, PentagonReducer, TadpoleReducer,
+        TriangleReducer,
+    };
+    use ninjars_symbolica::{
+        SymbolicaBoxKernels, SymbolicaBubbleKernels, SymbolicaPentagonKernels,
+        SymbolicaTadpoleKernels, SymbolicaTriangleKernels,
+    };
+    let (n, rank, lanes) = (5, 6, 2);
+    let routing = [
+        [0., 0., 0., 0.],
+        [2., 1., 0., 0.],
+        [3., 0., 1., 0.],
+        [4., 0., 0., 1.],
+        [5., 2., 1., -1.],
+    ];
+    let shifts: Vec<_> = (0..lanes)
+        .flat_map(|_| routing.map(|p| FourMomentum::from(p.map(c))))
+        .collect();
+    let masses = vec![c(100.); n * lanes];
+    let sampling = vec![c(100.); lanes];
+    let mut low = SymbolicaCuts::new(0.).unwrap();
+    let mut high = SymbolicaHighCuts::new(0.).unwrap();
+    let mut numerator = FaultNumerator {
+        inner: PolynomialNumerator::new(parse!("(q0-q1)^6+mu2^2*q0^2"), vars(), vec![], 0.)
+            .unwrap(),
+        calls: 0,
+        fail_at: None,
+    };
+    numerator.inner.set_parameter_batch(&[], lanes).unwrap();
+    let mut pentagon =
+        PentagonReducer::new(SymbolicaPentagonKernels::new(n, rank, 0.).unwrap(), c(0.)).unwrap();
+    let mut pentagons =
+        vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); pentagon.cut_count() * lanes];
+    pentagon
+        .evaluate_batch(
+            &shifts,
+            &masses,
+            lanes,
+            &mut numerator,
+            &mut high,
+            &mut pentagons,
+        )
+        .unwrap();
+    // Warm both staging banks, then inject failure at the final numerator call.
+    // Compare every public field and ensure its owned coefficient buffer stays put.
+    macro_rules! check {
+        ($output:ident, $evaluate:expr) => {{
+            let mut evaluate = $evaluate;
+            for _ in 0..3 {
+                numerator.calls = 0;
+                evaluate(&mut numerator, &mut $output).unwrap();
+            }
+            assert!($output.iter().all(|r| matches!(r, CutOutcome::Stable(_))));
+            let calls = numerator.calls;
+            assert!(calls > 0);
+            let before = format!("{:?}", $output);
+            let buffers: Vec<_> = $output
+                .iter()
+                .map(|r| match r {
+                    CutOutcome::Stable(r) => r.coefficients.as_ptr(),
+                    _ => unreachable!(),
+                })
+                .collect();
+            for _ in 0..2 {
+                numerator.calls = 0;
+                numerator.fail_at = Some(calls);
+                assert!(evaluate(&mut numerator, &mut $output).is_err());
+                assert_eq!(format!("{:?}", $output), before);
+                for (outcome, pointer) in $output.iter().zip(&buffers) {
+                    let CutOutcome::Stable(residue) = outcome else {
+                        unreachable!()
+                    };
+                    assert_eq!(residue.coefficients.as_ptr(), *pointer);
+                }
+            }
+            numerator.fail_at = None;
+            evaluate(&mut numerator, &mut $output).unwrap();
+            assert_eq!(format!("{:?}", $output), before);
+        }};
+    }
+    let mut boxes = BoxReducer::new(
+        SymbolicaBoxKernels::new(
+            n,
+            rank,
+            BoxReductionOptions {
+                coefficients: BoxCoefficientMode::Full,
+                mu_extraction: BoxMuMode::Expansion,
+            },
+            0.,
+        )
+        .unwrap(),
+        c(0.),
+    )
+    .unwrap();
+    let mut box_output =
+        vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); boxes.cut_count() * lanes];
+    check!(box_output, |num: &mut FaultNumerator,
+                        output: &mut Vec<_>| {
+        boxes.evaluate_batch(
+            &shifts,
+            &masses,
+            &sampling,
+            lanes,
+            pentagon.topology(),
+            &pentagons,
+            num,
+            &mut high,
+            output,
+        )
+    });
+    let mut triangles =
+        TriangleReducer::new(SymbolicaTriangleKernels::new(n, rank, 0.).unwrap(), c(0.)).unwrap();
+    let mut triangle_output =
+        vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); triangles.cut_count() * lanes];
+    check!(
+        triangle_output,
+        |num: &mut FaultNumerator, output: &mut Vec<_>| {
+            triangles.evaluate_batch(&shifts, &masses, lanes, num, &mut low, output)
+        }
+    );
+    let mut bubbles =
+        BubbleReducer::new(SymbolicaBubbleKernels::new(n, rank, 0.).unwrap(), c(0.)).unwrap();
+    let mut bubble_output =
+        vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); bubbles.cut_count() * lanes];
+    check!(
+        bubble_output,
+        |num: &mut FaultNumerator, output: &mut Vec<_>| {
+            bubbles.evaluate_batch(
+                &shifts,
+                &masses,
+                lanes,
+                triangles.topology(),
+                &triangle_output,
+                num,
+                &mut low,
+                output,
+            )
+        }
+    );
+    let mut tadpoles =
+        TadpoleReducer::new(SymbolicaTadpoleKernels::new(n, rank, 0.).unwrap(), c(0.)).unwrap();
+    let mut tadpole_output =
+        vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); tadpoles.cut_count() * lanes];
+    check!(
+        tadpole_output,
+        |num: &mut FaultNumerator, output: &mut Vec<_>| {
+            tadpoles.evaluate_batch(
+                &shifts,
+                &masses,
+                lanes,
+                triangles.topology(),
+                &triangle_output,
+                bubbles.topology(),
+                &bubble_output,
+                num,
+                &mut low,
+                output,
+            )
+        }
+    );
 }

@@ -1,5 +1,6 @@
 //! Tadpole coefficients needed for integration, with higher-cut subtraction.
 
+use crate::residue_storage::VecPool;
 use crate::{
     BatchShape, BubbleResidue, CutFailure, CutOutcome, CutProvider, Error, ExpansionKind,
     ExpansionRequest, FloatLike, FourMomentum, Numerator, Result, SampleId, TadpoleCut,
@@ -110,6 +111,8 @@ pub struct TadpoleReducer<T, K> {
     geometry_output: Vec<CutOutcome<TadpoleCut<T>>>,
     active: Vec<usize>,
     staged: Vec<CutOutcome<IntegratedTadpoleResidue<T>>>,
+    coefficient_pool: VecPool<T>,
+    mask_pool: VecPool<bool>,
     eligible: Vec<usize>,
     complement_shifts: Vec<FourMomentum<T>>,
     vectors: Vec<[FourMomentum<T>; 3]>,
@@ -172,6 +175,8 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
             geometry_output: Vec::new(),
             active: Vec::new(),
             staged: Vec::new(),
+            coefficient_pool: VecPool::default(),
+            mask_pool: VecPool::default(),
             eligible: Vec::new(),
             complement_shifts: Vec::new(),
             vectors: Vec::new(),
@@ -196,6 +201,20 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
     }
     pub fn cut_count(&self) -> usize {
         self.cuts.len()
+    }
+
+    /// Recycle an explicitly discarded suffix; live caller outputs are never borrowed.
+    pub(crate) fn discard_outcomes(
+        &mut self,
+        outcomes: &mut Vec<CutOutcome<IntegratedTadpoleResidue<T>>>,
+        keep: usize,
+    ) {
+        for outcome in outcomes.drain(keep..) {
+            if let CutOutcome::Stable(residue) = outcome {
+                self.coefficient_pool.recycle(residue.coefficients);
+                self.mask_pool.recycle(residue.computed);
+            }
+        }
     }
 
     fn source_status(kernels: &K, source: TadpoleSource<'_, T>) -> Option<CutFailure> {
@@ -332,6 +351,13 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
                 rank: numerator.rank(),
                 propagators: n,
             });
+        }
+        // These are old outputs from a completed prior swap, never the live output.
+        for outcome in self.staged.drain(..) {
+            if let CutOutcome::Stable(residue) = outcome {
+                self.coefficient_pool.recycle(residue.coefficients);
+                self.mask_pool.recycle(residue.computed);
+            }
         }
         let staged = &mut self.staged;
         staged.resize(
@@ -578,8 +604,10 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
                 cut_index: id.sample,
                 id,
                 geometry: active_cuts[index].clone(),
-                coefficients: coefficients.to_vec(),
-                computed: self.kernels.computed_coefficients().to_vec(),
+                coefficients: self.coefficient_pool.take_from_slice(coefficients),
+                computed: self
+                    .mask_pool
+                    .take_from_slice(self.kernels.computed_coefficients()),
             });
         }
         output.swap_with_slice(staged);
