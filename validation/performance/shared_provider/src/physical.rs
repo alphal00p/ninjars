@@ -493,6 +493,8 @@ pub unsafe extern "C" fn sp_physical_prepare(
         let state = unsafe { physical(handle) }?;
         #[cfg(feature = "allocation-diagnostics")]
         let _allocation_scope = super::allocation::Scope::new(2);
+        #[cfg(feature = "execution-diagnostics")]
+        let _execution_scope = super::execution::Scope::preparation(rows);
         state.prepare(
             unsafe { read(momenta, np) }?,
             unsafe { read(helicities, nh) }?,

@@ -1,0 +1,226 @@
+{
+  "schema": 1,
+  "purpose": "Validation of contiguous-block methodology and same-pass execution accounting; not performance evidence",
+  "tested_core_baseline": "4212bc7",
+  "validation_profile": "dev (dependencies opt-level2, local crate/core development settings)",
+  "performance_acceptance": false,
+  "optimized_sampling_performed": false,
+  "release_profile_configured": {
+    "opt_level": 3,
+    "lto": "thin",
+    "codegen_units": 1
+  },
+  "limitations": [
+    "No optimized contiguous-block samples yet.",
+    "Developer-profile execution durations validate nesting/accounting only; do not infer speed ratios.",
+    "First uninstrumented guard predates only runner default/source-identity validation hardening; final execution guard covers final runtime sources.",
+    "Separate physical raw/oracle report retains its older source identity; these runs independently recheck integrated Laurent controls at their exact sources.",
+    "Later pool/static-predicate core checkpoint is not included in these two reports.",
+    "Rational split component parity remains incomplete."
+  ],
+  "reports": {
+    "correctness": {
+      "archive": "shared-workload-methodology-dev-correctness.json.gz",
+      "uncompressed_sha256": "5e91632c6eeb0ffc1b9aca601fb0d75ef8179a06acfbbddf6e54f07444154a33",
+      "compressed_sha256": "dfc5730e28a2e8e31f667645c1f3bd51913b0553c635c6d2f47a037a780f1c03",
+      "uncompressed_bytes": 2554120,
+      "compressed_bytes": 319223,
+      "mode": "check",
+      "records": 16,
+      "widths": [
+        1,
+        8
+      ],
+      "scopes": [
+        "preparation",
+        "production-complete",
+        "shared-live-complete",
+        "shared-reduction"
+      ],
+      "maximum_scaled_error": 2.236549047241113e-16,
+      "unchanged_runtime_sources": true,
+      "dependency_heads": {
+        "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+        "oneloopmaster": "bf7632a916528073464870f1b515d3e62f4e0060",
+        "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+      },
+      "union_entries": 85,
+      "union_misses": 0,
+      "frozen_backend_call_delta": 0,
+      "frozen_backend_row_delta": 0,
+      "source_report_path": "/shared/external/ninja/target/performance/reduction-methodology-dev-correctness/result.json"
+    },
+    "execution": {
+      "archive": "shared-workload-methodology-dev-execution.json.gz",
+      "uncompressed_sha256": "a26e93a127ccc9b5f4cc921277b9ea5509d895160699c7f584e92b894023cf89",
+      "compressed_sha256": "4cb602fc9c4c950dc230fa7defb93ed8cf7b06974b5b7ca4c8af952d218d5409",
+      "uncompressed_bytes": 3010112,
+      "compressed_bytes": 332228,
+      "mode": "execution",
+      "records": 16,
+      "widths": [
+        1,
+        8
+      ],
+      "scopes": [
+        "preparation",
+        "production-complete",
+        "shared-live-complete",
+        "shared-reduction"
+      ],
+      "maximum_scaled_error": 2.236549047241113e-16,
+      "unchanged_runtime_sources": true,
+      "dependency_heads": {
+        "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+        "oneloopmaster": "bf7632a916528073464870f1b515d3e62f4e0060",
+        "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+      },
+      "union_entries": 85,
+      "union_misses": 0,
+      "frozen_backend_call_delta": 0,
+      "frozen_backend_row_delta": 0,
+      "source_report_path": "/shared/external/ninja/target/performance/reduction-methodology-dev-execution/result.json",
+      "named_source_and_additive_accounting_validated": true,
+      "changing_frozen_provider_counts": [
+        {
+          "width": 1,
+          "implementation": "original",
+          "numerator": {
+            "numerator.direct": {
+              "calls": 10,
+              "rows": 10
+            },
+            "numerator.mu": {
+              "calls": 0,
+              "rows": 0
+            },
+            "numerator.t3": {
+              "calls": 25,
+              "rows": 25
+            },
+            "numerator.t2": {
+              "calls": 20,
+              "rows": 20
+            }
+          },
+          "master_lookup_calls": 50,
+          "master_lookup_rows": 50,
+          "master_backend_calls": 0,
+          "master_backend_rows": 0,
+          "master_backend_ns": 0
+        },
+        {
+          "width": 1,
+          "implementation": "rust",
+          "numerator": {
+            "numerator.direct": {
+              "calls": 5,
+              "rows": 10
+            },
+            "numerator.mu": {
+              "calls": 0,
+              "rows": 0
+            },
+            "numerator.t3": {
+              "calls": 15,
+              "rows": 25
+            },
+            "numerator.t2": {
+              "calls": 10,
+              "rows": 20
+            }
+          },
+          "master_lookup_calls": 5,
+          "master_lookup_rows": 40,
+          "master_backend_calls": 0,
+          "master_backend_rows": 0,
+          "master_backend_ns": 0
+        },
+        {
+          "width": 8,
+          "implementation": "original",
+          "numerator": {
+            "numerator.direct": {
+              "calls": 80,
+              "rows": 80
+            },
+            "numerator.mu": {
+              "calls": 0,
+              "rows": 0
+            },
+            "numerator.t3": {
+              "calls": 200,
+              "rows": 200
+            },
+            "numerator.t2": {
+              "calls": 160,
+              "rows": 160
+            }
+          },
+          "master_lookup_calls": 400,
+          "master_lookup_rows": 400,
+          "master_backend_calls": 0,
+          "master_backend_rows": 0,
+          "master_backend_ns": 0
+        },
+        {
+          "width": 8,
+          "implementation": "rust",
+          "numerator": {
+            "numerator.direct": {
+              "calls": 5,
+              "rows": 80
+            },
+            "numerator.mu": {
+              "calls": 0,
+              "rows": 0
+            },
+            "numerator.t3": {
+              "calls": 15,
+              "rows": 200
+            },
+            "numerator.t2": {
+              "calls": 10,
+              "rows": 160
+            }
+          },
+          "master_lookup_calls": 5,
+          "master_lookup_rows": 320,
+          "master_backend_calls": 0,
+          "master_backend_rows": 0,
+          "master_backend_ns": 0
+        }
+      ]
+    }
+  },
+  "checks": {
+    "rust_tests": 9,
+    "python_accounting_tests": 8,
+    "python_statistics_tests": 8,
+    "strict_clippy": true,
+    "formatting": true,
+    "cpp_syntax_modes": [
+      "ordinary",
+      "allocation",
+      "execution"
+    ]
+  },
+  "logs": {
+    "rust_tests": {
+      "sha256": "d720ddf61c526af79cb34de657ac4440a3d36514b8419cbd54cdf9db93cd2c4c",
+      "text": "\nrunning 9 tests\ntest execution::tests::higher_tensor_rank_is_counted_and_invalid_source_is_rejected ... ok\ntest execution::tests::scopes_distinguish_backend_from_transport_and_count_rows ... ok\ntest foreign::tests::wire_groups_mixed_partitions_preserving_permuted_lanes_and_transactionality ... ok\ntest masters::tests::capture_union_replays_permuted_batches_and_rejects_changed_scale_and_order ... ok\ntest masters::tests::euclidean_c0_exceptional_point_must_be_finite ... ok\ntest masters::tests::failed_master_batch_preserves_output_and_status ... ok\ntest masters::tests::live_mode_reexecutes_repeated_rows_without_table_access ... ok\ntest tests::batched_direct_matches_safe_calls_and_errors_preserve_output ... ok\ntest tests::batched_laurent_responses_match_safe_rust_for_all_orders ... ok\n\ntest result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.44s\n\n"
+    },
+    "python_tests": {
+      "sha256": "6508051d44078a986bbb87b1424ea7510c64abe4a4549be6c75a6e2edfd5fac9",
+      "text": "................\n----------------------------------------------------------------------\nRan 16 tests in 0.008s\n\nOK\n"
+    },
+    "clippy": {
+      "sha256": "89cdcf5d4b9cbb2c43ec34d5605abe15c97992e2fa26401e036cbbf92b0f8ea9",
+      "text": "warning: patch `clarabel v0.11.1 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/vendor/clarabel)` was not used in the crate graph\nwarning: patch `typst-library v0.15.1 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/vendor/typst-library)` was not used in the crate graph\nwarning: patch `typst-svg v0.15.1 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/vendor/typst-svg)` was not used in the crate graph\nhelp: Check that the patched package version and available features are compatible\n      with the dependency requirements. If the patch has a different version from\n      what is locked in the Cargo.lock file, run `cargo update` to use the new\n      version. This may also occur with an optional dependency that is not enabled.\n   Compiling libc v0.2.190\n   Compiling cfg-if v1.0.5\n    Checking serde_core v1.0.229\n   Compiling once_cell v1.21.4\n    Checking libm v0.2.16\n   Compiling memchr v2.8.3\n    Checking serde v1.0.229\n    Checking num-traits v0.2.19\n   Compiling getrandom v0.2.17\n   Compiling zerocopy v0.8.63\n    Checking bytemuck v1.25.2\n    Checking log v0.4.34\n   Compiling unty v0.0.4\n   Compiling bincode v2.0.1\n    Checking aho-corasick v1.1.5\n    Checking regex-syntax v0.8.11\n   Compiling bincode-trait-derive v0.1.1\n    Checking ppv-lite86 v0.2.21\n    Checking regex-automata v0.4.18\n   Compiling getrandom v0.3.4\n   Compiling crossbeam-utils v0.8.23\n   Compiling crossbeam-epoch v0.9.21\n    Checking num-complex v0.4.6\n   Compiling smallvec v1.16.3\n    Checking either v1.19.0\n   Compiling const-random-macro v0.1.16\n    Checking crossbeam-deque v0.8.8\n    Checking rand_core v0.9.5\n   Compiling safe_arch v0.7.4\n    Checking num-integer v0.1.47\n   Compiling scopeguard v1.2.0\n    Checking lazy_static v1.5.1\n   Compiling typenum v1.20.1\n   Compiling hybrid-array v0.4.15\n    Checking wide v0.7.33\n   Compiling rand_chacha v0.9.0\n   Compiling rayon-core v1.13.0\n    Checking const-random v0.1.18\n   Compiling approx v0.5.1\n   Compiling safe_arch v1.2.0\n    Checking tracing-core v0.1.36\n   Compiling bitflags v2.13.2\n   Compiling linux-raw-sys v0.12.1\n   Compiling allocator-api2 v0.2.21\n   Compiling equivalent v1.0.3\n   Compiling foldhash v0.2.0\n   Compiling rustix v1.1.5\n    Checking simba v0.9.1\n    Checking wide v1.7.1\n    Checking rayon v1.12.0\n    Checking ahash v0.8.12\n    Checking rand v0.9.5\n    Checking num-bigint v0.4.8\n    Checking anyhow v1.0.104\n    Checking zmij v1.0.23\n   Compiling gmp-mpfr-sys v1.7.1\n   Compiling errno v0.3.14\n    Checking bitflags v1.3.2\n   Compiling utf8parse v0.2.2\n   Compiling alloc-no-stdlib v2.0.4\n   Compiling az v1.3.0\n   Compiling itoa v1.0.18\n   Compiling winnow v1.0.4\n    Checking unicode-width v0.2.2\n    Checking alloc-stdlib v0.2.4\n    Checking toml_parser v1.1.5+spec-1.1.0\n    Checking rug v1.30.0\n    Checking serde_json v1.0.154\n   Compiling anstyle-parse v1.0.0\n   Compiling signal-hook-registry v1.4.8\n    Checking num-rational v0.4.2\n   Compiling xprec v0.2.3\n   Compiling block-buffer v0.12.1\n   Compiling crypto-common v0.2.2\n   Compiling itertools v0.14.0\n   Compiling psm v0.1.24\n   Compiling serde_spanned v1.1.2\n   Compiling toml_datetime v1.1.2+spec-1.1.0\n   Compiling colorchoice v1.0.5\n   Compiling const-oid v0.10.2\n   Compiling anstyle-query v1.1.5\n    Checking num-conv v0.2.2\n   Compiling dyn-clone v1.0.20\n    Checking toml_writer v1.1.3+spec-1.1.0\n   Compiling colored v3.1.1\n    Checking deranged v0.5.9\n    Checking powerfmt v0.2.1\n    Checking pin-project-lite v0.2.17\n   Compiling option-ext v0.2.0\n   Compiling is_terminal_polyfill v1.70.2\n   Compiling time-core v0.1.9\n   Compiling anstyle v1.0.14\n    Checking dirs-sys v0.5.0\n   Compiling toml v1.1.8+spec-1.1.0\n    Checking time v0.3.55\n   Compiling anstream v1.0.0\n    Checking numerica v3.0.1 (/shared/external/ninja/references/ninjars_reduction_measurement/references/symbolica/lib/numerica)\n   Compiling region v3.0.2\n   Compiling tracing v0.1.44\nwarning: unused import: `ComplexField`\n --> /shared/external/ninja/references/ninjars_reduction_measurement/references/symbolica/lib/numerica/src/domains/float/double.rs:9:21\n  |\n9 | use simba::scalar::{ComplexField, RealField};\n  |                     ^^^^^^^^^^^^\n  |\n  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default\n\nwarning: unnecessary `unsafe` block\n  --> /shared/external/ninja/references/ninjars_reduction_measurement/references/symbolica/lib/numerica/src/domains/float/double.rs:48:28\n   |\n48 |             Ok(DoubleFloat(unsafe { Df64::new_full(hi, lo) }))\n   |                            ^^^^^^ unnecessary `unsafe` block\n   |\n   = note: `#[warn(unused_unsafe)]` (part of `#[warn(unused)]`) on by default\n\nwarning: unnecessary `unsafe` block\n  --> /shared/external/ninja/references/ninjars_reduction_measurement/references/symbolica/lib/numerica/src/domains/float/double.rs:75:35\n   |\n75 |             return Ok(DoubleFloat(unsafe { Df64::new_full(hi, lo) }));\n   |                                   ^^^^^^ unnecessary `unsafe` block\n\nwarning: `numerica` (lib) generated 3 warnings\n   Compiling digest v0.11.3\n   Compiling wasmtime-jit-icache-coherence v34.0.2\n   Compiling stacker v0.1.25\n   Compiling signal-hook v0.3.18\n   Compiling brotli-decompressor v5.0.3\n   Compiling sharded-slab v0.1.7\n   Compiling terminal_size v0.4.4\n    Checking hashbrown v0.16.1\n   Compiling tracing-serde v0.2.0\n   Compiling tracing-log v0.2.0\n   Compiling matchers v0.2.0\n    Checking corosensei v0.3.4\n   Compiling lock_api v0.4.14\n   Compiling parking_lot_core v0.9.12\n   Compiling mio v1.2.4\n   Compiling rand_core v0.6.4\n   Compiling bstr v1.13.1\n   Compiling hugepage-rs v0.1.1\n    Checking thread_local v1.1.10\n   Compiling static_assertions v1.1.0\n   Compiling same-file v1.0.6\n   Compiling spec_math v0.1.6\n   Compiling nu-ansi-term v0.50.3\n   Compiling strsim v0.11.1\n   Compiling ucd-trie v0.1.7\n   Compiling clap_lex v1.1.1\n   Compiling cpufeatures v0.3.1\n   Compiling unicase v2.10.0\n    Checking tracing-subscriber v0.3.23\n   Compiling clap_builder v4.6.7\n   Compiling sha2 v0.11.1\n   Compiling pest v2.9.4\n    Checking smartstring v1.0.1\n    Checking symjit v2.27.3\n   Compiling walkdir v2.5.0\n   Compiling globset v0.4.20\n   Compiling graphica v3.0.1 (/shared/external/ninja/references/ninjars_reduction_measurement/references/symbolica/lib/graphica)\n   Compiling signal-hook-mio v0.2.5\n   Compiling rand_chacha v0.3.1\n   Compiling parking_lot v0.12.5\n    Checking brotli v8.0.4\nwarning: `numerica` (lib) generated 3 warnings (3 duplicates)\n   Compiling directories v6.0.0\n   Compiling derive_more v2.1.1\n   Compiling hashbrown v0.17.1\n    Checking libloading v0.9.0\n    Checking bytes v1.12.1\n   Compiling self_cell v1.3.0\n    Checking append-only-vec v0.1.8\n   Compiling iana-time-zone v0.1.65\n    Checking tinyjson v2.5.1\n    Checking inventory v0.3.25\n    Checking ed25519-compact v2.6.0\n    Checking data-encoding v2.11.1\n   Compiling rawpointer v0.2.1\n    Checking byteorder v1.5.0\n   Compiling symbolica v3.0.1 (/shared/external/ninja/references/ninjars_reduction_measurement/references/symbolica)\n   Compiling matrixmultiply v0.3.11\n   Compiling chrono v0.4.45\n   Compiling indexmap v2.14.2\n   Compiling crossterm v0.29.0\n   Compiling rand v0.8.8\n   Compiling rust-embed-utils v8.13.0\n   Compiling pest_meta v2.9.4\n   Compiling clap v4.6.7\n   Compiling console v0.16.6\n   Compiling regex v1.13.1\n   Compiling winnow v0.7.15\n   Compiling arrayvec v0.7.8\n   Compiling indenter v0.3.4\nwarning: unused `Result` that must be used\n   --> /shared/external/ninja/references/ninjars_reduction_measurement/references/symbolica/src/atom.rs:776:9\n    |\n776 |         self.export(&mut data);\n    |         ^^^^^^^^^^^^^^^^^^^^^^\n    |\n    = note: this `Result` may be an `Err` variant, which should be handled\n    = note: `#[warn(unused_must_use)]` (part of `#[warn(unused)]`) on by default\nhelp: use `let _ = ...` to ignore the resulting value\n    |\n776 |         let _ = self.export(&mut data);\n    |         +++++++\n\n   Compiling pest_generator v2.9.4\nwarning: `symbolica` (lib) generated 1 warning (1 duplicate)\n    Checking tap v1.0.1\n    Checking wyz v0.5.1\n    Checking uncased v0.9.10\n    Checking radium v0.7.0\n    Checking funty v2.0.0\n    Checking bitvec v1.1.1\n    Checking thiserror v2.0.21\n    Checking figment v0.10.19\n    Checking symbolica-utils v0.1.0 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/crates/symbolica-utils)\n   Compiling pest_derive v2.9.4\n    Checking jiff-core v0.1.1\n    Checking dot-parser v0.5.1 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/vendor/dot-parser)\n    Checking fnv v1.0.7\n    Checking bytecount v0.6.9\n    Checking env_filter v2.0.0\n    Checking papergrid v0.18.0\n    Checking jiff v0.2.38\n    Checking testing_table v0.3.0\n    Checking num-iter v0.1.46\n    Checking num v0.4.3\n    Checking eyre v0.6.14\n    Checking rand_xoshiro v0.6.0\n    Checking features v0.10.0\n    Checking constcat v0.5.1\n    Checking gat-lending-iterator v0.1.8\n    Checking tabled v0.22.0\n    Checking ref-ops v0.2.5\n    Checking constant_time_eq v0.4.2\n    Checking blake3 v1.8.7\n    Checking adler2 v2.0.1\n    Checking miniz_oxide v0.8.9\n    Checking vectorize v0.2.0\n    Checking base64 v0.22.1\n    Checking colored v2.2.0\n    Checking env_logger v0.11.11\n    Checking xpct v0.5.1\n    Checking oneloop v0.1.0 (/shared/external/ninja/references/ninjars_reduction_measurement/references/oneloopmaster)\nwarning: `symbolica` (lib) generated 1 warning\n   Compiling gammaloop-workspace-hack v0.1.0 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/crates/gammaloop-workspace-hack)\n    Checking linnet v0.17.0 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/crates/linnet)\n    Checking spenso v0.6.0 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/crates/spenso)\n    Checking feynkit-model v0.1.0 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/crates/feynkit-model)\n    Checking feynkit-kinematics v0.1.0 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/crates/feynkit-kinematics)\n    Checking idenso v0.3.0 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/crates/idenso)\n    Checking feynkit-graph v0.1.0 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/crates/feynkit-graph)\n    Checking ninjars v0.1.0 (/shared/external/ninja/references/ninjars_reduction_measurement/crates/ninjars)\n    Checking ninjars-symbolica v0.1.0 (/shared/external/ninja/references/ninjars_reduction_measurement/crates/ninjars-symbolica)\n    Checking feynkit-amplitude v0.1.0 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/crates/feynkit-amplitude)\n    Checking spenso-hep-lib v0.1.7 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/crates/spenso-hep-lib)\n    Checking feynkit-generator v0.1.0 (/shared/external/ninja/references/ninjars_reduction_measurement/references/gammaloop_ninja_shared/crates/feynkit-generator)\n    Checking ninjars-graph v0.1.0 (/shared/external/ninja/references/ninjars_reduction_measurement/crates/ninjars-graph)\n    Checking ninjars-shared-provider-probe v0.0.0 (/shared/external/ninja/references/ninjars_reduction_measurement/validation/performance/shared_provider)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3m 26s\n"
+    },
+    "formatting": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    }
+  }
+}

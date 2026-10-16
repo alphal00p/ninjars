@@ -28,6 +28,7 @@ pub mod rust_codegen;
 mod subtraction;
 mod tadpole_kernels;
 mod triangle_kernels;
+mod value_checks;
 
 pub use amplitude::{SymbolicaAmplitudeKernels, SymbolicaDualAmplitudeKernels};
 pub use box_kernels::{SymbolicaBoxKernels, SymbolicaDualBoxKernels};

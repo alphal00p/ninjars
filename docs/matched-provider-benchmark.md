@@ -42,6 +42,13 @@ handles own providers and scratch, while input borrows last only for a call.
 Errors and caught Rust panics become status codes without unwinding across the
 ABI. No production core FFI or additional algebra is introduced.
 
+In the current physical control, SymJIT O2 compiles the external polynomial
+coefficient heads. The direct/Mu/T3/T2 cut callbacks still use the same
+interpreted `PolynomialNumerator<f64>` on both sides. Whole-process interpreter
+CPU samples therefore include numerator callbacks as well as reduction kernels;
+separate callback and kernel spans are needed to attribute those costs. This is
+not yet a fully compiled symmetric-tensor callback provider.
+
 Original Ninja's `Numerator` callbacks and Rust callbacks retain their distinct
 batch widths while sharing the arithmetic provider. The original interface has
 one vector for ordinary-rank mu expansion and two for rank n+1; T3 takes three

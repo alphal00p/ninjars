@@ -70,9 +70,14 @@ impl Masters {
             let mut values = vec![[Complex::new(0., 0.); 3]; request.rows()];
             let mut statuses = vec![MasterStatus::Success; request.rows()];
             self.backend_calls += 1;
+            #[cfg(feature = "execution-diagnostics")]
+            let execution_scope =
+                super::execution::Scope::master(request.integral, source, request.rows());
             self.backend
                 .evaluate_batch(request, &mut values, &mut statuses)
                 .map_err(|e| e.to_string())?;
+            #[cfg(feature = "execution-diagnostics")]
+            drop(execution_scope);
             if let Some((row, status)) = statuses
                 .iter()
                 .enumerate()
@@ -129,6 +134,9 @@ impl Masters {
             let mut values = vec![[Complex::new(0., 0.); 3]; missing.len()];
             let mut statuses = vec![MasterStatus::Success; missing.len()];
             self.backend_calls += 1;
+            #[cfg(feature = "execution-diagnostics")]
+            let execution_scope =
+                super::execution::Scope::master(request.integral, source, missing.len());
             self.backend
                 .evaluate_batch(
                     MasterRequest {
@@ -141,6 +149,8 @@ impl Masters {
                     &mut statuses,
                 )
                 .map_err(|e| e.to_string())?;
+            #[cfg(feature = "execution-diagnostics")]
+            drop(execution_scope);
             if let Some((row, status)) = statuses
                 .iter()
                 .enumerate()
@@ -266,6 +276,9 @@ pub unsafe extern "C" fn sp_master_call(
     no: usize,
 ) -> i32 {
     guard(|| {
+        #[cfg(feature = "execution-diagnostics")]
+        let _execution_scope =
+            super::execution::Scope::master_wire(u8::try_from(source).unwrap_or(0), rows);
         #[cfg(feature = "allocation-diagnostics")]
         let _allocation_scope = super::allocation::Scope::new(1);
         let state = unsafe { masters(handle) }?;

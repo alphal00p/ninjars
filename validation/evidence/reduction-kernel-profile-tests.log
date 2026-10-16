@@ -1,0 +1,16 @@
+test_corrupted_second_ack_rejected (test_control.ControlTests.test_corrupted_second_ack_rejected) ... ok
+test_disabled_control_does_not_open_files (test_control.ControlTests.test_disabled_control_does_not_open_files) ... ok
+test_missing_null_rejected (test_control.ControlTests.test_missing_null_rejected) ... ok
+test_truncated_second_ack_rejected (test_control.ControlTests.test_truncated_second_ack_rejected) ... ok
+test_two_null_terminated_acknowledgements (test_control.ControlTests.test_two_null_terminated_acknowledgements) ... ok
+test_counts_rows_and_nested_exclusion (test_diagnostic.DiagnosticTests.test_counts_rows_and_nested_exclusion) ... ok
+test_collapsed_owner_rejected (test_summarize.SummaryTests.test_collapsed_owner_rejected) ... ok
+test_complete_counter_control (test_summarize.SummaryTests.test_complete_counter_control) ... ok
+test_duplicate_missing_and_partial_counters (test_summarize.SummaryTests.test_duplicate_missing_and_partial_counters) ... ok
+test_failed_source_guard_rejected (test_summarize.SummaryTests.test_failed_source_guard_rejected) ... ok
+test_invalid_self_time_rejected (test_summarize.SummaryTests.test_invalid_self_time_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.479s
+
+OK

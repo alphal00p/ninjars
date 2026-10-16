@@ -1318,3 +1318,84 @@ connects the existing kernels into integrated amplitudes and a standalone
   performance acceptance is inferred from allocation counts. Per-row residue
   coefficient/mask allocations remain; kernel attribution and separately timed
   master execution are being developed in isolated branches.
+
+### Reduction and numerator cost attribution (2026-10-16)
+
+- Added a validation-only own-process profiler and disposable instrumented
+  adapter build. Two external CPU profiles and six kernel-span controls cover
+  the physical n5/rank4 graph and ordinary/higher-rank bubbles at widths one and
+  eight. Pre/post Laurent checks, source guards, geometry recomputation counts
+  and zero frozen-master misses pass; eleven harness regressions pass. Root
+  independently reran those regressions and checked both archive hashes/sizes.
+- The shared physical provider uses SymJIT O2 for external coefficient heads;
+  its direct/Mu/T3/T2 cut callbacks remain interpreted PolynomialNumerator on
+  both sides. The observed interpreter CPU share therefore includes callbacks
+  and cannot be attributed wholly to reduction kernels. Separate numerator
+  spans are required in the matched timing report.
+- The profiled exact kernels suggest source-axis projections and selected
+  triangle-to-bubble corrections as the next generated catalog increment after
+  the existing denominator option. Bubble costs differ materially from the
+  physical graph, so both remain required controls. Intrusive spans include
+  instrumentation overhead, especially for empty calls; they are not parity
+  timings or evidence of an optimization gain.
+- See `docs/reduction-kernel-profile.md` and
+  `validation/evidence/reduction-kernel-profile.json` with its lossless archive.
+  The immutable historical provider/core and disposable diagnostic rebuild are
+  identified separately. Native kernels were disabled in these profiles, and
+  their measurements are not performance acceptance evidence for current main.
+
+### Residue buffer reuse and static numerical checks (2026-10-16)
+
+- Integrated `ff2189a`: private pools retain discarded residue coefficient and
+  mask buffers across reductions, resets and shrinking batches. Published
+  buffers remain unchanged on callback errors. Tests exercise consecutive late
+  failures, successful retries, empty/tail batches and actual allocation reuse
+  across 53/192/256-bit Float values and six higher/mixed Dual components.
+- The same optimized allocation harness observes production-path Rust
+  allocations fall from 94 to 54 at width one and 421 to 101 at width eight,
+  with zero warmed reallocations. Frozen-master reduction falls from 157 to
+  117 and 722 to 402. Provider/preparation counts remain unchanged and maximum
+  scaled numerical discrepancy remains 2.24e-16. Fifty focused tests, strict
+  Clippy and formatting pass; evidence is `reduction-residue-pools.json` and
+  its allocation archive. These are allocation measurements, not runtime gains.
+- Integrated `f273489`: ordinary and Dual validity checks now use static marker
+  dispatch in triangle/bubble/tadpole adapters. Ordinary carriers avoid indirect
+  calls and redundant shape checks. Dual checks still inspect all components
+  for finiteness, use the primal value for nonzero pivots, and compare the full
+  ordered shape and value count. No arithmetic or public interface changed.
+- Forty-nine focused static-check tests pass. After combining these changes
+  with residue pools and optional native denominators, fifteen additional
+  tests cover original-Ninja controls, higher cuts, failure isolation, reset,
+  accumulation and precision reuse. Strict all-target/all-feature Clippy and
+  formatting pass. Evidence is `static-kernel-checks.json` and
+  `static-checks-residue-pools.json`; source snapshots identify both runs.
+- Fresh optimized reduction measurements remain pending. Actual one-loop
+  master computation, cached lookup/transport, numerator callbacks and full
+  preparation are being separated in the validation harness before timing.
+
+### Independent master execution accounting (2026-10-16)
+
+- Integrated `036067f`: a separate execution-diagnostic build reports actual
+  master calls, evaluated rows and time by family and backend. Original
+  OneLOop's combined tensor-bubble calls remain grouped; initialization has its
+  own record. Shared master lookup/transport excludes its nested backend time.
+- Preparation, numerator callbacks, actual masters, shared transport and the
+  reduction/staging remainder form an exact same-call additive breakdown.
+  The report also provides total time excluding masters and full preparation.
+  No stage is inferred from differences between independently timed runs.
+  Primary aggregate builds contain none of these diagnostic timers.
+- Aggregate sampling now uses one clock pair per contiguous block, counters
+  outside the interval, complete three-point cycles, and one retained reducer
+  per implementation. Both paths switch immutable prepared coefficient/input
+  states for reduction-only timing; complete scopes include preparation.
+  The standalone release profile matches workspace thin LTO/codegen settings.
+- All sixteen development-profile correctness cases and sixteen execution
+  cases pass, with maximum scaled error 2.24e-16. Frozen reduction has exactly
+  zero actual backend calls/rows/time and zero table misses. Nine Rust and
+  sixteen parser/statistics tests, strict Clippy and formatting pass. Root
+  independently checked archive hashes, all additive/source-identity records,
+  and reran the sixteen Python tests. Evidence is
+  `shared-workload-methodology-validation.json` and its two lossless archives.
+- These development runs validate accounting only and identify their earlier
+  core revision explicitly. Optimized measurements on the combined workspace
+  and static-check checkpoint remain pending; performance acceptance is false.
