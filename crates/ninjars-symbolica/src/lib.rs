@@ -2,6 +2,8 @@
 #![forbid(unsafe_code)]
 
 mod amplitude;
+#[cfg(all(test, feature = "rust-codegen"))]
+mod algorithm_transpose_probe;
 mod box_kernels;
 mod bubble_kernels;
 mod contraction;
