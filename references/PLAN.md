@@ -1399,3 +1399,39 @@ connects the existing kernels into integrated amplitudes and a standalone
 - These development runs validate accounting only and identify their earlier
   core revision explicitly. Optimized measurements on the combined workspace
   and static-check checkpoint remain pending; performance acceptance is false.
+
+### Expanded generated reduction catalog and combined checks (2026-10-16)
+
+- Integrated `fe28c15`: `with_native_kernels()` and CLI
+  `--reduction-kernels native` select the currently generated catalog: T2/T3
+  denominator expansions, bubble source-axis projection and selected
+  triangle-to-bubble corrections. The existing denominator-only option keeps
+  its narrow scope. Other reduction kernels, geometry, integration, numerator
+  callbacks and masters remain independently selected; this is partial coverage.
+- The new ordinary kernels support f64, DoubleFloat and Float. Dual correction
+  and projection kernels retain the interpreter, with explicit coverage reports.
+  Exact plans use the existing Symbolica expressions and FeynKit four-momenta;
+  Rust arithmetic and precision-preserving constants regenerate byte-for-byte
+  through oneloopmaster's emitter. Semantic quotient powers select each plan.
+- Forty-one library/CLI/feature-disabled tests pass, including source origins,
+  rank/degree variants, all ordinary precisions, tracked Float precision,
+  empty/single/tail/permuted batches, full Dual components, failure isolation,
+  reset and original-Ninja Laurent controls. Two existing C++ tests in the
+  focused library suite remain explicitly ignored. Strict Clippy, formatting
+  and feature-disabled checks pass. Evidence is `native-bubble-catalog.json`;
+  root verified all 138 committed source hashes and seven validation logs.
+- Integrated `cff029d`: box/pentagon/integration validity checks use the same
+  static dispatch as the lower cuts. Integration still compares every Dual
+  component for symmetry and zero weights, and checks the primal scale.
+  Thirty focused tests and strict Clippy/formatting pass. Integrated `2c8da57`
+  removes one redundant internal tadpole reference-vector allocation; ten
+  focused controls pass. Neither change modifies arithmetic or callback APIs.
+- Fifteen combined tests pass after integrating the catalog, all static checks,
+  residue pools and tadpole view removal. Strict core/adapter Clippy and
+  formatting pass; `native-static-combined.json` records exact source identity.
+  Independent reviews found no blockers. No runtime improvement is inferred
+  from these tests or direct warmed allocation controls.
+- Release correctness and timing preparation retain immutable `0c77597` as
+  the first contiguous-block baseline. The new catalog will be measured using
+  an explicit validation-harness selector with identical numerator and master
+  providers; it must not be silently substituted into baseline results.
