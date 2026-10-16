@@ -99,3 +99,8 @@ passing these controls. See the [measurement boundaries](../../../docs/matched-p
 and [interpreted baseline](BASELINE-0c77597.md) for the measured scopes and
 remaining performance limitations. Actual master expression execution is
 reported separately from reduction and frozen-table lookup.
+
+The [matched native-catalog timings](TIMING-de0f190.md) compare all three
+backend selections in one saved artifact through batch width 1024, following
+the [corrected-domain controls](CATALOG-de0f190.md). These measurements precede
+the denominator-reuse optimization and do not meet the performance target.

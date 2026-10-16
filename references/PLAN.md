@@ -1682,3 +1682,20 @@ connects the existing kernels into integrated amplitudes and a standalone
   arenas can retain about 240 MiB at phase-space width 1024 for the n5/r4 case.
   These experiments have no accepted timing result or production integration.
   The more ambitious transposed reduction-map experiment remains research.
+
+### Frozen native-catalog timing evidence retained (2026-10-16)
+
+- Integrated `eb14882` as `774be29`: 18 lossless raw reports, 36 records,
+  288 paired blocks and 576 individual blocks. The minimum block is
+  39.138507 ms. Root independently verified all archive hashes, 35,100 source
+  hash entries, 108 artifact entries and zero master calls/rows/misses.
+- Changing-point native-catalog/original-Ninja median ratios are
+  2.915/2.559/2.325/2.478/2.982/2.306 at widths 1/8/32/128/1024/31.
+  Full interpreted/denominator-only controls, both workloads and confidence
+  intervals appear in `validation/performance/shared_provider/TIMING-de0f190.md`.
+  These ratios compare each selection with original Ninja; modes were not
+  directly paired with each other. The uncontrolled host prevents acceptance.
+- This source predates denominator reuse. Native coverage remains partial and
+  numerator callback expansion depths differ. Actual masters remain separately
+  accounted for. No source-only operation or memory saving is promoted to a
+  measured improvement; the next experiments must retain those boundaries.
