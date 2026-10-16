@@ -1521,3 +1521,31 @@ connects the existing kernels into integrated amplitudes and a standalone
   not a production batched backend. Extreme-range/near-singular division, Dual
   JIT and full physical JIT remain unvalidated. Its ignored microbenchmark has
   not been timed; native reduction measurement retains priority.
+
+### Native tadpole source dispatch and atomic harness update (2026-10-16)
+
+- Integrated `8727132` as `97dbfd9` together with `decc970` as `e48051a`:
+  the native catalog includes triangle/bubble parent-axis tadpole projections
+  and reports eight families through the validation bridge's ten-cell ABI.
+  The denominator-only selection remains narrow; geometry stays interpreted.
+- f64, DoubleFloat and Float ordinary kernels use the existing emitted Rust
+  instruction batches. The supported ordered five-component Dual shape uses
+  the existing Dualizer export; unsupported/reordered shapes keep the full
+  interpreter. Full shape validation and all-component checks remain intact.
+- Eighteen adapter checks, eleven CLI checks and one feature-disabled check
+  passed on the dispatch branch. Warmed f64 projection evaluation allocates
+  zero times. Dual shape checks retain their existing allocations. The named
+  n3 Dual test preserves the existing C0 unsupported-derivative status; it is
+  not a claim of integrated triangle Dual support.
+- The eight-family harness passes feature-on/off constructors, nineteen
+  Python tests, four C++ configurations, strict Clippy and formatting. All
+  three selections agree on the physical frozen-master control through width
+  eight (maximum scaled difference 3.50e-18, no misses/backend execution).
+  Root verified all fourteen dispatch source hashes and 1,946 measured
+  runtime/dependency hashes plus archive/log hashes.
+- Twenty-five combined adapter/CLI tests pass on the integrated checkpoint,
+  including all six exact-stage-accounting benchmark controls. Adapter/CLI
+  all-target/all-feature strict Clippy and formatting pass. Evidence:
+  `tadpole-native-dispatch.json`, `shared-provider-tadpole-selection.json`,
+  and `tadpole-native-combined.json`. Optimized same-artifact measurements of
+  all three selections are next; no speedup or acceptance is inferred yet.
