@@ -34,6 +34,10 @@ class ReferenceProtocol(unittest.TestCase):
         result = subprocess.run([EXECUTABLE], input="2 0 1 1\n0 0\n", capture_output=True, text=True)
         self.assertEqual(result.returncode, 2)
 
+    def test_truncated_header_is_rejected(self):
+        result = subprocess.run([EXECUTABLE], input="2", capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -9,6 +9,10 @@
 #include <string>
 #include <vector>
 
+#ifdef NINJARS_GENERATED_NUMERATOR_HEADER
+#include NINJARS_GENERATED_NUMERATOR_HEADER
+#endif
+
 namespace {
 bool read_real(double &value) {
   return bool(std::cin >> value) && std::isfinite(value);
@@ -31,12 +35,18 @@ int main() {
   // followed by binomial(rank+4,4) complex tensor coefficients.
   unsigned n, rank, repetitions;
   double scale;
-  while (std::cin >> n >> rank >> repetitions) {
-    if (!read_real(scale) || n == 0 || n > 6 || rank > n + 1 ||
+  while (std::cin >> n) {
+    if (!(std::cin >> rank >> repetitions) || !read_real(scale) || n == 0 || n > 6 || rank > n + 1 ||
         repetitions == 0 || scale <= 0) {
       std::cerr << "invalid request header\n";
       return 2;
     }
+#ifdef NINJARS_GENERATED_NUMERATOR_HEADER
+    if (n != ninjars_reference::propagator_count || rank != ninjars_reference::rank) {
+      std::cerr << "request topology/rank does not match the generated numerator\n";
+      return 2;
+    }
+#endif
     std::vector<ninja::RealMomentum> shifts(n);
     std::vector<ninja::Complex> masses(n);
     for (unsigned i = 0; i < n; ++i) {
@@ -48,14 +58,22 @@ int main() {
       shifts[i] = ninja::RealMomentum(p[0], p[1], p[2], p[3]);
       masses[i] = ninja::Complex(re, im);
     }
+#ifdef NINJARS_GENERATED_NUMERATOR_HEADER
+    const unsigned count = ninjars_reference::parameter_count;
+#else
     const unsigned count = (rank+1)*(rank+2)*(rank+3)*(rank+4)/24;
+#endif
     std::vector<ninja::Complex> coefficients(count);
     for (unsigned i = 0; i < count; ++i) {
       double re, im;
       if (!read_real(re) || !read_real(im)) return 2;
       coefficients[i] = ninja::Complex(re, im);
     }
+#ifdef NINJARS_GENERATED_NUMERATOR_HEADER
+    ninjars_reference::GeneratedNumerator numerator(coefficients.data());
+#else
     ninja::TensorNumerator numerator(n, rank, coefficients.data());
+#endif
     ninja::Amplitude<ninja::ComplexMasses> amplitude(n, rank, shifts.data(), masses.data());
     amplitude.setRenormalizationScale(scale);
     const int warm_status = amplitude.evaluate(numerator);

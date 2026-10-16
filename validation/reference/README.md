@@ -32,3 +32,43 @@ The initial OneLOop license banner can precede the first JSON response; consumer
 must select JSON lines. Timing uses repeated kinematics and the original cache.
 This alone is not a changing-phase-space benchmark or a performance acceptance
 claim. Nonfinite numerical values are emitted as JSON null and must be rejected.
+
+To use a Symbolica-generated callback header (including explicit mu-squared
+terms), build with `--numerator-header /path/to/numerator.hh`. The header exports
+`ninjars_reference::parameter_count`, `rank`, `propagator_count`, and
+`GeneratedNumerator(const ninja::Complex*)`. In this mode, replace the tensor
+coefficient rows with `parameter_count` complex parameter rows in exporter order.
+The topology and rank must match the compiled header. The resulting executable
+is `target/reference/ninja-generated-reference`; `--output` overrides this path.
+
+After a complete reference build, `--runner-only` recompiles the runner against
+those same libraries without rebuilding them. Per-executable JSON metadata
+records the inherited reference revisions, linked library hashes, and generated
+header hash. It does not relabel old libraries with newer source revisions.
+
+Build the Symbolica exporter example with
+`cargo build -p ninjars-symbolica --features reference-codegen --example generate_reference`,
+then run `python3 validation/reference/test_generated_runner.py --generator target/debug/examples/generate_reference`
+inside the development environment. Set the generator path to Cargo's configured
+target directory if customized. Run Symbolica processes serially when using its
+single-thread evaluation license.
+
+The generated-callback suite checks triangle mu-squared and box mu-to-the-fourth
+rational controls, agreement with the independent original tensor interface,
+changing complex parameters in a streamed process, and rank-n-plus-one linearity.
+The higher-rank linearity check is not an independent analytic master comparison.
+Machine-readable evidence is written to
+`target/reference/generated-callback-validation.json`. Generated callbacks currently
+compute the maximum Laurent depth before returning the requested prefix; their
+timings are correctness-harness diagnostics, excluded from performance acceptance.
+
+A known exceptional reference point is preserved in
+`exceptional-spacelike-triangle.inputs`: original Ninja at the recorded revision
+returns status zero with nonfinite rank-two results for orthogonal purely spatial
+triangle shifts. Its real-valued basis square root has a negative discriminant;
+a rank-zero constant numerator can hide the invalid spurious basis. The runner
+emits these nonfinite values as JSON null. Consumers must reject null values even
+when the reported status is zero. Integrated callback checks therefore use
+separate stable timelike points. This does not establish support for these
+exceptional points in NinjaRS; that requires complex bases or explicit instability
+reporting from the reduction engine.

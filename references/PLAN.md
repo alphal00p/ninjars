@@ -180,8 +180,8 @@ Toolchain established with pinned `flake.nix`/`flake.lock`; `nix develop path:. 
 
 - [x] Save accepted plan and register active goal.
 - [x] Establish pinned Rust toolchain and core dependency build (full workspace validation follows).
-- [ ] Shared FeynKit API changes and upstream PRs.
-- [ ] Symbolica changes and upstream PRs.
+- [x] Initial shared FeynKit API changes and upstream PR.
+- [x] Initial Symbolica evaluator/Dual changes and upstream PR.
 - [ ] Generic batched reduction and numerator callbacks.
 - [ ] Graph preparation and reference CLI.
 - [ ] Numerical, derivative, physics, and performance acceptance gates.
@@ -205,3 +205,23 @@ User authorized pushing to `git@github.com:alphal00p/ninjars.git` and committing
 - Symbolica changes submitted as [Symbolica PR #82](https://github.com/symbolica-dev/symbolica/pull/82) and attached to this chat. Follow-up `62e546cb` corrects direct static/dynamic Dual complex norms and normalizes modulus composition for extreme finite values. All 13 evaluator Dual, 7 Numerica Dual and 5 batch tests pass. Clippy passes after allowing an existing `never_loop` violation in `src/poly/factor.rs:11853`; baseline warnings remain.
 - Bootstrap succeeds against the pinned dependencies. Applying each checked-in patch to its original base in an isolated Git index reproduces the corresponding patched commit tree exactly.
 - Reduction kernels, complete CLI, generic/Dual master support, physical comparisons, and all performance acceptance gates remain outstanding. This initial publication is not a completed implementation.
+
+Initial snapshot published on `main` as `2ecdef3` at [alphal00p/ninjars](https://github.com/alphal00p/ninjars). Subsequent commits are pushed after their milestone checks pass.
+
+### Callback and master milestone — validated foundation
+
+- Symbolica-backed polynomial callbacks use its signed `MultivariatePolynomial` support for finite Laurent series. Rank validation uses mu-squared weight two; callbacks preserve lane identity and caller-requested raw powers. Five tests pass, including exact coefficient controls, reconstruction, invalid input isolation and DoubleFloat/256-bit coefficient retention beyond f64.
+- Static and dynamic Dual carriers are supported through a minimal shared Numerica `DualNumber<T>` component-view trait. Upstream follow-up `c0a4aaf2` is pushed to Symbolica PR #82; its component-layout regression passes. Symbolica stores Taylor coefficients: repeated derivatives require the corresponding factorial conversion when compared with analytic derivatives. No primal-only equality is used to validate derivative results or shape.
+- Batched oneloopmaster adapters cover scalar and available tensor master expressions through Symbolica's batched interpreter. Ten probes pass, including independent original-Ninja bubble/triangle values, changing batch sizes/branches, tensor poles, higher precision, static/dynamic Dual parity, and higher/mixed Dual coefficients. Equal-mass bubble transverse first, repeated second, and mixed components agree with converged Float192 differences at steps 1e-8 and 1e-12; successive estimates agree within 1e-16.
+- Master derivative support currently excludes triangle/box derivatives, zero-invariant removable limits, non-real seeds and other unvalidated continuation regions. Invalid master requests preserve the whole output buffer; lane-specific rescue remains for the reduction engine.
+- Optional `reference-codegen` uses Symbolica's own C++ exporter on the same exact callback expressions. Two reference callback tests pass, compiling against original Ninja headers and checking all expansion-depth prefixes, both mu modes, complex parameters, explicit mu-squared/mu-fourth terms, and output-buffer bounds. Generated callbacks currently compute full coefficient lists, so they are not a final performance baseline.
+- An original Ninja exceptional point is retained for diagnosis: rank-two triangle with equal unit masses and shifts `(0,0,0,0)`, `(0,1,0,0)`, `(0,0,1,0)` can return status zero with nonfinite coefficients. This occurs for both original tensor `q0^2` and generated mu-squared callbacks, while scalar rank zero is finite. Reference comparisons must reject nonfinite results independently of the status code. Stable timelike-shift points are used for initial integrated callback controls.
+- The first physical H-to-gg preparation probe imports the SM model and applies Feynman rules, but reports open external color indices. Explicit color/helicity projection and independent MadLoop graph matching remain unfinished; this is not a physical validation success.
+
+Final checks for this foundation:
+
+- `RUST_MIN_STACK=134217728 cargo test --workspace --all-features --locked -- --include-ignored --test-threads=1`: **30 tests pass** (1 core, 5 CLI, 5 graph, 2 Dual callback, 10 master, 5 polynomial, 2 generated callback).
+- `cargo clippy --workspace --all-targets --all-features --locked -- -D warnings`: passes for the workspace. Existing upstream Symbolica/Numerica warnings remain. Known arithmetic lints generated by Symbolica's Dual macro are scoped to the affected test modules.
+- `cargo fmt --all --check` and `git diff --check`: pass.
+- Original reference protocol: **4 tests pass**. Integrated generated callback controls: **5 checks pass**, including triangle mu-squared = +1/2, box mu-fourth = -1/6, ordinary polynomial/TensorNumerator parity, changing complex parameters, and higher-rank integrated linearity. The latter is explicitly not an independent closed-form higher-rank result.
+- Full reduction kernels, accumulation/stability handling, derivative continuation and removable limits, physical matching, and performance acceptance remain unfinished. Dual shape inspection currently allocates through the upstream shape API; a fully allocation-free warmed scalar path is still an optimization requirement.

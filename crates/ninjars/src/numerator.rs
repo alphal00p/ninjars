@@ -8,7 +8,8 @@ pub struct NumeratorRequest<'a, T> {
     pub partition: &'a [usize],
 }
 
-/// Requested Laurent coefficients. Tuples are (power of t, power of x, power of mu²).
+/// Requested raw numerator Laurent coefficients. T3 tuples are `(t, mu²)`
+/// powers; T2 tuples are `(t, x, mu²)` powers.
 /// The output follows this explicit order; no implicit rank-dependent indexing.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ExpansionKind {
@@ -32,7 +33,7 @@ impl ExpansionKind {
 
 /// Parameters for Ninja's three Laurent numerator callbacks.
 ///
-/// Mu: q = t*v0 + v1, mu² = t²*v0² (vectors [v0,v1]).
+/// Mu: q = t*v0 + v1, mu² = t²*v0² (vectors [v0,v1], or [v0] for v1=0).
 /// T3: q = a + t*e3 + (beta+mu²)*e4/t (vectors [a,e3,e4]).
 /// T2: q = a0+x*a1+t*e3+(b0+b1*x+b2*x²+mu²)*e4/t.
 pub struct ExpansionRequest<'a, T> {

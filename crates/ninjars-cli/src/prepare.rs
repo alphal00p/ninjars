@@ -116,7 +116,7 @@ fn bind_external(
             let vector = momenta
                 .get(&term)
                 .ok_or_else(|| format!("missing routed external momentum {term}"))?;
-            expected = expected + vector.clone() * coefficient;
+            expected += vector.clone() * coefficient;
         }
         if expected
             .components()
@@ -167,10 +167,10 @@ pub fn run(args: Args) -> Result<()> {
     let graph_path = if input_is_json {
         base.join(&fixture.as_ref().unwrap().graph)
     } else {
-        if let Some(fixture) = &fixture {
-            if fs::canonicalize(base.join(&fixture.graph))? != fs::canonicalize(&args.input)? {
-                return Err("sample fixture refers to a different graph than the DOT input".into());
-            }
+        if let Some(fixture) = &fixture
+            && fs::canonicalize(base.join(&fixture.graph))? != fs::canonicalize(&args.input)?
+        {
+            return Err("sample fixture refers to a different graph than the DOT input".into());
         }
         args.input.clone()
     };

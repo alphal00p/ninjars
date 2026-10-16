@@ -1,0 +1,281 @@
+{
+  "checks": {
+    "triangle_mu2": {
+      "status": 0,
+      "epsilon": [
+        [
+          0.5,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "rational": [
+        0.5,
+        0
+      ],
+      "cut_constructible": [
+        0,
+        0
+      ],
+      "nanoseconds_per_evaluation": 4176.666666666667,
+      "repetitions": 3
+    },
+    "box_mu4": {
+      "status": 0,
+      "epsilon": [
+        [
+          -0.16666666666666666,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "rational": [
+        -0.16666666666666666,
+        0
+      ],
+      "cut_constructible": [
+        0,
+        0
+      ],
+      "nanoseconds_per_evaluation": 14123.333333333334,
+      "repetitions": 3
+    },
+    "mu_free_tensor_parity": {
+      "generated": {
+        "status": 0,
+        "epsilon": [
+          [
+            -6.930658457142481,
+            -14.153636459429178
+          ],
+          [
+            -0.49999999999999895,
+            2.7755575615628914e-15
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          -0.35416666666666696,
+          0
+        ],
+        "cut_constructible": [
+          -6.5764917904758144,
+          -14.153636459429178
+        ],
+        "nanoseconds_per_evaluation": 5096.666666666667,
+        "repetitions": 3
+      },
+      "tensor": {
+        "status": 0,
+        "epsilon": [
+          [
+            -6.930658457142485,
+            -14.153636459429174
+          ],
+          [
+            -0.4999999999999986,
+            4.052314039881821e-15
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          -0.35416666666666696,
+          0
+        ],
+        "cut_constructible": [
+          -6.576491790475818,
+          -14.153636459429174
+        ],
+        "nanoseconds_per_evaluation": 5216.666666666667,
+        "repetitions": 3
+      }
+    },
+    "complex_runtime_parameters": [
+      {
+        "status": 0,
+        "epsilon": [
+          [
+            4.845515097238233,
+            -7.508253811234956
+          ],
+          [
+            0.49999999999999994,
+            0.7499999999999994
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0.45833333333333304,
+          -0.0625
+        ],
+        "cut_constructible": [
+          4.3871817639049,
+          -7.445753811234956
+        ],
+        "nanoseconds_per_evaluation": 4560.333333333333,
+        "repetitions": 3
+      },
+      {
+        "status": 0,
+        "epsilon": [
+          [
+            6.9144598362383265,
+            7.567575416731543
+          ],
+          [
+            -0.9999999999999991,
+            0.2499999999999992
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0.583333333333333,
+          -0.020833333333333037
+        ],
+        "cut_constructible": [
+          6.3311265029049935,
+          7.588408750064876
+        ],
+        "nanoseconds_per_evaluation": 3940,
+        "repetitions": 3
+      },
+      {
+        "status": 0,
+        "epsilon": [
+          [
+            0.5,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          0.5,
+          0
+        ],
+        "cut_constructible": [
+          0,
+          0
+        ],
+        "nanoseconds_per_evaluation": 3940,
+        "repetitions": 3
+      }
+    ],
+    "higher_rank_linearity": {
+      "combined": {
+        "status": 0,
+        "epsilon": [
+          [
+            -1.1474665055816728,
+            -2.1579271472449704
+          ],
+          [
+            0.24999999999999978,
+            1.0408340855860844e-16
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          -0.10416666666666674,
+          0
+        ],
+        "cut_constructible": [
+          -1.043299838915006,
+          -2.1579271472449704
+        ],
+        "nanoseconds_per_evaluation": 9636.666666666666,
+        "repetitions": 3
+      },
+      "mu4": {
+        "status": 0,
+        "epsilon": [
+          [
+            -0.08333333333333333,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          -0.08333333333333333,
+          0
+        ],
+        "cut_constructible": [
+          0,
+          0
+        ],
+        "nanoseconds_per_evaluation": 9523.333333333334,
+        "repetitions": 3
+      },
+      "tensor_q0sq": {
+        "status": 0,
+        "epsilon": [
+          [
+            -1.0641331722483394,
+            -2.157927147244971
+          ],
+          [
+            0.24999999999999978,
+            -4.85722573273506e-17
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rational": [
+          -0.02083333333333326,
+          0
+        ],
+        "cut_constructible": [
+          -1.043299838915006,
+          -2.157927147244971
+        ],
+        "nanoseconds_per_evaluation": 5236.666666666667,
+        "repetitions": 3
+      }
+    }
+  },
+  "timings_are_acceptance_evidence": false
+}

@@ -6,6 +6,13 @@ rust-version.workspace = true
 license.workspace = true
 description = "Symbolica numerator adapters and master integration for NinjaRS"
 
+[features]
+reference-codegen = ["symbolica/native_code_generation"]
+
+[[example]]
+name = "generate_reference"
+required-features = ["reference-codegen"]
+
 [dependencies]
 ninjars.workspace = true
 symbolica.workspace = true

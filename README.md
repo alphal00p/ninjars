@@ -5,9 +5,10 @@ physics types, Symbolica's algebra and evaluators, and oneloopmaster's scalar
 integrals. The intended interface carries batches and generic numerical domains
 through numerator callbacks, reduction, and master integrals.
 
-This is an initial development version. It includes topology and callback
-interfaces, DOT preparation, a `prepare` CLI, and an original Ninja reference
-harness. The reduction kernels and remaining CLI commands are not yet implemented. No numerical
+This is an initial development version. It includes topology interfaces, generic
+batched polynomial and Dual callbacks, master-integral adapters, DOT preparation,
+a `prepare` CLI, and an original Ninja reference harness. The reduction kernels
+and remaining CLI commands are not yet implemented. No numerical
 parity or performance acceptance claim is made for the Rust reducer.
 The complete specification and evidence ledger are in [the plan](references/PLAN.md).
 
@@ -20,7 +21,7 @@ Bootstrap the source dependencies before invoking Cargo:
 ```sh
 nix develop path:. --command python3 tools/bootstrap.py
 nix develop path:. --command cargo check --workspace --locked
-nix develop path:. --command cargo test --workspace --locked -- --test-threads=1
+RUST_MIN_STACK=134217728 nix develop path:. --command cargo test --workspace --locked -- --test-threads=1
 nix develop path:. --command cargo run -p ninjars-cli -- prepare examples/graphs/bubble.json
 ```
 
@@ -51,6 +52,10 @@ Squared masses and the extra-dimensional variable enter denominators as
 
 See [synthetic graph fixtures](examples/graphs/README.md) and the
 [original Ninja reference harness](validation/reference/README.md).
+The [adapter guide](crates/ninjars-symbolica/README.md) describes precision,
+Dual coefficient conventions and current master-domain limitations. Constructing
+large oneloopmaster expressions requires a generous thread stack; the test command
+above follows its 128 MiB regression-test setting.
 The reference harness additionally requires the supplied MadGraph 3.7.0 source
 tree under `references/MG5_aMC_v3_7_0`.
 

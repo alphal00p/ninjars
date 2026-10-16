@@ -6,11 +6,13 @@
 #![forbid(unsafe_code)]
 
 mod batch;
+mod masters;
 mod numerator;
 mod topology;
 
 pub use batch::{BatchShape, SampleId};
 pub use feynkit_kinematics::{Energy, FourMomentum, MomentumSignature, ThreeMomentum};
+pub use masters::{MasterIntegral, MasterProvider, MasterRequest};
 pub use numerator::{ExpansionKind, ExpansionRequest, Numerator, NumeratorRequest};
 pub use symbolica::domains::float::{Complex, DoubleFloat, Float, FloatLike, Real, SingleFloat};
 pub use topology::{Cut, Topology};

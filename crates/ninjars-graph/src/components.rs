@@ -68,14 +68,14 @@ impl PreparedIntegrand {
                     .kinematics()
                     .linear_terms(quadratic.momentum())?
                 {
-                    if &momentum == loop_name {
+                    if momentum == *loop_name {
                         // QuadraticMomentum normalizes its pivot loop coefficient to one.
                         continue;
                     }
                     let components = external_momenta
                         .get(&momentum)
                         .ok_or_else(|| PreparationError::MissingMomentum(momentum.clone()))?;
-                    shift = shift + components.clone() * coefficient;
+                    shift += components.clone() * coefficient;
                 }
                 Ok(shift)
             })

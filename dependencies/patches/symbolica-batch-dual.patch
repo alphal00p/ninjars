@@ -1,8 +1,43 @@
 diff --git a/lib/numerica/src/domains/dual.rs b/lib/numerica/src/domains/dual.rs
-index c64e08fe..827a7552 100644
+index c64e08fe..e495de5a 100644
 --- a/lib/numerica/src/domains/dual.rs
 +++ b/lib/numerica/src/domains/dual.rs
-@@ -1053,13 +1053,19 @@ macro_rules! create_hyperdual_from_components {
+@@ -367,6 +367,17 @@ pub trait DualNumberStructure {
+     fn get_max_depth(&self) -> usize;
+ }
+ 
++/// Borrow scalar components of static and dynamic dual numbers uniformly.
++///
++/// Components follow [`DualNumberStructure::get_shape`] exactly, including the
++/// primal value. Mutable access changes values without changing the shape.
++/// This permits generic evaluators to flatten and restore existing dual carriers
++/// without introducing another representation or comparing only primal values.
++pub trait DualNumber<T>: DualNumberStructure {
++    fn values(&self) -> &[T];
++    fn values_mut(&mut self) -> &mut [T];
++}
++
+ /// Create a new hyperdual number, from a specification of the components.
+ /// The first components must be the real value and the single derivatives of the variables in order.
+ ///
+@@ -454,6 +465,16 @@ macro_rules! create_hyperdual_from_components {
+             }
+         }
+ 
++        impl<T> $crate::domains::dual::DualNumber<T> for $t<T> {
++            fn values(&self) -> &[T] {
++                &self.values
++            }
++
++            fn values_mut(&mut self) -> &mut [T] {
++                &mut self.values
++            }
++        }
++
+         impl<T> $crate::domains::dual::DualNumberStructure for $t<T> {
+             fn get_len(&self) -> usize {
+                 self.values.len()
+@@ -1053,13 +1074,19 @@ macro_rules! create_hyperdual_from_components {
  
              #[inline(always)]
              fn norm(&self) -> Self {
@@ -27,7 +62,24 @@ index c64e08fe..827a7552 100644
              }
  
              #[inline(always)]
-@@ -2142,13 +2148,16 @@ impl<T: Real> Real for HyperDual<T> {
+@@ -1430,6 +1457,16 @@ impl<T: Default> HyperDual<T> {
+     }
+ }
+ 
++impl<T> DualNumber<T> for HyperDual<T> {
++    fn values(&self) -> &[T] {
++        &self.values
++    }
++
++    fn values_mut(&mut self) -> &mut [T] {
++        &mut self.values
++    }
++}
++
+ impl<T> DualNumberStructure for HyperDual<T> {
+     fn get_len(&self) -> usize {
+         self.values.len()
+@@ -2142,13 +2179,16 @@ impl<T: Real> Real for HyperDual<T> {
  
      #[inline(always)]
      fn norm(&self) -> Self {
@@ -49,7 +101,7 @@ index c64e08fe..827a7552 100644
      }
  
      #[inline(always)]
-@@ -2385,6 +2394,64 @@ mod test {
+@@ -2385,6 +2425,64 @@ mod test {
  
      create_hyperdual_from_depths!(Dual, [1, 2, 3]);
      create_hyperdual_from_components!(ReorderedDual, [[0, 0], [0, 1], [1, 0]]);
@@ -114,6 +166,32 @@ index c64e08fe..827a7552 100644
  
      #[test]
      fn real_functions() {
+@@ -2460,6 +2558,25 @@ mod test {
+         assert_eq!(runtime_y.values, [3., 1., 0.]);
+     }
+ 
++    #[test]
++    fn generic_component_views_preserve_static_and_dynamic_shapes() {
++        use super::{DualNumber, DualNumberStructure};
++
++        fn update(dual: &mut impl DualNumber<f64>) {
++            assert_eq!(dual.values(), &[2., 0., 1.]);
++            assert_eq!(dual.get_shape(), &[&[0, 0][..], &[0, 1], &[1, 0]]);
++            dual.values_mut()[1] = 7.;
++            assert_eq!(dual.values(), &[2., 7., 1.]);
++        }
++        let mut static_dual = ReorderedDual::<f64>::new_variable(0, 2.);
++        let mut dynamic_dual =
++            HyperDual::from_values(vec![vec![0, 0], vec![0, 1], vec![1, 0]], vec![2., 0., 1.]);
++        update(&mut static_dual);
++        update(&mut dynamic_dual);
++        assert_eq!(static_dual.values(), dynamic_dual.values());
++        assert_eq!(static_dual.get_shape(), dynamic_dual.get_shape());
++    }
++
+     #[test]
+     fn runtime_dual() {
+         let x = HyperDual::<f64>::from_values(
 diff --git a/src/evaluate.rs b/src/evaluate.rs
 index 20a72c0f..cb796c91 100644
 --- a/src/evaluate.rs
