@@ -1,0 +1,4204 @@
+{
+  "schema": "ninjars-native-catalog-matched-reduction-timing-v1",
+  "source_commit": "de0f1908b711db1959d535ed08d399f9d40ad1bd",
+  "success": true,
+  "performance_acceptance": false,
+  "parity_requirement_met_in_observed_results": false,
+  "scope": "f64 graph26 gg-to-HHH reduction with identical PolynomialNumerator provider and frozen shared masters. Coefficient preparation and actual master computation excluded; ordinary callback, lookup, transport, staging, allocation and contraction costs included.",
+  "controls": "validation/evidence/shared-reduction-catalog-release-de0f190.json",
+  "dependencies": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "oneloopmaster": "53106429b849e5bcf843f111429be76227b4e0ce",
+    "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+  },
+  "release_profile": {
+    "opt_level": 3,
+    "lto": "thin",
+    "codegen_units": 1,
+    "matches_main_workspace_profile": true
+  },
+  "cpu": {
+    "selected": 75,
+    "smt_sibling": 331,
+    "sibling_reserved": false,
+    "host_isolation_verified": false
+  },
+  "selection_order_by_width": [
+    {
+      "width": 1,
+      "rounds": 384,
+      "order": [
+        "symbolica",
+        "native-denominators",
+        "native"
+      ]
+    },
+    {
+      "width": 8,
+      "rounds": 48,
+      "order": [
+        "native-denominators",
+        "native",
+        "symbolica"
+      ]
+    },
+    {
+      "width": 32,
+      "rounds": 12,
+      "order": [
+        "native",
+        "symbolica",
+        "native-denominators"
+      ]
+    },
+    {
+      "width": 128,
+      "rounds": 3,
+      "order": [
+        "symbolica",
+        "native-denominators",
+        "native"
+      ]
+    },
+    {
+      "width": 1024,
+      "rounds": 3,
+      "order": [
+        "native-denominators",
+        "native",
+        "symbolica"
+      ]
+    },
+    {
+      "width": 31,
+      "rounds": 15,
+      "order": [
+        "native",
+        "symbolica",
+        "native-denominators"
+      ]
+    }
+  ],
+  "paired_blocks_per_record": 8,
+  "records": 36,
+  "paired_blocks": 288,
+  "individual_raw_blocks": 576,
+  "minimum_block_ns": 39138507,
+  "individual_blocks_below_20ms": 0,
+  "all_source_guards_unchanged": true,
+  "all_reports_same_source_manifest": true,
+  "runtime_source_manifest_sha256": "45813753dc4486b2fd3e9aea3d2138ed8523dfcf8d828927eaeb675cec0ee96b",
+  "all_selections_same_artifact_map": {
+    "/shared/external/ninja/target/performance/reduction-catalog-release-check-de0f190-symbolica/libninjars_shared_provider_probe.so": "c45ec5b598d04c860e02d96e304e9118fb84c65425eaa4228bc589837b598753",
+    "/shared/external/ninja/target/performance/reduction-catalog-release-check-de0f190-symbolica/physical-timing": "273f588c7ccf7fe0d94a83b4bd3d8c7c0310d8e7d7b74f5a75fb3397bff41911",
+    "/shared/external/ninja/target/reference-uncached-v2/ninja-build/src/.libs/libninja.a": "8f4d39dad292a28a05dd4e56bd4cbb7014cf08532ef4d8484c00ea44e0b097a3",
+    "/shared/external/ninja/target/reference-uncached-v2/oneloop/libavh_olo.a": "28c37c328fadd6f4f09f973bfb961b3bccb3c729583a92dc2186fd947ccbe4dd",
+    "/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib/libgfortran.so": "dce24abf076b71460d7df11c8bf00dcc2bb7eb69489f79aff48b53ae07e57b38",
+    "/shared/external/ninja/target/performance/reduction-catalog-release-check-de0f190-symbolica/input.txt": "01c34e7c21fd3063ec86ea6d9ee559c3a70975214ae3756b0f8783a3e06477ba"
+  },
+  "master_policy": "Per-process captures under the same ordered-request/backend policy, then one frozen handle shared by original and Rust; all-mode physical oracle separately checks literally one frozen union for all selections.",
+  "master_backend_calls_in_sampled_scope": 0,
+  "master_backend_rows_in_sampled_scope": 0,
+  "master_union_misses": 0,
+  "callback_policy": "The same PolynomialNumerator provider and equal sampled rows, but unequal requested expansion heads/depths. Original Ninja reduces swapped bubble depth while this Rust baseline requests full depth for both orientations. No equal callback arithmetic claim.",
+  "provider": {
+    "shared_out_of_line_abi": true,
+    "coefficient_heads": "Factored multi-output SymJIT O2, evaluated only in physical preparation",
+    "reduction_callbacks": "Same PolynomialNumerator<f64> and generic Symbolica batched interpreter for direct/Mu/T3/T2; callbacks are not JIT compiled",
+    "execution_span_scope": "Individual direct/Mu/T3/T2 provider ABI decoding, interpreted evaluation and output writing; calls/rows/ns reported separately"
+  },
+  "catalog_coverage": {
+    "symbolica": {
+      "selection": "symbolica",
+      "native_feature_enabled": true,
+      "families": {
+        "t2_denominators": "symbolica-interpreter",
+        "t3_denominators": "symbolica-interpreter",
+        "bubble_source_projection": "symbolica-interpreter",
+        "triangle_bubble_correction": "symbolica-interpreter",
+        "tadpole_source_projection": "symbolica-interpreter",
+        "other_reduction": "symbolica-interpreter",
+        "integration": "symbolica-interpreter",
+        "accumulation": "symbolica-interpreter"
+      },
+      "selection_scope": "Setup-only partial catalog; unused stages need not execute. Numerator, geometry and masters are independent."
+    },
+    "native-denominators": {
+      "selection": "native-denominators",
+      "native_feature_enabled": true,
+      "families": {
+        "t2_denominators": "native-rust",
+        "t3_denominators": "native-rust",
+        "bubble_source_projection": "symbolica-interpreter",
+        "triangle_bubble_correction": "symbolica-interpreter",
+        "tadpole_source_projection": "symbolica-interpreter",
+        "other_reduction": "symbolica-interpreter",
+        "integration": "symbolica-interpreter",
+        "accumulation": "symbolica-interpreter"
+      },
+      "selection_scope": "Setup-only partial catalog; unused stages need not execute. Numerator, geometry and masters are independent."
+    },
+    "native": {
+      "selection": "native",
+      "native_feature_enabled": true,
+      "families": {
+        "t2_denominators": "native-rust",
+        "t3_denominators": "native-rust",
+        "bubble_source_projection": "native-rust",
+        "triangle_bubble_correction": "native-rust",
+        "tadpole_source_projection": "native-rust",
+        "other_reduction": "symbolica-interpreter",
+        "integration": "symbolica-interpreter",
+        "accumulation": "symbolica-interpreter"
+      },
+      "selection_scope": "Setup-only partial catalog; unused stages need not execute. Numerator, geometry and masters are independent."
+    }
+  },
+  "archives": {
+    "w1-symbolica": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w1-symbolica.json.gz",
+      "uncompressed_sha256": "0b9b5295c4cbc9acd3a4701bfbb67f54627decef26dce5e5f86b23d2d6af243f",
+      "compressed_sha256": "3a4c5e21332b529e08b83a265712bd77d06de0ffe9711514d6158837d9c8bd00",
+      "uncompressed_bytes": 2560227,
+      "compressed_bytes": 326956,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w1-symbolica/result.json"
+    },
+    "w1-native-denominators": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w1-native-denominators.json.gz",
+      "uncompressed_sha256": "8293263009596d6e94da368c185c09cc1aa9b1b23f5fb3aca1a93c45f9bf4d04",
+      "compressed_sha256": "95675cdea7a82b96a1b91c61ad39647094bd0940a7274609686faa4455acf524",
+      "uncompressed_bytes": 2558721,
+      "compressed_bytes": 327133,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w1-native-denominators/result.json"
+    },
+    "w1-native": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w1-native.json.gz",
+      "uncompressed_sha256": "568fb34d2393ed0eb43462cf1a74129b0a32be4f91d9553ba0abde454594bbba",
+      "compressed_sha256": "670291588031d0d7f46789e59c7fd0845d82f80bcd11a6124100303e44c646a0",
+      "uncompressed_bytes": 2558178,
+      "compressed_bytes": 326861,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w1-native/result.json"
+    },
+    "w8-native-denominators": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w8-native-denominators.json.gz",
+      "uncompressed_sha256": "e2b87bd23cf625788114386092131499c7ec456ee4a2c08f03dc35efcb67990e",
+      "compressed_sha256": "ca5f84aecab6945e05df78867e31e4587cc3410fef090bc5b27147a8c2300607",
+      "uncompressed_bytes": 2556322,
+      "compressed_bytes": 326152,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w8-native-denominators/result.json"
+    },
+    "w8-native": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w8-native.json.gz",
+      "uncompressed_sha256": "3e438c730a2aa4b8b67d7f99e9bab866790d1a2dc5bd2ca541eef0887971499f",
+      "compressed_sha256": "50d2e23d45a5b75b802bcd407b2743f30c58fb7e89c0ab40459769a9bad35008",
+      "uncompressed_bytes": 2556402,
+      "compressed_bytes": 326189,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w8-native/result.json"
+    },
+    "w8-symbolica": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w8-symbolica.json.gz",
+      "uncompressed_sha256": "0827eb182d5fe2ea2c5a3ff912cf620c271377f849b88f188426a02b514176e3",
+      "compressed_sha256": "15d05c94f4af8d215818d6825209aed368d87dd317f0f093f79cae5929357f64",
+      "uncompressed_bytes": 2557698,
+      "compressed_bytes": 326493,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w8-symbolica/result.json"
+    },
+    "w32-native": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w32-native.json.gz",
+      "uncompressed_sha256": "72f0e67f78d7ef50060bf3a357417521631589b3a2247d04df3b79aafc646cfe",
+      "compressed_sha256": "dada1bea26118c0bb9481d39bde8bca6fcc0d5fe60f8c17e3cd3e3579771f308",
+      "uncompressed_bytes": 2556265,
+      "compressed_bytes": 326408,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w32-native/result.json"
+    },
+    "w32-symbolica": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w32-symbolica.json.gz",
+      "uncompressed_sha256": "b062af0c49421875eb8093e6be0003d2c7548deaaa21d598184ae844120ad1c6",
+      "compressed_sha256": "259b0fc301eb79d09fdf96648a6223e86fa8fda60a6f6a79875473954c5c3752",
+      "uncompressed_bytes": 2561870,
+      "compressed_bytes": 327229,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w32-symbolica/result.json"
+    },
+    "w32-native-denominators": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w32-native-denominators.json.gz",
+      "uncompressed_sha256": "20cfcb284c1784c2c25a8931ed4d758b80d1fb751c58c798c0ebc93972ab5549",
+      "compressed_sha256": "49d7aaaa203fa0b851c42e3dade7b9193dbe102903452f1e23a0ba12097dc59a",
+      "uncompressed_bytes": 2565370,
+      "compressed_bytes": 328203,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w32-native-denominators/result.json"
+    },
+    "w128-symbolica": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w128-symbolica.json.gz",
+      "uncompressed_sha256": "beecb617d55969bcde91d6a2bedfa28b6fb389efe9c449e072ea5a18a21f8f62",
+      "compressed_sha256": "488969402ff3114a43a8df032cfe6d95392880b831fc97202f845bd748d38f55",
+      "uncompressed_bytes": 2562173,
+      "compressed_bytes": 328395,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w128-symbolica/result.json"
+    },
+    "w128-native-denominators": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w128-native-denominators.json.gz",
+      "uncompressed_sha256": "2b6f596009aef792c87a876a43c1b989d8ae08c7842c0cbb49ad30b62cb19b67",
+      "compressed_sha256": "ffc30240c510140e1e6082680d5667bcc423b8cd8bb2a6738123308c046f7400",
+      "uncompressed_bytes": 2563179,
+      "compressed_bytes": 327698,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w128-native-denominators/result.json"
+    },
+    "w128-native": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w128-native.json.gz",
+      "uncompressed_sha256": "e4a5aea390808538b5f8535d7369114874d946a561948724022bbdd6a7e59e92",
+      "compressed_sha256": "e8d6e58195d476de78f91053d8c62dc0d2e4abfd72709f28be4ef77f04d1e63c",
+      "uncompressed_bytes": 2563718,
+      "compressed_bytes": 329185,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w128-native/result.json"
+    },
+    "w1024-native-denominators": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w1024-native-denominators.json.gz",
+      "uncompressed_sha256": "bbea315f122702b56a6152d3143787a3bba3869abfb463305a10b1fe7496debe",
+      "compressed_sha256": "b7efc36c1895f46fac3a93f502949c3925fa66925eb61ea7bae30d416f3f68bc",
+      "uncompressed_bytes": 2563334,
+      "compressed_bytes": 327840,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w1024-native-denominators/result.json"
+    },
+    "w1024-native": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w1024-native.json.gz",
+      "uncompressed_sha256": "f6a9ba977dcaf62da3d611606c2deb84adc3a2dd1a10f3249cd763011d84659d",
+      "compressed_sha256": "288ac3f9fc85ac15d392f6eb8df697452ab12ff6f6841b27304da89da99d2f76",
+      "uncompressed_bytes": 2559967,
+      "compressed_bytes": 327699,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w1024-native/result.json"
+    },
+    "w1024-symbolica": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w1024-symbolica.json.gz",
+      "uncompressed_sha256": "f7d47183988b49b3cf3b8c60a32d6619a12ac460e9c4fd99be8ebc1dcb7f023d",
+      "compressed_sha256": "dcad73b2bf0121fac0a8f264bdcc961ac14fdcc25a9c15ad7ce79c8f6e347e3c",
+      "uncompressed_bytes": 2558636,
+      "compressed_bytes": 326878,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w1024-symbolica/result.json"
+    },
+    "w31-native": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w31-native.json.gz",
+      "uncompressed_sha256": "2a266f70b3f651587f979436499e7cca499ebb51bbd4556946851b0fb725e029",
+      "compressed_sha256": "1a5ffbb153af432664e06de5c98e8bf6190b7ebf03f71ae94209a43b4948ed01",
+      "uncompressed_bytes": 2566424,
+      "compressed_bytes": 328527,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w31-native/result.json"
+    },
+    "w31-symbolica": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w31-symbolica.json.gz",
+      "uncompressed_sha256": "d8fa398bd36244591bc6db70e699e504cc63da427a7843d7ce0255d229c54c7e",
+      "compressed_sha256": "a8f7274c7c14bdba53dd3c572b4898b325902fe75cff4c1c4c6bc859436e0b07",
+      "uncompressed_bytes": 2572700,
+      "compressed_bytes": 329307,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w31-symbolica/result.json"
+    },
+    "w31-native-denominators": {
+      "path": "validation/evidence/shared-reduction-catalog-timing-de0f190-w31-native-denominators.json.gz",
+      "uncompressed_sha256": "7f954daec96d24a59af305bc185620918fea6157dc8fcf345a56922406405e67",
+      "compressed_sha256": "007ec0938c674ff84a9d0e00a5dff0bcd70a2d8d1ab0c3665d09cfdb2393f26f",
+      "uncompressed_bytes": 2569464,
+      "compressed_bytes": 329946,
+      "original_report": "/shared/external/ninja/target/performance/reduction-catalog-timing-de0f190-w31-native-denominators/result.json"
+    }
+  },
+  "summaries": [
+    {
+      "selection": "symbolica",
+      "width": 1,
+      "workload": "repeated",
+      "minimum_block_ns": 39856509,
+      "below_20ms": false,
+      "summary": {
+        "width": 1,
+        "rounds_per_block": 384,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 104007.47395833334,
+              "mad": 96.90104166666424
+            },
+            "ns_per_point": {
+              "median": 104007.47395833334,
+              "mad": 96.90104166666424
+            },
+            "points_per_second": {
+              "median": 9614.695175583976,
+              "mad": 8.956286131438901
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 304640.2734375,
+              "mad": 778.97265625
+            },
+            "ns_per_point": {
+              "median": 304640.2734375,
+              "mad": 778.97265625
+            },
+            "points_per_second": {
+              "median": 3282.560569035635,
+              "mad": 8.415772003266056
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.9305412779189286,
+          "mad": 0.00669669439655185,
+          "median_by_order": {
+            "original-first": 2.9305412779189286,
+            "rust-first": 2.9274490571927005
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.923844583522377,
+            2.951414739392461
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        15360,
+        0,
+        46080,
+        30720,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        92160,
+        168960,
+        15360,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "symbolica",
+      "width": 1,
+      "workload": "changing",
+      "minimum_block_ns": 39770139,
+      "below_20ms": false,
+      "summary": {
+        "width": 1,
+        "rounds_per_block": 384,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 103975.74088541667,
+              "mad": 64.07682291665697
+            },
+            "ns_per_point": {
+              "median": 103975.74088541667,
+              "mad": 64.07682291665697
+            },
+            "points_per_second": {
+              "median": 9617.628139914155,
+              "mad": 5.923486225682609
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 303359.4778645834,
+              "mad": 1147.177083333314
+            },
+            "ns_per_point": {
+              "median": 303359.4778645834,
+              "mad": 1147.177083333314
+            },
+            "points_per_second": {
+              "median": 3296.420321348695,
+              "mad": 12.44844795668314
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.9204279586529838,
+          "mad": 0.009952998916646694,
+          "median_by_order": {
+            "original-first": 2.93047823324088,
+            "rust-first": 2.910966278403646
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.9142020414258925,
+            2.934205314930436
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        15360,
+        0,
+        46080,
+        30720,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        92160,
+        168960,
+        15360,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native-denominators",
+      "width": 1,
+      "workload": "repeated",
+      "minimum_block_ns": 39883870,
+      "below_20ms": false,
+      "summary": {
+        "width": 1,
+        "rounds_per_block": 384,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 104284.24609375,
+              "mad": 148.26692708333576
+            },
+            "ns_per_point": {
+              "median": 104284.24609375,
+              "mad": 148.26692708333576
+            },
+            "points_per_second": {
+              "median": 9589.176826500012,
+              "mad": 13.634019546603668
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 299288.0572916667,
+              "mad": 436.06901041665697
+            },
+            "ns_per_point": {
+              "median": 299288.0572916667,
+              "mad": 436.06901041665697
+            },
+            "points_per_second": {
+              "median": 3341.2645044537785,
+              "mad": 4.869796899198263
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.875141363393375,
+          "mad": 0.009238245891807884,
+          "median_by_order": {
+            "original-first": 2.879567574319002,
+            "rust-first": 2.8596444703332886
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.8652358072085145,
+            2.878788272409958
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        15360,
+        0,
+        46080,
+        30720,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        92160,
+        168960,
+        15360,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native-denominators",
+      "width": 1,
+      "workload": "changing",
+      "minimum_block_ns": 39689969,
+      "below_20ms": false,
+      "summary": {
+        "width": 1,
+        "rounds_per_block": 384,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 104003.26822916666,
+              "mad": 268.03515625
+            },
+            "ns_per_point": {
+              "median": 104003.26822916666,
+              "mad": 268.03515625
+            },
+            "points_per_second": {
+              "median": 9615.091253198794,
+              "mad": 24.797744668820087
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 297447.9231770834,
+              "mad": 1416.72265625
+            },
+            "ns_per_point": {
+              "median": 297447.9231770834,
+              "mad": 1416.72265625
+            },
+            "points_per_second": {
+              "median": 3361.938533269422,
+              "mad": 16.036717993790944
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.8681177962205244,
+          "mad": 0.013498009163500413,
+          "median_by_order": {
+            "original-first": 2.8762919332849695,
+            "rust-first": 2.8572615695502854
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.8537451619142975,
+            2.8817470472502498
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        15360,
+        0,
+        46080,
+        30720,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        92160,
+        168960,
+        15360,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native",
+      "width": 1,
+      "workload": "repeated",
+      "minimum_block_ns": 39580799,
+      "below_20ms": false,
+      "summary": {
+        "width": 1,
+        "rounds_per_block": 384,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 103462.04166666666,
+              "mad": 298.8164062499927
+            },
+            "ns_per_point": {
+              "median": 103462.04166666666,
+              "mad": 298.8164062499927
+            },
+            "points_per_second": {
+              "median": 9665.405101745517,
+              "mad": 27.97864898151238
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 300440.9270833334,
+              "mad": 2007.1158854167152
+            },
+            "ns_per_point": {
+              "median": 300440.9270833334,
+              "mad": 2007.1158854167152
+            },
+            "points_per_second": {
+              "median": 3328.4422708010047,
+              "mad": 22.384910511392263
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.906857970180115,
+          "mad": 0.0223498499745316,
+          "median_by_order": {
+            "original-first": 2.9236529917343717,
+            "rust-first": 2.8910719866186136
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.8845081202055836,
+            2.928922605694335
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        15360,
+        0,
+        46080,
+        30720,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        92160,
+        168960,
+        15360,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native",
+      "width": 1,
+      "workload": "changing",
+      "minimum_block_ns": 39837950,
+      "below_20ms": false,
+      "summary": {
+        "width": 1,
+        "rounds_per_block": 384,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 103934.00911458334,
+              "mad": 185.24739583332848
+            },
+            "ns_per_point": {
+              "median": 103934.00911458334,
+              "mad": 185.24739583332848
+            },
+            "points_per_second": {
+              "median": 9621.498806543848,
+              "mad": 17.148479023150685
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 302587.22265625,
+              "mad": 2091.723958333343
+            },
+            "ns_per_point": {
+              "median": 302587.22265625,
+              "mad": 2091.723958333343
+            },
+            "points_per_second": {
+              "median": 3304.872222833773,
+              "mad": 22.863029154566448
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.9149819587744497,
+          "mad": 0.019474021927770258,
+          "median_by_order": {
+            "original-first": 2.9288509497718076,
+            "rust-first": 2.889628584331989
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.884023553401577,
+            2.92927750545406
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        15360,
+        0,
+        46080,
+        30720,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        92160,
+        168960,
+        15360,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native-denominators",
+      "width": 8,
+      "workload": "repeated",
+      "minimum_block_ns": 40090010,
+      "below_20ms": false,
+      "summary": {
+        "width": 8,
+        "rounds_per_block": 48,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 837999.59375,
+              "mad": 1783.322916666686
+            },
+            "ns_per_point": {
+              "median": 104749.94921875,
+              "mad": 222.91536458333576
+            },
+            "points_per_second": {
+              "median": 9546.544699605041,
+              "mad": 20.3312421841174
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 1860821.5104166667,
+              "mad": 4924.5
+            },
+            "ns_per_point": {
+              "median": 232602.68880208334,
+              "mad": 615.5625
+            },
+            "points_per_second": {
+              "median": 4299.181858206713,
+              "mad": 11.38016156646836
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.2176799424958613,
+          "mad": 0.00876460694958614,
+          "median_by_order": {
+            "original-first": 2.226384324748909,
+            "rust-first": 2.214395214829707
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.206105806915884,
+            2.228620038019769
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        1920,
+        0,
+        5760,
+        3840,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        11520,
+        168960,
+        1920,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native-denominators",
+      "width": 8,
+      "workload": "changing",
+      "minimum_block_ns": 39803559,
+      "below_20ms": false,
+      "summary": {
+        "width": 8,
+        "rounds_per_block": 48,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 833346.7604166667,
+              "mad": 2236.979166666686
+            },
+            "ns_per_point": {
+              "median": 104168.34505208334,
+              "mad": 279.62239583333576
+            },
+            "points_per_second": {
+              "median": 9599.89681941125,
+              "mad": 25.778891844860482
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 1858717.96875,
+              "mad": 10727.645833333372
+            },
+            "ns_per_point": {
+              "median": 232339.74609375,
+              "mad": 1340.9557291666715
+            },
+            "points_per_second": {
+              "median": 4304.0426493719,
+              "mad": 24.997568672127272
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.23482682903648,
+          "mad": 0.016858301425748623,
+          "median_by_order": {
+            "original-first": 2.288852192675998,
+            "rust-first": 2.2247427067263437
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.2214591308802807,
+            2.3559184841154215
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        1920,
+        0,
+        5760,
+        3840,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        11520,
+        168960,
+        1920,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native",
+      "width": 8,
+      "workload": "repeated",
+      "minimum_block_ns": 39336997,
+      "below_20ms": false,
+      "summary": {
+        "width": 8,
+        "rounds_per_block": 48,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 822122.9791666667,
+              "mad": 2441.781250000058
+            },
+            "ns_per_point": {
+              "median": 102765.37239583334,
+              "mad": 305.2226562500073
+            },
+            "points_per_second": {
+              "median": 9730.905092621324,
+              "mad": 28.98732260077759
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 1837215.5,
+              "mad": 6542.9375
+            },
+            "ns_per_point": {
+              "median": 229651.9375,
+              "mad": 817.8671875
+            },
+            "points_per_second": {
+              "median": 4354.423325158383,
+              "mad": 15.50033382975107
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.225833766436649,
+          "mad": 0.01897288372381767,
+          "median_by_order": {
+            "original-first": 2.2471198697846675,
+            "rust-first": 2.2168583120415635
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.2068395678437187,
+            2.240281814951127
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        1920,
+        0,
+        5760,
+        3840,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        11520,
+        168960,
+        1920,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native",
+      "width": 8,
+      "workload": "changing",
+      "minimum_block_ns": 39371838,
+      "below_20ms": false,
+      "summary": {
+        "width": 8,
+        "rounds_per_block": 48,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 823233.3958333334,
+              "mad": 1283.1354166666279
+            },
+            "ns_per_point": {
+              "median": 102904.17447916667,
+              "mad": 160.39192708332848
+            },
+            "points_per_second": {
+              "median": 9717.79511853179,
+              "mad": 15.14662645120552
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 2106529.3333333335,
+              "mad": 28027.593750000116
+            },
+            "ns_per_point": {
+              "median": 263316.1666666667,
+              "mad": 3503.4492187500146
+            },
+            "points_per_second": {
+              "median": 3797.8132609924314,
+              "mad": 51.120837369350056
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.5589462348364203,
+          "mad": 0.03529389963060381,
+          "median_by_order": {
+            "original-first": 2.6139562750081957,
+            "rust-first": 2.528850807847504
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.523652335205816,
+            2.615376627701547
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        1920,
+        0,
+        5760,
+        3840,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        11520,
+        168960,
+        1920,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "symbolica",
+      "width": 8,
+      "workload": "repeated",
+      "minimum_block_ns": 39705049,
+      "below_20ms": false,
+      "summary": {
+        "width": 8,
+        "rounds_per_block": 48,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 829228.9375,
+              "mad": 959.0625
+            },
+            "ns_per_point": {
+              "median": 103653.6171875,
+              "mad": 119.8828125
+            },
+            "points_per_second": {
+              "median": 9647.516881792251,
+              "mad": 11.145317375783634
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 2307231.385416667,
+              "mad": 6855.208333333489
+            },
+            "ns_per_point": {
+              "median": 288403.9231770834,
+              "mad": 856.9010416666861
+            },
+            "points_per_second": {
+              "median": 3467.3604376379367,
+              "mad": 10.33431350866681
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.7794182414353332,
+          "mad": 0.004824837359748146,
+          "median_by_order": {
+            "original-first": 2.780681613710498,
+            "rust-first": 2.7794182414353332
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.77585677635075,
+            2.7987067758606514
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        1920,
+        0,
+        5760,
+        3840,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        11520,
+        168960,
+        1920,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "symbolica",
+      "width": 8,
+      "workload": "changing",
+      "minimum_block_ns": 39424248,
+      "below_20ms": false,
+      "summary": {
+        "width": 8,
+        "rounds_per_block": 48,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 823353.71875,
+              "mad": 1048.239583333314
+            },
+            "ns_per_point": {
+              "median": 102919.21484375,
+              "mad": 131.02994791666424
+            },
+            "points_per_second": {
+              "median": 9716.358750941901,
+              "mad": 12.371257275926837
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 2003731.625,
+              "mad": 14846.708333333372
+            },
+            "ns_per_point": {
+              "median": 250466.453125,
+              "mad": 1855.8385416666715
+            },
+            "points_per_second": {
+              "median": 3992.563190326353,
+              "mad": 29.795493909334937
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.4362762489620353,
+          "mad": 0.02447705838267966,
+          "median_by_order": {
+            "original-first": 2.4642294446678115,
+            "rust-first": 2.4144843403329626
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.420725002539032,
+            2.531186935497846
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        1920,
+        0,
+        5760,
+        3840,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        11520,
+        168960,
+        1920,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native",
+      "width": 32,
+      "workload": "repeated",
+      "minimum_block_ns": 39187077,
+      "below_20ms": false,
+      "summary": {
+        "width": 32,
+        "rounds_per_block": 12,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3281474.8333333335,
+              "mad": 10523.375
+            },
+            "ns_per_point": {
+              "median": 102546.08854166667,
+              "mad": 328.85546875
+            },
+            "points_per_second": {
+              "median": 9751.729875635574,
+              "mad": 31.26918934605328
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 7966730.916666666,
+              "mad": 172528.875
+            },
+            "ns_per_point": {
+              "median": 248960.3411458333,
+              "mad": 5391.52734375
+            },
+            "points_per_second": {
+              "median": 4017.1124364136967,
+              "mad": 86.92147717430112
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.427740271845051,
+          "mad": 0.052317956979095026,
+          "median_by_order": {
+            "original-first": 2.4266112025246827,
+            "rust-first": 2.435229256671099
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.364451036972845,
+            2.4851346687576576
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        480,
+        0,
+        1440,
+        960,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        2880,
+        168960,
+        480,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native",
+      "width": 32,
+      "workload": "changing",
+      "minimum_block_ns": 39566129,
+      "below_20ms": false,
+      "summary": {
+        "width": 32,
+        "rounds_per_block": 12,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3377540.9166666665,
+              "mad": 57453.083333333256
+            },
+            "ns_per_point": {
+              "median": 105548.15364583333,
+              "mad": 1795.4088541666642
+            },
+            "points_per_second": {
+              "median": 9475.12373186355,
+              "mad": 161.5468710154746
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 7830534.708333334,
+              "mad": 155908.83333333395
+            },
+            "ns_per_point": {
+              "median": 244704.2096354167,
+              "mad": 4872.151041666686
+            },
+            "points_per_second": {
+              "median": 4086.846796371411,
+              "mad": 82.74407479463252
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.3253817541849857,
+          "mad": 0.043180667592380484,
+          "median_by_order": {
+            "original-first": 2.3253817541849857,
+            "rust-first": 2.3333069999455636
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.2546991494405395,
+            2.3658242298343595
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        480,
+        0,
+        1440,
+        960,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        2880,
+        168960,
+        480,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "symbolica",
+      "width": 32,
+      "workload": "repeated",
+      "minimum_block_ns": 39439098,
+      "below_20ms": false,
+      "summary": {
+        "width": 32,
+        "rounds_per_block": 12,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3290005.6666666665,
+              "mad": 2500.7916666665114
+            },
+            "ns_per_point": {
+              "median": 102812.67708333333,
+              "mad": 78.14973958332848
+            },
+            "points_per_second": {
+              "median": 9726.427818746342,
+              "mad": 7.392967881476579
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 8727762.416666666,
+              "mad": 177076.33333333395
+            },
+            "ns_per_point": {
+              "median": 272742.5755208333,
+              "mad": 5533.635416666686
+            },
+            "points_per_second": {
+              "median": 3666.635469683903,
+              "mad": 73.08336723070374
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.648080202628809,
+          "mad": 0.05340940401949945,
+          "median_by_order": {
+            "original-first": 2.667202113330071,
+            "rust-first": 2.634456189742034
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.59890495983292,
+            2.706987504462796
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        480,
+        0,
+        1440,
+        960,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        2880,
+        168960,
+        480,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "symbolica",
+      "width": 32,
+      "workload": "changing",
+      "minimum_block_ns": 39373928,
+      "below_20ms": false,
+      "summary": {
+        "width": 32,
+        "rounds_per_block": 12,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3292048.583333333,
+              "mad": 3957.9583333334886
+            },
+            "ns_per_point": {
+              "median": 102876.51822916666,
+              "mad": 123.68619791667152
+            },
+            "points_per_second": {
+              "median": 9720.391582017735,
+              "mad": 11.676130457382897
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 8604125.75,
+              "mad": 55446.875
+            },
+            "ns_per_point": {
+              "median": 268878.9296875,
+              "mad": 1732.71484375
+            },
+            "points_per_second": {
+              "median": 3719.211690211864,
+              "mad": 24.057165976284978
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.603313854615892,
+          "mad": 0.02133396344321703,
+          "median_by_order": {
+            "original-first": 2.621168396298531,
+            "rust-first": 2.600830899191714
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.595134819729744,
+            2.814231906273841
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        480,
+        0,
+        1440,
+        960,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        2880,
+        168960,
+        480,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native-denominators",
+      "width": 32,
+      "workload": "repeated",
+      "minimum_block_ns": 39282958,
+      "below_20ms": false,
+      "summary": {
+        "width": 32,
+        "rounds_per_block": 12,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3290334.791666667,
+              "mad": 3058.75
+            },
+            "ns_per_point": {
+              "median": 102822.96223958334,
+              "mad": 95.5859375
+            },
+            "points_per_second": {
+              "median": 9725.460117614442,
+              "mad": 9.042456199377739
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 8448771.541666668,
+              "mad": 56127.249999999534
+            },
+            "ns_per_point": {
+              "median": 264024.1106770834,
+              "mad": 1753.9765624999854
+            },
+            "points_per_second": {
+              "median": 3787.541706977783,
+              "mad": 25.21695961693399
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.5676758200037613,
+          "mad": 0.07188178790239963,
+          "median_by_order": {
+            "original-first": 2.580555925458314,
+            "rust-first": 2.5104979900764697
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.4326418553338773,
+            2.585100774362121
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        480,
+        0,
+        1440,
+        960,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        2880,
+        168960,
+        480,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native-denominators",
+      "width": 32,
+      "workload": "changing",
+      "minimum_block_ns": 39272187,
+      "below_20ms": false,
+      "summary": {
+        "width": 32,
+        "rounds_per_block": 12,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3286803.625,
+              "mad": 9478.791666666744
+            },
+            "ns_per_point": {
+              "median": 102712.61328125,
+              "mad": 296.21223958333576
+            },
+            "points_per_second": {
+              "median": 9735.902708578953,
+              "mad": 28.167355864824458
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 7989961.416666666,
+              "mad": 14817.958333333489
+            },
+            "ns_per_point": {
+              "median": 249686.2942708333,
+              "mad": 463.0611979166715
+            },
+            "points_per_second": {
+              "median": 4005.0266146835593,
+              "mad": 7.435579894473449
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.4344146501670427,
+          "mad": 0.004516900546261526,
+          "median_by_order": {
+            "original-first": 2.4319563416911154,
+            "rust-first": 2.4356105410336415
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.42321273398098,
+            2.438489279957849
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        480,
+        0,
+        1440,
+        960,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        2880,
+        168960,
+        480,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "symbolica",
+      "width": 128,
+      "workload": "repeated",
+      "minimum_block_ns": 39238157,
+      "below_20ms": false,
+      "summary": {
+        "width": 128,
+        "rounds_per_block": 3,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 13138321.0,
+              "mad": 14686.666666666046
+            },
+            "ns_per_point": {
+              "median": 102643.1328125,
+              "mad": 114.73958333332848
+            },
+            "points_per_second": {
+              "median": 9742.493228782612,
+              "mad": 10.884946285448677
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 35080436.666666664,
+              "mad": 228374.16666666418
+            },
+            "ns_per_point": {
+              "median": 274065.9114583333,
+              "mad": 1784.173177083314
+            },
+            "points_per_second": {
+              "median": 3648.7583102095355,
+              "mad": 23.64038736401926
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.677117724729295,
+          "mad": 0.02792964698389966,
+          "median_by_order": {
+            "original-first": 2.677117724729295,
+            "rust-first": 2.68147394288804
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.639889683536276,
+            2.7892489423502504
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        120,
+        0,
+        360,
+        240,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        720,
+        168960,
+        120,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "symbolica",
+      "width": 128,
+      "workload": "changing",
+      "minimum_block_ns": 39951299,
+      "below_20ms": false,
+      "summary": {
+        "width": 128,
+        "rounds_per_block": 3,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 13364620.0,
+              "mad": 38561.833333333954
+            },
+            "ns_per_point": {
+              "median": 104411.09375,
+              "mad": 301.2643229166715
+            },
+            "points_per_second": {
+              "median": 9577.529091086726,
+              "mad": 27.716229447011756
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 35151048.66666667,
+              "mad": 107267.0
+            },
+            "ns_per_point": {
+              "median": 274617.5677083334,
+              "mad": 838.0234375
+            },
+            "points_per_second": {
+              "median": 3641.427674151005,
+              "mad": 11.078948147027859
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.628800996866893,
+          "mad": 0.008893066785897519,
+          "median_by_order": {
+            "original-first": 2.626467460990244,
+            "rust-first": 2.628800996866893
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.571138187534847,
+            2.6336379367318745
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        120,
+        0,
+        360,
+        240,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        720,
+        168960,
+        120,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native-denominators",
+      "width": 128,
+      "workload": "repeated",
+      "minimum_block_ns": 39221978,
+      "below_20ms": false,
+      "summary": {
+        "width": 128,
+        "rounds_per_block": 3,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 13140686.0,
+              "mad": 27910.0
+            },
+            "ns_per_point": {
+              "median": 102661.609375,
+              "mad": 218.046875
+            },
+            "points_per_second": {
+              "median": 9740.741227892539,
+              "mad": 20.636582181799895
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 33066670.666666664,
+              "mad": 300414.33333333395
+            },
+            "ns_per_point": {
+              "median": 258333.3645833333,
+              "mad": 2346.9869791666715
+            },
+            "points_per_second": {
+              "median": 3871.0094433798154,
+              "mad": 35.30473494950388
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.5207661501013803,
+          "mad": 0.0298888554353951,
+          "median_by_order": {
+            "original-first": 2.5418198900422833,
+            "rust-first": 2.490877294665985
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.497589550145914,
+            2.5530999759177013
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        120,
+        0,
+        360,
+        240,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        720,
+        168960,
+        120,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native-denominators",
+      "width": 128,
+      "workload": "changing",
+      "minimum_block_ns": 39359008,
+      "below_20ms": false,
+      "summary": {
+        "width": 128,
+        "rounds_per_block": 3,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 13134289.5,
+              "mad": 10478.5
+            },
+            "ns_per_point": {
+              "median": 102611.63671875,
+              "mad": 81.86328125
+            },
+            "points_per_second": {
+              "median": 9745.483719604501,
+              "mad": 7.781757012798153
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 32970553.5,
+              "mad": 328389.1666666679
+            },
+            "ns_per_point": {
+              "median": 257582.44921875,
+              "mad": 2565.540364583343
+            },
+            "points_per_second": {
+              "median": 3882.255776281416,
+              "mad": 39.057988212489136
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.4979631810267806,
+          "mad": 0.03926801279693026,
+          "median_by_order": {
+            "original-first": 2.4860952401687517,
+            "rust-first": 2.507910399506782
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.440534775139981,
+            2.5621475346542475
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        120,
+        0,
+        360,
+        240,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        720,
+        168960,
+        120,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native",
+      "width": 128,
+      "workload": "repeated",
+      "minimum_block_ns": 39138507,
+      "below_20ms": false,
+      "summary": {
+        "width": 128,
+        "rounds_per_block": 3,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 13069910.833333332,
+              "mad": 13633.499999998137
+            },
+            "ns_per_point": {
+              "median": 102108.67838541666,
+              "mad": 106.51171874998545
+            },
+            "points_per_second": {
+              "median": 9793.486946883651,
+              "mad": 10.2265266716322
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 32793341.5,
+              "mad": 228510.83333333395
+            },
+            "ns_per_point": {
+              "median": 256197.98046875,
+              "mad": 1785.2408854166715
+            },
+            "points_per_second": {
+              "median": 3903.237723910895,
+              "mad": 27.39047294226316
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.5054428009330927,
+          "mad": 0.015115374757048938,
+          "median_by_order": {
+            "original-first": 2.514298110193253,
+            "rust-first": 2.49418935647107
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.4905957856970904,
+            2.5519292934581386
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        120,
+        0,
+        360,
+        240,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        720,
+        168960,
+        120,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native",
+      "width": 128,
+      "workload": "changing",
+      "minimum_block_ns": 39190808,
+      "below_20ms": false,
+      "summary": {
+        "width": 128,
+        "rounds_per_block": 3,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 13092535.666666666,
+              "mad": 21668.5
+            },
+            "ns_per_point": {
+              "median": 102285.43489583333,
+              "mad": 169.28515625
+            },
+            "points_per_second": {
+              "median": 9776.563033212988,
+              "mad": 16.16609032238739
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 32420488.666666664,
+              "mad": 190217.33333333582
+            },
+            "ns_per_point": {
+              "median": 253285.0677083333,
+              "mad": 1486.072916666686
+            },
+            "points_per_second": {
+              "median": 3948.1340650323327,
+              "mad": 23.147440550855663
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.477702949976959,
+          "mad": 0.008414189298640906,
+          "median_by_order": {
+            "original-first": 2.454290986479937,
+            "rust-first": 2.4847897548045177
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.460658080766663,
+            2.479750044988874
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        30720,
+        0,
+        76800,
+        61440,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        120,
+        0,
+        360,
+        240,
+        30720,
+        0,
+        76800,
+        61440,
+        0,
+        0,
+        0,
+        720,
+        168960,
+        120,
+        122880,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native-denominators",
+      "width": 1024,
+      "workload": "repeated",
+      "minimum_block_ns": 310370128,
+      "below_20ms": false,
+      "summary": {
+        "width": 1024,
+        "rounds_per_block": 3,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 103720785.33333333,
+              "mad": 138382.16666666418
+            },
+            "ns_per_point": {
+              "median": 101289.82942708333,
+              "mad": 135.13883463541424
+            },
+            "points_per_second": {
+              "median": 9872.659843661679,
+              "mad": 13.173268231416841
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 320143276.1666667,
+              "mad": 3231674.6666666865
+            },
+            "ns_per_point": {
+              "median": 312639.91813151044,
+              "mad": 3155.932291666686
+            },
+            "points_per_second": {
+              "median": 3198.693889743188,
+              "mad": 32.49429957872053
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 3.0822271038478517,
+          "mad": 0.026734188900661815,
+          "median_by_order": {
+            "original-first": 3.1245033563619,
+            "rust-first": 3.056508375976244
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            3.0812382464688755,
+            3.0938004429990915
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        245760,
+        0,
+        614400,
+        491520,
+        245760,
+        0,
+        614400,
+        491520,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        120,
+        0,
+        360,
+        240,
+        245760,
+        0,
+        614400,
+        491520,
+        0,
+        0,
+        0,
+        720,
+        1351680,
+        120,
+        983040,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native-denominators",
+      "width": 1024,
+      "workload": "changing",
+      "minimum_block_ns": 314337631,
+      "below_20ms": false,
+      "summary": {
+        "width": 1024,
+        "rounds_per_block": 3,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 104903237.0,
+              "mad": 119771.83333333582
+            },
+            "ns_per_point": {
+              "median": 102444.5673828125,
+              "mad": 116.96468098958576
+            },
+            "points_per_second": {
+              "median": 9761.377673546396,
+              "mad": 11.156558994836814
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 315899311.8333333,
+              "mad": 2596995.8333333433
+            },
+            "ns_per_point": {
+              "median": 308495.42171223956,
+              "mad": 2536.128743489593
+            },
+            "points_per_second": {
+              "median": 3241.615180517486,
+              "mad": 26.585236675494116
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.9994577166360132,
+          "mad": 0.016140947675138184,
+          "median_by_order": {
+            "original-first": 2.9945640695515863,
+            "rust-first": 3.0412243072895366
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.9964813360274793,
+            3.021636440632758
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        245760,
+        0,
+        614400,
+        491520,
+        245760,
+        0,
+        614400,
+        491520,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        120,
+        0,
+        360,
+        240,
+        245760,
+        0,
+        614400,
+        491520,
+        0,
+        0,
+        0,
+        720,
+        1351680,
+        120,
+        983040,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native",
+      "width": 1024,
+      "workload": "repeated",
+      "minimum_block_ns": 308444253,
+      "below_20ms": false,
+      "summary": {
+        "width": 1024,
+        "rounds_per_block": 3,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 103091511.66666667,
+              "mad": 163787.16666667163
+            },
+            "ns_per_point": {
+              "median": 100675.30436197917,
+              "mad": 159.94840494792152
+            },
+            "points_per_second": {
+              "median": 9932.922694415583,
+              "mad": 15.81161577317198
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 308744422.0,
+              "mad": 822792.3333333433
+            },
+            "ns_per_point": {
+              "median": 301508.224609375,
+              "mad": 803.508138020843
+            },
+            "points_per_second": {
+              "median": 3316.661021984739,
+              "mad": 8.864264542469527
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.983725889777441,
+          "mad": 0.01485597334340416,
+          "median_by_order": {
+            "original-first": 2.9992691488899066,
+            "rust-first": 2.968869916434037
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.97551357269281,
+            2.99389446813392
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        245760,
+        0,
+        614400,
+        491520,
+        245760,
+        0,
+        614400,
+        491520,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        120,
+        0,
+        360,
+        240,
+        245760,
+        0,
+        614400,
+        491520,
+        0,
+        0,
+        0,
+        720,
+        1351680,
+        120,
+        983040,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native",
+      "width": 1024,
+      "workload": "changing",
+      "minimum_block_ns": 313213147,
+      "below_20ms": false,
+      "summary": {
+        "width": 1024,
+        "rounds_per_block": 3,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 104630898.16666667,
+              "mad": 170194.16666667163
+            },
+            "ns_per_point": {
+              "median": 102178.61149088542,
+              "mad": 166.20524088542152
+            },
+            "points_per_second": {
+              "median": 9786.785008364926,
+              "mad": 15.944565552153108
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 316033842.0,
+              "mad": 6410417.5
+            },
+            "ns_per_point": {
+              "median": 308626.798828125,
+              "mad": 6260.17333984375
+            },
+            "points_per_second": {
+              "median": 3240.1728775733663,
+              "mad": 67.13547829436516
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.981507840683444,
+          "mad": 0.033471074316524074,
+          "median_by_order": {
+            "original-first": 2.981017441836814,
+            "rust-first": 3.071339273224254
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.9490535205951582,
+            3.1602907915077716
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        245760,
+        0,
+        614400,
+        491520,
+        245760,
+        0,
+        614400,
+        491520,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        120,
+        0,
+        360,
+        240,
+        245760,
+        0,
+        614400,
+        491520,
+        0,
+        0,
+        0,
+        720,
+        1351680,
+        120,
+        983040,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "symbolica",
+      "width": 1024,
+      "workload": "repeated",
+      "minimum_block_ns": 313306777,
+      "below_20ms": false,
+      "summary": {
+        "width": 1024,
+        "rounds_per_block": 3,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 105956571.83333334,
+              "mad": 884297.8333333358
+            },
+            "ns_per_point": {
+              "median": 103473.2146809896,
+              "mad": 863.5721028645858
+            },
+            "points_per_second": {
+              "median": 9664.377127152395,
+              "mad": 80.56606623305015
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 432094672.3333334,
+              "mad": 10326890.833333373
+            },
+            "ns_per_point": {
+              "median": 421967.4534505209,
+              "mad": 10084.854329427122
+            },
+            "points_per_second": {
+              "median": 2369.8700567466785,
+              "mad": 58.008066133610555
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 4.090780081885711,
+          "mad": 0.12111270128193619,
+          "median_by_order": {
+            "original-first": 4.123688257585314,
+            "rust-first": 4.02962109657542
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            3.963429900620106,
+            4.306601696583023
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        245760,
+        0,
+        614400,
+        491520,
+        245760,
+        0,
+        614400,
+        491520,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        120,
+        0,
+        360,
+        240,
+        245760,
+        0,
+        614400,
+        491520,
+        0,
+        0,
+        0,
+        720,
+        1351680,
+        120,
+        983040,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "symbolica",
+      "width": 1024,
+      "workload": "changing",
+      "minimum_block_ns": 314235920,
+      "below_20ms": false,
+      "summary": {
+        "width": 1024,
+        "rounds_per_block": 3,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 105242018.0,
+              "mad": 395029.3333333358
+            },
+            "ns_per_point": {
+              "median": 102775.408203125,
+              "mad": 385.77083333333576
+            },
+            "points_per_second": {
+              "median": 9729.971159054734,
+              "mad": 36.64741759022945
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 399217428.8333333,
+              "mad": 4603612.166666687
+            },
+            "ns_per_point": {
+              "median": 389860.77034505206,
+              "mad": 4495.715006510436
+            },
+            "points_per_second": {
+              "median": 2565.101230052799,
+              "mad": 29.506164856617488
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 3.7790463218739174,
+          "mad": 0.024919367453256625,
+          "median_by_order": {
+            "original-first": 3.763245294286945,
+            "rust-first": 3.832252856418967
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            3.762950599494787,
+            3.841371196285251
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        245760,
+        0,
+        614400,
+        491520,
+        245760,
+        0,
+        614400,
+        491520,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        120,
+        0,
+        360,
+        240,
+        245760,
+        0,
+        614400,
+        491520,
+        0,
+        0,
+        0,
+        720,
+        1351680,
+        120,
+        983040,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native",
+      "width": 31,
+      "workload": "repeated",
+      "minimum_block_ns": 47778733,
+      "below_20ms": false,
+      "summary": {
+        "width": 31,
+        "rounds_per_block": 15,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3192077.533333333,
+              "mad": 6524.333333333256
+            },
+            "ns_per_point": {
+              "median": 102970.24301075269,
+              "mad": 210.4623655914038
+            },
+            "points_per_second": {
+              "median": 9711.550757168254,
+              "mad": 19.883105853663437
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 7476893.699999999,
+              "mad": 118328.0
+            },
+            "ns_per_point": {
+              "median": 241190.1193548387,
+              "mad": 3817.032258064515
+            },
+            "points_per_second": {
+              "median": 4146.182468260724,
+              "mad": 65.64428148638262
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.3360474332872494,
+          "mad": 0.018740363000843363,
+          "median_by_order": {
+            "original-first": 2.3360474332872494,
+            "rust-first": 2.338211187887132
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.308624714222218,
+            2.394257763733859
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        37200,
+        0,
+        93000,
+        74400,
+        37200,
+        0,
+        93000,
+        74400,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        600,
+        0,
+        1800,
+        1200,
+        37200,
+        0,
+        93000,
+        74400,
+        0,
+        0,
+        0,
+        3600,
+        204600,
+        600,
+        148800,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native",
+      "width": 31,
+      "workload": "changing",
+      "minimum_block_ns": 47933883,
+      "below_20ms": false,
+      "summary": {
+        "width": 31,
+        "rounds_per_block": 15,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3210043.2666666666,
+              "mad": 8815.0
+            },
+            "ns_per_point": {
+              "median": 103549.78279569893,
+              "mad": 284.3548387096889
+            },
+            "points_per_second": {
+              "median": 9657.215597951166,
+              "mad": 26.569297204036047
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 7403403.833333334,
+              "mad": 61750.53333333321
+            },
+            "ns_per_point": {
+              "median": 238819.47849462368,
+              "mad": 1991.9526881720376
+            },
+            "points_per_second": {
+              "median": 4187.468280939802,
+              "mad": 34.938270412363636
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.305767765520743,
+          "mad": 0.025099168039428577,
+          "median_by_order": {
+            "original-first": 2.32359802095156,
+            "rust-first": 2.2827555239878325
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.2914884565911864,
+            2.3344178800614315
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        37200,
+        0,
+        93000,
+        74400,
+        37200,
+        0,
+        93000,
+        74400,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        600,
+        0,
+        1800,
+        1200,
+        37200,
+        0,
+        93000,
+        74400,
+        0,
+        0,
+        0,
+        3600,
+        204600,
+        600,
+        148800,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "symbolica",
+      "width": 31,
+      "workload": "repeated",
+      "minimum_block_ns": 47376281,
+      "below_20ms": false,
+      "summary": {
+        "width": 31,
+        "rounds_per_block": 15,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3164501.466666667,
+              "mad": 3923.6666666665114
+            },
+            "ns_per_point": {
+              "median": 102080.69247311828,
+              "mad": 126.5698924731114
+            },
+            "points_per_second": {
+              "median": 9796.171791338358,
+              "mad": 12.130823301802593
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 8246437.666666666,
+              "mad": 11779.69999999972
+            },
+            "ns_per_point": {
+              "median": 266014.1182795699,
+              "mad": 379.99032258067746
+            },
+            "points_per_second": {
+              "median": 3759.1990535232508,
+              "mad": 5.378409301665897
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.6084167705615373,
+          "mad": 0.007473411002010488,
+          "median_by_order": {
+            "original-first": 2.607619192593292,
+            "rust-first": 2.6222909201962254
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.6009765369684397,
+            2.633437594172376
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        37200,
+        0,
+        93000,
+        74400,
+        37200,
+        0,
+        93000,
+        74400,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        600,
+        0,
+        1800,
+        1200,
+        37200,
+        0,
+        93000,
+        74400,
+        0,
+        0,
+        0,
+        3600,
+        204600,
+        600,
+        148800,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "symbolica",
+      "width": 31,
+      "workload": "changing",
+      "minimum_block_ns": 47751063,
+      "below_20ms": false,
+      "summary": {
+        "width": 31,
+        "rounds_per_block": 15,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3192098.8666666667,
+              "mad": 7792.333333333256
+            },
+            "ns_per_point": {
+              "median": 102970.9311827957,
+              "mad": 251.36559139784367
+            },
+            "points_per_second": {
+              "median": 9711.4797085281,
+              "mad": 23.764736291329427
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 8694932.333333332,
+              "mad": 70683.19999999925
+            },
+            "ns_per_point": {
+              "median": 280481.688172043,
+              "mad": 2280.103225806466
+            },
+            "points_per_second": {
+              "median": 3565.31110793504,
+              "mad": 29.20621992011388
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.71744303498224,
+          "mad": 0.015922278800087675,
+          "median_by_order": {
+            "original-first": 2.71744303498224,
+            "rust-first": 2.716815526078467
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.6978843516268407,
+            2.7307471103593817
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        37200,
+        0,
+        93000,
+        74400,
+        37200,
+        0,
+        93000,
+        74400,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        600,
+        0,
+        1800,
+        1200,
+        37200,
+        0,
+        93000,
+        74400,
+        0,
+        0,
+        0,
+        3600,
+        204600,
+        600,
+        148800,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native-denominators",
+      "width": 31,
+      "workload": "repeated",
+      "minimum_block_ns": 47353342,
+      "below_20ms": false,
+      "summary": {
+        "width": 31,
+        "rounds_per_block": 15,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3167412.0999999996,
+              "mad": 3556.0
+            },
+            "ns_per_point": {
+              "median": 102174.58387096773,
+              "mad": 114.70967741935601
+            },
+            "points_per_second": {
+              "median": 9787.169905798612,
+              "mad": 10.987454972175328
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 8051786.066666666,
+              "mad": 222742.7000000002
+            },
+            "ns_per_point": {
+              "median": 259735.03440860217,
+              "mad": 7185.248387096784
+            },
+            "points_per_second": {
+              "median": 3850.970430219187,
+              "mad": 107.10808236440289
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.5435957803663287,
+          "mad": 0.06829418965981726,
+          "median_by_order": {
+            "original-first": 2.4863119320332876,
+            "rust-first": 2.6178254274356174
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.4815866856887405,
+            2.6068150861088415
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        37200,
+        0,
+        93000,
+        74400,
+        37200,
+        0,
+        93000,
+        74400,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        600,
+        0,
+        1800,
+        1200,
+        37200,
+        0,
+        93000,
+        74400,
+        0,
+        0,
+        0,
+        3600,
+        204600,
+        600,
+        148800,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "selection": "native-denominators",
+      "width": 31,
+      "workload": "changing",
+      "minimum_block_ns": 47714003,
+      "below_20ms": false,
+      "summary": {
+        "width": 31,
+        "rounds_per_block": 15,
+        "paired_blocks": 8,
+        "counts_by_order": {
+          "original-first": 4,
+          "rust-first": 4
+        },
+        "timings": {
+          "original": {
+            "ns_per_batch": {
+              "median": 3193615.2,
+              "mad": 4347.633333333302
+            },
+            "ns_per_point": {
+              "median": 103019.84516129032,
+              "mad": 140.24623655914183
+            },
+            "points_per_second": {
+              "median": 9706.869133010434,
+              "mad": 13.20379894558846
+            }
+          },
+          "rust": {
+            "ns_per_batch": {
+              "median": 8303093.833333334,
+              "mad": 78935.86666666577
+            },
+            "ns_per_point": {
+              "median": 267841.7365591398,
+              "mad": 2546.3182795698813
+            },
+            "points_per_second": {
+              "median": 3733.5701985531414,
+              "mad": 35.18195364977419
+            }
+          }
+        },
+        "rust_over_original": {
+          "median": 2.5988662914491725,
+          "mad": 0.021216151810457662,
+          "median_by_order": {
+            "original-first": 2.5366420856281255,
+            "rust-first": 2.616539869650979
+          },
+          "confidence_level": 0.95,
+          "confidence_interval": [
+            2.5685273881011303,
+            2.603193825841144
+          ],
+          "bootstrap_samples": 10000,
+          "bootstrap_seed": 1729,
+          "method": "percentile bootstrap of paired median ratios, stratified by process order"
+        },
+        "mad_definition": "unscaled median absolute deviation from the sample median",
+        "uncertainty_scope": "Observed paired timing blocks only; does not establish host isolation or performance acceptance."
+      },
+      "original_counter_deltas": [
+        37200,
+        0,
+        93000,
+        74400,
+        37200,
+        0,
+        93000,
+        74400,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rust_counter_deltas": [
+        600,
+        0,
+        1800,
+        1200,
+        37200,
+        0,
+        93000,
+        74400,
+        0,
+        0,
+        0,
+        3600,
+        204600,
+        600,
+        148800,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "limitations": [
+    "Diagnostic only: unrelated host activity and unreserved SMT sibling prevent acceptance.",
+    "Each selection is paired with original Ninja; cross-selection confidence intervals are not directly paired. Mode order rotates by width to expose, not eliminate, temporal drift.",
+    "Bootstrap intervals describe observed paired blocks, not general hardware or phase-space uncertainty.",
+    "One physical n5 rank4 graph and three fixed-helicity changing phase-space points; this is not the full benchmark acceptance suite.",
+    "The broader native selection covers five kernel families. Geometry and remaining reduction/integration/accumulation stay interpreted.",
+    "Frozen master lookup/transport time remains included; actual master computation is zero. Separate release execution reports measure actual backend computation.",
+    "All reports retain the ordinary allocation costs; no warmed allocation-free claim.",
+    "No numerical accuracy/domain extension: the reciprocal guard exposes overflowing f64 failure.",
+    "No comparison with the older dba methodology; previous immutable archives are retained separately."
+  ]
+}
