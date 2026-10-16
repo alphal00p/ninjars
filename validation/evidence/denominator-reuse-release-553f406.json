@@ -1,0 +1,287 @@
+{
+  "schema": "ninjars-denominator-reuse-release-correctness-v1",
+  "source_commit": "553f4062ca0f58424a78895cd25a4a469363c4cb",
+  "release_runtime_commit": "ef6ab23c1201cf4ad6e8cd2eaf975b1c94913888",
+  "previous_measured_source": "de0f1908b711db1959d535ed08d399f9d40ad1bd",
+  "success": true,
+  "performance_acceptance": false,
+  "timing_samples_collected": 0,
+  "scope": "Optimized f64 physical/reference correctness for same-call denominator reuse; three reduction selections share one artifact and unchanged numerator/master policies.",
+  "source_change": {
+    "production_files": [
+      "crates/ninjars/src/bubbles.rs",
+      "crates/ninjars/src/tadpoles.rs",
+      "crates/ninjars-symbolica/src/bubble_kernels.rs",
+      "crates/ninjars-symbolica/src/tadpole_kernels.rs"
+    ],
+    "behavior": "Retain raw division denominator expansions for correction requests within the same combined call when live input identities and ordered layouts match; otherwise recompute. No persistent numerical result cache.",
+    "excluded_from_release": [
+      "rank/block numerical experiments",
+      "native geometry dispatch"
+    ],
+    "post_runtime_commit_changes": "A cfg(all(test,feature=\"rust-codegen\")) source-audit module plus documentation/evidence; these do not enter the release runtime.",
+    "dependencies_changed": false,
+    "benchmark_runtime_api_changed": false,
+    "recorded_source_manifest_changes": [
+      "crates/ninjars-symbolica/src/algorithm_rank_probe.rs",
+      "crates/ninjars-symbolica/src/bubble_kernels.rs",
+      "crates/ninjars-symbolica/src/denominator_reuse_tests.rs",
+      "crates/ninjars-symbolica/src/subtraction.rs",
+      "crates/ninjars-symbolica/src/tadpole_kernels.rs",
+      "crates/ninjars/src/bubbles.rs",
+      "crates/ninjars/src/tadpoles.rs"
+    ],
+    "previous_manifest_sha256": "45813753dc4486b2fd3e9aea3d2138ed8523dfcf8d828927eaeb675cec0ee96b"
+  },
+  "dependencies": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "oneloopmaster": "53106429b849e5bcf843f111429be76227b4e0ce",
+    "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+  },
+  "release_profile": {
+    "opt_level": 3,
+    "lto": "thin",
+    "codegen_units": 1,
+    "matches_main_workspace_profile": true
+  },
+  "archives": {
+    "oracle": {
+      "path": "validation/evidence/denominator-reuse-release-553f406-oracle.json.gz",
+      "uncompressed_sha256": "12ff66b09b0879628a372581cc5b983f1bec8cc28c38cd5db92f91feaed7c6e2",
+      "compressed_sha256": "3661e51f96c8a3ad18236e936e3614ba92870762451b402c2cae97c6389efb60",
+      "uncompressed_bytes": 304631,
+      "compressed_bytes": 98469,
+      "original_report": "/shared/external/ninja/target/performance/denominator-reuse-release-oracle-553f406/result.json"
+    },
+    "symbolica": {
+      "path": "validation/evidence/denominator-reuse-release-553f406-symbolica.json.gz",
+      "uncompressed_sha256": "400204d173391282af57dc5e64a6d1d7ff98817af1136116eb1dcdc433f4a5ab",
+      "compressed_sha256": "c8b6f524efc5987cf1bbe4b3cb47cff891237c84b0f047ffdfa07e3a04135596",
+      "uncompressed_bytes": 2558532,
+      "compressed_bytes": 324220,
+      "original_report": "/shared/external/ninja/target/performance/denominator-reuse-release-check-553f406-symbolica/result.json"
+    },
+    "native-denominators": {
+      "path": "validation/evidence/denominator-reuse-release-553f406-native-denominators.json.gz",
+      "uncompressed_sha256": "1363ad4d4c66bbe6ab5ed32586015cc9b5c9f1bd10dd7d8473c493cd3512b284",
+      "compressed_sha256": "d44abfb0a5c47c0a930051cf11dfa7c5b71e93e80f9c33011cdc11e8db179b24",
+      "uncompressed_bytes": 2564735,
+      "compressed_bytes": 326405,
+      "original_report": "/shared/external/ninja/target/performance/denominator-reuse-release-check-553f406-native-denominators/result.json"
+    },
+    "native": {
+      "path": "validation/evidence/denominator-reuse-release-553f406-native.json.gz",
+      "uncompressed_sha256": "b1e7205489142c8fcb048ff07a444f974696c3acd60639e0f4542fd335271078",
+      "compressed_sha256": "d425b4cf3e0683efbb0b51e0f8f817ef82f096d91cce16d460694b2ab1a0c78c",
+      "uncompressed_bytes": 2560994,
+      "compressed_bytes": 326045,
+      "original_report": "/shared/external/ninja/target/performance/denominator-reuse-release-check-553f406-native/result.json"
+    }
+  },
+  "all_runtime_source_manifests_identical": true,
+  "runtime_source_manifest_sha256": "587291e52fc60f8ccd275fbb826fdeb2ca83e9d50fc149d32ac8b29de42e9e94",
+  "same_artifact_map_for_all_three_reduction_checks": {
+    "/shared/external/ninja/target/performance/denominator-reuse-release-check-553f406-symbolica/libninjars_shared_provider_probe.so": "11d13bc53f22d8ac5ef0fba4f9e54e68200c8c4b5c9897b996f9cf44db03d8d2",
+    "/shared/external/ninja/target/performance/denominator-reuse-release-check-553f406-symbolica/physical-timing": "7024a79c77b8fd0c74575e1cdc4accf9b2b453a18b35f293553c85319d520382",
+    "/shared/external/ninja/target/reference-uncached-v2/ninja-build/src/.libs/libninja.a": "8f4d39dad292a28a05dd4e56bd4cbb7014cf08532ef4d8484c00ea44e0b097a3",
+    "/shared/external/ninja/target/reference-uncached-v2/oneloop/libavh_olo.a": "28c37c328fadd6f4f09f973bfb961b3bccb3c729583a92dc2186fd947ccbe4dd",
+    "/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib/libgfortran.so": "dce24abf076b71460d7df11c8bf00dcc2bb7eb69489f79aff48b53ae07e57b38",
+    "/shared/external/ninja/target/performance/denominator-reuse-release-check-553f406-symbolica/input.txt": "01c34e7c21fd3063ec86ea6d9ee559c3a70975214ae3756b0f8783a3e06477ba"
+  },
+  "oracle": {
+    "integrated_widths": [
+      0,
+      1,
+      3,
+      8,
+      31,
+      32,
+      128,
+      1024
+    ],
+    "preparation_widths": [
+      0,
+      1,
+      8,
+      32,
+      128,
+      1024,
+      31
+    ],
+    "raw_components_checked": 210,
+    "raw_max_scaled_error": 3.771063304099544e-15,
+    "coefficient_oracle_max_scaled_error": 2.3581169793365375e-15,
+    "jit_interpreter_max_scaled_error": 1.3021791046214033e-15,
+    "integrated_max_scaled_error": 2.1453487309187703e-16,
+    "madloop_integrated_max_scaled_error": 1.162555970610204e-16,
+    "batch_laurent_components_checked": 3681,
+    "catalog_parity": [
+      {
+        "coverage": {
+          "selection": "symbolica",
+          "native_feature_enabled": true,
+          "families": {
+            "t2_denominators": "symbolica-interpreter",
+            "t3_denominators": "symbolica-interpreter",
+            "bubble_source_projection": "symbolica-interpreter",
+            "triangle_bubble_correction": "symbolica-interpreter",
+            "tadpole_source_projection": "symbolica-interpreter",
+            "other_reduction": "symbolica-interpreter",
+            "integration": "symbolica-interpreter",
+            "accumulation": "symbolica-interpreter"
+          },
+          "selection_scope": "Setup-only partial catalog; unused stages need not execute. Numerator, geometry and masters are independent."
+        },
+        "complex_components_checked": 6135,
+        "max_scaled_error": 0
+      },
+      {
+        "coverage": {
+          "selection": "native-denominators",
+          "native_feature_enabled": true,
+          "families": {
+            "t2_denominators": "native-rust",
+            "t3_denominators": "native-rust",
+            "bubble_source_projection": "symbolica-interpreter",
+            "triangle_bubble_correction": "symbolica-interpreter",
+            "tadpole_source_projection": "symbolica-interpreter",
+            "other_reduction": "symbolica-interpreter",
+            "integration": "symbolica-interpreter",
+            "accumulation": "symbolica-interpreter"
+          },
+          "selection_scope": "Setup-only partial catalog; unused stages need not execute. Numerator, geometry and masters are independent."
+        },
+        "complex_components_checked": 6135,
+        "max_scaled_error": 2.311115933264683e-33
+      },
+      {
+        "coverage": {
+          "selection": "native",
+          "native_feature_enabled": true,
+          "families": {
+            "t2_denominators": "native-rust",
+            "t3_denominators": "native-rust",
+            "bubble_source_projection": "native-rust",
+            "triangle_bubble_correction": "native-rust",
+            "tadpole_source_projection": "native-rust",
+            "other_reduction": "symbolica-interpreter",
+            "integration": "symbolica-interpreter",
+            "accumulation": "symbolica-interpreter"
+          },
+          "selection_scope": "Setup-only partial catalog; unused stages need not execute. Numerator, geometry and masters are independent."
+        },
+        "complex_components_checked": 6135,
+        "max_scaled_error": 3.496446946337351e-18
+      }
+    ],
+    "precision_oracle_boundary": "Float256 exactly promotes binary64 physical component inputs after wavefunction evaluation; this checks coefficient arithmetic, not high-precision physical wavefunctions."
+  },
+  "reduction_checks": {
+    "symbolica": {
+      "records": 12,
+      "laurent_components_checked": 22032,
+      "widths": [
+        1,
+        8,
+        31,
+        32,
+        128,
+        1024
+      ],
+      "workloads": [
+        "changing",
+        "repeated"
+      ],
+      "maximum_scaled_error": 2.089315818533712e-16,
+      "master_union_entries": 85,
+      "master_backend_calls": 0,
+      "master_backend_rows": 0,
+      "union_misses": 0
+    },
+    "native-denominators": {
+      "records": 12,
+      "laurent_components_checked": 22032,
+      "widths": [
+        1,
+        8,
+        31,
+        32,
+        128,
+        1024
+      ],
+      "workloads": [
+        "changing",
+        "repeated"
+      ],
+      "maximum_scaled_error": 2.089315818533712e-16,
+      "master_union_entries": 85,
+      "master_backend_calls": 0,
+      "master_backend_rows": 0,
+      "union_misses": 0
+    },
+    "native": {
+      "records": 12,
+      "laurent_components_checked": 22032,
+      "widths": [
+        1,
+        8,
+        31,
+        32,
+        128,
+        1024
+      ],
+      "workloads": [
+        "changing",
+        "repeated"
+      ],
+      "maximum_scaled_error": 2.089315818533712e-16,
+      "master_union_entries": 85,
+      "master_backend_calls": 0,
+      "master_backend_rows": 0,
+      "union_misses": 0
+    }
+  },
+  "provider": {
+    "shared_out_of_line_abi": true,
+    "coefficient_heads": "Factored multi-output SymJIT O2, evaluated only in physical preparation",
+    "reduction_callbacks": "Same PolynomialNumerator<f64> and generic Symbolica batched interpreter for direct/Mu/T3/T2; callbacks are not JIT compiled",
+    "execution_span_scope": "Individual direct/Mu/T3/T2 provider ABI decoding, interpreted evaluation and output writing; calls/rows/ns reported separately"
+  },
+  "callback_work_policy": "Same PolynomialNumerator provider and equal sampled rows, but different requested expansion heads/depths between original Ninja and NinjaRS; no equal callback arithmetic claim.",
+  "master_policy": "Per-process capture under the same ordered request/backend policy, followed by one shared frozen handle within each process. The all-mode oracle uses literally one shared union/handle for all selections. Frozen lookup/transport remains included; actual backend execution is zero in reduction checks.",
+  "previous_evidence": [
+    "validation/evidence/shared-reduction-catalog-release-de0f190.json",
+    "validation/evidence/shared-reduction-catalog-timing-de0f190.json",
+    "validation/evidence/denominator-reuse.json"
+  ],
+  "limitations": [
+    "No new timing samples, speedup claim or performance acceptance.",
+    "Total Laurent values and internal finite-split identities are checked; separate rational-split parity across the two residue conventions remains incomplete.",
+    "Production-backend instrumented accounting was not repeated because provider/backend/accounting code and dependencies are unchanged; prior accounting evidence is explicitly at de0f190, not this new source.",
+    "The broader native catalog remains partial; geometry and other stages retain their reported interpreter paths.",
+    "The physical Float256 oracle promotes represented binary64 component inputs and is not a high-precision wavefunction oracle.",
+    "The previous native overflow defect remains a visible f64 failure rather than a silent finite result; no domain expansion is claimed."
+  ],
+  "prior_saved_artifact_checks": [
+    {
+      "report": "/shared/external/ninja/target/performance/reduction-methodology-release-check-0c77597/result.json",
+      "report_sha256": "283c40426ee8671ef68b37aee7040911d2c10913a808b940fe9ea8d2c9dda4bc",
+      "all_saved_artifact_hashes_unchanged": true
+    },
+    {
+      "report": "/shared/external/ninja/target/performance/reduction-catalog-release-check-ee1f152-symbolica/result.json",
+      "report_sha256": "9e400a820d07e801f540d0da261f5ea6c39fd574c918f2cd87d4929e603fcde3",
+      "all_saved_artifact_hashes_unchanged": true
+    },
+    {
+      "report": "/shared/external/ninja/target/performance/reduction-catalog-release-check-de0f190-symbolica/result.json",
+      "report_sha256": "276863dcabe35d76905feee5afc6bf4e4564b2afcbffbfe417b5555de142409d",
+      "all_saved_artifact_hashes_unchanged": true
+    },
+    {
+      "report": "/shared/external/ninja/target/performance/reduction-catalog-release-execution-de0f190-symbolica/result.json",
+      "report_sha256": "c424a0e2031cfec046a7c71064bb12adc9145571760221ceeb647b727d9292c1",
+      "all_saved_artifact_hashes_unchanged": true
+    }
+  ]
+}
