@@ -74,6 +74,11 @@ the integrated rational coefficient directly from the numerator expansion.
 Conditioning diagnostics and precision rescue remain under development.
 
 `--cut-stop N` omits cuts smaller than N; values 0/1 retain full reduction.
+As in original Ninja, using a higher stop assumes that omitted cuts contribute
+zero. A retained partial contribution can depend on the cut basis: the
+[rotation control](validation/evidence/partial-cut-basis.json) demonstrates this
+for a bubble with nonzero tadpoles. Compare complete reductions unless that
+assumption has been independently established.
 Fixtures may supply an exact `s_matrix` per sample, in prepared propagator order,
 to preserve invariants that rounded momentum components would lose. These
 invariants feed both master integrals and rational terms.
@@ -95,6 +100,10 @@ outside primary timings; callbacks and masters are measured in a separate
 diagnostic pass. Reports retain individual timings and failed-lane counts.
 These are Rust-only measurements, with performance acceptance explicitly
 marked false. See [benchmark controls and timing boundaries](docs/benchmarks.md).
+The [matched reference timing harness](validation/performance/README.md) uses a
+common parameterized numerator, an uncached original-Ninja/OneLOop build, and
+persistent numerical sessions. It records full Laurent checks, compiler/build
+provenance and raw timing rounds; the performance gates remain unfulfilled.
 
 The optional `ninjars-symbolica/rust-codegen` feature exports existing exact
 kernel graphs through oneloopmaster's shared emitter. The

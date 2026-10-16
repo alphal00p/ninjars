@@ -239,6 +239,8 @@ pub fn run(args: Args) -> Result<()> {
         output: None,
         #[cfg(feature = "reference-codegen")]
         reference_dir: None,
+        #[cfg(feature = "reference-codegen")]
+        reference_bench_dir: None,
     })?;
     let success = evaluate_prepared(&mut prepared, &args)?;
     let output = serde_json::to_string_pretty(&prepared.document)? + "\n";

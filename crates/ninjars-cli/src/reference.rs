@@ -22,7 +22,7 @@ use crate::prepare::PreparedSample as ExportSample;
 /// Evaluate only at the independent reference's required binary64 boundary.
 /// The higher precision probe also prevents tiny complex components from being
 /// silently discarded when checking original Ninja's real-momentum interface.
-fn numerical(expression: &Atom, label: &str, real_only: bool) -> Result<Complex<f64>> {
+pub(crate) fn numerical(expression: &Atom, label: &str, real_only: bool) -> Result<Complex<f64>> {
     let values = HashMap::<Atom, Complex<Float>>::new();
     let value = expression
         .evaluate_with_prec(&values, 200)

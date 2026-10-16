@@ -1,0 +1,1374 @@
+{
+  "schema_version": 1,
+  "performance_acceptance": false,
+  "purpose": "protocol and correctness controls; short loop timings are not benchmark evidence",
+  "binary_sha256": "946a012ca9a95dee4d81176ae483fa7a77505a478324f5b6ead9f66812cac784",
+  "build_metadata": {
+    "ninja": {
+      "commit": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+      "dirty": false
+    },
+    "MG5_aMC_v3_7_0": {
+      "source": "release directory",
+      "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+    },
+    "compiler": "g++ (GCC) 15.3.0",
+    "fortran_compiler": "GNU Fortran (GCC) 15.3.0",
+    "configuration": {
+      "config_sha256": "2468fc46b1fe8e5d2351ba81952a7c3432da07d771c421b8ad90efe7d32c191a",
+      "oneloop": true,
+      "master_result_cache": false,
+      "higher_rank": true
+    },
+    "build_commands": [
+      {
+        "argv": [
+          "gfortran",
+          "-O3",
+          "-fPIC",
+          "-c",
+          "avh_olo_foriregi.f90",
+          "avh_olo_alias.f90"
+        ],
+        "cwd": "/shared/external/ninja/target/reference-uncached-v2/oneloop"
+      },
+      {
+        "argv": [
+          "ar",
+          "rcs",
+          "libavh_olo.a",
+          "avh_olo_foriregi.o",
+          "avh_olo_alias.o"
+        ],
+        "cwd": "/shared/external/ninja/target/reference-uncached-v2/oneloop"
+      },
+      {
+        "argv": [
+          "autoreconf",
+          "-fi"
+        ],
+        "cwd": "/shared/external/ninja/target/reference-uncached-v2/ninja-source"
+      },
+      {
+        "argv": [
+          "/shared/external/ninja/target/reference-uncached-v2/ninja-source/configure",
+          "--disable-shared",
+          "--disable-autoflags",
+          "--disable-f90module",
+          "--disable-gosam",
+          "--disable-avholo_cache",
+          "--with-avholo=-L/shared/external/ninja/target/reference-uncached-v2/oneloop -lavh_olo",
+          "FCINCLUDE=-I/shared/external/ninja/target/reference-uncached-v2/oneloop",
+          "CXXFLAGS=-O3 -DNDEBUG",
+          "FCFLAGS=-O3"
+        ],
+        "cwd": "/shared/external/ninja/target/reference-uncached-v2/ninja-build"
+      },
+      {
+        "argv": [
+          "make",
+          "-C",
+          "src",
+          "-j",
+          "4",
+          "libninja.la"
+        ],
+        "cwd": "/shared/external/ninja/target/reference-uncached-v2/ninja-build"
+      }
+    ],
+    "oneloop_source_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd",
+    "alias_sha256": "f7344c747eda05b78fefc63ca2c100fd37d373633a97e9d18b61f78ed7db2daf",
+    "libraries_sha256": {
+      "libninja.a": "8f4d39dad292a28a05dd4e56bd4cbb7014cf08532ef4d8484c00ea44e0b097a3",
+      "libavh_olo.a": "28c37c328fadd6f4f09f973bfb961b3bccb3c729583a92dc2186fd947ccbe4dd"
+    },
+    "input_files_sha256": {
+      "ninja-build/config.h": "2468fc46b1fe8e5d2351ba81952a7c3432da07d771c421b8ad90efe7d32c191a",
+      "ninja-build/src/ninja/ninja_config.h": "8ab4344f1c8e229672fd3349e06a7092cecd999db9ecb56ae8234c514e984292",
+      "ninja-source/src/Makefile.am": "2f9f8da45f77f4ff03f7b4b70b42c98bb2edb63d15958a4a804a1bc674dc38f8",
+      "ninja-source/src/Makefile.in": "56be1198b8288214276cafd73ecbbe7c1835929f3a3aab5ac72a6716d5d6d121",
+      "ninja-source/src/Xcuts.cc": "e0990e84c687b25c22427b6d8e7f6d9574a761b5c807c1492b0357860923bfb3",
+      "ninja-source/src/Xcuts.hh": "e73d0bd4efb898183d78df7161583da2e5ff066d55e876b278fc4276f3ad016c",
+      "ninja-source/src/Xninja.cc": "fd5af01c06d90594e21e0bb9338a6e7c62036e496232f660de5a36fee2b8df82",
+      "ninja-source/src/avholo_decls.hh": "682044e4fa94421fa890f5a03ddbccbd0cbac28f18de66dc4da7719bc0ca2f4c",
+      "ninja-source/src/avholo_interface.cc": "46304cac1f2d20c0d05e0293a5bf570caa9ad030e242e1b07e21717282e354ca",
+      "ninja-source/src/avholo_wrapper.F90": "fa191d8de99a6bdf77cff040e9e5a19ae44437e5ebd2632e6726c322a0e0a115",
+      "ninja-source/src/basis.cc": "c72390a4a95db4d4bb74f521e9ca7d4ce77a7b2620492f25950eaf397527e18f",
+      "ninja-source/src/basis.hh": "dd1cbb67f60101f85898913800fdedb15d6de0779e01d8916a31b04916dfda32",
+      "ninja-source/src/coefficient_level_subs.cc": "cf408bc630a23ffa2a95a1f2479c3f6059d1f862fa6851897200deb788becc42",
+      "ninja-source/src/coefficient_level_subs.hh": "7978f69e1824dc794306e9bb89f23b40a4a43b61a92fbf51d30ea1fc5d89a355",
+      "ninja-source/src/cuts.cc": "7e590571be2f7574a52ad3243fa1089f69b3981c5fa318aeb2d98be812b8df7d",
+      "ninja-source/src/cuts.hh": "ccd37f7f49ca79daec29aa204d3d8b412a296987a4321be0891f53e04c90ffd1",
+      "ninja-source/src/cuts_utils-inl.hh": "d2a0d1ac3ab6a9af8b65edc0273b8d036a49dcfd4aca188d7dde0f96796264da",
+      "ninja-source/src/cuts_utils.cc": "0424171e21414339be5a6054459ab52d52621d03dff56ea1a7711133f3a54fd6",
+      "ninja-source/src/cuts_utils.hh": "5dfcbcf5634520da67514390229f66c92ce5668fe2c06a233ccdb6570868f097",
+      "ninja-source/src/cuts_vector.hh": "1c5cbe80b36fb04c8ebdec4d246da7c34f01164b5859f499faa1ac798653b695",
+      "ninja-source/src/gosam_interface.cc": "2b2d7f36516949fe8b2bcd955055b7cfe530993db049713a777f3b0264419827",
+      "ninja-source/src/gosam_interface.hh": "25d4b8c5023156b56163fa4573b1789db2f20627fececff812e93d63b228d46f",
+      "ninja-source/src/integermath.hh": "3878089c31efd62557d0bf549d24ecbaec5c3fe17af29ccc95713cbe9ce33c55",
+      "ninja-source/src/integral_cache.hh": "f522e2379bb16ee5ff9e82b9f93924e120e03024b8d0757d21284a40b4c6c242",
+      "ninja-source/src/integral_library.cc": "4a218e562e9f8ebd2b990c241076fa70608e7528752f2ea842735b8b4e61e5eb",
+      "ninja-source/src/integral_library_wrapper.hh": "70cb136977f9c0ce57a5707a51a2884df595a4d951cce1821242d24ccd3a59cd",
+      "ninja-source/src/looptools_interface.cc": "37342cdbabd42d765c975dd555d50d2396a37d5ba085e4c5bfe31cfb8a7a3bf5",
+      "ninja-source/src/mninja.F90": "dbcb7aad866a85d054900e2915289ea3bdc6e78c9896134f24e6f8c29493e4a5",
+      "ninja-source/src/ninja/Makefile.am": "cfe0d51561ccd8e5fa6e18d8c0db70d650196e87fdbfb1a502ba463914612cf1",
+      "ninja-source/src/ninja/Makefile.in": "3021ca5945ec0b9e110800dc9e32fa85a83579cde7d8c2253faf3f55efb692d9",
+      "ninja-source/src/ninja/avholo.hh": "be2f45db60c03c9b102c6d00240aed908e70e541f8dbc8db4ccdf1ddd4fab195",
+      "ninja-source/src/ninja/integral_library.hh": "7f4f88660defaa4987f231d569b2f77829e4bc3eebca5b32be7e3a5dfbfda1f4",
+      "ninja-source/src/ninja/looptools.hh": "479081e28b81f640373b470585dc3cdc5b5e175279a905aab6b3bc7c578f5f8f",
+      "ninja-source/src/ninja/momentum.hh": "f3d973156ca99872dc5d38a65a38560cf9040a29ef543f518dbde0dd1c64776b",
+      "ninja-source/src/ninja/ninja.hh": "1db4224052acd1c62e6d277af6b0261213bc8e05501a9a75ab96a454eee7f7f6",
+      "ninja-source/src/ninja/ninja_config.h.in": "19edb34d64d1b51d990afbad396ac0b168b4562baaf343e2a0ba7a5ebeadcd7b",
+      "ninja-source/src/ninja/ninja_in.hh": "9100a0a3afe70f7466a4b72b1b30d47e412abc4c4f49043842e431b6f086abf7",
+      "ninja-source/src/ninja/ninjanumgen.hh": "f47a4cce39e56a7cb8695eb7e8c4bd677c28b76892134602d4d96916e54bfbda",
+      "ninja-source/src/ninja/num_defs.hh": "63760f766cc5d1121d010c65e5214c3fc1df3a16c83aae52135bbbf1346862ec",
+      "ninja-source/src/ninja/quadruple.hh": "72131ce8d53252c4ae489da517b8f38561e14f5a324cce070c7da963920a8988",
+      "ninja-source/src/ninja/rambo.hh": "ef2361afe5e4e3880f88151d36cc3c0a09571208add767e2e93f78b7f4b5c854",
+      "ninja-source/src/ninja/s_mat.hh": "bd0d9bf87946071058cfe8d307bf7f222381cba38d354bba67a81996360d31e8",
+      "ninja-source/src/ninja/spinors.hh": "3c3f5c8c72f5c0ead28abad7dda2e2cfc2be9672a214d17483639df833e5df4b",
+      "ninja-source/src/ninja/static_arrays.hh": "2aef4027a910c66040fa99295d2f9b17d71d2aa3efc5fd3b305d801da9356cee",
+      "ninja-source/src/ninja/tensor_ninja.hh": "4d198625fc48cf047df638e0d3d43eb3f510b16d943cc402246482aff4b00ab6",
+      "ninja-source/src/ninja/thread_safe_integral_library.hh": "a2a80f9b836a821434e2c88b365ffb435e6bba1f286299a11ab7bcfa90f9ea1e",
+      "ninja-source/src/ninja/types.hh": "f589cfbaa058846fe956f1f4a2c8ffe967c58ebfe5c9d0d9b4eb22fab3b82810",
+      "ninja-source/src/ninja/zero_float.hh": "cc33a3a218feac85d18b8be7282c3b739e28c41b0f4a4ef6e4f64a869e98401e",
+      "ninja-source/src/ninja.cc": "66d9ebac1b9b0082c89d4a528fc61cfb7c67190b6e0e8f058e268bc242cfdbe4",
+      "ninja-source/src/ninja_config.cc": "131bc25cb9c6dd5a15e87f0dcff4c1b5753d9daaa15542ec897ea519c42430cc",
+      "ninja-source/src/ninja_hash_table.hh": "99e91b0081ef2227a8f1324ddfb43a207629550e27e582eb70129771a2324fca",
+      "ninja-source/src/ninja_implem.cxx": "905d441157962f1119a0c862337d020cb9e7390c7c8997e998001d306b4bec3e",
+      "ninja-source/src/ninja_scoped_array.hh": "ededbe7a3d334ad5b3cec7b7fdc82b16a9d956f2ae806263a39e74a275e08ab4",
+      "ninja-source/src/ninja_wraps.cc": "2009a1594847881110a8dc6f80451504c3a90935b425662ab862851eb5322b9b",
+      "ninja-source/src/ninjago.F90": "d427342adc8b08fd0223630c61e75b1a2309d1bcc0e185bff12cbc9e3d51112c",
+      "ninja-source/src/ninjavholo.F90": "0325aab4c9591246b7f85e004dd7ee2bd2ee63d1bbdee9882eec80d3abbf996e",
+      "ninja-source/src/ninjavholo_wraps.cc": "8c0792028562cbc982243a00a7259b4cfb0f2f56713eeb2a9f0eb828feb5a246",
+      "ninja-source/src/polys_implem.cxx": "bec26fded738957b1fb5c1a689e913de469f1976b1338fe1ec19a846b50fab55",
+      "ninja-source/src/quadninja/Makefile.am": "5726820d8088bef019f6085071e3e0ebc0b70976b1709cde88315924aeee681a",
+      "ninja-source/src/quadninja/Makefile.in": "f89fe6876eaae9d8cf591e267906fe8f5969b8a75fd5a24d474a03ff2dc8384e",
+      "ninja-source/src/quadsources/genquadsources.sed": "e67497c7387be7c56245910f5236e72c4a64964b541cc7d06137a469a4c19bd8",
+      "ninja-source/src/rambo.cc": "caec8ce72cad61df5e93d742474bb57f883009136d665ebad533f1070daf449b",
+      "ninja-source/src/s_mat_wrapper.hh": "ebd11b939de26a0851d06228bb4d6a36fed868b0466776ddafa74e81be5858ea",
+      "ninja-source/src/spinors.cc": "ca69f7be55736c8feab84eb43355b8360a2fbd68d7da48755b014b14ca31e430",
+      "ninja-source/src/tensor_ninja.cc": "d1f7918e74d54914e2af2aa1514f0e35c3bc19b1d13786d97f0587797bbbe314",
+      "ninja-source/src/tmp_utils.hh": "43921953ee313717335578beb4d12ecbba5ec6753c6644f26fa4a8b5ffd2b7ae",
+      "oneloop/avh_olo_alias.f90": "f7344c747eda05b78fefc63ca2c100fd37d373633a97e9d18b61f78ed7db2daf",
+      "oneloop/avh_olo_foriregi.f90": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+    },
+    "generated_numerator_sha256": "9e76dda1218e613bd269abeefbef73e48a371203f73da3526fe6fdd260191bc9",
+    "runner_sha256": "a71af542f53495ba981b49b876e1adbdaca257368ad9032ec82989d8027ed829",
+    "runner_commands": [
+      {
+        "argv": [
+          "g++",
+          "-O3",
+          "-DNDEBUG",
+          "-std=c++11",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-source/src",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build/src",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build",
+          "-I/shared/external/ninja/target/reference-uncached-v2",
+          "-DNINJARS_GENERATED_NUMERATOR_HEADER=\"generated-9e76dda1218e613bd269abeefbef73e48a371203f73da3526fe6fdd260191bc9.hh\"",
+          "/shared/external/ninja/validation/reference/benchmark_runner.cc",
+          "/shared/external/ninja/target/reference-uncached-v2/ninja-build/src/.libs/libninja.a",
+          "/shared/external/ninja/target/reference-uncached-v2/oneloop/libavh_olo.a",
+          "/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib/libgfortran.so",
+          "-Wl,-rpath,/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib",
+          "-lquadmath",
+          "-o",
+          "/shared/external/ninja/target/reference-uncached-v2/ninja-benchmark"
+        ],
+        "cwd": "/shared/external/ninja/target/reference-uncached-v2"
+      }
+    ],
+    "runner_compiler": "g++ (GCC) 15.3.0",
+    "executable_sha256": "946a012ca9a95dee4d81176ae483fa7a77505a478324f5b6ead9f66812cac784",
+    "execution": "persistent scalar benchmark control",
+    "performance_acceptance": false
+  },
+  "source_sha256": {
+    "benchmark_runner.cc": "a71af542f53495ba981b49b876e1adbdaca257368ad9032ec82989d8027ed829",
+    "build.py": "c5f85f2e23da66b32b56c7f8ebc1319ee1df736f8a6388658792ac3a7e642484",
+    "test_benchmark_runner.py": "f74ea876edb5054aff2136678a6ee9c7d3b9cca9b4d2bdd36848ad20e328d27d"
+  },
+  "bundle_sha256": {
+    "numerator.hh": "9e76dda1218e613bd269abeefbef73e48a371203f73da3526fe6fdd260191bc9",
+    "pool.inputs": "2ca708fc54c5931a88c913a9d48f990fcbab290faa566f6e5c1e4441236b0512",
+    "manifest.json": "02c413e421de7f5d96ed47eb57577472171056e6cf45dfee6a2e2ec9a8dc922b"
+  },
+  "singleton_pool_extended_with_second_scale": true,
+  "checks": {
+    "cached_build_rejected": true,
+    "changed_source_generated_header_and_legacy_record_rejected": true,
+    "rust_laurents": [
+      {
+        "command": [
+          "/shared/external/ninja/target/reference-uncached/ninjars-validation",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/triangle-reference.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "2"
+        ],
+        "lane": 0,
+        "laurent_scaled_errors": [
+          2.218565554421657e-15,
+          1.1003163501290742e-15,
+          0.0
+        ],
+        "rust_values": [
+          [
+            "-2.468153949780422796e-1",
+            "-1.587159506964642031e0"
+          ],
+          [
+            "-5.000000000000006661e-1",
+            "-9.194034422677087461e-16"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-3.538150110642671042e-1",
+            "-1.587159506964642031e0"
+          ],
+          [
+            "1.069996160862247830e-1",
+            "2.284052576702795905e-17"
+          ]
+        ],
+        "original": {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.24681539497804256,
+              -1.5871595069646456
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.3741843631761323,
+            -1.5871595069646456
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        "passed": true,
+        "correctness_gate": true,
+        "scope": "full reduction"
+      },
+      {
+        "command": [
+          "/shared/external/ninja/target/reference-uncached/ninjars-validation",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/triangle-reference.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "2",
+          "--mu-extraction",
+          "sampling"
+        ],
+        "lane": 0,
+        "laurent_scaled_errors": [
+          2.218565554421657e-15,
+          1.1003163501290742e-15,
+          0.0
+        ],
+        "rust_values": [
+          [
+            "-2.468153949780422796e-1",
+            "-1.587159506964642031e0"
+          ],
+          [
+            "-5.000000000000006661e-1",
+            "-9.194034422677087461e-16"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-3.538150110642671042e-1",
+            "-1.587159506964642031e0"
+          ],
+          [
+            "1.069996160862247830e-1",
+            "2.284052576702795905e-17"
+          ]
+        ],
+        "original": {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.24681539497804256,
+              -1.5871595069646456
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.3741843631761323,
+            -1.5871595069646456
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        "passed": true,
+        "correctness_gate": true,
+        "scope": "full reduction"
+      },
+      {
+        "command": [
+          "/shared/external/ninja/target/reference-uncached/ninjars-validation",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/triangle-reference.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "2",
+          "--cut-stop",
+          "2"
+        ],
+        "lane": 0,
+        "laurent_scaled_errors": [
+          0.016486395958887984,
+          0.02628979984011065,
+          0.0
+        ],
+        "rust_values": [
+          [
+            "-1.279455497876576531e-1",
+            "-1.587159506964641142e0"
+          ],
+          [
+            "-3.811301548096160952e-1",
+            "2.081668171172062510e-17"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-2.349451658738824222e-1",
+            "-1.587159506964641142e0"
+          ],
+          [
+            "1.069996160862247830e-1",
+            "2.284052576702795905e-17"
+          ]
+        ],
+        "original": {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.1542353496277683,
+              -1.5871595069646451
+            ],
+            [
+              -0.40741995464972675,
+              2.260922930356439e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.28160431782585804,
+            -1.5871595069646451
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        "passed": false,
+        "correctness_gate": false,
+        "scope": "partial-cut diagnostic; mismatch origin unresolved"
+      }
+    ],
+    "malformed_inputs_rejected": 27,
+    "nonfinite_reference_suppresses_timing": {
+      "schema_version": 1,
+      "operation": "original_ninja_benchmark",
+      "success": false,
+      "performance_acceptance": false,
+      "execution": "persistent serial scalar evaluations",
+      "cache_policy": {
+        "numerical_master_results": "disabled at configure time"
+      },
+      "measurement_scope": "parameter and sample-pointer rebinding, scale and S-matrix controls, reset, original Ninja reduction and OneLOop masters; no parsing, setup, sequence packing, JSON, IPC or checksum",
+      "status_scope": "all source rows before and after timing; final warmup passes; timed outputs consumed without per-iteration validation",
+      "epsilon_order": [
+        "finite",
+        "single_pole",
+        "double_pole"
+      ],
+      "coefficient_mode": "integrated",
+      "mu_extraction": "expansion",
+      "sampling_scale_policy": "original Ninja per-box max of real masses-squared and absolute S-matrix invariants; fallback below INFRARED_EPS",
+      "cut_stop": 1,
+      "propagators": 3,
+      "rank": 3,
+      "parameter_count": 8,
+      "pool_rows": 2,
+      "thread_count": 1,
+      "precision_rescue": {
+        "enabled": false,
+        "attempts": 0
+      },
+      "checksum_algorithm": "FNV1a64 over little-endian row count, row IDs, statuses and binary64 components",
+      "pre_checksum": "3f4063f3c7cfa617",
+      "post_checksum": "a8c7f832281a39c5",
+      "pre_post_equal": false,
+      "pre_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.24681539497804256,
+              -1.5871595069646456
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.3741843631761323,
+            -1.5871595069646456
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": false,
+          "epsilon": [
+            null,
+            null,
+            null
+          ],
+          "cut_constructible": null,
+          "rational": null
+        }
+      ],
+      "post_results": [],
+      "jobs": []
+    },
+    "rebind_permuted": {
+      "schema_version": 1,
+      "operation": "original_ninja_benchmark",
+      "success": true,
+      "performance_acceptance": false,
+      "execution": "persistent serial scalar evaluations",
+      "cache_policy": {
+        "numerical_master_results": "disabled at configure time"
+      },
+      "measurement_scope": "parameter and sample-pointer rebinding, scale and S-matrix controls, reset, original Ninja reduction and OneLOop masters; no parsing, setup, sequence packing, JSON, IPC or checksum",
+      "status_scope": "all source rows before and after timing; final warmup passes; timed outputs consumed without per-iteration validation",
+      "epsilon_order": [
+        "finite",
+        "single_pole",
+        "double_pole"
+      ],
+      "coefficient_mode": "integrated",
+      "mu_extraction": "expansion",
+      "sampling_scale_policy": "original Ninja per-box max of real masses-squared and absolute S-matrix invariants; fallback below INFRARED_EPS",
+      "cut_stop": 1,
+      "propagators": 3,
+      "rank": 3,
+      "parameter_count": 8,
+      "pool_rows": 5,
+      "thread_count": 1,
+      "precision_rescue": {
+        "enabled": false,
+        "attempts": 0
+      },
+      "checksum_algorithm": "FNV1a64 over little-endian row count, row IDs, statuses and binary64 components",
+      "pre_checksum": "8339b187804ec8f2",
+      "post_checksum": "8339b187804ec8f2",
+      "pre_post_equal": true,
+      "pre_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.24681539497804256,
+              -1.5871595069646456
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.3741843631761323,
+            -1.5871595069646456
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.24681539497804256,
+              -1.5871595069646456
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.3741843631761323,
+            -1.5871595069646456
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        {
+          "lane": 2,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.593388985258016,
+              -1.5871595069646451
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.7207579534561057,
+            -1.5871595069646451
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        {
+          "lane": 3,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.24681539497804256,
+              -1.5871595069646456
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.3741843631761323,
+            -1.5871595069646456
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        {
+          "lane": 4,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.24681539497804256,
+              -1.5871595069646456
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.3741843631761323,
+            -1.5871595069646456
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        }
+      ],
+      "post_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.24681539497804256,
+              -1.5871595069646456
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.3741843631761323,
+            -1.5871595069646456
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.24681539497804256,
+              -1.5871595069646456
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.3741843631761323,
+            -1.5871595069646456
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        {
+          "lane": 2,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.593388985258016,
+              -1.5871595069646451
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.7207579534561057,
+            -1.5871595069646451
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        {
+          "lane": 3,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.24681539497804256,
+              -1.5871595069646456
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.3741843631761323,
+            -1.5871595069646456
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        {
+          "lane": 4,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.24681539497804256,
+              -1.5871595069646456
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.3741843631761323,
+            -1.5871595069646456
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "job_id": 7,
+          "workload": "repeated",
+          "pool_policy": "fixture row zero repeated",
+          "points_per_iteration": 5,
+          "warmup_passes": 1,
+          "rounds": 2,
+          "iterations_per_round": 2,
+          "timed_points_per_round": 10,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            97720.0,
+            98020.0
+          ]
+        },
+        {
+          "job_id": 19,
+          "workload": "changing",
+          "pool_policy": "cyclic fixture rows in fixture order",
+          "points_per_iteration": 7,
+          "warmup_passes": 2,
+          "rounds": 3,
+          "iterations_per_round": 1,
+          "timed_points_per_round": 7,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            68140.0,
+            68300.0,
+            68010.0
+          ]
+        }
+      ]
+    },
+    "controls []": {
+      "schema_version": 1,
+      "operation": "original_ninja_benchmark",
+      "success": true,
+      "performance_acceptance": false,
+      "execution": "persistent serial scalar evaluations",
+      "cache_policy": {
+        "numerical_master_results": "disabled at configure time"
+      },
+      "measurement_scope": "parameter and sample-pointer rebinding, scale and S-matrix controls, reset, original Ninja reduction and OneLOop masters; no parsing, setup, sequence packing, JSON, IPC or checksum",
+      "status_scope": "all source rows before and after timing; final warmup passes; timed outputs consumed without per-iteration validation",
+      "epsilon_order": [
+        "finite",
+        "single_pole",
+        "double_pole"
+      ],
+      "coefficient_mode": "integrated",
+      "mu_extraction": "expansion",
+      "sampling_scale_policy": "original Ninja per-box max of real masses-squared and absolute S-matrix invariants; fallback below INFRARED_EPS",
+      "cut_stop": 1,
+      "propagators": 3,
+      "rank": 3,
+      "parameter_count": 8,
+      "pool_rows": 2,
+      "thread_count": 1,
+      "precision_rescue": {
+        "enabled": false,
+        "attempts": 0
+      },
+      "checksum_algorithm": "FNV1a64 over little-endian row count, row IDs, statuses and binary64 components",
+      "pre_checksum": "2968b4aa902d0811",
+      "post_checksum": "2968b4aa902d0811",
+      "pre_post_equal": true,
+      "pre_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.24681539497804256,
+              -1.5871595069646456
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.3741843631761323,
+            -1.5871595069646456
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.593388985258016,
+              -1.5871595069646451
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.7207579534561057,
+            -1.5871595069646451
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        }
+      ],
+      "post_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.24681539497804256,
+              -1.5871595069646456
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.3741843631761323,
+            -1.5871595069646456
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.593388985258016,
+              -1.5871595069646451
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.7207579534561057,
+            -1.5871595069646451
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "job_id": 7,
+          "workload": "repeated",
+          "pool_policy": "fixture row zero repeated",
+          "points_per_iteration": 5,
+          "warmup_passes": 1,
+          "rounds": 2,
+          "iterations_per_round": 2,
+          "timed_points_per_round": 10,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            108060.0,
+            98291.0
+          ]
+        },
+        {
+          "job_id": 19,
+          "workload": "changing",
+          "pool_policy": "cyclic fixture rows in fixture order",
+          "points_per_iteration": 7,
+          "warmup_passes": 2,
+          "rounds": 3,
+          "iterations_per_round": 1,
+          "timed_points_per_round": 7,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            69740.0,
+            69231.0,
+            69080.0
+          ]
+        }
+      ]
+    },
+    "controls ['--mu-sampling']": {
+      "schema_version": 1,
+      "operation": "original_ninja_benchmark",
+      "success": true,
+      "performance_acceptance": false,
+      "execution": "persistent serial scalar evaluations",
+      "cache_policy": {
+        "numerical_master_results": "disabled at configure time"
+      },
+      "measurement_scope": "parameter and sample-pointer rebinding, scale and S-matrix controls, reset, original Ninja reduction and OneLOop masters; no parsing, setup, sequence packing, JSON, IPC or checksum",
+      "status_scope": "all source rows before and after timing; final warmup passes; timed outputs consumed without per-iteration validation",
+      "epsilon_order": [
+        "finite",
+        "single_pole",
+        "double_pole"
+      ],
+      "coefficient_mode": "integrated",
+      "mu_extraction": "sampling",
+      "sampling_scale_policy": "original Ninja per-box max of real masses-squared and absolute S-matrix invariants; fallback below INFRARED_EPS",
+      "cut_stop": 1,
+      "propagators": 3,
+      "rank": 3,
+      "parameter_count": 8,
+      "pool_rows": 2,
+      "thread_count": 1,
+      "precision_rescue": {
+        "enabled": false,
+        "attempts": 0
+      },
+      "checksum_algorithm": "FNV1a64 over little-endian row count, row IDs, statuses and binary64 components",
+      "pre_checksum": "2968b4aa902d0811",
+      "post_checksum": "2968b4aa902d0811",
+      "pre_post_equal": true,
+      "pre_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.24681539497804256,
+              -1.5871595069646456
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.3741843631761323,
+            -1.5871595069646456
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.593388985258016,
+              -1.5871595069646451
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.7207579534561057,
+            -1.5871595069646451
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        }
+      ],
+      "post_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.24681539497804256,
+              -1.5871595069646456
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.3741843631761323,
+            -1.5871595069646456
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.593388985258016,
+              -1.5871595069646451
+            ],
+            [
+              -0.5000000000000011,
+              8.731441495749936e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.7207579534561057,
+            -1.5871595069646451
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "job_id": 7,
+          "workload": "repeated",
+          "pool_policy": "fixture row zero repeated",
+          "points_per_iteration": 5,
+          "warmup_passes": 1,
+          "rounds": 2,
+          "iterations_per_round": 2,
+          "timed_points_per_round": 10,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            97690.0,
+            97460.0
+          ]
+        },
+        {
+          "job_id": 19,
+          "workload": "changing",
+          "pool_policy": "cyclic fixture rows in fixture order",
+          "points_per_iteration": 7,
+          "warmup_passes": 2,
+          "rounds": 3,
+          "iterations_per_round": 1,
+          "timed_points_per_round": 7,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            77701.0,
+            69030.0,
+            68250.0
+          ]
+        }
+      ]
+    },
+    "controls ['--cut-stop', '2']": {
+      "schema_version": 1,
+      "operation": "original_ninja_benchmark",
+      "success": true,
+      "performance_acceptance": false,
+      "execution": "persistent serial scalar evaluations",
+      "cache_policy": {
+        "numerical_master_results": "disabled at configure time"
+      },
+      "measurement_scope": "parameter and sample-pointer rebinding, scale and S-matrix controls, reset, original Ninja reduction and OneLOop masters; no parsing, setup, sequence packing, JSON, IPC or checksum",
+      "status_scope": "all source rows before and after timing; final warmup passes; timed outputs consumed without per-iteration validation",
+      "epsilon_order": [
+        "finite",
+        "single_pole",
+        "double_pole"
+      ],
+      "coefficient_mode": "integrated",
+      "mu_extraction": "expansion",
+      "sampling_scale_policy": "original Ninja per-box max of real masses-squared and absolute S-matrix invariants; fallback below INFRARED_EPS",
+      "cut_stop": 2,
+      "propagators": 3,
+      "rank": 3,
+      "parameter_count": 8,
+      "pool_rows": 2,
+      "thread_count": 1,
+      "precision_rescue": {
+        "enabled": false,
+        "attempts": 0
+      },
+      "checksum_algorithm": "FNV1a64 over little-endian row count, row IDs, statuses and binary64 components",
+      "pre_checksum": "f727cb2452d6f694",
+      "post_checksum": "f727cb2452d6f694",
+      "pre_post_equal": true,
+      "pre_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.1542353496277683,
+              -1.5871595069646451
+            ],
+            [
+              -0.40741995464972675,
+              2.260922930356439e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.28160431782585804,
+            -1.5871595069646451
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.4366373424970872,
+              -1.5871595069646451
+            ],
+            [
+              -0.40741995464972675,
+              2.260922930356439e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.5640063106951769,
+            -1.587159506964645
+          ],
+          "rational": [
+            0.12736896819808974,
+            -2.220446049250313e-16
+          ]
+        }
+      ],
+      "post_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.1542353496277683,
+              -1.5871595069646451
+            ],
+            [
+              -0.40741995464972675,
+              2.260922930356439e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.28160431782585804,
+            -1.5871595069646451
+          ],
+          "rational": [
+            0.12736896819808974,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.4366373424970872,
+              -1.5871595069646451
+            ],
+            [
+              -0.40741995464972675,
+              2.260922930356439e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.5640063106951769,
+            -1.587159506964645
+          ],
+          "rational": [
+            0.12736896819808974,
+            -2.220446049250313e-16
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "job_id": 7,
+          "workload": "repeated",
+          "pool_policy": "fixture row zero repeated",
+          "points_per_iteration": 5,
+          "warmup_passes": 1,
+          "rounds": 2,
+          "iterations_per_round": 2,
+          "timed_points_per_round": 10,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            84570.0,
+            83980.0
+          ]
+        },
+        {
+          "job_id": 19,
+          "workload": "changing",
+          "pool_policy": "cyclic fixture rows in fixture order",
+          "points_per_iteration": 7,
+          "warmup_passes": 2,
+          "rounds": 3,
+          "iterations_per_round": 1,
+          "timed_points_per_round": 7,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            72210.0,
+            58730.0,
+            58600.0
+          ]
+        }
+      ]
+    }
+  },
+  "ninjars_sha256": "5a92941142e12944d4021b3e6841171dd8883e83d24b094dcc5e1053009ebf01",
+  "fixture_sha256": "766da76b567bc4a070bd7c105137b5df9199f990f61e52efc17785ef1cdb987d",
+  "passed": true,
+  "tests_run": 9
+}

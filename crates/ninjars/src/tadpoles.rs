@@ -542,7 +542,7 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
                 computed: self.kernels.computed_coefficients().to_vec(),
             });
         }
-        output.clone_from_slice(&staged);
+        output.swap_with_slice(&mut staged);
         Ok(())
     }
 }

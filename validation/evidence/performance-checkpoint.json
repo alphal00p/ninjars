@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "performance_acceptance": false,
+  "reports": [
+    {
+      "path": "validation/evidence/performance-bubble-parameterized-rust-first.json",
+      "source_artifact": "target/performance/v2-bubble-parameterized-rust-first/comparison.json",
+      "sha256": "7c65ff663a3d2e184367bbd292d2bfc32d2b92678aebd7cffc95419989d15d69"
+    },
+    {
+      "path": "validation/evidence/performance-bubble-parameterized-reference-first.json",
+      "source_artifact": "target/performance/v2-bubble-parameterized-reference-first/comparison.json",
+      "sha256": "7cabdb0d738d3abbb5dc62a74d7d1f4f33c39830d72af7b5c67bb098741b7576"
+    },
+    {
+      "path": "validation/evidence/performance-bubble-parameterized-rust-first-sources.json",
+      "source_artifact": "target/performance/v2-bubble-parameterized-rust-first/source-sha256.json",
+      "sha256": "6d196c651306a3f28afc98178b5fa168fe3a6ab4e9bddb3cb956f4ea82f6a7db"
+    },
+    {
+      "path": "validation/evidence/performance-bubble-parameterized-reference-first-sources.json",
+      "source_artifact": "target/performance/v2-bubble-parameterized-reference-first/source-sha256.json",
+      "sha256": "6d196c651306a3f28afc98178b5fa168fe3a6ab4e9bddb3cb956f4ea82f6a7db"
+    },
+    {
+      "path": "validation/evidence/performance-rust-build.json",
+      "source_artifact": "target/performance/reproducible-build/rust-build.json",
+      "sha256": "7b0676f4b9a8c418c20a6d4566c5b7283e441c5920ba586661a455bbc3dba96e"
+    },
+    {
+      "path": "validation/evidence/performance-box-contended-diagnostic.json",
+      "source_artifact": "target/performance/v2-box-rust-first/comparison.json",
+      "sha256": "aab44c4bfbd7a363aa9ce573a4b01b5680b03a6fa32618394632dc21878e7cf9"
+    },
+    {
+      "path": "validation/evidence/performance-box-contended-raw.json",
+      "source_artifact": "target/performance/v2-box-rust-first/comparison.before-contention-label.json",
+      "sha256": "3d69a7b78b3ba6541618b32069a09b5d87d2698b45b8f27a57b7f7dd8201fe36"
+    },
+    {
+      "path": "validation/evidence/performance-box-contended-observation.json",
+      "source_artifact": "target/performance/v2-box-rust-first/observed-contention.json",
+      "sha256": "640f3260b2a068d41a1204d70f806744a8df17d620f4343c7b45c53b713779e6"
+    }
+  ],
+  "classification": {
+    "bubble": "Two completed optimized process orders; all Laurent checks passed. Full performance acceptance remains false.",
+    "box": "Observed-contention diagnostic only; raw output is retained as provenance, and must always be interpreted with the observation and classified diagnostic report. Reverse-order box was not run."
+  },
+  "notes": [
+    "Files copied byte-for-byte from the completed artifacts before upstream dependency pin changes.",
+    "The two bubble reports are unchanged. Box raw timing/result fields are unchanged; its classified report adds the observed-contention exclusion."
+  ]
+}

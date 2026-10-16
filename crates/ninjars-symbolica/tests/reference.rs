@@ -118,7 +118,7 @@ fn generated_callbacks_match_rust_and_preserve_caller_buffer_bounds() {
 int main() {
   using ninja::Complex;
   using ninja::ComplexMomentum;
-  const Complex parameters[] = {Complex(.3,.7)};
+  const Complex parameters[] = {Complex(.3,.7), Complex(-.6,1.1)};
   ninjars_reference::GeneratedNumerator numerator(parameters);
   const ComplexMomentum v[] = {
     ComplexMomentum(Complex(1,1),Complex(2,-1),Complex(3,2),Complex(4,0)),
@@ -129,6 +129,8 @@ int main() {
   const ninja::PartitionInt partition[] = {0,1,2};
   const Complex sentinel(1234567,-9876543);
   auto print = [](const Complex& value) { std::cout << std::setprecision(17) << value.real() << ' ' << value.imag() << '\n'; };
+  for (unsigned sample = 0; sample < 2; ++sample) {
+  numerator.set_parameters(parameters + sample);
   print(numerator.evaluate(v[0],beta[0],3,partition));
   Complex output[16];
   std::fill_n(output,16,sentinel);
@@ -157,6 +159,9 @@ int main() {
     if (output[t2_count[depth]] != sentinel) return 4;
     for (unsigned i = 0; i < t2_count[depth]; ++i) print(output[i]);
   }
+  }
+  try { numerator.set_parameters(nullptr); return 5; }
+  catch (const std::invalid_argument&) {}
 }
 "#).unwrap();
             command_ok(
@@ -181,49 +186,32 @@ int main() {
                 .split_whitespace()
                 .map(|value| value.parse().unwrap())
                 .collect();
-            let mut expected = vec![Complex::new(0., 0.)];
-            numerator
-                .evaluate_batch(
-                    &[NumeratorRequest {
-                        id: SampleId { lane: 0, sample: 0 },
-                        q: &vectors[0],
-                        mu_squared: &beta[0],
-                        partition: &[],
-                    }],
-                    &mut expected,
-                )
-                .unwrap();
-            let mu_vectors = if propagators == 3 {
-                &vectors[..2]
-            } else {
-                &vectors[..1]
-            };
-            let kind = ExpansionKind::Mu {
-                powers: if propagators == 3 {
-                    vec![4, 3]
+            let mut all_expected = Vec::new();
+            for parameter in [Complex::new(0.3, 0.7), Complex::new(-0.6, 1.1)] {
+                numerator.set_parameter_batch(&[parameter], 1).unwrap();
+                let mut expected = vec![Complex::new(0., 0.)];
+                numerator
+                    .evaluate_batch(
+                        &[NumeratorRequest {
+                            id: SampleId { lane: 0, sample: 0 },
+                            q: &vectors[0],
+                            mu_squared: &beta[0],
+                            partition: &[],
+                        }],
+                        &mut expected,
+                    )
+                    .unwrap();
+                let mu_vectors = if propagators == 3 {
+                    &vectors[..2]
                 } else {
-                    vec![4]
-                },
-            };
-            let mut values = vec![Complex::new(0., 0.); kind.len()];
-            numerator
-                .expansion_batch(
-                    &kind,
-                    &[ExpansionRequest {
-                        id: SampleId { lane: 0, sample: 0 },
-                        partition: &[],
-                        vectors: mu_vectors,
-                        parameters: &[],
-                    }],
-                    &mut values,
-                )
-                .unwrap();
-            expected.extend(values);
-            for depth in 0..=4 {
-                let kind = ExpansionKind::T3 {
-                    powers: (0..=depth)
-                        .flat_map(|d| (0..=d / 2).map(move |mu| (4 - d, mu as u16)))
-                        .collect(),
+                    &vectors[..1]
+                };
+                let kind = ExpansionKind::Mu {
+                    powers: if propagators == 3 {
+                        vec![4, 3]
+                    } else {
+                        vec![4]
+                    },
                 };
                 let mut values = vec![Complex::new(0., 0.); kind.len()];
                 numerator
@@ -232,41 +220,63 @@ int main() {
                         &[ExpansionRequest {
                             id: SampleId { lane: 0, sample: 0 },
                             partition: &[],
-                            vectors: &vectors[..3],
-                            parameters: &beta[..1],
+                            vectors: mu_vectors,
+                            parameters: &[],
                         }],
                         &mut values,
                     )
                     .unwrap();
                 expected.extend(values);
-            }
-            for depth in 0..=3 {
-                let kind = ExpansionKind::T2 {
-                    powers: (0..=depth)
-                        .flat_map(|d| {
-                            (0..=d).flat_map(move |x| {
-                                (0..=(d - x) / 2).map(move |mu| (4 - d, x as u16, mu as u16))
+                for depth in 0..=4 {
+                    let kind = ExpansionKind::T3 {
+                        powers: (0..=depth)
+                            .flat_map(|d| (0..=d / 2).map(move |mu| (4 - d, mu as u16)))
+                            .collect(),
+                    };
+                    let mut values = vec![Complex::new(0., 0.); kind.len()];
+                    numerator
+                        .expansion_batch(
+                            &kind,
+                            &[ExpansionRequest {
+                                id: SampleId { lane: 0, sample: 0 },
+                                partition: &[],
+                                vectors: &vectors[..3],
+                                parameters: &beta[..1],
+                            }],
+                            &mut values,
+                        )
+                        .unwrap();
+                    expected.extend(values);
+                }
+                for depth in 0..=3 {
+                    let kind = ExpansionKind::T2 {
+                        powers: (0..=depth)
+                            .flat_map(|d| {
+                                (0..=d).flat_map(move |x| {
+                                    (0..=(d - x) / 2).map(move |mu| (4 - d, x as u16, mu as u16))
+                                })
                             })
-                        })
-                        .collect(),
-                };
-                let mut values = vec![Complex::new(0., 0.); kind.len()];
-                numerator
-                    .expansion_batch(
-                        &kind,
-                        &[ExpansionRequest {
-                            id: SampleId { lane: 0, sample: 0 },
-                            partition: &[],
-                            vectors: &vectors,
-                            parameters: &beta,
-                        }],
-                        &mut values,
-                    )
-                    .unwrap();
-                expected.extend(values);
+                            .collect(),
+                    };
+                    let mut values = vec![Complex::new(0., 0.); kind.len()];
+                    numerator
+                        .expansion_batch(
+                            &kind,
+                            &[ExpansionRequest {
+                                id: SampleId { lane: 0, sample: 0 },
+                                partition: &[],
+                                vectors: &vectors,
+                                parameters: &beta,
+                            }],
+                            &mut values,
+                        )
+                        .unwrap();
+                    expected.extend(values);
+                }
+                all_expected.extend(expected);
             }
-            assert_eq!(actual.len(), 2 * expected.len());
-            for (actual, expected) in actual.as_chunks::<2>().0.iter().zip(expected) {
+            assert_eq!(actual.len(), 2 * all_expected.len());
+            for (actual, expected) in actual.as_chunks::<2>().0.iter().zip(all_expected) {
                 for (actual, expected) in actual.iter().zip([expected.re, expected.im]) {
                     assert!(
                         (actual - expected).abs() < 1e-11 * (1. + expected.abs()),

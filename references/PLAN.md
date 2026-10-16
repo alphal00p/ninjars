@@ -590,3 +590,107 @@ connects the existing kernels into integrated amplitudes and a standalone
   policies differ and must remain reported. The goal is active; no performance,
   full reconstruction, broad master-derivative or higher-multiplicity physical
   acceptance is claimed by this milestone.
+
+### Allocation, shared-code and matched timing work (2026-10-16, in progress)
+
+- Removed deep copies when committing staged cut residues, retained accepted-row
+  scratch in high-cut geometry, and borrowed the integration master list. Existing
+  output transactionality is preserved. The warmed f64 allocator probe covers
+  n=2/4/5 at rank n+1, widths 1/8, full box coefficients and finite-mu sampling.
+  Allocator calls decrease from 50/120 to 43/78 for bubbles, 129/423 to 103/257
+  for boxes, and 189/854 to 142/527 for pentagons. Five repetitions give identical
+  counts; this is allocation evidence, not a runtime speedup measurement.
+  `validation/evidence/allocation-workspace.json` retains commands, binary/source
+  hashes and reallocations. Forty-six existing focused tests pass.
+- Added `prepare --reference-bench-dir` to export one common exact numerator
+  template, its ordered parameter rows, and the production binary64 momentum,
+  mass, scale and invariant bindings. Original-Ninja callbacks now compute only
+  their requested Laurent depth and rebind parameters without allocation. Two
+  compiled callback tests and thirteen CLI tests pass, including a first sample
+  whose numerator specializes to lower rank and a non-real shift too small to
+  survive conversion to binary64. The common header keeps the template's rank.
+- Added a persistent original-Ninja timing runner and an explicitly uncached
+  OneLOop build. Protocol controls cover parameter rebinding, ordering, malformed
+  inputs, supplied matrices, nonfinite results, pre/post fingerprints, and full
+  Laurent agreement in both mu extraction modes. Box and parameterized-bubble
+  protocol suites each pass eight tests with one triangle-specific skip;
+  triangle passes all nine. These final runs use a fresh uncached build which
+  hashes copied sources and generated headers at compilation and refuses header
+  mutations or incomplete older build records. The three complete reports are
+  retained as `validation/evidence/reference-benchmark-*.json`.
+  The optimized comparison harness fixes affinity and
+  thread counts, records source/compiler/cache policy and individual rounds,
+  and checks every source-pool Laurent coefficient before timing.
+- A partial-cut diagnostic differs between implementations. The rotation control
+  independently shows that this bubble's retained contribution changes under a
+  spatial rotation while the full amplitude agrees. Nonzero omitted tadpoles
+  violate original Ninja's documented `setCutStop` assumption. The diagnostic is
+  preserved in `validation/evidence/partial-cut-basis.json`; performance controls
+  require full reductions. This does not excuse other partial-cut discrepancies.
+- The first completed optimized parameterized-bubble run passes all numerical
+  comparisons but fails the performance target: observed Rust/original median
+  latency ratios are 10.13/15.26 at width one (repeated/changing), and 6.36–11.98
+  at widths 8/32/128/1024. The reference is uncached and uses the same prepared
+  template and numerical rows. Reverse-order and box runs were interrupted
+  before timing by background compiler activity and remain pending. No confidence
+  interval or performance acceptance is claimed; retain raw completed runs and
+  rerun in a quiet window before drawing stronger conclusions.
+  `performance-preliminary.json` preserves that initial run and its incomplete
+  build provenance: the draft Rust record omitted Cargo's home configuration,
+  and the draft reference record did not hash copied/generated headers.
+  The new reproducible build recorder checks production/dependency state before
+  and after compilation; the comparison verifies these inputs, actual Cargo
+  configuration and executable hashes. Nine fast provenance/failure-path tests
+  and an end-to-end diagnostic smoke pass. Fresh controlled runs use the stricter
+  records and a newly built uncached reference.
+- Published and attached [Symbolica PR #86](https://github.com/symbolica-dev/symbolica/pull/86),
+  standalone head `b764ae3749d5e82ba3e6020d5b5d88a40c1d23c0`. A defaulted
+  object-safe borrowed shape accessor avoids allocating during repeated static
+  and dynamic Dual checks. Four new and five existing tests pass, including a
+  zero-allocation repeated access control and malformed/reordered/higher/mixed
+  structures. Full validation must check all rows and the end sentinel rather
+  than trusting the mutable value-vector length. Main pins are unchanged.
+- Published and attached [oneloopmaster PR #8](https://github.com/alphal00p/oneloopmaster/pull/8),
+  head `05c87c3c4dabf6a26b8f9396468406778af457e2`, stacked on PR #7 and tested
+  against an isolated Symbolica integration including PR #84. Symbolica-generated
+  coincident divided-dilog neighborhoods preserve independently seeded arguments
+  and higher/mixed components, including x=y=1. Sixty-three unit and eight
+  function-definition tests pass, with one existing diagnostic ignored; formatting
+  and Clippy pass with baseline allowances. Nonanalytic sheet cases remain
+  nonfinite. Debug C0 graph construction reached about 9 GB RSS, so graph sharing
+  and construction cost need work before broad integration. Plain-expression
+  helpers and full C0/D0 derivative-domain validation remain incomplete. Production
+  dependency pins and Dual master-domain gates remain unchanged.
+- The shared native Rust emitter still executes a row at a time. An independent
+  audit identifies an instruction-major extension in oneloopmaster using the
+  existing exported slots, temporary counts, primitives and exact constant table.
+  Initial implementation must reject unsupported control flow recursively, retain
+  input precision, support empty/tail/constant-only graphs, and validate actual
+  instruction-major execution. Lazy branches and active shared-helper batches
+  require separate controls. No native batching speedup is claimed yet.
+- Combined validation reports **167 workspace tests passed, zero failed and zero
+  ignored**, with all features and ignored reference controls enabled. Strict
+  all-target workspace Clippy, formatting and diff checks pass for the same Rust
+  sources. The reproducibly recorded optimized binary has SHA-256
+  `b89e5df7853e6162a29eb0fd0e92781ac7a055c69c4a0c7d9efd2a3fd4acde3c`.
+  Physical accuracy limitations and the active goal remain unchanged.
+
+### Matched timing checkpoint and upstream policy (2026-10-16)
+
+- Two fresh parameterized-bubble runs, with reversed implementation order, pass
+  all Laurent comparisons (maximum scaled error about 1.07e-14). Both fail the
+  performance gate: width-one Rust/original median ratios are 10.36–10.45 for
+  repeated points and 15.77–15.83 for changing points. Larger batches still trail
+  the reference. `validation/evidence/performance-checkpoint.json` indexes both
+  complete reports, source snapshots and the reproducible optimized build record.
+  Compiler snapshots are observations, not proof of an exclusive host.
+- The box run passes all pre/post numerical controls (maximum scaled error
+  1.50e-14), but unrelated compilation was observed during timing. Its raw rounds
+  and explicit contention record are retained as diagnostic evidence only; no
+  reverse-order repeat or performance acceptance is claimed. Native batching,
+  master costs and remaining orchestration costs require further work.
+- The user explicitly changed the oneloopmaster contribution policy: consolidate
+  and merge every existing PR, then push tested changes directly to its `main`.
+  No new oneloopmaster PRs will be opened. Symbolica and FeynKit/gammaloop continue
+  to use focused upstream PRs. The consolidation must include PRs #7 and #8 even
+  though their intermediate base branches were merged before these later changes.

@@ -32,6 +32,11 @@ useful for preparation and future complex-basis tests, but original Ninja's real
 basis can produce nonfinite higher-rank results there. See the documented
 reproducer under `validation/reference`.
 
+`bubble-parameterized.json` uses the shared FeynKit/Spenso scalar product in
+`1 + (1 + P(0)^2)*(q0^2 + mu2)`. Its first row specializes to the constant one;
+the other rows retain rank two. This checks parameter rebinding and a fixed
+common-template rank when benchmarking changing kinematics.
+
 ## Reduction controls and supplied invariants
 
 `reduce --cut-stop 2` retains bubbles and higher cuts, assuming tadpoles contribute

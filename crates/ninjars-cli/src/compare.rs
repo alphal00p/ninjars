@@ -194,6 +194,7 @@ pub fn run(args: Args) -> Result<()> {
         feynman_rules: args.reduction.feynman_rules,
         output: None,
         reference_dir: None,
+        reference_bench_dir: None,
     })?;
     let manifest = reference::export(&directory, &prepared.samples, &prepared.scale_squared)?;
     let reduction_ok = reduce::evaluate_prepared(&mut prepared, &args.reduction)?;

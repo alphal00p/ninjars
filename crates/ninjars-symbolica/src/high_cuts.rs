@@ -221,6 +221,7 @@ struct Engine<T, V, K> {
     seeded: Vec<V>,
     finished: Vec<V>,
     active: Vec<usize>,
+    accepted: Vec<usize>,
     groups: [Vec<usize>; 4],
     failures: Vec<Option<CutFailure>>,
     values: Vec<Vec<V>>,
@@ -276,6 +277,7 @@ impl<T: Real + SingleFloat, V: FloatLike, K: KernelExecutor<V>> Engine<T, V, K> 
             seeded: Vec::new(),
             finished: Vec::new(),
             active: Vec::new(),
+            accepted: Vec::new(),
             groups: std::array::from_fn(|_| Vec::new()),
             failures: Vec::new(),
             values: Vec::new(),
@@ -394,7 +396,7 @@ impl<T: Real + SingleFloat, V: FloatLike, K: KernelExecutor<V>> Engine<T, V, K> 
                     self.groups[chart].len(),
                 )?;
                 self.input.clear();
-                let mut accepted = Vec::new();
+                self.accepted.clear();
                 for (index, &active_index) in self.groups[chart].iter().enumerate() {
                     let row = self.active[active_index];
                     let values = &self.seeded[index * 15..(index + 1) * 15];
@@ -406,13 +408,14 @@ impl<T: Real + SingleFloat, V: FloatLike, K: KernelExecutor<V>> Engine<T, V, K> 
                         self.failures[row] = Some(CutFailure::DegenerateGram);
                         continue;
                     }
-                    accepted.push(row);
+                    self.accepted.push(row);
                     self.input.extend_from_slice(values);
                 }
-                self.finished.resize(accepted.len() * 10, self.zero.clone());
+                self.finished
+                    .resize(self.accepted.len() * 10, self.zero.clone());
                 self.box_finish
-                    .evaluate(&self.input, &mut self.finished, accepted.len())?;
-                for (index, row) in accepted.into_iter().enumerate() {
+                    .evaluate(&self.input, &mut self.finished, self.accepted.len())?;
+                for (index, &row) in self.accepted.iter().enumerate() {
                     let values = &self.finished[index * 10..(index + 1) * 10];
                     if values.iter().all(|v| self.finite(v)) {
                         self.values[row].extend_from_slice(values);
@@ -471,7 +474,7 @@ impl<T: Real + SingleFloat, V: FloatLike, K: KernelExecutor<V>> Engine<T, V, K> 
         self.sample_probe
             .evaluate(&self.input, &mut self.probed, self.active.len())?;
         self.input.clear();
-        let mut accepted = Vec::new();
+        self.accepted.clear();
         for (index, &row) in self.active.iter().enumerate() {
             let values = &self.probed[index * 2..(index + 1) * 2];
             if values.iter().any(|v| !self.finite(v)) {
@@ -483,7 +486,7 @@ impl<T: Real + SingleFloat, V: FloatLike, K: KernelExecutor<V>> Engine<T, V, K> 
                 continue;
             }
             let c = requests[row].cut;
-            accepted.push(row);
+            self.accepted.push(row);
             self.input.extend(
                 c.a.components()
                     .into_iter()
@@ -492,10 +495,11 @@ impl<T: Real + SingleFloat, V: FloatLike, K: KernelExecutor<V>> Engine<T, V, K> 
             );
             self.input.push(values[1].clone());
         }
-        self.finished.resize(accepted.len() * 8, self.zero.clone());
+        self.finished
+            .resize(self.accepted.len() * 8, self.zero.clone());
         self.sample_finish
-            .evaluate(&self.input, &mut self.finished, accepted.len())?;
-        for (index, row) in accepted.into_iter().enumerate() {
+            .evaluate(&self.input, &mut self.finished, self.accepted.len())?;
+        for (index, &row) in self.accepted.iter().enumerate() {
             let values = &self.finished[index * 8..(index + 1) * 8];
             if values.iter().all(|v| self.finite(v)) {
                 self.values[row].extend_from_slice(values);

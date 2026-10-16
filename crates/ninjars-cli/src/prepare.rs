@@ -61,6 +61,10 @@ pub struct Args {
     #[cfg(feature = "reference-codegen")]
     #[arg(long)]
     pub reference_dir: Option<PathBuf>,
+    /// Export one parameterized callback and a numerical pool for reference benchmarks.
+    #[cfg(feature = "reference-codegen")]
+    #[arg(long, conflicts_with = "reference_dir")]
+    pub reference_bench_dir: Option<PathBuf>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -484,11 +488,20 @@ pub fn run(args: Args) -> Result<()> {
         prepared.document["reference_export"] =
             crate::reference::export(directory, &prepared.samples, &prepared.scale_squared)?;
     }
+    #[cfg(feature = "reference-codegen")]
+    if let Some(directory) = &args.reference_bench_dir {
+        prepared.document["reference_bench_export"] =
+            crate::reference_bench::export(directory, &prepared)?;
+    }
     // Keep this mutation available in builds without the optional reference exporter.
     prepared.document["operation"] = "prepare".into();
     let output = serde_json::to_string_pretty(&prepared.document)? + "\n";
     #[cfg(feature = "reference-codegen")]
     if let Some(directory) = args.reference_dir {
+        fs::write(directory.join("prepared.json"), &output)?;
+    }
+    #[cfg(feature = "reference-codegen")]
+    if let Some(directory) = args.reference_bench_dir {
         fs::write(directory.join("prepared.json"), &output)?;
     }
     if let Some(path) = args.output {

@@ -131,8 +131,7 @@ impl<T: FloatLike, K: IntegrationKernels<T>> ResidueIntegrator<T, K> {
             validate_request(request, self.cut_size(), self.kernels.coefficient_count())?;
         }
         let invariants = self.kernels.invariant_count();
-        let families = self.kernels.masters().to_vec();
-        let masters = families.len();
+        let masters = self.kernels.masters().len();
         let columns = masters + 1;
         self.invariants.resize(rows * invariants, self.zero.clone());
         self.weights.resize(rows * columns, self.zero.clone());
@@ -155,7 +154,7 @@ impl<T: FloatLike, K: IntegrationKernels<T>> ResidueIntegrator<T, K> {
         self.master_values
             .resize(rows * masters, zero_laurent.clone());
         self.master_values.fill(zero_laurent.clone());
-        for (master_index, &integral) in families.iter().enumerate() {
+        for (master_index, &integral) in self.kernels.masters().iter().enumerate() {
             self.indices.clear();
             self.arguments.clear();
             self.masses.clear();

@@ -191,7 +191,7 @@ impl<T: FloatLike, K: PentagonReductionKernels<T>> PentagonReducer<T, K> {
                 });
             }
         }
-        output.clone_from_slice(&staged);
+        output.swap_with_slice(&mut staged);
         Ok(())
     }
 }

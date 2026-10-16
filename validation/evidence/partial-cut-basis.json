@@ -1,0 +1,426 @@
+{
+  "schema_version": 1,
+  "purpose": "Chart dependence of retained cut contributions; full spatial-rotation control",
+  "fixture": "examples/graphs/bubble-parameterized.json",
+  "construction": "Retain fixture lane1 only, set both external legs to (0,2,0,0), (0,0,2,0), or (0,0,0,2). Run reduce with --cut-stop1 and --cut-stop2.",
+  "command_template": [
+    "ninjars",
+    "reduce",
+    "ROTATED_FIXTURE.json",
+    "--cut-stop",
+    "1 or 2"
+  ],
+  "binary_sha256": "5a92941142e12944d4021b3e6841171dd8883e83d24b094dcc5e1053009ebf01",
+  "fixture_sha256": "cfba43a3860b47cda5eef7676170a388c0bd9ab779686063b1b457d0de3f6a07",
+  "numerator": "1+(1+P(0)^2)*(q0^2+mu2)",
+  "interpretation": "Retained bubble finite/pole contributions change under rotation, whereas complete Laurent results agree. The omitted tadpoles are nonzero. Original Ninja setCutStop documents an assumption that omitted cuts contribute zero; this input does not satisfy it.",
+  "scope": "This is a concrete rotation control, not a proof that all partial-cut differences between implementations are harmless.",
+  "performance_acceptance": false,
+  "checks": [
+    {
+      "axis": 1,
+      "full": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "invariant",
+            "propagators": [
+              0,
+              1
+            ]
+          },
+          "used": false,
+          "value": [
+            "4.000000000000000000e0",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-6.673765706105748485e0",
+            "4.440892098500626162e-16"
+          ],
+          [
+            "-1.500000000000003553e0",
+            "4.440892098500626162e-16"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-4.798765706105748485e0",
+            "4.440892098500626162e-16"
+          ],
+          [
+            "-1.875000000000000000e0",
+            "0.000000000000000000e0"
+          ]
+        ]
+      },
+      "stop2": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "invariant",
+            "propagators": [
+              0,
+              1
+            ]
+          },
+          "used": false,
+          "value": [
+            "4.000000000000000000e0",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-3.298765706105744933e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "1.875000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-1.423765706105744711e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-1.875000000000000000e0",
+            "0.000000000000000000e0"
+          ]
+        ]
+      }
+    },
+    {
+      "axis": 2,
+      "full": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "invariant",
+            "propagators": [
+              0,
+              1
+            ]
+          },
+          "used": false,
+          "value": [
+            "4.000000000000000000e0",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-6.673765706105742268e0",
+            "-3.552713678800500929e-15"
+          ],
+          [
+            "-1.499999999999997335e0",
+            "-3.552713678800500929e-15"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-4.798765706105742268e0",
+            "-3.552713678800500929e-15"
+          ],
+          [
+            "-1.875000000000000000e0",
+            "0.000000000000000000e0"
+          ]
+        ]
+      },
+      "stop2": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "invariant",
+            "propagators": [
+              0,
+              1
+            ]
+          },
+          "used": false,
+          "value": [
+            "4.000000000000000000e0",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-3.298765706105744933e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "1.875000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-1.423765706105744711e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-1.875000000000000000e0",
+            "0.000000000000000000e0"
+          ]
+        ]
+      }
+    },
+    {
+      "axis": 3,
+      "full": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "invariant",
+            "propagators": [
+              0,
+              1
+            ]
+          },
+          "used": false,
+          "value": [
+            "4.000000000000000000e0",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "-6.673765706105728057e0",
+            "6.661338147750939243e-14"
+          ],
+          [
+            "-1.499999999999976907e0",
+            "6.661338147750939243e-14"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-2.167376570610572628e1",
+            "6.661338147750939243e-14"
+          ],
+          [
+            "1.500000000000000000e1",
+            "0.000000000000000000e0"
+          ]
+        ]
+      },
+      "stop2": {
+        "component_precision_bits": [
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ],
+          [
+            53,
+            53
+          ]
+        ],
+        "lane": 0,
+        "mu_sampling_scale": {
+          "mode": "automatic",
+          "source": {
+            "kind": "invariant",
+            "propagators": [
+              0,
+              1
+            ]
+          },
+          "used": false,
+          "value": [
+            "4.000000000000000000e0",
+            "0.000000000000000000e0"
+          ]
+        },
+        "s_matrix_source": "momenta",
+        "status": {
+          "kind": "success"
+        },
+        "values": [
+          [
+            "6.826234293894248850e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "1.200000000000000000e1",
+            "0.000000000000000000e0"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-8.173765706105751150e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "1.500000000000000000e1",
+            "0.000000000000000000e0"
+          ]
+        ]
+      }
+    }
+  ]
+}

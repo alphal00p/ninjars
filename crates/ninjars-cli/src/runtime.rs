@@ -71,6 +71,23 @@ pub(crate) struct NumericalBatch<T> {
     pub sampling_statuses: Vec<SamplingScaleStatus>,
 }
 
+impl<T> NumericalBatch<T> {
+    pub(crate) fn input(&self) -> AmplitudeInput<'_, Complex<T>> {
+        AmplitudeInput {
+            shifts: &self.shifts,
+            masses_squared: &self.masses,
+            scales_squared: &self.scales,
+            sampling_scales: &self.sampling_scales,
+            s_matrix: self.s_matrix.as_deref(),
+        }
+    }
+
+    #[cfg(feature = "reference-codegen")]
+    pub(crate) fn parameters(&self) -> &[Complex<T>] {
+        &self.parameters
+    }
+}
+
 impl<T: NativeFloat> NumericalPool<T>
 where
     Complex<T>: EvaluationDomain,
@@ -348,13 +365,7 @@ fn execute<T: NativeFloat, N: Numerator<Complex<T>>, M: MasterProvider<Complex<T
 where
     Complex<T>: EvaluationDomain,
 {
-    let input = AmplitudeInput {
-        shifts: &batch.shifts,
-        masses_squared: &batch.masses,
-        scales_squared: &batch.scales,
-        sampling_scales: &batch.sampling_scales,
-        s_matrix: batch.s_matrix.as_deref(),
-    };
+    let input = batch.input();
     if let Some(high_geometry) = high_geometry.as_mut() {
         amplitude.evaluate_batch_with_inputs(input, numerator, geometry, high_geometry, masters)
     } else {

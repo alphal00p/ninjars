@@ -1,0 +1,1935 @@
+{
+  "schema_version": 1,
+  "performance_acceptance": false,
+  "purpose": "protocol and correctness controls; short loop timings are not benchmark evidence",
+  "binary_sha256": "55b156aeaf76fcc8eaf7ce4c4be36e5416d6027342eac4fb0e69c7aa1e899ed3",
+  "build_metadata": {
+    "ninja": {
+      "commit": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+      "dirty": false
+    },
+    "MG5_aMC_v3_7_0": {
+      "source": "release directory",
+      "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+    },
+    "compiler": "g++ (GCC) 15.3.0",
+    "fortran_compiler": "GNU Fortran (GCC) 15.3.0",
+    "configuration": {
+      "config_sha256": "2468fc46b1fe8e5d2351ba81952a7c3432da07d771c421b8ad90efe7d32c191a",
+      "oneloop": true,
+      "master_result_cache": false,
+      "higher_rank": true
+    },
+    "build_commands": [
+      {
+        "argv": [
+          "gfortran",
+          "-O3",
+          "-fPIC",
+          "-c",
+          "avh_olo_foriregi.f90",
+          "avh_olo_alias.f90"
+        ],
+        "cwd": "/shared/external/ninja/target/reference-uncached-v2/oneloop"
+      },
+      {
+        "argv": [
+          "ar",
+          "rcs",
+          "libavh_olo.a",
+          "avh_olo_foriregi.o",
+          "avh_olo_alias.o"
+        ],
+        "cwd": "/shared/external/ninja/target/reference-uncached-v2/oneloop"
+      },
+      {
+        "argv": [
+          "autoreconf",
+          "-fi"
+        ],
+        "cwd": "/shared/external/ninja/target/reference-uncached-v2/ninja-source"
+      },
+      {
+        "argv": [
+          "/shared/external/ninja/target/reference-uncached-v2/ninja-source/configure",
+          "--disable-shared",
+          "--disable-autoflags",
+          "--disable-f90module",
+          "--disable-gosam",
+          "--disable-avholo_cache",
+          "--with-avholo=-L/shared/external/ninja/target/reference-uncached-v2/oneloop -lavh_olo",
+          "FCINCLUDE=-I/shared/external/ninja/target/reference-uncached-v2/oneloop",
+          "CXXFLAGS=-O3 -DNDEBUG",
+          "FCFLAGS=-O3"
+        ],
+        "cwd": "/shared/external/ninja/target/reference-uncached-v2/ninja-build"
+      },
+      {
+        "argv": [
+          "make",
+          "-C",
+          "src",
+          "-j",
+          "4",
+          "libninja.la"
+        ],
+        "cwd": "/shared/external/ninja/target/reference-uncached-v2/ninja-build"
+      }
+    ],
+    "oneloop_source_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd",
+    "alias_sha256": "f7344c747eda05b78fefc63ca2c100fd37d373633a97e9d18b61f78ed7db2daf",
+    "libraries_sha256": {
+      "libninja.a": "8f4d39dad292a28a05dd4e56bd4cbb7014cf08532ef4d8484c00ea44e0b097a3",
+      "libavh_olo.a": "28c37c328fadd6f4f09f973bfb961b3bccb3c729583a92dc2186fd947ccbe4dd"
+    },
+    "input_files_sha256": {
+      "ninja-build/config.h": "2468fc46b1fe8e5d2351ba81952a7c3432da07d771c421b8ad90efe7d32c191a",
+      "ninja-build/src/ninja/ninja_config.h": "8ab4344f1c8e229672fd3349e06a7092cecd999db9ecb56ae8234c514e984292",
+      "ninja-source/src/Makefile.am": "2f9f8da45f77f4ff03f7b4b70b42c98bb2edb63d15958a4a804a1bc674dc38f8",
+      "ninja-source/src/Makefile.in": "56be1198b8288214276cafd73ecbbe7c1835929f3a3aab5ac72a6716d5d6d121",
+      "ninja-source/src/Xcuts.cc": "e0990e84c687b25c22427b6d8e7f6d9574a761b5c807c1492b0357860923bfb3",
+      "ninja-source/src/Xcuts.hh": "e73d0bd4efb898183d78df7161583da2e5ff066d55e876b278fc4276f3ad016c",
+      "ninja-source/src/Xninja.cc": "fd5af01c06d90594e21e0bb9338a6e7c62036e496232f660de5a36fee2b8df82",
+      "ninja-source/src/avholo_decls.hh": "682044e4fa94421fa890f5a03ddbccbd0cbac28f18de66dc4da7719bc0ca2f4c",
+      "ninja-source/src/avholo_interface.cc": "46304cac1f2d20c0d05e0293a5bf570caa9ad030e242e1b07e21717282e354ca",
+      "ninja-source/src/avholo_wrapper.F90": "fa191d8de99a6bdf77cff040e9e5a19ae44437e5ebd2632e6726c322a0e0a115",
+      "ninja-source/src/basis.cc": "c72390a4a95db4d4bb74f521e9ca7d4ce77a7b2620492f25950eaf397527e18f",
+      "ninja-source/src/basis.hh": "dd1cbb67f60101f85898913800fdedb15d6de0779e01d8916a31b04916dfda32",
+      "ninja-source/src/coefficient_level_subs.cc": "cf408bc630a23ffa2a95a1f2479c3f6059d1f862fa6851897200deb788becc42",
+      "ninja-source/src/coefficient_level_subs.hh": "7978f69e1824dc794306e9bb89f23b40a4a43b61a92fbf51d30ea1fc5d89a355",
+      "ninja-source/src/cuts.cc": "7e590571be2f7574a52ad3243fa1089f69b3981c5fa318aeb2d98be812b8df7d",
+      "ninja-source/src/cuts.hh": "ccd37f7f49ca79daec29aa204d3d8b412a296987a4321be0891f53e04c90ffd1",
+      "ninja-source/src/cuts_utils-inl.hh": "d2a0d1ac3ab6a9af8b65edc0273b8d036a49dcfd4aca188d7dde0f96796264da",
+      "ninja-source/src/cuts_utils.cc": "0424171e21414339be5a6054459ab52d52621d03dff56ea1a7711133f3a54fd6",
+      "ninja-source/src/cuts_utils.hh": "5dfcbcf5634520da67514390229f66c92ce5668fe2c06a233ccdb6570868f097",
+      "ninja-source/src/cuts_vector.hh": "1c5cbe80b36fb04c8ebdec4d246da7c34f01164b5859f499faa1ac798653b695",
+      "ninja-source/src/gosam_interface.cc": "2b2d7f36516949fe8b2bcd955055b7cfe530993db049713a777f3b0264419827",
+      "ninja-source/src/gosam_interface.hh": "25d4b8c5023156b56163fa4573b1789db2f20627fececff812e93d63b228d46f",
+      "ninja-source/src/integermath.hh": "3878089c31efd62557d0bf549d24ecbaec5c3fe17af29ccc95713cbe9ce33c55",
+      "ninja-source/src/integral_cache.hh": "f522e2379bb16ee5ff9e82b9f93924e120e03024b8d0757d21284a40b4c6c242",
+      "ninja-source/src/integral_library.cc": "4a218e562e9f8ebd2b990c241076fa70608e7528752f2ea842735b8b4e61e5eb",
+      "ninja-source/src/integral_library_wrapper.hh": "70cb136977f9c0ce57a5707a51a2884df595a4d951cce1821242d24ccd3a59cd",
+      "ninja-source/src/looptools_interface.cc": "37342cdbabd42d765c975dd555d50d2396a37d5ba085e4c5bfe31cfb8a7a3bf5",
+      "ninja-source/src/mninja.F90": "dbcb7aad866a85d054900e2915289ea3bdc6e78c9896134f24e6f8c29493e4a5",
+      "ninja-source/src/ninja/Makefile.am": "cfe0d51561ccd8e5fa6e18d8c0db70d650196e87fdbfb1a502ba463914612cf1",
+      "ninja-source/src/ninja/Makefile.in": "3021ca5945ec0b9e110800dc9e32fa85a83579cde7d8c2253faf3f55efb692d9",
+      "ninja-source/src/ninja/avholo.hh": "be2f45db60c03c9b102c6d00240aed908e70e541f8dbc8db4ccdf1ddd4fab195",
+      "ninja-source/src/ninja/integral_library.hh": "7f4f88660defaa4987f231d569b2f77829e4bc3eebca5b32be7e3a5dfbfda1f4",
+      "ninja-source/src/ninja/looptools.hh": "479081e28b81f640373b470585dc3cdc5b5e175279a905aab6b3bc7c578f5f8f",
+      "ninja-source/src/ninja/momentum.hh": "f3d973156ca99872dc5d38a65a38560cf9040a29ef543f518dbde0dd1c64776b",
+      "ninja-source/src/ninja/ninja.hh": "1db4224052acd1c62e6d277af6b0261213bc8e05501a9a75ab96a454eee7f7f6",
+      "ninja-source/src/ninja/ninja_config.h.in": "19edb34d64d1b51d990afbad396ac0b168b4562baaf343e2a0ba7a5ebeadcd7b",
+      "ninja-source/src/ninja/ninja_in.hh": "9100a0a3afe70f7466a4b72b1b30d47e412abc4c4f49043842e431b6f086abf7",
+      "ninja-source/src/ninja/ninjanumgen.hh": "f47a4cce39e56a7cb8695eb7e8c4bd677c28b76892134602d4d96916e54bfbda",
+      "ninja-source/src/ninja/num_defs.hh": "63760f766cc5d1121d010c65e5214c3fc1df3a16c83aae52135bbbf1346862ec",
+      "ninja-source/src/ninja/quadruple.hh": "72131ce8d53252c4ae489da517b8f38561e14f5a324cce070c7da963920a8988",
+      "ninja-source/src/ninja/rambo.hh": "ef2361afe5e4e3880f88151d36cc3c0a09571208add767e2e93f78b7f4b5c854",
+      "ninja-source/src/ninja/s_mat.hh": "bd0d9bf87946071058cfe8d307bf7f222381cba38d354bba67a81996360d31e8",
+      "ninja-source/src/ninja/spinors.hh": "3c3f5c8c72f5c0ead28abad7dda2e2cfc2be9672a214d17483639df833e5df4b",
+      "ninja-source/src/ninja/static_arrays.hh": "2aef4027a910c66040fa99295d2f9b17d71d2aa3efc5fd3b305d801da9356cee",
+      "ninja-source/src/ninja/tensor_ninja.hh": "4d198625fc48cf047df638e0d3d43eb3f510b16d943cc402246482aff4b00ab6",
+      "ninja-source/src/ninja/thread_safe_integral_library.hh": "a2a80f9b836a821434e2c88b365ffb435e6bba1f286299a11ab7bcfa90f9ea1e",
+      "ninja-source/src/ninja/types.hh": "f589cfbaa058846fe956f1f4a2c8ffe967c58ebfe5c9d0d9b4eb22fab3b82810",
+      "ninja-source/src/ninja/zero_float.hh": "cc33a3a218feac85d18b8be7282c3b739e28c41b0f4a4ef6e4f64a869e98401e",
+      "ninja-source/src/ninja.cc": "66d9ebac1b9b0082c89d4a528fc61cfb7c67190b6e0e8f058e268bc242cfdbe4",
+      "ninja-source/src/ninja_config.cc": "131bc25cb9c6dd5a15e87f0dcff4c1b5753d9daaa15542ec897ea519c42430cc",
+      "ninja-source/src/ninja_hash_table.hh": "99e91b0081ef2227a8f1324ddfb43a207629550e27e582eb70129771a2324fca",
+      "ninja-source/src/ninja_implem.cxx": "905d441157962f1119a0c862337d020cb9e7390c7c8997e998001d306b4bec3e",
+      "ninja-source/src/ninja_scoped_array.hh": "ededbe7a3d334ad5b3cec7b7fdc82b16a9d956f2ae806263a39e74a275e08ab4",
+      "ninja-source/src/ninja_wraps.cc": "2009a1594847881110a8dc6f80451504c3a90935b425662ab862851eb5322b9b",
+      "ninja-source/src/ninjago.F90": "d427342adc8b08fd0223630c61e75b1a2309d1bcc0e185bff12cbc9e3d51112c",
+      "ninja-source/src/ninjavholo.F90": "0325aab4c9591246b7f85e004dd7ee2bd2ee63d1bbdee9882eec80d3abbf996e",
+      "ninja-source/src/ninjavholo_wraps.cc": "8c0792028562cbc982243a00a7259b4cfb0f2f56713eeb2a9f0eb828feb5a246",
+      "ninja-source/src/polys_implem.cxx": "bec26fded738957b1fb5c1a689e913de469f1976b1338fe1ec19a846b50fab55",
+      "ninja-source/src/quadninja/Makefile.am": "5726820d8088bef019f6085071e3e0ebc0b70976b1709cde88315924aeee681a",
+      "ninja-source/src/quadninja/Makefile.in": "f89fe6876eaae9d8cf591e267906fe8f5969b8a75fd5a24d474a03ff2dc8384e",
+      "ninja-source/src/quadsources/genquadsources.sed": "e67497c7387be7c56245910f5236e72c4a64964b541cc7d06137a469a4c19bd8",
+      "ninja-source/src/rambo.cc": "caec8ce72cad61df5e93d742474bb57f883009136d665ebad533f1070daf449b",
+      "ninja-source/src/s_mat_wrapper.hh": "ebd11b939de26a0851d06228bb4d6a36fed868b0466776ddafa74e81be5858ea",
+      "ninja-source/src/spinors.cc": "ca69f7be55736c8feab84eb43355b8360a2fbd68d7da48755b014b14ca31e430",
+      "ninja-source/src/tensor_ninja.cc": "d1f7918e74d54914e2af2aa1514f0e35c3bc19b1d13786d97f0587797bbbe314",
+      "ninja-source/src/tmp_utils.hh": "43921953ee313717335578beb4d12ecbba5ec6753c6644f26fa4a8b5ffd2b7ae",
+      "oneloop/avh_olo_alias.f90": "f7344c747eda05b78fefc63ca2c100fd37d373633a97e9d18b61f78ed7db2daf",
+      "oneloop/avh_olo_foriregi.f90": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+    },
+    "generated_numerator_sha256": "a5478c6ad14782d7d51ede62a53fd91188681280e0e75429ab84f3fcd4e51813",
+    "runner_sha256": "a71af542f53495ba981b49b876e1adbdaca257368ad9032ec82989d8027ed829",
+    "runner_commands": [
+      {
+        "argv": [
+          "g++",
+          "-O3",
+          "-DNDEBUG",
+          "-std=c++11",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-source/src",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build/src",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build",
+          "-I/shared/external/ninja/target/reference-uncached-v2",
+          "-DNINJARS_GENERATED_NUMERATOR_HEADER=\"generated-a5478c6ad14782d7d51ede62a53fd91188681280e0e75429ab84f3fcd4e51813.hh\"",
+          "/shared/external/ninja/validation/reference/benchmark_runner.cc",
+          "/shared/external/ninja/target/reference-uncached-v2/ninja-build/src/.libs/libninja.a",
+          "/shared/external/ninja/target/reference-uncached-v2/oneloop/libavh_olo.a",
+          "/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib/libgfortran.so",
+          "-Wl,-rpath,/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib",
+          "-lquadmath",
+          "-o",
+          "/shared/external/ninja/target/reference-uncached-v2/ninja-benchmark"
+        ],
+        "cwd": "/shared/external/ninja/target/reference-uncached-v2"
+      }
+    ],
+    "runner_compiler": "g++ (GCC) 15.3.0",
+    "executable_sha256": "55b156aeaf76fcc8eaf7ce4c4be36e5416d6027342eac4fb0e69c7aa1e899ed3",
+    "execution": "persistent scalar benchmark control",
+    "performance_acceptance": false
+  },
+  "source_sha256": {
+    "benchmark_runner.cc": "a71af542f53495ba981b49b876e1adbdaca257368ad9032ec82989d8027ed829",
+    "build.py": "c5f85f2e23da66b32b56c7f8ebc1319ee1df736f8a6388658792ac3a7e642484",
+    "test_benchmark_runner.py": "f74ea876edb5054aff2136678a6ee9c7d3b9cca9b4d2bdd36848ad20e328d27d"
+  },
+  "bundle_sha256": {
+    "numerator.hh": "a5478c6ad14782d7d51ede62a53fd91188681280e0e75429ab84f3fcd4e51813",
+    "pool.inputs": "fd17ff769c1bc1989b6fbf312f37f0b924e6d827b0bc6e7bfa17b90c72750820",
+    "manifest.json": "d1a305e8840056c021561e5a4d84ca10117516893be3e5d8a9dc1f0977629efe"
+  },
+  "singleton_pool_extended_with_second_scale": false,
+  "checks": {
+    "cached_build_rejected": true,
+    "changed_source_generated_header_and_legacy_record_rejected": true,
+    "rust_laurents": [
+      {
+        "command": [
+          "/shared/external/ninja/target/reference-uncached/ninjars-validation",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/box.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "2"
+        ],
+        "lane": 0,
+        "laurent_scaled_errors": [
+          1.2408265425851684e-14,
+          3.135581663120391e-16,
+          0.0
+        ],
+        "rust_values": [
+          [
+            "-1.866359277050353149e-1",
+            "5.147031367493584697e-2"
+          ],
+          [
+            "-2.775557561562891351e-17",
+            "7.632783294297951215e-17"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-1.996926103836861935e-2",
+            "5.147031367493584697e-2"
+          ],
+          [
+            "-1.666666666666666297e-1",
+            "0.000000000000000000e0"
+          ]
+        ],
+        "original": {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18663592770502596,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666674,
+            0.0
+          ]
+        },
+        "passed": true,
+        "correctness_gate": true,
+        "scope": "full reduction"
+      },
+      {
+        "command": [
+          "/shared/external/ninja/target/reference-uncached/ninjars-validation",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/box.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "2"
+        ],
+        "lane": 1,
+        "laurent_scaled_errors": [
+          4.250524228292579e-15,
+          2.6009284745375385e-16,
+          0.0
+        ],
+        "rust_values": [
+          [
+            "-1.910111674659759617e-1",
+            "4.743571124961314112e-2"
+          ],
+          [
+            "-8.326672684688674053e-17",
+            "3.330669073875469621e-16"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-2.434450079930935290e-2",
+            "4.743571124961314112e-2"
+          ],
+          [
+            "-1.666666666666666574e-1",
+            "0.000000000000000000e0"
+          ]
+        ],
+        "original": {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.19101116746597635,
+              0.04743571124960891
+            ],
+            [
+              -3.400058012914542e-16,
+              2.914335439641036e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.0243445007993097,
+            0.04743571124960891
+          ],
+          "rational": [
+            -0.16666666666666666,
+            0.0
+          ]
+        },
+        "passed": true,
+        "correctness_gate": true,
+        "scope": "full reduction"
+      },
+      {
+        "command": [
+          "/shared/external/ninja/target/reference-uncached/ninjars-validation",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/box.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "2"
+        ],
+        "lane": 2,
+        "laurent_scaled_errors": [
+          1.4933279963946793e-14,
+          6.609820026931478e-16,
+          0.0
+        ],
+        "rust_values": [
+          [
+            "-1.849952570031002386e-1",
+            "9.053134046865016216e-3"
+          ],
+          [
+            "-8.326672684688674053e-17",
+            "1.734723475976807094e-16"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-1.832859033643367830e-2",
+            "9.053134046865016216e-3"
+          ],
+          [
+            "-1.666666666666666852e-1",
+            "0.000000000000000000e0"
+          ]
+        ],
+        "original": {
+          "lane": 2,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18499525700311517,
+              0.009053134046865169
+            ],
+            [
+              -1.3183898417423734e-16,
+              8.326672684688674e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.018328590336448448,
+            0.009053134046865169
+          ],
+          "rational": [
+            -0.1666666666666667,
+            0.0
+          ]
+        },
+        "passed": true,
+        "correctness_gate": true,
+        "scope": "full reduction"
+      },
+      {
+        "command": [
+          "/shared/external/ninja/target/reference-uncached/ninjars-validation",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/box.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "2",
+          "--mu-extraction",
+          "sampling"
+        ],
+        "lane": 0,
+        "laurent_scaled_errors": [
+          1.245016440824421e-14,
+          3.135581663120391e-16,
+          0.0
+        ],
+        "rust_values": [
+          [
+            "-1.866359277050353149e-1",
+            "5.147031367493584697e-2"
+          ],
+          [
+            "-2.775557561562891351e-17",
+            "7.632783294297951215e-17"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-1.996926103836861935e-2",
+            "5.147031367493584697e-2"
+          ],
+          [
+            "-1.666666666666666574e-1",
+            "0.000000000000000000e0"
+          ]
+        ],
+        "original": {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.1866359277050259,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666669,
+            0.0
+          ]
+        },
+        "passed": true,
+        "correctness_gate": true,
+        "scope": "full reduction"
+      },
+      {
+        "command": [
+          "/shared/external/ninja/target/reference-uncached/ninjars-validation",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/box.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "2",
+          "--mu-extraction",
+          "sampling"
+        ],
+        "lane": 1,
+        "laurent_scaled_errors": [
+          4.250524228292579e-15,
+          2.6009284745375385e-16,
+          0.0
+        ],
+        "rust_values": [
+          [
+            "-1.910111674659759617e-1",
+            "4.743571124961314112e-2"
+          ],
+          [
+            "-8.326672684688674053e-17",
+            "3.330669073875469621e-16"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-2.434450079930935290e-2",
+            "4.743571124961314112e-2"
+          ],
+          [
+            "-1.666666666666666574e-1",
+            "0.000000000000000000e0"
+          ]
+        ],
+        "original": {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.19101116746597635,
+              0.04743571124960891
+            ],
+            [
+              -3.400058012914542e-16,
+              2.914335439641036e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.0243445007993097,
+            0.04743571124960891
+          ],
+          "rational": [
+            -0.16666666666666666,
+            0.0
+          ]
+        },
+        "passed": true,
+        "correctness_gate": true,
+        "scope": "full reduction"
+      },
+      {
+        "command": [
+          "/shared/external/ninja/target/reference-uncached/ninjars-validation",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/box.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "2",
+          "--mu-extraction",
+          "sampling"
+        ],
+        "lane": 2,
+        "laurent_scaled_errors": [
+          1.487777172406531e-14,
+          6.609820026931478e-16,
+          0.0
+        ],
+        "rust_values": [
+          [
+            "-1.849952570031002386e-1",
+            "9.053134046865016216e-3"
+          ],
+          [
+            "-8.326672684688674053e-17",
+            "1.734723475976807094e-16"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-1.832859033643367830e-2",
+            "9.053134046865016216e-3"
+          ],
+          [
+            "-1.666666666666666852e-1",
+            "0.000000000000000000e0"
+          ]
+        ],
+        "original": {
+          "lane": 2,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18499525700311512,
+              0.009053134046865169
+            ],
+            [
+              -1.3183898417423734e-16,
+              8.326672684688674e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.018328590336448448,
+            0.009053134046865169
+          ],
+          "rational": [
+            -0.16666666666666666,
+            0.0
+          ]
+        },
+        "passed": true,
+        "correctness_gate": true,
+        "scope": "full reduction"
+      },
+      {
+        "command": [
+          "/shared/external/ninja/target/reference-uncached/ninjars-validation",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/box.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "2",
+          "--cut-stop",
+          "2"
+        ],
+        "lane": 0,
+        "laurent_scaled_errors": [
+          1.2408265425851684e-14,
+          3.135581663120391e-16,
+          0.0
+        ],
+        "rust_values": [
+          [
+            "-1.866359277050353149e-1",
+            "5.147031367493584697e-2"
+          ],
+          [
+            "-2.775557561562891351e-17",
+            "7.632783294297951215e-17"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-1.996926103836861935e-2",
+            "5.147031367493584697e-2"
+          ],
+          [
+            "-1.666666666666666297e-1",
+            "0.000000000000000000e0"
+          ]
+        ],
+        "original": {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18663592770502596,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666674,
+            0.0
+          ]
+        },
+        "passed": true,
+        "correctness_gate": false,
+        "scope": "partial-cut diagnostic; mismatch origin unresolved"
+      },
+      {
+        "command": [
+          "/shared/external/ninja/target/reference-uncached/ninjars-validation",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/box.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "2",
+          "--cut-stop",
+          "2"
+        ],
+        "lane": 1,
+        "laurent_scaled_errors": [
+          4.250524228292579e-15,
+          2.6009284745375385e-16,
+          0.0
+        ],
+        "rust_values": [
+          [
+            "-1.910111674659759617e-1",
+            "4.743571124961314112e-2"
+          ],
+          [
+            "-8.326672684688674053e-17",
+            "3.330669073875469621e-16"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-2.434450079930935290e-2",
+            "4.743571124961314112e-2"
+          ],
+          [
+            "-1.666666666666666574e-1",
+            "0.000000000000000000e0"
+          ]
+        ],
+        "original": {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.19101116746597635,
+              0.04743571124960891
+            ],
+            [
+              -3.400058012914542e-16,
+              2.914335439641036e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.0243445007993097,
+            0.04743571124960891
+          ],
+          "rational": [
+            -0.16666666666666666,
+            0.0
+          ]
+        },
+        "passed": true,
+        "correctness_gate": false,
+        "scope": "partial-cut diagnostic; mismatch origin unresolved"
+      },
+      {
+        "command": [
+          "/shared/external/ninja/target/reference-uncached/ninjars-validation",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/box.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "2",
+          "--cut-stop",
+          "2"
+        ],
+        "lane": 2,
+        "laurent_scaled_errors": [
+          1.4933279963946793e-14,
+          6.609820026931478e-16,
+          0.0
+        ],
+        "rust_values": [
+          [
+            "-1.849952570031002386e-1",
+            "9.053134046865016216e-3"
+          ],
+          [
+            "-8.326672684688674053e-17",
+            "1.734723475976807094e-16"
+          ],
+          [
+            "0.000000000000000000e0",
+            "0.000000000000000000e0"
+          ],
+          [
+            "-1.832859033643367830e-2",
+            "9.053134046865016216e-3"
+          ],
+          [
+            "-1.666666666666666852e-1",
+            "0.000000000000000000e0"
+          ]
+        ],
+        "original": {
+          "lane": 2,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18499525700311517,
+              0.009053134046865169
+            ],
+            [
+              -1.3183898417423734e-16,
+              8.326672684688674e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.018328590336448448,
+            0.009053134046865169
+          ],
+          "rational": [
+            -0.1666666666666667,
+            0.0
+          ]
+        },
+        "passed": true,
+        "correctness_gate": false,
+        "scope": "partial-cut diagnostic; mismatch origin unresolved"
+      }
+    ],
+    "malformed_inputs_rejected": 27,
+    "rebind_permuted": {
+      "schema_version": 1,
+      "operation": "original_ninja_benchmark",
+      "success": true,
+      "performance_acceptance": false,
+      "execution": "persistent serial scalar evaluations",
+      "cache_policy": {
+        "numerical_master_results": "disabled at configure time"
+      },
+      "measurement_scope": "parameter and sample-pointer rebinding, scale and S-matrix controls, reset, original Ninja reduction and OneLOop masters; no parsing, setup, sequence packing, JSON, IPC or checksum",
+      "status_scope": "all source rows before and after timing; final warmup passes; timed outputs consumed without per-iteration validation",
+      "epsilon_order": [
+        "finite",
+        "single_pole",
+        "double_pole"
+      ],
+      "coefficient_mode": "integrated",
+      "mu_extraction": "expansion",
+      "sampling_scale_policy": "original Ninja per-box max of real masses-squared and absolute S-matrix invariants; fallback below INFRARED_EPS",
+      "cut_stop": 1,
+      "propagators": 4,
+      "rank": 4,
+      "parameter_count": 12,
+      "pool_rows": 6,
+      "thread_count": 1,
+      "precision_rescue": {
+        "enabled": false,
+        "attempts": 0
+      },
+      "checksum_algorithm": "FNV1a64 over little-endian row count, row IDs, statuses and binary64 components",
+      "pre_checksum": "355fa06d82f0eb7b",
+      "post_checksum": "355fa06d82f0eb7b",
+      "pre_post_equal": true,
+      "pre_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18663592770502596,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666674,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18663592770502596,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666674,
+            0.0
+          ]
+        },
+        {
+          "lane": 2,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18499525700311517,
+              0.009053134046865169
+            ],
+            [
+              -1.3183898417423734e-16,
+              8.326672684688674e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.018328590336448448,
+            0.009053134046865169
+          ],
+          "rational": [
+            -0.1666666666666667,
+            0.0
+          ]
+        },
+        {
+          "lane": 3,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.19101116746597635,
+              0.04743571124960891
+            ],
+            [
+              -3.400058012914542e-16,
+              2.914335439641036e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.0243445007993097,
+            0.04743571124960891
+          ],
+          "rational": [
+            -0.16666666666666666,
+            0.0
+          ]
+        },
+        {
+          "lane": 4,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18663592770502596,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666674,
+            0.0
+          ]
+        },
+        {
+          "lane": 5,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18663592770502596,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666674,
+            0.0
+          ]
+        }
+      ],
+      "post_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18663592770502596,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666674,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18663592770502596,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666674,
+            0.0
+          ]
+        },
+        {
+          "lane": 2,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18499525700311517,
+              0.009053134046865169
+            ],
+            [
+              -1.3183898417423734e-16,
+              8.326672684688674e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.018328590336448448,
+            0.009053134046865169
+          ],
+          "rational": [
+            -0.1666666666666667,
+            0.0
+          ]
+        },
+        {
+          "lane": 3,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.19101116746597635,
+              0.04743571124960891
+            ],
+            [
+              -3.400058012914542e-16,
+              2.914335439641036e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.0243445007993097,
+            0.04743571124960891
+          ],
+          "rational": [
+            -0.16666666666666666,
+            0.0
+          ]
+        },
+        {
+          "lane": 4,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18663592770502596,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666674,
+            0.0
+          ]
+        },
+        {
+          "lane": 5,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18663592770502596,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666674,
+            0.0
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "job_id": 7,
+          "workload": "repeated",
+          "pool_policy": "fixture row zero repeated",
+          "points_per_iteration": 5,
+          "warmup_passes": 1,
+          "rounds": 2,
+          "iterations_per_round": 2,
+          "timed_points_per_round": 10,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            429161.0,
+            424241.0
+          ]
+        },
+        {
+          "job_id": 19,
+          "workload": "changing",
+          "pool_policy": "cyclic fixture rows in fixture order",
+          "points_per_iteration": 7,
+          "warmup_passes": 2,
+          "rounds": 3,
+          "iterations_per_round": 1,
+          "timed_points_per_round": 7,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            293771.0,
+            292001.0,
+            287271.0
+          ]
+        }
+      ]
+    },
+    "controls []": {
+      "schema_version": 1,
+      "operation": "original_ninja_benchmark",
+      "success": true,
+      "performance_acceptance": false,
+      "execution": "persistent serial scalar evaluations",
+      "cache_policy": {
+        "numerical_master_results": "disabled at configure time"
+      },
+      "measurement_scope": "parameter and sample-pointer rebinding, scale and S-matrix controls, reset, original Ninja reduction and OneLOop masters; no parsing, setup, sequence packing, JSON, IPC or checksum",
+      "status_scope": "all source rows before and after timing; final warmup passes; timed outputs consumed without per-iteration validation",
+      "epsilon_order": [
+        "finite",
+        "single_pole",
+        "double_pole"
+      ],
+      "coefficient_mode": "integrated",
+      "mu_extraction": "expansion",
+      "sampling_scale_policy": "original Ninja per-box max of real masses-squared and absolute S-matrix invariants; fallback below INFRARED_EPS",
+      "cut_stop": 1,
+      "propagators": 4,
+      "rank": 4,
+      "parameter_count": 12,
+      "pool_rows": 3,
+      "thread_count": 1,
+      "precision_rescue": {
+        "enabled": false,
+        "attempts": 0
+      },
+      "checksum_algorithm": "FNV1a64 over little-endian row count, row IDs, statuses and binary64 components",
+      "pre_checksum": "643ef5f6f7b7baf6",
+      "post_checksum": "643ef5f6f7b7baf6",
+      "pre_post_equal": true,
+      "pre_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18663592770502596,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666674,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.19101116746597635,
+              0.04743571124960891
+            ],
+            [
+              -3.400058012914542e-16,
+              2.914335439641036e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.0243445007993097,
+            0.04743571124960891
+          ],
+          "rational": [
+            -0.16666666666666666,
+            0.0
+          ]
+        },
+        {
+          "lane": 2,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18499525700311517,
+              0.009053134046865169
+            ],
+            [
+              -1.3183898417423734e-16,
+              8.326672684688674e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.018328590336448448,
+            0.009053134046865169
+          ],
+          "rational": [
+            -0.1666666666666667,
+            0.0
+          ]
+        }
+      ],
+      "post_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18663592770502596,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666674,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.19101116746597635,
+              0.04743571124960891
+            ],
+            [
+              -3.400058012914542e-16,
+              2.914335439641036e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.0243445007993097,
+            0.04743571124960891
+          ],
+          "rational": [
+            -0.16666666666666666,
+            0.0
+          ]
+        },
+        {
+          "lane": 2,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18499525700311517,
+              0.009053134046865169
+            ],
+            [
+              -1.3183898417423734e-16,
+              8.326672684688674e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.018328590336448448,
+            0.009053134046865169
+          ],
+          "rational": [
+            -0.1666666666666667,
+            0.0
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "job_id": 7,
+          "workload": "repeated",
+          "pool_policy": "fixture row zero repeated",
+          "points_per_iteration": 5,
+          "warmup_passes": 1,
+          "rounds": 2,
+          "iterations_per_round": 2,
+          "timed_points_per_round": 10,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            430901.0,
+            422771.0
+          ]
+        },
+        {
+          "job_id": 19,
+          "workload": "changing",
+          "pool_policy": "cyclic fixture rows in fixture order",
+          "points_per_iteration": 7,
+          "warmup_passes": 2,
+          "rounds": 3,
+          "iterations_per_round": 1,
+          "timed_points_per_round": 7,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            281351.0,
+            283430.0,
+            284611.0
+          ]
+        }
+      ]
+    },
+    "controls ['--mu-sampling']": {
+      "schema_version": 1,
+      "operation": "original_ninja_benchmark",
+      "success": true,
+      "performance_acceptance": false,
+      "execution": "persistent serial scalar evaluations",
+      "cache_policy": {
+        "numerical_master_results": "disabled at configure time"
+      },
+      "measurement_scope": "parameter and sample-pointer rebinding, scale and S-matrix controls, reset, original Ninja reduction and OneLOop masters; no parsing, setup, sequence packing, JSON, IPC or checksum",
+      "status_scope": "all source rows before and after timing; final warmup passes; timed outputs consumed without per-iteration validation",
+      "epsilon_order": [
+        "finite",
+        "single_pole",
+        "double_pole"
+      ],
+      "coefficient_mode": "integrated",
+      "mu_extraction": "sampling",
+      "sampling_scale_policy": "original Ninja per-box max of real masses-squared and absolute S-matrix invariants; fallback below INFRARED_EPS",
+      "cut_stop": 1,
+      "propagators": 4,
+      "rank": 4,
+      "parameter_count": 12,
+      "pool_rows": 3,
+      "thread_count": 1,
+      "precision_rescue": {
+        "enabled": false,
+        "attempts": 0
+      },
+      "checksum_algorithm": "FNV1a64 over little-endian row count, row IDs, statuses and binary64 components",
+      "pre_checksum": "e9bda3480c7e9ee2",
+      "post_checksum": "e9bda3480c7e9ee2",
+      "pre_post_equal": true,
+      "pre_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.1866359277050259,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666669,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.19101116746597635,
+              0.04743571124960891
+            ],
+            [
+              -3.400058012914542e-16,
+              2.914335439641036e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.0243445007993097,
+            0.04743571124960891
+          ],
+          "rational": [
+            -0.16666666666666666,
+            0.0
+          ]
+        },
+        {
+          "lane": 2,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18499525700311512,
+              0.009053134046865169
+            ],
+            [
+              -1.3183898417423734e-16,
+              8.326672684688674e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.018328590336448448,
+            0.009053134046865169
+          ],
+          "rational": [
+            -0.16666666666666666,
+            0.0
+          ]
+        }
+      ],
+      "post_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.1866359277050259,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666669,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.19101116746597635,
+              0.04743571124960891
+            ],
+            [
+              -3.400058012914542e-16,
+              2.914335439641036e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.0243445007993097,
+            0.04743571124960891
+          ],
+          "rational": [
+            -0.16666666666666666,
+            0.0
+          ]
+        },
+        {
+          "lane": 2,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18499525700311512,
+              0.009053134046865169
+            ],
+            [
+              -1.3183898417423734e-16,
+              8.326672684688674e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.018328590336448448,
+            0.009053134046865169
+          ],
+          "rational": [
+            -0.16666666666666666,
+            0.0
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "job_id": 7,
+          "workload": "repeated",
+          "pool_policy": "fixture row zero repeated",
+          "points_per_iteration": 5,
+          "warmup_passes": 1,
+          "rounds": 2,
+          "iterations_per_round": 2,
+          "timed_points_per_round": 10,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            433502.0,
+            432101.0
+          ]
+        },
+        {
+          "job_id": 19,
+          "workload": "changing",
+          "pool_policy": "cyclic fixture rows in fixture order",
+          "points_per_iteration": 7,
+          "warmup_passes": 2,
+          "rounds": 3,
+          "iterations_per_round": 1,
+          "timed_points_per_round": 7,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            279961.0,
+            286221.0,
+            287810.0
+          ]
+        }
+      ]
+    },
+    "controls ['--cut-stop', '2']": {
+      "schema_version": 1,
+      "operation": "original_ninja_benchmark",
+      "success": true,
+      "performance_acceptance": false,
+      "execution": "persistent serial scalar evaluations",
+      "cache_policy": {
+        "numerical_master_results": "disabled at configure time"
+      },
+      "measurement_scope": "parameter and sample-pointer rebinding, scale and S-matrix controls, reset, original Ninja reduction and OneLOop masters; no parsing, setup, sequence packing, JSON, IPC or checksum",
+      "status_scope": "all source rows before and after timing; final warmup passes; timed outputs consumed without per-iteration validation",
+      "epsilon_order": [
+        "finite",
+        "single_pole",
+        "double_pole"
+      ],
+      "coefficient_mode": "integrated",
+      "mu_extraction": "expansion",
+      "sampling_scale_policy": "original Ninja per-box max of real masses-squared and absolute S-matrix invariants; fallback below INFRARED_EPS",
+      "cut_stop": 2,
+      "propagators": 4,
+      "rank": 4,
+      "parameter_count": 12,
+      "pool_rows": 3,
+      "thread_count": 1,
+      "precision_rescue": {
+        "enabled": false,
+        "attempts": 0
+      },
+      "checksum_algorithm": "FNV1a64 over little-endian row count, row IDs, statuses and binary64 components",
+      "pre_checksum": "643ef5f6f7b7baf6",
+      "post_checksum": "643ef5f6f7b7baf6",
+      "pre_post_equal": true,
+      "pre_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18663592770502596,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666674,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.19101116746597635,
+              0.04743571124960891
+            ],
+            [
+              -3.400058012914542e-16,
+              2.914335439641036e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.0243445007993097,
+            0.04743571124960891
+          ],
+          "rational": [
+            -0.16666666666666666,
+            0.0
+          ]
+        },
+        {
+          "lane": 2,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18499525700311517,
+              0.009053134046865169
+            ],
+            [
+              -1.3183898417423734e-16,
+              8.326672684688674e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.018328590336448448,
+            0.009053134046865169
+          ],
+          "rational": [
+            -0.1666666666666667,
+            0.0
+          ]
+        }
+      ],
+      "post_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18663592770502596,
+              0.051470313674944
+            ],
+            [
+              -3.122502256758253e-16,
+              -5.551115123125783e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.019969261038359234,
+            0.051470313674944
+          ],
+          "rational": [
+            -0.16666666666666674,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.19101116746597635,
+              0.04743571124960891
+            ],
+            [
+              -3.400058012914542e-16,
+              2.914335439641036e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.0243445007993097,
+            0.04743571124960891
+          ],
+          "rational": [
+            -0.16666666666666666,
+            0.0
+          ]
+        },
+        {
+          "lane": 2,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.18499525700311517,
+              0.009053134046865169
+            ],
+            [
+              -1.3183898417423734e-16,
+              8.326672684688674e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.018328590336448448,
+            0.009053134046865169
+          ],
+          "rational": [
+            -0.1666666666666667,
+            0.0
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "job_id": 7,
+          "workload": "repeated",
+          "pool_policy": "fixture row zero repeated",
+          "points_per_iteration": 5,
+          "warmup_passes": 1,
+          "rounds": 2,
+          "iterations_per_round": 2,
+          "timed_points_per_round": 10,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            404011.0,
+            399131.0
+          ]
+        },
+        {
+          "job_id": 19,
+          "workload": "changing",
+          "pool_policy": "cyclic fixture rows in fixture order",
+          "points_per_iteration": 7,
+          "warmup_passes": 2,
+          "rounds": 3,
+          "iterations_per_round": 1,
+          "timed_points_per_round": 7,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            259661.0,
+            259220.0,
+            269801.0
+          ]
+        }
+      ]
+    }
+  },
+  "ninjars_sha256": "5a92941142e12944d4021b3e6841171dd8883e83d24b094dcc5e1053009ebf01",
+  "fixture_sha256": "27ddbc1012835e99f56ad20aa23729354342325b303241a9e49314bab994a298",
+  "passed": true,
+  "tests_run": 9
+}

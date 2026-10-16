@@ -71,6 +71,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('test_log', type=Path)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--test-command', default=TEST_COMMAND,
+                        help='exact completed test command associated with this log')
     parser.add_argument('--evidence', type=Path, action='append', default=[])
     args = parser.parse_args()
     log = args.test_log.read_text()
@@ -95,7 +97,7 @@ def main() -> None:
     record = {
         'schema_version': 1, 'recorded_utc': datetime.now(timezone.utc).isoformat(),
         'workspace_tests': {'passed': sum(row[0] for row in results), 'failed': 0, 'ignored': 0,
-                            'command': TEST_COMMAND, 'log_sha256': digest(args.test_log)},
+                            'command': args.test_command, 'log_sha256': digest(args.test_log)},
         'checkout': source_snapshot(), 'dependencies': dependencies(),
         'rustc': command('rustc', '-Vv'),
         'host': {'system': platform.system(), 'architecture': platform.machine(), 'cpu_models': cpu_models,

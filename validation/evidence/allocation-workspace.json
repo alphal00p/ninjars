@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "performance_acceptance": false,
+  "measurement": "Rust global allocator alloc/alloc_zeroed and realloc call counts; native allocations are outside this diagnostic",
+  "profile": "dev, unoptimized + debuginfo",
+  "precision": "f64",
+  "box_coefficients": "full",
+  "box_mu_extraction": "sampling",
+  "measured_scope": "reset_batch and complete amplitude evaluation; no preparation, warm-up, assertions, formatting or reporting",
+  "warmup_evaluations": 2,
+  "measured_repetitions": 5,
+  "baseline_revision": "3e1c8883121e3660db7f2d3e3dc34bcb044b23bc",
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "probe_source": "crates/ninjars-symbolica/examples/allocation_probe.rs",
+  "probe_sha256": "51946ac556ab2d650602dcd70492f121426c0f674f448662b2862619c1087cfe",
+  "note": "Probe was rustfmt-formatted between baseline and patched builds; its workload and counting logic were unchanged. These diagnostic counts do not establish latency or throughput acceptance.",
+  "baseline_executable_sha256": "ec95d38f55ead5a1631836361c121b0fc957c22fce0c38184d704347754dd330",
+  "patched_executable_sha256": "0dca791d982086391c5570f74caf2089ef8596720c2a88fd09d9557295ab51d0",
+  "patched_sources": {
+    "crates/ninjars/src/triangles.rs": "d860f85c2b2ffc18e7dc9c9fbdaf21121fc372791366e98b23a4700aea348092",
+    "crates/ninjars/src/bubbles.rs": "79314b00d1ebf57c0ce8364a83e1e24bb5e456891d33a941074eeeb55e6e7e52",
+    "crates/ninjars/src/tadpoles.rs": "aeadfcddb05863bc3becef22b9e4923a245b9e6a16ae9dd8563a768b8de49863",
+    "crates/ninjars/src/boxes.rs": "9744b3f37fb74abc1f94dbf20e5c452fb5f42795c51cd83c6b9ffe81fede0bd4",
+    "crates/ninjars/src/pentagons.rs": "7c1f8e2c804260bfdec23b5ec11d263998819a46bb4f1e145dead0bf0d8313fe",
+    "crates/ninjars/src/integration.rs": "ca4e2841145bc767a378689eb5d4fd2d389549e837445e9cc8791a6fdb1cd147",
+    "crates/ninjars-symbolica/src/high_cuts.rs": "e13b2cf089305d0f656ec7d106f2183d89f963c519382444c1674963f7dc93a9"
+  },
+  "build_command": [
+    "cargo",
+    "build",
+    "-p",
+    "ninjars-symbolica",
+    "--example",
+    "allocation_probe",
+    "--locked"
+  ],
+  "run_command": [
+    "target/debug/examples/allocation_probe"
+  ],
+  "cases": [
+    {
+      "propagators": 2,
+      "rank": 3,
+      "lanes": 1,
+      "before_allocations": [
+        50,
+        50,
+        50,
+        50,
+        50
+      ],
+      "after_allocations": [
+        43,
+        43,
+        43,
+        43,
+        43
+      ],
+      "before_reallocations": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "after_reallocations": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "propagators": 2,
+      "rank": 3,
+      "lanes": 8,
+      "before_allocations": [
+        120,
+        120,
+        120,
+        120,
+        120
+      ],
+      "after_allocations": [
+        78,
+        78,
+        78,
+        78,
+        78
+      ],
+      "before_reallocations": [
+        21,
+        21,
+        21,
+        21,
+        21
+      ],
+      "after_reallocations": [
+        21,
+        21,
+        21,
+        21,
+        21
+      ]
+    },
+    {
+      "propagators": 4,
+      "rank": 5,
+      "lanes": 1,
+      "before_allocations": [
+        129,
+        129,
+        129,
+        129,
+        129
+      ],
+      "after_allocations": [
+        103,
+        103,
+        103,
+        103,
+        103
+      ],
+      "before_reallocations": [
+        12,
+        12,
+        12,
+        12,
+        12
+      ],
+      "after_reallocations": [
+        12,
+        12,
+        12,
+        12,
+        12
+      ]
+    },
+    {
+      "propagators": 4,
+      "rank": 5,
+      "lanes": 8,
+      "before_allocations": [
+        423,
+        423,
+        423,
+        423,
+        423
+      ],
+      "after_allocations": [
+        257,
+        257,
+        257,
+        257,
+        257
+      ],
+      "before_reallocations": [
+        80,
+        80,
+        80,
+        80,
+        80
+      ],
+      "after_reallocations": [
+        76,
+        76,
+        76,
+        76,
+        76
+      ]
+    },
+    {
+      "propagators": 5,
+      "rank": 6,
+      "lanes": 1,
+      "before_allocations": [
+        189,
+        189,
+        189,
+        189,
+        189
+      ],
+      "after_allocations": [
+        142,
+        142,
+        142,
+        142,
+        142
+      ],
+      "before_reallocations": [
+        51,
+        51,
+        51,
+        51,
+        51
+      ],
+      "after_reallocations": [
+        49,
+        49,
+        49,
+        49,
+        49
+      ]
+    },
+    {
+      "propagators": 5,
+      "rank": 6,
+      "lanes": 8,
+      "before_allocations": [
+        854,
+        854,
+        854,
+        854,
+        854
+      ],
+      "after_allocations": [
+        527,
+        527,
+        527,
+        527,
+        527
+      ],
+      "before_reallocations": [
+        142,
+        142,
+        142,
+        142,
+        142
+      ],
+      "after_reallocations": [
+        132,
+        132,
+        132,
+        132,
+        132
+      ]
+    }
+  ]
+}

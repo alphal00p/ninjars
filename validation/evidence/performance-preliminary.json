@@ -1,0 +1,4087 @@
+{
+  "schema_version": 1,
+  "scope": "Preliminary timing from the first harness; superseded for controlled comparisons by the complete build/header provenance harness.",
+  "limitations": [
+    "The initial Rust build record omitted the pre-existing Cargo home configuration file.",
+    "The initial reference record did not hash copied/generated headers at library build time.",
+    "The production source hashes and numerical Laurent checks passed, but this draft provenance is insufficient for the later stricter comparison."
+  ],
+  "performance_acceptance": false,
+  "source_report_sha256": "674d7e6b97c0738ee9a462ce89f3f8c4121f4c530736a50b7c151c6b2b107b74",
+  "report": {
+    "schema_version": 1,
+    "operation": "complete_evaluation_performance_comparison",
+    "correctness_passed": true,
+    "performance_acceptance": false,
+    "smoke": false,
+    "timing_scope": "optimized complete evaluation; acceptance gates pending",
+    "acceptance_limitations": [
+      "shared-master reduction is not measured",
+      "complete fixed-suite and uncertainty gates are pending",
+      "DoubleFloat/arbitrary-precision/Dual reference performance is not measured"
+    ],
+    "criterion": "each total Laurent coefficient: abs(a-b)/max(1,abs(b)) <= 1e-9",
+    "finite_split_policy": "each implementation checked internally; cross-basis splits retained without equating them",
+    "comparison_order": "rust-first",
+    "cut_stop": 1,
+    "coefficient_mode": "integrated",
+    "mu_extraction": "expansion",
+    "pool_manifest": {
+      "callback_coefficients": "Symbolica 200-bit constant resolution, C++ literals rounded to binary64",
+      "callback_depths": "separate Symbolica evaluator for each T3/T2 requested depth",
+      "header": "numerator.hh",
+      "numerator_template": "-1*ninjars::{}::mu2*ninjars_cli_components::{}::p0_1^2+-1*ninjars::{}::mu2*ninjars_cli_components::{}::p0_2^2+-1*ninjars::{}::mu2*ninjars_cli_components::{}::p0_3^2+-1*ninjars::{}::q0^2*ninjars_cli_components::{}::p0_1^2+-1*ninjars::{}::q0^2*ninjars_cli_components::{}::p0_2^2+-1*ninjars::{}::q0^2*ninjars_cli_components::{}::p0_3^2+1+ninjars::{}::mu2+ninjars::{}::mu2*ninjars_cli_components::{}::p0_0^2+ninjars::{}::q0^2+ninjars::{}::q0^2*ninjars_cli_components::{}::p0_0^2",
+      "numerical_binding": "same NumericalPool<f64> path as Rust bench; complex values encoded as [real,imaginary]",
+      "operation": "original_ninja_benchmark_export",
+      "overall_factor_included_in_callback": true,
+      "parameter_count": 4,
+      "parameter_order": [
+        "ninjars_cli_components::{}::p0_0",
+        "ninjars_cli_components::{}::p0_1",
+        "ninjars_cli_components::{}::p0_2",
+        "ninjars_cli_components::{}::p0_3"
+      ],
+      "performance_acceptance": false,
+      "pool": "pool.inputs",
+      "pool_protocol_scope": "header and sample pool only; append job_count and job rows before execution",
+      "propagator_count": 2,
+      "protocol": "NINJARS_BENCH_V1",
+      "rank": 2,
+      "samples": [
+        {
+          "lane": 0,
+          "mass_squared_binary64": [
+            [
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ]
+          ],
+          "parameters_binary64": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "s_matrix_binary64": null,
+          "scale_squared_binary64": 1.0,
+          "shifts_binary64": [
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -1.0,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        {
+          "lane": 1,
+          "mass_squared_binary64": [
+            [
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ]
+          ],
+          "parameters_binary64": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "s_matrix_binary64": null,
+          "scale_squared_binary64": 1.0,
+          "shifts_binary64": [
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -2.0,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        {
+          "lane": 2,
+          "mass_squared_binary64": [
+            [
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ]
+          ],
+          "parameters_binary64": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              1.5,
+              0.0
+            ],
+            [
+              0.25,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "s_matrix_binary64": null,
+          "scale_squared_binary64": 1.0,
+          "shifts_binary64": [
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -1.5,
+              -0.25,
+              0.0
+            ]
+          ]
+        }
+      ],
+      "schema_version": 1
+    },
+    "cache_policy": {
+      "rust_master_results": "not cached",
+      "original_master_results": "disabled at configure time"
+    },
+    "sampling_scales": {
+      "rust": "topology-wide magnitudes and exact-zero fallback; see Rust report",
+      "original": "original Ninja per-box max of real masses-squared and absolute S-matrix invariants; fallback below INFRARED_EPS"
+    },
+    "uncertainty_policy": "raw rounds and ratios of observed medians; no confidence-interval claim",
+    "reference_scalar_policy": "one scalar serial point loop per workload; same reference rounds reused for each Rust batch width",
+    "provenance": {
+      "binary_sha256": "b89e5df7853e6162a29eb0fd0e92781ac7a055c69c4a0c7d9efd2a3fd4acde3c",
+      "fixture_sha256": "cfba43a3860b47cda5eef7676170a388c0bd9ab779686063b1b457d0de3f6a07",
+      "dependency_manifest_sha256": "33ff19bf10ded83265ba573613ad874b4858db724eda4ba36d9adee3ff5d9816",
+      "source_snapshot_sha256": "9e01c0125c57992dec5325fb2920a43d16f56940376f0478c2b4d16408683ff1",
+      "git_head": "3e1c8883121e3660db7f2d3e3dc34bcb044b23bc",
+      "git_status": "M crates/ninjars-cli/src/bench.rs\n M crates/ninjars-cli/src/compare.rs\n M crates/ninjars-cli/src/main.rs\n M crates/ninjars-cli/src/prepare.rs\n M crates/ninjars-cli/src/reduce.rs\n M crates/ninjars-cli/src/reference.rs\n M crates/ninjars-cli/src/runtime.rs\n M crates/ninjars-symbolica/src/high_cuts.rs\n M crates/ninjars-symbolica/src/reference.rs\n M crates/ninjars-symbolica/tests/reference.rs\n M crates/ninjars/src/boxes.rs\n M crates/ninjars/src/bubbles.rs\n M crates/ninjars/src/integration.rs\n M crates/ninjars/src/pentagons.rs\n M crates/ninjars/src/tadpoles.rs\n M crates/ninjars/src/triangles.rs\n M examples/graphs/README.md\n M validation/reference/README.md\n M validation/reference/build.py\n?? crates/ninjars-cli/src/reference_bench.rs\n?? crates/ninjars-cli/tests/reference_bench.rs\n?? crates/ninjars-symbolica/examples/allocation_probe.rs\n?? examples/graphs/bubble-parameterized.dot\n?? examples/graphs/bubble-parameterized.json\n?? validation/evidence/allocation-workspace.json\n?? validation/evidence/partial-cut-basis.json\n?? validation/performance/\n?? validation/reference/benchmark_runner.cc\n?? validation/reference/test_benchmark_runner.py",
+      "allowed_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176,
+        177,
+        178,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226,
+        227,
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237,
+        238,
+        239,
+        240,
+        241,
+        242,
+        243,
+        244,
+        245,
+        246,
+        247,
+        248,
+        249,
+        250,
+        251,
+        252,
+        253,
+        254,
+        255,
+        256,
+        257,
+        258,
+        259,
+        260,
+        261,
+        262,
+        263,
+        264,
+        265,
+        266,
+        267,
+        268,
+        269,
+        270,
+        271,
+        272,
+        273,
+        274,
+        275,
+        276,
+        277,
+        278,
+        279,
+        280,
+        281,
+        282,
+        283,
+        284,
+        285,
+        286,
+        287,
+        288,
+        289,
+        290,
+        291,
+        292,
+        293,
+        294,
+        295,
+        296,
+        297,
+        298,
+        299,
+        300,
+        301,
+        302,
+        303,
+        304,
+        305,
+        306,
+        307,
+        308,
+        309,
+        310,
+        311,
+        312,
+        313,
+        314,
+        315,
+        316,
+        317,
+        318,
+        319,
+        320,
+        321,
+        322,
+        323,
+        324,
+        325,
+        326,
+        327,
+        328,
+        329,
+        330,
+        331,
+        332,
+        333,
+        334,
+        335,
+        336,
+        337,
+        338,
+        339,
+        340,
+        341,
+        342,
+        343,
+        344,
+        345,
+        346,
+        347,
+        348,
+        349,
+        350,
+        351,
+        352,
+        353,
+        354,
+        355,
+        356,
+        357,
+        358,
+        359,
+        360,
+        361,
+        362,
+        363,
+        364,
+        365,
+        366,
+        367,
+        368,
+        369,
+        370,
+        371,
+        372,
+        373,
+        374,
+        375,
+        376,
+        377,
+        378,
+        379,
+        380,
+        381,
+        382,
+        383
+      ],
+      "child_affinity": [
+        0
+      ],
+      "thread_environment": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "RAYON_NUM_THREADS": "1",
+        "SYMBOLICA_HIDE_BANNER": "1"
+      },
+      "rust_build_record_sha256": "b063166c34ba437cebb2573b9630d01163f3e597e56fb828746b2639a8ee72f2",
+      "python": "3.14.7 (main, Aug  5 2026, 10:29:49) [GCC 15.3.0]",
+      "controller_command": [
+        "validation/performance/compare.py",
+        "examples/graphs/bubble-parameterized.json",
+        "--ninjars",
+        "target/release/ninjars",
+        "--rust-build-record",
+        "target/performance/rust-build.json",
+        "--reference-build-dir",
+        "target/reference-uncached",
+        "--order",
+        "rust-first",
+        "--output-dir",
+        "target/performance/bubble-parameterized-rust-first-retry"
+      ],
+      "working_directory": "/shared/external/ninja"
+    },
+    "reference_artifacts_sha256": {
+      "ninja-benchmark": "bab56d25029e9403335aa9b06b233a0f324dc80ec28eb5a57a8f28342fced721",
+      "ninja-benchmark.json": "e46e19508dfa4bf2d2a06629ea652299cfb315cf99f44399c50e5c8256ea01bc",
+      "pool/numerator.hh": "cda9f3c1ed56d3346ca8cdc3dd1c25846bf4516d0f155cbe983034f45d2bdf2b",
+      "pool/pool.inputs": "3a843fcae6f7e4fc790d69d140d9828f001202155b7d085afc4137f924ee0ff6",
+      "pool/manifest.json": "8d935e5f8972a99047c1385ad1c1f58382c958d519b32a4e95b2161a9532a67d",
+      "pool/prepared.json": "890da8560356306d3302da8b5b7bcb5bc3a441215cd46f1392032cfc83b22ce1"
+    },
+    "host_before": {
+      "system": "Linux-6.18.45-x86_64-with-glibc2.42",
+      "machine": "x86_64",
+      "cpu": 0,
+      "controller_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176,
+        177,
+        178,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226,
+        227,
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237,
+        238,
+        239,
+        240,
+        241,
+        242,
+        243,
+        244,
+        245,
+        246,
+        247,
+        248,
+        249,
+        250,
+        251,
+        252,
+        253,
+        254,
+        255,
+        256,
+        257,
+        258,
+        259,
+        260,
+        261,
+        262,
+        263,
+        264,
+        265,
+        266,
+        267,
+        268,
+        269,
+        270,
+        271,
+        272,
+        273,
+        274,
+        275,
+        276,
+        277,
+        278,
+        279,
+        280,
+        281,
+        282,
+        283,
+        284,
+        285,
+        286,
+        287,
+        288,
+        289,
+        290,
+        291,
+        292,
+        293,
+        294,
+        295,
+        296,
+        297,
+        298,
+        299,
+        300,
+        301,
+        302,
+        303,
+        304,
+        305,
+        306,
+        307,
+        308,
+        309,
+        310,
+        311,
+        312,
+        313,
+        314,
+        315,
+        316,
+        317,
+        318,
+        319,
+        320,
+        321,
+        322,
+        323,
+        324,
+        325,
+        326,
+        327,
+        328,
+        329,
+        330,
+        331,
+        332,
+        333,
+        334,
+        335,
+        336,
+        337,
+        338,
+        339,
+        340,
+        341,
+        342,
+        343,
+        344,
+        345,
+        346,
+        347,
+        348,
+        349,
+        350,
+        351,
+        352,
+        353,
+        354,
+        355,
+        356,
+        357,
+        358,
+        359,
+        360,
+        361,
+        362,
+        363,
+        364,
+        365,
+        366,
+        367,
+        368,
+        369,
+        370,
+        371,
+        372,
+        373,
+        374,
+        375,
+        376,
+        377,
+        378,
+        379,
+        380,
+        381,
+        382,
+        383
+      ],
+      "load_average": [
+        33.51513671875,
+        34.634765625,
+        39.31591796875
+      ],
+      "active_build_processes": [],
+      "cpu_description": {
+        "model name": "AMD EPYC 9754 128-Core Processor",
+        "vendor_id": "AuthenticAMD",
+        "cpu family": "25",
+        "model": "160",
+        "stepping": "2",
+        "microcode": "0xaa00215"
+      },
+      "scaling_governor": "performance",
+      "scaling_cur_freq": "3102073",
+      "scaling_min_freq": "1800800",
+      "scaling_max_freq": "3102730"
+    },
+    "host_after": {
+      "system": "Linux-6.18.45-x86_64-with-glibc2.42",
+      "machine": "x86_64",
+      "cpu": 0,
+      "controller_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176,
+        177,
+        178,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226,
+        227,
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237,
+        238,
+        239,
+        240,
+        241,
+        242,
+        243,
+        244,
+        245,
+        246,
+        247,
+        248,
+        249,
+        250,
+        251,
+        252,
+        253,
+        254,
+        255,
+        256,
+        257,
+        258,
+        259,
+        260,
+        261,
+        262,
+        263,
+        264,
+        265,
+        266,
+        267,
+        268,
+        269,
+        270,
+        271,
+        272,
+        273,
+        274,
+        275,
+        276,
+        277,
+        278,
+        279,
+        280,
+        281,
+        282,
+        283,
+        284,
+        285,
+        286,
+        287,
+        288,
+        289,
+        290,
+        291,
+        292,
+        293,
+        294,
+        295,
+        296,
+        297,
+        298,
+        299,
+        300,
+        301,
+        302,
+        303,
+        304,
+        305,
+        306,
+        307,
+        308,
+        309,
+        310,
+        311,
+        312,
+        313,
+        314,
+        315,
+        316,
+        317,
+        318,
+        319,
+        320,
+        321,
+        322,
+        323,
+        324,
+        325,
+        326,
+        327,
+        328,
+        329,
+        330,
+        331,
+        332,
+        333,
+        334,
+        335,
+        336,
+        337,
+        338,
+        339,
+        340,
+        341,
+        342,
+        343,
+        344,
+        345,
+        346,
+        347,
+        348,
+        349,
+        350,
+        351,
+        352,
+        353,
+        354,
+        355,
+        356,
+        357,
+        358,
+        359,
+        360,
+        361,
+        362,
+        363,
+        364,
+        365,
+        366,
+        367,
+        368,
+        369,
+        370,
+        371,
+        372,
+        373,
+        374,
+        375,
+        376,
+        377,
+        378,
+        379,
+        380,
+        381,
+        382,
+        383
+      ],
+      "load_average": [
+        33.51513671875,
+        34.634765625,
+        39.31591796875
+      ],
+      "active_build_processes": [],
+      "cpu_description": {
+        "model name": "AMD EPYC 9754 128-Core Processor",
+        "vendor_id": "AuthenticAMD",
+        "cpu family": "25",
+        "model": "160",
+        "stepping": "2",
+        "microcode": "0xaa00215"
+      },
+      "scaling_governor": "performance",
+      "scaling_cur_freq": "3099977",
+      "scaling_min_freq": "1800800",
+      "scaling_max_freq": "3102730"
+    },
+    "commands": [
+      {
+        "label": "export",
+        "argv": [
+          "/shared/external/ninja/target/release/ninjars",
+          "prepare",
+          "/shared/external/ninja/examples/graphs/bubble-parameterized.json",
+          "--reference-bench-dir",
+          "/shared/external/ninja/target/performance/bubble-parameterized-rust-first-retry/pool"
+        ],
+        "cwd": "/shared/external/ninja",
+        "cpu_affinity": [
+          0
+        ],
+        "stdin_sha256": null,
+        "returncode": 0,
+        "wall_time_ns": 25834809
+      },
+      {
+        "label": "reference-build",
+        "argv": [
+          "/nix/store/0srdpi18gkibqqrzllfvphsykkq0kdnx-python3-3.14.7-env/bin/python3",
+          "/shared/external/ninja/validation/reference/build.py",
+          "--benchmark",
+          "--disable-avholo-cache",
+          "--build-dir",
+          "/shared/external/ninja/target/reference-uncached",
+          "--numerator-header",
+          "/shared/external/ninja/target/performance/bubble-parameterized-rust-first-retry/pool/numerator.hh",
+          "--output",
+          "/shared/external/ninja/target/performance/bubble-parameterized-rust-first-retry/ninja-benchmark",
+          "--jobs",
+          "2",
+          "--runner-only"
+        ],
+        "cwd": "/shared/external/ninja",
+        "cpu_affinity": [
+          0
+        ],
+        "stdin_sha256": null,
+        "returncode": 0,
+        "wall_time_ns": 2922672438
+      },
+      {
+        "label": "rust-reduce",
+        "argv": [
+          "/shared/external/ninja/target/release/ninjars",
+          "reduce",
+          "/shared/external/ninja/examples/graphs/bubble-parameterized.json",
+          "--precision",
+          "f64",
+          "--batch-size",
+          "2",
+          "--cut-stop",
+          "1",
+          "--mu-extraction",
+          "expansion"
+        ],
+        "cwd": "/shared/external/ninja",
+        "cpu_affinity": [
+          0
+        ],
+        "stdin_sha256": null,
+        "returncode": 0,
+        "wall_time_ns": 1616913375
+      },
+      {
+        "label": "reference-preflight",
+        "argv": [
+          "/shared/external/ninja/target/performance/bubble-parameterized-rust-first-retry/ninja-benchmark",
+          "--cut-stop",
+          "1"
+        ],
+        "cwd": "/shared/external/ninja",
+        "cpu_affinity": [
+          0
+        ],
+        "stdin_sha256": "6f011232ae9fd9e6a4dad6fa816e9dcaf3bc61a39439632535e8232ce15df434",
+        "returncode": 0,
+        "wall_time_ns": 5438555
+      },
+      {
+        "label": "rust-bench",
+        "argv": [
+          "/shared/external/ninja/target/release/ninjars",
+          "bench",
+          "/shared/external/ninja/examples/graphs/bubble-parameterized.json",
+          "--precision",
+          "f64",
+          "--batch-sizes",
+          "1,8,32,128,1024",
+          "--points",
+          "1025",
+          "--warmup",
+          "1",
+          "--rounds",
+          "5",
+          "--iterations",
+          "1",
+          "--workload",
+          "both",
+          "--cut-stop",
+          "1",
+          "--mu-extraction",
+          "expansion"
+        ],
+        "cwd": "/shared/external/ninja",
+        "cpu_affinity": [
+          0
+        ],
+        "stdin_sha256": null,
+        "returncode": 0,
+        "wall_time_ns": 2641644486
+      },
+      {
+        "label": "reference-bench",
+        "argv": [
+          "/shared/external/ninja/target/performance/bubble-parameterized-rust-first-retry/ninja-benchmark",
+          "--cut-stop",
+          "1"
+        ],
+        "cwd": "/shared/external/ninja",
+        "cpu_affinity": [
+          0
+        ],
+        "stdin_sha256": "cafb1ba8200855ee7c9e09958ca2d791b46ff1fe83be75cacdcfca731c495feb",
+        "returncode": 0,
+        "wall_time_ns": 22321309
+      }
+    ],
+    "preflight_checks": [
+      {
+        "phase": "pre_results",
+        "lane": 0,
+        "laurent_scaled_errors": [
+          2.220446049250313e-16,
+          0.0,
+          0.0
+        ],
+        "finite_split_errors": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "pre_results",
+        "lane": 1,
+        "laurent_scaled_errors": [
+          2.668832567503125e-15,
+          1.0682593576339903e-14,
+          0.0
+        ],
+        "finite_split_errors": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "pre_results",
+        "lane": 2,
+        "laurent_scaled_errors": [
+          1.1036370455639869e-15,
+          4.097993977217408e-15,
+          0.0
+        ],
+        "finite_split_errors": [
+          1.1102230246251568e-16,
+          0.0
+        ]
+      },
+      {
+        "phase": "post_results",
+        "lane": 0,
+        "laurent_scaled_errors": [
+          2.220446049250313e-16,
+          0.0,
+          0.0
+        ],
+        "finite_split_errors": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "post_results",
+        "lane": 1,
+        "laurent_scaled_errors": [
+          2.668832567503125e-15,
+          1.0682593576339903e-14,
+          0.0
+        ],
+        "finite_split_errors": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "post_results",
+        "lane": 2,
+        "laurent_scaled_errors": [
+          1.1036370455639869e-15,
+          4.097993977217408e-15,
+          0.0
+        ],
+        "finite_split_errors": [
+          1.1102230246251568e-16,
+          0.0
+        ]
+      }
+    ],
+    "final_checks": [
+      {
+        "phase": "pre_results",
+        "lane": 0,
+        "laurent_scaled_errors": [
+          2.220446049250313e-16,
+          0.0,
+          0.0
+        ],
+        "finite_split_errors": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "pre_results",
+        "lane": 1,
+        "laurent_scaled_errors": [
+          2.668832567503125e-15,
+          1.0682593576339903e-14,
+          0.0
+        ],
+        "finite_split_errors": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "pre_results",
+        "lane": 2,
+        "laurent_scaled_errors": [
+          1.1036370455639869e-15,
+          4.097993977217408e-15,
+          0.0
+        ],
+        "finite_split_errors": [
+          1.1102230246251568e-16,
+          0.0
+        ]
+      },
+      {
+        "phase": "post_results",
+        "lane": 0,
+        "laurent_scaled_errors": [
+          2.220446049250313e-16,
+          0.0,
+          0.0
+        ],
+        "finite_split_errors": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "post_results",
+        "lane": 1,
+        "laurent_scaled_errors": [
+          2.668832567503125e-15,
+          1.0682593576339903e-14,
+          0.0
+        ],
+        "finite_split_errors": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phase": "post_results",
+        "lane": 2,
+        "laurent_scaled_errors": [
+          1.1036370455639869e-15,
+          4.097993977217408e-15,
+          0.0
+        ],
+        "finite_split_errors": [
+          1.1102230246251568e-16,
+          0.0
+        ]
+      }
+    ],
+    "ratios": [
+      {
+        "workload": "repeated",
+        "batch_size": 1,
+        "rust_round_ns": [
+          14004317.0,
+          13955597.0,
+          14223527.0,
+          14475548.0,
+          13925417.0
+        ],
+        "reference_round_ns": [
+          1382573.0,
+          1385433.0,
+          1376464.0,
+          1388574.0,
+          1377603.0
+        ],
+        "points_per_round": 1025,
+        "rust_median_ns_per_point": 13662.748292682927,
+        "reference_median_ns_per_point": 1348.851707317073,
+        "rust_over_reference_latency": 10.129170032974752,
+        "rust_over_reference_throughput": 0.09872477179715368,
+        "full_batches": 1025,
+        "tail_lanes": 0
+      },
+      {
+        "workload": "repeated",
+        "batch_size": 8,
+        "rust_round_ns": [
+          9585665.0,
+          9746576.0,
+          9577296.0,
+          9574915.0,
+          9577716.0
+        ],
+        "reference_round_ns": [
+          1382573.0,
+          1385433.0,
+          1376464.0,
+          1388574.0,
+          1377603.0
+        ],
+        "points_per_round": 1025,
+        "rust_median_ns_per_point": 9344.113170731707,
+        "reference_median_ns_per_point": 1348.851707317073,
+        "rust_over_reference_latency": 6.927457718326628,
+        "rust_over_reference_throughput": 0.1443531004677942,
+        "full_batches": 128,
+        "tail_lanes": 1
+      },
+      {
+        "workload": "repeated",
+        "batch_size": 32,
+        "rust_round_ns": [
+          8797433.0,
+          8787704.0,
+          8790723.0,
+          8830934.0,
+          8783303.0
+        ],
+        "reference_round_ns": [
+          1382573.0,
+          1385433.0,
+          1376464.0,
+          1388574.0,
+          1377603.0
+        ],
+        "points_per_round": 1025,
+        "rust_median_ns_per_point": 8576.31512195122,
+        "reference_median_ns_per_point": 1348.851707317073,
+        "rust_over_reference_latency": 6.358234248752146,
+        "rust_over_reference_throughput": 0.15727636964559114,
+        "full_batches": 32,
+        "tail_lanes": 1
+      },
+      {
+        "workload": "repeated",
+        "batch_size": 128,
+        "rust_round_ns": [
+          9012535.0,
+          9271564.0,
+          8842624.0,
+          8852424.0,
+          8786913.0
+        ],
+        "reference_round_ns": [
+          1382573.0,
+          1385433.0,
+          1376464.0,
+          1388574.0,
+          1377603.0
+        ],
+        "points_per_round": 1025,
+        "rust_median_ns_per_point": 8636.511219512195,
+        "reference_median_ns_per_point": 1348.851707317073,
+        "rust_over_reference_latency": 6.402861910365673,
+        "rust_over_reference_throughput": 0.1561801603718936,
+        "full_batches": 8,
+        "tail_lanes": 1
+      },
+      {
+        "workload": "repeated",
+        "batch_size": 1024,
+        "rust_round_ns": [
+          11068060.0,
+          9949616.0,
+          9810796.0,
+          10029947.0,
+          10016057.0
+        ],
+        "reference_round_ns": [
+          1382573.0,
+          1385433.0,
+          1376464.0,
+          1388574.0,
+          1377603.0
+        ],
+        "points_per_round": 1025,
+        "rust_median_ns_per_point": 9771.762926829268,
+        "reference_median_ns_per_point": 1348.851707317073,
+        "rust_over_reference_latency": 7.244504991779819,
+        "rust_over_reference_throughput": 0.1380356561469249,
+        "full_batches": 1,
+        "tail_lanes": 1
+      },
+      {
+        "workload": "changing",
+        "batch_size": 1,
+        "rust_round_ns": [
+          20927376.0,
+          20925376.0,
+          20929356.0,
+          21090007.0,
+          21001877.0
+        ],
+        "reference_round_ns": [
+          1375044.0,
+          1369753.0,
+          1370303.0,
+          1373994.0,
+          1371894.0
+        ],
+        "points_per_round": 1025,
+        "rust_median_ns_per_point": 20418.883902439025,
+        "reference_median_ns_per_point": 1338.4331707317074,
+        "rust_over_reference_latency": 15.255811309036996,
+        "rust_over_reference_throughput": 0.06554879185006934,
+        "full_batches": 1025,
+        "tail_lanes": 0
+      },
+      {
+        "workload": "changing",
+        "batch_size": 8,
+        "rust_round_ns": [
+          16434264.0,
+          16442703.999999998,
+          16437344.0,
+          16412024.0,
+          24806976.0
+        ],
+        "reference_round_ns": [
+          1375044.0,
+          1369753.0,
+          1370303.0,
+          1373994.0,
+          1371894.0
+        ],
+        "points_per_round": 1025,
+        "rust_median_ns_per_point": 16036.433170731707,
+        "reference_median_ns_per_point": 1338.4331707317074,
+        "rust_over_reference_latency": 11.981497112750693,
+        "rust_over_reference_throughput": 0.08346202403502659,
+        "full_batches": 128,
+        "tail_lanes": 1
+      },
+      {
+        "workload": "changing",
+        "batch_size": 32,
+        "rust_round_ns": [
+          12963954.0,
+          12955755.0,
+          12843844.0,
+          12832615.0,
+          12803655.0
+        ],
+        "reference_round_ns": [
+          1375044.0,
+          1369753.0,
+          1370303.0,
+          1373994.0,
+          1371894.0
+        ],
+        "points_per_round": 1025,
+        "rust_median_ns_per_point": 12530.579512195121,
+        "reference_median_ns_per_point": 1338.4331707317074,
+        "rust_over_reference_latency": 9.3621256452758,
+        "rust_over_reference_throughput": 0.10681334964828287,
+        "full_batches": 32,
+        "tail_lanes": 1
+      },
+      {
+        "workload": "changing",
+        "batch_size": 128,
+        "rust_round_ns": [
+          13415346.0,
+          13253206.0,
+          13399176.0,
+          13650996.0,
+          13311366.0
+        ],
+        "reference_round_ns": [
+          1375044.0,
+          1369753.0,
+          1370303.0,
+          1373994.0,
+          1371894.0
+        ],
+        "points_per_round": 1025,
+        "rust_median_ns_per_point": 13072.366829268292,
+        "reference_median_ns_per_point": 1338.4331707317074,
+        "rust_over_reference_latency": 9.76691785225389,
+        "rust_over_reference_throughput": 0.10238644525603664,
+        "full_batches": 8,
+        "tail_lanes": 1
+      },
+      {
+        "workload": "changing",
+        "batch_size": 1024,
+        "rust_round_ns": [
+          12609693.0,
+          12486484.0,
+          12505233.0,
+          12619084.0,
+          12594224.0
+        ],
+        "reference_round_ns": [
+          1375044.0,
+          1369753.0,
+          1370303.0,
+          1373994.0,
+          1371894.0
+        ],
+        "points_per_round": 1025,
+        "rust_median_ns_per_point": 12287.04780487805,
+        "reference_median_ns_per_point": 1338.4331707317074,
+        "rust_over_reference_latency": 9.180172812185198,
+        "rust_over_reference_throughput": 0.10893041127424762,
+        "full_batches": 1,
+        "tail_lanes": 1
+      }
+    ],
+    "rust_bench": {
+      "acceptance_limitations": [
+        "Rust-only measurements; original Ninja no-result-cache baseline is not measured",
+        "shared-master reduction comparison is not measured"
+      ],
+      "box_reduction": {
+        "coefficient_mode": "integrated",
+        "mu_extraction": "expansion",
+        "mu_sampling_scale": null
+      },
+      "build_profile": "release",
+      "cache_policy": {
+        "compiled_evaluators": "retained and warmed",
+        "numerical_master_results": "not cached",
+        "reference": "not run"
+      },
+      "cases": [
+        {
+          "batch_size": 1,
+          "diagnostic": {
+            "failed_lanes": 0,
+            "failure_kinds": {},
+            "masters": {
+              "calls": 1025,
+              "nanoseconds": 1255428.0,
+              "rows": 1025
+            },
+            "numerator_evaluation": {
+              "calls": 0,
+              "nanoseconds": 0.0,
+              "rows": 0
+            },
+            "numerator_expansion": {
+              "calls": 2050,
+              "nanoseconds": 1119058.0,
+              "rows": 4100
+            },
+            "points": 1025,
+            "residual_reduction_ns": 11845440.0,
+            "residual_scope": "scale selection, parameter binding, reset, geometry, reduction, contraction, bookkeeping and timer overhead",
+            "successful_lanes": 1025,
+            "total_ns": 14219926.0
+          },
+          "distinct_source_rows": 1,
+          "full_batches": 1025,
+          "iterations_per_round": 1,
+          "max_ns": 14475548.0,
+          "median_ns": 14004317.0,
+          "median_ns_per_point": 13662.748292682927,
+          "median_points_per_second": 73191.71652569705,
+          "min_ns": 13925417.0,
+          "p10_ns": 13937489.0,
+          "p90_ns": 14374739.6,
+          "packing_ns": 492012.0,
+          "points_per_iteration": 1025,
+          "pool_policy": "fixture row zero repeated",
+          "precision_rescue": {
+            "attempts": 0,
+            "enabled": false,
+            "successful": 0
+          },
+          "representative_component_precision_bits": [
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ]
+          ],
+          "representative_result": [
+            [
+              "-1.520447048200205264e-1",
+              "0.000000000000000000e0"
+            ],
+            [
+              "1.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "-1.520447048200205264e-1",
+              "0.000000000000000000e0"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ]
+          ],
+          "representative_source_lane": 0,
+          "round_ns": [
+            14004317.0,
+            13955597.0,
+            14223527.0,
+            14475548.0,
+            13925417.0
+          ],
+          "tail_lanes": 0,
+          "timed_points_per_round": 1025,
+          "timed_rounds": 5,
+          "uncertainty_policy": "raw round samples and observed quantiles; no confidence-interval claim",
+          "warmup_final_pass_failed_lanes": 0,
+          "warmup_ns": 1430776438.0,
+          "warmup_passes": 1,
+          "workload": "repeated"
+        },
+        {
+          "batch_size": 8,
+          "diagnostic": {
+            "failed_lanes": 0,
+            "failure_kinds": {},
+            "masters": {
+              "calls": 129,
+              "nanoseconds": 842643.0,
+              "rows": 1025
+            },
+            "numerator_evaluation": {
+              "calls": 0,
+              "nanoseconds": 0.0,
+              "rows": 0
+            },
+            "numerator_expansion": {
+              "calls": 258,
+              "nanoseconds": 519215.99999999994,
+              "rows": 4100
+            },
+            "points": 1025,
+            "residual_reduction_ns": 8234183.0,
+            "residual_scope": "scale selection, parameter binding, reset, geometry, reduction, contraction, bookkeeping and timer overhead",
+            "successful_lanes": 1025,
+            "total_ns": 9596042.0
+          },
+          "distinct_source_rows": 1,
+          "full_batches": 128,
+          "iterations_per_round": 1,
+          "max_ns": 9746576.0,
+          "median_ns": 9577716.0,
+          "median_ns_per_point": 9344.113170731707,
+          "median_points_per_second": 107019.25177150794,
+          "min_ns": 9574915.0,
+          "p10_ns": 9575867.4,
+          "p90_ns": 9682211.6,
+          "packing_ns": 147041.0,
+          "points_per_iteration": 1025,
+          "pool_policy": "fixture row zero repeated",
+          "precision_rescue": {
+            "attempts": 0,
+            "enabled": false,
+            "successful": 0
+          },
+          "representative_component_precision_bits": [
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ]
+          ],
+          "representative_result": [
+            [
+              "-1.520447048200205264e-1",
+              "0.000000000000000000e0"
+            ],
+            [
+              "1.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "-1.520447048200205264e-1",
+              "0.000000000000000000e0"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ]
+          ],
+          "representative_source_lane": 0,
+          "round_ns": [
+            9585665.0,
+            9746576.0,
+            9577296.0,
+            9574915.0,
+            9577716.0
+          ],
+          "tail_lanes": 1,
+          "timed_points_per_round": 1025,
+          "timed_rounds": 5,
+          "uncertainty_policy": "raw round samples and observed quantiles; no confidence-interval claim",
+          "warmup_final_pass_failed_lanes": 0,
+          "warmup_ns": 9783606.0,
+          "warmup_passes": 1,
+          "workload": "repeated"
+        },
+        {
+          "batch_size": 32,
+          "diagnostic": {
+            "failed_lanes": 0,
+            "failure_kinds": {},
+            "masters": {
+              "calls": 33,
+              "nanoseconds": 637103.0,
+              "rows": 1025
+            },
+            "numerator_evaluation": {
+              "calls": 0,
+              "nanoseconds": 0.0,
+              "rows": 0
+            },
+            "numerator_expansion": {
+              "calls": 66,
+              "nanoseconds": 483366.0,
+              "rows": 4100
+            },
+            "points": 1025,
+            "residual_reduction_ns": 7703497.0,
+            "residual_scope": "scale selection, parameter binding, reset, geometry, reduction, contraction, bookkeeping and timer overhead",
+            "successful_lanes": 1025,
+            "total_ns": 8823966.0
+          },
+          "distinct_source_rows": 1,
+          "full_batches": 32,
+          "iterations_per_round": 1,
+          "max_ns": 8830934.0,
+          "median_ns": 8790723.0,
+          "median_ns_per_point": 8576.31512195122,
+          "median_points_per_second": 116600.19318092494,
+          "min_ns": 8783303.0,
+          "p10_ns": 8785063.4,
+          "p90_ns": 8817533.6,
+          "packing_ns": 46140.0,
+          "points_per_iteration": 1025,
+          "pool_policy": "fixture row zero repeated",
+          "precision_rescue": {
+            "attempts": 0,
+            "enabled": false,
+            "successful": 0
+          },
+          "representative_component_precision_bits": [
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ]
+          ],
+          "representative_result": [
+            [
+              "-1.520447048200205264e-1",
+              "0.000000000000000000e0"
+            ],
+            [
+              "1.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "-1.520447048200205264e-1",
+              "0.000000000000000000e0"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ]
+          ],
+          "representative_source_lane": 0,
+          "round_ns": [
+            8797433.0,
+            8787704.0,
+            8790723.0,
+            8830934.0,
+            8783303.0
+          ],
+          "tail_lanes": 1,
+          "timed_points_per_round": 1025,
+          "timed_rounds": 5,
+          "uncertainty_policy": "raw round samples and observed quantiles; no confidence-interval claim",
+          "warmup_final_pass_failed_lanes": 0,
+          "warmup_ns": 9128715.0,
+          "warmup_passes": 1,
+          "workload": "repeated"
+        },
+        {
+          "batch_size": 128,
+          "diagnostic": {
+            "failed_lanes": 0,
+            "failure_kinds": {},
+            "masters": {
+              "calls": 9,
+              "nanoseconds": 532882.0,
+              "rows": 1025
+            },
+            "numerator_evaluation": {
+              "calls": 0,
+              "nanoseconds": 0.0,
+              "rows": 0
+            },
+            "numerator_expansion": {
+              "calls": 18,
+              "nanoseconds": 493530.99999999994,
+              "rows": 4100
+            },
+            "points": 1025,
+            "residual_reduction_ns": 7688462.0,
+            "residual_scope": "scale selection, parameter binding, reset, geometry, reduction, contraction, bookkeeping and timer overhead",
+            "successful_lanes": 1025,
+            "total_ns": 8714875.0
+          },
+          "distinct_source_rows": 1,
+          "full_batches": 8,
+          "iterations_per_round": 1,
+          "max_ns": 9271564.0,
+          "median_ns": 8852424.0,
+          "median_ns_per_point": 8636.511219512195,
+          "median_points_per_second": 115787.49504090632,
+          "min_ns": 8786913.0,
+          "p10_ns": 8809197.4,
+          "p90_ns": 9167952.4,
+          "packing_ns": 27790.0,
+          "points_per_iteration": 1025,
+          "pool_policy": "fixture row zero repeated",
+          "precision_rescue": {
+            "attempts": 0,
+            "enabled": false,
+            "successful": 0
+          },
+          "representative_component_precision_bits": [
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ]
+          ],
+          "representative_result": [
+            [
+              "-1.520447048200205264e-1",
+              "0.000000000000000000e0"
+            ],
+            [
+              "1.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "-1.520447048200205264e-1",
+              "0.000000000000000000e0"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ]
+          ],
+          "representative_source_lane": 0,
+          "round_ns": [
+            9012535.0,
+            9271564.0,
+            8842624.0,
+            8852424.0,
+            8786913.0
+          ],
+          "tail_lanes": 1,
+          "timed_points_per_round": 1025,
+          "timed_rounds": 5,
+          "uncertainty_policy": "raw round samples and observed quantiles; no confidence-interval claim",
+          "warmup_final_pass_failed_lanes": 0,
+          "warmup_ns": 9093474.0,
+          "warmup_passes": 1,
+          "workload": "repeated"
+        },
+        {
+          "batch_size": 1024,
+          "diagnostic": {
+            "failed_lanes": 0,
+            "failure_kinds": {},
+            "masters": {
+              "calls": 2,
+              "nanoseconds": 539081.0,
+              "rows": 1025
+            },
+            "numerator_evaluation": {
+              "calls": 0,
+              "nanoseconds": 0.0,
+              "rows": 0
+            },
+            "numerator_expansion": {
+              "calls": 4,
+              "nanoseconds": 581771.0,
+              "rows": 4100
+            },
+            "points": 1025,
+            "residual_reduction_ns": 8728405.0,
+            "residual_scope": "scale selection, parameter binding, reset, geometry, reduction, contraction, bookkeeping and timer overhead",
+            "successful_lanes": 1025,
+            "total_ns": 9849257.0
+          },
+          "distinct_source_rows": 1,
+          "full_batches": 1,
+          "iterations_per_round": 1,
+          "max_ns": 11068060.0,
+          "median_ns": 10016057.0,
+          "median_ns_per_point": 9771.762926829268,
+          "median_points_per_second": 102335.67959926746,
+          "min_ns": 9810796.0,
+          "p10_ns": 9866324.0,
+          "p90_ns": 10652814.8,
+          "packing_ns": 17480.0,
+          "points_per_iteration": 1025,
+          "pool_policy": "fixture row zero repeated",
+          "precision_rescue": {
+            "attempts": 0,
+            "enabled": false,
+            "successful": 0
+          },
+          "representative_component_precision_bits": [
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ]
+          ],
+          "representative_result": [
+            [
+              "-1.520447048200205264e-1",
+              "0.000000000000000000e0"
+            ],
+            [
+              "1.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "-1.520447048200205264e-1",
+              "0.000000000000000000e0"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ]
+          ],
+          "representative_source_lane": 0,
+          "round_ns": [
+            11068060.0,
+            9949616.0,
+            9810796.0,
+            10029947.0,
+            10016057.0
+          ],
+          "tail_lanes": 1,
+          "timed_points_per_round": 1025,
+          "timed_rounds": 5,
+          "uncertainty_policy": "raw round samples and observed quantiles; no confidence-interval claim",
+          "warmup_final_pass_failed_lanes": 0,
+          "warmup_ns": 18182379.0,
+          "warmup_passes": 1,
+          "workload": "repeated"
+        },
+        {
+          "batch_size": 1,
+          "diagnostic": {
+            "failed_lanes": 0,
+            "failure_kinds": {},
+            "masters": {
+              "calls": 3074,
+              "nanoseconds": 6485306.0,
+              "rows": 3757
+            },
+            "numerator_evaluation": {
+              "calls": 0,
+              "nanoseconds": 0.0,
+              "rows": 0
+            },
+            "numerator_expansion": {
+              "calls": 2050,
+              "nanoseconds": 1309402.0,
+              "rows": 4100
+            },
+            "points": 1025,
+            "residual_reduction_ns": 13085062.0,
+            "residual_scope": "scale selection, parameter binding, reset, geometry, reduction, contraction, bookkeeping and timer overhead",
+            "successful_lanes": 1025,
+            "total_ns": 20879770.0
+          },
+          "distinct_source_rows": 3,
+          "full_batches": 1025,
+          "iterations_per_round": 1,
+          "max_ns": 21090007.0,
+          "median_ns": 20929356.0,
+          "median_ns_per_point": 20418.883902439025,
+          "median_points_per_second": 48974.27326478655,
+          "min_ns": 20925376.0,
+          "p10_ns": 20926176.0,
+          "p90_ns": 21054755.0,
+          "packing_ns": 179470.0,
+          "points_per_iteration": 1025,
+          "pool_policy": "cyclic fixture rows in fixture order",
+          "precision_rescue": {
+            "attempts": 0,
+            "enabled": false,
+            "successful": 0
+          },
+          "representative_component_precision_bits": [
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ]
+          ],
+          "representative_result": [
+            [
+              "-6.673765706105748485e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "-1.500000000000003553e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "-4.798765706105748485e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "-1.875000000000000000e0",
+              "0.000000000000000000e0"
+            ]
+          ],
+          "representative_source_lane": 1,
+          "round_ns": [
+            20927376.0,
+            20925376.0,
+            20929356.0,
+            21090007.0,
+            21001877.0
+          ],
+          "tail_lanes": 0,
+          "timed_points_per_round": 1025,
+          "timed_rounds": 5,
+          "uncertainty_policy": "raw round samples and observed quantiles; no confidence-interval claim",
+          "warmup_final_pass_failed_lanes": 0,
+          "warmup_ns": 183159950.0,
+          "warmup_passes": 1,
+          "workload": "changing"
+        },
+        {
+          "batch_size": 8,
+          "diagnostic": {
+            "failed_lanes": 0,
+            "failure_kinds": {},
+            "masters": {
+              "calls": 516,
+              "nanoseconds": 5990774.0,
+              "rows": 3757
+            },
+            "numerator_evaluation": {
+              "calls": 0,
+              "nanoseconds": 0.0,
+              "rows": 0
+            },
+            "numerator_expansion": {
+              "calls": 258,
+              "nanoseconds": 653781.0,
+              "rows": 4100
+            },
+            "points": 1025,
+            "residual_reduction_ns": 9905003.0,
+            "residual_scope": "scale selection, parameter binding, reset, geometry, reduction, contraction, bookkeeping and timer overhead",
+            "successful_lanes": 1025,
+            "total_ns": 16549558.0
+          },
+          "distinct_source_rows": 3,
+          "full_batches": 128,
+          "iterations_per_round": 1,
+          "max_ns": 24806976.0,
+          "median_ns": 16437344.0,
+          "median_ns_per_point": 16036.433170731707,
+          "median_points_per_second": 62358.00625697193,
+          "min_ns": 16412024.0,
+          "p10_ns": 16420920.0,
+          "p90_ns": 21461267.2,
+          "packing_ns": 66240.0,
+          "points_per_iteration": 1025,
+          "pool_policy": "cyclic fixture rows in fixture order",
+          "precision_rescue": {
+            "attempts": 0,
+            "enabled": false,
+            "successful": 0
+          },
+          "representative_component_precision_bits": [
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ]
+          ],
+          "representative_result": [
+            [
+              "-6.673765706105748485e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "-1.500000000000003553e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "-4.798765706105748485e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "-1.875000000000000000e0",
+              "0.000000000000000000e0"
+            ]
+          ],
+          "representative_source_lane": 1,
+          "round_ns": [
+            16434264.0,
+            16442703.999999998,
+            16437344.0,
+            16412024.0,
+            24806976.0
+          ],
+          "tail_lanes": 1,
+          "timed_points_per_round": 1025,
+          "timed_rounds": 5,
+          "uncertainty_policy": "raw round samples and observed quantiles; no confidence-interval claim",
+          "warmup_final_pass_failed_lanes": 0,
+          "warmup_ns": 17019536.0,
+          "warmup_passes": 1,
+          "workload": "changing"
+        },
+        {
+          "batch_size": 32,
+          "diagnostic": {
+            "failed_lanes": 0,
+            "failure_kinds": {},
+            "masters": {
+              "calls": 132,
+              "nanoseconds": 4103863.0,
+              "rows": 3757
+            },
+            "numerator_evaluation": {
+              "calls": 0,
+              "nanoseconds": 0.0,
+              "rows": 0
+            },
+            "numerator_expansion": {
+              "calls": 66,
+              "nanoseconds": 519421.99999999994,
+              "rows": 4100
+            },
+            "points": 1025,
+            "residual_reduction_ns": 8299231.0,
+            "residual_scope": "scale selection, parameter binding, reset, geometry, reduction, contraction, bookkeeping and timer overhead",
+            "successful_lanes": 1025,
+            "total_ns": 12922516.0
+          },
+          "distinct_source_rows": 3,
+          "full_batches": 32,
+          "iterations_per_round": 1,
+          "max_ns": 12963954.0,
+          "median_ns": 12843844.0,
+          "median_ns_per_point": 12530.579512195121,
+          "median_points_per_second": 79804.76872811597,
+          "min_ns": 12803655.0,
+          "p10_ns": 12815239.0,
+          "p90_ns": 12960674.4,
+          "packing_ns": 68430.0,
+          "points_per_iteration": 1025,
+          "pool_policy": "cyclic fixture rows in fixture order",
+          "precision_rescue": {
+            "attempts": 0,
+            "enabled": false,
+            "successful": 0
+          },
+          "representative_component_precision_bits": [
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ]
+          ],
+          "representative_result": [
+            [
+              "-6.673765706105748485e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "-1.500000000000003553e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "-4.798765706105748485e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "-1.875000000000000000e0",
+              "0.000000000000000000e0"
+            ]
+          ],
+          "representative_source_lane": 1,
+          "round_ns": [
+            12963954.0,
+            12955755.0,
+            12843844.0,
+            12832615.0,
+            12803655.0
+          ],
+          "tail_lanes": 1,
+          "timed_points_per_round": 1025,
+          "timed_rounds": 5,
+          "uncertainty_policy": "raw round samples and observed quantiles; no confidence-interval claim",
+          "warmup_final_pass_failed_lanes": 0,
+          "warmup_ns": 13351695.0,
+          "warmup_passes": 1,
+          "workload": "changing"
+        },
+        {
+          "batch_size": 128,
+          "diagnostic": {
+            "failed_lanes": 0,
+            "failure_kinds": {},
+            "masters": {
+              "calls": 36,
+              "nanoseconds": 3575530.0,
+              "rows": 3757
+            },
+            "numerator_evaluation": {
+              "calls": 0,
+              "nanoseconds": 0.0,
+              "rows": 0
+            },
+            "numerator_expansion": {
+              "calls": 18,
+              "nanoseconds": 633412.0,
+              "rows": 4100
+            },
+            "points": 1025,
+            "residual_reduction_ns": 9228085.0,
+            "residual_scope": "scale selection, parameter binding, reset, geometry, reduction, contraction, bookkeeping and timer overhead",
+            "successful_lanes": 1025,
+            "total_ns": 13437027.0
+          },
+          "distinct_source_rows": 3,
+          "full_batches": 8,
+          "iterations_per_round": 1,
+          "max_ns": 13650996.0,
+          "median_ns": 13399176.0,
+          "median_ns_per_point": 13072.366829268292,
+          "median_points_per_second": 76497.24132289925,
+          "min_ns": 13253206.0,
+          "p10_ns": 13276470.0,
+          "p90_ns": 13556736.0,
+          "packing_ns": 42729.0,
+          "points_per_iteration": 1025,
+          "pool_policy": "cyclic fixture rows in fixture order",
+          "precision_rescue": {
+            "attempts": 0,
+            "enabled": false,
+            "successful": 0
+          },
+          "representative_component_precision_bits": [
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ]
+          ],
+          "representative_result": [
+            [
+              "-6.673765706105748485e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "-1.500000000000003553e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "-4.798765706105748485e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "-1.875000000000000000e0",
+              "0.000000000000000000e0"
+            ]
+          ],
+          "representative_source_lane": 1,
+          "round_ns": [
+            13415346.0,
+            13253206.0,
+            13399176.0,
+            13650996.0,
+            13311366.0
+          ],
+          "tail_lanes": 1,
+          "timed_points_per_round": 1025,
+          "timed_rounds": 5,
+          "uncertainty_policy": "raw round samples and observed quantiles; no confidence-interval claim",
+          "warmup_final_pass_failed_lanes": 0,
+          "warmup_ns": 14938511.0,
+          "warmup_passes": 1,
+          "workload": "changing"
+        },
+        {
+          "batch_size": 1024,
+          "diagnostic": {
+            "failed_lanes": 0,
+            "failure_kinds": {},
+            "masters": {
+              "calls": 8,
+              "nanoseconds": 3081498.0,
+              "rows": 3757
+            },
+            "numerator_evaluation": {
+              "calls": 0,
+              "nanoseconds": 0.0,
+              "rows": 0
+            },
+            "numerator_expansion": {
+              "calls": 4,
+              "nanoseconds": 569163.0,
+              "rows": 4100
+            },
+            "points": 1025,
+            "residual_reduction_ns": 8974611.0,
+            "residual_scope": "scale selection, parameter binding, reset, geometry, reduction, contraction, bookkeeping and timer overhead",
+            "successful_lanes": 1025,
+            "total_ns": 12625272.0
+          },
+          "distinct_source_rows": 3,
+          "full_batches": 1,
+          "iterations_per_round": 1,
+          "max_ns": 12619084.0,
+          "median_ns": 12594224.0,
+          "median_ns_per_point": 12287.04780487805,
+          "median_points_per_second": 81386.51496114409,
+          "min_ns": 12486484.0,
+          "p10_ns": 12493983.6,
+          "p90_ns": 12615327.6,
+          "packing_ns": 19740.0,
+          "points_per_iteration": 1025,
+          "pool_policy": "cyclic fixture rows in fixture order",
+          "precision_rescue": {
+            "attempts": 0,
+            "enabled": false,
+            "successful": 0
+          },
+          "representative_component_precision_bits": [
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ]
+          ],
+          "representative_result": [
+            [
+              "-6.673765706105748485e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "-1.500000000000003553e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "-4.798765706105748485e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "-1.875000000000000000e0",
+              "0.000000000000000000e0"
+            ]
+          ],
+          "representative_source_lane": 1,
+          "round_ns": [
+            12609693.0,
+            12486484.0,
+            12505233.0,
+            12619084.0,
+            12594224.0
+          ],
+          "tail_lanes": 1,
+          "timed_points_per_round": 1025,
+          "timed_rounds": 5,
+          "uncertainty_policy": "raw round samples and observed quantiles; no confidence-interval claim",
+          "warmup_final_pass_failed_lanes": 0,
+          "warmup_ns": 40627719.0,
+          "warmup_passes": 1,
+          "workload": "changing"
+        }
+      ],
+      "cut_stop": 1,
+      "diagnostic_scope": "separate instrumented pass; excluded from primary round timings",
+      "host": {
+        "architecture": "x86_64",
+        "available_parallelism": 1,
+        "os": "linux"
+      },
+      "inputs": {
+        "denominators": [
+          "-1+spenso::{symmetric,linear,scalar}::dot(gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:k}::K(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)),gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:k}::K(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)))",
+          "-1+-2*spenso::{symmetric,linear,scalar}::dot(gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:k}::K(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)),gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)))+spenso::{symmetric,linear,scalar}::dot(gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:k}::K(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)),gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:k}::K(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)))+spenso::{symmetric,linear,scalar}::dot(gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)),gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)))"
+        ],
+        "expression_format": "symbolica_canonical",
+        "external_basis": [
+          "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)"
+        ],
+        "graph": "/shared/external/ninja/examples/graphs/bubble-parameterized.dot",
+        "graph_source": "digraph bubble {\n    num = \"1 + (1 + spenso::dot(gammalooprs::P(0,spenso::mink(4)),gammalooprs::P(0,spenso::mink(4))))*(ninjars::q0^2+ninjars::mu2)\";\n    ext [style=invis];\n    ext -> a [particle=\"phi\", num=\"1\"];\n    a -> b [particle=\"phi\", lmb_id=0, num=\"1\"];\n    b -> a [particle=\"phi\", num=\"1\"];\n    b -> ext [particle=\"phi\", num=\"1\"];\n}\n",
+        "input_fixture": {
+          "graph": "bubble-parameterized.dot",
+          "model": "phi3",
+          "parameter_overrides": {
+            "UFO::mass": "1"
+          },
+          "samples": [
+            {
+              "external_momenta": {
+                "0": [
+                  "0",
+                  "1",
+                  "0",
+                  "0"
+                ],
+                "1": [
+                  "0",
+                  "1",
+                  "0",
+                  "0"
+                ]
+              }
+            },
+            {
+              "external_momenta": {
+                "0": [
+                  "0",
+                  "2",
+                  "0",
+                  "0"
+                ],
+                "1": [
+                  "0",
+                  "2",
+                  "0",
+                  "0"
+                ]
+              }
+            },
+            {
+              "external_momenta": {
+                "0": [
+                  "0",
+                  "3/2",
+                  "1/4",
+                  "0"
+                ],
+                "1": [
+                  "0",
+                  "3/2",
+                  "1/4",
+                  "0"
+                ]
+              }
+            }
+          ],
+          "scale_squared": "1",
+          "schema_version": 1
+        },
+        "metric": "+---",
+        "model": "phi3",
+        "model_fingerprint": "689643feeeabf56ef2d10e64280f15c7bccc788252a59363144829d7a884fc66",
+        "momentum_basis": {
+          "dependent_externals": [
+            3
+          ],
+          "edge_signatures": {
+            "0": {
+              "external": [
+                0,
+                0
+              ],
+              "loops": [
+                1
+              ]
+            },
+            "1": {
+              "external": [
+                -1,
+                0
+              ],
+              "loops": [
+                1
+              ]
+            },
+            "2": {
+              "external": [
+                1,
+                0
+              ],
+              "loops": [
+                0
+              ]
+            },
+            "3": {
+              "external": [
+                1,
+                0
+              ],
+              "loops": [
+                0
+              ]
+            }
+          },
+          "external_edges": [
+            2,
+            3
+          ],
+          "loop_edges": [
+            0
+          ],
+          "tree_edges": [
+            1
+          ]
+        },
+        "ninjars_version": "0.1.0",
+        "numerator": "1+ninjars::{}::mu2+ninjars::{}::mu2*spenso::{symmetric,linear,scalar}::dot(gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)),gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)))+ninjars::{}::q0^2+ninjars::{}::q0^2*spenso::{symmetric,linear,scalar}::dot(gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)),gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)))",
+        "numerator_mode": "explicit",
+        "operation": "prepare",
+        "overall_factor": "1",
+        "polarization_basis": {},
+        "propagator_edges": [
+          0,
+          1
+        ],
+        "reference_export": null,
+        "samples": [
+          {
+            "lane": 0,
+            "mass_squared": [
+              "1",
+              "1"
+            ],
+            "numerator": "1",
+            "overall_factor": "1",
+            "s_matrix": null,
+            "shifts": [
+              [
+                "0",
+                "0",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "-1",
+                "0",
+                "0"
+              ]
+            ]
+          },
+          {
+            "lane": 1,
+            "mass_squared": [
+              "1",
+              "1"
+            ],
+            "numerator": "(-1+3*ninjars::{}::mu2+3*ninjars::{}::q0^2)*-1",
+            "overall_factor": "1",
+            "s_matrix": null,
+            "shifts": [
+              [
+                "0",
+                "0",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "-2",
+                "0",
+                "0"
+              ]
+            ]
+          },
+          {
+            "lane": 2,
+            "mass_squared": [
+              "1",
+              "1"
+            ],
+            "numerator": "(-16+21*ninjars::{}::mu2+21*ninjars::{}::q0^2)*-1/16",
+            "overall_factor": "1",
+            "s_matrix": null,
+            "shifts": [
+              [
+                "0",
+                "0",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "-3/2",
+                "-1/4",
+                "0"
+              ]
+            ]
+          }
+        ],
+        "scale_squared": "1",
+        "schema_version": 1
+      },
+      "measurement_scope": "numeric parameter rebinding, automatic scales, reset, all cut geometry/callbacks/reduction/masters/integration; no graph preparation, exact numeric parsing, batch packing or JSON",
+      "operation": "bench",
+      "performance_acceptance": false,
+      "precision": {
+        "bits": 53,
+        "carrier": "f64"
+      },
+      "propagators": 2,
+      "rank": 2,
+      "requested_cut_stop": 1,
+      "schema_version": 1,
+      "setup": {
+        "graph_preparation_ns": 3966039.9999999995,
+        "initial_session_ns": 52905151.0,
+        "lazy_compilation_policy": "first uses and capacity growth are included in per-case warmup, outside primary timing",
+        "numerical_binding_ns": 37011.0
+      },
+      "source_pool_rows": 3,
+      "success": true,
+      "thread_policy": "one reduction worker; no benchmark parallelism"
+    },
+    "original_bench": {
+      "schema_version": 1,
+      "operation": "original_ninja_benchmark",
+      "success": true,
+      "performance_acceptance": false,
+      "execution": "persistent serial scalar evaluations",
+      "cache_policy": {
+        "numerical_master_results": "disabled at configure time"
+      },
+      "measurement_scope": "parameter and sample-pointer rebinding, scale and S-matrix controls, reset, original Ninja reduction and OneLOop masters; no parsing, setup, sequence packing, JSON, IPC or checksum",
+      "status_scope": "all source rows before and after timing; final warmup passes; timed outputs consumed without per-iteration validation",
+      "epsilon_order": [
+        "finite",
+        "single_pole",
+        "double_pole"
+      ],
+      "coefficient_mode": "integrated",
+      "mu_extraction": "expansion",
+      "sampling_scale_policy": "original Ninja per-box max of real masses-squared and absolute S-matrix invariants; fallback below INFRARED_EPS",
+      "cut_stop": 1,
+      "propagators": 2,
+      "rank": 2,
+      "parameter_count": 4,
+      "pool_rows": 3,
+      "thread_count": 1,
+      "precision_rescue": {
+        "enabled": false,
+        "attempts": 0
+      },
+      "checksum_algorithm": "FNV1a64 over little-endian row count, row IDs, statuses and binary64 components",
+      "pre_checksum": "a6c23a0a6baa972b",
+      "post_checksum": "a6c23a0a6baa972b",
+      "pre_post_equal": true,
+      "pre_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.1520447048200203,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.1520447048200203,
+            0.0
+          ],
+          "rational": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -6.673765706105731,
+              -5.662564625524704e-16
+            ],
+            [
+              -1.4999999999999876,
+              -6.394831791570155e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -6.673765706105733,
+            -4.2747858447432583e-16
+          ],
+          "rational": [
+            2.6645352591003757e-15,
+            -1.3877787807814457e-16
+          ]
+        },
+        {
+          "lane": 2,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -2.7415799066927082,
+              3.0314292742694704e-16
+            ],
+            [
+              0.09082031250000167,
+              3.0314292742694704e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -2.0736111566927096,
+            3.0314292742694704e-16
+          ],
+          "rational": [
+            -0.6679687499999987,
+            0.0
+          ]
+        }
+      ],
+      "post_results": [
+        {
+          "lane": 0,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -0.1520447048200203,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -0.1520447048200203,
+            0.0
+          ],
+          "rational": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "lane": 1,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -6.673765706105731,
+              -5.662564625524704e-16
+            ],
+            [
+              -1.4999999999999876,
+              -6.394831791570155e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -6.673765706105733,
+            -4.2747858447432583e-16
+          ],
+          "rational": [
+            2.6645352591003757e-15,
+            -1.3877787807814457e-16
+          ]
+        },
+        {
+          "lane": 2,
+          "status": 0,
+          "finite": true,
+          "epsilon": [
+            [
+              -2.7415799066927082,
+              3.0314292742694704e-16
+            ],
+            [
+              0.09082031250000167,
+              3.0314292742694704e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "cut_constructible": [
+            -2.0736111566927096,
+            3.0314292742694704e-16
+          ],
+          "rational": [
+            -0.6679687499999987,
+            0.0
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "job_id": 0,
+          "workload": "repeated",
+          "pool_policy": "fixture row zero repeated",
+          "points_per_iteration": 1025,
+          "warmup_passes": 1,
+          "rounds": 5,
+          "iterations_per_round": 1,
+          "timed_points_per_round": 1025,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            1382573.0,
+            1385433.0,
+            1376464.0,
+            1388574.0,
+            1377603.0
+          ]
+        },
+        {
+          "job_id": 1,
+          "workload": "changing",
+          "pool_policy": "cyclic fixture rows in fixture order",
+          "points_per_iteration": 1025,
+          "warmup_passes": 1,
+          "rounds": 5,
+          "iterations_per_round": 1,
+          "timed_points_per_round": 1025,
+          "warmup_final_pass_failed_rows": 0,
+          "round_ns": [
+            1375044.0,
+            1369753.0,
+            1370303.0,
+            1373994.0,
+            1371894.0
+          ]
+        }
+      ]
+    },
+    "rust_reduce": {
+      "batch_size": 2,
+      "box_reduction": {
+        "coefficient_mode": "integrated",
+        "mu_extraction": "expansion",
+        "mu_sampling_scale": null,
+        "mu_sampling_scale_mode": "automatic"
+      },
+      "cut_stop": 1,
+      "denominators": [
+        "-1+spenso::{symmetric,linear,scalar}::dot(gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:k}::K(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)),gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:k}::K(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)))",
+        "-1+-2*spenso::{symmetric,linear,scalar}::dot(gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:k}::K(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)),gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)))+spenso::{symmetric,linear,scalar}::dot(gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:k}::K(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)),gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:k}::K(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)))+spenso::{symmetric,linear,scalar}::dot(gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)),gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)))"
+      ],
+      "expression_format": "symbolica_canonical",
+      "external_basis": [
+        "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)"
+      ],
+      "graph": "/shared/external/ninja/examples/graphs/bubble-parameterized.dot",
+      "graph_source": "digraph bubble {\n    num = \"1 + (1 + spenso::dot(gammalooprs::P(0,spenso::mink(4)),gammalooprs::P(0,spenso::mink(4))))*(ninjars::q0^2+ninjars::mu2)\";\n    ext [style=invis];\n    ext -> a [particle=\"phi\", num=\"1\"];\n    a -> b [particle=\"phi\", lmb_id=0, num=\"1\"];\n    b -> a [particle=\"phi\", num=\"1\"];\n    b -> ext [particle=\"phi\", num=\"1\"];\n}\n",
+      "input_fixture": {
+        "graph": "bubble-parameterized.dot",
+        "model": "phi3",
+        "parameter_overrides": {
+          "UFO::mass": "1"
+        },
+        "samples": [
+          {
+            "external_momenta": {
+              "0": [
+                "0",
+                "1",
+                "0",
+                "0"
+              ],
+              "1": [
+                "0",
+                "1",
+                "0",
+                "0"
+              ]
+            }
+          },
+          {
+            "external_momenta": {
+              "0": [
+                "0",
+                "2",
+                "0",
+                "0"
+              ],
+              "1": [
+                "0",
+                "2",
+                "0",
+                "0"
+              ]
+            }
+          },
+          {
+            "external_momenta": {
+              "0": [
+                "0",
+                "3/2",
+                "1/4",
+                "0"
+              ],
+              "1": [
+                "0",
+                "3/2",
+                "1/4",
+                "0"
+              ]
+            }
+          }
+        ],
+        "scale_squared": "1",
+        "schema_version": 1
+      },
+      "metric": "+---",
+      "model": "phi3",
+      "model_fingerprint": "689643feeeabf56ef2d10e64280f15c7bccc788252a59363144829d7a884fc66",
+      "momentum_basis": {
+        "dependent_externals": [
+          3
+        ],
+        "edge_signatures": {
+          "0": {
+            "external": [
+              0,
+              0
+            ],
+            "loops": [
+              1
+            ]
+          },
+          "1": {
+            "external": [
+              -1,
+              0
+            ],
+            "loops": [
+              1
+            ]
+          },
+          "2": {
+            "external": [
+              1,
+              0
+            ],
+            "loops": [
+              0
+            ]
+          },
+          "3": {
+            "external": [
+              1,
+              0
+            ],
+            "loops": [
+              0
+            ]
+          }
+        },
+        "external_edges": [
+          2,
+          3
+        ],
+        "loop_edges": [
+          0
+        ],
+        "tree_edges": [
+          1
+        ]
+      },
+      "ninjars_version": "0.1.0",
+      "number_format": "complex_decimal_strings_re_im",
+      "numerator": "1+ninjars::{}::mu2+ninjars::{}::mu2*spenso::{symmetric,linear,scalar}::dot(gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)),gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)))+ninjars::{}::q0^2+ninjars::{}::q0^2*spenso::{symmetric,linear,scalar}::dot(gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)),gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0,spenso::{spenso::representation,spenso::self_dual}::mink(4)))",
+      "numerator_mode": "explicit",
+      "operation": "reduce",
+      "overall_factor": "1",
+      "polarization_basis": {},
+      "precision": {
+        "bits": 53,
+        "carrier": "f64"
+      },
+      "propagator_edges": [
+        0,
+        1
+      ],
+      "rank": 2,
+      "reference_export": null,
+      "requested_cut_stop": 1,
+      "result_order": [
+        "finite",
+        "single_pole",
+        "double_pole",
+        "cut_constructible_finite",
+        "rational"
+      ],
+      "results": [
+        {
+          "component_precision_bits": [
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ]
+          ],
+          "lane": 0,
+          "mu_sampling_scale": {
+            "mode": "automatic",
+            "source": {
+              "kind": "mass_squared",
+              "propagator": 0
+            },
+            "used": false,
+            "value": [
+              "1.000000000000000000e0",
+              "0.000000000000000000e0"
+            ]
+          },
+          "s_matrix_source": "momenta",
+          "status": {
+            "kind": "success"
+          },
+          "values": [
+            [
+              "-1.520447048200205264e-1",
+              "0.000000000000000000e0"
+            ],
+            [
+              "1.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "-1.520447048200205264e-1",
+              "0.000000000000000000e0"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ]
+          ]
+        },
+        {
+          "component_precision_bits": [
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ]
+          ],
+          "lane": 1,
+          "mu_sampling_scale": {
+            "mode": "automatic",
+            "source": {
+              "kind": "invariant",
+              "propagators": [
+                0,
+                1
+              ]
+            },
+            "used": false,
+            "value": [
+              "4.000000000000000000e0",
+              "0.000000000000000000e0"
+            ]
+          },
+          "s_matrix_source": "momenta",
+          "status": {
+            "kind": "success"
+          },
+          "values": [
+            [
+              "-6.673765706105748485e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "-1.500000000000003553e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "-4.798765706105748485e0",
+              "4.440892098500626162e-16"
+            ],
+            [
+              "-1.875000000000000000e0",
+              "0.000000000000000000e0"
+            ]
+          ]
+        },
+        {
+          "component_precision_bits": [
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ],
+            [
+              53,
+              53
+            ]
+          ],
+          "lane": 2,
+          "mu_sampling_scale": {
+            "mode": "automatic",
+            "source": {
+              "kind": "invariant",
+              "propagators": [
+                0,
+                1
+              ]
+            },
+            "used": false,
+            "value": [
+              "2.312500000000000000e0",
+              "0.000000000000000000e0"
+            ]
+          },
+          "s_matrix_source": "momenta",
+          "status": {
+            "kind": "success"
+          },
+          "values": [
+            [
+              "-2.741579906692710900e0",
+              "1.587925331141579550e-15"
+            ],
+            [
+              "9.082031249999777955e-2",
+              "1.604781845604419388e-15"
+            ],
+            [
+              "0.000000000000000000e0",
+              "0.000000000000000000e0"
+            ],
+            [
+              "-1.558718578567711122e0",
+              "1.537455720012379319e-15"
+            ],
+            [
+              "-1.182861328125000222e0",
+              "5.046961112920023140e-17"
+            ]
+          ]
+        }
+      ],
+      "samples": [
+        {
+          "lane": 0,
+          "mass_squared": [
+            "1",
+            "1"
+          ],
+          "numerator": "1",
+          "overall_factor": "1",
+          "s_matrix": null,
+          "shifts": [
+            [
+              "0",
+              "0",
+              "0",
+              "0"
+            ],
+            [
+              "0",
+              "-1",
+              "0",
+              "0"
+            ]
+          ]
+        },
+        {
+          "lane": 1,
+          "mass_squared": [
+            "1",
+            "1"
+          ],
+          "numerator": "(-1+3*ninjars::{}::mu2+3*ninjars::{}::q0^2)*-1",
+          "overall_factor": "1",
+          "s_matrix": null,
+          "shifts": [
+            [
+              "0",
+              "0",
+              "0",
+              "0"
+            ],
+            [
+              "0",
+              "-2",
+              "0",
+              "0"
+            ]
+          ]
+        },
+        {
+          "lane": 2,
+          "mass_squared": [
+            "1",
+            "1"
+          ],
+          "numerator": "(-16+21*ninjars::{}::mu2+21*ninjars::{}::q0^2)*-1/16",
+          "overall_factor": "1",
+          "s_matrix": null,
+          "shifts": [
+            [
+              "0",
+              "0",
+              "0",
+              "0"
+            ],
+            [
+              "0",
+              "-3/2",
+              "-1/4",
+              "0"
+            ]
+          ]
+        }
+      ],
+      "scale_squared": "1",
+      "schema_version": 1,
+      "success": true
+    },
+    "reference_build": {
+      "ninja": {
+        "commit": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+        "dirty": false
+      },
+      "MG5_aMC_v3_7_0": {
+        "source": "release directory",
+        "oneloop_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+      },
+      "compiler": "g++ (GCC) 15.3.0",
+      "fortran_compiler": "GNU Fortran (GCC) 15.3.0",
+      "configuration": {
+        "config_sha256": "2468fc46b1fe8e5d2351ba81952a7c3432da07d771c421b8ad90efe7d32c191a",
+        "oneloop": true,
+        "master_result_cache": false,
+        "higher_rank": true
+      },
+      "build_commands": [
+        {
+          "argv": [
+            "gfortran",
+            "-O3",
+            "-fPIC",
+            "-c",
+            "avh_olo_foriregi.f90",
+            "avh_olo_alias.f90"
+          ],
+          "cwd": "/shared/external/ninja/target/reference-uncached/oneloop"
+        },
+        {
+          "argv": [
+            "ar",
+            "rcs",
+            "libavh_olo.a",
+            "avh_olo_foriregi.o",
+            "avh_olo_alias.o"
+          ],
+          "cwd": "/shared/external/ninja/target/reference-uncached/oneloop"
+        },
+        {
+          "argv": [
+            "autoreconf",
+            "-fi"
+          ],
+          "cwd": "/shared/external/ninja/target/reference-uncached/ninja-source"
+        },
+        {
+          "argv": [
+            "/shared/external/ninja/target/reference-uncached/ninja-source/configure",
+            "--disable-shared",
+            "--disable-autoflags",
+            "--disable-f90module",
+            "--disable-gosam",
+            "--disable-avholo_cache",
+            "--with-avholo=-L/shared/external/ninja/target/reference-uncached/oneloop -lavh_olo",
+            "FCINCLUDE=-I/shared/external/ninja/target/reference-uncached/oneloop",
+            "CXXFLAGS=-O3 -DNDEBUG",
+            "FCFLAGS=-O3"
+          ],
+          "cwd": "/shared/external/ninja/target/reference-uncached/ninja-build"
+        },
+        {
+          "argv": [
+            "make",
+            "-C",
+            "src",
+            "-j",
+            "2",
+            "libninja.la"
+          ],
+          "cwd": "/shared/external/ninja/target/reference-uncached/ninja-build"
+        }
+      ],
+      "oneloop_source_sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd",
+      "alias_sha256": "f7344c747eda05b78fefc63ca2c100fd37d373633a97e9d18b61f78ed7db2daf",
+      "libraries_sha256": {
+        "libninja.a": "69bdeff44df54cb5e865b4f981a1696dbc488ce455c81111b7268c4433eb667d",
+        "libavh_olo.a": "5b23cad7c7eb8e524541d66aed1fd29ed4c919d61f5df7a5d99b238aabc9c30b"
+      },
+      "generated_numerator_sha256": "cda9f3c1ed56d3346ca8cdc3dd1c25846bf4516d0f155cbe983034f45d2bdf2b",
+      "runner_sha256": "a71af542f53495ba981b49b876e1adbdaca257368ad9032ec82989d8027ed829",
+      "runner_commands": [
+        {
+          "argv": [
+            "g++",
+            "-O3",
+            "-DNDEBUG",
+            "-std=c++11",
+            "-I/shared/external/ninja/target/reference-uncached/ninja-source/src",
+            "-I/shared/external/ninja/target/reference-uncached/ninja-build/src",
+            "-I/shared/external/ninja/target/reference-uncached/ninja-build",
+            "-I/shared/external/ninja/target/reference-uncached",
+            "-DNINJARS_GENERATED_NUMERATOR_HEADER=\"generated-cda9f3c1ed56d3346ca8cdc3dd1c25846bf4516d0f155cbe983034f45d2bdf2b.hh\"",
+            "/shared/external/ninja/validation/reference/benchmark_runner.cc",
+            "/shared/external/ninja/target/reference-uncached/ninja-build/src/.libs/libninja.a",
+            "/shared/external/ninja/target/reference-uncached/oneloop/libavh_olo.a",
+            "/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib/libgfortran.so",
+            "-Wl,-rpath,/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib",
+            "-lquadmath",
+            "-o",
+            "/shared/external/ninja/target/performance/bubble-parameterized-rust-first-retry/ninja-benchmark"
+          ],
+          "cwd": "/shared/external/ninja/target/reference-uncached"
+        }
+      ],
+      "runner_compiler": "g++ (GCC) 15.3.0",
+      "executable_sha256": "bab56d25029e9403335aa9b06b233a0f324dc80ec28eb5a57a8f28342fced721",
+      "execution": "persistent scalar benchmark control",
+      "performance_acceptance": false
+    }
+  }
+}

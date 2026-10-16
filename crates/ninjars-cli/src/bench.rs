@@ -288,6 +288,8 @@ pub(crate) fn run(args: Args) -> Result<()> {
         output: None,
         #[cfg(feature = "reference-codegen")]
         reference_dir: None,
+        #[cfg(feature = "reference-codegen")]
+        reference_bench_dir: None,
     })?;
     let preparation_ns = start.elapsed().as_secs_f64() * 1e9;
     let report = match args.precision {

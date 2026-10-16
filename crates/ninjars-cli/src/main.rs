@@ -5,6 +5,8 @@ mod prepare;
 mod reduce;
 #[cfg(feature = "reference-codegen")]
 mod reference;
+#[cfg(feature = "reference-codegen")]
+mod reference_bench;
 mod runtime;
 
 use clap::{Parser, Subcommand};
