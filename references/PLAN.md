@@ -1435,3 +1435,40 @@ connects the existing kernels into integrated amplitudes and a standalone
   the first contiguous-block baseline. The new catalog will be measured using
   an explicit validation-harness selector with identical numerator and master
   providers; it must not be silently substituted into baseline results.
+
+### CLI accounting, further exact plans and release controls (2026-10-16)
+
+- Integrated `962fc1c`: CLI `bench` now records integer same-pass stage
+  durations, explicitly separates actual direct master execution and inclusive
+  reduction excluding masters/coefficient preparation, and checks additivity.
+  An inconsistent remainder is an error rather than a zero clamp. Primary
+  timing is unchanged. Six CLI controls cover three precisions, workload/tail
+  behavior and exactly zero master work when cuts stop before integration; a
+  separate regression rejects overlapping stage intervals. Strict Clippy and
+  formatting pass; evidence is `cli-stage-accounting.json`.
+- Integrated `57506f9` as `1699401`: extracted existing tadpole source-axis
+  projection plans (24→6 and 28→9) and the complementary-shift reference probe
+  (8→28). Shared FeynKit Weyl bases and Symbolica expressions are unchanged.
+  Ordinary/five-component Dual Rust bodies regenerate exactly. Fifteen focused
+  tests pass; native runtime selection for these exports remains deferred.
+  Corrected the earlier profiler's 8→28 label to probe; the separate geometry
+  finish is 5→30. Immutable raw profile evidence remains unchanged.
+- Root verified all nineteen committed extraction source hashes. Eighteen
+  combined adapter/CLI tests pass after merging the exact plans and CLI
+  accounting with existing native bubble kernels and static checks. Strict
+  adapter/CLI Clippy and formatting pass. Evidence is
+  `tadpole-plan-extraction.json` and `tadpole-cli-combined.json`.
+- Immutable `0c77597` passes the optimized physical controls: 210 raw numerator
+  samples, Float256 coefficient arithmetic, and 3,681 Laurent components at
+  widths 0/1/3/8/31/32/128/1024. Maximum raw error is 3.77e-15, coefficient
+  error 2.36e-15, shared integrated error 2.15e-16 and MadLoop integrated error
+  1.17e-16. The coefficient oracle starts after f64 wavefunction evaluation;
+  it does not validate high-precision wavefunctions.
+- Twelve optimized frozen-master correctness cases and sixteen independently
+  instrumented execution cases pass. Every frozen case has zero actual master
+  calls/rows/time and zero misses. Root verified all three lossless archives,
+  identical runtime manifests and exact same-pass/source-specific accounting.
+  Evidence is `shared-reduction-methodology-release-0c77597.json`. These
+  controls contain no primary timing samples; paired contiguous measurements
+  follow under a coordinated pause of our builds. Host/SMT isolation remains
+  unverified, so performance acceptance stays false.
