@@ -1342,4 +1342,33 @@ connects the existing kernels into integrated amplitudes and a standalone
   `validation/evidence/reduction-kernel-profile.json` with its lossless archive.
   The immutable historical provider/core and disposable diagnostic rebuild are
   identified separately. Native kernels were disabled in these profiles, and
-  their ratios are not performance acceptance evidence for current main.
+  their measurements are not performance acceptance evidence for current main.
+
+### Residue buffer reuse and static numerical checks (2026-10-16)
+
+- Integrated `ff2189a`: private pools retain discarded residue coefficient and
+  mask buffers across reductions, resets and shrinking batches. Published
+  buffers remain unchanged on callback errors. Tests exercise consecutive late
+  failures, successful retries, empty/tail batches and actual allocation reuse
+  across 53/192/256-bit Float values and six higher/mixed Dual components.
+- The same optimized allocation harness observes production-path Rust
+  allocations fall from 94 to 54 at width one and 421 to 101 at width eight,
+  with zero warmed reallocations. Frozen-master reduction falls from 157 to
+  117 and 722 to 402. Provider/preparation counts remain unchanged and maximum
+  scaled numerical discrepancy remains 2.24e-16. Fifty focused tests, strict
+  Clippy and formatting pass; evidence is `reduction-residue-pools.json` and
+  its allocation archive. These are allocation measurements, not runtime gains.
+- Integrated `f273489`: ordinary and Dual validity checks now use static marker
+  dispatch in triangle/bubble/tadpole adapters. Ordinary carriers avoid indirect
+  calls and redundant shape checks. Dual checks still inspect all components
+  for finiteness, use the primal value for nonzero pivots, and compare the full
+  ordered shape and value count. No arithmetic or public interface changed.
+- Forty-nine focused static-check tests pass. After combining these changes
+  with residue pools and optional native denominators, fifteen additional
+  tests cover original-Ninja controls, higher cuts, failure isolation, reset,
+  accumulation and precision reuse. Strict all-target/all-feature Clippy and
+  formatting pass. Evidence is `static-kernel-checks.json` and
+  `static-checks-residue-pools.json`; source snapshots identify both runs.
+- Fresh optimized reduction measurements remain pending. Actual one-loop
+  master computation, cached lookup/transport, numerator callbacks and full
+  preparation are being separated in the validation harness before timing.
