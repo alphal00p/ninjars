@@ -1,0 +1,337 @@
+{
+  "schema_version": 1,
+  "worktree_base": "c53515c0e82f5d2df763b9a866558bc2cad6b0ec",
+  "dependency_heads": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "oneloopmaster": "bf7632a916528073464870f1b515d3e62f4e0060",
+    "feynkit": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+  },
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8",
+  "platform": "Linux-6.18.45-x86_64-with-glibc2.42",
+  "production_dispatch": true,
+  "default_backend_changed": false,
+  "performance_acceptance": false,
+  "native_families": [
+    "T2 denominator expansion",
+    "T3 denominator expansion (tadpole and triangle)"
+  ],
+  "other_kernels": "Interpreted; independent numerator, geometry and master providers are unchanged",
+  "dual_shape": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      1,
+      1
+    ]
+  ],
+  "unsupported_dual_shapes": "Interpreted fallback, complete ordered shape checked",
+  "catalog": {
+    "algebra": "Existing DenominatorExpansion expressions and Symbolica Dualizer",
+    "constant_count": 4,
+    "dual_shape": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "plans": [
+      {
+        "bytes": 21204,
+        "cut_size": 2,
+        "dual": false,
+        "inputs": 29,
+        "instructions": 87,
+        "module": "t2",
+        "outputs": 7
+      },
+      {
+        "bytes": 213325,
+        "cut_size": 2,
+        "dual": true,
+        "inputs": 145,
+        "instructions": 1133,
+        "module": "t2_dual",
+        "outputs": 35
+      },
+      {
+        "bytes": 14518,
+        "cut_size": 3,
+        "dual": false,
+        "inputs": 23,
+        "instructions": 56,
+        "module": "t3",
+        "outputs": 4
+      },
+      {
+        "bytes": 133608,
+        "cut_size": 3,
+        "dual": true,
+        "inputs": 115,
+        "instructions": 695,
+        "module": "t3_dual",
+        "outputs": 20
+      }
+    ],
+    "runtime": "oneloopmaster RustEmitter instruction-major batches; width-one scalar path"
+  },
+  "validation": [
+    {
+      "target": "native_amplitude",
+      "returncode": 0,
+      "seconds": 2.746218090003822,
+      "log": "/tmp/ninjars-native_amplitude-runtime.log",
+      "summary": "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.72s",
+      "log_sha256": "bb7fc43dfb09ef2ba7b502fe928543318d8871d0c7095e6326212cbc9b3341b0"
+    },
+    {
+      "target": "native_denominators",
+      "returncode": 0,
+      "seconds": 2.5201791180006694,
+      "log": "/tmp/ninjars-native_denominators-runtime.log",
+      "summary": "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.52s",
+      "log_sha256": "2c739db28bffac726ef4d553089bdc1fe2860c4600f2c1a6421c7213097b03f5"
+    },
+    {
+      "target": "amplitude",
+      "returncode": 0,
+      "seconds": 0.7576731739973184,
+      "log": "/tmp/ninjars-native-regression-amplitude.log",
+      "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.73s",
+      "log_sha256": "f1a387fd7f88f0213e2f5fd39db41ce6a550e2e1d9c4bd443775aa9ee0ef3735"
+    },
+    {
+      "target": "amplitude_high",
+      "returncode": 0,
+      "seconds": 5.877120246004779,
+      "log": "/tmp/ninjars-native-regression-amplitude_high.log",
+      "summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.85s",
+      "log_sha256": "e1ae5bbc8848ad6e4de6a88bdf516e9bfbab4a4c30abbcd0b1875f66989535c6"
+    },
+    {
+      "target": "amplitude_validation",
+      "returncode": 0,
+      "seconds": 1.1263980149815325,
+      "log": "/tmp/ninjars-native-regression-amplitude_validation.log",
+      "summary": "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.10s",
+      "log_sha256": "fa2cdb8d4d1ddd2c1de734b194c8ef7ec88218e175fd09313c60473395b17b58"
+    },
+    {
+      "target": "bubbles",
+      "returncode": 0,
+      "seconds": 1.2151468670053873,
+      "log": "/tmp/ninjars-native-regression-bubbles.log",
+      "summary": "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.21s",
+      "log_sha256": "3d0b1357ecd9ff71a258d486c90fd93ad643ca84017629449900cf0aacd82b86"
+    },
+    {
+      "target": "denominators",
+      "returncode": 0,
+      "seconds": 0.19201329900533892,
+      "log": "/tmp/ninjars-native-regression-denominators.log",
+      "summary": "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s",
+      "log_sha256": "98544f8da5f9096b0722382dfd3f236411cc554f8607e8ce80c42356c74519e3"
+    },
+    {
+      "target": "tadpoles",
+      "returncode": 0,
+      "seconds": 2.036958417011192,
+      "log": "/tmp/ninjars-native-regression-tadpoles.log",
+      "summary": "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.03s",
+      "log_sha256": "93dd39ffa5f07cdc63c03240e785d13f035d2bf174dd076df9217339d2ae8ecb"
+    },
+    {
+      "target": "triangle_validation",
+      "returncode": 0,
+      "seconds": 0.08725579699967057,
+      "log": "/tmp/ninjars-native-regression-triangle_validation.log",
+      "summary": "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s",
+      "log_sha256": "7879459b907d0e733c473d07144c68ececf212f97ddfd1d0634f66af17936111"
+    },
+    {
+      "target": "triangles",
+      "returncode": 0,
+      "seconds": 0.8010193869995419,
+      "log": "/tmp/ninjars-native-regression-triangles.log",
+      "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.80s",
+      "log_sha256": "817ed2c813fddc423fe123c2f6f0a7431ad7462f4baddc7cb3b01bceaf9fc541"
+    }
+  ],
+  "passed_tests": 41,
+  "warm_f64_allocations": 0,
+  "warm_dual_allocations": [
+    {
+      "cut": 1,
+      "rows": 1,
+      "native": 27,
+      "interpreted": 27
+    },
+    {
+      "cut": 1,
+      "rows": 32,
+      "native": 864,
+      "interpreted": 864
+    },
+    {
+      "cut": 1,
+      "rows": 8,
+      "native": 216,
+      "interpreted": 216
+    },
+    {
+      "cut": 1,
+      "rows": 1,
+      "native": 27,
+      "interpreted": 27
+    },
+    {
+      "cut": 2,
+      "rows": 1,
+      "native": 36,
+      "interpreted": 36
+    },
+    {
+      "cut": 2,
+      "rows": 32,
+      "native": 1152,
+      "interpreted": 1152
+    },
+    {
+      "cut": 2,
+      "rows": 8,
+      "native": 288,
+      "interpreted": 288
+    },
+    {
+      "cut": 2,
+      "rows": 1,
+      "native": 36,
+      "interpreted": 36
+    },
+    {
+      "cut": 3,
+      "rows": 1,
+      "native": 27,
+      "interpreted": 27
+    },
+    {
+      "cut": 3,
+      "rows": 32,
+      "native": 864,
+      "interpreted": 864
+    },
+    {
+      "cut": 3,
+      "rows": 8,
+      "native": 216,
+      "interpreted": 216
+    },
+    {
+      "cut": 3,
+      "rows": 1,
+      "native": 27,
+      "interpreted": 27
+    }
+  ],
+  "allocation_limit": "Dual get_shape() still allocates per input/output; counts match interpreter. Float arithmetic allocation is not claimed eliminated.",
+  "build": {
+    "command": [
+      "cargo",
+      "test",
+      "-j4",
+      "-p",
+      "ninjars-symbolica",
+      "--features",
+      "native-kernels",
+      "--test",
+      "native_denominators",
+      "--test",
+      "native_amplitude",
+      "--no-run"
+    ],
+    "returncode": 0,
+    "seconds": 7.969020354998065,
+    "maxrss_kib": 1669184
+  },
+  "build_context": "Cached focused test-build diagnostic taken before the final setup-only malformed-Dual guard. Dependencies and library metadata were already cached after correcting test-only compile errors. Initial isolated dependency/generator build took6m33s. These are build-cost diagnostics, not controlled runtime timings.",
+  "source_sha256": {
+    "crates/ninjars-symbolica/src/native_kernels/generated/constants.rs": "b25814febc54c7878e4f19004a207da7262f19fb61aecdadb06437917c23214a",
+    "crates/ninjars-symbolica/src/native_kernels/generated/metadata.json": "ab58cbcd39e525618abbef2943d6c07edb6a0e0344b027f310e2c21ebbe1ed95",
+    "crates/ninjars-symbolica/src/native_kernels/generated/t2.rs": "56978b64a8bcb16efddb51e68fc7fa1b44e3ff8ef0f98241d58ba7c8132c04a4",
+    "crates/ninjars-symbolica/src/native_kernels/generated/t2_dual.rs": "63b3209266e9f79837bc7997d94ac7b380fdbbcac8b02a9d6a4641a3294979cd",
+    "crates/ninjars-symbolica/src/native_kernels/generated/t3.rs": "d4bed73a16a3ca0cf04f28131234aa7516af18ff27f56444c14d20148fe15651",
+    "crates/ninjars-symbolica/src/native_kernels/generated/t3_dual.rs": "71f898af6f6e91f2f221beeb4f15d0247b2a7e93affdd86b398170760743eb1d",
+    "crates/ninjars-symbolica/src/native_kernels/mod.rs": "f2f71ae32f2fea91a312840e3c61e50ca76b7966a022561742f093fc70e09343",
+    "crates/ninjars-symbolica/src/kernel.rs": "8ba5ae9c72aa8b4f9f9f31c5b6bdbdfd933cf79f100aae2adc4e53cdbf298ec3",
+    "crates/ninjars-symbolica/src/amplitude.rs": "bfb0f0c2dec80e87de547de9982a4712a4558c3c2cb9be6aebc19fd711bf126a",
+    "crates/ninjars-symbolica/src/denominators.rs": "f5e358a31b3c24212bcd934c22655887f1b4f588a1a95632a9bb7f03d4378aed",
+    "crates/ninjars-symbolica/src/triangle_kernels.rs": "0827d25cddd3a4edc20a3a2c347a1e8301713bbafed8c313e2d4dc1979836423",
+    "crates/ninjars-symbolica/src/bubble_kernels.rs": "a71cd5bffa6c660d95f68f08d6f851574e78b0658fc485d7ce203817833e56d6",
+    "crates/ninjars-symbolica/src/tadpole_kernels.rs": "cccbd56589ada278601c7e7ef51a26b90421233bb2a99f39b771dcd9a3f8e2f6",
+    "crates/ninjars-symbolica/src/lib.rs": "861524723660cf72e360d24b6593f871f60171b862a8723116546ae2513c01da",
+    "crates/ninjars-symbolica/Cargo.toml": "9144159807025f42f9ebcd465922cdb31b3006532fb3b24a9754601c8ac77379",
+    "crates/ninjars-symbolica/examples/generate_native_denominators.rs": "ab62475b943f4c771d132ea42a01279f64546dea5e4c706cd406962243aa0d85",
+    "crates/ninjars-symbolica/tests/native_denominators.rs": "c7532506b6c45fe082997a28033c4f84e2e72b232eba752030425e5bc287a21c",
+    "crates/ninjars-symbolica/tests/native_amplitude.rs": "c01065d00adbbdde6d052fd7cc408011d444c9d563164e8f62f60390c19dd9a8"
+  },
+  "clippy": {
+    "command": "cargo clippy -j4 -p ninjars-symbolica --features native-kernels --all-targets -- -D warnings",
+    "passed": true,
+    "log_sha256": "8b457afee97ed7d0eb5f100c6ca89b03dd79da7cf909366738f4900f1111a154",
+    "generated_only_allowances": [
+      "clippy::deref_addrof",
+      "clippy::identity_op",
+      "clippy::erasing_op"
+    ],
+    "note": "Neutral slot arithmetic and uniform borrows are preserved byte-for-byte from the upstream emitter; allowances do not cover handwritten dispatch."
+  },
+  "reproduce": [
+    "cargo run -p ninjars-symbolica --features rust-codegen --example generate_native_denominators",
+    "cargo test -j4 -p ninjars-symbolica --features native-kernels --test native_denominators --test native_amplitude -- --test-threads=1 --nocapture",
+    "cargo test -j4 -p ninjars-symbolica --features native-kernels --test denominators --test triangles --test triangle_validation --test bubbles --test tadpoles --test amplitude --test amplitude_high --test amplitude_validation -- --test-threads=1",
+    "cargo clippy -j4 -p ninjars-symbolica --features native-kernels --all-targets -- -D warnings"
+  ],
+  "default_feature_check": {
+    "command": "cargo check -j4 -p ninjars-symbolica --no-default-features",
+    "passed": true,
+    "log_sha256": "2a4eb7b527b61a9a0b503874966eba45d0e7dc52ad1f40f6faf2a8eb9b80fdbb"
+  },
+  "prototype_validation": "Setup rejects empty, shortened, or extended Dual value storage when its length differs from the complete ordered shape; this prevents malformed output reconstruction and does not change warmed allocation counts.",
+  "final_build": {
+    "command": "cargo test -j4 -p ninjars-symbolica --features native-kernels --test native_denominators --test native_amplitude --no-run",
+    "seconds": 22.84,
+    "returncode": 0,
+    "maxrss_kib": null,
+    "log_sha256": "60b4c82c09c9723fd4be42d11221a977e6cc64a822259df0cb7ad70a28173a2a",
+    "context": "After the setup-only malformed prototype guard; includes several dependency rebuilds because the command environment differed. Peak RSS was not separately measured."
+  }
+}

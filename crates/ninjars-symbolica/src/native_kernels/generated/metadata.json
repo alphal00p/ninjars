@@ -1,0 +1,65 @@
+{
+  "algebra": "Existing DenominatorExpansion expressions and Symbolica Dualizer",
+  "constant_count": 4,
+  "dual_shape": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      1,
+      1
+    ]
+  ],
+  "plans": [
+    {
+      "bytes": 21204,
+      "cut_size": 2,
+      "dual": false,
+      "inputs": 29,
+      "instructions": 87,
+      "module": "t2",
+      "outputs": 7
+    },
+    {
+      "bytes": 213325,
+      "cut_size": 2,
+      "dual": true,
+      "inputs": 145,
+      "instructions": 1133,
+      "module": "t2_dual",
+      "outputs": 35
+    },
+    {
+      "bytes": 14518,
+      "cut_size": 3,
+      "dual": false,
+      "inputs": 23,
+      "instructions": 56,
+      "module": "t3",
+      "outputs": 4
+    },
+    {
+      "bytes": 133608,
+      "cut_size": 3,
+      "dual": true,
+      "inputs": 115,
+      "instructions": 695,
+      "module": "t3_dual",
+      "outputs": 20
+    }
+  ],
+  "runtime": "oneloopmaster RustEmitter instruction-major batches; width-one scalar path"
+}

@@ -532,3 +532,47 @@ macro_rules! implementation {
 }
 implementation!(SymbolicaBubbleKernels<T>,Complex<T>,T:Real+SingleFloat,Complex<T>:Real+EvaluationDomain);
 implementation!(SymbolicaDualBubbleKernels<T,D>,D,T:Real+SingleFloat,D:Real+DualNumber<Complex<T>>,Complex<T>:Real+EvaluationDomain);
+
+#[cfg(feature = "native-kernels")]
+impl<T: oneloop::rust_codegen::runtime::NativeFloat> SymbolicaBubbleKernels<T>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    /// Opt into generated denominator arithmetic; other kernels stay interpreted.
+    pub fn new_with_native_denominators(
+        propagators: usize,
+        rank: usize,
+        prototype: T,
+    ) -> Result<Self> {
+        let mut kernels = Self::new(propagators, rank, prototype.clone())?;
+        crate::native_kernels::install_denominator(
+            &mut kernels.engine.denominator,
+            crate::native_kernels::DenominatorPlan::T2,
+            &prototype,
+        )?;
+        Ok(kernels)
+    }
+}
+
+#[cfg(feature = "native-kernels")]
+impl<T: oneloop::rust_codegen::runtime::NativeFloat, D: Real + DualNumber<Complex<T>>>
+    SymbolicaDualBubbleKernels<T, D>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    /// Opt in for catalogued ordered Dual shapes; other shapes stay interpreted.
+    pub fn new_with_native_denominators(
+        propagators: usize,
+        rank: usize,
+        prototype: T,
+        dual: &D,
+    ) -> Result<Self> {
+        let mut kernels = Self::new(propagators, rank, prototype.clone(), dual)?;
+        crate::native_kernels::install_dual_denominator(
+            &mut kernels.engine.denominator,
+            crate::native_kernels::DenominatorPlan::T2,
+            &prototype,
+        )?;
+        Ok(kernels)
+    }
+}

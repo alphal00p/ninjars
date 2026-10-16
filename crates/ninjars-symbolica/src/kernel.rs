@@ -66,6 +66,8 @@ impl ExactKernel {
         Complex<T>: Real + EvaluationDomain,
     {
         Ok(CompiledKernel {
+            #[cfg(feature = "native-kernels")]
+            native: None,
             inputs: self.parameters.len(),
             outputs: self.expressions.len(),
             evaluator: if self.expressions.is_empty() {
@@ -92,6 +94,11 @@ impl ExactKernel {
             .into_iter()
             .map(<[usize]>::to_vec)
             .collect();
+        if shape.is_empty() || dual.values().len() != shape.len() {
+            return Err(Error::Unsupported(
+                "kernel Dual prototype shape and values differ".into(),
+            ));
+        }
         let evaluator = if self.expressions.is_empty() {
             None
         } else {
@@ -101,6 +108,8 @@ impl ExactKernel {
         };
         Ok(CompiledDualKernel {
             kernel: CompiledKernel {
+                #[cfg(feature = "native-kernels")]
+                native: None,
                 inputs: self.parameters.len() * shape.len(),
                 outputs: self.expressions.len() * shape.len(),
                 evaluator,
@@ -117,6 +126,8 @@ impl ExactKernel {
 }
 
 pub(crate) struct CompiledKernel<T> {
+    #[cfg(feature = "native-kernels")]
+    native: Option<Box<dyn KernelExecutor<Complex<T>> + Send + Sync>>,
     inputs: usize,
     outputs: usize,
     evaluator: Option<BatchExpressionEvaluator<Complex<T>>>,
@@ -126,6 +137,32 @@ impl<T: Real + SingleFloat> CompiledKernel<T>
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    #[cfg(feature = "native-kernels")]
+    pub(crate) fn install_native(
+        &mut self,
+        executor: Box<dyn KernelExecutor<Complex<T>> + Send + Sync>,
+        inputs: usize,
+        outputs: usize,
+    ) -> Result<()> {
+        if (self.inputs, self.outputs) != (inputs, outputs) {
+            return Err(Error::Unsupported(
+                "native kernel plan dimensions differ".into(),
+            ));
+        }
+        self.native = Some(executor);
+        self.evaluator = None;
+        Ok(())
+    }
+
+    #[cfg(feature = "native-kernels")]
+    pub(crate) fn backend(&self) -> crate::KernelBackend {
+        if self.native.is_some() {
+            crate::KernelBackend::NativeRust
+        } else {
+            crate::KernelBackend::SymbolicaInterpreter
+        }
+    }
+
     pub fn evaluate_batch(
         &mut self,
         input: &[Complex<T>],
@@ -142,6 +179,10 @@ where
             columns: self.outputs,
         }
         .validate("kernel outputs", output.len())?;
+        #[cfg(feature = "native-kernels")]
+        if let Some(native) = &mut self.native {
+            return native.evaluate(input, output, rows);
+        }
         if let Some(evaluator) = &mut self.evaluator {
             evaluator
                 .evaluate_batch(input, output, rows)
@@ -166,6 +207,16 @@ impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> CompiledDualKernel
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    #[cfg(feature = "native-kernels")]
+    pub(crate) fn native_parts(&mut self) -> (&[Vec<usize>], &mut CompiledKernel<T>) {
+        (&self.shape, &mut self.kernel)
+    }
+
+    #[cfg(feature = "native-kernels")]
+    pub(crate) fn backend(&self) -> crate::KernelBackend {
+        self.kernel.backend()
+    }
+
     fn valid_shape(&self, value: &D) -> bool {
         value.values().len() == self.shape.len()
             && value

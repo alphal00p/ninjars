@@ -148,3 +148,51 @@ The optional `reference-codegen` feature exports original Ninja C++ callbacks vi
 Symbolica's code generator. It is used only by validation tooling. The generated
 reference adapter currently computes complete coefficient lists before copying
 requested prefixes, so its timings are not the final optimized Ninja benchmark.
+
+## Optional native denominator kernels
+
+The `native-kernels` feature adds an explicit partial native backend:
+
+```rust,ignore
+let kernels = SymbolicaAmplitudeKernels::new(n, rank, prototype)?
+    .with_native_denominators();
+let selected_backends = kernels.kernel_backends();
+let amplitude = kernels.into_amplitude(lanes)?;
+```
+
+The same opt-in method is available on `SymbolicaDualAmplitudeKernels`. The
+factory's report lists T2 and T3 denominator expansions separately from other
+reduction, integration and accumulation kernels. Only the two denominator
+families use emitted Rust. Numerator callbacks, geometry providers and masters
+remain independent; this option neither replaces them nor selects their backend.
+Existing constructors retain the Symbolica interpreter.
+
+The generated kernels use oneloopmaster's instruction-major batch emitter and
+reusable workspace, with its scalar path for a single row. The ordinary carrier
+may be f64, DoubleFloat or Float. Constants are constructed directly at the
+prototype precision, and inputs keep their own precision. This opt-in requires
+upstream `NativeFloat`; the existing generic APIs retain `Real + SingleFloat`.
+For Dual carriers, the first catalog supports the complete ordered shape
+`[[0,0],[1,0],[0,1],[2,0],[1,1]]`, including higher and mixed Taylor coefficients.
+Other shapes automatically keep the interpreted evaluator and report that
+selection. Matching component counts alone never select native arithmetic.
+
+`DenominatorExpansion::compile_native` and `compile_dual_native` expose the same
+selection independently of the amplitude factory; `backend()` reports the
+result. Shape validation and transactional errors remain at the existing kernel
+boundary. This is a partial native implementation, not a performance acceptance
+result. Dual flattening/shape-validation allocation costs are still present.
+
+Regenerate the checked-in catalog using the existing Symbolica plans and emitter:
+
+```sh
+cargo run -p ninjars-symbolica --features rust-codegen \
+  --example generate_native_denominators
+cargo test -p ninjars-symbolica --features native-kernels \
+  --test native_denominators --test native_amplitude -- --test-threads=1
+```
+
+The generation test compares all emitted modules and the shared constant table
+byte-for-byte, including the common tadpole/triangle T3 plan. Generated sources
+are deliberately excluded from rustfmt; hand-written dispatch is formatted
+normally. No build script generates algebra when a downstream project builds.

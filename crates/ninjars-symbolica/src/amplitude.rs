@@ -37,9 +37,21 @@ fn accumulation(n: usize, rank: usize) -> Result<ExactKernel> {
     })
 }
 
+#[cfg(feature = "native-kernels")]
+type StageFactory<T, K> = fn(usize, usize, T) -> Result<K>;
+#[cfg(feature = "native-kernels")]
+type DualStageFactory<T, D, K> = fn(usize, usize, T, &D) -> Result<K>;
+
 /// Exact reduction and integration kernels for complex f64, DoubleFloat or Float.
 /// Construct once, then call `into_amplitude(lanes)` to allocate the coordinator.
 pub struct SymbolicaAmplitudeKernels<T> {
+    #[cfg(feature = "native-kernels")]
+    native_triangle: Option<StageFactory<T, SymbolicaTriangleKernels<T>>>,
+    #[cfg(feature = "native-kernels")]
+    native_bubble: Option<StageFactory<T, SymbolicaBubbleKernels<T>>>,
+    #[cfg(feature = "native-kernels")]
+    native_tadpole: Option<StageFactory<T, SymbolicaTadpoleKernels<T>>>,
+
     n: usize,
     rank: usize,
     prototype: T,
@@ -53,6 +65,12 @@ where
     pub fn new(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
         let accumulation = accumulation(propagators, rank)?.compile(&prototype)?;
         Ok(Self {
+            #[cfg(feature = "native-kernels")]
+            native_triangle: None,
+            #[cfg(feature = "native-kernels")]
+            native_bubble: None,
+            #[cfg(feature = "native-kernels")]
+            native_tadpole: None,
             n: propagators,
             rank,
             prototype,
@@ -98,12 +116,24 @@ where
         SymbolicaPentagonKernels::new(self.n, self.rank, self.prototype.clone())
     }
     fn triangle_kernels(&self) -> Result<Self::Triangles> {
+        #[cfg(feature = "native-kernels")]
+        if let Some(factory) = self.native_triangle {
+            return factory(self.n, self.rank, self.prototype.clone());
+        }
         SymbolicaTriangleKernels::new(self.n, self.rank, self.prototype.clone())
     }
     fn bubble_kernels(&self) -> Result<Self::Bubbles> {
+        #[cfg(feature = "native-kernels")]
+        if let Some(factory) = self.native_bubble {
+            return factory(self.n, self.rank, self.prototype.clone());
+        }
         SymbolicaBubbleKernels::new(self.n, self.rank, self.prototype.clone())
     }
     fn tadpole_kernels(&self) -> Result<Self::Tadpoles> {
+        #[cfg(feature = "native-kernels")]
+        if let Some(factory) = self.native_tadpole {
+            return factory(self.n, self.rank, self.prototype.clone());
+        }
         SymbolicaTadpoleKernels::new(self.n, self.rank, self.prototype.clone())
     }
     fn integration_kernels(&self, cut_size: usize) -> Result<Self::Integration> {
@@ -127,6 +157,13 @@ where
 
 /// The same kernels transformed by Symbolica for a static or dynamic Dual shape.
 pub struct SymbolicaDualAmplitudeKernels<T, D> {
+    #[cfg(feature = "native-kernels")]
+    native_triangle: Option<DualStageFactory<T, D, SymbolicaDualTriangleKernels<T, D>>>,
+    #[cfg(feature = "native-kernels")]
+    native_bubble: Option<DualStageFactory<T, D, SymbolicaDualBubbleKernels<T, D>>>,
+    #[cfg(feature = "native-kernels")]
+    native_tadpole: Option<DualStageFactory<T, D, SymbolicaDualTadpoleKernels<T, D>>>,
+
     n: usize,
     rank: usize,
     prototype: T,
@@ -141,6 +178,12 @@ where
     pub fn new(propagators: usize, rank: usize, prototype: T, dual: &D) -> Result<Self> {
         let accumulation = accumulation(propagators, rank)?.compile_dual(&prototype, dual)?;
         Ok(Self {
+            #[cfg(feature = "native-kernels")]
+            native_triangle: None,
+            #[cfg(feature = "native-kernels")]
+            native_bubble: None,
+            #[cfg(feature = "native-kernels")]
+            native_tadpole: None,
             n: propagators,
             rank,
             prototype,
@@ -194,12 +237,24 @@ where
         SymbolicaDualPentagonKernels::new(self.n, self.rank, self.prototype.clone(), &self.dual)
     }
     fn triangle_kernels(&self) -> Result<Self::Triangles> {
+        #[cfg(feature = "native-kernels")]
+        if let Some(factory) = self.native_triangle {
+            return factory(self.n, self.rank, self.prototype.clone(), &self.dual);
+        }
         SymbolicaDualTriangleKernels::new(self.n, self.rank, self.prototype.clone(), &self.dual)
     }
     fn bubble_kernels(&self) -> Result<Self::Bubbles> {
+        #[cfg(feature = "native-kernels")]
+        if let Some(factory) = self.native_bubble {
+            return factory(self.n, self.rank, self.prototype.clone(), &self.dual);
+        }
         SymbolicaDualBubbleKernels::new(self.n, self.rank, self.prototype.clone(), &self.dual)
     }
     fn tadpole_kernels(&self) -> Result<Self::Tadpoles> {
+        #[cfg(feature = "native-kernels")]
+        if let Some(factory) = self.native_tadpole {
+            return factory(self.n, self.rank, self.prototype.clone(), &self.dual);
+        }
         SymbolicaDualTadpoleKernels::new(self.n, self.rank, self.prototype.clone(), &self.dual)
     }
     fn integration_kernels(&self, cut_size: usize) -> Result<Self::Integration> {
@@ -222,5 +277,61 @@ where
     }
     fn values_equal(&self, left: &D, right: &D) -> bool {
         left.get_shape() == right.get_shape() && left.values() == right.values()
+    }
+}
+
+#[cfg(feature = "native-kernels")]
+impl<T: oneloop::rust_codegen::runtime::NativeFloat> SymbolicaAmplitudeKernels<T>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    /// Opt into the partial native catalog. Only T2/T3 denominator expansions
+    /// change backend; callbacks, geometry, masters and other kernels do not.
+    pub fn with_native_denominators(mut self) -> Self {
+        self.native_triangle = Some(SymbolicaTriangleKernels::new_with_native_denominators);
+        self.native_bubble = Some(SymbolicaBubbleKernels::new_with_native_denominators);
+        self.native_tadpole = Some(SymbolicaTadpoleKernels::new_with_native_denominators);
+        self
+    }
+}
+
+#[cfg(feature = "native-kernels")]
+impl<T: Real + SingleFloat> SymbolicaAmplitudeKernels<T>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    /// Per-family selection; this does not claim a fully native amplitude.
+    pub fn kernel_backends(&self) -> [crate::KernelBackendSelection; 5] {
+        crate::native_kernels::coverage(self.native_triangle.is_some())
+    }
+}
+
+#[cfg(feature = "native-kernels")]
+impl<T: oneloop::rust_codegen::runtime::NativeFloat, D: Real + DualNumber<Complex<T>>>
+    SymbolicaDualAmplitudeKernels<T, D>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    /// Opt into the partial native catalog. Only T2/T3 denominator expansions
+    /// change backend; callbacks, geometry, masters and other kernels do not.
+    pub fn with_native_denominators(mut self) -> Self {
+        self.native_triangle = Some(SymbolicaDualTriangleKernels::new_with_native_denominators);
+        self.native_bubble = Some(SymbolicaDualBubbleKernels::new_with_native_denominators);
+        self.native_tadpole = Some(SymbolicaDualTadpoleKernels::new_with_native_denominators);
+        self
+    }
+}
+
+#[cfg(feature = "native-kernels")]
+impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualAmplitudeKernels<T, D>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    /// Per-family selection; this does not claim a fully native amplitude.
+    pub fn kernel_backends(&self) -> [crate::KernelBackendSelection; 5] {
+        crate::native_kernels::coverage(
+            self.native_triangle.is_some()
+                && crate::native_kernels::supported_shape(&self.dual.get_shape()),
+        )
     }
 }

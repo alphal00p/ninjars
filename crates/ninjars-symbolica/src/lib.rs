@@ -14,6 +14,10 @@ mod kernel;
 mod kinematics;
 mod laurent;
 mod masters;
+#[cfg(feature = "native-kernels")]
+mod native_kernels;
+#[cfg(feature = "native-kernels")]
+pub use native_kernels::{KernelBackend, KernelBackendSelection, KernelFamily};
 mod pentagon_kernels;
 mod polynomial;
 mod projection;
