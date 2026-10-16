@@ -45,6 +45,9 @@ pub struct PentagonReducer<T, K> {
     numerator: Vec<T>,
     coefficients: Vec<T>,
     failures: Vec<Option<CutFailure>>,
+    geometry_output: Vec<CutOutcome<PentagonCut<T>>>,
+    active: Vec<usize>,
+    staged: Vec<CutOutcome<PentagonResidue<T>>>,
 }
 
 impl<T: FloatLike, K: PentagonReductionKernels<T>> PentagonReducer<T, K> {
@@ -66,6 +69,9 @@ impl<T: FloatLike, K: PentagonReductionKernels<T>> PentagonReducer<T, K> {
             cuts,
             kernels,
             zero: prototype.zero(),
+            geometry_output: Vec::new(),
+            active: Vec::new(),
+            staged: Vec::new(),
             numerator: Vec::new(),
             coefficients: Vec::new(),
             failures: Vec::new(),
@@ -129,16 +135,23 @@ impl<T: FloatLike, K: PentagonReductionKernels<T>> PentagonReducer<T, K> {
                 });
             }
         }
-        let mut cuts = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); output.len()];
-        geometry.pentagon_batch(&requests, &mut cuts)?;
-        let active: Vec<_> = cuts
-            .iter()
-            .enumerate()
-            .filter_map(|(row, cut)| matches!(cut, CutOutcome::Stable(_)).then_some(row))
-            .collect();
+        let cuts = &mut self.geometry_output;
+        cuts.resize(
+            output.len(),
+            CutOutcome::Unstable(CutFailure::NonFiniteResult),
+        );
+        cuts.fill(CutOutcome::Unstable(CutFailure::NonFiniteResult));
+        geometry.pentagon_batch(&requests, cuts)?;
+        let active = &mut self.active;
+        active.clear();
+        active.extend(
+            cuts.iter()
+                .enumerate()
+                .filter_map(|(row, cut)| matches!(cut, CutOutcome::Stable(_)).then_some(row)),
+        );
         let mut callbacks = Vec::with_capacity(active.len());
         let mut divisions = Vec::with_capacity(active.len());
-        for &row in &active {
+        for &row in active.iter() {
             let CutOutcome::Stable(cut) = &cuts[row] else {
                 unreachable!()
             };
@@ -168,13 +181,12 @@ impl<T: FloatLike, K: PentagonReductionKernels<T>> PentagonReducer<T, K> {
             &mut self.coefficients,
             &mut self.failures,
         )?;
-        let mut staged: Vec<_> = cuts
-            .iter()
-            .map(|cut| match cut {
-                CutOutcome::Unstable(failure) => CutOutcome::Unstable(*failure),
-                CutOutcome::Stable(_) => CutOutcome::Unstable(CutFailure::NonFiniteResult),
-            })
-            .collect();
+        let staged = &mut self.staged;
+        staged.clear();
+        staged.extend(cuts.iter().map(|cut| match cut {
+            CutOutcome::Unstable(failure) => CutOutcome::Unstable(*failure),
+            CutOutcome::Stable(_) => CutOutcome::Unstable(CutFailure::NonFiniteResult),
+        }));
         for (index, &row) in active.iter().enumerate() {
             if let Some(failure) = self.failures[index] {
                 staged[row] = CutOutcome::Unstable(failure);
@@ -191,7 +203,7 @@ impl<T: FloatLike, K: PentagonReductionKernels<T>> PentagonReducer<T, K> {
                 });
             }
         }
-        output.swap_with_slice(&mut staged);
+        output.swap_with_slice(staged);
         Ok(())
     }
 }

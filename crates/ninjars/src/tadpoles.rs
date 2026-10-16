@@ -107,6 +107,16 @@ pub struct TadpoleReducer<T, K> {
     coefficients: Vec<T>,
     division_stable: Vec<bool>,
     correction_stable: Vec<bool>,
+    geometry_output: Vec<CutOutcome<TadpoleCut<T>>>,
+    active: Vec<usize>,
+    staged: Vec<CutOutcome<IntegratedTadpoleResidue<T>>>,
+    eligible: Vec<usize>,
+    complement_shifts: Vec<FourMomentum<T>>,
+    vectors: Vec<[FourMomentum<T>; 3]>,
+    divided: Vec<usize>,
+    corrected: Vec<usize>,
+    projected: Vec<usize>,
+    e12: Vec<T>,
 }
 
 impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
@@ -159,6 +169,16 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
             parents,
             kernels,
             zero: prototype.zero(),
+            geometry_output: Vec::new(),
+            active: Vec::new(),
+            staged: Vec::new(),
+            eligible: Vec::new(),
+            complement_shifts: Vec::new(),
+            vectors: Vec::new(),
+            divided: Vec::new(),
+            corrected: Vec::new(),
+            projected: Vec::new(),
+            e12: Vec::new(),
             numerator: Vec::new(),
             quotients: Vec::new(),
             corrections: Vec::new(),
@@ -178,8 +198,8 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
         self.cuts.len()
     }
 
-    fn source_status(&self, source: TadpoleSource<'_, T>) -> Option<CutFailure> {
-        let mut check = |value: &T| self.kernels.value_status(std::slice::from_ref(value));
+    fn source_status(kernels: &K, source: TadpoleSource<'_, T>) -> Option<CutFailure> {
+        let mut check = |value: &T| kernels.value_status(std::slice::from_ref(value));
         match source {
             TadpoleSource::Triangle(r) => {
                 let b = &r.geometry.basis;
@@ -313,18 +333,28 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
                 propagators: n,
             });
         }
-        let mut staged = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); output.len()];
-        let mut eligible = Vec::new();
+        let staged = &mut self.staged;
+        staged.resize(
+            output.len(),
+            CutOutcome::Unstable(CutFailure::NonFiniteResult),
+        );
+        staged.fill(CutOutcome::Unstable(CutFailure::NonFiniteResult));
+        let eligible = &mut self.eligible;
+        eligible.clear();
         for cut in 0..self.cuts.len() {
             for lane in 0..lanes {
                 let failure = self.parents[cut].iter().find_map(|parent| match *parent {
                     Parent::Triangle(index) => match &triangles[index * lanes + lane] {
                         CutOutcome::Unstable(f) => Some(*f),
-                        CutOutcome::Stable(r) => self.source_status(TadpoleSource::Triangle(r)),
+                        CutOutcome::Stable(r) => {
+                            Self::source_status(&self.kernels, TadpoleSource::Triangle(r))
+                        }
                     },
                     Parent::Bubble(index) => match &bubbles[index * lanes + lane] {
                         CutOutcome::Unstable(f) => Some(*f),
-                        CutOutcome::Stable(r) => self.source_status(TadpoleSource::Bubble(r)),
+                        CutOutcome::Stable(r) => {
+                            Self::source_status(&self.kernels, TadpoleSource::Bubble(r))
+                        }
                     },
                 });
                 let row = cut * lanes + lane;
@@ -335,15 +365,14 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
                 }
             }
         }
-        let complement_shifts: Vec<_> = eligible
-            .iter()
-            .flat_map(|&row| {
-                self.topology.cuts()[self.cuts[row / lanes]]
-                    .complement
-                    .iter()
-                    .map(move |&line| shifts[row % lanes * n + line].clone())
-            })
-            .collect();
+        let complement_shifts = &mut self.complement_shifts;
+        complement_shifts.clear();
+        complement_shifts.extend(eligible.iter().flat_map(|&row| {
+            self.topology.cuts()[self.cuts[row / lanes]]
+                .complement
+                .iter()
+                .map(move |&line| shifts[row % lanes * n + line].clone())
+        }));
         let requests: Vec<_> = eligible
             .iter()
             .enumerate()
@@ -362,18 +391,25 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
                 }
             })
             .collect();
-        let mut cuts = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); requests.len()];
-        geometry.tadpole_batch(&requests, &mut cuts)?;
-        for (&row, cut) in eligible.iter().zip(&cuts) {
+        let cuts = &mut self.geometry_output;
+        cuts.resize(
+            requests.len(),
+            CutOutcome::Unstable(CutFailure::NonFiniteResult),
+        );
+        cuts.fill(CutOutcome::Unstable(CutFailure::NonFiniteResult));
+        geometry.tadpole_batch(&requests, cuts)?;
+        for (&row, cut) in eligible.iter().zip(cuts.iter()) {
             if let CutOutcome::Unstable(f) = cut {
                 staged[row] = CutOutcome::Unstable(*f);
             }
         }
-        let active: Vec<_> = cuts
-            .iter()
-            .enumerate()
-            .filter_map(|(i, cut)| matches!(cut, CutOutcome::Stable(_)).then_some(i))
-            .collect();
+        let active = &mut self.active;
+        active.clear();
+        active.extend(
+            cuts.iter()
+                .enumerate()
+                .filter_map(|(i, cut)| matches!(cut, CutOutcome::Stable(_)).then_some(i)),
+        );
         let active_cuts: Vec<_> = active
             .iter()
             .map(|&i| {
@@ -384,7 +420,8 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
             })
             .collect();
         let orientations = if higher { 2 } else { 1 };
-        let mut vectors = Vec::with_capacity(active.len() * orientations);
+        let vectors = &mut self.vectors;
+        vectors.clear();
         for cut in &active_cuts {
             if higher {
                 vectors.push([
@@ -439,16 +476,16 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
             &mut self.quotients,
             &mut self.division_stable,
         )?;
-        let divided: Vec<_> = (0..active.len())
-            .filter(|&i| {
-                self.division_stable[i * orientations..(i + 1) * orientations]
-                    .iter()
-                    .all(|&s| s)
-            })
-            .collect();
+        let divided = &mut self.divided;
+        divided.clear();
+        divided.extend((0..active.len()).filter(|&i| {
+            self.division_stable[i * orientations..(i + 1) * orientations]
+                .iter()
+                .all(|&s| s)
+        }));
         let parent_count = self.parents.first().map_or(0, Vec::len);
         let mut corrections = Vec::with_capacity(divided.len() * orientations * parent_count);
-        for &index in &divided {
+        for &index in divided.iter() {
             let active_row = active[index];
             let id = requests[active_row].id;
             let target = eligible[active_row] / lanes;
@@ -489,7 +526,8 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
         )?;
         self.raw.clear();
         self.selected_corrections.clear();
-        let mut corrected = Vec::new();
+        let corrected = &mut self.corrected;
+        corrected.clear();
         for (i, &index) in divided.iter().enumerate() {
             let start = i * orientations * parent_count;
             let end = start + orientations * parent_count;
@@ -511,8 +549,10 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
             &mut self.combined,
         )?;
         self.projection.clear();
-        let mut projected = Vec::new();
-        let mut e12 = Vec::new();
+        let projected = &mut self.projected;
+        projected.clear();
+        let e12 = &mut self.e12;
+        e12.clear();
         for (i, &index) in corrected.iter().enumerate() {
             let values = &self.combined[i * orientations * width..(i + 1) * orientations * width];
             if self.kernels.value_status(values).is_some() {
@@ -526,7 +566,7 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
         self.coefficients
             .resize(projected.len() * coefficient_count, self.zero.clone());
         self.kernels
-            .project_batch(&self.projection, &e12, &mut self.coefficients)?;
+            .project_batch(&self.projection, e12, &mut self.coefficients)?;
         for (i, &index) in projected.iter().enumerate() {
             let coefficients =
                 &self.coefficients[i * coefficient_count..(i + 1) * coefficient_count];
@@ -542,7 +582,7 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
                 computed: self.kernels.computed_coefficients().to_vec(),
             });
         }
-        output.swap_with_slice(&mut staged);
+        output.swap_with_slice(staged);
         Ok(())
     }
 }

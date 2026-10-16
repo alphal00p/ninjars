@@ -91,6 +91,15 @@ pub struct BubbleReducer<T, K> {
     quotient_stable: Vec<bool>,
     corrections: Vec<T>,
     correction_stable: Vec<bool>,
+    geometry_output: Vec<CutOutcome<BubbleCut<T>>>,
+    active: Vec<usize>,
+    staged: Vec<CutOutcome<BubbleResidue<T>>>,
+    requested_rows: Vec<usize>,
+    swapped: Vec<FourMomentum<T>>,
+    vectors: Vec<[FourMomentum<T>; 4]>,
+    correction_starts: Vec<Option<usize>>,
+    projected: Vec<usize>,
+    e12: Vec<T>,
     raw: Vec<T>,
     correction_rows: Vec<T>,
     corrected: Vec<T>,
@@ -141,6 +150,15 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
             parents,
             kernels,
             zero: prototype.zero(),
+            geometry_output: Vec::new(),
+            active: Vec::new(),
+            staged: Vec::new(),
+            requested_rows: Vec::new(),
+            swapped: Vec::new(),
+            vectors: Vec::new(),
+            correction_starts: Vec::new(),
+            projected: Vec::new(),
+            e12: Vec::new(),
             numerator: Vec::new(),
             quotients: Vec::new(),
             quotient_stable: Vec::new(),
@@ -226,9 +244,15 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
         if output.is_empty() {
             return Ok(());
         }
-        let mut staged = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); output.len()];
+        let staged = &mut self.staged;
+        staged.resize(
+            output.len(),
+            CutOutcome::Unstable(CutFailure::NonFiniteResult),
+        );
+        staged.fill(CutOutcome::Unstable(CutFailure::NonFiniteResult));
         let mut requests = Vec::with_capacity(output.len());
-        let mut requested_rows = Vec::with_capacity(output.len());
+        let requested_rows = &mut self.requested_rows;
+        requested_rows.clear();
         for (cut_row, &cut_index) in self.cuts.iter().enumerate() {
             let partition = &self.topology.cuts()[cut_index].partition;
             for lane in 0..lanes {
@@ -255,19 +279,22 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
                 });
             }
         }
-        let mut cuts = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); requests.len()];
-        geometry.bubble_batch(&requests, &mut cuts)?;
-        let active: Vec<_> = cuts
-            .iter()
-            .enumerate()
-            .filter_map(|(row, cut)| match cut {
-                CutOutcome::Stable(_) => Some(row),
-                CutOutcome::Unstable(failure) => {
-                    staged[requested_rows[row]] = CutOutcome::Unstable(*failure);
-                    None
-                }
-            })
-            .collect();
+        let cuts = &mut self.geometry_output;
+        cuts.resize(
+            requests.len(),
+            CutOutcome::Unstable(CutFailure::NonFiniteResult),
+        );
+        cuts.fill(CutOutcome::Unstable(CutFailure::NonFiniteResult));
+        geometry.bubble_batch(&requests, cuts)?;
+        let active = &mut self.active;
+        active.clear();
+        active.extend(cuts.iter().enumerate().filter_map(|(row, cut)| match cut {
+            CutOutcome::Stable(_) => Some(row),
+            CutOutcome::Unstable(failure) => {
+                staged[requested_rows[row]] = CutOutcome::Unstable(*failure);
+                None
+            }
+        }));
         let active_cuts: Vec<_> = active
             .iter()
             .map(|&row| {
@@ -283,11 +310,13 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
             self.zero.clone(),
             self.zero.clone(),
         );
-        let mut swapped = vec![zero_momentum; active.len()];
+        let swapped = &mut self.swapped;
+        swapped.resize(active.len(), zero_momentum);
         self.kernels
-            .swapped_effective_batch(&active_cuts, &mut swapped)?;
-        let mut vectors = Vec::with_capacity(active.len() * 2);
-        for (cut, swap) in active_cuts.iter().zip(swapped) {
+            .swapped_effective_batch(&active_cuts, swapped)?;
+        let vectors = &mut self.vectors;
+        vectors.clear();
+        for (cut, swap) in active_cuts.iter().zip(swapped.drain(..)) {
             vectors.push([
                 cut.a0.clone(),
                 cut.a1.clone(),
@@ -338,9 +367,11 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
         )?;
 
         let parent_count = n - 2;
-        let mut correction_requests = Vec::new();
+        let mut correction_requests = Vec::with_capacity(active.len() * 2 * parent_count);
         // Every eligible bubble has exactly n-2 triangle parents, in cached order.
-        let mut correction_starts = vec![None; active.len()];
+        let correction_starts = &mut self.correction_starts;
+        correction_starts.resize(active.len(), None);
+        correction_starts.fill(None);
         for (index, &request_row) in active.iter().enumerate() {
             if !self.quotient_stable[2 * index] || !self.quotient_stable[2 * index + 1] {
                 continue;
@@ -382,9 +413,11 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
         )?;
         self.raw.clear();
         self.correction_rows.clear();
-        let mut projected = Vec::new();
-        let mut e12 = Vec::new();
-        for (index, start) in correction_starts.into_iter().enumerate() {
+        let projected = &mut self.projected;
+        projected.clear();
+        let e12 = &mut self.e12;
+        e12.clear();
+        for (index, start) in correction_starts.iter().copied().enumerate() {
             let Some(start) = start else {
                 continue;
             };
@@ -413,7 +446,7 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
         self.coefficients
             .resize(projected.len() * count, self.zero.clone());
         self.kernels
-            .project_batch(&self.corrected, &e12, &mut self.coefficients)?;
+            .project_batch(&self.corrected, e12, &mut self.coefficients)?;
         for (projected_row, &index) in projected.iter().enumerate() {
             let values = &self.coefficients[projected_row * count..(projected_row + 1) * count];
             if self.kernels.values_are_finite(values) {
@@ -427,7 +460,7 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
                 });
             }
         }
-        output.swap_with_slice(&mut staged);
+        output.swap_with_slice(staged);
         Ok(())
     }
 }

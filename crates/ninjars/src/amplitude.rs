@@ -96,6 +96,12 @@ pub struct Amplitude<T, K: AmplitudeKernels<T>> {
     contributions: Vec<IntegratedContribution<T>>,
     input: Vec<T>,
     output: Vec<T>,
+    // Private staging remains distinct from published statuses and results.
+    next_statuses: Vec<EvaluationStatus>,
+    active: Vec<usize>,
+    integration_cuts: [Vec<usize>; 4],
+    integration_values: Vec<IntegratedContribution<T>>,
+    integration_statuses: Vec<IntegrationStatus>,
 }
 
 impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
@@ -159,6 +165,14 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                 ));
             }
         }
+        let integration_cuts = std::array::from_fn(|size| {
+            topology
+                .cuts()
+                .iter()
+                .enumerate()
+                .filter_map(|(index, cut)| (cut.partition.len() == size + 1).then_some(index))
+                .collect()
+        });
         let zero = prototype.zero();
         Ok(Self {
             topology,
@@ -181,6 +195,11 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
             contributions: Vec::new(),
             input: Vec::new(),
             output: Vec::new(),
+            next_statuses: Vec::new(),
+            active: Vec::new(),
+            integration_cuts,
+            integration_values: Vec::new(),
+            integration_statuses: Vec::new(),
             zero,
         })
     }
@@ -522,7 +541,9 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                 &mut self.tadpoles,
             )?;
         }
-        let mut statuses = vec![EvaluationStatus::Success; lanes];
+        let statuses = &mut self.next_statuses;
+        statuses.resize(lanes, EvaluationStatus::Success);
+        statuses.fill(EvaluationStatus::Success);
         // Five-cuts have no direct master contribution, but an executed failed
         // five-cut must still invalidate its lane, including when stopping at 5.
         if lanes != 0 {
@@ -568,7 +589,10 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                     masters,
                     &self.zero,
                     &mut self.contributions,
-                    &mut statuses,
+                    statuses,
+                    &self.integration_cuts[size - 1],
+                    &mut self.integration_values,
+                    &mut self.integration_statuses,
                 )?,
                 3 => integrate_stage(
                     &self.topology,
@@ -582,7 +606,10 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                     masters,
                     &self.zero,
                     &mut self.contributions,
-                    &mut statuses,
+                    statuses,
+                    &self.integration_cuts[size - 1],
+                    &mut self.integration_values,
+                    &mut self.integration_statuses,
                 )?,
                 2 => integrate_stage(
                     &self.topology,
@@ -596,7 +623,10 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                     masters,
                     &self.zero,
                     &mut self.contributions,
-                    &mut statuses,
+                    statuses,
+                    &self.integration_cuts[size - 1],
+                    &mut self.integration_values,
+                    &mut self.integration_statuses,
                 )?,
                 _ => integrate_stage(
                     &self.topology,
@@ -610,17 +640,23 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                     masters,
                     &self.zero,
                     &mut self.contributions,
-                    &mut statuses,
+                    statuses,
+                    &self.integration_cuts[size - 1],
+                    &mut self.integration_values,
+                    &mut self.integration_statuses,
                 )?,
             }
         }
-        let active: Vec<_> = statuses
-            .iter()
-            .enumerate()
-            .filter_map(|(i, s)| (*s == EvaluationStatus::Success).then_some(i))
-            .collect();
+        let active = &mut self.active;
+        active.clear();
+        active.extend(
+            statuses
+                .iter()
+                .enumerate()
+                .filter_map(|(i, s)| (*s == EvaluationStatus::Success).then_some(i)),
+        );
         self.input.clear();
-        for &lane in &active {
+        for &lane in active.iter() {
             self.input.extend_from_slice(&self.results[lane]);
             for cut in 0..cuts {
                 self.input
@@ -638,7 +674,7 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                 statuses[lane] = EvaluationStatus::NonFiniteResult;
             }
         }
-        self.statuses = statuses;
+        std::mem::swap(&mut self.statuses, statuses);
         Ok(())
     }
 }
@@ -733,14 +769,12 @@ fn integrate_stage<
     zero: &T,
     contributions: &mut [IntegratedContribution<T>],
     statuses: &mut [EvaluationStatus],
+    cuts: &[usize],
+    values: &mut Vec<IntegratedContribution<T>>,
+    integration_status: &mut Vec<IntegrationStatus>,
 ) -> Result<()> {
     let n = topology.propagators();
-    let cuts: Vec<_> = topology
-        .cuts()
-        .iter()
-        .enumerate()
-        .filter_map(|(i, c)| (c.partition.len() == integration.cut_size()).then_some(i))
-        .collect();
+
     // Classify every cut first so a later failed cut cannot leave earlier
     // requests for the same lane queued for expensive master evaluation.
     for (row, outcome) in residues.iter().enumerate() {
@@ -754,7 +788,7 @@ fn integrate_stage<
             };
         }
     }
-    let mut requests = Vec::new();
+    let mut requests = Vec::with_capacity(residues.len());
     for (row, outcome) in residues.iter().enumerate() {
         let lane = row % lanes;
         match outcome {
@@ -772,12 +806,20 @@ fn integrate_stage<
             _ => (),
         }
     }
-    let mut values = vec![std::array::from_fn(|_| zero.clone()); requests.len()];
-    let mut integration_status = vec![IntegrationStatus::InvalidInput; requests.len()];
-    integration.evaluate_batch(&requests, provider, &mut values, &mut integration_status)?;
-    for ((request, value), status) in requests.iter().zip(values).zip(integration_status) {
+    values.resize_with(requests.len(), || std::array::from_fn(|_| zero.clone()));
+    integration_status.resize(requests.len(), IntegrationStatus::InvalidInput);
+    integration_status.fill(IntegrationStatus::InvalidInput);
+    integration.evaluate_batch(&requests, provider, values, integration_status)?;
+    for ((request, value), &status) in requests
+        .iter()
+        .zip(values.iter_mut())
+        .zip(integration_status.iter())
+    {
         if status == IntegrationStatus::Success {
-            contributions[request.id.sample * lanes + request.id.lane] = value;
+            std::mem::swap(
+                &mut contributions[request.id.sample * lanes + request.id.lane],
+                value,
+            );
         } else if statuses[request.id.lane] == EvaluationStatus::Success {
             statuses[request.id.lane] = EvaluationStatus::IntegrationFailed {
                 cut_index: request.id.sample,
