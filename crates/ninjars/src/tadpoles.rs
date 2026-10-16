@@ -436,19 +436,17 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
                 .enumerate()
                 .filter_map(|(i, cut)| matches!(cut, CutOutcome::Stable(_)).then_some(i)),
         );
-        let active_cuts: Vec<_> = active
-            .iter()
-            .map(|&i| {
-                let CutOutcome::Stable(c) = &cuts[i] else {
-                    unreachable!()
-                };
-                c
-            })
-            .collect();
+        let active_cut = |index: usize| {
+            let CutOutcome::Stable(cut) = &cuts[active[index]] else {
+                unreachable!()
+            };
+            cut
+        };
         let orientations = if higher { 2 } else { 1 };
         let vectors = &mut self.vectors;
         vectors.clear();
-        for cut in &active_cuts {
+        for index in 0..active.len() {
+            let cut = active_cut(index);
             if higher {
                 vectors.push([
                     cut.a.clone(),
@@ -476,7 +474,7 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
                     },
                     partition: &cut.partition,
                     vectors,
-                    parameters: std::slice::from_ref(&active_cuts[index].beta),
+                    parameters: std::slice::from_ref(&active_cut(index).beta),
                 });
                 divisions.push(TadpoleDivisionRequest {
                     partition: &cut.partition,
@@ -484,7 +482,7 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
                     shifts: &shifts[id.lane * n..(id.lane + 1) * n],
                     masses_squared: &masses_squared[id.lane * n..(id.lane + 1) * n],
                     vectors,
-                    beta: &active_cuts[index].beta,
+                    beta: &active_cut(index).beta,
                 });
             }
         }
@@ -537,7 +535,7 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
                         shifts: &shifts[id.lane * n..(id.lane + 1) * n],
                         masses_squared: &masses_squared[id.lane * n..(id.lane + 1) * n],
                         vectors: &vectors[index * orientations + orientation],
-                        beta: &active_cuts[index].beta,
+                        beta: &active_cut(index).beta,
                     });
                 }
             }
@@ -586,7 +584,7 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
             }
             projected.push(index);
             self.projection.extend_from_slice(values);
-            e12.push(active_cuts[index].basis.e12.clone());
+            e12.push(active_cut(index).basis.e12.clone());
         }
         let coefficient_count = self.kernels.coefficient_count();
         self.coefficients
@@ -603,7 +601,7 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
             staged[eligible[active[index]]] = CutOutcome::Stable(IntegratedTadpoleResidue {
                 cut_index: id.sample,
                 id,
-                geometry: active_cuts[index].clone(),
+                geometry: active_cut(index).clone(),
                 coefficients: self.coefficient_pool.take_from_slice(coefficients),
                 computed: self
                     .mask_pool
