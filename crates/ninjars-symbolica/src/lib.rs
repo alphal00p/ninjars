@@ -38,7 +38,9 @@ mod value_checks;
 
 pub use amplitude::{SymbolicaAmplitudeKernels, SymbolicaDualAmplitudeKernels};
 pub use box_kernels::{SymbolicaBoxKernels, SymbolicaDualBoxKernels};
-pub use bubble_kernels::{SymbolicaBubbleKernels, SymbolicaDualBubbleKernels};
+pub use bubble_kernels::{
+    PrunedSwappedArithmetic, SymbolicaBubbleKernels, SymbolicaDualBubbleKernels,
+};
 pub use contraction::{
     DualMasterContractionEvaluator, MasterContraction, MasterContractionEvaluator,
     MasterContractionInputLayout,

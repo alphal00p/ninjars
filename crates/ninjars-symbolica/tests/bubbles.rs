@@ -79,6 +79,15 @@ fn numeric_requests<'a>(
 
 #[test]
 fn polynomial_residues_reconstruct_with_zero_one_and_two_triangle_parents() {
+    reconstruct_polynomial_residues_with_triangle_parents(false);
+}
+
+#[test]
+fn pruned_polynomial_residues_reconstruct_with_zero_one_and_two_triangle_parents() {
+    reconstruct_polynomial_residues_with_triangle_parents(true);
+}
+
+fn reconstruct_polynomial_residues_with_triangle_parents(pruned: bool) {
     let routing = [[1, -1, 2, 0], [3, 0, 2, 0], [4, -1, 3, 0], [5, 0, 2, 1]];
     let samples = [
         (c(2.), c(1.), c(0.)),
@@ -129,8 +138,13 @@ fn polynomial_residues_reconstruct_with_zero_one_and_two_triangle_parents() {
                 .unwrap();
             assert!(triangles.iter().all(|r| matches!(r, CutOutcome::Stable(_))));
         }
-        let mut reducer =
-            BubbleReducer::new(SymbolicaBubbleKernels::new(n, rank, 0.).unwrap(), c(0.)).unwrap();
+        let kernels = SymbolicaBubbleKernels::new(n, rank, 0.).unwrap();
+        let kernels = if pruned {
+            kernels.with_pruned_swapped_arithmetic().unwrap()
+        } else {
+            kernels
+        };
+        let mut reducer = BubbleReducer::new(kernels, c(0.)).unwrap();
         let mut residues =
             vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); reducer.cut_count()];
         reducer

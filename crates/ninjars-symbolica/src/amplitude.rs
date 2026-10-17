@@ -67,6 +67,7 @@ pub struct SymbolicaAmplitudeKernels<T> {
     n: usize,
     rank: usize,
     rank_specialized_corrections: bool,
+    pruned_swapped_arithmetic: bool,
     prototype: T,
     box_options: BoxReductionOptions,
     accumulation: CompiledKernel<T>,
@@ -97,6 +98,7 @@ where
             n: propagators,
             rank,
             rank_specialized_corrections: false,
+            pruned_swapped_arithmetic: false,
             prototype,
             box_options: BoxReductionOptions {
                 coefficients: BoxCoefficientMode::Integrated,
@@ -131,6 +133,27 @@ where
 
     pub fn rank_specialized_corrections_enabled(&self) -> bool {
         self.rank_specialized_corrections
+    }
+
+    /// Configure interpreted positive-power swapped bubble arithmetic only for
+    /// complete residue projection. Full callbacks and raw APIs stay unchanged.
+    /// See [`SymbolicaBubbleKernels::with_pruned_swapped_arithmetic`] for the
+    /// discarded-overflow status difference. Tadpole-only or rank-inactive
+    /// bubble stages remain supported and execute no additional stage.
+    pub fn with_pruned_swapped_arithmetic(mut self) -> Self {
+        self.pruned_swapped_arithmetic = true;
+        self
+    }
+
+    /// Configured path, independent of generic native coverage and row policy.
+    pub fn pruned_swapped_arithmetic(&self) -> Option<crate::PrunedSwappedArithmetic> {
+        self.pruned_swapped_arithmetic.then(|| {
+            crate::PrunedSwappedArithmetic::for_topology(
+                self.n,
+                self.rank,
+                self.rank_specialized_corrections,
+            )
+        })
     }
 }
 impl<T: Real + SingleFloat> AmplitudeKernels<Complex<T>> for SymbolicaAmplitudeKernels<T>
@@ -176,12 +199,21 @@ where
         #[cfg(not(feature = "native-kernels"))]
         let kernels = SymbolicaBubbleKernels::new(self.n, self.rank, self.prototype.clone())?;
         #[cfg(feature = "native-kernels")]
-        if let Some(specialize) = self.native_rank_bubble {
-            return specialize(kernels)
-                .map(|kernels| kernels.with_native_batch_execution(self.native_batch_execution));
-        }
+        let kernels = if let Some(specialize) = self.native_rank_bubble {
+            specialize(kernels)?
+        } else if self.rank_specialized_corrections {
+            kernels.with_rank_specialized_corrections()?
+        } else {
+            kernels
+        };
+        #[cfg(not(feature = "native-kernels"))]
         let kernels = if self.rank_specialized_corrections {
             kernels.with_rank_specialized_corrections()?
+        } else {
+            kernels
+        };
+        let kernels = if self.pruned_swapped_arithmetic {
+            kernels.with_pruned_swapped_arithmetic()?
         } else {
             kernels
         };
@@ -251,6 +283,7 @@ pub struct SymbolicaDualAmplitudeKernels<T, D> {
     n: usize,
     rank: usize,
     rank_specialized_corrections: bool,
+    pruned_swapped_arithmetic: bool,
     prototype: T,
     dual: D,
     box_options: BoxReductionOptions,
@@ -280,6 +313,7 @@ where
             n: propagators,
             rank,
             rank_specialized_corrections: false,
+            pruned_swapped_arithmetic: false,
             prototype,
             dual: dual.zero(),
             box_options: BoxReductionOptions {
@@ -313,6 +347,22 @@ where
 
     pub fn rank_specialized_corrections_enabled(&self) -> bool {
         self.rank_specialized_corrections
+    }
+
+    /// See [`SymbolicaAmplitudeKernels::with_pruned_swapped_arithmetic`].
+    pub fn with_pruned_swapped_arithmetic(mut self) -> Self {
+        self.pruned_swapped_arithmetic = true;
+        self
+    }
+
+    pub fn pruned_swapped_arithmetic(&self) -> Option<crate::PrunedSwappedArithmetic> {
+        self.pruned_swapped_arithmetic.then(|| {
+            crate::PrunedSwappedArithmetic::for_topology(
+                self.n,
+                self.rank,
+                self.rank_specialized_corrections,
+            )
+        })
     }
 }
 impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> AmplitudeKernels<D>
@@ -366,12 +416,21 @@ where
         let kernels =
             SymbolicaDualBubbleKernels::new(self.n, self.rank, self.prototype.clone(), &self.dual)?;
         #[cfg(feature = "native-kernels")]
-        if let Some(specialize) = self.native_rank_bubble {
-            return specialize(kernels)
-                .map(|kernels| kernels.with_native_batch_execution(self.native_batch_execution));
-        }
+        let kernels = if let Some(specialize) = self.native_rank_bubble {
+            specialize(kernels)?
+        } else if self.rank_specialized_corrections {
+            kernels.with_rank_specialized_corrections()?
+        } else {
+            kernels
+        };
+        #[cfg(not(feature = "native-kernels"))]
         let kernels = if self.rank_specialized_corrections {
             kernels.with_rank_specialized_corrections()?
+        } else {
+            kernels
+        };
+        let kernels = if self.pruned_swapped_arithmetic {
+            kernels.with_pruned_swapped_arithmetic()?
         } else {
             kernels
         };

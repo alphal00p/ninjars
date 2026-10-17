@@ -133,6 +133,39 @@ pub trait BubbleReductionKernels<T> {
         }
         Ok(())
     }
+    /// Combined arithmetic whose scratch outputs are consumed only by residue
+    /// subtraction and projection. The first orientation is complete; an
+    /// implementation may omit swapped heads unused by its complete residue
+    /// projection. Such slots are unspecified scratch, not raw coefficients.
+    ///
+    /// Ordering, validation and publication rules match the full combined call.
+    /// The default preserves its complete outputs and existing implementations.
+    /// Call [`Self::divide_with_corrections_batch`] for complete raw quotients
+    /// and corrections, independently of any projection-specific optimization.
+    #[allow(clippy::too_many_arguments)]
+    fn divide_with_corrections_for_projection_batch(
+        &mut self,
+        divisions: &[BubbleDivisionRequest<'_, T>],
+        numerator: &[T],
+        quotients: &mut [T],
+        quotient_stable: &mut [bool],
+        requests: &[BubbleTriangleCorrectionRequest<'_, T>],
+        corrections: &mut [T],
+        correction_stable: &mut [bool],
+    ) -> Result<()>
+    where
+        T: Clone,
+    {
+        self.divide_with_corrections_batch(
+            divisions,
+            numerator,
+            quotients,
+            quotient_stable,
+            requests,
+            corrections,
+            correction_stable,
+        )
+    }
     /// Correction rows are [orientation row, triangle parent, quotient column].
     fn subtract_batch(
         &mut self,
@@ -497,7 +530,7 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
             .resize(correction_requests.len() * width, self.zero.clone());
         self.correction_stable
             .resize(correction_requests.len(), false);
-        self.kernels.divide_with_corrections_batch(
+        self.kernels.divide_with_corrections_for_projection_batch(
             &divisions,
             &self.numerator,
             &mut self.quotients,
