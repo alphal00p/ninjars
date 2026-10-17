@@ -420,7 +420,8 @@ where
     /// of k and r, where that uncut denominator's leading Laurent coefficient
     /// is exactly zero and only round-off would otherwise be divided by. A
     /// reference scores the minimum of (|k.r|/|k|)^2 and these ratios, and
-    /// the highest score wins (the largest |k.r| without uncut lines). As
+    /// the highest score wins (the largest |k.r| without uncut lines), the
+    /// lowest index among scores tied within the tolerance. As
     /// before, |k.r| must exceed the tolerance relative to |k|. The plane
     /// ratios, quadratic in the transverse components like the triangle Gram
     /// determinant, must exceed the tolerance itself; only an uncut line
@@ -469,15 +470,25 @@ where
                 _ => leading,
             }
         };
-        let mut best = 0;
-        let mut best_score = score(0);
-        for candidate in 1..8 {
-            let candidate_score = score(candidate);
-            if Self::greater(&candidate_score, &best_score) {
-                best = candidate;
-                best_score = candidate_score;
+        // Symmetric rational kinematics often tie several references exactly
+        // (here the eight differ only by signs and a swap). The reference fixes
+        // the bubble's e2 direction and hence how the residue splits between
+        // B1/B11, the explicit mu^2 term, and the tadpoles' A0 subtraction:
+        // only their sum is reference independent, so the reported
+        // cut-constructible/rational split must not follow round-off. Like
+        // Ninja's fixed reference, break ties deterministically: take the
+        // lowest-index candidate within the conditioning tolerance of the best.
+        let scores: [T; 8] = std::array::from_fn(score);
+        let mut maximum = scores[0].clone();
+        for candidate_score in &scores[1..] {
+            if Self::greater(candidate_score, &maximum) {
+                maximum = candidate_score.clone();
             }
         }
+        let threshold = maximum * (self.prototype.one() - &self.tolerance);
+        let best = (0..8)
+            .find(|&candidate| !Self::greater(&threshold, &scores[candidate]))
+            .unwrap_or(0);
         let column = 4 + 5 * best;
         (!self.too_small(&probe.component(probe_row, column)[0], scale)
             && planes[best]

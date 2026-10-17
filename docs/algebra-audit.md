@@ -87,6 +87,18 @@ whose best reference is below the tolerance (for instance an uncut line along
 k) is reported as `DegenerateReference`. The existing zero-leading-denominator
 rejection is retained; broader numerical rescue remains outstanding.
 
+Symmetric kinematics tie references exactly: the four-photon top boxes lie in
+the x-z plane, so references related by y -> -y score alike. The reference
+fixes e2 and hence how a bubble residue splits between the B1/B11 tensor
+masters, its explicit mu^2 rational term, and the A0 terms of the tadpoles that
+subtract it; only their sum is reference independent (original Ninja's split
+likewise follows its reference vector). Breaking the tie by round-off moved
+1375.2-1373.5i between `cut_constructible_finite` and `rational` of
+`four-photon/top-box-{1,2}.json` lane 3 at 23 of the 51 working precisions
+from 64 to 264 bits. Like Ninja's fixed reference, the provider now takes the
+lowest-index reference whose score lies within the conditioning tolerance
+2^-(p/2) of the best.
+
 ## Reference callback constants
 
 The public `ExpressionEvaluator::map_coeff_with_prec` API, its implementation

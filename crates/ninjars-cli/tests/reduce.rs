@@ -299,6 +299,72 @@ fn arbitrary_precision_light_like_invariants_are_exact_at_every_working_precisio
 }
 
 #[test]
+fn tied_bubble_references_keep_the_rational_split_at_every_working_precision() {
+    use symbolica::domains::float::{Float, Real};
+    // The four-photon top boxes lie in the x-z plane, so on several double
+    // cuts rational bubble references related by y -> -y score exactly alike.
+    // The reference fixes how the bubble residue splits between B1/B11, its
+    // mu^2 rational term and the tadpoles' A0 subtraction; only the sum is
+    // reference independent. Round-off used to break the tie, and lane 3
+    // (generic polarizations) moved 1375.2-1373.5i between
+    // cut_constructible_finite and rational at 68, 80, 88, 92, 100, 104,
+    // 116, 128, 140, 148, ... bits while the finite part stayed right.
+    // Expected lane-3 finite, cut-constructible and rational parts from a
+    // 400-bit evaluation (identical for both routings).
+    let expected = [
+        [
+            "-1.71910721957404256939336081182328086e-1",
+            "5.48242285239929453402606817224109084e-2",
+        ],
+        [
+            "5.26619768189329847649199775374183929e2",
+            "-5.89552044813902443475672873641628372e2",
+        ],
+        [
+            "-5.26791678911287251906139111455366257e2",
+            "5.89606869042426436421013134323350783e2",
+        ],
+    ];
+    let parse = |text: &str| Float::parse(text, Some(320)).unwrap();
+    let fixtures = [
+        "examples/graphs/physical/four-photon/top-box-1.json",
+        "examples/graphs/physical/four-photon/top-box-2.json",
+    ];
+    // Bit counts at which the tie used to go the other way; the reductions
+    // are independent, so run them concurrently.
+    let bits = ["100", "116", "140"];
+    let children: Vec<_> = fixtures
+        .iter()
+        .flat_map(|fixture| bits.iter().map(move |bits| (fixture, bits)))
+        .map(|(fixture, bits)| {
+            let child = Command::new(env!("CARGO_BIN_EXE_ninjars"))
+                .current_dir(root())
+                .args(["reduce", fixture, "--precision", "float", "--bits", bits])
+                .stdout(std::process::Stdio::piped())
+                .stderr(std::process::Stdio::piped())
+                .spawn()
+                .unwrap();
+            (fixture, bits, child)
+        })
+        .collect();
+    for (fixture, bits, child) in children {
+        let actual = value(child.wait_with_output().unwrap());
+        let row = &actual["results"][3];
+        assert_eq!(row["status"]["kind"], "success", "{fixture} bits={bits}");
+        for (index, coefficient) in [0, 3, 4].into_iter().enumerate() {
+            for part in 0..2 {
+                let value = parse(row["values"][coefficient][part].as_str().unwrap());
+                let error = (value - parse(expected[index][part])).norm();
+                assert!(
+                    error < parse("1e-18"),
+                    "{fixture} bits={bits} coefficient={coefficient} part={part} error={error}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
 fn precision_validation_empty_input_and_unsupported_rank_are_explicit() {
     let invalid = run(&["examples/graphs/bubble.json", "--bits", "128"]);
     assert!(!invalid.status.success());

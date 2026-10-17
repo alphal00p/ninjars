@@ -408,6 +408,77 @@ fn bubble_reference_avoids_uncut_lines_in_its_plane() {
     coplanar_bubble_check(Float::new(256), 1e-70);
 }
 
+/// The selected reference (the basis e2) of the {D0, D3} double cut of
+/// examples/graphs/physical/four-photon/top-box-1.json: cut shifts p2 and p0,
+/// uncut shifts 0 and p0 + p1, all in the x-z plane. The references related
+/// by y -> -y therefore score exactly alike (four of them tie for the best).
+fn tied_bubble_reference<T: Real + RealLike + SingleFloat>(prototype: T) -> Vec<f64>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    let mut provider = SymbolicaCuts::new(prototype.clone()).unwrap();
+    let zero = Complex::new(prototype.zero(), prototype.zero());
+    let shifts = [
+        momentum(&zero, [100, 60, 0, 80]),
+        momentum(&zero, [100, 0, 0, 100]),
+    ];
+    let uncut = [
+        momentum(&zero, [0, 0, 0, 0]),
+        momentum(&zero, [200, 0, 0, 0]),
+    ];
+    let mass = Complex::new(prototype.from_i64(173 * 173), prototype.zero());
+    let request = BubbleCutRequest {
+        id: SampleId { lane: 0, sample: 0 },
+        shifts: [&shifts[0], &shifts[1]],
+        masses_squared: [&mass, &mass],
+        complementary_shifts: &uncut,
+    };
+    let mut output = [CutOutcome::Unstable(CutFailure::NonFiniteResult)];
+    provider.bubble_batch(&[request], &mut output).unwrap();
+    let CutOutcome::Stable(cut) = &output[0] else {
+        panic!("tied bubble cut failed: {:?}", output[0])
+    };
+    let check = |v: Complex<T>| assert!(v.norm().re.to_f64() < 1e-6, "{v}");
+    check_bubble(cut, &shifts, &[mass.clone(), mass.clone()], &check);
+    cut.basis
+        .e2
+        .components()
+        .into_iter()
+        .flat_map(|c| [c.re.to_f64(), c.im.to_f64()])
+        .collect()
+}
+
+#[test]
+fn tied_bubble_references_do_not_depend_on_the_precision() {
+    // The reference fixes how the bubble residue splits between B1/B11, its
+    // mu^2 rational term and the tadpoles' A0 subtraction. Round-off used to
+    // break this tie, so lane 3 of the four-photon top-box-1/2 fixtures moved
+    // ~1375 between cut_constructible_finite and rational at 68, 80, 88, 92,
+    // 100, 104, 116, ... bits. Ties now go to the lowest-index reference.
+    let expected = tied_bubble_reference(Float::new(400));
+    let mut chosen = vec![
+        ("f64".to_string(), tied_bubble_reference(0.)),
+        (
+            "double-float".into(),
+            tied_bubble_reference(DoubleFloat::from(0.)),
+        ),
+    ];
+    for bits in [
+        64, 68, 72, 80, 88, 92, 100, 104, 108, 116, 128, 140, 148, 256,
+    ] {
+        chosen.push((
+            format!("{bits} bits"),
+            tied_bubble_reference(Float::new(bits)),
+        ));
+    }
+    for (label, e2) in chosen {
+        assert!(
+            e2.iter().zip(&expected).all(|(a, b)| (a - b).abs() < 1e-12),
+            "{label}: reference {e2:?} != 400-bit {expected:?}"
+        );
+    }
+}
+
 fn precision_check<T: Real + RealLike + SingleFloat>(prototype: T, tolerance: f64)
 where
     Complex<T>: Real + EvaluationDomain,
