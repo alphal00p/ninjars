@@ -37,6 +37,12 @@ whole-network instruction-count advantage when all current block heads are
 retained. Smaller fusion regions remain untested. The
 recommendations below retain their original audit scope.
 
+A later [source-only follow-up](reduction-algorithm-followup.md) prioritizes
+preserving the one-line Laurent recurrence at higher rank and sharing leading
+denominator reciprocals across parent corrections. Neither experiment has been
+implemented or run; the already prepared paired-orientation and master-weight
+inventories remain first.
+
 The [immutable interpreted baseline](../../validation/evidence/shared-reduction-timing-0c77597.json)
 measures graph26, n=5/rank4, with the same numerator callback provider and frozen
 masters. Changing-point batch-one medians are approximately 309.7 microseconds
