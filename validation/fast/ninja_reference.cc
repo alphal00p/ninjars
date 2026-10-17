@@ -18,13 +18,26 @@
 // rational and cut-constructible parts, the number of master calls without a
 // matching table row, and the mean nanoseconds of `repetitions` evaluations
 // after one warm-up (Ninja defaults: mu-expansion, no tests).
+//
+// With `--time BLOCKS MIN_BLOCK_MS` all requests are read first (their
+// repetitions and masters modes are ignored) and original Ninja is timed
+// scalar, point after point, cycling over all requests: `reduction` replays
+// recorded TensorNumerator outputs and OneLOop masters in call order (pure
+// reduction), `reduction+tensor` uses the live TensorNumerator with replayed
+// masters, and `reduction+tensor+masters` is the complete default
+// evaluation. One JSON line reports the median, minimum and maximum
+// nanoseconds per point over BLOCKS blocks of at least MIN_BLOCK_MS each.
 #include <ninja/ninja.hh>
 #include <ninja/tensor_ninja.hh>
 #include <ninja/avholo.hh>
+#include <algorithm>
 #include <chrono>
+#include <cstdlib>
+#include <cstring>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
+#include <string>
 #include <limits>
 #include <vector>
 
@@ -243,9 +256,187 @@ class PrintingLibrary : public ninja::IntegralLibrary {
   void getTadpoleIntegralRM(C rslt[3], ninja::Real m) { getTadpoleIntegralCM(rslt, m); }
 };
 
+
+unsigned t3_len(int mindeg) {
+  unsigned total = 0;
+  for (int i = 0; i <= mindeg; ++i) total += 1 + i / 2;
+  return total;
+}
+
+unsigned t2_len(int mindeg) {
+  unsigned total = 0;
+  for (int i = 0; i <= mindeg; ++i) total += 1 + i + i / 2 + i / 3;
+  return total;
+}
+
+// Records every numerator output in call order.
+class RecordingNumerator : public ninja::Numerator {
+ public:
+  ninja::Numerator *inner;
+  unsigned mu_outputs;
+  std::vector<C> values;
+
+  C evaluate(const ninja::ComplexMomentum &q, const C &muq, int cut,
+             const ninja::PartitionInt part[]) {
+    const C value = inner->evaluate(q, muq, cut, part);
+    values.push_back(value);
+    return value;
+  }
+  void muExpansion(const ninja::ComplexMomentum v[], const ninja::PartitionInt part[], C c[]) {
+    inner->muExpansion(v, part, c);
+    values.insert(values.end(), c, c + mu_outputs);
+  }
+  void t3Expansion(const ninja::ComplexMomentum &a, const ninja::ComplexMomentum &e3,
+                   const ninja::ComplexMomentum &e4, const C &param, int mindeg, int cut,
+                   const ninja::PartitionInt part[], C c[]) {
+    inner->t3Expansion(a, e3, e4, param, mindeg, cut, part, c);
+    values.insert(values.end(), c, c + t3_len(mindeg));
+  }
+  void t2Expansion(const ninja::ComplexMomentum &a0, const ninja::ComplexMomentum &a1,
+                   const ninja::ComplexMomentum &e3, const ninja::ComplexMomentum &e4,
+                   const C param[], int mindeg, int cut, const ninja::PartitionInt part[],
+                   C c[]) {
+    inner->t2Expansion(a0, a1, e3, e4, param, mindeg, cut, part, c);
+    values.insert(values.end(), c, c + t2_len(mindeg));
+  }
+};
+
+// Returns recorded numerator outputs in call order (O(1) per call).
+class ReplayNumerator : public ninja::Numerator {
+ public:
+  const std::vector<C> *values;
+  unsigned mu_outputs;
+  size_t cursor;
+
+  void copy(C *c, unsigned count) {
+    std::memcpy(c, &(*values)[cursor], count * sizeof(C));
+    cursor += count;
+  }
+  C evaluate(const ninja::ComplexMomentum &, const C &, int, const ninja::PartitionInt[]) {
+    return (*values)[cursor++];
+  }
+  void muExpansion(const ninja::ComplexMomentum[], const ninja::PartitionInt[], C c[]) {
+    copy(c, mu_outputs);
+  }
+  void t3Expansion(const ninja::ComplexMomentum &, const ninja::ComplexMomentum &,
+                   const ninja::ComplexMomentum &, const C &, int mindeg, int,
+                   const ninja::PartitionInt[], C c[]) {
+    copy(c, t3_len(mindeg));
+  }
+  void t2Expansion(const ninja::ComplexMomentum &, const ninja::ComplexMomentum &,
+                   const ninja::ComplexMomentum &, const ninja::ComplexMomentum &, const C[],
+                   int mindeg, int, const ninja::PartitionInt[], C c[]) {
+    copy(c, t2_len(mindeg));
+  }
+};
+
+// Records (recording == true) or replays master outputs in call order.
+class SequenceLibrary : public ninja::IntegralLibrary {
+ public:
+  ninja::IntegralLibrary *inner;
+  bool recording;
+  bool nested;
+  std::vector<C> values;
+  size_t cursor;
+
+  void put(const C *out, unsigned count) {
+    if (recording && !nested) {
+      values.insert(values.end(), out, out + count);
+    }
+  }
+  bool take(C *out, unsigned count) {
+    if (recording || nested) return false;
+    std::memcpy(out, &values[cursor], count * sizeof(C));
+    cursor += count;
+    return true;
+  }
+  void init(ninja::Real muRsq) {
+    if (recording) inner->init(muRsq);
+  }
+  void exit() {
+    if (recording) inner->exit();
+  }
+  void getBoxIntegralCM(C r[3], ninja::Real a, ninja::Real b, ninja::Real c, ninja::Real d,
+                        ninja::Real e, ninja::Real f, const C &m1, const C &m2, const C &m3,
+                        const C &m4) {
+    if (take(r, 3)) return;
+    inner->getBoxIntegralCM(r, a, b, c, d, e, f, m1, m2, m3, m4);
+    put(r, 3);
+  }
+  void getBoxIntegralRM(C r[3], ninja::Real a, ninja::Real b, ninja::Real c, ninja::Real d,
+                        ninja::Real e, ninja::Real f, ninja::Real m1, ninja::Real m2,
+                        ninja::Real m3, ninja::Real m4) {
+    getBoxIntegralCM(r, a, b, c, d, e, f, m1, m2, m3, m4);
+  }
+  void getTriangleIntegralCM(C r[3], ninja::Real a, ninja::Real b, ninja::Real c, const C &m1,
+                             const C &m2, const C &m3) {
+    if (take(r, 3)) return;
+    inner->getTriangleIntegralCM(r, a, b, c, m1, m2, m3);
+    put(r, 3);
+  }
+  void getTriangleIntegralRM(C r[3], ninja::Real a, ninja::Real b, ninja::Real c,
+                             ninja::Real m1, ninja::Real m2, ninja::Real m3) {
+    getTriangleIntegralCM(r, a, b, c, m1, m2, m3);
+  }
+  void getBubbleIntegralCM(C r[3], ninja::Real s, const C &m1, const C &m2) {
+    if (take(r, 3)) return;
+    inner->getBubbleIntegralCM(r, s, m1, m2);
+    put(r, 3);
+  }
+  void getBubbleIntegralRM(C r[3], ninja::Real s, ninja::Real m1, ninja::Real m2) {
+    getBubbleIntegralCM(r, s, m1, m2);
+  }
+  void getRank2BubbleIntegralCM(C b11[3], C b1[3], C b0[3], ninja::Real s, const C &m1,
+                                const C &m2) {
+    if (take(b11, 3)) {
+      take(b1, 3);
+      take(b0, 3);
+      return;
+    }
+    inner->getRank2BubbleIntegralCM(b11, b1, b0, s, m1, m2);
+    put(b11, 3);
+    put(b1, 3);
+    put(b0, 3);
+  }
+  void getRank2BubbleIntegralRM(C b11[3], C b1[3], C b0[3], ninja::Real s, ninja::Real m1,
+                                ninja::Real m2) {
+    getRank2BubbleIntegralCM(b11, b1, b0, s, m1, m2);
+  }
+  void getRank3BubbleIntegralCM(C b111[3], C b11[3], C b1[3], C b0[3], ninja::Real s,
+                                const C &m1, const C &m2) {
+    if (take(b111, 3)) {
+      take(b11, 3);
+      take(b1, 3);
+      take(b0, 3);
+      return;
+    }
+    nested = true;  // the default composes the rank-2 bubble and tadpoles
+    ninja::IntegralLibrary::getRank3BubbleIntegralCM(b111, b11, b1, b0, s, m1, m2);
+    nested = false;
+    put(b111, 3);
+    put(b11, 3);
+    put(b1, 3);
+    put(b0, 3);
+  }
+  void getRank3BubbleIntegralRM(C b111[3], C b11[3], C b1[3], C b0[3], ninja::Real s,
+                                ninja::Real m1, ninja::Real m2) {
+    getRank3BubbleIntegralCM(b111, b11, b1, b0, s, m1, m2);
+  }
+  void getTadpoleIntegralCM(C r[3], const C &m) {
+    if (take(r, 3)) return;
+    inner->getTadpoleIntegralCM(r, m);
+    put(r, 3);
+  }
+  void getTadpoleIntegralRM(C r[3], ninja::Real m) { getTadpoleIntegralCM(r, m); }
+};
+
 }  // namespace
 
-int main() {
+int time_requests(unsigned blocks, double min_block_ms);
+
+int main(int argc, char **argv) {
+  if (argc == 4 && std::string(argv[1]) == "--time")
+    return time_requests(std::atoi(argv[2]), std::atof(argv[3]));
   ninja::setVerbosity(ninja::Verbose::NONE);
   ninja::setTest(ninja::Test::NONE);
   std::cout << std::setprecision(std::numeric_limits<double>::max_digits10);
@@ -325,4 +516,127 @@ int main() {
               << ",\"nanoseconds_per_evaluation\":" << ns << "}\n" << std::flush;
   }
   return std::cin.eof() ? 0 : 2;
+}
+
+struct TimedPoint {
+  unsigned n, rank;
+  double scale;
+  std::vector<ninja::RealMomentum> shifts;
+  std::vector<C> masses;
+  std::vector<ninja::Real> matrix;
+  std::vector<C> coefficients;
+  ninja::TensorNumerator *tensor;
+  ninja::Amplitude<ninja::ComplexMasses> *amplitude;
+  RecordingNumerator recorder;
+  ReplayNumerator replay;
+  SequenceLibrary masters;
+};
+
+template <typename Run>
+void time_phase(const char *phase, std::vector<TimedPoint *> &points, unsigned blocks,
+                double min_block_ms, Run run) {
+  for (unsigned p = 0; p < points.size(); ++p) run(*points[p]);
+  unsigned iterations = 1;
+  for (;;) {
+    const auto start = std::chrono::steady_clock::now();
+    for (unsigned i = 0; i < iterations; ++i)
+      for (unsigned p = 0; p < points.size(); ++p) run(*points[p]);
+    const double ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - start).count();
+    if (ms >= min_block_ms) break;
+    iterations *= 2;
+  }
+  std::vector<double> samples;
+  for (unsigned b = 0; b < blocks; ++b) {
+    const auto start = std::chrono::steady_clock::now();
+    for (unsigned i = 0; i < iterations; ++i)
+      for (unsigned p = 0; p < points.size(); ++p) run(*points[p]);
+    const double ns = std::chrono::duration<double, std::nano>(
+        std::chrono::steady_clock::now() - start).count();
+    samples.push_back(ns / (double(iterations) * points.size()));
+  }
+  std::sort(samples.begin(), samples.end());
+  std::cout << "{\"phase\":\"" << phase << "\",\"points\":" << points.size()
+            << ",\"median_ns_per_point\":" << samples[samples.size() / 2]
+            << ",\"min_ns_per_point\":" << samples.front()
+            << ",\"max_ns_per_point\":" << samples.back() << ",\"blocks\":" << blocks
+            << ",\"iterations_per_block\":" << iterations << "}\n" << std::flush;
+}
+
+int time_requests(unsigned blocks, double min_block_ms) {
+  ninja::setVerbosity(ninja::Verbose::NONE);
+  ninja::setTest(ninja::Test::NONE);
+  std::cout << std::setprecision(std::numeric_limits<double>::max_digits10);
+  std::vector<TimedPoint *> points;
+  unsigned n, rank, repetitions, has_matrix, mode;
+  double scale;
+  while (std::cin >> n) {
+    if (!(std::cin >> rank >> repetitions >> scale >> has_matrix >> mode) || n == 0 ||
+        rank > n + 1 || mode == 1) {
+      std::cerr << "invalid timing request header\n";
+      return 2;
+    }
+    TimedPoint *point = new TimedPoint();
+    point->n = n;
+    point->rank = rank;
+    point->scale = scale;
+    point->shifts.resize(n);
+    point->masses.resize(n);
+    for (unsigned i = 0; i < n; ++i) {
+      double v[4], re, im;
+      for (unsigned j = 0; j < 4; ++j) std::cin >> v[j];
+      std::cin >> re >> im;
+      point->shifts[i] = ninja::RealMomentum(v[0], v[1], v[2], v[3]);
+      point->masses[i] = C(re, im);
+    }
+    point->matrix.resize(has_matrix ? n * n : 0);
+    for (unsigned i = 0; i < point->matrix.size(); ++i) std::cin >> point->matrix[i];
+    const unsigned count = (rank + 1) * (rank + 2) * (rank + 3) * (rank + 4) / 24;
+    point->coefficients.resize(count);
+    for (unsigned i = 0; i < count; ++i) {
+      double re, im;
+      std::cin >> re >> im;
+      point->coefficients[i] = C(re, im);
+    }
+    if (!std::cin) {
+      std::cerr << "truncated request\n";
+      return 2;
+    }
+    point->tensor = new ninja::TensorNumerator(n, rank, point->coefficients.data());
+    point->amplitude = new ninja::Amplitude<ninja::ComplexMasses>(
+        n, rank, point->shifts.data(), point->masses.data());
+    point->amplitude->setRenormalizationScale(scale);
+    if (has_matrix) point->amplitude->setSMatrix(point->matrix.data());
+    // Record numerator outputs and OneLOop masters of one evaluation.
+    point->recorder.inner = point->tensor;
+    point->recorder.mu_outputs = rank == n + 1 ? 2 : 1;
+    point->masters.inner = &ninja::avh_olo;
+    point->masters.recording = true;
+    point->masters.nested = false;
+    point->amplitude->setIntegralLibrary(point->masters);
+    point->amplitude->evaluate(point->recorder);
+    point->masters.recording = false;
+    point->replay.values = &point->recorder.values;
+    point->replay.mu_outputs = point->recorder.mu_outputs;
+    points.push_back(point);
+  }
+  time_phase("reduction", points, blocks, min_block_ms, [](TimedPoint &p) {
+    p.amplitude->reset();
+    p.replay.cursor = 0;
+    p.masters.cursor = 0;
+    p.amplitude->setIntegralLibrary(p.masters);
+    p.amplitude->evaluate(p.replay);
+  });
+  time_phase("reduction+tensor", points, blocks, min_block_ms, [](TimedPoint &p) {
+    p.amplitude->reset();
+    p.masters.cursor = 0;
+    p.amplitude->setIntegralLibrary(p.masters);
+    p.amplitude->evaluate(*p.tensor);
+  });
+  time_phase("reduction+tensor+masters", points, blocks, min_block_ms, [](TimedPoint &p) {
+    p.amplitude->reset();
+    p.amplitude->setIntegralLibrary(ninja::avh_olo);
+    p.amplitude->evaluate(*p.tensor);
+  });
+  return 0;
 }

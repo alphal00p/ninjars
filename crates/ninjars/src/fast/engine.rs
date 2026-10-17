@@ -894,11 +894,20 @@ impl FastAmplitude {
                         stable = false;
                         break;
                     }
-                    let d1 = mp_cr(&row.amu, &pdiff) * 2. + (vsq[j] - vsq[c1]) - m[j] + m[c1];
-                    let d2a = e4p * inv34;
-                    divide_t3(num1, nterms, d0a.inv(), d1, [row.param * d2a, d2a]);
-                    let d2b = e3p * inv34;
-                    divide_t3(num2, nterms, d0b.inv(), d1, [row.param * d2b, d2b]);
+                    // Only the terms the truncated division reads are formed.
+                    let d1 = if nterms > 1 {
+                        mp_cr(&row.amu, &pdiff) * 2. + (vsq[j] - vsq[c1]) - m[j] + m[c1]
+                    } else {
+                        C64::ZERO
+                    };
+                    let (d2a, d2b) = if nterms > 2 {
+                        let (a, b) = (e4p * inv34, e3p * inv34);
+                        ([row.param * a, a], [row.param * b, b])
+                    } else {
+                        ([C64::ZERO; 2], [C64::ZERO; 2])
+                    };
+                    divide_t3(num1, nterms, d0a.inv(), d1, d2a);
+                    divide_t3(num2, nterms, d0b.inv(), d1, d2b);
                 }
                 if !stable {
                     fail(&mut self.alive, &mut self.lane_status, lane);
@@ -1075,18 +1084,22 @@ impl FastAmplitude {
                         stable = false;
                         break;
                     }
-                    let d1 = [
-                        mp_cr(&row.e1eff, &pdiff) * 2. + (vsq[j] - vsq[c1]) + (-m[j] + m[c1]),
-                        C64::real(2. * mp_rr(&row.e2eff, &pdiff)),
-                    ];
-                    let d2 = mp_cr(&e.e4, &pdiff) * inv34;
-                    divide_t2(
-                        numexp,
-                        nterms,
-                        d0.inv(),
-                        d1,
-                        [row.param[0] * d2, d2, row.param[1] * d2, row.param[2] * d2],
-                    );
+                    let terms = nterms;
+                    let d1 = if terms > 1 {
+                        [
+                            mp_cr(&row.e1eff, &pdiff) * 2. + (vsq[j] - vsq[c1]) + (-m[j] + m[c1]),
+                            C64::real(2. * mp_rr(&row.e2eff, &pdiff)),
+                        ]
+                    } else {
+                        [C64::ZERO; 2]
+                    };
+                    let d2 = if terms > 2 {
+                        let d2 = mp_cr(&e.e4, &pdiff) * inv34;
+                        [row.param[0] * d2, d2, row.param[1] * d2, row.param[2] * d2]
+                    } else {
+                        [C64::ZERO; 4]
+                    };
+                    divide_t2(numexp, terms, d0.inv(), d1, d2);
                 }
                 if !stable {
                     fail(&mut self.alive, &mut self.lane_status, lane);
@@ -1206,18 +1219,22 @@ impl FastAmplitude {
                         stable = false;
                         break;
                     }
-                    let d1 = [
-                        mp_cr(&row.e1eff, &pdiff) * 2. + (vsq[j] - vsq[c1]) + (-m[j] + m[c1]),
-                        C64::real(2. * mp_rr(&row.e2eff, &pdiff)),
-                    ];
-                    let d2 = mp_cr(&e.e3, &pdiff) * inv34;
-                    divide_t2(
-                        numexp,
-                        nterms - 1,
-                        d0.inv(),
-                        d1,
-                        [row.param[0] * d2, d2, row.param[1] * d2, row.param[2] * d2],
-                    );
+                    let terms = nterms - 1;
+                    let d1 = if terms > 1 {
+                        [
+                            mp_cr(&row.e1eff, &pdiff) * 2. + (vsq[j] - vsq[c1]) + (-m[j] + m[c1]),
+                            C64::real(2. * mp_rr(&row.e2eff, &pdiff)),
+                        ]
+                    } else {
+                        [C64::ZERO; 2]
+                    };
+                    let d2 = if terms > 2 {
+                        let d2 = mp_cr(&e.e3, &pdiff) * inv34;
+                        [row.param[0] * d2, d2, row.param[1] * d2, row.param[2] * d2]
+                    } else {
+                        [C64::ZERO; 4]
+                    };
+                    divide_t2(numexp, terms, d0.inv(), d1, d2);
                 }
                 if !stable {
                     fail(&mut self.alive, &mut self.lane_status, lane);
@@ -1377,10 +1394,18 @@ impl FastAmplitude {
                             stable = false;
                             break;
                         }
-                        let d1 =
-                            C64::real(2. * mp_rr(&amu, &pdiff) + (vsq[j] - vsq[a])) - m[j] + m[a];
-                        let d2 = mp_cr(&ev4, &pdiff) * 2.;
-                        divide_t3(numexp, nterms, d0.inv(), d1, [param * d2, d2]);
+                        let d1 = if nterms > 1 {
+                            C64::real(2. * mp_rr(&amu, &pdiff) + (vsq[j] - vsq[a])) - m[j] + m[a]
+                        } else {
+                            C64::ZERO
+                        };
+                        let d2 = if nterms > 2 {
+                            let d2 = mp_cr(&ev4, &pdiff) * 2.;
+                            [param * d2, d2]
+                        } else {
+                            [C64::ZERO; 2]
+                        };
+                        divide_t3(numexp, nterms, d0.inv(), d1, d2);
                     }
                     if !stable {
                         break;
