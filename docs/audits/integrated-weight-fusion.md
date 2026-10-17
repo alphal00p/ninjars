@@ -1,8 +1,53 @@
 # Integrated-only master-weight fusion inventory
 
-Status: source-only proposal, based on `ea9a9da`. No build, symbolic execution,
-numerical control, or timing has run. The coordinated timing hold remains in
-force. This is an ignored n3/r3 symbolic experiment, not a production fast path.
+Status: the bounded symbolic inventory passed at frozen source `ee0c8b6`, based
+on `ea9a9da`. All 90 exact identities passed. No numerical evaluator or timing
+benchmark ran. This is an ignored n3/r3 symbolic experiment, not a production
+fast path. Source review preceded the run; all execution waited for release of
+the coordinated timing hold.
+
+## Result
+
+The three actual staged evaluators use **1,071 instructions**, compared with
+1,884 for the separate pre-master blocks. The single 20-weight evaluator uses
+1,097. Thus preserving these parent boundaries does not lose the instruction
+saving in this exact network. This supports a bounded numerical prototype as a
+possible next experiment; it does not establish its stability, callback/failure
+semantics, latency, or throughput.
+
+| Pre-master graph | Outputs | Instructions | Additions | Multiplications | Inversions | Local temporaries | Generated source bytes |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | ---: |
+| Separate existing blocks | 243 summed heads | 1,884 | 581 | 1,461 | 81 | largest 30; sum 478 | 479,087 |
+| Weights-only evaluator | 20 | 1,097 | 407 | 984 | 36 | 109 | 241,180 |
+| Triangle stage | 10 | 19 | 2 | 14 | 3 | 11 | 6,897 |
+| Bubble stage | 30 | 753 | 261 | 606 | 21 | 55 | 159,117 |
+| Final weights stage | 20 | 299 | 126 | 331 | 12 | 42 | 79,258 |
+| Three-stage sum | 60 across three calls | 1,071 | 389 | 951 | 36 | largest 55; sum 108 | 245,272 |
+
+The historical complete separate inventory reproduces its 1,954 instructions;
+the pre-master comparison excludes its contractions and final sum. All counted
+function-call totals are zero. The stages retain 12, 42, and six callback inputs,
+respectively: all 60 original callback heads. Their input counts are 13, 154,
+and 115, with parent prefixes of zero, ten, and forty slots. The bubble/final
+stages retain 32/four inputs that disappear from their final expressions. The
+one-shot evaluator retains 232 input slots. Forty parent values may occupy
+reusable boundary buffers; neither these counts nor temporary sums measure
+complete peak memory or packing cost.
+
+The 40 parent-boundary identities, 20 staged-weight identities, 20 one-shot
+weight identities, and five recovered integrated identities for each route all
+passed. Aggregate candidate composition text was 1,079,937 bytes (805,243
+one-shot plus 274,694 across the stages); the shared identity budget consumed
+2,692,316 bytes. No cap was reached. The one ignored symbolic test completed in
+1.14 seconds under the 180-second limit, with exit status zero. That elapsed
+time measures the symbolic check, not reduction performance.
+
+Package formatting and strict `rust-codegen` library/test Clippy passed. The
+181 captured source hashes, three clean dependency revisions, and retained
+read-only executable hash were unchanged after validation. No source fix or
+repeat symbolic execution was needed. Full inventories, exact identities,
+commands, source/executable identities, and raw logs are retained in
+[`validation/evidence/integrated-weight-inventory`](../../validation/evidence/integrated-weight-inventory/README.md).
 
 ## Algorithm boundary and algebra reuse audit
 
@@ -121,7 +166,7 @@ an **external 180-second timeout**, one test thread, and no production numerical
 execution. A limit failure remains an incomplete result; do not increase bounds
 or add topologies automatically.
 
-After root releases the timing hold, compile outside the numerical lock in an
+For a coordinated reproduction, compile outside the numerical lock in an
 existing warm cache with at most four build jobs, then run only
 `algorithm_transpose_probe::integrated_weights::inventory_integrated_weights_n3_r3`
 with `NINJARS_INTEGRATED_WEIGHTS_OUTPUT` set to a retained JSON path. Preserve the
