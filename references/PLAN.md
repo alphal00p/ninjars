@@ -2247,3 +2247,53 @@ Strategy (parallel worktree streams, merged by the coordinator):
 
 Commits so far: `7b57642` (fast-path complex type and provider traits),
 `df776c3` (`perf` cargo profile), `29b8ff8` (tensor layout).
+
+### Fast engine, native masters and end-to-end pipeline (2026-10-17)
+
+- `ninjars::fast` (merged from `claude/engine-alt` via `claude/integration`):
+  batched binary64 port of Ninja's reduction (all cut levels, any n, rank ≤
+  n+1, Ninja defaults, skip rules, stability checks, per-lane failures),
+  truncated-jet tensor numerator, mechanically translated and
+  rank-specialized coefficient-level subtractions, generic adapters and O(1)
+  replay providers. Adversarial review: no engine bugs; physical cases agree
+  with original Ninja (identical masters) to ≤7e-13, 30 edge cases to
+  ≤3.9e-12, bitwise identical across widths/lane orders, zero allocations
+  in timed blocks. Gate (a): pure reduction 1.49–1.86× faster than Ninja
+  `-O3 -fcx-fortran-rules` at width 1 and 1.65–2.12× batched (n5/r4 graph26:
+  9.0 vs 18.6 µs); tensor numerator 2–2.6× faster than Ninja's.
+- Numerator (`claude/numerator`): `TensorCoefficientPlan` scatters SymJIT O2
+  heads into Ninja's tensor layout; `PhysicalTensorNumerator` prepares a
+  batch allocation-free (graph26 ≈3 µs/point); shared 3-point pools for seven
+  representative physical graphs; `ninjars export-bench`; all exported cases
+  agree with original C++ Ninja to ~1e-12.
+- Reference harness (`claude/reference`): Ninja builds o3 / o3-fortranrules
+  (fair baseline; `-fcx-fortran-rules` is MadLoop's flag), replay-based C++
+  driver, optimized single-diagram MadLoop outputs with generation, compile
+  and per-point breakdown (graph26: MadLoop 235–240 µs/point, numerator 105,
+  Ninja 26, OneLOop 105; MadLoop declares rank 5 for the pentagon).
+- Masters: NinjaRS's generic `SymbolicaMasters` uses oneloopmaster's native
+  evaluators for fixed-precision carriers and applies OneLOop's on-shell
+  threshold as Ninja configures it (fixes a 1.8e-7 four-photon error from
+  rounded light-like invariants). `OneLoopNativeMasters` (fast path) uses
+  native A0/C0/D0 and oneloopmaster's native tensor families. Symbolica PR
+  #89 (fast binary64 dilogarithm, 12–79 ns instead of an MPFR detour of
+  32–240 µs) is pinned via integration commit e679e8c1; oneloopmaster main
+  a7fc9c3 adds native B11/B111/An (0.18–0.5× OneLOop). Gate (b) status at
+  a7fc9c3: graph26 1.15–1.20×, gg→HH box ≈1.0×, H→gg 0.6×, γγ→γγ box
+  1.6–1.7× (D0 with massless legs 2.1×, C0(0,0,s) 1.8×) — not yet met;
+  C0/D0 optimization in progress on oneloopmaster `claude/native-c0d0-perf`.
+- Correctness defects found in oneloopmaster expressions (fix in progress on
+  `claude/expression-fixes`): B0(p², m², 0) NaN at ~1% of points (inexact
+  unit root), C0 with one massless internal line (NaN / wrong imaginary
+  part), D0 four-mass real boxes with s12·s23 < 0 (wrong real part; OneLOop
+  3.6 and COLLIER agree), symbolic B1/B11/B111 cut side at p²=0 with masses
+  of opposite sign. The 2024 OneLOop snapshot and OneLOop 3.4 each have one
+  wrong D0 point. Physical top-loop benchmark diagrams are unaffected.
+- `ninjars pipeline-bench` (physical, end to end) and `ninjars case-bench`
+  (bench cases) time numerator preparation, tensor numerator, pure reduction
+  (replay), replayed native masters and the uninstrumented total. Gate (c)
+  status: NinjaRS total 0.23–0.67× MadLoop on all seven physical graphs
+  (graph26: 158 vs 235 µs per point). Report: `docs/benchmark/benchmark.typ`
+  (data via `validation/benchmark/collect.py`).
+- Coordination lesson: messaging agents that run inside a Workflow resumes a
+  duplicate; the duplicates were stopped and their streams consolidated.
