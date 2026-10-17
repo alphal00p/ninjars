@@ -26,6 +26,22 @@ rank is three, and each contains an explicit mu-squared term. The timelike box
 has rank four and an explicit mu-to-the-fourth term, contributing -1/6 to the
 finite integral. Its three samples exercise changing kinematics and batch tails.
 
+`pentagon-rank4.json` supplies three exact off-shell points for the guarded
+five-propagator, rank-four correction selectors. The numerator includes both
+`mu2*q0^2` and `mu2^2`. Its small phase-space pool exercises changing inputs and
+batch tails independently of physical numerator preparation:
+
+```sh
+cargo run -p ninjars-cli -- reduce examples/graphs/pentagon-rank4.json \
+  --batch-size 2 --reduction-kernels interpreted-rank
+cargo run -p ninjars-cli --features native-kernels -- reduce \
+  examples/graphs/pentagon-rank4.json --batch-size 2 --reduction-kernels native-rank
+```
+
+The generic `symbolica` and `native` selectors remain available for comparisons.
+Rank selections report their guarded alternate separately from generic fallback
+coverage and reject other topologies.
+
 `triangle-reference.json` supplies a separate timelike configuration for checking
 original Ninja's generated and tensor callbacks. The Euclidean triangle remains
 useful for preparation and future complex-basis tests, but original Ninja's real

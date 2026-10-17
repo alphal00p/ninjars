@@ -264,3 +264,60 @@ fn invalid_benchmark_controls_are_rejected_before_timing() {
         assert!(!run("bench", &args).status.success());
     }
 }
+
+#[test]
+fn rank_selection_reports_keep_master_and_reduction_accounting_separate() {
+    let mut selections = vec!["interpreted-rank"];
+    if cfg!(feature = "native-kernels") {
+        selections.push("native-rank");
+    }
+    for selection in selections {
+        let report = value(run(
+            "bench",
+            &[
+                "examples/graphs/pentagon-rank4.json",
+                "--reduction-kernels",
+                selection,
+                "--batch-sizes",
+                "2",
+                "--points",
+                "3",
+                "--rounds",
+                "1",
+            ],
+        ));
+        assert_eq!(report["performance_acceptance"], false);
+        assert_eq!(report["reduction_kernels"]["selection"], selection);
+        assert_eq!(
+            report["reduction_kernels"]["topology"],
+            json!({"propagators":5,"rank":4})
+        );
+        assert_eq!(
+            report["reduction_kernels"]["conditional_corrections"]["backend"],
+            if selection == "native-rank" {
+                "native-rust"
+            } else {
+                "symbolica-interpreter"
+            }
+        );
+        for case in report["cases"].as_array().unwrap() {
+            assert_eq!(case["tail_lanes"], 1);
+            assert_eq!(case["diagnostic"]["failed_lanes"], 0);
+            assert_eq!(case["diagnostic"]["additivity_checked"], true);
+            let stages = &case["diagnostic"]["same_pass_nanoseconds"];
+            let ns = |name: &str| stages[name].as_u64().unwrap();
+            assert_eq!(
+                ns("total"),
+                ns("numerator_coefficients")
+                    + ns("numerator_callbacks")
+                    + ns("actual_master_provider")
+                    + ns("residual_reduction")
+            );
+            assert_eq!(
+                ns("reduction_excluding_masters_and_coefficients"),
+                ns("numerator_callbacks") + ns("residual_reduction")
+            );
+            assert!(case["diagnostic"]["masters"]["calls"].as_u64().unwrap() > 0);
+        }
+    }
+}

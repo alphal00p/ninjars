@@ -120,3 +120,14 @@ For exact same-artifact timing comparisons, reuse one copied `physical-timing`
 executable and its library, changing only its final selection argument. Separate
 `run_timing.py` output directories rebuild the small C++ launcher with different
 library search paths; do not label those executable hashes as identical.
+
+Guarded rank selectors are explicit and topology-limited: `interpreted-rank`
+uses interpreted generic kernels and alternates; `native-rank` uses the generic
+native catalog and native alternates. The latter requires the native feature.
+Their reports add conditional-alternate metadata alongside the existing generic
+family coverage. The rank-mode wiring passes bounded correctness controls
+recorded in `validation/evidence/rank-specialization-harness.json`, including
+the five-mode physical comparison. It has no timing evidence and changes no
+scopes, counters, clock boundaries, master policy, or preparation/numerator
+provider. Use a separately coordinated same-artifact comparison before any
+performance conclusion.

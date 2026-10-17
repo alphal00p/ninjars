@@ -1,0 +1,14 @@
+digraph pentagon_rank4 {
+    num = "1 + ninjars::q0^4 + ninjars::q1*ninjars::q2 + ninjars::mu2*ninjars::q0^2 + ninjars::mu2^2";
+    ext [style=invis];
+    ext -> a [particle="phi", num="1"];
+    ext -> b [particle="phi", num="1"];
+    c -> ext [particle="phi", num="1"];
+    d -> ext [particle="phi", num="1"];
+    e -> ext [particle="phi", num="1"];
+    a -> b [particle="phi", lmb_id=0, num="1"];
+    b -> c [particle="phi", num="1"];
+    c -> d [particle="phi", num="1"];
+    d -> e [particle="phi", num="1"];
+    e -> a [particle="phi", num="1"];
+}

@@ -46,10 +46,10 @@ struct Physical{
   std::vector<SpPair> coefficients(){std::vector<SpPair> result(scales.size()*info[4]);checked(sp_physical_coefficients(handle,result.data(),result.size()));return result;}
 };
 struct Session{
-  SpSession *handle{};std::array<uint64_t,10> info{};
-  explicit Session(unsigned selection=SP_KERNEL_SYMBOLICA){
-    checked(sp_session_create_with_kernels(5,4,3,selection,&handle));
-    try{checked(sp_session_kernel_info(handle,info.data(),info.size()));validate_kernel_info(info,selection);}
+  SpSession *handle{};std::array<uint64_t,10> info{};std::array<uint64_t,4> conditional{};
+  explicit Session(size_t n,size_t rank,unsigned selection=SP_KERNEL_SYMBOLICA){
+    checked(sp_session_create_with_kernels(n,rank,3,selection,&handle));
+    try{checked(sp_session_kernel_info(handle,info.data(),info.size()));validate_kernel_info(info,selection);checked(sp_session_rank_correction_info(handle,conditional.data(),conditional.size()));validate_rank_correction_info(conditional,selection,n,rank);}
     catch(...){sp_session_destroy(handle);throw;}
   }
   ~Session(){sp_session_destroy(handle);}Session(const Session&)=delete;Session&operator=(const Session&)=delete;
@@ -59,7 +59,7 @@ struct Runs{
   std::array<ninja::RealMomentum,5> shifts{};std::array<C,5> masses{};std::array<double,25> matrix{};
   ninja::Amplitude<ninja::ComplexMasses> original;
   std::vector<SpPair> v,m,s,sm,output;
-  explicit Runs(Physical&p,unsigned selection=SP_KERNEL_SYMBOLICA):physical(&p),numerator(p.provider),session(selection),original(5,4,shifts.data(),masses.data()){}
+  explicit Runs(Physical&p,unsigned selection=SP_KERNEL_SYMBOLICA):physical(&p),numerator(p.provider),session(p.info[0],p.info[1],selection),original(5,4,shifts.data(),masses.data()){}
   void use_prepared(Physical&p){if(p.info!=physical->info)throw std::runtime_error("prepared provider topology differs");physical=&p;numerator.use_provider(p.provider);}
   const std::vector<SpPair>&run_original(const std::vector<Point>&pool,const std::vector<size_t>&indices,SharedMasters&masters){
     physical->prepare(pool,indices);return reduce_original(masters);

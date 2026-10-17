@@ -262,3 +262,111 @@ fn precision_validation_empty_input_and_unsupported_rank_are_explicit() {
     assert_eq!(empty["results"], json!([]));
     assert_eq!(empty["success"], true);
 }
+
+#[test]
+fn rank_selection_requires_supported_topology_and_native_feature_only_when_needed() {
+    let output = run(&[
+        "examples/graphs/bubble.json",
+        "--reduction-kernels",
+        "interpreted-rank",
+    ]);
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("requires n=5 and rank=4"));
+    #[cfg(feature = "native-kernels")]
+    {
+        let output = run(&[
+            "examples/graphs/bubble.json",
+            "--reduction-kernels",
+            "native-rank",
+        ]);
+        assert!(!output.status.success());
+        assert!(String::from_utf8_lossy(&output.stderr).contains("requires n=5 and rank=4"));
+    }
+    #[cfg(not(feature = "native-kernels"))]
+    {
+        let output = run(&["missing-fixture.json", "--reduction-kernels", "native-rank"]);
+        assert!(!output.status.success());
+        assert!(
+            String::from_utf8_lossy(&output.stderr)
+                .contains("requires a build with --features native-kernels")
+        );
+    }
+}
+
+#[test]
+fn rank_selections_preserve_laurent_values_and_report_conditional_coverage() {
+    let fixture = "examples/graphs/pentagon-rank4.json";
+    let mut selections = vec!["interpreted-rank"];
+    if cfg!(feature = "native-kernels") {
+        selections.push("native-rank");
+    }
+    for precision in ["f64", "double-float", "float"] {
+        let reference = value(run(&[
+            fixture,
+            "--precision",
+            precision,
+            "--batch-size",
+            "2",
+        ]));
+        assert!(
+            reference["reduction_kernels"]
+                .get("conditional_corrections")
+                .is_none()
+        );
+        assert_eq!(reference["results"].as_array().unwrap().len(), 3);
+        for selection in &selections {
+            let report = value(run(&[
+                fixture,
+                "--precision",
+                precision,
+                "--batch-size",
+                "2",
+                "--reduction-kernels",
+                selection,
+            ]));
+            let info = &report["reduction_kernels"];
+            let backend = if *selection == "native-rank" {
+                "native-rust"
+            } else {
+                "symbolica-interpreter"
+            };
+            assert_eq!(info["selection"], *selection);
+            assert_eq!(info["topology"], json!({"propagators":5,"rank":4}));
+            assert_eq!(
+                info["conditional_corrections"],
+                json!({"backend":backend,"guard":"all-active-source-kind-structural-zeros","fallback":"reported-generic-families"})
+            );
+            for field in [
+                "t2_denominators",
+                "t3_denominators",
+                "bubble_source_projection",
+                "triangle_bubble_correction",
+                "tadpole_source_projection",
+            ] {
+                assert_eq!(info[field], backend);
+            }
+            for field in ["other_reduction", "integration", "accumulation"] {
+                assert_eq!(info[field], "symbolica-interpreter");
+            }
+            assert_eq!(report["results"].as_array().unwrap().len(), 3);
+            // Serialized output parity across the supported carriers; this
+            // binary64 comparison does not measure additional precision.
+            for (actual, expected) in report["results"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .zip(reference["results"].as_array().unwrap())
+            {
+                assert_eq!(actual["status"]["kind"], "success");
+                for head in 0..5 {
+                    for part in 0..2 {
+                        near(
+                            component(actual, head, part),
+                            component(expected, head, part),
+                        );
+                    }
+                }
+            }
+        }
+    }
+}

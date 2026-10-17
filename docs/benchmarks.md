@@ -167,3 +167,24 @@ flattened Symbolica evaluator for all Dual shapes. Calling
 `with_native_denominators()` after `with_native_kernels()` restores the narrower
 selection. See [catalog details](native-reduction-catalog.md) for generation and
 validation; neither mode claims complete native execution or acceptance parity.
+
+Guarded n=5/r=4 corrections have two explicit selectors:
+`--reduction-kernels interpreted-rank` keeps generic kernels and alternates
+interpreted, while `native-rank` selects the native generic catalog and native
+alternates. The interpreted selector works in a feature-off build. Both reject
+other topologies; existing selectors retain their previous behavior. Reports
+keep generic/fallback family coverage and add separate `topology` and
+`conditional_corrections` fields for the guarded alternate. The guard can select
+the generic path for an entire source-kind batch, so alternate availability is
+not an execution-count claim.
+
+The CLI/harness controls use the synthetic
+`examples/graphs/pentagon-rank4.json` fixture and the independently matched
+physical pentagon. Feature-off and native selection/accounting tests pass;
+CLI f64/DoubleFloat/Float checks compare serialized values and do not establish
+additional precision. All five physical selectors agree within `4.00e-18`
+scaled error over widths 0, 1, 3 and 8. See the
+[validation record](../validation/evidence/rank-specialization-harness.json).
+Master computation, numerator coefficients, callbacks, preparation and residual
+reduction retain their existing separate accounting. These correctness and
+accounting controls provide no new timing or performance acceptance result.

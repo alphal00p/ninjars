@@ -38,6 +38,10 @@ pub enum ReductionKernels {
     NativeDenominators,
     /// Execute the available partial native catalog, including bubble corrections.
     Native,
+    /// Guarded n=5/r=4 corrections with interpreted generic kernels and alternates.
+    InterpretedRank,
+    /// Guarded n=5/r=4 native alternates with the generic native catalog as fallback.
+    NativeRank,
 }
 
 impl ReductionKernels {
@@ -46,11 +50,17 @@ impl ReductionKernels {
             Self::Symbolica => "symbolica",
             Self::NativeDenominators => "native-denominators",
             Self::Native => "native",
+            Self::InterpretedRank => "interpreted-rank",
+            Self::NativeRank => "native-rank",
         }
     }
 
     pub(crate) fn validate(self) -> Result<()> {
-        if !matches!(self, Self::Symbolica) && !cfg!(feature = "native-kernels") {
+        if matches!(
+            self,
+            Self::NativeDenominators | Self::Native | Self::NativeRank
+        ) && !cfg!(feature = "native-kernels")
+        {
             return Err(format!(
                 "--reduction-kernels {} requires a build with --features native-kernels",
                 self.name()

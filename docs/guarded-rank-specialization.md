@@ -38,7 +38,10 @@ constructors retain their existing generic fallback. Callers must consult both
 `kernel_backends()` (generic fallback selections) and
 `rank_specialized_correction_backend()` (conditional alternate). The report
 identifies the eligible alternate; the guard decides whether each active batch
-uses it. No CLI selection or report schema is changed by this prototype.
+uses it. The CLI and shared-provider harness expose the same explicit choices
+as `--reduction-kernels interpreted-rank` and `native-rank` (the latter requires
+`native-kernels`). Existing generic/fallback fields retain their meaning; rank
+modes add topology and a separate `conditional_corrections` report.
 
 The generator `generate_native_rank_specializations` consumes three explicit
 semantic plans: triangle-to-bubble n5/r4 full quotient (28 inputs, 3 heads),
@@ -102,5 +105,10 @@ byte-for-byte. Strict Clippy for the library, tests and examples, feature-off
 compilation, formatting and whitespace checks pass. The initial build failure
 was a missing type annotation in test-only precision instrumentation; its log
 is retained. There is no native timing result or performance acceptance claim.
-End-to-end CLI selection and any reduction of the swapped numerator callback
-remain separate work.
+CLI/shared-provider selection validation is recorded separately in
+`validation/evidence/rank-specialization-harness.json`. Feature-off and native
+controls cover topology rejection, conditional/fallback metadata, the existing
+ABI and historical reports. The five physical selections agree over empty,
+single and tail batches. CLI f64/DoubleFloat/Float comparisons check serialized
+parity, not additional accuracy. This extension has no timing evidence;
+reduction of the swapped numerator callback remains separate work.

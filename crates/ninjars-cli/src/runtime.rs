@@ -458,32 +458,71 @@ where
         };
         let kernels = SymbolicaAmplitudeKernels::new(n, rank, prototype.clone())?
             .with_box_options(box_options);
+        let kernels = match args.reduction_kernels {
+            ReductionKernels::InterpretedRank => kernels.with_rank_specialized_corrections()?,
+            _ => kernels,
+        };
         #[cfg(feature = "native-kernels")]
         let kernels = match args.reduction_kernels {
-            ReductionKernels::Symbolica => kernels,
             ReductionKernels::NativeDenominators => kernels.with_native_denominators(),
             ReductionKernels::Native => kernels.with_native_kernels(),
+            ReductionKernels::NativeRank => kernels
+                .with_native_kernels()
+                .with_native_rank_specialized_corrections()?,
+            ReductionKernels::Symbolica | ReductionKernels::InterpretedRank => kernels,
         };
-        let denominator_backend = match args.reduction_kernels {
-            ReductionKernels::Symbolica => "symbolica-interpreter",
-            ReductionKernels::NativeDenominators | ReductionKernels::Native => "native-rust",
-        };
-        let correction_backend = match args.reduction_kernels {
-            ReductionKernels::Native => "native-rust",
-            _ => "symbolica-interpreter",
-        };
-        let kernel_info = serde_json::json!({
+        // Preserve the established fields as generic/fallback coverage. A
+        // conditional alternate is reported separately, never as an all-native
+        // claim for a family that may still execute its generic fallback.
+        let mut kernel_info = serde_json::json!({
             "selection": args.reduction_kernels.name(),
-            "t2_denominators": denominator_backend,
-            "t3_denominators": denominator_backend,
-            "bubble_source_projection": correction_backend,
-            "triangle_bubble_correction": correction_backend,
-            "tadpole_source_projection": correction_backend,
+            "t2_denominators": "symbolica-interpreter",
+            "t3_denominators": "symbolica-interpreter",
+            "bubble_source_projection": "symbolica-interpreter",
+            "triangle_bubble_correction": "symbolica-interpreter",
+            "tadpole_source_projection": "symbolica-interpreter",
             "other_reduction": "symbolica-interpreter",
             "integration": "symbolica-interpreter",
             "accumulation": "symbolica-interpreter",
             "scope": "Partial generated reduction catalog; numerator callbacks, cut geometry and masters retain their separate providers. Unused cut stages need not execute."
         });
+        #[cfg(feature = "native-kernels")]
+        for entry in kernels.kernel_backends() {
+            use ninjars_symbolica::{KernelBackend, KernelFamily};
+            let field = match entry.family {
+                KernelFamily::T2Denominators => "t2_denominators",
+                KernelFamily::T3Denominators => "t3_denominators",
+                KernelFamily::BubbleSourceProjection => "bubble_source_projection",
+                KernelFamily::TriangleBubbleCorrection => "triangle_bubble_correction",
+                KernelFamily::TadpoleSourceProjection => "tadpole_source_projection",
+                KernelFamily::OtherReduction => "other_reduction",
+                KernelFamily::Integration => "integration",
+                KernelFamily::Accumulation => "accumulation",
+            };
+            kernel_info[field] = match entry.backend {
+                KernelBackend::SymbolicaInterpreter => "symbolica-interpreter",
+                KernelBackend::NativeRust => "native-rust",
+            }
+            .into();
+        }
+        if kernels.rank_specialized_corrections_enabled() {
+            #[cfg(feature = "native-kernels")]
+            let backend = match kernels.rank_specialized_correction_backend() {
+                Some(ninjars_symbolica::KernelBackend::NativeRust) => "native-rust",
+                Some(ninjars_symbolica::KernelBackend::SymbolicaInterpreter) => {
+                    "symbolica-interpreter"
+                }
+                None => return Err("enabled rank correction has no backend report".into()),
+            };
+            #[cfg(not(feature = "native-kernels"))]
+            let backend = "symbolica-interpreter";
+            kernel_info["topology"] = serde_json::json!({"propagators":n,"rank":rank});
+            kernel_info["conditional_corrections"] = serde_json::json!({
+                "backend":backend,
+                "guard":"all-active-source-kind-structural-zeros",
+                "fallback":"reported-generic-families"
+            });
+        }
         let mut amplitude = kernels.into_amplitude(0)?;
         amplitude.set_cut_stop(args.cut_stop);
         let manual_scale = args

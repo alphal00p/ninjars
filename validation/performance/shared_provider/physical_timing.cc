@@ -50,7 +50,7 @@ struct Workload{
   }
 };
 int main(int argc,char**argv){try{
-  if(argc!=7&&argc!=8)throw std::runtime_error("usage: physical-timing DOT check|timing|allocations|execution rounds trials widths scopes [symbolica|native-denominators|native]");
+  if(argc!=7&&argc!=8)throw std::runtime_error("usage: physical-timing DOT check|timing|allocations|execution rounds trials widths scopes [symbolica|native-denominators|native|interpreted-rank|native-rank]");
   const unsigned selection=argc==8?kernel_selection(argv[7]):static_cast<unsigned>(SP_KERNEL_SYMBOLICA);
   const std::string mode=argv[2];const bool timing=mode=="timing",allocations=mode=="allocations",execution=mode=="execution";
   if(!timing&&!allocations&&!execution&&mode!="check")throw std::runtime_error("unknown execution mode");
@@ -72,7 +72,7 @@ int main(int argc,char**argv){try{
   ninja::setVerbosity(ninja::Verbose::NONE);ninja::setTest(ninja::Test::NONE);Workload workload(argv[1],selection);
   double clock_pair_ns=0.;if(timing){std::array<double,101>overhead{};for(auto&sample:overhead){auto start=Clock::now();auto end=Clock::now();sample=std::chrono::duration<double,std::nano>(end-start).count();}std::sort(overhead.begin(),overhead.end());clock_pair_ns=overhead[overhead.size()/2];}
   std::ostringstream report;
-  report<<std::setprecision(17)<<"{\"success\":true,\"reduction_kernels\":";emit_kernel_info(report,workload.runs.session.info);report<<",\"mode\":\""<<mode<<"\",\"clock_pair_median_ns\":"<<clock_pair_ns<<",\"performance_acceptance\":false,\"original_production_backend_counters_available\":"<<(original_backend_counters?"true":"false")<<",\"counter_columns\":[\"numerator_direct_calls\",\"numerator_mu_calls\",\"numerator_t3_calls\",\"numerator_t2_calls\",\"numerator_direct_rows\",\"numerator_mu_rows\",\"numerator_t3_rows\",\"numerator_t2_rows\",\"preparation_calls\",\"preparation_rows\",\"wavefunction_calls\",\"rust_numerator_wire_calls\",\"rust_numerator_wire_rows\",\"rust_master_wire_calls\",\"rust_master_wire_rows\",\"shared_live_backend_calls\",\"shared_live_backend_rows\",\"live_flag_delta\",\"direct_rust_master_calls\",\"direct_rust_master_rows\"],\"records\":[";
+  report<<std::setprecision(17)<<"{\"success\":true,\"reduction_kernels\":";emit_kernel_info(report,workload.runs.session.info,workload.runs.session.conditional);report<<",\"mode\":\""<<mode<<"\",\"clock_pair_median_ns\":"<<clock_pair_ns<<",\"performance_acceptance\":false,\"original_production_backend_counters_available\":"<<(original_backend_counters?"true":"false")<<",\"counter_columns\":[\"numerator_direct_calls\",\"numerator_mu_calls\",\"numerator_t3_calls\",\"numerator_t2_calls\",\"numerator_direct_rows\",\"numerator_mu_rows\",\"numerator_t3_rows\",\"numerator_t2_rows\",\"preparation_calls\",\"preparation_rows\",\"wavefunction_calls\",\"rust_numerator_wire_calls\",\"rust_numerator_wire_rows\",\"rust_master_wire_calls\",\"rust_master_wire_rows\",\"shared_live_backend_calls\",\"shared_live_backend_rows\",\"live_flag_delta\",\"direct_rust_master_calls\",\"direct_rust_master_rows\"],\"records\":[";
   bool first=true;double checksum=0.;
   for(unsigned scope:scopes)for(bool changing:{false,true})for(size_t width:widths){
     std::array<std::vector<size_t>,3>indices;for(size_t phase=0;phase<3;++phase){indices[phase].resize(width);for(size_t row=0;row<width;++row)indices[phase][row]=changing?(row+phase)%3:0;}

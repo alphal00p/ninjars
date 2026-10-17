@@ -47,8 +47,10 @@ python validation/performance/shared_provider/run_physical.py \
   --all-reduction-kernels
 ```
 
-This compares all three selectors using the same physical provider, numerical
-inputs and frozen union of master requests. Each retained candidate session
+This compares every selector supported by the reported topology and compiled
+feature using the same physical provider, numerical inputs and frozen union of
+master requests. The n=5/r=4 workload includes the three historical selectors
+and the two guarded-rank selectors. Each retained candidate session
 is constructed before its reduction calls. The selected baseline is interpreted;
 all five result components are compared to it, while the existing independent
 MadLoop controls check the total Laurent coefficients. Empty/single/tail and
@@ -56,14 +58,25 @@ permuted batches remain covered. Frozen master backend counts and misses are
 checked again after catalog comparisons.
 
 The compatibility C ABI `sp_session_create` delegates to interpreted selection.
-`sp_session_create_with_kernels` accepts only setup-time IDs 0/1/2, and errors
-leave the caller's output slot unchanged. `sp_session_kernel_info` reports the
+`sp_session_create_with_kernels` accepts setup-time IDs 0/1/2 for the historical
+modes, 3 for `interpreted-rank`, and 4 for `native-rank`. Errors leave the caller's
+output slot unchanged. Rank modes require n=5/r=4. Mode 3 works without the
+native feature; modes 1/2/4 require it. `sp_session_kernel_info` reports the
 compiled feature and actual public-library selection for every family,
 including interpreted integration and accumulation. The current report has ten
 ABI cells: selection, compiled-feature flag, and eight family flags. The added
-`tadpole_source_projection` family is native only for the full `native` selector;
-`native-denominators` retains interpreted tadpole projections. Geometry and
-tadpole subtraction remain independent interpreted stages. C++ and Python both reject
+`tadpole_source_projection` family is native for the full generic catalog
+(`native` and `native-rank`); `native-denominators` retains interpreted tadpole
+projections. Geometry remains independent. The old family fields describe
+generic/fallback execution. The additive `sp_session_rank_correction_info`
+accessor returns four cells: propagators, rank, alternate-enabled flag, alternate
+backend flag. New reports include topology; rank-mode reports additionally require
+`conditional_corrections` with the actual alternate backend, the full source-kind
+structural-zero guard and the generic-family fallback. `interpreted-rank` selects
+interpreted generic kernels and interpreted alternates; `native-rank` selects
+the native generic catalog and native alternates. No existing mode enables
+specialization implicitly. Historical three-mode reports without topology remain
+accepted; missing topology or conditional metadata on a rank mode is an error. C++ and Python both reject
 coverage inconsistent with the requested mode. There is no timed selector
 mutation or rebuilding of the session during a reduction call. A normal batch
 reset preserves the selected factory.
@@ -85,3 +98,13 @@ The subsequent eight-family checkpoint is in
 same widths, fixed provider and frozen master union, now reporting tadpole
 source projections explicitly. All three selectors pass again, with a maximum
 scaled difference of `3.50e-18`; the prior seven-family evidence is preserved.
+
+The rank-mode checkpoint is recorded in
+`validation/evidence/rank-specialization-harness.json`. All five selectors pass
+at widths 0, 1, 3 and 8, with 60 complex output components checked per selector
+and a maximum scaled difference of `4.00e-18`. The compressed companion report
+retains independent physical/reference controls and exact source/artifact
+identities. Feature-off/native ABI and CLI tests, strict metadata corruption
+tests and an unchanged historical report also pass. The CLI precision checks
+compare serialized values; they do not measure additional accuracy. No new
+measurement or performance claim is recorded.

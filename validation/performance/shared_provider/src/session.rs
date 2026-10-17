@@ -14,6 +14,7 @@ use ninjars_symbolica::{
 type C = Complex<f64>;
 pub struct Session {
     kernel_info: [u64; 10],
+    rank_correction_info: [u64; 4],
     n: usize,
     rank: usize,
     amplitude: Amplitude<C, SymbolicaAmplitudeKernels<f64>>,
@@ -40,20 +41,34 @@ fn kernels(
     n: usize,
     rank: usize,
     selection: u32,
-) -> Result<(SymbolicaAmplitudeKernels<f64>, [u64; 10])> {
-    if selection > 2 {
+) -> Result<(SymbolicaAmplitudeKernels<f64>, [u64; 10], [u64; 4])> {
+    if selection > 4 {
         return Err("unknown reduction-kernel selection".into());
     }
     #[cfg(not(feature = "native-kernels"))]
-    if selection != 0 {
+    if matches!(selection, 1 | 2 | 4) {
         return Err("native selection requires native-kernels feature".into());
     }
+    if matches!(selection, 3 | 4) && (n, rank) != (5, 4) {
+        return Err("rank correction selection requires n=5 and rank=4".into());
+    }
     let kernels = SymbolicaAmplitudeKernels::new(n, rank, 0.).map_err(|e| e.to_string())?;
+    let kernels = if selection == 3 {
+        kernels
+            .with_rank_specialized_corrections()
+            .map_err(|e| e.to_string())?
+    } else {
+        kernels
+    };
     #[cfg(feature = "native-kernels")]
     let kernels = match selection {
-        0 => kernels,
+        0 | 3 => kernels,
         1 => kernels.with_native_denominators(),
         2 => kernels.with_native_kernels(),
+        4 => kernels
+            .with_native_kernels()
+            .with_native_rank_specialized_corrections()
+            .map_err(|e| e.to_string())?,
         _ => unreachable!(),
     };
     let mut info = [0; 10];
@@ -87,7 +102,21 @@ fn kernels(
             return Err("incomplete kernel coverage".into());
         }
     }
-    Ok((kernels, info))
+    let enabled = kernels.rank_specialized_corrections_enabled();
+    #[cfg(feature = "native-kernels")]
+    let alternate_native = matches!(
+        kernels.rank_specialized_correction_backend(),
+        Some(ninjars_symbolica::KernelBackend::NativeRust)
+    );
+    #[cfg(not(feature = "native-kernels"))]
+    let alternate_native = false;
+    let conditional = [
+        n as u64,
+        rank as u64,
+        u64::from(enabled),
+        u64::from(alternate_native),
+    ];
+    Ok((kernels, info, conditional))
 }
 /// # Safety
 /// out must be a valid writable slot. Returned handles are used serially.
@@ -103,7 +132,8 @@ pub unsafe extern "C" fn sp_session_create(
 }
 /// # Safety
 /// Same ownership contract as sp_session_create. Selection is setup-only:
-/// 0 interpreted, 1 native denominators, 2 all currently catalogued kernels.
+/// 0 interpreted, 1 native denominators, 2 generic native catalog,
+/// 3 interpreted rank corrections, 4 native catalog plus native rank corrections.
 /// Invalid selection/build/topology leaves the caller's output slot unchanged.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn sp_session_create_with_kernels(
@@ -117,9 +147,10 @@ pub unsafe extern "C" fn sp_session_create_with_kernels(
         if out.is_null() || !out.is_aligned() {
             return Err("invalid session output".into());
         }
-        let (kernels, kernel_info) = kernels(n, rank, selection)?;
+        let (kernels, kernel_info, rank_correction_info) = kernels(n, rank, selection)?;
         let state = Session {
             kernel_info,
+            rank_correction_info,
             n,
             rank,
             amplitude: kernels.into_amplitude(rows).map_err(|e| e.to_string())?,
@@ -154,6 +185,18 @@ pub unsafe extern "C" fn sp_session_kernel_info(
     len: usize,
 ) -> i32 {
     guard(|| unsafe { write(out, len, &session(handle)?.kernel_info) })
+}
+/// # Safety
+/// Live exclusive session and four writable cells: propagators, rank, enabled,
+/// alternate backend (0 interpreted, 1 generated Rust). The original ten-cell
+/// family accessor stays unchanged and describes generic/fallback coverage.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sp_session_rank_correction_info(
+    handle: *mut Session,
+    out: *mut u64,
+    len: usize,
+) -> i32 {
+    guard(|| unsafe { write(out, len, &session(handle)?.rank_correction_info) })
 }
 /// # Safety
 /// All handles are live, exclusive and mutually disjoint. Buffers are valid for
@@ -420,7 +463,7 @@ mod kernel_tests {
         assert_eq!(info[0], 0);
         assert!(info[2..].iter().all(|v| *v == 0));
         assert_eq!(info[1], u64::from(cfg!(feature = "native-kernels")));
-        for selection in [3, u32::MAX] {
+        for selection in [3, 4, 5, u32::MAX] {
             assert_ne!(
                 unsafe { sp_session_create_with_kernels(2, 2, 0, selection, &mut handle) },
                 0
@@ -474,6 +517,55 @@ mod kernel_tests {
                 assert_ne!(status, 0);
                 assert!(handle.is_null());
             }
+        }
+    }
+    #[test]
+    fn rank_corrections_report_separately_and_preserve_old_coverage() {
+        for selection in [3, 4] {
+            let mut handle = std::ptr::null_mut();
+            let status = unsafe { sp_session_create_with_kernels(5, 4, 0, selection, &mut handle) };
+            if selection == 4 && !cfg!(feature = "native-kernels") {
+                assert_ne!(status, 0);
+                assert!(handle.is_null());
+                continue;
+            }
+            assert_eq!(status, 0);
+            let mut generic = [99; 10];
+            let mut alternate = [99; 4];
+            assert_eq!(
+                unsafe { sp_session_kernel_info(handle, generic.as_mut_ptr(), 10) },
+                0
+            );
+            assert_eq!(
+                unsafe { sp_session_rank_correction_info(handle, alternate.as_mut_ptr(), 4) },
+                0
+            );
+            assert_eq!(generic[0], u64::from(selection));
+            assert_eq!(generic[1], u64::from(cfg!(feature = "native-kernels")));
+            assert_eq!(&generic[2..7], &[u64::from(selection == 4); 5]);
+            assert_eq!(&generic[7..], &[0; 3]);
+            assert_eq!(alternate, [5, 4, 1, u64::from(selection == 4)]);
+            let before = alternate;
+            assert_ne!(
+                unsafe { sp_session_rank_correction_info(handle, alternate.as_mut_ptr(), 3) },
+                0
+            );
+            assert_eq!(alternate, before);
+            let original = handle;
+            for (n, rank) in [(2, 2), (5, 5), (6, 4)] {
+                assert_ne!(
+                    unsafe { sp_session_create_with_kernels(n, rank, 0, selection, &mut handle) },
+                    0
+                );
+                assert_eq!(handle, original);
+            }
+            unsafe { session(handle).unwrap() }.amplitude.reset_batch(3);
+            assert_eq!(
+                unsafe { sp_session_rank_correction_info(handle, alternate.as_mut_ptr(), 4) },
+                0
+            );
+            assert_eq!(alternate, before);
+            assert_eq!(unsafe { sp_session_destroy(handle) }, 0);
         }
     }
 }

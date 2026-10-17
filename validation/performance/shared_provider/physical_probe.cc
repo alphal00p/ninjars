@@ -1,7 +1,7 @@
 // Complete shared-provider correctness control. No timings are taken.
 #include "physical_workload.hh"
 int main(int argc,char**argv){try{
-  if(argc!=3&&argc!=4)throw std::runtime_error("usage: physical-probe DOT maximum-integrated-batch [symbolica|native-denominators|native|all]");
+  if(argc!=3&&argc!=4)throw std::runtime_error("usage: physical-probe DOT maximum-integrated-batch [symbolica|native-denominators|native|interpreted-rank|native-rank|all]");
   const bool all_kernels=argc==4&&std::string(argv[3])=="all";
   const unsigned selection=argc==4&&!all_kernels?kernel_selection(argv[3]):static_cast<unsigned>(SP_KERNEL_SYMBOLICA);
   const size_t maximum=std::stoul(argv[2]);size_t count{};std::cin>>count;if(count!=3)throw std::runtime_error("exact three-point pool required");std::vector<Point>pool(count);
@@ -52,13 +52,14 @@ int main(int argc,char**argv){try{
   // union, new reducer sessions created before their runs. No provider switches.
   std::ostringstream catalog;
   catalog<<'[';
-  if(all_kernels)for(unsigned selected=0;selected<3;++selected){
+  bool first_catalog=true;
+  if(all_kernels)for(unsigned selected:supported_kernel_selections(physical.info[0],physical.info[1],runs.session.info[1]!=0)){
     Runs candidate(physical,selected);size_t checks=0;double error=0.;
     for(size_t width:widths){std::vector<size_t>indices(width);for(size_t row=0;row<width;++row)indices[row]=(2*row+1)%count;
       const auto values=candidate.run_rust(pool,indices,union_masters);
       for(size_t row=0;row<width;++row)for(unsigned column=0;column<5;++column){error=std::max(error,near(complex(values[row*5+column]),complex(captured_rust[indices[row]*5+column]),"catalog replay parity"));++checks;}
     }
-    if(selected){catalog<<',';}catalog<<"{\"coverage\":";emit_kernel_info(catalog,candidate.session.info);catalog<<",\"complex_components_checked\":"<<checks<<",\"max_scaled_error\":"<<std::setprecision(17)<<error<<'}';
+    if(!first_catalog){catalog<<',';}first_catalog=false;catalog<<"{\"coverage\":";emit_kernel_info(catalog,candidate.session.info,candidate.session.conditional);catalog<<",\"complex_components_checked\":"<<checks<<",\"max_scaled_error\":"<<std::setprecision(17)<<error<<'}';
   }
   catalog<<']';
   checked(sp_master_stats(union_masters.handle(),after.data(),7));if(before[0]!=after[0]||before[4]!=after[4]||after[6]!=0)throw std::runtime_error("catalog replay executed backend or missed a key");
@@ -73,7 +74,7 @@ int main(int argc,char**argv){try{
   if(live_middle[0]<=live_before[0]||live_middle[1]<=live_before[1]||live_after[0]<=live_middle[0]||live_after[1]<=live_middle[1]||live_after[2]!=1)throw std::runtime_error("complete paths did not execute master expressions");
   std::array<uint64_t,7> live_stats{};checked(sp_master_stats(live.handle(),live_stats.data(),7));if(live_stats[0]!=0||live_stats[5]!=0)throw std::runtime_error("live mode used master replay");
   std::array<uint64_t,3> prep{};checked(sp_physical_stats(physical.handle,prep.data(),3));
-  std::cout<<std::setprecision(17)<<"{\"success\":true,\"reduction_kernels\":";emit_kernel_info(std::cout,runs.session.info);std::cout<<",\"catalog_parity\":"<<catalog.str()<<",\"coefficient_heads\":"<<physical.info[4]<<",\"raw_components_checked\":"<<raw_checks<<",\"raw_max_scaled_error\":"<<raw_error<<",\"coefficient_oracle_max_scaled_error\":"<<oracle[0]<<",\"jit_interpreter_max_scaled_error\":"<<head_error<<",\"integrated_max_scaled_error\":"<<integrated_error<<",\"madloop_integrated_max_scaled_error\":"<<madloop_error<<",\"batch_laurent_components_checked\":"<<batch_checks<<",\"integrated_widths\":[";
+  std::cout<<std::setprecision(17)<<"{\"success\":true,\"reduction_kernels\":";emit_kernel_info(std::cout,runs.session.info,runs.session.conditional);std::cout<<",\"catalog_parity\":"<<catalog.str()<<",\"coefficient_heads\":"<<physical.info[4]<<",\"raw_components_checked\":"<<raw_checks<<",\"raw_max_scaled_error\":"<<raw_error<<",\"coefficient_oracle_max_scaled_error\":"<<oracle[0]<<",\"jit_interpreter_max_scaled_error\":"<<head_error<<",\"integrated_max_scaled_error\":"<<integrated_error<<",\"madloop_integrated_max_scaled_error\":"<<madloop_error<<",\"batch_laurent_components_checked\":"<<batch_checks<<",\"integrated_widths\":[";
   for(size_t i=0;i<widths.size();++i){if(i)std::cout<<',';std::cout<<widths[i];}std::cout<<"],\"preparation_widths\":[0,1,8,32,128,1024,31],\"original\":";emit(captured_original);std::cout<<",\"rust\":";emit(captured_rust);
   std::cout<<",\"master_union_entries\":"<<after[0]<<",\"master_union_both_sources\":"<<after[1]<<",\"master_union_rust_only\":"<<after[2]<<",\"master_union_original_only\":"<<after[3]<<",\"live_original_backend_calls\":"<<live_middle[0]-live_before[0]<<",\"live_original_backend_rows\":"<<live_middle[1]-live_before[1]<<",\"live_rust_backend_calls\":"<<live_after[0]-live_middle[0]<<",\"live_rust_backend_rows\":"<<live_after[1]-live_middle[1]<<",\"live_rust_repeat_backend_calls\":"<<live_repeat[0]-live_after[0]<<",\"live_rust_repeat_backend_rows\":"<<live_repeat[1]-live_after[1]<<",\"changed_model_coefficient_oracle_max_scaled_error\":"<<changed_oracle[0]<<",\"preparation_failure_controls\":4,\"preparation_calls\":"<<prep[0]<<",\"preparation_rows\":"<<prep[1]<<",\"wavefunction_calls\":"<<prep[2]<<",\"transactional_preparation_checked\":true,\"same_preparation_both_paths\":true,\"rational_separation_parity_complete\":false,\"production_backend_comparison\":false,\"performance_acceptance\":false}\n";
 }catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}
