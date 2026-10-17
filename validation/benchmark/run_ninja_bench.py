@@ -9,6 +9,11 @@ validation/benchmark/ninja/SUMMARY.md.
 
   python3 validation/benchmark/run_ninja_bench.py [CASE ...] [--discover]
       [--variants o3 o3-fortranrules o3-ol34] [--cpu 200] [--rounds 9] [--block-ms 25]
+      [--oneloop-warnings]
+
+OneLOop warnings are off by default in the driver (see ninja_bench.cc): one
+stdout line per D0 call with a vanishing diagonal invariant would otherwise
+be timed as master-integral work. --oneloop-warnings restores them.
 
 --discover adds validation/benchmark/synthetic/*.json and the ENGINE/NUMERATOR
 case directories (validation/fast/cases, validation/benchmark/cases) of this
@@ -124,6 +129,8 @@ def run_case(path, variants, record, args):
             raw.parent.mkdir(parents=True, exist_ok=True)
             command = ["taskset", "-c", str(args.cpu), str(binary), str(plain), str(raw),
                        "--label", variant, "--rounds", str(args.rounds), "--block-ms", str(args.block_ms)]
+            if args.oneloop_warnings:
+                command.append("--oneloop-warnings")
             load = pathlib.Path("/proc/loadavg").read_text().split()[:3]
             print("+", " ".join(command), flush=True)
             proc = subprocess.run(command, capture_output=True, text=True)
@@ -155,6 +162,7 @@ def run_case(path, variants, record, args):
                      "blocks_ns": {m: d["blocks_ns"] for m, d in t["modes"].items()},
                      "iterations_per_block": {m: d["iterations_per_block"] for m, d in t["modes"].items()},
                      "derived": t["derived"], "protocol": t["protocol"],
+                     "oneloop_warnings": results[v].get("oneloop_warnings", True),
                      "host_loadavg_before": results[v]["host_loadavg_before"],
                      "libninja_sha256": record["variants"][v]["library_sha256"]["libninja.a"],
                      "libavh_olo_sha256": record["variants"][v]["library_sha256"]["libavh_olo.a"],
@@ -197,7 +205,8 @@ def summary():
              "`num*` = recorded TensorNumerator calls alone; `masters` = recorded OneLOop calls alone;",
              "`sum/full` = (pure + num + masters)/full; `entry` = MadLoop's C entry point ninja_tensor_evaluate_[smat_]cm_",
              "(new TensorNumerator + Amplitude per call); D0/C0/B/A0 = recorded box/triangle/bubble(rank-2 B11)/tadpole",
-             "calls alone. Builds: see `../ninja-builds.json`.", ""]
+             "calls alone. Builds: see `../ninja-builds.json`. OneLOop warnings off (see ninja_bench.cc) unless a",
+             "build's `oneloop_warnings` is true in the case JSON.", ""]
     variants = []
     for r in rows:
         for v in r["timing"]:
@@ -236,6 +245,8 @@ def main():
     parser.add_argument("--rounds", type=int, default=9)
     parser.add_argument("--block-ms", type=float, default=25.0)
     parser.add_argument("--summary-only", action="store_true")
+    parser.add_argument("--oneloop-warnings", action="store_true",
+                        help="keep OneLOop's warnings on stdout (timed); default: off")
     args = parser.parse_args()
     if not args.summary_only:
         record = builds()

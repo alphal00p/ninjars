@@ -1,6 +1,11 @@
 # Standalone (non-workspace) bench: oneloopmaster's direct native Rust masters
 # (feature generated-evaluators, NativeEvaluator<f64>) on exactly the OneLOop
 # calls original Ninja makes (validation/benchmark/ninja/<case>.masters.json).
+#
+# This manifest builds against the checkouts under references/ (oneloopmaster
+# main and the Symbolica pin of the NinjaRS workspace). build_native.py builds
+# the same sources against exact git snapshots of other revisions (e.g. the
+# binary64-dilogarithm Symbolica integration) by generating a manifest copy.
 [package]
 name = "masters-native-bench"
 version = "0.1.0"
@@ -8,6 +13,11 @@ edition = "2024"
 publish = false
 
 [workspace]
+
+[features]
+# NativeTensorEvaluator B11/B111 for Ninja's rank-2/3 bubble calls (oneloopmaster
+# claude/native-masters a92b148 or later).
+tensor = []
 
 [dependencies]
 oneloop = { path = "../../../references/oneloopmaster", default-features = false, features = ["generated-evaluators"] }

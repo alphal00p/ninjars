@@ -7,14 +7,21 @@
 //!   box_cm          -> D0 [s21,s32,s43,s14,s31,s42, m1..m4, mu2]
 //!   triangle_cm     -> C0 [s21,s32,s13, m1..m3, mu2]
 //!   bubble_cm       -> B0 [s21, m1, m2, mu2]
-//!   rank2_bubble_cm -> B0 only (OneLOop's olo_b11 returns B11, B00, B1 and B0;
-//!                      the native B0 is NOT the same amount of work)
+//!   rank2_bubble_cm -> without feature `tensor`: B0 only (OneLOop's olo_b11
+//!                      returns B11, B00, B1 and B0; NOT the same amount of work);
+//!                      with `tensor`: NativeTensorEvaluator B11 = [B0, B1, B11]
+//!                      (all three compared with the recorded b0, b1, b11)
+//!   rank3_bubble_cm -> with `tensor` only: NativeTensorEvaluator B111
 //!   tadpole_cm      -> A0 [m, mu2]
 //!
 //! usage: masters-native-bench OUT.json CASE.masters.json... [--block-ms 25] [--rounds 9]
-//! Pin externally with taskset.
+//!        [--label NAME]
+//! Pin externally with taskset. `build_native.py` builds it against a chosen
+//! oneloopmaster / Symbolica revision and records the provenance.
 
 use oneloop::{NativeEvaluator, ScalarIntegral};
+#[cfg(feature = "tensor")]
+use oneloop::{NativeTensorEvaluator, TensorIntegral};
 use serde_json::{Value, json};
 use std::time::Instant;
 use symbolica::domains::float::Complex;
@@ -23,12 +30,19 @@ type C = Complex<f64>;
 
 #[derive(Clone)]
 struct Call {
-    family: usize, // 0 D0, 1 C0, 2 B0 (from scalar bubble), 3 B0 (from rank-2 bubble), 4 A0
+    // 0 D0, 1 C0, 2 B0 (scalar bubble), 3 rank-2 bubble (B0 only, or B11 tensor with
+    // feature `tensor`), 4 A0, 5 rank-3 bubble (B111 tensor, feature `tensor` only)
+    family: usize,
     input: Vec<C>,
-    reference: [C; 3],
+    // recorded OneLOop outputs, in the native evaluator's output order
+    reference: Vec<C>,
 }
 
-const FAMILY_NAMES: [&str; 5] = ["D0", "C0", "B0", "B0_of_rank2_bubble", "A0"];
+#[cfg(not(feature = "tensor"))]
+const FAMILY_NAMES: [&str; 6] = ["D0", "C0", "B0", "B0_of_rank2_bubble", "A0", "B111_unsupported"];
+#[cfg(feature = "tensor")]
+const FAMILY_NAMES: [&str; 6] = ["D0", "C0", "B0", "B11_tensor_of_rank2_bubble", "A0", "B111_tensor_of_rank3_bubble"];
+const MAX_OUT: usize = 12;
 
 fn c(v: &Value) -> C {
     C::new(v[0].as_f64().unwrap(), v[1].as_f64().unwrap())
@@ -44,7 +58,10 @@ fn parse_call(v: &Value) -> Option<Call> {
     let m: Vec<C> = v["m2"].as_array().unwrap().iter().map(c).collect();
     let mu2 = real(v["mu_squared"].as_f64().unwrap());
     let result: Vec<C> = v["result"].as_array().unwrap().iter().map(c).collect();
-    let r3 = |o: usize| [result[o], result[o + 1], result[o + 2]];
+    let r3 = |o: usize| vec![result[o], result[o + 1], result[o + 2]];
+    // ninja_bench records olo_b11 as [b11, b1, b0] and the rank-3 bubble as
+    // [b111, b11, b1, b0]; the native tensors return [B0, B1, B11(, B111)].
+    let rev = |blocks: &[usize]| blocks.iter().flat_map(|&o| r3(o)).collect::<Vec<C>>();
     match kind {
         "box_cm" => Some(Call {
             family: 0,
@@ -57,7 +74,12 @@ fn parse_call(v: &Value) -> Option<Call> {
             reference: r3(0),
         }),
         "bubble_cm" => Some(Call { family: 2, input: vec![real(s[0]), m[0], m[1], mu2], reference: r3(0) }),
+        #[cfg(not(feature = "tensor"))]
         "rank2_bubble_cm" => Some(Call { family: 3, input: vec![real(s[0]), m[0], m[1], mu2], reference: r3(6) }),
+        #[cfg(feature = "tensor")]
+        "rank2_bubble_cm" => Some(Call { family: 3, input: vec![real(s[0]), m[0], m[1], mu2], reference: rev(&[6, 3, 0]) }),
+        #[cfg(feature = "tensor")]
+        "rank3_bubble_cm" => Some(Call { family: 5, input: vec![real(s[0]), m[0], m[1], mu2], reference: rev(&[9, 6, 3, 0]) }),
         "tadpole_cm" => Some(Call { family: 4, input: vec![m[0], mu2], reference: r3(0) }),
         _ => None,
     }
@@ -65,16 +87,53 @@ fn parse_call(v: &Value) -> Option<Call> {
 
 struct Evaluators {
     ev: Vec<NativeEvaluator<f64>>,
+    #[cfg(feature = "tensor")]
+    b11: NativeTensorEvaluator<f64>,
+    #[cfg(feature = "tensor")]
+    b111: NativeTensorEvaluator<f64>,
 }
 
 impl Evaluators {
     fn new() -> Self {
         let fam = [ScalarIntegral::D0, ScalarIntegral::C0, ScalarIntegral::B0, ScalarIntegral::B0, ScalarIntegral::A0];
-        Self { ev: fam.iter().map(|&f| NativeEvaluator::<f64>::new(f).unwrap()).collect() }
+        Self {
+            ev: fam.iter().map(|&f| NativeEvaluator::<f64>::new(f).unwrap()).collect(),
+            #[cfg(feature = "tensor")]
+            b11: NativeTensorEvaluator::<f64>::new(TensorIntegral::B11).unwrap(),
+            #[cfg(feature = "tensor")]
+            b111: NativeTensorEvaluator::<f64>::new(TensorIntegral::B111).unwrap(),
+        }
     }
+    /// Evaluate one call into out[..call.reference.len()].
     #[inline]
-    fn eval(&mut self, call: &Call, out: &mut [C; 3]) {
-        self.ev[call.family].evaluate(&call.input, out).unwrap();
+    fn eval(&mut self, call: &Call, out: &mut [C; MAX_OUT]) {
+        let k = call.reference.len();
+        match call.family {
+            #[cfg(feature = "tensor")]
+            3 => self.b11.evaluate(&call.input, &mut out[..k]).unwrap(),
+            #[cfg(feature = "tensor")]
+            5 => self.b111.evaluate(&call.input, &mut out[..k]).unwrap(),
+            f => self.ev[f].evaluate(&call.input, &mut out[..k]).unwrap(),
+        }
+    }
+}
+
+/// Equivalent relabellings of a C0 [p1,p2,p3, m1,m2,m3, mu2] or D0
+/// [p1,p2,p3,p4,s12,s23, m1..m4, mu2] call: the cyclic shifts and the reflection.
+fn symmetric_inputs(call: &Call) -> Vec<Vec<C>> {
+    let x = &call.input;
+    match call.family {
+        1 => vec![
+            vec![x[1], x[2], x[0], x[4], x[5], x[3], x[6]],
+            vec![x[2], x[0], x[1], x[5], x[3], x[4], x[6]],
+            vec![x[2], x[1], x[0], x[3], x[5], x[4], x[6]],
+        ],
+        0 => vec![
+            vec![x[1], x[2], x[3], x[0], x[5], x[4], x[7], x[8], x[9], x[6], x[10]],
+            vec![x[2], x[3], x[0], x[1], x[4], x[5], x[8], x[9], x[6], x[7], x[10]],
+            vec![x[3], x[2], x[1], x[0], x[4], x[5], x[6], x[9], x[8], x[7], x[10]],
+        ],
+        _ => vec![],
     }
 }
 
@@ -90,7 +149,7 @@ fn time(lanes: &[Vec<Call>], filter: &dyn Fn(&Call) -> bool, ev: &mut Evaluators
     if sel.iter().all(|l| l.is_empty()) {
         return None;
     }
-    let mut out = [C::new(0.0, 0.0); 3];
+    let mut out = [C::new(0.0, 0.0); MAX_OUT];
     let mut sink = 0.0f64;
     let mut run = |iters: u64, ev: &mut Evaluators| -> f64 {
         let t0 = Instant::now();
@@ -124,12 +183,14 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
     let mut block_ms = 25.0;
     let mut rounds = 9usize;
+    let mut label = String::from("unlabelled");
     let mut files = vec![];
     let mut i = 2;
     while i < args.len() {
         match args[i].as_str() {
             "--block-ms" => { block_ms = args[i + 1].parse().unwrap(); i += 1; }
             "--rounds" => { rounds = args[i + 1].parse().unwrap(); i += 1; }
+            "--label" => { label = args[i + 1].clone(); i += 1; }
             f => files.push(f.to_string()),
         }
         i += 1;
@@ -167,26 +228,47 @@ fn main() {
             }).collect()
         }).collect();
         // correctness vs the recorded OneLOop results
-        let mut max_diff = [0.0f64; 5];
-        let mut worst: Vec<Value> = vec![Value::Null; 5];
-        let mut counts = [0usize; 5];
-        let mut out = [C::new(0.0, 0.0); 3];
+        let mut max_diff = [0.0f64; 6];
+        let mut worst: Vec<Value> = vec![Value::Null; 6];
+        let mut counts = [0usize; 6];
+        let mut max_sym = [0.0f64; 6];
+        let mut worst_sym: Vec<Value> = vec![Value::Null; 6];
+        let mut out = [C::new(0.0, 0.0); MAX_OUT];
         for lane in &lanes {
             for call in lane {
                 ev.eval(call, &mut out);
                 let scale = call.reference.iter().map(|z| z.re.hypot(z.im)).fold(0.0, f64::max).max(1e-300);
-                for k in 0..3 {
+                for k in 0..call.reference.len() {
                     let d = (out[k].re - call.reference[k].re).hypot(out[k].im - call.reference[k].im) / scale;
                     if d > max_diff[call.family] {
                         max_diff[call.family] = d;
                         worst[call.family] = json!({
                             "input": call.input.iter().map(|z| [z.re, z.im]).collect::<Vec<_>>(),
-                            "native": out.iter().map(|z| [z.re, z.im]).collect::<Vec<_>>(),
+                            "native": out[..call.reference.len()].iter().map(|z| [z.re, z.im]).collect::<Vec<_>>(),
                             "oneloop": call.reference.iter().map(|z| [z.re, z.im]).collect::<Vec<_>>(),
                         });
                     }
                 }
                 counts[call.family] += 1;
+                // Native self-consistency: C0/D0 are invariant under the cyclic
+                // and reflected relabellings of the propagators.
+                for perm in symmetric_inputs(call) {
+                    let mut alt = [C::new(0.0, 0.0); MAX_OUT];
+                    ev.eval(&Call { family: call.family, input: perm.clone(), reference: call.reference.clone() }, &mut alt);
+                    let scale = out[..3].iter().map(|z| z.re.hypot(z.im)).fold(0.0, f64::max).max(1e-300);
+                    for k in 0..3 {
+                        let d = (alt[k].re - out[k].re).hypot(alt[k].im - out[k].im) / scale;
+                        if d > max_sym[call.family] {
+                            max_sym[call.family] = d;
+                            worst_sym[call.family] = json!({
+                                "input": call.input.iter().map(|z| [z.re, z.im]).collect::<Vec<_>>(),
+                                "native": out[..3].iter().map(|z| [z.re, z.im]).collect::<Vec<_>>(),
+                                "relabelled_input": perm.iter().map(|z| [z.re, z.im]).collect::<Vec<_>>(),
+                                "native_relabelled": alt[..3].iter().map(|z| [z.re, z.im]).collect::<Vec<_>>(),
+                            });
+                        }
+                    }
+                }
             }
         }
         let mut per_call = vec![];
@@ -205,10 +287,14 @@ fn main() {
         if let Some((m, b, it)) = all {
             timing.insert("all_in_call_order".into(), json!({"median_ns": m, "blocks_ns": b, "iterations_per_block": it}));
         }
+        #[cfg(not(feature = "tensor"))]
+        const BUBBLES: &str = "bubbles_b0_only";
+        #[cfg(feature = "tensor")]
+        const BUBBLES: &str = "bubbles";
         let groups: [(&str, &dyn Fn(&Call) -> bool); 4] = [
             ("boxes", &|c: &Call| c.family == 0),
             ("triangles", &|c: &Call| c.family == 1),
-            ("bubbles_b0_only", &|c: &Call| c.family == 2 || c.family == 3),
+            (BUBBLES, &|c: &Call| c.family == 2 || c.family == 3 || c.family == 5),
             ("tadpoles", &|c: &Call| c.family == 4),
         ];
         for (name, f) in groups.iter() {
@@ -222,6 +308,8 @@ fn main() {
             "calls_per_family_all_lanes": FAMILY_NAMES.iter().zip(counts.iter()).map(|(n, c)| (n.to_string(), json!(c))).collect::<serde_json::Map<_, _>>(),
             "max_scaled_difference_vs_oneloop": FAMILY_NAMES.iter().zip(max_diff.iter()).map(|(n, d)| (n.to_string(), json!(d))).collect::<serde_json::Map<_, _>>(),
             "worst_call_per_family": FAMILY_NAMES.iter().zip(worst.iter()).filter(|(_, w)| !w.is_null()).map(|(n, w)| (n.to_string(), w.clone())).collect::<serde_json::Map<_, _>>(),
+            "max_scaled_relabelling_deviation_native": FAMILY_NAMES.iter().zip(max_sym.iter()).take(2).map(|(n, d)| (n.to_string(), json!(d))).collect::<serde_json::Map<_, _>>(),
+            "worst_relabelling_per_family": FAMILY_NAMES.iter().zip(worst_sym.iter()).filter(|(_, w)| !w.is_null()).map(|(n, w)| (n.to_string(), w.clone())).collect::<serde_json::Map<_, _>>(),
             "skipped_calls": skipped,
             "timing_unit": "ns per phase-space point (one lane's calls), lanes cycled, median of blocks",
             "timing": timing,
@@ -231,7 +319,13 @@ fn main() {
     }
     let out = json!({
         "format": "ninjars-reference-native-masters-v1",
-        "backend": "oneloopmaster NativeEvaluator<f64> (generated-evaluators: direct ahead-of-time Rust, no interpreter/JIT), scalar evaluate per call",
+        "label": label,
+        "tensor_bubbles": cfg!(feature = "tensor"),
+        "backend": if cfg!(feature = "tensor") {
+            "oneloopmaster NativeEvaluator<f64> (generated-evaluators: direct ahead-of-time Rust, no interpreter/JIT) for D0/C0/B0/A0 and NativeTensorEvaluator<f64> B11/B111 for Ninja's rank-2/3 bubble calls, scalar evaluate per call"
+        } else {
+            "oneloopmaster NativeEvaluator<f64> (generated-evaluators: direct ahead-of-time Rust, no interpreter/JIT), scalar evaluate per call"
+        },
         "block_ms": block_ms, "rounds": rounds,
         "cases": reports,
     });

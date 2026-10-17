@@ -9,8 +9,9 @@ with provenance). Exact Ninja inputs of MadLoop: `cases/madloop-<graph>.json`.
 
 The graphs, MadLoop loop-filter ids, helicities, scales and the three-point
 phase-space pools are those of the NUMERATOR stream
-(`references/claude_numerator/validation/benchmark/points/*.json`; their sha256
-is recorded in every result file):
+(`validation/benchmark/points/*.json` of the main checkout since e6d7fa0; the
+result files were produced from the identical `references/claude_numerator` copies,
+whose sha256 is recorded in every result file):
 
 | graph | process | filter id | pool | helicity (MadLoop index) | mu_R² |
 | --- | --- | ---: | --- | --- | ---: |
@@ -35,6 +36,7 @@ python3 validation/benchmark/madloop/run_madloop.py --reps 3 --cpu 29
 python3 validation/benchmark/run_ninja_bench.py validation/benchmark/madloop/cases/*.json \
     --variants o3-fortranrules o3 --cpu 29             # replay cross-check
 python3 validation/benchmark/madloop/summarize.py
+python3 validation/benchmark/madloop/retime_madloop.py --cpu 29  # optional: re-time existing exports
 ```
 
 CutTools (linked by every MadLoop output, unused with `MLReductionLib=6`) is a
@@ -98,7 +100,14 @@ because MG5 rejects a CutTools library built by another compiler version.
    `target/reference/madloop-hgg-validated/graphs.json` of the main checkout);
    (b) for every point the routing-invariant data of MadLoop's Ninja call —
    the multiset of the S-matrix entries (V_i−V_j)² and of the internal masses² —
-   equals that of the NinjaRS bench case of the same graph and point.
+   equals that of the NinjaRS bench case of the same graph and point;
+   (c) (`summarize.py`) original Ninja's finite part on MadLoop's exact inputs
+   divided by that on the NinjaRS case is one point-independent constant in
+   modulus — 2 for every QCD graph, 1/3 for the four-photon box, spread ≤ 1e-14
+   over the three pool points — so diagram and helicity are the same (MadLoop's
+   colour/normalisation factor aside). The propagator *order* differs: MadLoop's
+   is cyclic, the NinjaRS cases' is not for the boxes and the pentagon (see
+   `../README.md`: OneLOop then permutes D0 arguments and warns).
 
 ## Split of the per-point time
 
@@ -151,6 +160,15 @@ callbacks; reduction = Ninja reduction + MadLoop glue; masters = OneLOop (no cac
 Generation alone (in-process, excluding the Source make) is 0.9–2.2 s per graph;
 with Python start-up and imports 2.3–3.7 s. Compilation: Source 1.2–1.4 s and P dir 2.0–3.6 s
 at MadLoop's default flags; 2.6–3.0 s and 4.5–7.0 s with -O3.
+
+Review re-timing (`retime_madloop.py`, same executables, CPU 29; `retime-review.json`):
+every graph, both flag sets, reproduces `full` within 1 % and each split component within
+~2 % (pentagon default: full 241.08, coef. 25.55, TensorNum 80.62, OneLOop 104.91, Ninja
+reduction 26.19 µs). `glue` is a difference of separately timed executables and is only
+known to about ±1 µs (it comes out slightly negative, -0.2 to -0.5 µs, for some -O3 runs).
+MadLoop's own runs print no OneLOop warnings (cyclic propagator order).
+For the report, the `O3` rows are the conservative (faster) MadLoop baseline; `default`
+is what MadLoop's standalone output compiles out of the box.
 
 ### Full process: all 50 top-loop diagrams of g g > h h h
 

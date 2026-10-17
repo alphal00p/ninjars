@@ -2,8 +2,9 @@
 """MadLoop reference pipeline: generation, compilation and per-point timings.
 
 For every graph of the shared phase-space pools (NUMERATOR stream,
-references/claude_numerator/validation/benchmark/points/*.json, which record
-the MadLoop loop-filter id of each NinjaRS graph):
+validation/benchmark/points/*.json of the main checkout, merged in e6d7fa0 with
+the same sha256 as the references/claude_numerator files first used; they
+record the MadLoop loop-filter id of each NinjaRS graph):
 
 1. generation (mg5_generate.py, stock MG5_aMC 3.7.0, loop_optimized_output
    True, single filtered loop diagram, Ninja from build 'o3-fortranrules'),
@@ -52,8 +53,10 @@ HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 TARGET = ROOT / "target/benchmark/madloop"
 MG = ROOT / "references/MG5_aMC_v3_7_0"
-POOLS = pathlib.Path("/shared/external/ninja/references/claude_numerator/validation/benchmark/points")
-NINJARS_CASES = pathlib.Path("/shared/external/ninja/references/claude_numerator/validation/benchmark/cases")
+# NUMERATOR stream inputs, committed on main (e6d7fa0); the result files recorded
+# them from references/claude_numerator with the same sha256.
+POOLS = pathlib.Path("/shared/external/ninja/validation/benchmark/points")
+NINJARS_CASES = pathlib.Path("/shared/external/ninja/validation/benchmark/cases")
 BUILDS = json.loads((HERE.parent / "ninja-builds.json").read_text())
 NINJA_LIB = pathlib.Path(BUILDS["variants"]["o3-fortranrules"]["madgraph_ninja_dir"])
 NINJA_INSTR_LIB = pathlib.Path(BUILDS["variants"]["o3-fortranrules-instr"]["madgraph_ninja_dir"])

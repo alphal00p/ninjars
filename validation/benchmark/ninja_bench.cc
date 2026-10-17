@@ -19,9 +19,18 @@
 // are checked to be bitwise identical to the recorded evaluation.
 //
 //   ninja_bench CASE.json OUT.json [--label NAME] [--block-ms 25]
-//               [--rounds 9] [--no-timing]
+//               [--rounds 9] [--no-timing] [--oneloop-warnings]
 //
 // Pin the process externally (taskset -c CPU).
+//
+// OneLOop's warnings are switched off by default (olo_unit(-1,'warning')).
+// OneLOop writes one line to stdout for every D0 call whose diagonal
+// invariant s31 or s42 vanishes ("input does not seem to represent hard
+// kinematics, trying to permutate"), e.g. for the NinjaRS physical box and
+// pentagon cases, whose propagator order is not the cyclic loop order.  That
+// formatted I/O (into the runner's pipe) would otherwise be timed as master-
+// integral work.  The permutation itself is still performed and timed.
+// --oneloop-warnings keeps OneLOop's default (warnings on unit 6).
 
 #include <ninja/ninja.hh>
 #include <ninja/tensor_ninja.hh>
@@ -48,6 +57,14 @@ using ninja::Complex;
 using ninja::ComplexMomentum;
 using ninja::Real;
 using ninja::RealMomentum;
+
+// OneLOop's public olo_unit(val, message) (gfortran ABI: the optional character
+// argument is followed by its hidden length).  Module avh_olo (OneLOop-3.6 as
+// installed by MG5's HEPTools) or avh_olo_foriregi (IREGI's renamed 3.4 copy,
+// build o3-ol34); weak, since only one of them is linked.
+typedef void olo_unit_fn(const int * val, const char * message, std::size_t message_len);
+extern "C" olo_unit_fn __avh_olo_MOD_olo_unit __attribute__((weak));
+extern "C" olo_unit_fn __avh_olo_foriregi_MOD_olo_unit __attribute__((weak));
 
 // ---------------------------------------------------------------------------
 // Minimal JSON reader (objects, arrays, numbers, strings, true/false/null).
@@ -817,25 +834,37 @@ static std::string jstr(const std::string & s)
 int main(int argc, char ** argv)
 {
   if (argc < 3) {
-    std::cerr << "usage: ninja_bench CASE.json OUT.json [--label NAME] [--block-ms 25] [--rounds 9] [--no-timing]\n";
+    std::cerr << "usage: ninja_bench CASE.json OUT.json [--label NAME] [--block-ms 25] [--rounds 9] [--no-timing]"
+                 " [--oneloop-warnings]\n";
     return 2;
   }
   std::string case_path = argv[1], out_path = argv[2], label = "unlabelled";
   double block_ms = 25.;
   int rounds = 9;
   bool timing = true;
+  bool oneloop_warnings = false;
   for (int i = 3; i < argc; ++i) {
     std::string a = argv[i];
     if (a == "--label" && i + 1 < argc) label = argv[++i];
     else if (a == "--block-ms" && i + 1 < argc) block_ms = std::atof(argv[++i]);
     else if (a == "--rounds" && i + 1 < argc) rounds = std::atoi(argv[++i]);
     else if (a == "--no-timing") timing = false;
+    else if (a == "--oneloop-warnings") oneloop_warnings = true;
     else { std::cerr << "unknown argument " << a << "\n"; return 2; }
   }
 
   {
     std::ostream null_stream(0);
     ninja::printBanner(null_stream, true);   // also silences later banners
+  }
+  if (!oneloop_warnings) {
+    olo_unit_fn * olo_unit = __avh_olo_MOD_olo_unit ? __avh_olo_MOD_olo_unit : __avh_olo_foriregi_MOD_olo_unit;
+    if (!olo_unit) {
+      std::cerr << "ERROR: OneLOop's olo_unit not linked; use --oneloop-warnings\n";
+      return 2;
+    }
+    const int off = -1;
+    olo_unit(&off, "warning", 7);
   }
 
   Case c = read_case(case_path);
@@ -957,6 +986,7 @@ int main(int argc, char ** argv)
   out << "\"case\": " << jstr(c.name) << ",\n";
   out << "\"case_file\": " << jstr(case_path) << ",\n";
   out << "\"build\": " << jstr(label) << ",\n";
+  out << "\"oneloop_warnings\": " << (oneloop_warnings ? "true" : "false") << ",\n";
   out << "\"n\": " << c.n << ", \"rank\": " << c.rank << ", \"lanes_count\": " << L << ",\n";
   out << "\"amplitude\": \"ninja::Amplitude<ninja::ComplexMasses>(n, rank, V, m2); setRenormalizationScale(mu_squared)"
          " (Ninja passes mu_R^2 to IntegralLibrary::init, AvHOneLoop uses mu_R=sqrt); setSMatrix if s_matrix given\",\n";

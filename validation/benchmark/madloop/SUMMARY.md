@@ -67,20 +67,24 @@ Generation = gen (in-process) + Source make + P dir make, seconds.
 
 | graph | build | full | entry | pure reduction | numerator part | masters |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| hgg-top-triangle-0 | o3-fortranrules | 10.92 | 11.09 | 2.94 | 4.64 | 3.23 |
-| hgg-top-triangle-0 | o3 | 13.05 | 13.28 | 3.52 | 6.14 | 3.24 |
-| four-photon-top-box-0 | o3-fortranrules | 41.75 | 41.69 | 9.07 | 22.70 | 8.95 |
-| four-photon-top-box-0 | o3 | 51.87 | 52.23 | 11.08 | 31.22 | 8.97 |
-| gg-hh-top-triangle-0 | o3-fortranrules | 9.56 | 9.67 | 2.90 | 4.65 | 1.91 |
-| gg-hh-top-triangle-0 | o3 | 11.72 | 11.91 | 3.56 | 6.13 | 1.90 |
-| gg-hh-top-box-2 | o3-fortranrules | 64.53 | 64.89 | 9.13 | 22.77 | 31.71 |
-| gg-hh-top-box-2 | o3 | 75.01 | 75.25 | 11.20 | 31.11 | 31.82 |
-| gg-hhh-top-triangle-0 | o3-fortranrules | 8.86 | 9.02 | 2.91 | 4.65 | 1.27 |
-| gg-hhh-top-triangle-0 | o3 | 11.05 | 11.18 | 3.56 | 6.14 | 1.27 |
-| gg-hhh-top-box-8 | o3-fortranrules | 59.81 | 60.15 | 9.30 | 22.77 | 26.83 |
-| gg-hhh-top-box-8 | o3 | 70.05 | 70.37 | 11.16 | 31.08 | 26.87 |
-| gg-hhh-top-pentagon-26 | o3-fortranrules | 209.61 | 208.95 | 22.60 | 81.06 | 101.58 |
-| gg-hhh-top-pentagon-26 | o3 | 245.19 | 244.23 | 27.08 | 112.79 | 101.35 |
+| hgg-top-triangle-0 | o3-fortranrules | 10.93 | 11.09 | 2.94 | 4.63 | 3.21 |
+| hgg-top-triangle-0 | o3 | 13.03 | 13.52 | 3.51 | 6.16 | 3.21 |
+| four-photon-top-box-0 | o3-fortranrules | 41.51 | 41.81 | 9.05 | 22.92 | 8.97 |
+| four-photon-top-box-0 | o3 | 51.75 | 52.12 | 11.03 | 31.16 | 9.02 |
+| gg-hh-top-triangle-0 | o3-fortranrules | 9.55 | 9.73 | 2.90 | 4.64 | 1.89 |
+| gg-hh-top-triangle-0 | o3 | 11.67 | 11.84 | 3.54 | 6.16 | 1.90 |
+| gg-hh-top-box-2 | o3-fortranrules | 64.50 | 65.35 | 9.14 | 22.76 | 32.13 |
+| gg-hh-top-box-2 | o3 | 75.47 | 75.45 | 11.19 | 31.31 | 32.08 |
+| gg-hhh-top-triangle-0 | o3-fortranrules | 8.90 | 9.07 | 2.91 | 4.64 | 1.27 |
+| gg-hhh-top-triangle-0 | o3 | 11.12 | 11.23 | 3.65 | 6.14 | 1.27 |
+| gg-hhh-top-box-8 | o3-fortranrules | 59.65 | 59.97 | 9.23 | 22.60 | 26.92 |
+| gg-hhh-top-box-8 | o3 | 70.08 | 70.49 | 11.12 | 31.13 | 27.10 |
+| gg-hhh-top-pentagon-26 | o3-fortranrules | 209.38 | 209.59 | 22.54 | 81.07 | 102.03 |
+| gg-hhh-top-pentagon-26 | o3 | 245.12 | 245.13 | 26.94 | 112.50 | 102.19 |
 
-Checks: diagram = hgg-top-triangle-0:ok, four-photon-top-box-0:ok, gg-hh-top-triangle-0:ok, gg-hh-top-box-2:ok, gg-hhh-top-triangle-0:ok, gg-hhh-top-box-8:ok, gg-hhh-top-pentagon-26:ok
-; Ninja inputs vs NinjaRS case invariants = hgg-top-triangle-0:ok, four-photon-top-box-0:ok, gg-hh-top-triangle-0:ok, gg-hh-top-box-2:ok, gg-hhh-top-triangle-0:ok, gg-hhh-top-box-8:ok, gg-hhh-top-pentagon-26:ok
+Checks:
+
+* diagram (vs the raw MadLoop/FeynKit matching evidence): hgg-top-triangle-0:ok, four-photon-top-box-0:ok, gg-hh-top-triangle-0:ok, gg-hh-top-box-2:ok, gg-hhh-top-triangle-0:ok, gg-hhh-top-box-8:ok, gg-hhh-top-pentagon-26:ok
+* MadLoop's Ninja inputs vs NinjaRS case (S-matrix and mass multisets per point): hgg-top-triangle-0:ok, four-photon-top-box-0:ok, gg-hh-top-triangle-0:ok, gg-hh-top-box-2:ok, gg-hhh-top-triangle-0:ok, gg-hhh-top-box-8:ok, gg-hhh-top-pentagon-26:ok
+* |eps0(MadLoop inputs) / eps0(NinjaRS case)| from original Ninja is one constant over the pool
+  points (same diagram and helicity; MadLoop's colour/normalisation factor): hgg-top-triangle-0:2 (spread 4e-15), four-photon-top-box-0:0.3333333333 (spread 8e-15), gg-hh-top-triangle-0:2 (spread 2e-15), gg-hh-top-box-2:2 (spread 1e-14), gg-hhh-top-triangle-0:2 (spread 6e-16), gg-hhh-top-box-8:2 (spread 1e-14), gg-hhh-top-pentagon-26:2 (spread 3e-15)

@@ -78,6 +78,18 @@ def main():
             replay = {v: {**{k: x / 1000 for k, x in r["timing"][v]["derived"].items() if k.endswith("_ns")},
                           "entry_ns": r["timing"][v]["median_ns"].get("full_madloop_entry", 0.0) / 1000}
                       for v in r["timing"]}
+        # Same diagram and helicity: original Ninja's finite part of MadLoop's
+        # exact inputs over that of the NinjaRS case, per pool point, must be one
+        # point-independent constant (MadLoop's colour/normalisation factor).
+        amplitude_ratio = None
+        rs = NINJA / f"{name}.json"
+        if rp.exists() and rs.exists():
+            a, b = json.loads(rp.read_text())["lanes"], json.loads(rs.read_text())["lanes"]
+            ratios = [complex(*x["eps0"]) / complex(*y["eps0"]) for x, y in zip(a, b)]
+            mags = [abs(z) for z in ratios]
+            amplitude_ratio = {"abs_eps0_madloop_over_ninjars": mags,
+                               "max_relative_spread": (max(mags) - min(mags)) / max(mags),
+                               "pass": len(a) == len(b) and (max(mags) - min(mags)) / max(mags) < 1e-9}
         rows.append({"graph": name, "filter_id": d["spec"]["filter_id"],
                      "helicity": d["helicities"], "hel_index": d["timing"]["default"]["hel_index"],
                      "n_helicity_configs": d["timing"]["default"]["n_helicity_configs"],
@@ -85,6 +97,7 @@ def main():
                      "ninjars_rank": d["ninja_input_check"]["ninjars_rank"],
                      "n": d["ninja_input_check"]["n"][0],
                      "diagram_check": d["diagram_check"]["pass"], "ninja_input_check": d["ninja_input_check"]["pass"],
+                     "amplitude_ratio_check": amplitude_ratio,
                      "generation_seconds_median": med(gen), "generation_seconds_all": gen,
                      "generation_wall_seconds_median": med(gen_wall),
                      "compile_seconds": comp, "per_point_us": timing, "replay_of_madloop_inputs_us": replay})
@@ -131,8 +144,17 @@ def main():
             continue
         for v, x in r["replay_of_madloop_inputs_us"].items():
             L.append(f"| {r['graph']} | {v} | {f(x['full_ns'])} | {f(x['entry_ns'])} | {f(x['pure_reduction_ns'])} | {f(x['numerator_part_ns'])} | {f(x['masters_ns'])} |")
-    L += ["", "Checks: diagram = " + ", ".join(f"{r['graph']}:{'ok' if r['diagram_check'] else 'FAIL'}" for r in rows),
-          "; Ninja inputs vs NinjaRS case invariants = " + ", ".join(f"{r['graph']}:{'ok' if r['ninja_input_check'] else 'FAIL'}" for r in rows), ""]
+    L += ["", "Checks:", "",
+          "* diagram (vs the raw MadLoop/FeynKit matching evidence): "
+          + ", ".join(f"{r['graph']}:{'ok' if r['diagram_check'] else 'FAIL'}" for r in rows),
+          "* MadLoop's Ninja inputs vs NinjaRS case (S-matrix and mass multisets per point): "
+          + ", ".join(f"{r['graph']}:{'ok' if r['ninja_input_check'] else 'FAIL'}" for r in rows),
+          "* |eps0(MadLoop inputs) / eps0(NinjaRS case)| from original Ninja is one constant over the pool",
+          "  points (same diagram and helicity; MadLoop's colour/normalisation factor): "
+          + ", ".join(f"{r['graph']}:" + (f"{r['amplitude_ratio_check']['abs_eps0_madloop_over_ninjars'][0]:.10g}"
+                                          f" (spread {r['amplitude_ratio_check']['max_relative_spread']:.0e})"
+                                          if r["amplitude_ratio_check"] and r["amplitude_ratio_check"]["pass"] else "FAIL")
+                      for r in rows), ""]
     (HERE / "SUMMARY.md").write_text("\n".join(L))
     print("\n".join(L))
 
