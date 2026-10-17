@@ -69,6 +69,16 @@ maximum scaled difference of `4.00e-18` between selections.
 
 CLI precision comparisons parse serialized values to binary64; they do not
 demonstrate additional accuracy. These development controls provide no timing
-or performance acceptance evidence. Future release comparisons must validate
-the preselected bound 32 on their own immutable artifact; bound 7 remains a
-correctness-tail stress setting. No automatic tuning or default change occurs.
+or performance acceptance evidence; bound 7 remains a correctness-tail stress
+setting. No automatic tuning or default change occurs.
+
+Optimized controls have also passed for the preselected bound 32 on a separate
+frozen release artifact. All three native selections agree exactly between
+Whole and fixed32 across widths 0/1/3/8/31/32/128/1024, and all five Whole
+selections agree within `4.00e-18` scaled error. The full set checks 67,485
+complex parity components. Original Ninja agreement is within `2.2e-16`.
+See `validation/evidence/native-block-release32.json` for source, dependency,
+compiler, executable and control identities. These controls do not establish
+complete production-backend or rational-component agreement. The same-artifact
+rank/block timing comparison is in progress; actual master computation and
+preparation will be accounted for in a separate instrumented pass.

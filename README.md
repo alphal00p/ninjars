@@ -133,17 +133,27 @@ experiments. Its [bounded triangle study](docs/audits/transpose-probe.md) proves
 the forward/transposed symbolic identities but finds lower instruction counts
 from forward fusion at one changing point. These counts exclude some required
 intermediate diagnostics and do not establish the final performance gates.
+The [retained-output follow-up](docs/audits/forward-diagnostic-fusion.md) finds
+that whole-network fusion increases the instruction count when those outputs
+are retained; smaller fusion regions remain under investigation.
 A follow-up [real-domain arithmetic audit](docs/audits/real-domain-arithmetic.md)
 identifies existing Symbolica annotations that generated Rust could use while
 preserving complex masses and all derivative components; that experiment is
 not yet implemented or measured.
 
+Optional [swapped-bubble arithmetic pruning](docs/swapped-bubble-arithmetic.md)
+uses Symbolica graphs containing only heads needed by residue projection.
+Full numerator callbacks and raw coefficient APIs are preserved. Ordinary and
+higher/mixed Dual correctness controls pass; this option has no performance
+measurement yet and remains separate from the native catalog.
+
 An explicit [native batch execution policy](docs/native-batch-policy.md) can
 bound generated-kernel scratch by processing whole rows in fixed blocks. `Whole`
 remains the default. The policy preserves complete Dual rows and applies to
 native generic kernels and guarded alternates; callbacks and masters retain
-their separate providers. Supported-path correctness controls pass, with physical
-performance measurements still outstanding.
+their separate providers. The [CLI and harness option](docs/native-block-execution.md)
+and optimized physical correctness controls pass. Complete-reduction rank/block
+timings are in progress; the performance gate remains unmet.
 
 See [synthetic graph fixtures](examples/graphs/README.md) and the
 [original Ninja reference harness](validation/reference/README.md).

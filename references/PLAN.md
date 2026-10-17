@@ -2057,3 +2057,36 @@ connects the existing kernels into integrated amplitudes and a standalone
   The entire same-artifact comparison restarts with the identical schedule,
   rounds, trials, modes and duration floor; no timing magnitudes motivated the
   correction and no partial favorable results are promoted.
+
+### Continued algorithm audit and measurement preparation (2026-10-17)
+
+- Paired-orientation inventory source `fda9047` rebinds the existing T2
+  denominator and bubble source-projection graphs, retains all 30 outputs, and
+  compares separate evaluators with two bounded Symbolica merge settings.
+  Root and an independent reviewer checked the parameter maps against the
+  core's actual orientation construction. It is not built or executed yet.
+- The separate design note `ce2f781` recommends a private core-created request
+  descriptor if the paired inventory is favorable. It must encapsulate its
+  request slices and original-row pairing; arbitrary public requests retain the
+  existing default path. Value-only equality is insufficient for precision,
+  signed zero and higher/mixed Dual identity. No paired dispatch is implemented.
+- A further source audit examines fusion to master weights and rational terms
+  before master execution. This would keep lazy zero-weight request selection
+  separate from the reduction graph. It must distinguish current intermediate
+  failure checks from input/pivot constraints, and explicitly address optional
+  diagnostics, callback eligibility and any changed stability contract before
+  a production experiment. No performance benefit is established.
+- The independent pruning harness source is `8a33a59`, based on `38f8569`. It
+  adds an independent disabled-by-default ABI option, explicit interpreted
+  configuration metadata, full/pruned five-head physical controls, and timing
+  preflight checks for the same sources, selection, policy and covered widths.
+  passes independent source review, formatting and syntax checks. Its tests
+  are unexecuted pending the current timing window.
+- A separate instrumented-release driver is prepared for all four native/rank
+  and Whole/fixed32 settings, widths 1/8, and preparation/shared-reduction/live
+  shared/production-complete scopes. Source review checks exact accounting,
+  reference/build/loader provenance and separation from primary timing artifacts.
+  The instrumented build and execution are still pending.
+- The full 96-process rank/block comparison continues under the preselected
+  schedule. Source-only work proceeds while builds and numerical/symbolic tests
+  are held. No partial timing results are selected or promoted.

@@ -66,8 +66,13 @@ owner tests, including writes in a failing callback block.
 
 Focused owner/consumer tests, strict Clippy, formatting, and a feature-off build
 are recorded in `validation/evidence/native-batch-policy`. Generated reduction
-bodies remain byte-identical to the consumer base revision. No performance
-benchmark has been run for this supported implementation; the separate earlier
-diagnostic does not measure this API or complete reduction.
-A separate CLI/harness execution-policy option and optimized physical controls
-remain to be added before comparing this opt-in with Whole on the physical workload.
+bodies remain byte-identical to the consumer base revision. The separate earlier
+kernel diagnostic does not measure this API or complete reduction.
+
+The [CLI and validation harness](native-block-execution.md) now expose an
+independent execution-policy option. Optimized physical controls on one frozen
+artifact pass for Whole and fixed32 across widths 0/1/3/8/31/32/128/1024;
+`validation/evidence/native-block-release32.json` records the exact artifacts
+and results. The complete-reduction timing comparison remains in progress.
+Correctness agreement does not establish a runtime benefit or performance
+acceptance.
