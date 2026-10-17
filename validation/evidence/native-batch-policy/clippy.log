@@ -1,0 +1,260 @@
+warning: patch `clarabel v0.11.1 (/shared/external/ninja/references/ninjars_native_blocking_optin/references/gammaloop_ninja_shared/vendor/clarabel)` was not used in the crate graph
+warning: patch `typst-library v0.15.1 (/shared/external/ninja/references/ninjars_native_blocking_optin/references/gammaloop_ninja_shared/vendor/typst-library)` was not used in the crate graph
+warning: patch `typst-svg v0.15.1 (/shared/external/ninja/references/ninjars_native_blocking_optin/references/gammaloop_ninja_shared/vendor/typst-svg)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+   Compiling libc v0.2.190
+   Compiling cfg-if v1.0.5
+    Checking serde_core v1.0.229
+   Compiling once_cell v1.21.4
+    Checking libm v0.2.16
+    Checking memchr v2.8.3
+    Checking serde v1.0.229
+   Compiling getrandom v0.2.17
+    Checking zerocopy v0.8.63
+   Compiling unty v0.0.4
+    Checking bytemuck v1.25.2
+    Checking log v0.4.34
+    Checking num-traits v0.2.19
+    Checking aho-corasick v1.1.5
+   Compiling bincode v2.0.1
+    Checking regex-syntax v0.8.11
+    Checking getrandom v0.3.4
+    Checking crossbeam-utils v0.8.23
+   Compiling bincode-trait-derive v0.1.1
+    Checking crossbeam-epoch v0.9.21
+    Checking num-complex v0.4.6
+    Checking smallvec v1.16.3
+    Checking either v1.19.0
+    Checking regex-automata v0.4.18
+   Compiling const-random-macro v0.1.16
+    Checking crossbeam-deque v0.8.8
+    Checking rand_core v0.9.5
+    Checking num-integer v0.1.47
+    Checking ppv-lite86 v0.2.21
+    Checking safe_arch v0.7.4
+    Checking scopeguard v1.2.0
+    Checking rand_chacha v0.9.0
+    Checking wide v0.7.33
+    Checking rayon-core v1.13.0
+    Checking const-random v0.1.18
+    Checking approx v0.5.1
+    Checking safe_arch v1.2.0
+    Checking tracing-core v0.1.36
+    Checking allocator-api2 v0.2.21
+    Checking equivalent v1.0.3
+    Checking foldhash v0.2.0
+    Checking simba v0.9.1
+    Checking wide v1.7.1
+    Checking ahash v0.8.12
+    Checking rayon v1.12.0
+    Checking rand v0.9.5
+    Checking num-bigint v0.4.8
+    Checking zmij v1.0.23
+    Checking gmp-mpfr-sys v1.7.1
+    Checking alloc-no-stdlib v2.0.4
+    Checking bitflags v1.3.2
+    Checking itoa v1.0.18
+    Checking winnow v1.0.4
+    Checking az v1.3.0
+    Checking lazy_static v1.5.1
+    Checking xprec v0.2.3
+    Checking rug v1.30.0
+    Checking toml_parser v1.1.5+spec-1.1.0
+    Checking serde_json v1.0.154
+    Checking num-rational v0.4.2
+    Checking alloc-stdlib v0.2.4
+    Checking itertools v0.14.0
+    Checking anyhow v1.0.104
+    Checking toml_datetime v1.1.2+spec-1.1.0
+    Checking serde_spanned v1.1.2
+    Checking dyn-clone v1.0.20
+    Checking pin-project-lite v0.2.17
+    Checking colored v3.1.1
+    Checking num-conv v0.2.2
+    Checking time-core v0.1.9
+    Checking option-ext v0.2.0
+    Checking deranged v0.5.9
+    Checking powerfmt v0.2.1
+    Checking toml_writer v1.1.3+spec-1.1.0
+    Checking dirs-sys v0.5.0
+    Checking toml v1.1.8+spec-1.1.0
+    Checking tracing v0.1.44
+    Checking wasmtime-jit-icache-coherence v34.0.2
+    Checking brotli-decompressor v5.0.3
+    Checking time v0.3.55
+    Checking sharded-slab v0.1.7
+    Checking region v3.0.2
+    Checking hashbrown v0.16.1
+    Checking tracing-serde v0.2.0
+    Checking tracing-log v0.2.0
+    Checking matchers v0.2.0
+    Checking corosensei v0.3.4
+    Checking thread_local v1.1.10
+    Checking hugepage-rs v0.1.1
+    Checking static_assertions v1.1.0
+    Checking nu-ansi-term v0.50.3
+    Checking spec_math v0.1.6
+    Checking smartstring v1.0.1
+    Checking brotli v8.0.4
+    Checking symjit v2.27.3
+    Checking tracing-subscriber v0.3.23
+    Checking directories v6.0.0
+    Checking libloading v0.9.0
+    Checking self_cell v1.3.0
+    Checking byteorder v1.5.0
+    Checking numerica v3.0.1 (/shared/external/ninja/references/ninjars_native_blocking_optin/references/symbolica/lib/numerica)
+    Checking append-only-vec v0.1.8
+    Checking tinyjson v2.5.1
+    Checking data-encoding v2.11.1
+    Checking bytes v1.12.1
+    Checking inventory v0.3.25
+    Checking ed25519-compact v2.6.0
+warning: unused import: `ComplexField`
+ --> references/symbolica/lib/numerica/src/domains/float/double.rs:9:21
+  |
+9 | use simba::scalar::{ComplexField, RealField};
+  |                     ^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unnecessary `unsafe` block
+  --> references/symbolica/lib/numerica/src/domains/float/double.rs:48:28
+   |
+48 |             Ok(DoubleFloat(unsafe { Df64::new_full(hi, lo) }))
+   |                            ^^^^^^ unnecessary `unsafe` block
+   |
+   = note: `#[warn(unused_unsafe)]` (part of `#[warn(unused)]`) on by default
+
+warning: unnecessary `unsafe` block
+  --> references/symbolica/lib/numerica/src/domains/float/double.rs:75:35
+   |
+75 |             return Ok(DoubleFloat(unsafe { Df64::new_full(hi, lo) }));
+   |                                   ^^^^^^ unnecessary `unsafe` block
+
+warning: `numerica` (lib) generated 3 warnings
+    Checking graphica v3.0.1 (/shared/external/ninja/references/ninjars_native_blocking_optin/references/symbolica/lib/graphica)
+    Checking symbolica v3.0.1 (/shared/external/ninja/references/ninjars_native_blocking_optin/references/symbolica)
+   Compiling typenum v1.20.1
+   Compiling hybrid-array v0.4.15
+   Compiling bitflags v2.13.2
+   Compiling linux-raw-sys v0.12.1
+   Compiling rustix v1.1.5
+warning: unused `Result` that must be used
+   --> references/symbolica/src/atom.rs:776:9
+    |
+776 |         self.export(&mut data);
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: this `Result` may be an `Err` variant, which should be handled
+    = note: `#[warn(unused_must_use)]` (part of `#[warn(unused)]`) on by default
+help: use `let _ = ...` to ignore the resulting value
+    |
+776 |         let _ = self.export(&mut data);
+    |         +++++++
+
+warning: `symbolica` (lib) generated 1 warning
+    Checking oneloop v0.1.0 (/shared/external/ninja/references/ninjars_native_blocking_optin/references/oneloopmaster)
+   Compiling errno v0.3.14
+   Compiling utf8parse v0.2.2
+    Checking unicode-width v0.2.2
+   Compiling anstyle-parse v1.0.0
+   Compiling signal-hook-registry v1.4.8
+   Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+   Compiling psm v0.1.24
+   Compiling const-oid v0.10.2
+   Compiling colorchoice v1.0.5
+   Compiling anstyle-query v1.1.5
+   Compiling anstyle v1.0.14
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling anstream v1.0.0
+   Compiling digest v0.11.3
+   Compiling stacker v0.1.25
+   Compiling signal-hook v0.3.18
+   Compiling terminal_size v0.4.4
+   Compiling lock_api v0.4.14
+   Compiling parking_lot_core v0.9.12
+   Compiling mio v1.2.4
+   Compiling bstr v1.13.1
+   Compiling rand_core v0.6.4
+   Compiling cpufeatures v0.3.1
+   Compiling clap_lex v1.1.1
+   Compiling ucd-trie v0.1.7
+   Compiling same-file v1.0.6
+   Compiling strsim v0.11.1
+   Compiling unicase v2.10.0
+   Compiling clap_builder v4.6.7
+   Compiling pest v2.9.4
+   Compiling walkdir v2.5.0
+   Compiling sha2 v0.11.1
+   Compiling rand_chacha v0.3.1
+   Compiling globset v0.4.20
+   Compiling signal-hook-mio v0.2.5
+   Compiling parking_lot v0.12.5
+warning: `numerica` (lib) generated 3 warnings (3 duplicates)
+   Compiling derive_more v2.1.1
+   Compiling hashbrown v0.17.1
+   Compiling iana-time-zone v0.1.65
+   Compiling rawpointer v0.2.1
+   Compiling matrixmultiply v0.3.11
+   Compiling indexmap v2.14.2
+   Compiling chrono v0.4.45
+   Compiling crossterm v0.29.0
+   Compiling rust-embed-utils v8.13.0
+   Compiling rand v0.8.8
+   Compiling pest_meta v2.9.4
+   Compiling clap v4.6.7
+   Compiling console v0.16.6
+   Compiling regex v1.13.1
+   Compiling indenter v0.3.4
+   Compiling winnow v0.7.15
+   Compiling arrayvec v0.7.8
+   Compiling pest_generator v2.9.4
+    Checking tap v1.0.1
+    Checking wyz v0.5.1
+    Checking uncased v0.9.10
+    Checking radium v0.7.0
+    Checking fnv v1.0.7
+    Checking bytecount v0.6.9
+    Checking funty v2.0.0
+    Checking jiff-core v0.1.1
+    Checking jiff v0.2.38
+   Compiling pest_derive v2.9.4
+    Checking dot-parser v0.5.1 (/shared/external/ninja/references/ninjars_native_blocking_optin/references/gammaloop_ninja_shared/vendor/dot-parser)
+    Checking bitvec v1.1.1
+    Checking papergrid v0.18.0
+    Checking thiserror v2.0.21
+    Checking figment v0.10.19
+    Checking env_filter v2.0.0
+    Checking testing_table v0.3.0
+    Checking symbolica-utils v0.1.0 (/shared/external/ninja/references/ninjars_native_blocking_optin/references/gammaloop_ninja_shared/crates/symbolica-utils)
+    Checking num-iter v0.1.46
+    Checking num v0.4.3
+    Checking tabled v0.22.0
+    Checking env_logger v0.11.11
+    Checking eyre v0.6.14
+    Checking rand_xoshiro v0.6.0
+    Checking features v0.10.0
+    Checking constcat v0.5.1
+    Checking gat-lending-iterator v0.1.8
+    Checking ref-ops v0.2.5
+warning: function `register_callbacks` is never used
+  --> references/oneloopmaster/tests/../src/definitions.rs:11:15
+   |
+11 | pub(crate) fn register_callbacks() {
+   |               ^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `oneloop` (test "function_definitions") generated 1 warning
+warning: `symbolica` (lib) generated 1 warning (1 duplicate)
+   Compiling gammaloop-workspace-hack v0.1.0 (/shared/external/ninja/references/ninjars_native_blocking_optin/references/gammaloop_ninja_shared/crates/gammaloop-workspace-hack)
+    Checking linnet v0.17.0 (/shared/external/ninja/references/ninjars_native_blocking_optin/references/gammaloop_ninja_shared/crates/linnet)
+    Checking spenso v0.6.0 (/shared/external/ninja/references/ninjars_native_blocking_optin/references/gammaloop_ninja_shared/crates/spenso)
+    Checking feynkit-kinematics v0.1.0 (/shared/external/ninja/references/ninjars_native_blocking_optin/references/gammaloop_ninja_shared/crates/feynkit-kinematics)
+    Checking ninjars v0.1.0 (/shared/external/ninja/references/ninjars_native_blocking_optin/crates/ninjars)
+    Checking ninjars-symbolica v0.1.0 (/shared/external/ninja/references/ninjars_native_blocking_optin/crates/ninjars-symbolica)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3m 49s

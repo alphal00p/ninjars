@@ -1,0 +1,26 @@
+
+running 15 tests
+test kernel::blocking_probe::native_blocking_archive_metadata_and_jsonl_are_readable ... ok
+test kernel::blocking_probe::native_blocking_finite_heads_match_symbolica_oracle ... ok
+test kernel::blocking_probe::native_blocking_full_dual_reducer_and_failed_mixed_component ... ok
+test kernel::blocking_probe::native_blocking_microbenchmark ... ignored, requires a coordinated quiet window and NINJARS_BLOCKING_QUIET_WINDOW=approved
+test kernel::blocking_probe::native_blocking_natural_scalar_tails_preserve_exceptional_values ... ok
+test kernel::blocking_probe::native_blocking_preserves_all_components_and_precision ... NATIVE_BLOCKING_EXACT {"complex_components_compared":421872,"derivative_shape":[[0,0],[1,0],[0,1],[2,0],[1,1]],"precision_bits":53,"signed_zero_bits_checked":true,"timing":false}
+NATIVE_BLOCKING_EXACT {"complex_components_compared":421872,"derivative_shape":[[0,0],[1,0],[0,1],[2,0],[1,1]],"precision_bits":106,"signed_zero_bits_checked":true,"timing":false}
+NATIVE_BLOCKING_EXACT {"complex_components_compared":421872,"derivative_shape":[[0,0],[1,0],[0,1],[2,0],[1,1]],"precision_bits":192,"signed_zero_bits_checked":true,"timing":false}
+ok
+test kernel::blocking_probe::native_blocking_preserves_lazy_branches_and_shared_helper_calls ... ok
+test kernel::blocking_probe::native_blocking_preserves_reducer_statuses_residues_and_retry ... ok
+test kernel::blocking_probe::native_blocking_retains_mixed_input_significant_bits ... ok
+test kernel::blocking_probe::supported_batch_policy_matches_native_values_and_oracle ... NATIVE_BLOCKING_EXACT {"complex_components_compared":421872,"derivative_shape":[[0,0],[1,0],[0,1],[2,0],[1,1]],"precision_bits":53,"signed_zero_bits_checked":true,"timing":false}
+NATIVE_BLOCKING_EXACT {"complex_components_compared":421872,"derivative_shape":[[0,0],[1,0],[0,1],[2,0],[1,1]],"precision_bits":106,"signed_zero_bits_checked":true,"timing":false}
+NATIVE_BLOCKING_EXACT {"complex_components_compared":421872,"derivative_shape":[[0,0],[1,0],[0,1],[2,0],[1,1]],"precision_bits":192,"signed_zero_bits_checked":true,"timing":false}
+ok
+test kernel::blocking_probe::supported_batch_policy_preserves_exceptional_and_mixed_precision_values ... ok
+test kernel::blocking_probe::supported_batch_policy_preserves_lazy_shared_helpers ... ok
+test kernel::blocking_probe::supported_batch_policy_preserves_ordinary_and_dual_reducer_controls ... ok
+test kernel::blocking_probe::supported_policy_tests::supported_policy_bounds_previously_grown_native_and_dual_rank_workspaces ... ok
+test kernel::blocking_probe::supported_policy_tests::supported_policy_factory_selection_is_explicit_and_order_independent ... ok
+
+test result: ok. 14 passed; 0 failed; 1 ignored; 0 measured; 33 filtered out; finished in 34.88s
+

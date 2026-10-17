@@ -1,0 +1,11 @@
+
+running 6 tests
+test native::batch::tests::controlled_workspace_reuses_parent_stride_and_keeps_inactive_values ... ok
+test native::batch::tests::fixed_policy_checks_complete_shapes_before_reset_or_writes ... ok
+test native::batch::tests::fixed_policy_preserves_rows_order_tails_and_releases_all_oversized_arenas ... ok
+test native::batch::tests::fixed_policy_retains_prototype_and_input_precision ... ok
+test native::batch::tests::policy_calls_whole_once_and_returns_block_errors_in_row_order ... ok
+test native::batch::tests::workspace_dimensions_overflow_without_mutation_and_copies_preserve_precision ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 82 filtered out; finished in 0.00s
+

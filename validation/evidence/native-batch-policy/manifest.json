@@ -1,0 +1,473 @@
+{
+  "recorded_utc": "2026-10-17T00:32:04.407114+00:00",
+  "scope": "Explicit supported native batch bounds: correctness and compatibility only",
+  "runtime_benchmark_executed": false,
+  "owner": {
+    "path": "/shared/external/ninja/references/oneloopmaster_native_blocking",
+    "branch": "codex/native-blocking-policy",
+    "base": "53106429b849e5bcf843f111429be76227b4e0ce",
+    "source_commit": "c9dd82fd1a6e3fc638b01df95bd0cf09ceda3460",
+    "source_sha256": [
+      {
+        "path": "src/native/batch.rs",
+        "sha256": "b250daa48a1369ec15735f9b5645db90b00d1f1a22503db26acb23a30110d3f3"
+      },
+      {
+        "path": "src/rust_codegen.rs",
+        "sha256": "e76ecae5a24f166bce59cccb5d8adefde7718ef641603b5003f8cf29d862dbc2"
+      }
+    ],
+    "publication": "Not yet published; direct main push awaits parent review"
+  },
+  "consumer": {
+    "path": "/shared/external/ninja/references/ninjars_native_blocking_optin",
+    "branch": "codex/native-blocking-optin",
+    "base": "dbaaadff45712f4df608ec197a9c5be2e138fee1",
+    "source_commit": "9013b787e57c70d3d9622af83333d599cbce0dfb",
+    "source_sha256": [
+      {
+        "path": "crates/ninjars-symbolica/src/amplitude.rs",
+        "sha256": "9103c9cf381a46a288e725feba43097ec453df2bce98bbfdc9000e6f324550da"
+      },
+      {
+        "path": "crates/ninjars-symbolica/src/bubble_kernels.rs",
+        "sha256": "c4806f2e659fd7206ad1b22755ff8239950ebd652e3db7db8ea5f0836dc2db7d"
+      },
+      {
+        "path": "crates/ninjars-symbolica/src/kernel.rs",
+        "sha256": "17947906352792942c5e3247abce430c1bb77ce41b6ca4a9d5d89ce25ee0db5f"
+      },
+      {
+        "path": "crates/ninjars-symbolica/src/lib.rs",
+        "sha256": "38c0103a431a6d54a2f3fdbd1b8f0a32fb400c83902d2ba1d8f77ff5c544740b"
+      },
+      {
+        "path": "crates/ninjars-symbolica/src/native_batch_policy_tests.rs",
+        "sha256": "dc8b25d87dcf05e053eca7e1c6bec40685c23e57f57d41889500eb08e15be414"
+      },
+      {
+        "path": "crates/ninjars-symbolica/src/native_blocking_fixture/mod.rs",
+        "sha256": "b8153b172fda340bc693db0d8219e1b83ee8ec0044918ae4a48e782e664536d3"
+      },
+      {
+        "path": "crates/ninjars-symbolica/src/native_blocking_probe.rs",
+        "sha256": "a778c7c954397eb822e17408a9d1146aa12d7a6377c119fef756d4eab1d8f57c"
+      },
+      {
+        "path": "crates/ninjars-symbolica/src/native_kernels/bubbles.rs",
+        "sha256": "7d34f297b5f9c15bf099f8cd68be32e6f702f9dbe5f55fb55cceeeb5012ae32b"
+      },
+      {
+        "path": "crates/ninjars-symbolica/src/native_kernels/mod.rs",
+        "sha256": "da9863b06dead0d8ed7859ea402c898b9969d3983e87ee948f8b2b27a5d1b953"
+      },
+      {
+        "path": "crates/ninjars-symbolica/src/native_kernels/rank_specialization.rs",
+        "sha256": "83c5100ecfee86915d6317a6d8f1677924e5c92ca686f7247f11abc926301e71"
+      },
+      {
+        "path": "crates/ninjars-symbolica/src/native_kernels/tadpoles.rs",
+        "sha256": "d390aa042b47d82529e34c4aabf829c28fd356d2195921d7bb6475788a9f9673"
+      },
+      {
+        "path": "crates/ninjars-symbolica/src/native_rank_specialization_tests.rs",
+        "sha256": "3c9857cececa8571be0c3c75962379c1ab7437c2cda4449eb283d9d2c4d0e2e5"
+      },
+      {
+        "path": "crates/ninjars-symbolica/src/tadpole_kernels.rs",
+        "sha256": "d70c22c1df695cbd324b472bf11400b2cc3c7b6113f7800a0adf9b1158a47ea6"
+      },
+      {
+        "path": "crates/ninjars-symbolica/src/triangle_kernels.rs",
+        "sha256": "7395c67572d7f70eea81f2878766db06a9e60e810f158aeed2414c61675d10bd"
+      },
+      {
+        "path": "docs/native-batch-policy.md",
+        "sha256": "9ce79402f291581b167fff1950110c659e393249132a7633357bcbbe016fc389"
+      }
+    ]
+  },
+  "dependencies": [
+    {
+      "name": "symbolica",
+      "resolved_path": "/shared/external/ninja/references/symbolica_conditional_cache",
+      "revision": "2c06f245835d57535418b5d78f711fe191db49cc",
+      "status": ""
+    },
+    {
+      "name": "feynkit",
+      "resolved_path": "/shared/external/ninja/references/gammaloop_ninja_shared",
+      "revision": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93",
+      "status": ""
+    },
+    {
+      "name": "canonical_oneloopmaster",
+      "resolved_path": "/shared/external/ninja/references/oneloopmaster",
+      "revision": "53106429b849e5bcf843f111429be76227b4e0ce",
+      "status": ""
+    },
+    {
+      "name": "immutable_inverse_oneloopmaster",
+      "resolved_path": "/shared/external/ninja/references/oneloopmaster_native_inverse",
+      "revision": "53106429b849e5bcf843f111429be76227b4e0ce",
+      "status": ""
+    }
+  ],
+  "toolchain": {
+    "rustc": "1.98.1 (48a229cea 2026-09-01)",
+    "cargo": "1.98.1 (797e8a9bc 2026-08-05)",
+    "host": "x86_64-unknown-linux-gnu",
+    "llvm": "22.1.8"
+  },
+  "execution": {
+    "profile": "debug/test (existing dependency optimization settings)",
+    "cargo_build_jobs": 4,
+    "numerical_lock": "/tmp/ninjars-symbolica-tests.lock",
+    "test_threads": 1,
+    "test_stack_bytes": 134217728,
+    "source_env_files": [
+      "/tmp/ninjars-build-env-paths",
+      "/tmp/ninjars-symbolica-env"
+    ]
+  },
+  "tests": [
+    {
+      "log": "owner-batch.log",
+      "passed": 6,
+      "filter": "native::batch::"
+    },
+    {
+      "log": "owner-codegen.log",
+      "passed": 14,
+      "filter": "rust_codegen::"
+    },
+    {
+      "log": "upstream-primitives.log",
+      "passed": 12,
+      "filter": "all"
+    },
+    {
+      "log": "consumer-controls.log",
+      "passed": 14,
+      "ignored": 1,
+      "filter": "kernel::blocking_probe"
+    },
+    {
+      "log": "native-rank.log",
+      "passed": 11,
+      "filter": "rank_specialization::tests::native"
+    },
+    {
+      "log": "dual-factory.log",
+      "passed": 1,
+      "filter": "explicit_batch_policy_reaches_dual_factory",
+      "duplicate_of": "native-rank.log"
+    },
+    {
+      "log": "upstream-batch.log",
+      "passed": 1,
+      "filter": "all"
+    }
+  ],
+  "distinct_tests_passed": 58,
+  "other_checks": {
+    "strict_clippy": true,
+    "feature_off_build": true,
+    "consumer_package_format": true,
+    "owner_changed_file_format": true,
+    "git_diff_check": true
+  },
+  "known_non_test_failure": {
+    "log": "upstream-build.log",
+    "reason": "Cargo rejected selecting features for an external package alone; selecting both owner and consumer packages succeeded in upstream-final-build.log. No numerical failure."
+  },
+  "generated_sources": [
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/bubble_constants.rs",
+      "sha256": "213ca09ff146cbf8f674def0b6fe24c22862cd6cedec18a1764a2e8143c338dd",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/bubble_correction_degree0.rs",
+      "sha256": "52074c1b1becfc8dffa24345acb5866a08e032861b5ed694169dca863599be9e",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/bubble_correction_degree1.rs",
+      "sha256": "19683a2e2dc1b22eb5b6eb5b55e9cd64ea0ed7302bbb138038333c0ef02be33e",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/bubble_correction_degree2.rs",
+      "sha256": "d0f73eac42d514ee148e2791a0fb45e6414ee92fae02c08efa79e2303938717a",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/bubble_correction_higher.rs",
+      "sha256": "3c4d9fc7e63c07ff98f6ed47466c781753bb6376e0461e2e1c97e78b18a5d302",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/bubble_metadata.json",
+      "sha256": "5dd8779f2ddad18f47c1bc0203048cec12c815cea064977c57067f8504fd8576",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/bubble_source_projection.rs",
+      "sha256": "c248d2e9f84d8dfccaaf1d698b34dd186fee5c37ba7b7e71755297c159ec7f53",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/constants.rs",
+      "sha256": "b25814febc54c7878e4f19004a207da7262f19fb61aecdadb06437917c23214a",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/metadata.json",
+      "sha256": "ab58cbcd39e525618abbef2943d6c07edb6a0e0344b027f310e2c21ebbe1ed95",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/rank_bubble_to_tadpole_n5_r4.rs",
+      "sha256": "e1993c117f3e8956c54c46952814cd74f0f41f8f9d293b7284a0ecd4648108b9",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/rank_bubble_to_tadpole_n5_r4_dual.rs",
+      "sha256": "000712cac2be73edc9e7ff7e67957ad72ae540fabc343b663ab56677e7230b8c",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/rank_specialization_constants.rs",
+      "sha256": "0e66ca698d31083e81dbd224b472572240bff308c2aa30f0c5875bbc756b238a",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/rank_specialization_metadata.json",
+      "sha256": "be1c41466a235bfdbf8728fd17d39d6c56ec44fe97adb9506245415635fe1e78",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/rank_triangle_to_bubble_n5_r4.rs",
+      "sha256": "6e2cbd33f135fffc480f4a85d7b007d9d821fb8971201ece6b3fae88e13ae0f7",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/rank_triangle_to_bubble_n5_r4_dual.rs",
+      "sha256": "159aecf20097c4b708b175d86b5fd73fc14ff594bdbf2ca62dc14f802c48d9f3",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/rank_triangle_to_tadpole_n5_r4.rs",
+      "sha256": "e8f964892aa65d7afe09ee163dd4107d536af64efc9b9ebffe8c88386dde0189",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/rank_triangle_to_tadpole_n5_r4_dual.rs",
+      "sha256": "176bb857d12ec82e708c186516cd2d4a411eb6e76e0133d8abc124a7a3f84a73",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/t2.rs",
+      "sha256": "56978b64a8bcb16efddb51e68fc7fa1b44e3ff8ef0f98241d58ba7c8132c04a4",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/t2_dual.rs",
+      "sha256": "63b3209266e9f79837bc7997d94ac7b380fdbbcac8b02a9d6a4641a3294979cd",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/t3.rs",
+      "sha256": "d4bed73a16a3ca0cf04f28131234aa7516af18ff27f56444c14d20148fe15651",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/t3_dual.rs",
+      "sha256": "71f898af6f6e91f2f221beeb4f15d0247b2a7e93affdd86b398170760743eb1d",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_bubble_projection.rs",
+      "sha256": "37e5a6b46e5220b678f116d68af522afb2a0a88db022d7b7049e9d5878ec4d7e",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_bubble_projection_dual.rs",
+      "sha256": "723ee1a35d2c9028e6bb71c381ad74a99048f5e0ae7b72eef08f852b9efbfa02",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_constants.rs",
+      "sha256": "dc3143df42388804afbacb2a86d0f3b3c0308934437394f5a906025418062266",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_geometry_probe.rs",
+      "sha256": "9c8ae06eed788a147a97b06461785f2cef33861b174e7808e010d8df80e418bf",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_geometry_probe_dual.rs",
+      "sha256": "ea086814f28b38e035c9e4396ffccb1014c07546e2eba3c458d8e22bbbd1bea4",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_metadata.json",
+      "sha256": "1840503ef84cc112e855c9a7d5aa9d8bc9d8f531897d256f78085dfe8af5aac6",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_triangle_projection.rs",
+      "sha256": "616c1c0dc83e9de7f05007276b90ede2b68e256a9553e1f139e3ec2174f4cfd4",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/generated/tadpole_triangle_projection_dual.rs",
+      "sha256": "5bc005d63eb281f443f6e5bc3a2d5374b05363f866c493ba9d3128c87e780c0d",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_blocking_fixture/body.rs",
+      "sha256": "b849905063e275023cf6dfb6904709f8863ae0494a72a71b66454021e2cb7d89",
+      "byte_identical_to_base": true
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_blocking_fixture/constants.rs",
+      "sha256": "de0bd94a3fba2b72ff91a43643f740278f84fea0303ddebef15f606612cec6e0",
+      "byte_identical_to_base": true
+    }
+  ],
+  "test_executables": [
+    {
+      "path": "/common/build-cache/external/dd/754b44f0571f77/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+      "sha256": "59352095ec38497b2c5a8984b50219e55d850c44042ffd8edb9956ad87aea594",
+      "bytes": 537346256
+    },
+    {
+      "path": "/common/build-cache/external/dd/754b44f0571f77/debug/deps/oneloop-057a3ef26f7fa480",
+      "sha256": "241b5347d01980676a2c2b71679522cf914fc77a34b1909cd10ce7bc2c6409d2",
+      "bytes": 406767952
+    },
+    {
+      "path": "/common/build-cache/external/dd/754b44f0571f77/debug/deps/native_primitives-e9c96f322b24c2cb",
+      "sha256": "0aa35dd8f5e8b2fc1511e3883ceb80eaf8d708d72961245f157e9475946d439f",
+      "bytes": 349863392
+    },
+    {
+      "path": "/common/build-cache/external/dd/754b44f0571f77/debug/deps/rust_batch_codegen-1a0a56a6ca785e67",
+      "sha256": "3f5834541c577b928df09042b7fe7661d482c67e3a319235ab1c157107fc02fb",
+      "bytes": 392262048
+    }
+  ],
+  "raw_logs": [
+    {
+      "path": "build.jsonl",
+      "sha256": "dd362635f0dc5566c28a3c71d902416300604aa5c7bc08f8af84758432399765",
+      "bytes": 277611
+    },
+    {
+      "path": "build.log",
+      "sha256": "344d7791bfb2e02e6c18141adb94864d0c083df2605f2322ebe010a5387faeb6",
+      "bytes": 9988
+    },
+    {
+      "path": "clippy.log",
+      "sha256": "f8758547d45496a1ca09998e9b6fc1d3fcf20fee773e4f6be5678b02ac900c51",
+      "bytes": 10481
+    },
+    {
+      "path": "consumer-controls.log",
+      "sha256": "7f3d61d2697b53743bf72d90b401fe6b735c6dd9b93027611cac35d1556fb142",
+      "bytes": 2758
+    },
+    {
+      "path": "dual-factory.log",
+      "sha256": "8e38532fd5184e0d1bf8405360b6e49f708d1d77663358da2bdfff19b6f02d2c",
+      "bytes": 232
+    },
+    {
+      "path": "feature-off.log",
+      "sha256": "d9ef52b5d4bd9cbdecd5f04031dc97a85498cbad1077666c02ccba2de1c70c47",
+      "bytes": 2876
+    },
+    {
+      "path": "final-build.jsonl",
+      "sha256": "ee9fda7feba0270f0de5b29bf3e4abe5f56695711d519a3278ec2c6ea27e6078",
+      "bytes": 277311
+    },
+    {
+      "path": "final-build.log",
+      "sha256": "ce1c1bbfd3c45d81323c570bf4185817588019effa9b4605d9e2bad0596904a9",
+      "bytes": 1207
+    },
+    {
+      "path": "format.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "native-rank.log",
+      "sha256": "dbe3ba2e8de2daaa415b61218300eacd014d9a47362fe90908e2f15a4fc6e5ad",
+      "bytes": 1308
+    },
+    {
+      "path": "owner-batch.log",
+      "sha256": "211c1b6e32570b56e23262aaba8ccea279f96c66192e6c0a933033bae5418bfb",
+      "bytes": 709
+    },
+    {
+      "path": "owner-codegen.log",
+      "sha256": "58c52e94bcad92cd3dc93c26024c11dea9b7046af02e5ce432d148b16ea664cc",
+      "bytes": 1516
+    },
+    {
+      "path": "owner-format.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "owner-tests.list",
+      "sha256": "4f16851de0c0d18b6628f7372abe1f525c513e9dc3559821a6356b3f9f519ec3",
+      "bytes": 6655
+    },
+    {
+      "path": "upstream-batch.log",
+      "sha256": "af53dc3b397aa61050d01d4e4097ade3f6bc56b032b782f31291de880007431c",
+      "bytes": 897
+    },
+    {
+      "path": "upstream-build.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "upstream-build.log",
+      "sha256": "e8ba25ea0890bf6630709e9f811ccb71944e489015181c521f81c609f9040c2a",
+      "bytes": 65
+    },
+    {
+      "path": "upstream-final-build.jsonl",
+      "sha256": "041c37f62c953fbdcff8bf442aa05eed55698e53941127217f3cc884aecc767f",
+      "bytes": 140321
+    },
+    {
+      "path": "upstream-final-build.log",
+      "sha256": "3ada372f04d70dfe02b73bc02af4f9636b072b1c1b27a47e00a1ec33864ab004",
+      "bytes": 1078
+    },
+    {
+      "path": "upstream-primitives.log",
+      "sha256": "5bdd935d7c8bf7679fbe9caf52f029df74203c4a2381d77f35126113b3d6133b",
+      "bytes": 876
+    }
+  ],
+  "limitations": [
+    "No supported-path runtime or end-to-end performance measurement.",
+    "The earlier frozen kernel diagnostic is separate and does not establish complete-reduction acceptance.",
+    "Existing upstream integration logs include emission/compilation elapsed diagnostics; these are correctness-run metadata, not a performance comparison.",
+    "No canonical or frozen dependency checkout or alias was changed.",
+    "Whole remains direct native generated dispatch; FixedRows is explicit only.",
+    "Callback errors are not rolled back and may modify the failing block as well as prior blocks."
+  ]
+}

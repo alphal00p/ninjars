@@ -1,0 +1,17 @@
+
+running 12 tests
+test native_float_hypot_tracks_component_precision ... ok
+test native_integer_powers_preserve_real_axis_signed_lips ... ok
+test native_inverse_three_halves_avoids_overflowing_intermediates ... ok
+test native_primitives_binary64_hypot_exact_axes_and_nonfinite_values ... ok
+test native_primitives_binary64_subnormals_and_extremes ... ok
+test native_primitives_disparate_component_precision ... ok
+test native_primitives_double_float_retains_low_components ... ok
+test native_primitives_exact_axes_all_types ... ok
+test native_primitives_general_powers_and_quadrants ... ok
+test native_primitives_thousand_decimal_digits ... ok
+test native_reciprocal_nonfinite_axes_delegate_to_symbolica ... ok
+test native_scalar_half_powers_preserve_unbalanced_precision ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+

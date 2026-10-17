@@ -1,0 +1,13 @@
+
+running 1 test
+test generated_batch_numeric_precision_dual_trace_and_allocation_contracts ... ordinary source: scalar_bytes=1049 scalar_plus_batch_bytes=4309
+lazy source: scalar_plus_batch_bytes=10011 flattened_dual_bytes=117108
+native batch probe: source_bytes=239355 prepare_and_emit_seconds=0.006094 optimized_rustc_seconds=22.161520; instruction-major trace=[("log", 1.0), ("log", 4.0), ("log", 9.0), ("sqrt", 1.0), ("sqrt", 4.0), ("sqrt", 9.0), ("abs", 1.0), ("abs", 4.0), ("abs", 9.0)]
+warmed f64 allocation count=0; fresh single-row allocation count=0; numeric/precision/Dual controls passed
+lazy active-lane trace=[("log", 4.0), ("log", 9.0), ("sqrt", 4.0), ("sqrt", 9.0), ("powi", 2.0), ("powi", 4.0)]; retained stride=128
+lazy warmed allocation count=0; inactive singular arms skipped
+
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 22.49s
+
