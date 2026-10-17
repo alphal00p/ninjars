@@ -1,0 +1,438 @@
+{
+  "schema": "ninjars-reference-ninja-builds-v1",
+  "ninja_commit": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+  "ninja_checkout_dirty": false,
+  "cxx_compiler": "g++ (GCC) 15.3.0",
+  "fortran_compiler": "GNU Fortran (GCC) 15.3.0",
+  "environment": {
+    "NIX_HARDENING_ENABLE": "",
+    "note": "nix wrapper hardening disabled; nixpkgs gcc still defaults to -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer, -march=x86-64 -mtune=generic"
+  },
+  "build_root": "/shared/external/ninja/references/claude_reference/target/benchmark",
+  "oneloop": {
+    "3.6": {
+      "version": "3.6",
+      "sources": [
+        {
+          "origin": "/shared/external/ninja/references/claude_reference/references/MG5_aMC_v3_7_0/HEPTools/oneloop/OneLOop-3.6/avh_olo.f90",
+          "sha256": "f3cd1a8a24a6ed0eeafad13dfb76db4d92b76a650557bffe1ece66f19ed0075f"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "gfortran",
+            "-O3",
+            "-fPIC",
+            "-c",
+            "avh_olo.f90"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.6",
+          "seconds": 22.644
+        },
+        {
+          "argv": [
+            "ar",
+            "rcs",
+            "libavh_olo.a",
+            "avh_olo.o"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.6",
+          "seconds": 0.011
+        }
+      ],
+      "fflags": [
+        "-O3",
+        "-fPIC"
+      ],
+      "fortran_compiler": "GNU Fortran (GCC) 15.3.0",
+      "library_sha256": "502929c43f0dcb301cad8aa37ca4e88e15052a6f7e2042c6d88620d922ca68bb"
+    },
+    "3.4": {
+      "version": "3.4",
+      "sources": [
+        {
+          "origin": "/shared/external/ninja/references/claude_reference/references/MG5_aMC_v3_7_0/vendor/IREGI/src/oneloop/avh_olo_foriregi.f90",
+          "sha256": "a8479811673441cce6d1b147f2c08af08453bc7e9876c3702b3fbec9676a51cd"
+        },
+        {
+          "origin": "/shared/external/ninja/references/claude_reference/validation/reference/avh_olo_alias.f90",
+          "sha256": "f7344c747eda05b78fefc63ca2c100fd37d373633a97e9d18b61f78ed7db2daf"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "gfortran",
+            "-O3",
+            "-fPIC",
+            "-c",
+            "avh_olo_foriregi.f90",
+            "avh_olo_alias.f90"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.4",
+          "seconds": 9.184
+        },
+        {
+          "argv": [
+            "ar",
+            "rcs",
+            "libavh_olo.a",
+            "avh_olo_foriregi.o",
+            "avh_olo_alias.o"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.4",
+          "seconds": 0.006
+        }
+      ],
+      "fflags": [
+        "-O3",
+        "-fPIC"
+      ],
+      "fortran_compiler": "GNU Fortran (GCC) 15.3.0",
+      "library_sha256": "28c37c328fadd6f4f09f973bfb961b3bccb3c729583a92dc2186fd947ccbe4dd"
+    }
+  },
+  "variants": {
+    "o3": {
+      "variant": "o3",
+      "cxxflags": "-O3 -DNDEBUG",
+      "fcflags": "-O3",
+      "instrumented": false,
+      "oneloop_version": "3.6",
+      "oneloop_library": "/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.6/libavh_olo.a",
+      "oneloop_library_sha256": "502929c43f0dcb301cad8aa37ca4e88e15052a6f7e2042c6d88620d922ca68bb",
+      "prefix": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3/install",
+      "madgraph_ninja_dir": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3/install/lib",
+      "configuration": {
+        "config_sha256": "2468fc46b1fe8e5d2351ba81952a7c3432da07d771c421b8ad90efe7d32c191a",
+        "NINJA_USE_ONELOOP": true,
+        "NINJA_USE_ONELOOP_WITH_CACHE": false,
+        "NINJA_X1RANK": true,
+        "QUADNINJA": false
+      },
+      "ninja_config_quadsupport": "false",
+      "commands": [
+        {
+          "argv": [
+            "autoreconf",
+            "-fi"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3/ninja-source",
+          "seconds": 4.299
+        },
+        {
+          "argv": [
+            "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3/ninja-source/configure",
+            "--prefix=/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3/install",
+            "--disable-shared",
+            "--disable-autoflags",
+            "--disable-gosam",
+            "--enable-higher_rank",
+            "--disable-avholo_cache",
+            "--with-avholo=-L/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.6 -lavh_olo",
+            "FCINCLUDE=-I/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.6",
+            "CXXFLAGS=-O3 -DNDEBUG",
+            "FCFLAGS=-O3"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3/ninja-build",
+          "seconds": 8.079
+        },
+        {
+          "argv": [
+            "make",
+            "-C",
+            "src",
+            "-j",
+            "24",
+            "libninja.la"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3/ninja-build",
+          "seconds": 7.833
+        },
+        {
+          "argv": [
+            "make"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3/ninja-build",
+          "seconds": 0.73
+        },
+        {
+          "argv": [
+            "make",
+            "install"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3/ninja-build",
+          "seconds": 0.314
+        }
+      ],
+      "effective_compile_lines": {
+        "ninja.cc": "/nix/store/svx59425zxp552p2b8gm11qj5r09b56i-bash-5.3p15/bin/bash ../libtool  --tag=CXX   --mode=compile g++ -DHAVE_CONFIG_H -I. -I/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3/ninja-source/src -I.. -I../src/ninja     -O3 -DNDEBUG -MT ninja.lo -MD -MP -MF $depbase.Tpo -c -o ninja.lo /shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3/ninja-source/src/ninja.cc &&\\",
+        "avholo_wrapper.F90": "/nix/store/svx59425zxp552p2b8gm11qj5r09b56i-bash-5.3p15/bin/bash ../libtool  --tag=FC   --mode=compile gfortran -DHAVE_CONFIG_H -I. -I/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3/ninja-source/src -I.. -I../src/ninja    -I/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.6 -O3 -c -o avholo_wrapper.lo /shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3/ninja-source/src/avholo_wrapper.F90"
+      },
+      "library_sha256": {
+        "libninja.a": "b6c3a01e70c155211b3abdab557afa99eb60ec9a50e5ab5b49323f22381b1869",
+        "libavh_olo.a": "502929c43f0dcb301cad8aa37ca4e88e15052a6f7e2042c6d88620d922ca68bb"
+      },
+      "instrumentation_sources_sha256": null
+    },
+    "o3-fortranrules": {
+      "variant": "o3-fortranrules",
+      "cxxflags": "-O3 -DNDEBUG -fcx-fortran-rules",
+      "fcflags": "-O3",
+      "instrumented": false,
+      "oneloop_version": "3.6",
+      "oneloop_library": "/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.6/libavh_olo.a",
+      "oneloop_library_sha256": "502929c43f0dcb301cad8aa37ca4e88e15052a6f7e2042c6d88620d922ca68bb",
+      "prefix": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules/install",
+      "madgraph_ninja_dir": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules/install/lib",
+      "configuration": {
+        "config_sha256": "2468fc46b1fe8e5d2351ba81952a7c3432da07d771c421b8ad90efe7d32c191a",
+        "NINJA_USE_ONELOOP": true,
+        "NINJA_USE_ONELOOP_WITH_CACHE": false,
+        "NINJA_X1RANK": true,
+        "QUADNINJA": false
+      },
+      "ninja_config_quadsupport": "false",
+      "commands": [
+        {
+          "argv": [
+            "autoreconf",
+            "-fi"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules/ninja-source",
+          "seconds": 4.151
+        },
+        {
+          "argv": [
+            "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules/ninja-source/configure",
+            "--prefix=/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules/install",
+            "--disable-shared",
+            "--disable-autoflags",
+            "--disable-gosam",
+            "--enable-higher_rank",
+            "--disable-avholo_cache",
+            "--with-avholo=-L/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.6 -lavh_olo",
+            "FCINCLUDE=-I/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.6",
+            "CXXFLAGS=-O3 -DNDEBUG -fcx-fortran-rules",
+            "FCFLAGS=-O3"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules/ninja-build",
+          "seconds": 7.879
+        },
+        {
+          "argv": [
+            "make",
+            "-C",
+            "src",
+            "-j",
+            "24",
+            "libninja.la"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules/ninja-build",
+          "seconds": 6.323
+        },
+        {
+          "argv": [
+            "make"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules/ninja-build",
+          "seconds": 0.727
+        },
+        {
+          "argv": [
+            "make",
+            "install"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules/ninja-build",
+          "seconds": 0.296
+        }
+      ],
+      "effective_compile_lines": {
+        "ninja.cc": "/nix/store/svx59425zxp552p2b8gm11qj5r09b56i-bash-5.3p15/bin/bash ../libtool  --tag=CXX   --mode=compile g++ -DHAVE_CONFIG_H -I. -I/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules/ninja-source/src -I.. -I../src/ninja     -O3 -DNDEBUG -fcx-fortran-rules -MT ninja.lo -MD -MP -MF $depbase.Tpo -c -o ninja.lo /shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules/ninja-source/src/ninja.cc &&\\",
+        "avholo_wrapper.F90": "/nix/store/svx59425zxp552p2b8gm11qj5r09b56i-bash-5.3p15/bin/bash ../libtool  --tag=FC   --mode=compile gfortran -DHAVE_CONFIG_H -I. -I/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules/ninja-source/src -I.. -I../src/ninja    -I/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.6 -O3 -c -o avholo_wrapper.lo /shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules/ninja-source/src/avholo_wrapper.F90"
+      },
+      "library_sha256": {
+        "libninja.a": "858309a8a0759066bcdb6a95d216e84a27470bdab1b005b54caa743d742458cb",
+        "libavh_olo.a": "502929c43f0dcb301cad8aa37ca4e88e15052a6f7e2042c6d88620d922ca68bb"
+      },
+      "instrumentation_sources_sha256": null
+    },
+    "o3-fortranrules-instr": {
+      "variant": "o3-fortranrules-instr",
+      "cxxflags": "-O3 -DNDEBUG -fcx-fortran-rules",
+      "fcflags": "-O3",
+      "instrumented": true,
+      "oneloop_version": "3.6",
+      "oneloop_library": "/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.6/libavh_olo.a",
+      "oneloop_library_sha256": "502929c43f0dcb301cad8aa37ca4e88e15052a6f7e2042c6d88620d922ca68bb",
+      "prefix": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules-instr/install",
+      "madgraph_ninja_dir": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules-instr/install/lib",
+      "configuration": {
+        "config_sha256": "2468fc46b1fe8e5d2351ba81952a7c3432da07d771c421b8ad90efe7d32c191a",
+        "NINJA_USE_ONELOOP": true,
+        "NINJA_USE_ONELOOP_WITH_CACHE": false,
+        "NINJA_X1RANK": true,
+        "QUADNINJA": false
+      },
+      "ninja_config_quadsupport": "false",
+      "commands": [
+        {
+          "argv": [
+            "/nix/store/0srdpi18gkibqqrzllfvphsykkq0kdnx-python3-3.14.7-env/bin/python3",
+            "/shared/external/ninja/references/claude_reference/validation/benchmark/instrument_ninja.py",
+            "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules-instr/ninja-source"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules-instr",
+          "seconds": 0.035
+        },
+        {
+          "argv": [
+            "autoreconf",
+            "-fi"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules-instr/ninja-source",
+          "seconds": 4.165
+        },
+        {
+          "argv": [
+            "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules-instr/ninja-source/configure",
+            "--prefix=/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules-instr/install",
+            "--disable-shared",
+            "--disable-autoflags",
+            "--disable-gosam",
+            "--enable-higher_rank",
+            "--disable-avholo_cache",
+            "--with-avholo=-L/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.6 -lavh_olo",
+            "FCINCLUDE=-I/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.6",
+            "CXXFLAGS=-O3 -DNDEBUG -fcx-fortran-rules",
+            "FCFLAGS=-O3"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules-instr/ninja-build",
+          "seconds": 8.086
+        },
+        {
+          "argv": [
+            "make",
+            "-C",
+            "src",
+            "-j",
+            "24",
+            "libninja.la"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules-instr/ninja-build",
+          "seconds": 6.498
+        },
+        {
+          "argv": [
+            "make"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules-instr/ninja-build",
+          "seconds": 0.726
+        },
+        {
+          "argv": [
+            "make",
+            "install"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules-instr/ninja-build",
+          "seconds": 0.345
+        }
+      ],
+      "effective_compile_lines": {
+        "ninja.cc": "/nix/store/svx59425zxp552p2b8gm11qj5r09b56i-bash-5.3p15/bin/bash ../libtool  --tag=CXX   --mode=compile g++ -DHAVE_CONFIG_H -I. -I/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules-instr/ninja-source/src -I.. -I../src/ninja     -O3 -DNDEBUG -fcx-fortran-rules -MT ninja.lo -MD -MP -MF $depbase.Tpo -c -o ninja.lo /shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules-instr/ninja-source/src/ninja.cc &&\\",
+        "avholo_wrapper.F90": "/nix/store/svx59425zxp552p2b8gm11qj5r09b56i-bash-5.3p15/bin/bash ../libtool  --tag=FC   --mode=compile gfortran -DHAVE_CONFIG_H -I. -I/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules-instr/ninja-source/src -I.. -I../src/ninja    -I/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.6 -O3 -c -o avholo_wrapper.lo /shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-fortranrules-instr/ninja-source/src/avholo_wrapper.F90"
+      },
+      "library_sha256": {
+        "libninja.a": "77e89dc5f41f0a16e17a7676ec6c87c965f0d3780c65607d44180f55b5945a28",
+        "libavh_olo.a": "502929c43f0dcb301cad8aa37ca4e88e15052a6f7e2042c6d88620d922ca68bb"
+      },
+      "instrumentation_sources_sha256": {
+        "instrument_ninja.py": "d8366ef0c23272777ac2dde7829ec3f5d140417b7ebf377cec1ef9c9329a2250",
+        "ninja_bench_timers.hh": "128c50fb5fba40886924a36778177fbee91317da497bed817ee4930d01b77e9e"
+      }
+    },
+    "o3-ol34": {
+      "variant": "o3-ol34",
+      "cxxflags": "-O3 -DNDEBUG",
+      "fcflags": "-O3",
+      "instrumented": false,
+      "oneloop_version": "3.4",
+      "oneloop_library": "/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.4/libavh_olo.a",
+      "oneloop_library_sha256": "28c37c328fadd6f4f09f973bfb961b3bccb3c729583a92dc2186fd947ccbe4dd",
+      "prefix": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-ol34/install",
+      "madgraph_ninja_dir": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-ol34/install/lib",
+      "configuration": {
+        "config_sha256": "2468fc46b1fe8e5d2351ba81952a7c3432da07d771c421b8ad90efe7d32c191a",
+        "NINJA_USE_ONELOOP": true,
+        "NINJA_USE_ONELOOP_WITH_CACHE": false,
+        "NINJA_X1RANK": true,
+        "QUADNINJA": false
+      },
+      "ninja_config_quadsupport": "false",
+      "commands": [
+        {
+          "argv": [
+            "autoreconf",
+            "-fi"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-ol34/ninja-source",
+          "seconds": 4.234
+        },
+        {
+          "argv": [
+            "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-ol34/ninja-source/configure",
+            "--prefix=/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-ol34/install",
+            "--disable-shared",
+            "--disable-autoflags",
+            "--disable-gosam",
+            "--enable-higher_rank",
+            "--disable-avholo_cache",
+            "--with-avholo=-L/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.4 -lavh_olo",
+            "FCINCLUDE=-I/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.4",
+            "CXXFLAGS=-O3 -DNDEBUG",
+            "FCFLAGS=-O3"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-ol34/ninja-build",
+          "seconds": 8.041
+        },
+        {
+          "argv": [
+            "make",
+            "-C",
+            "src",
+            "-j",
+            "24",
+            "libninja.la"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-ol34/ninja-build",
+          "seconds": 7.94
+        },
+        {
+          "argv": [
+            "make"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-ol34/ninja-build",
+          "seconds": 0.736
+        },
+        {
+          "argv": [
+            "make",
+            "install"
+          ],
+          "cwd": "/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-ol34/ninja-build",
+          "seconds": 0.382
+        }
+      ],
+      "effective_compile_lines": {
+        "ninja.cc": "/nix/store/svx59425zxp552p2b8gm11qj5r09b56i-bash-5.3p15/bin/bash ../libtool  --tag=CXX   --mode=compile g++ -DHAVE_CONFIG_H -I. -I/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-ol34/ninja-source/src -I.. -I../src/ninja     -O3 -DNDEBUG -MT ninja.lo -MD -MP -MF $depbase.Tpo -c -o ninja.lo /shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-ol34/ninja-source/src/ninja.cc &&\\",
+        "avholo_wrapper.F90": "/nix/store/svx59425zxp552p2b8gm11qj5r09b56i-bash-5.3p15/bin/bash ../libtool  --tag=FC   --mode=compile gfortran -DHAVE_CONFIG_H -I. -I/shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-ol34/ninja-source/src -I.. -I../src/ninja    -I/shared/external/ninja/references/claude_reference/target/benchmark/oneloop-3.4 -O3 -c -o avholo_wrapper.lo /shared/external/ninja/references/claude_reference/target/benchmark/ninja-o3-ol34/ninja-source/src/avholo_wrapper.F90"
+      },
+      "library_sha256": {
+        "libninja.a": "d2951af29fd6077981cfd2ebd37f5b399c4c0713241989aa41781d631f75943e",
+        "libavh_olo.a": "28c37c328fadd6f4f09f973bfb961b3bccb3c729583a92dc2186fd947ccbe4dd"
+      },
+      "instrumentation_sources_sha256": null
+    }
+  }
+}

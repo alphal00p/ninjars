@@ -1,0 +1,2162 @@
+{
+ "graph": "four-photon-top-box-0",
+ "spec": {
+  "process": "a a > a a [virt=QED]",
+  "model": "loop_sm_qed_validation",
+  "pool": "four-photon.json",
+  "base_filter": "n==4 and all(abs(p)==6 for p in loop_pdgs)",
+  "filter_id": 182
+ },
+ "pool": "/shared/external/ninja/references/claude_numerator/validation/benchmark/points/four-photon.json",
+ "pool_sha256": "5d3a18f335c6e2a35301130a96a5985265a983252b482b63553644197522fdf0",
+ "helicities": [
+  1,
+  1,
+  1,
+  1
+ ],
+ "mu_R": 100.0,
+ "reps": [
+  {
+   "default": {
+    "generation_seconds": 1.4814503809902817,
+    "generation_wall_seconds": 2.740639378025662,
+    "generation_breakdown": {
+     "python_imports": 0.10130191902862862,
+     "interface_setup": 0.04173861601157114,
+     "set": 0.0004246419994160533,
+     "import": 0.17623354401439428,
+     "generate": 0.6534717259928584,
+     "output": 1.6661377219716087,
+     "source_make_inside_output": 1.1795161879854277,
+     "output_without_source_make": 0.486621533986181,
+     "generation_total_in_process": 1.4814503809902817,
+     "process_total_in_process": 2.6609665689757094
+    },
+    "source_make_seconds": 1.1795161879854277,
+    "pdir_make_seconds": 2.6267282880144194,
+    "global_flag": "",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/four-photon-top-box-0/rep1-default/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 182,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      22,
+      22,
+      22,
+      22
+     ],
+     "vertices": [
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 4,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 5,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   },
+   "O3": {
+    "generation_seconds": 1.5050681980210356,
+    "generation_wall_seconds": 2.7998880710219964,
+    "generation_breakdown": {
+     "python_imports": 0.108587384049315,
+     "interface_setup": 0.04192962602246553,
+     "set": 0.0004291909863241017,
+     "import": 0.17640174401458353,
+     "generate": 0.6436352040036581,
+     "output": 1.726697359001264,
+     "source_make_inside_output": 1.2152225539903156,
+     "output_without_source_make": 0.5114748050109483,
+     "generation_total_in_process": 1.5050681980210356,
+     "process_total_in_process": 2.7202907520113513
+    },
+    "source_make_seconds": 2.7623684180434793,
+    "pdir_make_seconds": 5.594599223986734,
+    "global_flag": "-O3",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/four-photon-top-box-0/rep1-O3/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 182,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      22,
+      22,
+      22,
+      22
+     ],
+     "vertices": [
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 4,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 5,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   }
+  },
+  {
+   "default": {
+    "generation_seconds": 1.616027288022451,
+    "generation_wall_seconds": 2.886725953023415,
+    "generation_breakdown": {
+     "python_imports": 0.10274964402196929,
+     "interface_setup": 0.0425940080313012,
+     "set": 0.00042975408723577857,
+     "import": 0.17617598397191614,
+     "generate": 0.6466124840080738,
+     "output": 1.8256929600029252,
+     "source_make_inside_output": 1.1998021239996888,
+     "output_without_source_make": 0.6258908360032365,
+     "generation_total_in_process": 1.616027288022451,
+     "process_total_in_process": 2.81582941202214
+    },
+    "source_make_seconds": 1.1998021239996888,
+    "pdir_make_seconds": 2.507202838023659,
+    "global_flag": "",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/four-photon-top-box-0/rep2-default/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 182,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      22,
+      22,
+      22,
+      22
+     ],
+     "vertices": [
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 4,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 5,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   },
+   "O3": {
+    "generation_seconds": 1.5364676699973643,
+    "generation_wall_seconds": 2.7268413529964164,
+    "generation_breakdown": {
+     "python_imports": 0.11035472899675369,
+     "interface_setup": 0.04457580501912162,
+     "set": 0.0004776120185852051,
+     "import": 0.18116180901415646,
+     "generate": 0.6483516890439205,
+     "output": 1.6504248499986716,
+     "source_make_inside_output": 1.1207463860046118,
+     "output_without_source_make": 0.5296784639940597,
+     "generation_total_in_process": 1.5364676699973643,
+     "process_total_in_process": 2.657214056001976
+    },
+    "source_make_seconds": 2.551320601021871,
+    "pdir_make_seconds": 5.31106296001235,
+    "global_flag": "-O3",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/four-photon-top-box-0/rep2-O3/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 182,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      22,
+      22,
+      22,
+      22
+     ],
+     "vertices": [
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 4,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 5,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   }
+  },
+  {
+   "default": {
+    "generation_seconds": 1.4923598649911582,
+    "generation_wall_seconds": 2.6859288880368695,
+    "generation_breakdown": {
+     "python_imports": 0.10185097099747509,
+     "interface_setup": 0.04204450699035078,
+     "set": 0.00042044202564284205,
+     "import": 0.1740197169710882,
+     "generate": 0.6488340419600718,
+     "output": 1.626336571003776,
+     "source_make_inside_output": 1.1228961540036835,
+     "output_without_source_make": 0.5034404170000926,
+     "generation_total_in_process": 1.4923598649911582,
+     "process_total_in_process": 2.6152560189948417
+    },
+    "source_make_seconds": 1.1228961540036835,
+    "pdir_make_seconds": 2.47646028699819,
+    "global_flag": "",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/four-photon-top-box-0/rep3-default/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 182,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      22,
+      22,
+      22,
+      22
+     ],
+     "vertices": [
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 4,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 5,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   },
+   "O3": {
+    "generation_seconds": 1.4868153880233876,
+    "generation_wall_seconds": 2.7113713010330684,
+    "generation_breakdown": {
+     "python_imports": 0.10339141596341506,
+     "interface_setup": 0.043007408967241645,
+     "set": 0.00044613907812163234,
+     "import": 0.17407319595804438,
+     "generate": 0.6379177059861831,
+     "output": 1.6571148409857415,
+     "source_make_inside_output": 1.1507924729958177,
+     "output_without_source_make": 0.5063223679899238,
+     "generation_total_in_process": 1.4868153880233876,
+     "process_total_in_process": 2.6376078610192053
+    },
+    "source_make_seconds": 2.576157820993103,
+    "pdir_make_seconds": 5.287191749957856,
+    "global_flag": "-O3",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/four-photon-top-box-0/rep3-O3/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 182,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      22,
+      22,
+      22,
+      22
+     ],
+     "vertices": [
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 30,
+       "legs": [
+        {
+         "id": 22,
+         "number": 4,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 5,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   }
+  }
+ ],
+ "diagram_check": {
+  "evidence": "/shared/external/ninja/references/claude_reference/validation/evidence/four-photon-madloop.json",
+  "evidence_sha256": "4b9b7a3061b88b12773e699f2b6d2db3dcf00285d77472d1e892396f3ce3cbf2",
+  "pass": true,
+  "compared": "filter id, loop PDGs, attached PDGs, vertex ids and (leg id, number, state, loop_line)"
+ },
+ "timing": {
+  "default": {
+   "executables_sha256": {
+    "bench": "f6edefdc9a8917369252f48c99399297b21444eece425f0b7e90520b64cc99ed",
+    "bench_skip": "0d5538543ecf83eb8971b0ed47a1c43aecdeb62cbebd61457413db426510245e",
+    "bench_instr": "c3bbb53ab350cf037772dfe4e384521f81ed35509cb89e7562e939f5eeebb055"
+   },
+   "hel_index": 16,
+   "n_helicity_configs": 16,
+   "runs": [
+    {
+     "full": {
+      "results": [
+       [
+        0.0,
+        1.3691538941516563e-11,
+        -8.503530904497611e-11,
+        1.320341675114434e-10
+       ],
+       [
+        0.0,
+        1.9744837171892175e-09,
+        -2.031776372857972e-09,
+        5.239993050922662e-10
+       ],
+       [
+        0.0,
+        3.7107046648421582e-09,
+        -2.0642809070182426e-09,
+        3.2655042554381604e-10
+       ]
+      ],
+      "blocks_s": [
+       6.57023333e-05,
+       6.60899786e-05,
+       6.68753595e-05,
+       6.57924048e-05,
+       6.58171667e-05,
+       6.59852143e-05,
+       6.65238595e-05,
+       6.64968595e-05,
+       6.6071619e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 140,
+      "evaluations": 3780.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 7.2033842201099934e-06,
+      "median_s": 6.6071619e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "45.39",
+       "44.58",
+       "44.11"
+      ]
+     },
+     "skip_loop_eval": {
+      "results": [
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ]
+      ],
+      "blocks_s": [
+       2.07449656e-05,
+       2.06786093e-05,
+       2.06041048e-05,
+       2.07718526e-05,
+       2.07108952e-05,
+       2.06850057e-05,
+       2.04621057e-05,
+       2.03417125e-05,
+       2.02827764e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 407,
+      "evaluations": 10989.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 0.0,
+      "median_s": 2.06786093e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "45.39",
+       "44.58",
+       "44.11"
+      ]
+     },
+     "instrumented": {
+      "results": [
+       [
+        0.0,
+        1.3691538941516563e-11,
+        -8.503530904497611e-11,
+        1.320341675114434e-10
+       ],
+       [
+        0.0,
+        1.9744837171892175e-09,
+        -2.031776372857972e-09,
+        5.239993050922662e-10
+       ],
+       [
+        0.0,
+        3.7107046648421582e-09,
+        -2.0642809070182426e-09,
+        3.2655042554381604e-10
+       ]
+      ],
+      "blocks_s": [
+       6.70983833e-05,
+       6.67040262e-05,
+       6.63283833e-05,
+       6.61883571e-05,
+       6.59389548e-05,
+       6.60127643e-05,
+       6.64070976e-05,
+       6.6223381e-05,
+       6.626105e-05
+      ],
+      "n_rank": [
+       {
+        "n": 4,
+        "rank": 4,
+        "calls": 3780.0
+       }
+      ],
+      "sweeps_per_block": 140,
+      "evaluations": 3780.0,
+      "tsc_hz": 2249992910.0,
+      "counters": [
+       361860805.0,
+       192596978.0,
+       78607303.0,
+       0.0,
+       3780.0,
+       102060.0,
+       56700.0,
+       0.0
+      ],
+      "checksum": 7.2033842201099934e-06,
+      "median_s": 6.626105e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "45.39",
+       "44.58",
+       "44.11"
+      ]
+     }
+    },
+    {
+     "full": {
+      "results": [
+       [
+        0.0,
+        1.3691538941516563e-11,
+        -8.503530904497611e-11,
+        1.320341675114434e-10
+       ],
+       [
+        0.0,
+        1.9744837171892175e-09,
+        -2.031776372857972e-09,
+        5.239993050922662e-10
+       ],
+       [
+        0.0,
+        3.7107046648421582e-09,
+        -2.0642809070182426e-09,
+        3.2655042554381604e-10
+       ]
+      ],
+      "blocks_s": [
+       6.52198582e-05,
+       6.6255156e-05,
+       6.56716076e-05,
+       6.54242553e-05,
+       6.56307801e-05,
+       6.5672435e-05,
+       6.56901418e-05,
+       6.58720591e-05,
+       6.56120804e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 141,
+      "evaluations": 3807.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 7.254674139398755e-06,
+      "median_s": 6.56716076e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "45.39",
+       "44.58",
+       "44.11"
+      ]
+     },
+     "skip_loop_eval": {
+      "results": [
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ]
+      ],
+      "blocks_s": [
+       2.03874752e-05,
+       2.0217269e-05,
+       2.02176898e-05,
+       2.02013771e-05,
+       2.01636716e-05,
+       2.00638276e-05,
+       2.01778218e-05,
+       2.01139431e-05,
+       1.99393144e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 404,
+      "evaluations": 10908.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 0.0,
+      "median_s": 2.01778218e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "45.68",
+       "44.66",
+       "44.14"
+      ]
+     },
+     "instrumented": {
+      "results": [
+       [
+        0.0,
+        1.3691538941516563e-11,
+        -8.503530904497611e-11,
+        1.320341675114434e-10
+       ],
+       [
+        0.0,
+        1.9744837171892175e-09,
+        -2.031776372857972e-09,
+        5.239993050922662e-10
+       ],
+       [
+        0.0,
+        3.7107046648421582e-09,
+        -2.0642809070182426e-09,
+        3.2655042554381604e-10
+       ]
+      ],
+      "blocks_s": [
+       6.60854652e-05,
+       6.66461617e-05,
+       6.72094975e-05,
+       6.72304428e-05,
+       6.71848458e-05,
+       6.72839502e-05,
+       6.65566592e-05,
+       6.63814851e-05,
+       6.66136493e-05
+      ],
+      "n_rank": [
+       {
+        "n": 4,
+        "rank": 4,
+        "calls": 3618.0
+       }
+      ],
+      "sweeps_per_block": 134,
+      "evaluations": 3618.0,
+      "tsc_hz": 2249992900.0,
+      "counters": [
+       346666907.0,
+       183466128.0,
+       75170352.0,
+       0.0,
+       3618.0,
+       97686.0,
+       54270.0,
+       0.0
+      ],
+      "checksum": 6.895644704377425e-06,
+      "median_s": 6.66461617e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "45.68",
+       "44.66",
+       "44.14"
+      ]
+     }
+    }
+   ],
+   "ninja_case": "/shared/external/ninja/references/claude_reference/validation/benchmark/madloop/cases/madloop-four-photon-top-box-0.json",
+   "helicity_summed_filter_failure": "initialization failed",
+   "helicity_summed": {
+    "results": [
+     [
+      0.0,
+      3.25224662644181e-10,
+      1.3472735098660757e-09,
+      1.7094127722794243e-09
+     ],
+     [
+      0.0,
+      1.3703296271947538e-08,
+      -2.8880324579417425e-10,
+      2.3838133469024283e-09
+     ],
+     [
+      0.0,
+      2.0915698683777527e-08,
+      -6.479828480622506e-09,
+      2.0770520687117534e-09
+     ]
+    ],
+    "blocks_s": [
+     0.000929673778,
+     0.000926390037,
+     0.000932621185,
+     0.000932048963,
+     0.000931416,
+     0.000933543037,
+     0.000933144519,
+     0.000931389296,
+     0.00093080637
+    ],
+    "n_rank": [],
+    "sweeps_per_block": 9,
+    "evaluations": 243.0,
+    "tsc_hz": -1.0,
+    "counters": [
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0
+    ],
+    "checksum": 2.9702586675613946e-06,
+    "median_s": 0.000931416,
+    "madloop_warnings": 0,
+    "load_before": [
+     "45.68",
+     "44.66",
+     "44.14"
+    ]
+   },
+   "helicity_filter_level_summed": 0
+  },
+  "O3": {
+   "executables_sha256": {
+    "bench": "5b6000bb7290c86e083315966c797422803a17083297310805e63841bf2b7bb3",
+    "bench_skip": "67f3927d4745c492306b24b3150f4c3b4b0ebb09e345bca447539bee30007ea5",
+    "bench_instr": "50b77a1ba0e77743cd1add0d1dedeab45fcb34a5888ed7162aa44bc0d77dfc3a"
+   },
+   "hel_index": 16,
+   "n_helicity_configs": 16,
+   "runs": [
+    {
+     "full": {
+      "results": [
+       [
+        0.0,
+        1.3691538941516563e-11,
+        -8.503530904497611e-11,
+        1.320341675114434e-10
+       ],
+       [
+        0.0,
+        1.9744837171892175e-09,
+        -2.031776372857972e-09,
+        5.239993050922662e-10
+       ],
+       [
+        0.0,
+        3.7107046648421582e-09,
+        -2.0642809070182426e-09,
+        3.2655042554381604e-10
+       ]
+      ],
+      "blocks_s": [
+       5.96252506e-05,
+       6.38584621e-05,
+       5.97301701e-05,
+       5.9851092e-05,
+       5.97265632e-05,
+       5.98600552e-05,
+       5.98122644e-05,
+       5.9696954e-05,
+       5.97173195e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 145,
+      "evaluations": 3915.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 7.4598338165538e-06,
+      "median_s": 5.97301701e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "45.68",
+       "44.66",
+       "44.14"
+      ]
+     },
+     "skip_loop_eval": {
+      "results": [
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ]
+      ],
+      "blocks_s": [
+       1.86027077e-05,
+       1.84015585e-05,
+       1.85203505e-05,
+       1.83905675e-05,
+       1.83577114e-05,
+       1.83528852e-05,
+       1.83553617e-05,
+       1.83509098e-05,
+       1.83493736e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 447,
+      "evaluations": 12069.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 0.0,
+      "median_s": 1.83577114e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "45.68",
+       "44.66",
+       "44.14"
+      ]
+     },
+     "instrumented": {
+      "results": [
+       [
+        0.0,
+        1.3691538941516563e-11,
+        -8.503530904497611e-11,
+        1.320341675114434e-10
+       ],
+       [
+        0.0,
+        1.9744837171892175e-09,
+        -2.031776372857972e-09,
+        5.239993050922662e-10
+       ],
+       [
+        0.0,
+        3.7107046648421582e-09,
+        -2.0642809070182426e-09,
+        3.2655042554381604e-10
+       ]
+      ],
+      "blocks_s": [
+       6.01901735e-05,
+       6.04032557e-05,
+       6.04055616e-05,
+       6.04896279e-05,
+       6.03749703e-05,
+       6.03680251e-05,
+       6.04436461e-05,
+       6.03359269e-05,
+       6.03469772e-05
+      ],
+      "n_rank": [
+       {
+        "n": 4,
+        "rank": 4,
+        "calls": 3942.0
+       }
+      ],
+      "sweeps_per_block": 146,
+      "evaluations": 3942.0,
+      "tsc_hz": 2249992800.0,
+      "counters": [
+       375078580.0,
+       200667338.0,
+       80651634.0,
+       0.0,
+       3942.0,
+       106434.0,
+       59130.0,
+       0.0
+      ],
+      "checksum": 7.511123735842562e-06,
+      "median_s": 6.03749703e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "44.34",
+       "44.40",
+       "44.06"
+      ]
+     }
+    },
+    {
+     "full": {
+      "results": [
+       [
+        0.0,
+        1.3691538941516563e-11,
+        -8.503530904497611e-11,
+        1.320341675114434e-10
+       ],
+       [
+        0.0,
+        1.9744837171892175e-09,
+        -2.031776372857972e-09,
+        5.239993050922662e-10
+       ],
+       [
+        0.0,
+        3.7107046648421582e-09,
+        -2.0642809070182426e-09,
+        3.2655042554381604e-10
+       ]
+      ],
+      "blocks_s": [
+       5.97380936e-05,
+       5.99305137e-05,
+       5.98890525e-05,
+       5.99481393e-05,
+       5.98632763e-05,
+       5.98640297e-05,
+       5.99760868e-05,
+       6.00358333e-05,
+       5.98717922e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 146,
+      "evaluations": 3942.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 7.511123735842562e-06,
+      "median_s": 5.98890525e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "44.34",
+       "44.40",
+       "44.06"
+      ]
+     },
+     "skip_loop_eval": {
+      "results": [
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ]
+      ],
+      "blocks_s": [
+       1.87965488e-05,
+       1.87240425e-05,
+       1.86887785e-05,
+       1.87004407e-05,
+       1.87169366e-05,
+       1.86793154e-05,
+       1.86916644e-05,
+       1.87328277e-05,
+       1.87308061e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 447,
+      "evaluations": 12069.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 0.0,
+      "median_s": 1.87169366e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "44.34",
+       "44.40",
+       "44.06"
+      ]
+     },
+     "instrumented": {
+      "results": [
+       [
+        0.0,
+        1.3691538941516563e-11,
+        -8.503530904497611e-11,
+        1.320341675114434e-10
+       ],
+       [
+        0.0,
+        1.9744837171892175e-09,
+        -2.031776372857972e-09,
+        5.239993050922662e-10
+       ],
+       [
+        0.0,
+        3.7107046648421582e-09,
+        -2.0642809070182426e-09,
+        3.2655042554381604e-10
+       ]
+      ],
+      "blocks_s": [
+       6.02050507e-05,
+       6.04129493e-05,
+       6.04105338e-05,
+       6.05082391e-05,
+       6.04141329e-05,
+       6.03883599e-05,
+       6.04316932e-05,
+       6.04640145e-05,
+       6.04151957e-05
+      ],
+      "n_rank": [
+       {
+        "n": 4,
+        "rank": 4,
+        "calls": 3726.0
+       }
+      ],
+      "sweeps_per_block": 138,
+      "evaluations": 3726.0,
+      "tsc_hz": 2249992900.0,
+      "counters": [
+       353079793.0,
+       188802951.0,
+       76083117.0,
+       0.0,
+       3726.0,
+       100602.0,
+       55890.0,
+       0.0
+      ],
+      "checksum": 7.100804381532471e-06,
+      "median_s": 6.04141329e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "44.34",
+       "44.40",
+       "44.06"
+      ]
+     }
+    }
+   ],
+   "helicity_summed_filter_failure": "initialization failed",
+   "helicity_summed": {
+    "results": [
+     [
+      0.0,
+      3.25224662644181e-10,
+      1.3472735098660757e-09,
+      1.7094127722794243e-09
+     ],
+     [
+      0.0,
+      1.3703296271947538e-08,
+      -2.8880324579417425e-10,
+      2.3838133469024283e-09
+     ],
+     [
+      0.0,
+      2.0915698683777527e-08,
+      -6.479828480622506e-09,
+      2.0770520687117534e-09
+     ]
+    ],
+    "blocks_s": [
+     0.0008940019,
+     0.000893959233,
+     0.000898354267,
+     0.0008955219,
+     0.000898870933,
+     0.000899331933,
+     0.000898905267,
+     0.000895868233,
+     0.0008964186
+    ],
+    "n_rank": [],
+    "sweeps_per_block": 10,
+    "evaluations": 270.0,
+    "tsc_hz": -1.0,
+    "counters": [
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0
+    ],
+    "checksum": 3.28475664412672e-06,
+    "median_s": 0.0008964186,
+    "madloop_warnings": 0,
+    "load_before": [
+     "44.34",
+     "44.40",
+     "44.06"
+    ]
+   },
+   "helicity_filter_level_summed": 0
+  }
+ },
+ "ninja_input_check": {
+  "ninjars_case": "/shared/external/ninja/references/claude_numerator/validation/benchmark/cases/four-photon-top-box-0.json",
+  "ninjars_case_sha256": "0e8f7afb2c527d46008c365303babcd8745d8c49ff6b8205677837704bf07372",
+  "ninjars_rank": 4,
+  "madloop_rank": 4,
+  "n": [
+   4,
+   4
+  ],
+  "lanes": [
+   {
+    "lane": "four-photon-top-box-0-madloop-sqrt_s_200",
+    "ninjars_lane": "sqrt_s_200",
+    "max_scaled_invariant_difference": 1.8189894035458566e-16,
+    "max_mass_squared_difference": 0.0
+   },
+   {
+    "lane": "four-photon-top-box-0-madloop-sqrt_s_500",
+    "ninjars_lane": "sqrt_s_500",
+    "max_scaled_invariant_difference": 1.164153218269348e-16,
+    "max_mass_squared_difference": 0.0
+   },
+   {
+    "lane": "four-photon-top-box-0-madloop-sqrt_s_800",
+    "ninjars_lane": "sqrt_s_800",
+    "max_scaled_invariant_difference": 0.0,
+    "max_mass_squared_difference": 0.0
+   }
+  ],
+  "pass": true
+ },
+ "date_utc": "2026-10-17T13:05:27+00:00",
+ "sources_sha256": {
+  "run_madloop.py": "b8f609cc4a5e8c1e5f477637c04d17cf378ac705c1c0037863dc1792cb3464ac",
+  "mg5_generate.py": "13313cabd3d70384356da4c11e83d1b6fe5b10c45027bd17bc4b7bafcf88d5a3",
+  "bench_madloop.f": "eaf7f91db6a5e24dec2d468adf3753e86b5ddf6aadfa96b1c2ecaf57575bc45b",
+  "bench_stubs.c": "2ff117cb0b653fd1736ab5781ed552c87a5a8ec97683c0ad8346d9d0da5118d3"
+ }
+}

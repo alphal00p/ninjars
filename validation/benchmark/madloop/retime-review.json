@@ -1,0 +1,273 @@
+{
+ "description": "Independent re-timing (review, retime_madloop.py, CPU 29, same executables as the committed <graph>.json timings) of the single-helicity per-point split, microseconds; 'committed' = summary.json at the time of the re-run.",
+ "date_utc": "2026-10-17",
+ "cpu": 29,
+ "graphs": {
+  "hgg-top-triangle-0": {
+   "default": {
+    "retimed": {
+     "full": 25.753,
+     "numerator_coefficients": 13.06,
+     "tensor_numerator": 4.785,
+     "masters": 3.354,
+     "ninja_reduction": 3.399,
+     "madloop_glue": 1.277
+    },
+    "committed": {
+     "full": 25.615,
+     "numerator_coefficients": 13.067,
+     "tensor_numerator": 4.76,
+     "masters": 3.312,
+     "ninja_reduction": 3.393,
+     "madloop_glue": 1.283
+    }
+   },
+   "O3": {
+    "retimed": {
+     "full": 21.414,
+     "numerator_coefficients": 9.455,
+     "tensor_numerator": 4.753,
+     "masters": 3.273,
+     "ninja_reduction": 3.37,
+     "madloop_glue": 0.687
+    },
+    "committed": {
+     "full": 21.405,
+     "numerator_coefficients": 9.487,
+     "tensor_numerator": 4.77,
+     "masters": 3.264,
+     "ninja_reduction": 3.369,
+     "madloop_glue": 0.715
+    }
+   }
+  },
+  "four-photon-top-box-0": {
+   "default": {
+    "retimed": {
+     "full": 65.58,
+     "numerator_coefficients": 20.217,
+     "tensor_numerator": 22.619,
+     "masters": 9.21,
+     "ninja_reduction": 10.548,
+     "madloop_glue": 3.383
+    },
+    "committed": {
+     "full": 65.805,
+     "numerator_coefficients": 20.312,
+     "tensor_numerator": 22.593,
+     "masters": 9.238,
+     "ninja_reduction": 10.735,
+     "madloop_glue": 3.604
+    }
+   },
+   "O3": {
+    "retimed": {
+     "full": 59.957,
+     "numerator_coefficients": 18.693,
+     "tensor_numerator": 22.623,
+     "masters": 9.124,
+     "ninja_reduction": 10.516,
+     "madloop_glue": -0.53
+    },
+    "committed": {
+     "full": 59.862,
+     "numerator_coefficients": 18.641,
+     "tensor_numerator": 22.574,
+     "masters": 9.085,
+     "ninja_reduction": 10.546,
+     "madloop_glue": -0.438
+    }
+   }
+  },
+  "gg-hh-top-triangle-0": {
+   "default": {
+    "retimed": {
+     "full": 23.138,
+     "numerator_coefficients": 11.933,
+     "tensor_numerator": 4.778,
+     "masters": 1.984,
+     "ninja_reduction": 3.368,
+     "madloop_glue": 1.15
+    },
+    "committed": {
+     "full": 23.233,
+     "numerator_coefficients": 11.972,
+     "tensor_numerator": 4.887,
+     "masters": 1.965,
+     "ninja_reduction": 3.375,
+     "madloop_glue": 1.351
+    }
+   },
+   "O3": {
+    "retimed": {
+     "full": 18.393,
+     "numerator_coefficients": 7.862,
+     "tensor_numerator": 4.752,
+     "masters": 1.969,
+     "ninja_reduction": 3.372,
+     "madloop_glue": 0.545
+    },
+    "committed": {
+     "full": 18.251,
+     "numerator_coefficients": 7.815,
+     "tensor_numerator": 4.754,
+     "masters": 1.974,
+     "ninja_reduction": 3.35,
+     "madloop_glue": 0.533
+    }
+   }
+  },
+  "gg-hh-top-box-2": {
+   "default": {
+    "retimed": {
+     "full": 84.205,
+     "numerator_coefficients": 16.474,
+     "tensor_numerator": 22.55,
+     "masters": 32.785,
+     "ninja_reduction": 10.766,
+     "madloop_glue": 2.108
+    },
+    "committed": {
+     "full": 84.086,
+     "numerator_coefficients": 16.534,
+     "tensor_numerator": 22.579,
+     "masters": 32.634,
+     "ninja_reduction": 10.718,
+     "madloop_glue": 2.024
+    }
+   },
+   "O3": {
+    "retimed": {
+     "full": 78.759,
+     "numerator_coefficients": 12.167,
+     "tensor_numerator": 22.557,
+     "masters": 32.399,
+     "ninja_reduction": 10.64,
+     "madloop_glue": 1.078
+    },
+    "committed": {
+     "full": 78.214,
+     "numerator_coefficients": 12.166,
+     "tensor_numerator": 22.585,
+     "masters": 32.125,
+     "ninja_reduction": 10.553,
+     "madloop_glue": 0.986
+    }
+   }
+  },
+  "gg-hhh-top-triangle-0": {
+   "default": {
+    "retimed": {
+     "full": 22.249,
+     "numerator_coefficients": 11.846,
+     "tensor_numerator": 4.737,
+     "masters": 1.28,
+     "ninja_reduction": 3.349,
+     "madloop_glue": 1.358
+    },
+    "committed": {
+     "full": 22.26,
+     "numerator_coefficients": 11.863,
+     "tensor_numerator": 4.737,
+     "masters": 1.27,
+     "ninja_reduction": 3.335,
+     "madloop_glue": 1.323
+    }
+   },
+   "O3": {
+    "retimed": {
+     "full": 17.514,
+     "numerator_coefficients": 7.826,
+     "tensor_numerator": 4.737,
+     "masters": 1.27,
+     "ninja_reduction": 3.314,
+     "madloop_glue": 0.536
+    },
+    "committed": {
+     "full": 17.531,
+     "numerator_coefficients": 7.829,
+     "tensor_numerator": 4.731,
+     "masters": 1.252,
+     "ninja_reduction": 3.325,
+     "madloop_glue": 0.532
+    }
+   }
+  },
+  "gg-hhh-top-box-8": {
+   "default": {
+    "retimed": {
+     "full": 78.435,
+     "numerator_coefficients": 16.474,
+     "tensor_numerator": 22.982,
+     "masters": 28.099,
+     "ninja_reduction": 10.642,
+     "madloop_glue": 2.101
+    },
+    "committed": {
+     "full": 78.697,
+     "numerator_coefficients": 16.578,
+     "tensor_numerator": 22.594,
+     "masters": 27.606,
+     "ninja_reduction": 10.596,
+     "madloop_glue": 2.251
+    }
+   },
+   "O3": {
+    "retimed": {
+     "full": 73.276,
+     "numerator_coefficients": 12.188,
+     "tensor_numerator": 22.481,
+     "masters": 27.267,
+     "ninja_reduction": 10.508,
+     "madloop_glue": 1.145
+    },
+    "committed": {
+     "full": 73.35,
+     "numerator_coefficients": 12.215,
+     "tensor_numerator": 22.502,
+     "masters": 27.229,
+     "ninja_reduction": 10.494,
+     "madloop_glue": 1.211
+    }
+   }
+  },
+  "gg-hhh-top-pentagon-26": {
+   "default": {
+    "retimed": {
+     "full": 241.077,
+     "numerator_coefficients": 25.551,
+     "tensor_numerator": 80.624,
+     "masters": 104.909,
+     "ninja_reduction": 26.194,
+     "madloop_glue": 4.74
+    },
+    "committed": {
+     "full": 239.775,
+     "numerator_coefficients": 25.582,
+     "tensor_numerator": 81.232,
+     "masters": 105.385,
+     "ninja_reduction": 26.059,
+     "madloop_glue": 3.001
+    }
+   },
+   "O3": {
+    "retimed": {
+     "full": 233.757,
+     "numerator_coefficients": 24.041,
+     "tensor_numerator": 80.935,
+     "masters": 103.677,
+     "ninja_reduction": 26.04,
+     "madloop_glue": -0.229
+    },
+    "committed": {
+     "full": 234.937,
+     "numerator_coefficients": 23.983,
+     "tensor_numerator": 80.546,
+     "masters": 105.103,
+     "ninja_reduction": 26.022,
+     "madloop_glue": -0.171
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,8 @@
+{
+  "label": "olm-c9dd82f-sym-2c06f245",
+  "oneloopmaster_revision": "c9dd82fd1a6e3fc638b01df95bd0cf09ceda3460",
+  "symbolica_revision": "2c06f245835d57535418b5d78f711fe191db49cc",
+  "tensor_feature": false,
+  "command": ["cargo", "build", "--release", "--offline"],
+  "note": "historical: built from Cargo.toml as committed in 9c8ffd3 (path dependencies references/oneloopmaster and references/symbolica at these revisions), CARGO_TARGET_DIR=target/benchmark/masters-native-target; harness before the tensor/relabelling additions"
+}

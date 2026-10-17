@@ -1,0 +1,2365 @@
+{
+ "graph": "gg-hhh-top-pentagon-26",
+ "spec": {
+  "process": "g g > h h h QCD=2 QED=3 [virt=QCD]",
+  "model": "loop_sm",
+  "pool": "gg-hhh.json",
+  "base_filter": "n in [3,4,5] and all(abs(p)==6 for p in loop_pdgs)",
+  "filter_id": 55
+ },
+ "pool": "/shared/external/ninja/references/claude_numerator/validation/benchmark/points/gg-hhh.json",
+ "pool_sha256": "5ea5fdb7a038deb8b5281aad164da169fae214951537a9cf1dc8b6fcc1bf4817",
+ "helicities": [
+  1,
+  1,
+  0,
+  0,
+  0
+ ],
+ "mu_R": 100.0,
+ "reps": [
+  {
+   "default": {
+    "generation_seconds": 2.0005470589967445,
+    "generation_wall_seconds": 3.370958171028178,
+    "generation_breakdown": {
+     "python_imports": 0.10445991001324728,
+     "interface_setup": 0.042201926989946514,
+     "set": 0.0004378620651550591,
+     "import": 0.0762257170281373,
+     "generate": 1.214619696023874,
+     "output": 1.8330784849822521,
+     "source_make_inside_output": 1.2919900069828145,
+     "output_without_source_make": 0.5410884779994376,
+     "generation_total_in_process": 2.0005470589967445,
+     "process_total_in_process": 3.292537065979559
+    },
+    "source_make_seconds": 1.2919900069828145,
+    "pdir_make_seconds": 3.601353638980072,
+    "global_flag": "",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/gg-hhh-top-pentagon-26/rep1-default/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 55,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      21,
+      21,
+      25,
+      25,
+      25
+     ],
+     "vertices": [
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 7,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 4,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 5,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   },
+   "O3": {
+    "generation_seconds": 1.9912473289878108,
+    "generation_wall_seconds": 3.271211087005213,
+    "generation_breakdown": {
+     "python_imports": 0.10064706701086834,
+     "interface_setup": 0.04160089499782771,
+     "set": 0.0004207309684716165,
+     "import": 0.07612436695490032,
+     "generate": 1.201893994002603,
+     "output": 1.757837679993827,
+     "source_make_inside_output": 1.2084992559975944,
+     "output_without_source_make": 0.5493384239962325,
+     "generation_total_in_process": 1.9912473289878108,
+     "process_total_in_process": 3.199746584985405
+    },
+    "source_make_seconds": 2.7060348099912517,
+    "pdir_make_seconds": 7.176075410970952,
+    "global_flag": "-O3",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/gg-hhh-top-pentagon-26/rep1-O3/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 55,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      21,
+      21,
+      25,
+      25,
+      25
+     ],
+     "vertices": [
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 7,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 4,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 5,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   }
+  },
+  {
+   "default": {
+    "generation_seconds": 1.9633871790138073,
+    "generation_wall_seconds": 3.267847105045803,
+    "generation_breakdown": {
+     "python_imports": 0.10220746195409447,
+     "interface_setup": 0.042198236973490566,
+     "set": 0.0004454509471543133,
+     "import": 0.07556489598937333,
+     "generate": 1.197747210972011,
+     "output": 1.7562394450069405,
+     "source_make_inside_output": 1.232484103005845,
+     "output_without_source_make": 0.5237553420010954,
+     "generation_total_in_process": 1.9633871790138073,
+     "process_total_in_process": 3.1958712820196524
+    },
+    "source_make_seconds": 1.232484103005845,
+    "pdir_make_seconds": 3.665879598003812,
+    "global_flag": "",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/gg-hhh-top-pentagon-26/rep2-default/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 55,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      21,
+      21,
+      25,
+      25,
+      25
+     ],
+     "vertices": [
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 7,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 4,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 5,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   },
+   "O3": {
+    "generation_seconds": 1.9650224829674698,
+    "generation_wall_seconds": 3.2611022730125114,
+    "generation_breakdown": {
+     "python_imports": 0.10614381497725844,
+     "interface_setup": 0.04255985899362713,
+     "set": 0.00043014291441068053,
+     "import": 0.07638648798456416,
+     "generate": 1.1872860270086676,
+     "output": 1.7522545109968632,
+     "source_make_inside_output": 1.221795549034141,
+     "output_without_source_make": 0.5304589619627222,
+     "generation_total_in_process": 1.9650224829674698,
+     "process_total_in_process": 3.186818032001611
+    },
+    "source_make_seconds": 2.735339724982623,
+    "pdir_make_seconds": 7.039128553995397,
+    "global_flag": "-O3",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/gg-hhh-top-pentagon-26/rep2-O3/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 55,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      21,
+      21,
+      25,
+      25,
+      25
+     ],
+     "vertices": [
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 7,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 4,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 5,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   }
+  },
+  {
+   "default": {
+    "generation_seconds": 1.9688266750308685,
+    "generation_wall_seconds": 3.2599111989839002,
+    "generation_breakdown": {
+     "python_imports": 0.10439955996116623,
+     "interface_setup": 0.04272879898780957,
+     "set": 0.0004350920207798481,
+     "import": 0.07582663698121905,
+     "generate": 1.1965163459535688,
+     "output": 1.7460869409842417,
+     "source_make_inside_output": 1.218807837984059,
+     "output_without_source_make": 0.5272791030001827,
+     "generation_total_in_process": 1.9688266750308685,
+     "process_total_in_process": 3.1876345130149275
+    },
+    "source_make_seconds": 1.218807837984059,
+    "pdir_make_seconds": 3.613132575992495,
+    "global_flag": "",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/gg-hhh-top-pentagon-26/rep3-default/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 55,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      21,
+      21,
+      25,
+      25,
+      25
+     ],
+     "vertices": [
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 7,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 4,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 5,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   },
+   "O3": {
+    "generation_seconds": 2.021984818042256,
+    "generation_wall_seconds": 3.328302629990503,
+    "generation_breakdown": {
+     "python_imports": 0.10323782602790743,
+     "interface_setup": 0.043130630045197904,
+     "set": 0.0004366929642856121,
+     "import": 0.07626908703241497,
+     "generate": 1.218219657021109,
+     "output": 1.7932540649781004,
+     "source_make_inside_output": 1.2342091089813039,
+     "output_without_source_make": 0.5590449559967965,
+     "generation_total_in_process": 2.021984818042256,
+     "process_total_in_process": 3.25619392702356
+    },
+    "source_make_seconds": 2.7156864710268565,
+    "pdir_make_seconds": 6.99268966197269,
+    "global_flag": "-O3",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/gg-hhh-top-pentagon-26/rep3-O3/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 55,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      21,
+      21,
+      25,
+      25,
+      25
+     ],
+     "vertices": [
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 7,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 4,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 5,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   }
+  }
+ ],
+ "diagram_check": {
+  "evidence": "/shared/external/ninja/references/claude_reference/validation/evidence/gg-hhh-madloop.json.gz",
+  "evidence_sha256": "b858aa0a70c794ecc8bee77009c4650ca273cbe7de97debbd602596025d56036",
+  "pass": true,
+  "compared": "filter id, loop PDGs, attached PDGs, vertex ids and (leg id, number, state, loop_line)"
+ },
+ "timing": {
+  "default": {
+   "executables_sha256": {
+    "bench": "4ef16452218fe3ce8dcd409fcafb381b3ee4f87c237c447ab28b50bdcd5730d6",
+    "bench_skip": "c52909241067e6aa646ba2dde161256cd4a8aa94f2969c542b585623578b9eee",
+    "bench_instr": "1c091bc68a00d47db79ac8550874dc77df924f32518ecf4524174252208a42b8"
+   },
+   "hel_index": 4,
+   "n_helicity_configs": 4,
+   "runs": [
+    {
+     "full": {
+      "results": [
+       [
+        0.0,
+        5.065252221203469e-11,
+        1.4881721217771344e-25,
+        1.6655450920633099e-40
+       ],
+       [
+        0.0,
+        3.333368230742655e-11,
+        9.735218046171951e-26,
+        7.139766079440976e-41
+       ],
+       [
+        0.0,
+        2.237154738587742e-11,
+        1.6335197438250904e-26,
+        5.431617772611637e-41
+       ]
+      ],
+      "blocks_s": [
+       0.000238873176,
+       0.000240664398,
+       0.000239749481,
+       0.000240170778,
+       0.000239442444,
+       0.000238920593,
+       0.000239619944,
+       0.000239230315,
+       0.000239649111
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 36,
+      "evaluations": 972.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 3.4885342624951444e-08,
+      "median_s": 0.000239619944,
+      "madloop_warnings": 0,
+      "load_before": [
+       "37.19",
+       "38.72",
+       "41.61"
+      ]
+     },
+     "skip_loop_eval": {
+      "results": [
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ]
+      ],
+      "blocks_s": [
+       2.56972175e-05,
+       2.56795346e-05,
+       2.56407439e-05,
+       2.5624372e-05,
+       2.56053882e-05,
+       2.55782134e-05,
+       2.55740264e-05,
+       2.560119e-05,
+       2.5585814e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 328,
+      "evaluations": 8856.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 0.0,
+      "median_s": 2.56053882e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "37.19",
+       "38.72",
+       "41.61"
+      ]
+     },
+     "instrumented": {
+      "results": [
+       [
+        0.0,
+        5.065252221203469e-11,
+        1.4881721217771344e-25,
+        1.6655450920633099e-40
+       ],
+       [
+        0.0,
+        3.333368230742655e-11,
+        9.735218046171951e-26,
+        7.139766079440976e-41
+       ],
+       [
+        0.0,
+        2.237154738587742e-11,
+        1.6335197438250904e-26,
+        5.431617772611637e-41
+       ]
+      ],
+      "blocks_s": [
+       0.000237856305,
+       0.000239593438,
+       0.000241658695,
+       0.00024106259,
+       0.000240633733,
+       0.00024324679,
+       0.00024138041,
+       0.000240731352,
+       0.000240285067
+      ],
+      "n_rank": [
+       {
+        "n": 5,
+        "rank": 5,
+        "calls": 945.0
+       }
+      ],
+      "sweeps_per_block": 35,
+      "evaluations": 945.0,
+      "tsc_hz": 2249992930.0,
+      "counters": [
+       448582705.0,
+       171455355.0,
+       221951927.0,
+       0.0,
+       945.0,
+       56700.0,
+       28350.0,
+       0.0
+      ],
+      "checksum": 3.392812285780336e-08,
+      "median_s": 0.000240731352,
+      "madloop_warnings": 0,
+      "load_before": [
+       "37.19",
+       "38.72",
+       "41.61"
+      ]
+     }
+    },
+    {
+     "full": {
+      "results": [
+       [
+        0.0,
+        5.065252221203469e-11,
+        1.4881721217771344e-25,
+        1.6655450920633099e-40
+       ],
+       [
+        0.0,
+        3.333368230742655e-11,
+        9.735218046171951e-26,
+        7.139766079440976e-41
+       ],
+       [
+        0.0,
+        2.237154738587742e-11,
+        1.6335197438250904e-26,
+        5.431617772611637e-41
+       ]
+      ],
+      "blocks_s": [
+       0.000239754495,
+       0.000241353838,
+       0.000240509162,
+       0.000240461829,
+       0.000239795162,
+       0.000239106581,
+       0.000241785838,
+       0.000241028019,
+       0.000239839067
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 35,
+      "evaluations": 945.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 3.392812285780336e-08,
+      "median_s": 0.000240461829,
+      "madloop_warnings": 0,
+      "load_before": [
+       "37.19",
+       "38.72",
+       "41.61"
+      ]
+     },
+     "skip_loop_eval": {
+      "results": [
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ]
+      ],
+      "blocks_s": [
+       2.73997455e-05,
+       2.56989727e-05,
+       2.53856879e-05,
+       2.54289919e-05,
+       2.53905778e-05,
+       2.54315172e-05,
+       2.52672232e-05,
+       2.53378303e-05,
+       2.52838899e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 330,
+      "evaluations": 8910.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 0.0,
+      "median_s": 2.53905778e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "37.19",
+       "38.72",
+       "41.61"
+      ]
+     },
+     "instrumented": {
+      "results": [
+       [
+        0.0,
+        5.065252221203469e-11,
+        1.4881721217771344e-25,
+        1.6655450920633099e-40
+       ],
+       [
+        0.0,
+        3.333368230742655e-11,
+        9.735218046171951e-26,
+        7.139766079440976e-41
+       ],
+       [
+        0.0,
+        2.237154738587742e-11,
+        1.6335197438250904e-26,
+        5.431617772611637e-41
+       ]
+      ],
+      "blocks_s": [
+       0.000240307259,
+       0.0002629315,
+       0.000243565611,
+       0.000244544398,
+       0.000242566713,
+       0.000243098843,
+       0.000242132731,
+       0.000240885593,
+       0.000241138741
+      ],
+      "n_rank": [
+       {
+        "n": 5,
+        "rank": 5,
+        "calls": 972.0
+       }
+      ],
+      "sweeps_per_block": 36,
+      "evaluations": 972.0,
+      "tsc_hz": 2249992930.0,
+      "counters": [
+       468740751.0,
+       178918579.0,
+       232600252.0,
+       0.0,
+       972.0,
+       58320.0,
+       29160.0,
+       0.0
+      ],
+      "checksum": 3.4885342624951444e-08,
+      "median_s": 0.000242566713,
+      "madloop_warnings": 0,
+      "load_before": [
+       "37.19",
+       "38.72",
+       "41.61"
+      ]
+     }
+    }
+   ],
+   "ninja_case": "/shared/external/ninja/references/claude_reference/validation/benchmark/madloop/cases/madloop-gg-hhh-top-pentagon-26.json",
+   "helicity_summed": {
+    "results": [
+     [
+      0.0,
+      2.4515248207776583e-11,
+      2.2127201056406438e-26,
+      4.5345353395972143e-39
+     ],
+     [
+      0.0,
+      1.501366587981674e-11,
+      9.477020872719821e-26,
+      1.6378125515358833e-39
+     ],
+     [
+      0.0,
+      8.591392943360792e-12,
+      -3.842797919189086e-26,
+      1.1633573252250136e-39
+     ]
+    ],
+    "blocks_s": [
+     0.000700747278,
+     0.000700974222,
+     0.000706296194,
+     0.000704693111,
+     0.000767625833,
+     0.000927619694,
+     0.000941306111,
+     0.00071009175,
+     0.000730791833
+    ],
+    "n_rank": [],
+    "sweeps_per_block": 12,
+    "evaluations": 324.0,
+    "tsc_hz": -1.0,
+    "counters": [
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0
+    ],
+    "checksum": 5.389474387466871e-09,
+    "median_s": 0.00071009175,
+    "madloop_warnings": 0,
+    "load_before": [
+     "37.19",
+     "38.72",
+     "41.61"
+    ]
+   },
+   "helicity_filter_level_summed": 2
+  },
+  "O3": {
+   "executables_sha256": {
+    "bench": "281585021b88a318323a842e070534cea4fc47e58753547b42194216675f835c",
+    "bench_skip": "40c7b704d41f279cb0c06d8129b3b2c7d09c6c3332aef4ed7efcb2fb71e1dfb2",
+    "bench_instr": "0767b26b0811f71c5996fdb078d28c0d845eff701acc17c8ab1e843756e36763"
+   },
+   "hel_index": 4,
+   "n_helicity_configs": 4,
+   "runs": [
+    {
+     "full": {
+      "results": [
+       [
+        0.0,
+        5.065252221203469e-11,
+        1.4881721217771344e-25,
+        1.6655450920633099e-40
+       ],
+       [
+        0.0,
+        3.333368230742655e-11,
+        9.735218046171951e-26,
+        7.139766079440976e-41
+       ],
+       [
+        0.0,
+        2.237154738587742e-11,
+        1.6335197438250904e-26,
+        5.431617772611637e-41
+       ]
+      ],
+      "blocks_s": [
+       0.000234188865,
+       0.000233313279,
+       0.000232766432,
+       0.000235177342,
+       0.000233874901,
+       0.00023347445,
+       0.000233535081,
+       0.000234697613,
+       0.000234296441
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 37,
+      "evaluations": 999.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 3.584256239209953e-08,
+      "median_s": 0.000233874901,
+      "madloop_warnings": 0,
+      "load_before": [
+       "37.65",
+       "38.79",
+       "41.62"
+      ]
+     },
+     "skip_loop_eval": {
+      "results": [
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ]
+      ],
+      "blocks_s": [
+       2.42700308e-05,
+       2.41142784e-05,
+       2.40392303e-05,
+       2.41806089e-05,
+       2.40964653e-05,
+       2.40128526e-05,
+       2.40945289e-05,
+       2.40698671e-05,
+       2.40294913e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 346,
+      "evaluations": 9342.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 0.0,
+      "median_s": 2.40945289e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "37.65",
+       "38.79",
+       "41.62"
+      ]
+     },
+     "instrumented": {
+      "results": [
+       [
+        0.0,
+        5.065252221203469e-11,
+        1.4881721217771344e-25,
+        1.6655450920633099e-40
+       ],
+       [
+        0.0,
+        3.333368230742655e-11,
+        9.735218046171951e-26,
+        7.139766079440976e-41
+       ],
+       [
+        0.0,
+        2.237154738587742e-11,
+        1.6335197438250904e-26,
+        5.431617772611637e-41
+       ]
+      ],
+      "blocks_s": [
+       0.000232803722,
+       0.000235407704,
+       0.000232911593,
+       0.000234173074,
+       0.000235459009,
+       0.000234417148,
+       0.000234740769,
+       0.000234155306,
+       0.000233507611
+      ],
+      "n_rank": [
+       {
+        "n": 5,
+        "rank": 5,
+        "calls": 972.0
+       }
+      ],
+      "sweeps_per_block": 36,
+      "evaluations": 972.0,
+      "tsc_hz": 2249992920.0,
+      "counters": [
+       459981318.0,
+       176177323.0,
+       227031740.0,
+       0.0,
+       972.0,
+       58320.0,
+       29160.0,
+       0.0
+      ],
+      "checksum": 3.4885342624951444e-08,
+      "median_s": 0.000234173074,
+      "madloop_warnings": 0,
+      "load_before": [
+       "37.65",
+       "38.79",
+       "41.62"
+      ]
+     }
+    },
+    {
+     "full": {
+      "results": [
+       [
+        0.0,
+        5.065252221203469e-11,
+        1.4881721217771344e-25,
+        1.6655450920633099e-40
+       ],
+       [
+        0.0,
+        3.333368230742655e-11,
+        9.735218046171951e-26,
+        7.139766079440976e-41
+       ],
+       [
+        0.0,
+        2.237154738587742e-11,
+        1.6335197438250904e-26,
+        5.431617772611637e-41
+       ]
+      ],
+      "blocks_s": [
+       0.000235434472,
+       0.000237673833,
+       0.000236396694,
+       0.000236928361,
+       0.000236709565,
+       0.000238377444,
+       0.000238686241,
+       0.000235865296,
+       0.000233193815
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 36,
+      "evaluations": 972.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 3.4885342624951444e-08,
+      "median_s": 0.000236709565,
+      "madloop_warnings": 0,
+      "load_before": [
+       "37.65",
+       "38.79",
+       "41.62"
+      ]
+     },
+     "skip_loop_eval": {
+      "results": [
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ]
+      ],
+      "blocks_s": [
+       2.38524904e-05,
+       2.38099435e-05,
+       2.37110536e-05,
+       2.37172797e-05,
+       2.36838027e-05,
+       2.38619262e-05,
+       2.37354224e-05,
+       2.39537653e-05,
+       2.36791571e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 348,
+      "evaluations": 9396.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 0.0,
+      "median_s": 2.37354224e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "37.65",
+       "38.79",
+       "41.62"
+      ]
+     },
+     "instrumented": {
+      "results": [
+       [
+        0.0,
+        5.065252221203469e-11,
+        1.4881721217771344e-25,
+        1.6655450920633099e-40
+       ],
+       [
+        0.0,
+        3.333368230742655e-11,
+        9.735218046171951e-26,
+        7.139766079440976e-41
+       ],
+       [
+        0.0,
+        2.237154738587742e-11,
+        1.6335197438250904e-26,
+        5.431617772611637e-41
+       ]
+      ],
+      "blocks_s": [
+       0.000237358141,
+       0.000237082889,
+       0.000235510263,
+       0.000238486727,
+       0.000236570879,
+       0.000235735202,
+       0.000237155919,
+       0.000237122899,
+       0.000237650768
+      ],
+      "n_rank": [
+       {
+        "n": 5,
+        "rank": 5,
+        "calls": 891.0
+       }
+      ],
+      "sweeps_per_block": 33,
+      "evaluations": 891.0,
+      "tsc_hz": 2249992910.0,
+      "counters": [
+       427292796.0,
+       161451303.0,
+       213534332.0,
+       0.0,
+       891.0,
+       53460.0,
+       26730.0,
+       0.0
+      ],
+      "checksum": 3.201368332350719e-08,
+      "median_s": 0.000237122899,
+      "madloop_warnings": 0,
+      "load_before": [
+       "37.65",
+       "38.79",
+       "41.62"
+      ]
+     }
+    }
+   ],
+   "helicity_summed": {
+    "results": [
+     [
+      0.0,
+      2.4515248207776583e-11,
+      2.2127201056406438e-26,
+      4.5345353395972143e-39
+     ],
+     [
+      0.0,
+      1.501366587981674e-11,
+      9.477020872719821e-26,
+      1.6378125515358833e-39
+     ],
+     [
+      0.0,
+      8.591392943360792e-12,
+      -3.842797919189086e-26,
+      1.1633573252250136e-39
+     ]
+    ],
+    "blocks_s": [
+     0.000696130611,
+     0.000692950583,
+     0.000694818361,
+     0.000694551139,
+     0.000691629194,
+     0.000691900583,
+     0.000692328639,
+     0.000694055306,
+     0.000694156417
+    ],
+    "n_rank": [],
+    "sweeps_per_block": 12,
+    "evaluations": 324.0,
+    "tsc_hz": -1.0,
+    "counters": [
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0
+    ],
+    "checksum": 5.389474387466871e-09,
+    "median_s": 0.000694055306,
+    "madloop_warnings": 0,
+    "load_before": [
+     "37.65",
+     "38.79",
+     "41.62"
+    ]
+   },
+   "helicity_filter_level_summed": 2
+  }
+ },
+ "ninja_input_check": {
+  "ninjars_case": "/shared/external/ninja/references/claude_numerator/validation/benchmark/cases/gg-hhh-top-pentagon-26.json",
+  "ninjars_case_sha256": "69706fb8176abdc56aba0f59c30c930668efc77731f2d16761fdcc895da69d14",
+  "ninjars_rank": 4,
+  "madloop_rank": 5,
+  "n": [
+   5,
+   5
+  ],
+  "lanes": [
+   {
+    "lane": "gg-hhh-top-pentagon-26-madloop-sqrt_s_450",
+    "ninjars_lane": "sqrt_s_450",
+    "max_scaled_invariant_difference": 0.0,
+    "max_mass_squared_difference": 0.0
+   },
+   {
+    "lane": "gg-hhh-top-pentagon-26-madloop-sqrt_s_525",
+    "ninjars_lane": "sqrt_s_525",
+    "max_scaled_invariant_difference": 0.0,
+    "max_mass_squared_difference": 0.0
+   },
+   {
+    "lane": "gg-hhh-top-pentagon-26-madloop-sqrt_s_600",
+    "ninjars_lane": "sqrt_s_600",
+    "max_scaled_invariant_difference": 0.0,
+    "max_mass_squared_difference": 0.0
+   }
+  ],
+  "pass": true
+ },
+ "date_utc": "2026-10-17T13:10:36+00:00",
+ "sources_sha256": {
+  "run_madloop.py": "b8f609cc4a5e8c1e5f477637c04d17cf378ac705c1c0037863dc1792cb3464ac",
+  "mg5_generate.py": "13313cabd3d70384356da4c11e83d1b6fe5b10c45027bd17bc4b7bafcf88d5a3",
+  "bench_madloop.f": "eaf7f91db6a5e24dec2d468adf3753e86b5ddf6aadfa96b1c2ecaf57575bc45b",
+  "bench_stubs.c": "2ff117cb0b653fd1736ab5781ed552c87a5a8ec97683c0ad8346d9d0da5118d3"
+ }
+}

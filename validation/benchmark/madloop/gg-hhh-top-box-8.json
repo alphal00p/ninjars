@@ -1,0 +1,2161 @@
+{
+ "graph": "gg-hhh-top-box-8",
+ "spec": {
+  "process": "g g > h h h QCD=2 QED=3 [virt=QCD]",
+  "model": "loop_sm",
+  "pool": "gg-hhh.json",
+  "base_filter": "n in [3,4,5] and all(abs(p)==6 for p in loop_pdgs)",
+  "filter_id": 58
+ },
+ "pool": "/shared/external/ninja/references/claude_numerator/validation/benchmark/points/gg-hhh.json",
+ "pool_sha256": "5ea5fdb7a038deb8b5281aad164da169fae214951537a9cf1dc8b6fcc1bf4817",
+ "helicities": [
+  1,
+  1,
+  0,
+  0,
+  0
+ ],
+ "mu_R": 100.0,
+ "reps": [
+  {
+   "default": {
+    "generation_seconds": 2.0255850520334207,
+    "generation_wall_seconds": 3.4366460070014,
+    "generation_breakdown": {
+     "python_imports": 0.10533084196504205,
+     "interface_setup": 0.04214589699404314,
+     "set": 0.00042468198807910085,
+     "import": 0.07795739301946014,
+     "generate": 1.1928290060022846,
+     "output": 1.9221723470254801,
+     "source_make_inside_output": 1.336916583997663,
+     "output_without_source_make": 0.585255763027817,
+     "generation_total_in_process": 2.0255850520334207,
+     "process_total_in_process": 3.3625016360310838
+    },
+    "source_make_seconds": 1.336916583997663,
+    "pdir_make_seconds": 2.489979701989796,
+    "global_flag": "",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/gg-hhh-top-box-8/rep1-default/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 58,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      21,
+      21,
+      25,
+      25
+     ],
+     "vertices": [
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 7,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 5,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   },
+   "O3": {
+    "generation_seconds": 2.148854262952227,
+    "generation_wall_seconds": 3.6729572449694388,
+    "generation_breakdown": {
+     "python_imports": 0.10575520398560911,
+     "interface_setup": 0.04207991698058322,
+     "set": 0.0004301409353502095,
+     "import": 0.0756698659970425,
+     "generate": 1.187845969980117,
+     "output": 2.1534849479794502,
+     "source_make_inside_output": 1.4383902940317057,
+     "output_without_source_make": 0.7150946539477445,
+     "generation_total_in_process": 2.148854262952227,
+     "process_total_in_process": 3.587244556983933
+    },
+    "source_make_seconds": 2.976491731009446,
+    "pdir_make_seconds": 5.4165483910473995,
+    "global_flag": "-O3",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/gg-hhh-top-box-8/rep1-O3/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 58,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      21,
+      21,
+      25,
+      25
+     ],
+     "vertices": [
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 7,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 5,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   }
+  },
+  {
+   "default": {
+    "generation_seconds": 2.1129604349844158,
+    "generation_wall_seconds": 3.5825913610169664,
+    "generation_breakdown": {
+     "python_imports": 0.10755795001750812,
+     "interface_setup": 0.05586145201232284,
+     "set": 0.00046747300075367093,
+     "import": 0.07770836196141317,
+     "generate": 1.192442525003571,
+     "output": 2.048012024955824,
+     "source_make_inside_output": 1.3912059210124426,
+     "output_without_source_make": 0.6568061039433815,
+     "generation_total_in_process": 2.1129604349844158,
+     "process_total_in_process": 3.5041663559968583
+    },
+    "source_make_seconds": 1.3912059210124426,
+    "pdir_make_seconds": 2.578970809991006,
+    "global_flag": "",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/gg-hhh-top-box-8/rep2-default/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 58,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      21,
+      21,
+      25,
+      25
+     ],
+     "vertices": [
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 7,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 5,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   },
+   "O3": {
+    "generation_seconds": 2.159210584999528,
+    "generation_wall_seconds": 3.7121743820025586,
+    "generation_breakdown": {
+     "python_imports": 0.1025090129696764,
+     "interface_setup": 0.04193411604501307,
+     "set": 0.00042429304448887706,
+     "import": 0.07598814700031653,
+     "generate": 1.1983486129902303,
+     "output": 2.1909311289782636,
+     "source_make_inside_output": 1.472435015020892,
+     "output_without_source_make": 0.7184961139573716,
+     "generation_total_in_process": 2.159210584999528,
+     "process_total_in_process": 3.63164560002042
+    },
+    "source_make_seconds": 3.0536116720177233,
+    "pdir_make_seconds": 5.53282602695981,
+    "global_flag": "-O3",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/gg-hhh-top-box-8/rep2-O3/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 58,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      21,
+      21,
+      25,
+      25
+     ],
+     "vertices": [
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 7,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 5,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   }
+  },
+  {
+   "default": {
+    "generation_seconds": 2.1793771820375696,
+    "generation_wall_seconds": 3.6578237839858048,
+    "generation_breakdown": {
+     "python_imports": 0.10979651694651693,
+     "interface_setup": 0.04383680300088599,
+     "set": 0.00046721211401745677,
+     "import": 0.07744476199150085,
+     "generate": 1.1864922149688937,
+     "output": 2.144196465960704,
+     "source_make_inside_output": 1.4048033239669167,
+     "output_without_source_make": 0.7393931419937871,
+     "generation_total_in_process": 2.1793771820375696,
+     "process_total_in_process": 3.5841805060044862
+    },
+    "source_make_seconds": 1.4048033239669167,
+    "pdir_make_seconds": 2.4715983100468293,
+    "global_flag": "",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/gg-hhh-top-box-8/rep3-default/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 58,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      21,
+      21,
+      25,
+      25
+     ],
+     "vertices": [
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 7,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 5,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   },
+   "O3": {
+    "generation_seconds": 2.4380118820117787,
+    "generation_wall_seconds": 3.9191609229892492,
+    "generation_breakdown": {
+     "python_imports": 0.10234216204844415,
+     "interface_setup": 0.04196458600927144,
+     "set": 0.00042182300239801407,
+     "import": 0.07553620601538569,
+     "generate": 1.1837123450241052,
+     "output": 2.421749539033044,
+     "source_make_inside_output": 1.4091826980002224,
+     "output_without_source_make": 1.0125668410328217,
+     "generation_total_in_process": 2.4380118820117787,
+     "process_total_in_process": 3.847194580012001
+    },
+    "source_make_seconds": 2.8929756589932367,
+    "pdir_make_seconds": 5.3507486039889045,
+    "global_flag": "-O3",
+    "export": "/shared/external/ninja/references/claude_reference/target/benchmark/madloop/runs/gg-hhh-top-box-8/rep3-O3/export",
+    "config": {
+     "MadLoopParams": {
+      "MLReductionLib": "6",
+      "CTModeRun": "1",
+      "CTModeInit": "1",
+      "ImprovePSPoint": "-1",
+      "NRotations_DP": "0",
+      "NRotations_QP": "0",
+      "UseQPIntegrandForNinja": "False",
+      "UseQPIntegrandForCutTools": "False"
+     },
+     "widths": {
+      "6": 0.0,
+      "25": 0.0
+     },
+     "param_card_sha256": "5ea9025d0c9bcbb553434e497fd0179b1996d7495b1532dca2de37937815ec61",
+     "MadLoopParams_sha256": "29a6ee07be0e4ffaaafb91cfdf86fc522ab859a439930961287fd746258408b5"
+    },
+    "selected_loop_diagram": {
+     "filter_id": 58,
+     "loop_pdgs": [
+      6,
+      6,
+      6,
+      6
+     ],
+     "attached_pdgs": [
+      21,
+      21,
+      25,
+      25
+     ],
+     "vertices": [
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 1,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 7,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 8,
+       "legs": [
+        {
+         "id": 21,
+         "number": 2,
+         "state": false,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": false,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 5,
+         "state": true,
+         "loop_line": false,
+         "from_group": false,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": 57,
+       "legs": [
+        {
+         "id": 25,
+         "number": 3,
+         "state": true,
+         "loop_line": false,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      },
+      {
+       "id": -1,
+       "legs": [
+        {
+         "id": -6,
+         "number": 1,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        },
+        {
+         "id": 6,
+         "number": 6,
+         "state": true,
+         "loop_line": true,
+         "from_group": true,
+         "onshell": null,
+         "polarization": []
+        }
+       ]
+      }
+     ]
+    },
+    "n_loop_groups": 1,
+    "multipliers": [
+     1
+    ]
+   }
+  }
+ ],
+ "diagram_check": {
+  "evidence": "/shared/external/ninja/references/claude_reference/validation/evidence/gg-hhh-madloop.json.gz",
+  "evidence_sha256": "b858aa0a70c794ecc8bee77009c4650ca273cbe7de97debbd602596025d56036",
+  "pass": true,
+  "compared": "filter id, loop PDGs, attached PDGs, vertex ids and (leg id, number, state, loop_line)"
+ },
+ "timing": {
+  "default": {
+   "executables_sha256": {
+    "bench": "b3b9180654f893c097325203016e65d24813a1585fd774bb93837a4c18daf21d",
+    "bench_skip": "dcbfaa2d3e09c9569ac4fdd29caeed17e2d524c1d34eadfcd0a112a12a2fd1a3",
+    "bench_instr": "2569606e63746ca947dcca2b2e1c544bdd6d38177773656f932f84161bb829fd"
+   },
+   "hel_index": 4,
+   "n_helicity_configs": 4,
+   "runs": [
+    {
+     "full": {
+      "results": [
+       [
+        0.0,
+        2.1532472006729768e-11,
+        -6.06056050231705e-12,
+        3.5615482618547536e-12
+       ],
+       [
+        0.0,
+        2.327956326313416e-11,
+        -7.109712462465595e-12,
+        1.922435046798779e-12
+       ],
+       [
+        0.0,
+        1.9256482092420235e-11,
+        -6.31908576894908e-12,
+        1.1268961297274975e-12
+       ]
+      ],
+      "blocks_s": [
+       7.95075527e-05,
+       7.97661567e-05,
+       8.03951909e-05,
+       7.98895755e-05,
+       8.25679601e-05,
+       7.83385755e-05,
+       7.84251538e-05,
+       7.82759516e-05,
+       7.82077493e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 117,
+      "evaluations": 3159.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 6.772042285193398e-08,
+      "median_s": 7.95075527e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "38.41",
+       "39.80",
+       "42.18"
+      ]
+     },
+     "skip_loop_eval": {
+      "results": [
+       [
+        0.0,
+        1.4246193047419334e-11,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        7.689740187195113e-12,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        4.5075845189100256e-12,
+        0.0,
+        0.0
+       ]
+      ],
+      "blocks_s": [
+       1.64215981e-05,
+       1.65681169e-05,
+       1.65749566e-05,
+       1.64837588e-05,
+       1.71944176e-05,
+       1.64957249e-05,
+       1.65263899e-05,
+       1.65694428e-05,
+       1.64689835e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 807,
+      "evaluations": 21789.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 1.9216504351485788e-07,
+      "median_s": 1.65263899e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "38.41",
+       "39.80",
+       "42.18"
+      ]
+     },
+     "instrumented": {
+      "results": [
+       [
+        0.0,
+        2.1532472006729768e-11,
+        -6.06056050231705e-12,
+        3.5615482618547536e-12
+       ],
+       [
+        0.0,
+        2.327956326313416e-11,
+        -7.109712462465595e-12,
+        1.922435046798779e-12
+       ],
+       [
+        0.0,
+        1.9256482092420235e-11,
+        -6.31908576894908e-12,
+        1.1268961297274975e-12
+       ]
+      ],
+      "blocks_s": [
+       7.85761681e-05,
+       7.94977652e-05,
+       7.97495623e-05,
+       7.94832435e-05,
+       7.98609246e-05,
+       7.94356783e-05,
+       7.97735043e-05,
+       7.96307826e-05,
+       7.93903449e-05
+      ],
+      "n_rank": [
+       {
+        "n": 4,
+        "rank": 4,
+        "calls": 3105.0
+       }
+      ],
+      "sweeps_per_block": 115,
+      "evaluations": 3105.0,
+      "tsc_hz": 2249992920.0,
+      "counters": [
+       423308811.0,
+       157483318.0,
+       191677978.0,
+       0.0,
+       3105.0,
+       83835.0,
+       46575.0,
+       0.0
+      ],
+      "checksum": 6.656718953941259e-08,
+      "median_s": 7.94977652e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "38.41",
+       "39.80",
+       "42.18"
+      ]
+     }
+    },
+    {
+     "full": {
+      "results": [
+       [
+        0.0,
+        2.1532472006729768e-11,
+        -6.06056050231705e-12,
+        3.5615482618547536e-12
+       ],
+       [
+        0.0,
+        2.327956326313416e-11,
+        -7.109712462465595e-12,
+        1.922435046798779e-12
+       ],
+       [
+        0.0,
+        1.9256482092420235e-11,
+        -6.31908576894908e-12,
+        1.1268961297274975e-12
+       ]
+      ],
+      "blocks_s": [
+       7.78873506e-05,
+       7.89862615e-05,
+       7.86150259e-05,
+       7.882175e-05,
+       7.87015776e-05,
+       7.86920086e-05,
+       7.8618158e-05,
+       7.86365201e-05,
+       7.88342213e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 116,
+      "evaluations": 3132.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 6.714380619567329e-08,
+      "median_s": 7.86920086e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "38.41",
+       "39.80",
+       "42.18"
+      ]
+     },
+     "skip_loop_eval": {
+      "results": [
+       [
+        0.0,
+        1.4246193047419334e-11,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        7.689740187195113e-12,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        4.5075845189100256e-12,
+        0.0,
+        0.0
+       ]
+      ],
+      "blocks_s": [
+       1.658054e-05,
+       1.66628934e-05,
+       1.66796658e-05,
+       1.66946908e-05,
+       1.67725098e-05,
+       1.66690449e-05,
+       1.66061324e-05,
+       1.65949109e-05,
+       1.6565781e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 816,
+      "evaluations": 22032.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 1.9430696845289272e-07,
+      "median_s": 1.66628934e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "38.41",
+       "39.80",
+       "42.18"
+      ]
+     },
+     "instrumented": {
+      "results": [
+       [
+        0.0,
+        2.1532472006729768e-11,
+        -6.06056050231705e-12,
+        3.5615482618547536e-12
+       ],
+       [
+        0.0,
+        2.327956326313416e-11,
+        -7.109712462465595e-12,
+        1.922435046798779e-12
+       ],
+       [
+        0.0,
+        1.9256482092420235e-11,
+        -6.31908576894908e-12,
+        1.1268961297274975e-12
+       ]
+      ],
+      "blocks_s": [
+       7.88706962e-05,
+       7.99354808e-05,
+       7.96776608e-05,
+       8.00867227e-05,
+       7.96716136e-05,
+       7.95845074e-05,
+       7.972259e-05,
+       7.96180472e-05,
+       7.95463333e-05
+      ],
+      "n_rank": [
+       {
+        "n": 4,
+        "rank": 4,
+        "calls": 3051.0
+       }
+      ],
+      "sweeps_per_block": 113,
+      "evaluations": 3051.0,
+      "tsc_hz": 2249992920.0,
+      "counters": [
+       418774555.0,
+       155466507.0,
+       190696429.0,
+       0.0,
+       3051.0,
+       82377.0,
+       45765.0,
+       0.0
+      ],
+      "checksum": 6.54139562268912e-08,
+      "median_s": 7.96716136e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "38.41",
+       "39.80",
+       "42.18"
+      ]
+     }
+    }
+   ],
+   "ninja_case": "/shared/external/ninja/references/claude_reference/validation/benchmark/madloop/cases/madloop-gg-hhh-top-box-8.json",
+   "helicity_summed": {
+    "results": [
+     [
+      0.0,
+      1.0787139491589325e-11,
+      -3.0302802511584685e-12,
+      1.7807741309273728e-12
+     ],
+     [
+      0.0,
+      1.1680748233786253e-11,
+      -3.5548562312327937e-12,
+      9.61217523399387e-13
+     ],
+     [
+      0.0,
+      9.677201751269169e-12,
+      -3.15954288447454e-12,
+      5.634480648637474e-13
+     ]
+    ],
+    "blocks_s": [
+     0.00014970645,
+     0.00015062786,
+     0.000150188094,
+     0.000150364526,
+     0.000150300491,
+     0.000150539614,
+     0.000150182825,
+     0.000150624292,
+     0.000150225462
+    ],
+    "n_rank": [],
+    "sweeps_per_block": 57,
+    "evaluations": 1539.0,
+    "tsc_hz": -1.0,
+    "counters": [
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0
+    ],
+    "checksum": 1.661901125942568e-08,
+    "median_s": 0.000150300491,
+    "madloop_warnings": 0,
+    "load_before": [
+     "38.54",
+     "39.81",
+     "42.17"
+    ]
+   },
+   "helicity_filter_level_summed": 2
+  },
+  "O3": {
+   "executables_sha256": {
+    "bench": "2f99a12db17dc76afc5aff198ef0d338dabd56bd107f5220157ec3bd8265308b",
+    "bench_skip": "b075e296e5bda9b94e0aea91590b0f2cbac6319c28d836c50b778f6026daa38a",
+    "bench_instr": "4973c2ba6e9e351bb2c96d356372f0f28583df20799f1dd1a6e8b6153cbc82ea"
+   },
+   "hel_index": 4,
+   "n_helicity_configs": 4,
+   "runs": [
+    {
+     "full": {
+      "results": [
+       [
+        0.0,
+        2.1532472006729768e-11,
+        -6.06056050231705e-12,
+        3.5615482618547536e-12
+       ],
+       [
+        0.0,
+        2.327956326313416e-11,
+        -7.109712462465595e-12,
+        1.922435046798779e-12
+       ],
+       [
+        0.0,
+        1.9256482092420235e-11,
+        -6.31908576894908e-12,
+        1.1268961297274975e-12
+       ]
+      ],
+      "blocks_s": [
+       7.31207632e-05,
+       7.32803275e-05,
+       7.32636608e-05,
+       7.33252982e-05,
+       7.32089211e-05,
+       7.32360263e-05,
+       7.31296813e-05,
+       7.32706754e-05,
+       7.30548275e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 114,
+      "evaluations": 3078.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 6.59905728831519e-08,
+      "median_s": 7.32360263e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "38.54",
+       "39.81",
+       "42.17"
+      ]
+     },
+     "skip_loop_eval": {
+      "results": [
+       [
+        0.0,
+        1.4246193047419334e-11,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        7.689740187195113e-12,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        4.5075845189100256e-12,
+        0.0,
+        0.0
+       ]
+      ],
+      "blocks_s": [
+       1.21238162e-05,
+       1.21685997e-05,
+       1.21726065e-05,
+       1.21534553e-05,
+       1.21673488e-05,
+       1.21720601e-05,
+       1.21881086e-05,
+       1.2189445e-05,
+       1.2167854e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 970,
+      "evaluations": 26190.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 2.3095768405926667e-07,
+      "median_s": 1.21685997e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "38.54",
+       "39.81",
+       "42.17"
+      ]
+     },
+     "instrumented": {
+      "results": [
+       [
+        0.0,
+        2.1532472006729768e-11,
+        -6.06056050231705e-12,
+        3.5615482618547536e-12
+       ],
+       [
+        0.0,
+        2.327956326313416e-11,
+        -7.109712462465595e-12,
+        1.922435046798779e-12
+       ],
+       [
+        0.0,
+        1.9256482092420235e-11,
+        -6.31908576894908e-12,
+        1.1268961297274975e-12
+       ]
+      ],
+      "blocks_s": [
+       7.29309884e-05,
+       7.33451391e-05,
+       7.36347913e-05,
+       7.33653391e-05,
+       7.33280058e-05,
+       7.38495159e-05,
+       7.33346145e-05,
+       7.34497739e-05,
+       7.33069333e-05
+      ],
+      "n_rank": [
+       {
+        "n": 4,
+        "rank": 4,
+        "calls": 3105.0
+       }
+      ],
+      "sweeps_per_block": 115,
+      "evaluations": 3105.0,
+      "tsc_hz": 2249993030.0,
+      "counters": [
+       419521353.0,
+       157030256.0,
+       189264422.0,
+       0.0,
+       3105.0,
+       83835.0,
+       46575.0,
+       0.0
+      ],
+      "checksum": 6.656718953941259e-08,
+      "median_s": 7.33451391e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "38.54",
+       "39.81",
+       "42.17"
+      ]
+     }
+    },
+    {
+     "full": {
+      "results": [
+       [
+        0.0,
+        2.1532472006729768e-11,
+        -6.06056050231705e-12,
+        3.5615482618547536e-12
+       ],
+       [
+        0.0,
+        2.327956326313416e-11,
+        -7.109712462465595e-12,
+        1.922435046798779e-12
+       ],
+       [
+        0.0,
+        1.9256482092420235e-11,
+        -6.31908576894908e-12,
+        1.1268961297274975e-12
+       ]
+      ],
+      "blocks_s": [
+       7.33750203e-05,
+       7.38287333e-05,
+       7.37115159e-05,
+       7.3845629e-05,
+       7.38720348e-05,
+       7.39397478e-05,
+       7.38084145e-05,
+       7.39345014e-05,
+       7.38132522e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 115,
+      "evaluations": 3105.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 6.656718953941259e-08,
+      "median_s": 7.38287333e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "38.54",
+       "39.81",
+       "42.17"
+      ]
+     },
+     "skip_loop_eval": {
+      "results": [
+       [
+        0.0,
+        1.4246193047419334e-11,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        7.689740187195113e-12,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        4.5075845189100256e-12,
+        0.0,
+        0.0
+       ]
+      ],
+      "blocks_s": [
+       1.22411369e-05,
+       1.22851219e-05,
+       1.22931087e-05,
+       1.22972045e-05,
+       1.22850731e-05,
+       1.23318443e-05,
+       1.22959126e-05,
+       1.22898694e-05,
+       1.22882184e-05
+      ],
+      "n_rank": [],
+      "sweeps_per_block": 957,
+      "evaluations": 25839.0,
+      "tsc_hz": -1.0,
+      "counters": [
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0,
+       -1.0
+      ],
+      "checksum": 2.2786379248210523e-07,
+      "median_s": 1.22898694e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "38.54",
+       "39.81",
+       "42.17"
+      ]
+     },
+     "instrumented": {
+      "results": [
+       [
+        0.0,
+        2.1532472006729768e-11,
+        -6.06056050231705e-12,
+        3.5615482618547536e-12
+       ],
+       [
+        0.0,
+        2.327956326313416e-11,
+        -7.109712462465595e-12,
+        1.922435046798779e-12
+       ],
+       [
+        0.0,
+        1.9256482092420235e-11,
+        -6.31908576894908e-12,
+        1.1268961297274975e-12
+       ]
+      ],
+      "blocks_s": [
+       7.3449958e-05,
+       7.38865714e-05,
+       7.36690056e-05,
+       7.38711064e-05,
+       7.37412213e-05,
+       7.37745798e-05,
+       7.37330672e-05,
+       7.3712591e-05,
+       7.39859272e-05
+      ],
+      "n_rank": [
+       {
+        "n": 4,
+        "rank": 4,
+        "calls": 3213.0
+       }
+      ],
+      "sweeps_per_block": 119,
+      "evaluations": 3213.0,
+      "tsc_hz": 2249992920.0,
+      "counters": [
+       436617757.0,
+       162852356.0,
+       197808390.0,
+       0.0,
+       3213.0,
+       86751.0,
+       48195.0,
+       0.0
+      ],
+      "checksum": 6.887365616445537e-08,
+      "median_s": 7.37412213e-05,
+      "madloop_warnings": 0,
+      "load_before": [
+       "38.54",
+       "39.81",
+       "42.17"
+      ]
+     }
+    }
+   ],
+   "helicity_summed": {
+    "results": [
+     [
+      0.0,
+      1.0787139491589325e-11,
+      -3.0302802511584685e-12,
+      1.7807741309273728e-12
+     ],
+     [
+      0.0,
+      1.1680748233786253e-11,
+      -3.5548562312327937e-12,
+      9.61217523399387e-13
+     ],
+     [
+      0.0,
+      9.677201751269169e-12,
+      -3.15954288447454e-12,
+      5.634480648637474e-13
+     ]
+    ],
+    "blocks_s": [
+     0.00014243809,
+     0.000143105944,
+     0.000142833062,
+     0.000143693345,
+     0.000142924198,
+     0.000143556056,
+     0.000143031316,
+     0.000143186169,
+     0.000142808825
+    ],
+    "n_rank": [],
+    "sweeps_per_block": 59,
+    "evaluations": 1593.0,
+    "tsc_hz": -1.0,
+    "counters": [
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0,
+     -1.0
+    ],
+    "checksum": 1.719762287000531e-08,
+    "median_s": 0.000143031316,
+    "madloop_warnings": 0,
+    "load_before": [
+     "38.66",
+     "39.81",
+     "42.16"
+    ]
+   },
+   "helicity_filter_level_summed": 2
+  }
+ },
+ "ninja_input_check": {
+  "ninjars_case": "/shared/external/ninja/references/claude_numerator/validation/benchmark/cases/gg-hhh-top-box-8.json",
+  "ninjars_case_sha256": "bea1f9301b8485fb99bfa45662568000ed12f1f16d937f4914bfac2310ab956d",
+  "ninjars_rank": 4,
+  "madloop_rank": 4,
+  "n": [
+   4,
+   4
+  ],
+  "lanes": [
+   {
+    "lane": "gg-hhh-top-box-8-madloop-sqrt_s_450",
+    "ninjars_lane": "sqrt_s_450",
+    "max_scaled_invariant_difference": 0.0,
+    "max_mass_squared_difference": 0.0
+   },
+   {
+    "lane": "gg-hhh-top-box-8-madloop-sqrt_s_525",
+    "ninjars_lane": "sqrt_s_525",
+    "max_scaled_invariant_difference": 0.0,
+    "max_mass_squared_difference": 0.0
+   },
+   {
+    "lane": "gg-hhh-top-box-8-madloop-sqrt_s_600",
+    "ninjars_lane": "sqrt_s_600",
+    "max_scaled_invariant_difference": 0.0,
+    "max_mass_squared_difference": 0.0
+   }
+  ],
+  "pass": true
+ },
+ "date_utc": "2026-10-17T13:09:26+00:00",
+ "sources_sha256": {
+  "run_madloop.py": "b8f609cc4a5e8c1e5f477637c04d17cf378ac705c1c0037863dc1792cb3464ac",
+  "mg5_generate.py": "13313cabd3d70384356da4c11e83d1b6fe5b10c45027bd17bc4b7bafcf88d5a3",
+  "bench_madloop.f": "eaf7f91db6a5e24dec2d468adf3753e86b5ddf6aadfa96b1c2ecaf57575bc45b",
+  "bench_stubs.c": "2ff117cb0b653fd1736ab5781ed552c87a5a8ec97683c0ad8346d9d0da5118d3"
+ }
+}
