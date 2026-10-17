@@ -1788,14 +1788,14 @@ impl FastAmplitude {
         Ok(())
     }
 
-    /// Ninja's rank n+1 choice of the rank-3 bubble integral:
-    /// `|c13 (V2-V1).e2|³ != 0`.
+    /// Ninja's rank n+1 choice of the rank-3 bubble integral,
+    /// `|c13 ((V2-V1).e2)³| != 0` (tested as an exact complex zero).
     #[inline]
     fn rank3_bubble(&self, b: usize, lane: usize, v: &[RMom]) -> bool {
         let [i1, i2] = self.topo.bubbles[b];
         let data = &self.bub[b * self.lanes + lane];
         let ke2 = mp_rr(&sub(&v[i2], &v[i1]), &data.e2);
-        (data.c[13] * ke2 * ke2 * ke2).abs() != 0.
+        !is_zero(data.c[13] * ke2 * ke2 * ke2)
     }
 }
 

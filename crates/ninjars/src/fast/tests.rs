@@ -9,8 +9,12 @@ use super::geometry::{
     triangle_solution,
 };
 use super::numerator::{FastNumerator, t2_len, t3_len};
+use super::replay::{RecordingMasters, RecordingNumerator};
 use super::tensor::TensorNumerator;
 use super::tensor_layout::{monomials, ncoeff};
+use super::{
+    FastAmplitude, FastInput, FastMaster, FastMasters, FastOptions, FastResult, FastStatus,
+};
 
 /// SplitMix64 generator for reproducible test data.
 struct Rng(u64);
@@ -485,5 +489,209 @@ fn cut_solutions_are_on_shell() {
             assert_zero(propagator(&q, &v[0], m[0], mu2), 10., "tadpole cut");
         }
         let _ = mp2(&k);
+    }
+}
+
+/// Masters with unit values; rows of lane-tagged arguments can be failed or
+/// poisoned through the squared scale (`mu² = 7` fails, `mu² = 9` gives NaN).
+struct UnitMasters;
+
+impl FastMasters for UnitMasters {
+    fn evaluate(
+        &mut self,
+        family: FastMaster,
+        args: &[C64],
+        out: &mut [[C64; 3]],
+        ok: &mut [bool],
+    ) -> crate::Result<()> {
+        let width = family.outputs();
+        for (row, point) in args.chunks_exact(family.arity()).enumerate() {
+            let mu2 = point[point.len() - 1].re;
+            ok[row] = mu2 != 7.;
+            let value = if mu2 == 9. { f64::NAN } else { 1. };
+            for k in 0..width {
+                out[row * width + k] = [C64::real(value), C64::real(0.5), C64::ZERO];
+            }
+        }
+        Ok(())
+    }
+}
+
+fn unit_tensor(rank: usize, lanes: usize) -> TensorNumerator {
+    let mut tensor = TensorNumerator::new(rank, lanes);
+    for (k, c) in tensor.coefficients_mut().iter_mut().enumerate() {
+        *c = C64::new(1. / (1 + k % 7) as f64, 0.1 * (k % 3) as f64);
+    }
+    tensor
+}
+
+#[test]
+fn lane_statuses_isolate_failures_and_keep_previous_results() {
+    let n = 4;
+    let rank = 3;
+    // Lane 0 regular; lane 1 collinear (vanishing Gram determinant);
+    // lane 2 failing masters; lane 3 non-finite masters; lane 4 regular.
+    let regular: Vec<RMom> = vec![
+        [0., 0., 0., 0.],
+        [1.902, -0.517, -0.537, -0.876],
+        [-1.599, 0.29, 0.378, 0.142],
+        [-0.892, -0.823, 0.499, 0.629],
+    ];
+    let collinear: Vec<RMom> = vec![
+        [0., 0., 0., 0.],
+        [1., 0., 0., 0.],
+        [2., 0., 0., 0.],
+        [3., 0.5, 0., 0.],
+    ];
+    let lanes = 5;
+    let mut shifts = Vec::new();
+    for lane in 0..lanes {
+        shifts.extend_from_slice(if lane == 1 { &collinear } else { &regular });
+    }
+    let masses = vec![C64::new(0.7, -0.05); lanes * n];
+    let scales = [1., 1., 7., 9., 2.];
+    let input = FastInput {
+        lanes,
+        shifts: &shifts,
+        masses_squared: &masses,
+        scales_squared: &scales,
+        s_matrix: None,
+    };
+    let mut amplitude = FastAmplitude::new(n, rank, FastOptions::default()).unwrap();
+    let sentinel = FastResult {
+        laurent: [C64::real(42.); 3],
+        cut_constructible: C64::real(42.),
+        rational: C64::real(42.),
+    };
+    let mut results = vec![sentinel; lanes];
+    let mut statuses = vec![FastStatus::NotEvaluated; lanes];
+    let mut tensor = unit_tensor(rank, lanes);
+    amplitude
+        .evaluate(
+            &input,
+            &mut tensor,
+            &mut UnitMasters,
+            &mut results,
+            &mut statuses,
+        )
+        .unwrap();
+    assert_eq!(
+        statuses,
+        [
+            FastStatus::Success,
+            FastStatus::Unstable,
+            FastStatus::MasterFailed,
+            FastStatus::NonFinite,
+            FastStatus::Success
+        ]
+    );
+    for lane in 1..4 {
+        assert_eq!(
+            results[lane], sentinel,
+            "failed lane {lane} must keep its result"
+        );
+    }
+    assert_ne!(results[0], sentinel);
+    // Same kinematics and coefficients: lane 4 differs from lane 0 only by mu².
+    assert_ne!(results[4], sentinel);
+    let finite = results[0];
+    assert!((finite.cut_constructible + finite.rational - finite.laurent[0]).abs() < 1e-12);
+    // A second evaluation overwrites (does not accumulate).
+    amplitude
+        .evaluate(
+            &input,
+            &mut tensor,
+            &mut UnitMasters,
+            &mut results,
+            &mut statuses,
+        )
+        .unwrap();
+    assert_eq!(results[0], finite);
+    // Structural errors leave everything untouched.
+    let before = results.clone();
+    assert!(
+        amplitude
+            .evaluate(
+                &FastInput {
+                    lanes,
+                    shifts: &shifts[..lanes * n - 1],
+                    ..input
+                },
+                &mut tensor,
+                &mut UnitMasters,
+                &mut results,
+                &mut statuses,
+            )
+            .is_err()
+    );
+    assert_eq!(results, before);
+    let mut wrong_rank = unit_tensor(rank + 1, lanes);
+    assert!(
+        amplitude
+            .evaluate(
+                &input,
+                &mut wrong_rank,
+                &mut UnitMasters,
+                &mut results,
+                &mut statuses
+            )
+            .is_err()
+    );
+}
+
+#[test]
+fn replay_reproduces_recorded_evaluations_bitwise() {
+    for (n, rank) in [(1, 2), (2, 1), (3, 4), (4, 5), (5, 4), (7, 6), (8, 9)] {
+        let mut rng = Rng(100 + n as u64);
+        let lanes = 3;
+        let shifts: Vec<RMom> = (0..lanes * n)
+            .map(|i| if i % n == 0 { [0.; 4] } else { rng.rmom(2.) })
+            .collect();
+        let masses: Vec<C64> = (0..lanes * n)
+            .map(|_| C64::new(0.5 + rng.uniform().abs(), -0.1 * rng.uniform().abs()))
+            .collect();
+        let scales = vec![1.5; lanes];
+        let input = FastInput {
+            lanes,
+            shifts: &shifts,
+            masses_squared: &masses,
+            scales_squared: &scales,
+            s_matrix: None,
+        };
+        let mut amplitude = FastAmplitude::new(n, rank, FastOptions::default()).unwrap();
+        let mut tensor = TensorNumerator::new(rank, lanes);
+        for c in tensor.coefficients_mut() {
+            *c = rng.c();
+        }
+        let mut numerator = RecordingNumerator::new(tensor);
+        let mut masters = RecordingMasters::new(UnitMasters);
+        let mut results = vec![FastResult::default(); lanes];
+        let mut statuses = vec![FastStatus::NotEvaluated; lanes];
+        amplitude
+            .evaluate(
+                &input,
+                &mut numerator,
+                &mut masters,
+                &mut results,
+                &mut statuses,
+            )
+            .unwrap();
+        let (recorded, recorded_statuses) = (results.clone(), statuses.clone());
+        let mut replay_numerator = numerator.replay();
+        let mut replay_masters = masters.replay();
+        for _ in 0..2 {
+            results.fill(FastResult::default());
+            amplitude
+                .evaluate(
+                    &input,
+                    &mut replay_numerator,
+                    &mut replay_masters,
+                    &mut results,
+                    &mut statuses,
+                )
+                .unwrap();
+            assert_eq!(results, recorded, "n={n} rank={rank}");
+            assert_eq!(statuses, recorded_statuses);
+        }
     }
 }

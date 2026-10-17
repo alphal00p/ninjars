@@ -480,3 +480,49 @@ fn parity_n5() {
 fn parity_n6() {
     parity(6);
 }
+
+/// `GenericMasters` over the generic `MasterProvider` interface of the native
+/// provider reproduces the direct `FastMasters` implementation bitwise
+/// (including rank-3 bubbles at rank n+1).
+#[test]
+fn generic_masters_adapter_matches_direct_provider() {
+    use ninjars::fast::GenericMasters;
+    for (n, rank) in [(3, 2), (4, 5), (5, 4)] {
+        let mut rng = Rng(0xada9 + n as u64);
+        let lanes = lanes(&mut rng, n);
+        let count = lanes.len();
+        let shifts: Vec<RMom> = lanes.iter().flat_map(|l| l.shifts.clone()).collect();
+        let masses: Vec<C64> = lanes.iter().flat_map(|l| l.masses.clone()).collect();
+        let scales = vec![1.7; count];
+        let input = FastInput {
+            lanes: count,
+            shifts: &shifts,
+            masses_squared: &masses,
+            scales_squared: &scales,
+            s_matrix: None,
+        };
+        let mut tensor = TensorNumerator::new(rank, count);
+        for c in tensor.coefficients_mut() {
+            *c = C64::new(rng.uniform(), rng.uniform());
+        }
+        let mut fast = FastAmplitude::new(n, rank, FastOptions::default()).unwrap();
+        let mut direct = vec![FastResult::default(); count];
+        let mut adapted = vec![FastResult::default(); count];
+        let mut statuses = vec![FastStatus::NotEvaluated; count];
+        let mut native = OneLoopNativeMasters::new().unwrap();
+        fast.evaluate(&input, &mut tensor, &mut native, &mut direct, &mut statuses)
+            .unwrap();
+        assert!(statuses.iter().all(|s| *s == FastStatus::Success));
+        let mut generic = GenericMasters::new(OneLoopNativeMasters::new().unwrap());
+        fast.evaluate(
+            &input,
+            &mut tensor,
+            &mut generic,
+            &mut adapted,
+            &mut statuses,
+        )
+        .unwrap();
+        assert!(statuses.iter().all(|s| *s == FastStatus::Success));
+        assert_eq!(direct, adapted, "n={n} rank={rank}");
+    }
+}
