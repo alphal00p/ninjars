@@ -369,3 +369,85 @@ fn dual_residues<D: Real + DualNumber<Complex<f64>>>(zero: D) {
         assert_eq!(stable, pruned.cut_count() * lanes);
     }
 }
+
+#[test]
+fn complete_bubble_amplitude_preserves_accumulation_failure_and_reset() {
+    let c = |re| Complex::new(re, 0.);
+    let mut numerator =
+        PolynomialNumerator::new(parse!("q0^2+2*q1+3*mu2+1"), variables(), vec![], 0.).unwrap();
+    numerator.set_parameter_batch(&[], 3).unwrap();
+    let mut geometry = SymbolicaCuts::new(0.).unwrap();
+    let mut masters = SymbolicaMasters::new(0.);
+    let factory = || SymbolicaAmplitudeKernels::new(2, 2, 0.).unwrap();
+    let mut full = factory().into_amplitude(3).unwrap();
+    let mut pruned = factory()
+        .with_pruned_swapped_arithmetic()
+        .into_amplitude(3)
+        .unwrap();
+    let shifts: Vec<_> = (0..3)
+        .flat_map(|lane| {
+            [
+                FourMomentum::from([c(0.); 4]),
+                FourMomentum::from([c(0.), c(1. + lane as f64 / 4.), c(0.), c(0.)]),
+            ]
+        })
+        .collect();
+    let masses: Vec<_> = (0..3)
+        .flat_map(|lane| [c(2. + lane as f64), c(3. + lane as f64)])
+        .collect();
+    let mut initial = Vec::new();
+    for iteration in 0..3 {
+        let scales = if iteration == 1 {
+            [c(1.), c(0.), c(1.)]
+        } else {
+            [c(1.); 3]
+        };
+        for amplitude in [&mut full, &mut pruned] {
+            amplitude
+                .evaluate_batch(
+                    &shifts,
+                    &masses,
+                    &scales,
+                    &mut numerator,
+                    &mut geometry,
+                    &mut masters,
+                )
+                .unwrap();
+        }
+        assert_eq!(pruned.statuses(), full.statuses());
+        if iteration == 1 {
+            assert!(matches!(
+                pruned.statuses()[1],
+                EvaluationStatus::IntegrationFailed { .. }
+            ));
+            assert_eq!(pruned.results()[1], initial[1]);
+        } else {
+            assert_eq!(pruned.statuses(), &[EvaluationStatus::Success; 3]);
+        }
+        for (actual, expected) in pruned.results().iter().zip(full.results()) {
+            for (a, b) in actual.iter().zip(expected) {
+                assert!((a - b).norm().re <= 1e-9 * (1. + b.norm().re));
+            }
+        }
+        if iteration == 0 {
+            initial = pruned.results().to_vec();
+        } else {
+            for (lane, values) in pruned.results().iter().enumerate() {
+                let count = if lane == 1 { iteration } else { iteration + 1 } as f64;
+                for (value, first) in values.iter().zip(&initial[lane]) {
+                    let expected = first * count;
+                    assert!((value - expected).norm().re <= 1e-9 * (1. + expected.norm().re));
+                }
+            }
+        }
+    }
+    pruned.reset();
+    assert!(pruned.results().iter().flatten().all(SingleFloat::is_zero));
+    assert_eq!(pruned.statuses(), &[EvaluationStatus::NotEvaluated; 3]);
+    pruned.reset_batch(0);
+    numerator.set_parameter_batch(&[], 0).unwrap();
+    pruned
+        .evaluate_batch(&[], &[], &[], &mut numerator, &mut geometry, &mut masters)
+        .unwrap();
+    assert!(pruned.results().is_empty());
+}
