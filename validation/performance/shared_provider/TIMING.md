@@ -170,6 +170,9 @@ mismatched full/pruned rows, selection, native policy, feature state or runtime
 source map before building. Every requested timing width must have been checked
 by those physical controls. Fixed-row requests additionally require both native
 policy controls. Historical default-off control handling remains unchanged.
-Source-only implementation is present; compilation, correctness runs and
-timings for this option are pending. Existing archived timing evidence is
-unchanged and cannot be attributed to pruning.
+The optimized physical controls and actual-report preflight pass at frozen
+`8a33a59`; see
+[`pruned-swapped-harness.json`](../../evidence/pruned-swapped-harness.json).
+The timing launcher also compiles with strict C++ warnings, but was never run.
+Pruning timings remain pending. Existing archived timing evidence is unchanged
+and cannot be attributed to pruning.

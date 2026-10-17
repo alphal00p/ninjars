@@ -2077,3 +2077,27 @@ connects the existing kernels into integrated amplitudes and a standalone
   whitespace checking were performed during the independent timing hold. All
   builds, test execution, numerical controls and pruning timings remain pending;
   the frozen measured worktree and its evidence are unchanged.
+
+### Pruning validation harness correctness checkpoint (2026-10-17)
+
+- Frozen source `8a33a59` passes all nine ABI tests with native kernels disabled
+  and all nine enabled, plus 18 Python metadata/preflight tests, formatting and
+  strict Clippy in both configurations. No source fixes were required. The prior
+  87 core pruning tests remain separate and were not repeated.
+- A single preserved optimized native executable/library passes full/pruned
+  `native-rank` Whole and fixed32 controls at widths
+  0/1/3/8/31/32/128/1024, all five selectors with pruning, and the default-off
+  positional invocation. The controls compare 79,755 complex parity components:
+  full/pruned differs by at most 1.54e-33, Whole/fixed32 agrees exactly, and
+  all-selector differences are at most 4.00e-18. Call/row deltas remain equal at
+  each width. Original Ninja and MadLoop Laurent checks also pass.
+- `validation/evidence/pruned-swapped-harness.json` indexes all commands, 73
+  retained record/log files, exact binary identities and all 1,975 runtime source
+  hashes. Read-only copies retain the test and physical binaries, compile-only
+  timing launcher, reference libraries, input protocol and full runtime-source
+  archive. Source maps match before/after, and all dependency trees are clean.
+- The timing launcher compiles with strict warnings and the enabled preflight
+  validates the actual reports and every requested width. It was not executed:
+  no timing, pruning speedup or performance acceptance is claimed. The fixed
+  physical control is binary64 graph26; broader physical, precision and original
+  rational-component gates remain in the overall plan.

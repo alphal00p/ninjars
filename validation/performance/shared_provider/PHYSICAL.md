@@ -155,6 +155,17 @@ are not complete callback-identity traces. Original Ninja/MadLoop Laurent
 checks and their existing rational-separation limitations remain separately
 reported. Catalog and native-policy controls retain the requested pruning flag.
 
-This harness extension is currently source-only: ABI sentinel/metadata tests,
-Python corruption tests, builds and physical execution are pending release of
-the timing hold. It introduces no correctness or performance evidence yet.
+The optimized correctness checkpoint is recorded in
+[`pruned-swapped-harness.json`](../../evidence/pruned-swapped-harness.json).
+The frozen `8a33a59` source passes nine ABI tests in each feature variant,
+18 Python metadata/preflight tests, formatting and strict Clippy. One preserved
+native artifact passes full/pruned Whole and fixed32 controls, all five
+selection controls, and the original default-off positional invocation. The
+full suite checks 6,135 complex components per parity row, for 79,755 comparisons
+across the controls. Full/pruned disagreement is at most `1.54e-33`;
+Whole/fixed32 agrees exactly and all-selector disagreement is at most
+`4.00e-18`. Numerator call/row deltas match at each width. The archive retains
+the complete reports, raw logs, source identities and preserved artifact paths.
+No source correction was needed. These are correctness checks; pruning
+performance remains unmeasured and original Ninja/MadLoop rational-component
+parity remains a separate limitation.
