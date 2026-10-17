@@ -1,0 +1,8 @@
+{
+  "processes": 96,
+  "records": 192,
+  "paired_blocks": 1536,
+  "individual_blocks": 3072,
+  "minimum_individual_block_ns": 39016648,
+  "pilot": false
+}

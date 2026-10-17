@@ -126,8 +126,9 @@ record the remaining performance gap and keep actual master computation separate
 optional [guarded rank specialization](docs/guarded-rank-specialization.md)
 uses Symbolica to remove structural zeros for five propagators and rank four,
 with checks of every Dual component and a generic fallback. Separate explicit
-opt-ins select interpreted or generated native alternate kernels; neither has
-a timing result yet. The
+opt-ins select interpreted or generated native alternate kernels. The complete
+[native rank/block comparison](validation/performance/shared_provider/RANK-BLOCK-TIMING-8b86822.md)
+finds modest improvements while the reduction gap remains substantial. The
 [algorithm audit](docs/audits/reduction-algorithm-audit.md) describes further
 experiments. Its [bounded triangle study](docs/audits/transpose-probe.md) proves
 the forward/transposed symbolic identities but finds lower instruction counts
@@ -152,8 +153,10 @@ bound generated-kernel scratch by processing whole rows in fixed blocks. `Whole`
 remains the default. The policy preserves complete Dual rows and applies to
 native generic kernels and guarded alternates; callbacks and masters retain
 their separate providers. The [CLI and harness option](docs/native-block-execution.md)
-and optimized physical correctness controls pass. Complete-reduction rank/block
-timings are in progress; the performance gate remains unmet.
+and optimized physical correctness controls pass. The complete 96-process
+rank/block timing comparison retains all samples with actual master execution
+excluded; the performance gate remains unmet. Separate instrumented preparation
+and live-master accounting is in progress.
 
 See [synthetic graph fixtures](examples/graphs/README.md) and the
 [original Ninja reference harness](validation/reference/README.md).

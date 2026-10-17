@@ -1,0 +1,18 @@
+{
+  "raw_archive": "raw.tar.gz",
+  "raw_archive_sha256": "d0ffeb4eeea19a11435337dcc15a11d868b24c8c0459c6c142601011d226d9a7",
+  "raw_archive_bytes": 556309,
+  "raw_members": 299,
+  "source_revision": "8b868220f3a438a7f78e0e5329cd011646fef71c",
+  "reviewed_release_manifest_sha256": "d12273632f58e85f3ce88336c3d8f42d29501ddd53cc6f074022b1f4015b1f47",
+  "complete_run_verified": true,
+  "minimum_individual_block_ns": 39016648,
+  "performance_acceptance": false,
+  "scope": "shared-reduction; frozen masters; actual backend calls and rows zero",
+  "files_sha256": {
+    "root-review.json": "190f0614fab0773c7082f405fab0c467e7682b24280b8bc1789cb1fca99c5fc5",
+    "root-review.log": "65776deca892fc35b5167b7588b4d2f8c8852597645ade2104b25717b7a26120",
+    "root-review.py": "4ded1ebf9955eaf96790ff5a50faac31954fbe2675bb4e8c6aedfa9e68b89f2c",
+    "run.log": "ad0a39bb15979ac9b2ae83b3ec64256137a4c9e2bd60629821def85765ac5a72"
+  }
+}

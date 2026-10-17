@@ -4,8 +4,8 @@ Source-only follow-up to [the original audit](reduction-algorithm-audit.md).
 Inspected main: `015622d098b4df9e157d09130cf56ea3fce595b9`; original Ninja:
 `05fb0d3a0f47f216eceef411a09ac19e1b9a19f0`. No build, symbolic execution,
 numerical control, profile, or timing was performed. The paired-orientation and
-master-weight inventories are still pending; this note authorizes no further
-implementation. Historical timings do not identify the current dominant cost.
+master-weight inventories are still pending; no additional runtime implementation
+is introduced. Historical timings do not identify the current dominant cost.
 
 ## Ranked decision
 
@@ -53,6 +53,17 @@ retaining all 13 quotient heads. For n5/r4/cut2 it is three applications of
 n3/r2/cut2, retaining all three heads. Higher-rank single/triple cuts would use
 five n2/r3/cut1 and three n4/r5/cut3 applications respectively, but need not be
 part of the first experiment.
+
+An independent source review confirms that with `z=1/t`, both input layouts
+normalize to `z^(d-t)`. Denominator terms obey
+`x_degree+2*mu_degree <= z_degree`, so multiplication and formal inversion of a
+nonzero leading constant cannot bring discarded higher z powers back into the
+retained cone. Compute `delta` and `d` using checked signed arithmetic; handle
+`u=0` as identity and `d<0` as inactive before constructing the one-line plan.
+For active plans its rank is simply `d+1`. Check tuple bijections explicitly,
+including T3 layouts and degree zero. For Dual denominators, invertibility
+requires a nonzero primal; the all-component nonzero rule used for lazy master
+weights is insufficient here.
 
 Smallest useful experiment: those two bubble controls, with abstract numerator
 and denominator heads, original expanded plans versus sums of the actual

@@ -79,6 +79,9 @@ selections agree within `4.00e-18` scaled error. The full set checks 67,485
 complex parity components. Original Ninja agreement is within `2.2e-16`.
 See `validation/evidence/native-block-release32.json` for source, dependency,
 compiler, executable and control identities. These controls do not establish
-complete production-backend or rational-component agreement. The same-artifact
-rank/block timing comparison is in progress; actual master computation and
-preparation will be accounted for in a separate instrumented pass.
+complete production-backend or rational-component agreement. The
+[same-artifact rank/block timing comparison](../validation/performance/shared_provider/RANK-BLOCK-TIMING-8b86822.md)
+has completed all 96 processes and 3,072 individual blocks. Improvements are
+modest and width-dependent; no default changes and the performance gate remains
+unmet. Actual master computation and preparation are being accounted for in a
+separate instrumented pass.

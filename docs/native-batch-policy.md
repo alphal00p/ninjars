@@ -73,6 +73,7 @@ The [CLI and validation harness](native-block-execution.md) now expose an
 independent execution-policy option. Optimized physical controls on one frozen
 artifact pass for Whole and fixed32 across widths 0/1/3/8/31/32/128/1024;
 `validation/evidence/native-block-release32.json` records the exact artifacts
-and results. The complete-reduction timing comparison remains in progress.
-Correctness agreement does not establish a runtime benefit or performance
-acceptance.
+and results. The [complete rank/block timing comparison](../validation/performance/shared_provider/RANK-BLOCK-TIMING-8b86822.md)
+shows modest, width-dependent changes; fixed32 is not uniformly faster.
+The reduction performance gate remains unmet. Actual master computation was
+excluded and is being accounted for separately with instrumented execution.

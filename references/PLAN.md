@@ -2138,3 +2138,31 @@ connects the existing kernels into integrated amplitudes and a standalone
   bounded symbolic execution after the active 96-process timing window. The
   existing release comparison keeps actual master computation excluded; the
   separate instrumented pass will account for preparation and live masters.
+
+### Complete rank/block timing diagnostic (2026-10-17)
+
+- The full preselected comparison on frozen `8b86822` finished successfully:
+  96 processes, 192 records, 1,536 paired blocks, 3,072 individual blocks. The
+  minimum block duration is 39.016648 ms, exceeding the fixed 20 ms floor.
+  All samples are retained; no adaptive sampling or selective reruns occurred.
+- Root independently checked all 299 archived files, command status/order,
+  complete width/workload/setting coverage, source/dependency/artifact/loader
+  identity before and after the run, and zero actual-master calls/rows/misses.
+  It reproduced every deterministic paired-bootstrap summary and the four
+  rotation contrasts. Evidence is in `validation/evidence/native-rank-block-timing-v2`.
+- With changing inputs, native-rank fixed32 Rust/original ratios are
+  2.5556/1.9643/1.9869/1.9627/2.0270/2.4028 for widths
+  1/8/31/32/128/1024, respectively (medians of four process paired-ratio
+  medians). All four settings and both workloads, per-process intervals and
+  descriptive cross-process MADs are retained. Rank/block effects are modest
+  and width-dependent; no default changes or causal historical comparison.
+- Maximum scaled Laurent error is 2.09e-16. The shared host is not isolated,
+  and the performance gate remains unmet. Scope1 includes callbacks,
+  geometry/reduction, frozen lookup/contraction and staging, with actual master
+  computation and physical preparation excluded. Original/Rust T2 head counts
+  remain 40/60 by source inspection, not by an observed head counter.
+- The coordinated timing hold is released. The paired and staged-weight
+  symbolic inventories and physical pruning harness validation are running in
+  separate caches. The instrumented execution wrapper passes seven pure Python
+  regressions and its separate optimized build is running; it will report
+  preparation, callback, actual-master and remaining execution spans separately.
