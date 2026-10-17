@@ -97,6 +97,74 @@ none of which occur in the physical benchmark diagrams — and two wrong
 $D_0$ values in reference copies of OneLOop itself (versions 3.4 and a 2024
 snapshot; OneLOop 3.6 and COLLIER agree with each other there).
 
+= Arbitrary precision end to end <arbprec>
+
+#let arb = json("data/arbitrary_precision.json")
+
+The same CLI evaluates a physical diagram at any working precision, from the
+DOT graph to the integrated result, without a separate quadruple-precision
+build. For the $g g -> H H H$ top pentagon (graph 26) at its three
+benchmark points,
+
+#align(center, raw(lang: "sh", "ninjars reduce examples/graphs/physical/gg-hhh/top-pentagon-26-pool.json \\\n  --precision float --bits 700"))
+
+prepares the numerator exactly (FeynKit, exact radical momenta and
+polarization vectors), runs the generic reduction engine on Symbolica's
+arbitrary-precision `Float` (cut solutions, Laurent divisions and
+subtractions at 700 bits) and evaluates oneloopmaster's exact master
+expressions at the same precision. All three points take about seven
+seconds in total, including the one-time preparation. The 700-bit results
+agree with a 1000-bit run to 208 digits; the poles and the rational part
+vanish to $10^(-300)$, as they must for this finite pentagon. The table
+compares the finite part across precisions.
+
+#figure(
+  kind: table,
+  caption: [Correct digits of the finite part of graph 26, measured against
+    the 1000-bit evaluation.],
+  {
+    set text(8.5pt, font: "DejaVu Sans")
+    show table.cell.where(y: 0): set text(fill: white, weight: "bold")
+    table(
+      columns: (auto, auto, auto, auto),
+      inset: (x: 7pt, y: 4pt),
+      align: center + horizon,
+      fill: (x, y) => if y == 0 { rgb("#1f3b63") } else if calc.even(y) { luma(248) } else { none },
+      stroke: none,
+      table.header([$sqrt(s)$], [binary64 (fast engine)], [double-double], [700 bits]),
+      ..for (point, energy) in arb.points.zip(("450 GeV", "525 GeV", "600 GeV")) {
+        (energy, [14–15], [29], [#calc.round(point.digits_700_vs_1000)])
+      },
+    )
+  },
+) <tab:arbprec>
+
+Finite part of graph 26 at $sqrt(s) = 450$ GeV to 200 significant digits
+(1000-bit evaluation, normalization of the NinjaRS fixture):
+
+#block(inset: (x: 8pt, y: 6pt), fill: rgb("#eef3f9"), radius: 3pt, width: 100%, {
+  set text(7.6pt, font: "DejaVu Sans Mono")
+  set par(justify: false, leading: 0.5em)
+  // Mantissa in groups of ten digits, five groups per line, then the exponent.
+  let show-number(name, s) = {
+    let (mantissa, exponent) = s.split("e")
+    let (lead, digits) = mantissa.split(".")
+    let groups = range(0, digits.len(), step: 10).map(i => digits.slice(i, calc.min(i + 10, digits.len())))
+    let lines = range(0, groups.len(), step: 5).map(i => groups.slice(i, calc.min(i + 5, groups.len())).join(" "))
+    grid(
+      columns: (auto, auto),
+      column-gutter: 4pt,
+      row-gutter: 3pt,
+      [#name = #lead.], lines.first(),
+      ..lines.slice(1).map(l => ([], l)).flatten(),
+      [], [× 10#super(exponent)],
+    )
+  }
+  show-number("Re", arb.points.at(0).re)
+  v(4pt)
+  show-number("Im", arb.points.at(0).im)
+})
+
 = How the numbers are measured <methodology>
 
 *Test cases.* Seven physical one-loop diagrams with a top-quark loop,
