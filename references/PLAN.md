@@ -1959,3 +1959,29 @@ connects the existing kernels into integrated amplitudes and a standalone
   Production code is unchanged. Logs are in
   `validation/evidence/native-probe-cfg-lint`. The earlier failed feature-off
   fusion audit log remains intact as historical evidence.
+
+### Native block CLI and physical controls (2026-10-17)
+
+- Integrated candidate `8b86822` as `f17f64e`. CLI `reduce`, `compare` and
+  `bench` accept an independent positive `--native-block-rows` for native
+  selections; omission remains Whole. The additive validation ABI preserves
+  existing constructors and queries and reports configured execution policy.
+- All 33 test executions pass (21 Rust, 12 Python), including both feature
+  variants, malformed input/sentinel controls and CLI serialized parity for
+  f64, DoubleFloat and Float. Serialized comparisons use f64 and do not claim
+  extra precision. Strict CLI/ABI Clippy, formatting and C++ syntax checks pass.
+- On one development-profile physical executable/library/input, all three
+  native modes give exact Whole/fixed-7 agreement for 375 complex components
+  per policy across widths 0/1/3/8/31/32. All five Whole modes also pass the
+  shared catalog control. Original Ninja agreement is within 2.2e-16 scaled
+  error. These controls do not establish complete production-backend or
+  rational-decomposition parity.
+- Root verified 26 source hashes, eight preserved feature-specific executables,
+  six physical artifacts, 62 archived logs, 1,971 runtime source entries and
+  4,125 parity components across four reports. Evidence is in
+  `validation/evidence/native-block-harness.json` and
+  `validation/evidence/native-block-root-verification.json`.
+- Release correctness now uses the same frozen source, a separate output
+  directory, integrated widths through 1024 and the previously selected bound
+  32. Timing awaits these controls. Master execution, preparation and reduction
+  remain separately accounted; the existing performance gate remains unmet.

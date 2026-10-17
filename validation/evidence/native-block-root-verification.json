@@ -1,0 +1,15 @@
+{
+  "source_hashes": 26,
+  "preserved_test_executables": 8,
+  "physical_artifacts": 6,
+  "log_members": 62,
+  "physical_source_entries": 1971,
+  "same_artifact_physical_reports": 4,
+  "parity_components_across_reports": 4125,
+  "rust_test_executions": 21,
+  "python_tests": 12,
+  "performance_acceptance": false,
+  "candidate_revision": "8b868220f3a438a7f78e0e5329cd011646fef71c",
+  "integrated_revision": "f17f64e",
+  "scope": "Independent verification of saved dev correctness artifacts. No release or performance claim."
+}
