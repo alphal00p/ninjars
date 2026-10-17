@@ -105,7 +105,9 @@ because MG5 rejects a CutTools library built by another compiler version.
    divided by that on the NinjaRS case is one point-independent constant in
    modulus — 2 for every QCD graph, 1/3 for the four-photon box, spread ≤ 1e-14
    over the three pool points — so diagram and helicity are the same (MadLoop's
-   colour/normalisation factor aside). The propagator *order* differs: MadLoop's
+   colour/normalisation factor aside; parity makes |A(++)| = |A(--)|, so this
+   check cannot tell those two apart, which cost the same; the HelConfigs row
+   lookup selects ++). The propagator *order* differs: MadLoop's
    is cyclic, the NinjaRS cases' is not for the boxes and the pentagon (see
    `../README.md`: OneLOop then permutes D0 arguments and warns).
 

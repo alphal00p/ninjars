@@ -94,8 +94,8 @@ to the direct evaluation, and that the replays are consumed exactly. Protocol:
 one calibration and one discarded warm-up block per mode, then 9 interleaved
 rounds (one ≥25 ms block of every mode per round); median over rounds. The
 numerator part is `reduction_plus_tensor_numerator - pure_reduction`; the check
-`(pure + numerator part + masters)/full` lies in 0.97–1.01 for every case except
-the 0.8 µs bubble `syn-n2-r1` (1.03–1.05, fixed per-call overheads).
+`(pure + numerator part + masters)/full` lies in 0.967–1.01 for every case except
+the 0.8 µs bubble `syn-n2-r1` (1.02–1.05, fixed per-call overheads).
 
 **OneLOop warnings are switched off** (`olo_unit(-1,'warning')`; `--oneloop-warnings`
 restores them). OneLOop-3.6 writes one line to stdout for every D0 call whose
