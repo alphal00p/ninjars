@@ -164,7 +164,10 @@ def main():
     cases.append(gghhh_case())
     for case in cases:
         path = target / f"{case['name']}.json"
-        path.write_text(json.dumps(case, indent=1) + "\n")
+        # One lane per line keeps the files compact and diffable.
+        header = json.dumps({k: v for k, v in case.items() if k != "lanes"})[:-1]
+        lanes = ",\n".join(json.dumps(lane) for lane in case["lanes"])
+        path.write_text(f'{header}, "lanes": [\n{lanes}\n]}}\n')
         print(path)
 
 
