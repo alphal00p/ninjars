@@ -44,3 +44,21 @@ codegen-units = 1
 
 [profile.dev.package."*"]
 opt-level = 2
+
+# Fast-turnaround optimized profile for development benchmarks. The hot
+# reduction, adapter and master crates keep a single codegen unit; the large
+# graph/model dependency tree is not link-time optimized.
+[profile.perf]
+inherits = "release"
+lto = false
+codegen-units = 16
+incremental = false
+
+[profile.perf.package.ninjars]
+codegen-units = 1
+
+[profile.perf.package.ninjars-symbolica]
+codegen-units = 1
+
+[profile.perf.package.oneloop]
+codegen-units = 1
