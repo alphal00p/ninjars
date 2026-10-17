@@ -2057,3 +2057,23 @@ connects the existing kernels into integrated amplitudes and a standalone
   The entire same-artifact comparison restarts with the identical schedule,
   rounds, trials, modes and duration floor; no timing magnitudes motivated the
   correction and no partial favorable results are promoted.
+
+### Pruning validation harness source draft (2026-10-17)
+
+- From `38f8569`, added a validation-only, default-off pruning flag independent
+  of kernel selection and native row policy. Existing constructors and query
+  widths remain supported; the additive constructor/query expose configured
+  interpreted selected heads without changing raw callbacks or production CLI.
+- The physical control prepares each width once for full/pruned sessions and
+  checks all five result heads with a common frozen master union. It compares
+  callback call/row counts separately; those counters are not complete identity
+  traces. Existing original Ninja/MadLoop convention limitations remain stated.
+- Source tests cover ABI output sentinels, defaults, all quotient degrees,
+  inactive bubbles, rank/native policy independence, exact metadata, malformed
+  parity and enabled-only timing preflight. The latter requires matching current
+  runtime sources and full/pruned physical controls covering each requested
+  timing width before building.
+- Only source review, Python syntax parsing, targeted Rust formatting and diff
+  whitespace checking were performed during the independent timing hold. All
+  builds, test execution, numerical controls and pruning timings remain pending;
+  the frozen measured worktree and its evidence are unchanged.

@@ -12,7 +12,8 @@ import subprocess
 from run_physical import ROOT, HERE, digest, runtime_sources
 from timing_statistics import summarize_record
 from execution_report import validate_execution_record
-from kernel_selection import add_arguments, native_enabled, validate_arguments, validate_report
+from kernel_selection import (add_arguments, native_enabled, validate_arguments, validate_report,
+                              validate_pruning_preflight)
 
 
 def host_snapshot():
@@ -110,6 +111,10 @@ def main():
     controls = json.loads(controls_path.read_text())
     if not controls.get('success') or not controls.get('unchanged_runtime_sources') or 0 not in controls.get('integrated_widths', []) or 0 not in controls.get('preparation_widths', []) or controls.get('raw_components_checked') != 210:
         raise RuntimeError('complete separate physical controls are required')
+    if args.prune_swapped_arithmetic:
+        validate_pruning_preflight(controls, args.reduction_kernels, native_enabled(args), before,
+                                  required_widths=[int(value) for value in args.widths.split(',')],
+                                  native_block_rows=args.native_block_rows)
     input_text = protocol()
     (out/'input.txt').write_text(input_text)
     commands = []
@@ -159,13 +164,16 @@ def main():
     workload_command = [binary, ROOT/'examples/graphs/physical/gg-hhh/top-pentagon-26.dot', actual_mode, args.rounds, args.trials, args.widths, args.scopes, args.reduction_kernels]
     if args.native_block_rows is not None:
         workload_command.append(args.native_block_rows)
+    if args.prune_swapped_arithmetic:
+        workload_command.append('--prune-swapped-arithmetic')
     stdout = run('physical-workloads', workload_command, input_text, affinity=True)
     host_after = host_snapshot()
     results = [json.loads(line) for line in stdout.splitlines() if line.startswith('{')]
     if len(results) != 1 or not results[0]['success']:
         raise RuntimeError('missing successful workload report')
     result = results[0]
-    validate_report(result, args.reduction_kernels, native_enabled(args), native_block_rows=args.native_block_rows)
+    validate_report(result, args.reduction_kernels, native_enabled(args), native_block_rows=args.native_block_rows,
+                    prune_swapped_arithmetic=args.prune_swapped_arithmetic)
     if args.execution_diagnostics:
         for item in result['records']:
             item['validated_execution_breakdown'] = validate_execution_record(item)
@@ -214,6 +222,7 @@ def main():
         'dependency_heads': controls.get('dependency_heads'),
         'source_sha256': controls.get('source_sha256'),
         'all_runtime_sources_match_this_run': controls.get('source_sha256') == before,
+        'pruning_configuration_and_parity_validated': args.prune_swapped_arithmetic,
         'integrated_widths': controls['integrated_widths'],
         'preparation_widths': controls['preparation_widths'],
         'raw_components_checked': controls['raw_components_checked'],

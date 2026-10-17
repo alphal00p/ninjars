@@ -16,6 +16,7 @@ pub struct Session {
     kernel_info: [u64; 10],
     rank_correction_info: [u64; 4],
     native_execution_info: [u64; 2],
+    pruned_swapped_info: [u64; 5],
     n: usize,
     rank: usize,
     amplitude: Amplitude<C, SymbolicaAmplitudeKernels<f64>>,
@@ -179,12 +180,53 @@ pub unsafe extern "C" fn sp_session_create_with_execution(
     block_rows: usize,
     out: *mut *mut Session,
 ) -> i32 {
+    unsafe { sp_session_create_with_pruning(n, rank, rows, selection, policy, block_rows, 0, out) }
+}
+/// # Safety
+/// Same ownership/output contract as sp_session_create. Pruning is independent
+/// of native kernel selection and policy: 0 disabled, 1 interpreted swapped
+/// arithmetic for complete residue projection. Other tags preserve *out.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sp_session_create_with_pruning(
+    n: usize,
+    rank: usize,
+    rows: usize,
+    selection: u32,
+    policy: u32,
+    block_rows: usize,
+    pruning: u32,
+    out: *mut *mut Session,
+) -> i32 {
     guard(|| {
         if out.is_null() || !out.is_aligned() {
             return Err("invalid session output".into());
         }
+        if pruning > 1 {
+            return Err("invalid swapped arithmetic pruning tag".into());
+        }
         let bound = execution_bound(selection, policy, block_rows)?;
         let (kernels, kernel_info, rank_correction_info) = kernels(n, rank, selection)?;
+        let kernels = if pruning == 1 {
+            kernels.with_pruned_swapped_arithmetic()
+        } else {
+            kernels
+        };
+        let pruned_swapped_info = match kernels.pruned_swapped_arithmetic() {
+            None => [0; 5],
+            Some(report) => {
+                let backend = match report.backend() {
+                    "symbolica-interpreter" => 0,
+                    _ => return Err("unsupported swapped arithmetic backend report".into()),
+                };
+                [
+                    1,
+                    backend,
+                    report.full_columns as u64,
+                    report.swapped_columns as u64,
+                    u64::from(report.guarded_rank_correction),
+                ]
+            }
+        };
         #[cfg(feature = "native-kernels")]
         let kernels = kernels.with_native_batch_execution(match bound {
             None => ninjars_symbolica::BatchExecutionPolicy::Whole,
@@ -204,6 +246,7 @@ pub unsafe extern "C" fn sp_session_create_with_execution(
             kernel_info,
             rank_correction_info,
             native_execution_info,
+            pruned_swapped_info,
             n,
             rank,
             amplitude: kernels.into_amplitude(rows).map_err(|e| e.to_string())?,
@@ -261,6 +304,18 @@ pub unsafe extern "C" fn sp_session_native_execution_info(
     len: usize,
 ) -> i32 {
     guard(|| unsafe { write(out, len, &session(handle)?.native_execution_info) })
+}
+/// # Safety
+/// Live exclusive session and exactly five writable cells: enabled, backend,
+/// full columns, swapped columns, guarded-rank flag. Backend 0 is interpreted;
+/// disabled returns all zeros. Reports configuration, not observed execution.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sp_session_pruned_swapped_info(
+    handle: *mut Session,
+    out: *mut u64,
+    len: usize,
+) -> i32 {
+    guard(|| unsafe { write(out, len, &session(handle)?.pruned_swapped_info) })
 }
 /// # Safety
 /// All handles are live, exclusive and mutually disjoint. Buffers are valid for
@@ -514,6 +569,247 @@ pub unsafe extern "C" fn sp_session_production_stats(
 #[cfg(test)]
 mod kernel_tests {
     use super::*;
+
+    #[derive(Debug, PartialEq, Eq)]
+    struct Metadata {
+        generic: [u64; 10],
+        conditional: [u64; 4],
+        execution: [u64; 2],
+        pruning: [u64; 5],
+    }
+
+    fn metadata(handle: *mut Session) -> Metadata {
+        let mut result = Metadata {
+            generic: [99; 10],
+            conditional: [99; 4],
+            execution: [99; 2],
+            pruning: [99; 5],
+        };
+        assert_eq!(
+            unsafe { sp_session_kernel_info(handle, result.generic.as_mut_ptr(), 10) },
+            0
+        );
+        assert_eq!(
+            unsafe { sp_session_rank_correction_info(handle, result.conditional.as_mut_ptr(), 4) },
+            0
+        );
+        assert_eq!(
+            unsafe { sp_session_native_execution_info(handle, result.execution.as_mut_ptr(), 2) },
+            0
+        );
+        assert_eq!(
+            unsafe { sp_session_pruned_swapped_info(handle, result.pruning.as_mut_ptr(), 5) },
+            0
+        );
+        result
+    }
+
+    #[test]
+    fn pruning_old_constructors_match_explicit_disabled() {
+        let mut handles = [std::ptr::null_mut(); 4];
+        assert_eq!(unsafe { sp_session_create(2, 2, 0, &mut handles[0]) }, 0);
+        assert_eq!(
+            unsafe { sp_session_create_with_kernels(2, 2, 0, 0, &mut handles[1]) },
+            0
+        );
+        assert_eq!(
+            unsafe { sp_session_create_with_execution(2, 2, 0, 0, 0, 0, &mut handles[2]) },
+            0
+        );
+        assert_eq!(
+            unsafe { sp_session_create_with_pruning(2, 2, 0, 0, 0, 0, 0, &mut handles[3]) },
+            0
+        );
+        let expected = metadata(handles[0]);
+        assert_eq!(expected.pruning, [0; 5]);
+        assert_eq!(expected.execution, [0; 2]);
+        for handle in handles {
+            assert_eq!(metadata(handle), expected);
+            assert_eq!(unsafe { sp_session_destroy(handle) }, 0);
+        }
+    }
+
+    #[test]
+    fn pruning_reports_all_quotient_degrees_and_inactive_bubbles() {
+        for (n, rank, full, swapped) in [
+            (3, 1, 1, 0),
+            (3, 2, 3, 1),
+            (3, 3, 7, 3),
+            (3, 4, 13, 7),
+            (1, 1, 0, 0),
+            (5, 0, 0, 0),
+        ] {
+            let mut handle = std::ptr::null_mut();
+            assert_eq!(
+                unsafe { sp_session_create_with_pruning(n, rank, 0, 0, 0, 0, 1, &mut handle) },
+                0
+            );
+            let expected = metadata(handle);
+            assert_eq!(expected.pruning, [1, 0, full, swapped, 0]);
+            assert_eq!(expected.execution, [0; 2]);
+            for rows in [0, 3, 1] {
+                unsafe { session(handle).unwrap() }
+                    .amplitude
+                    .reset_batch(rows);
+                assert_eq!(metadata(handle), expected);
+            }
+            assert_eq!(unsafe { sp_session_destroy(handle) }, 0);
+        }
+    }
+
+    #[test]
+    fn pruning_is_independent_of_native_rank_and_row_policy() {
+        for selection in 0..=4 {
+            if matches!(selection, 1 | 2 | 4) && !cfg!(feature = "native-kernels") {
+                continue;
+            }
+            let mut old = std::ptr::null_mut();
+            assert_eq!(
+                unsafe { sp_session_create_with_kernels(5, 4, 0, selection, &mut old) },
+                0
+            );
+            let original = metadata(old);
+            assert_eq!(original.pruning, [0; 5]);
+            for bound in [0, 7] {
+                if bound != 0 && !matches!(selection, 1 | 2 | 4) {
+                    continue;
+                }
+                let mut handle = std::ptr::null_mut();
+                let policy = u32::from(bound != 0);
+                assert_eq!(
+                    unsafe {
+                        sp_session_create_with_pruning(
+                            5,
+                            4,
+                            0,
+                            selection,
+                            policy,
+                            bound,
+                            1,
+                            &mut handle,
+                        )
+                    },
+                    0
+                );
+                let expected = metadata(handle);
+                assert_eq!(expected.generic, original.generic);
+                assert_eq!(expected.conditional, original.conditional);
+                assert_eq!(expected.execution, [u64::from(policy), bound as u64]);
+                assert_eq!(
+                    expected.pruning,
+                    [1, 0, 3, 1, u64::from(matches!(selection, 3 | 4))]
+                );
+                for rows in [0, 3, 1] {
+                    unsafe { session(handle).unwrap() }
+                        .amplitude
+                        .reset_batch(rows);
+                    assert_eq!(metadata(handle), expected);
+                }
+                assert_eq!(unsafe { sp_session_destroy(handle) }, 0);
+            }
+            assert_eq!(unsafe { sp_session_destroy(old) }, 0);
+        }
+    }
+
+    #[test]
+    fn pruning_rejects_bad_tags_and_queries_transactionally() {
+        let mut handle = std::ptr::null_mut();
+        assert_eq!(
+            unsafe { sp_session_create_with_pruning(2, 2, 0, 0, 0, 0, 1, &mut handle) },
+            0
+        );
+        let original = handle;
+        for tag in [2, u32::MAX] {
+            assert_ne!(
+                unsafe { sp_session_create_with_pruning(2, 2, 0, 0, 0, 0, tag, &mut handle) },
+                0
+            );
+            assert_eq!(handle, original);
+        }
+        for (n, rank, selection, policy, bound) in [
+            (2, 4, 0, 0, 0),
+            (2, 2, 5, 0, 0),
+            (2, 2, 3, 0, 0),
+            (5, 4, 0, 1, 7),
+            (5, 4, 3, 1, 7),
+            (5, 4, 2, 0, 7),
+            (5, 4, 2, 1, 0),
+        ] {
+            assert_ne!(
+                unsafe {
+                    sp_session_create_with_pruning(
+                        n,
+                        rank,
+                        0,
+                        selection,
+                        policy,
+                        bound,
+                        1,
+                        &mut handle,
+                    )
+                },
+                0
+            );
+            assert_eq!(handle, original);
+        }
+        if !cfg!(feature = "native-kernels") {
+            for selection in [1, 2, 4] {
+                assert_ne!(
+                    unsafe {
+                        sp_session_create_with_pruning(5, 4, 0, selection, 0, 0, 1, &mut handle)
+                    },
+                    0
+                );
+                assert_eq!(handle, original);
+            }
+        }
+        assert_ne!(
+            unsafe { sp_session_create_with_pruning(2, 2, 0, 0, 0, 0, 1, std::ptr::null_mut()) },
+            0
+        );
+        let mut slots = [0usize; 3];
+        let misaligned = unsafe {
+            slots
+                .as_mut_ptr()
+                .cast::<u8>()
+                .add(1)
+                .cast::<*mut Session>()
+        };
+        assert_ne!(
+            unsafe { sp_session_create_with_pruning(2, 2, 0, 0, 0, 0, 1, misaligned) },
+            0
+        );
+        assert_eq!(slots, [0; 3]);
+        let mut values = [99u64; 6];
+        for len in [0, 1, 4, 6] {
+            assert_ne!(
+                unsafe { sp_session_pruned_swapped_info(handle, values.as_mut_ptr(), len) },
+                0
+            );
+            assert_eq!(values, [99; 6]);
+        }
+        assert_ne!(
+            unsafe { sp_session_pruned_swapped_info(handle, std::ptr::null_mut(), 5) },
+            0
+        );
+        assert_ne!(
+            unsafe { sp_session_pruned_swapped_info(std::ptr::null_mut(), values.as_mut_ptr(), 5) },
+            0
+        );
+        let misaligned = unsafe { values.as_mut_ptr().cast::<u8>().add(1).cast::<u64>() };
+        assert_ne!(
+            unsafe { sp_session_pruned_swapped_info(handle, misaligned, 5) },
+            0
+        );
+        assert_eq!(values, [99; 6]);
+        assert_eq!(
+            unsafe { sp_session_pruned_swapped_info(handle, values.as_mut_ptr(), 5) },
+            0
+        );
+        assert_eq!(values, [1, 0, 7, 3, 0, 99]);
+        assert_eq!(unsafe { sp_session_destroy(handle) }, 0);
+    }
+
     #[test]
     fn native_execution_rejects_bad_pairs_and_preserves_outputs() {
         let mut handle = std::ptr::null_mut();

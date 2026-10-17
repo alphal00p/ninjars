@@ -123,3 +123,38 @@ native mode with bound 7, checking 375 complex outputs per policy at widths
 0, 1, 3, 8, 31 and 32, with zero Whole/FixedRows scaled discrepancy. The existing
 all-mode Whole control also passes on that artifact. These are correctness
 controls; no timing result or bound-32 release claim is made.
+
+The validation-only `--prune-swapped-arithmetic` flag is independent of kernel
+selection and native row policy, and defaults off. The production CLI is
+unchanged. The additive `sp_session_create_with_pruning` constructor takes a
+separate 0/1 tag; all prior constructors retain pruning disabled and their query
+dimensions. `sp_session_pruned_swapped_info` has exactly five cells: enabled,
+selected backend (0 for interpreter), full columns, swapped columns, and the
+guarded rank-correction flag. Disabled returns all zeros. These cells report
+configuration, including inactive stages, rather than observed execution.
+
+The JSON `pruned_swapped_arithmetic` object records the selected graphs as
+`symbolica-interpreter` even with `native` or `native-rank`; the existing family
+and conditional-correction fields still describe the full-head paths. Raw
+numerator callbacks and standalone/combined raw reduction APIs remain full.
+For bubble quotient degrees 0 through 3 the full/swapped column counts are
+1/0, 3/1, 7/3 and 13/7; an inactive bubble stage reports 0/0. Degree zero has no
+selected arithmetic evaluator to invoke. Enabling native row blocking does not
+turn these selected graphs into native kernels.
+
+With the flag, the physical probe captures the master requests of both full
+and pruned sessions before freezing the union. Its `pruning_parity` rows are
+ordered full then pruned, with the same selection and native policy. Each
+integrated width is prepared once and supplied to both sessions. Both check
+finite, single pole, double pole, cut-constructible and R1 outputs against the
+full result. The existing widths include empty and incomplete batches and
+permutations; all widths through 1024 give 6,135 complex checks per row. The
+probe also compares per-width numerator call/row deltas, reporting their sums
+in direct/Mu/T3/T2 call order followed by the four row counts. Those counters
+are not complete callback-identity traces. Original Ninja/MadLoop Laurent
+checks and their existing rational-separation limitations remain separately
+reported. Catalog and native-policy controls retain the requested pruning flag.
+
+This harness extension is currently source-only: ABI sentinel/metadata tests,
+Python corruption tests, builds and physical execution are pending release of
+the timing hold. It introduces no correctness or performance evidence yet.

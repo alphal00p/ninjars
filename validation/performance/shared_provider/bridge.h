@@ -64,6 +64,11 @@ int32_t sp_session_create_with_kernels(size_t propagators,size_t rank,size_t row
  * Whole. FixedRows requires a native selection/build. Invalid pairs preserve *out. */
 enum SpNativeExecution { SP_EXECUTION_WHOLE=0, SP_EXECUTION_FIXED_ROWS=1 };
 int32_t sp_session_create_with_execution(size_t propagators,size_t rank,size_t rows,uint32_t selection,uint32_t policy,size_t block_rows,struct SpSession **out);
+/* Independent projection-only swapped arithmetic: 0 disabled, 1 enabled.
+ * Selected graphs remain interpreted even when native kernels/blocks are set.
+ * All old constructors default disabled; invalid tags preserve *out. */
+enum SpPrunedSwapped { SP_PRUNED_SWAPPED_DISABLED=0, SP_PRUNED_SWAPPED_ENABLED=1 };
+int32_t sp_session_create_with_pruning(size_t propagators,size_t rank,size_t rows,uint32_t selection,uint32_t policy,size_t block_rows,uint32_t pruning,struct SpSession **out);
 /* selection,native_feature_enabled,then eight backend flags in exact order:
  * T2,T3,bubble_source,triangle_bubble,tadpole_source,other_reduction,integration,accumulation.
  * Backend0=interpreter,1=native Rust. Every family is reported, including unused. */
@@ -74,6 +79,10 @@ int32_t sp_session_kernel_info(struct SpSession *,uint64_t *out,size_t len);
 int32_t sp_session_rank_correction_info(struct SpSession *,uint64_t *out,size_t len);
 /* Exactly two cells: configured policy tag and bound. Errors preserve output. */
 int32_t sp_session_native_execution_info(struct SpSession *,uint64_t *out,size_t len);
+/* Exactly five cells: enabled,backend0=interpreter,full_columns,swapped_columns,
+ * guarded_rank_correction. Disabled returns allzero. Configured metadata only;
+ * inactive bubble stages have zero columns. Errors preserve caller output. */
+int32_t sp_session_pruned_swapped_info(struct SpSession *,uint64_t *out,size_t len);
 /* Retained topology/geometry/wire buffers. Both Rust providers call the same
  * non-inlined sp_call/sp_master_call entry points used by the C++ adapters.
  * Handles must be mutually disjoint and exclusive. All arrays are row-major. */
