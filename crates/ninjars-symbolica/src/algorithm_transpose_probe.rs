@@ -33,6 +33,9 @@ const MAX_COMPOSED_BYTES: usize = 8 * 1024 * 1024;
 #[path = "algorithm_forward_fusion_probe.rs"]
 mod diagnostic_forward;
 
+#[path = "algorithm_integrated_weights_probe.rs"]
+mod integrated_weights;
+
 fn substitute(expressions: &[Atom], from: &[Atom], to: &[Atom]) -> Vec<Atom> {
     assert_eq!(from.len(), to.len());
     let replacements: Vec<_> = from
