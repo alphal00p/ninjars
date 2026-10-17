@@ -77,28 +77,28 @@ pub struct Args {
 }
 
 #[derive(Deserialize)]
-struct PoolPoint {
-    id: String,
-    momenta: Vec<[f64; 4]>,
-    helicities: Vec<i8>,
-    model: Vec<f64>,
-    scale_squared: f64,
+pub(crate) struct PoolPoint {
+    pub(crate) id: String,
+    pub(crate) momenta: Vec<[f64; 4]>,
+    pub(crate) helicities: Vec<i8>,
+    pub(crate) model: Vec<f64>,
+    pub(crate) scale_squared: f64,
 }
 
 #[derive(Deserialize)]
-struct Pool {
-    format: String,
-    model_parameters: Vec<String>,
+pub(crate) struct Pool {
+    pub(crate) format: String,
+    pub(crate) model_parameters: Vec<String>,
     #[serde(default)]
-    fixed_parameters: BTreeMap<String, String>,
-    points: Vec<PoolPoint>,
+    pub(crate) fixed_parameters: BTreeMap<String, String>,
+    pub(crate) points: Vec<PoolPoint>,
 }
 
-fn ns(duration: Duration) -> f64 {
+pub(crate) fn ns(duration: Duration) -> f64 {
     duration.as_secs_f64() * 1e9
 }
 
-fn generation_json(t: &GenerationTimings) -> Value {
+pub(crate) fn generation_json(t: &GenerationTimings) -> Value {
     let p = &t.preparation;
     json!({
         "graph_import": ns(p.import),
@@ -120,7 +120,7 @@ fn generation_json(t: &GenerationTimings) -> Value {
     })
 }
 
-fn model(name: &str, base: &Path) -> Result<Model> {
+pub(crate) fn model(name: &str, base: &Path) -> Result<Model> {
     Ok(match name {
         "phi3" => Model::phi3(),
         "phi4" => Model::phi4(),
@@ -141,7 +141,7 @@ fn median(values: &mut [f64]) -> f64 {
 
 /// Run `body` (one call over `width` points) in `blocks` timed blocks of at
 /// least `min_block` each; returns ns per point statistics.
-fn measure(
+pub(crate) fn measure(
     blocks: usize,
     min_block: Duration,
     width: usize,
@@ -185,7 +185,7 @@ fn measure(
     }))
 }
 
-fn affinity() -> Value {
+pub(crate) fn affinity() -> Value {
     fs::read_to_string("/proc/self/status")
         .ok()
         .and_then(|status| {

@@ -16,9 +16,7 @@ mod kernel;
 mod kinematics;
 mod laurent;
 mod masters;
-#[cfg(feature = "native-masters")]
 mod oneloop_native;
-#[cfg(feature = "native-masters")]
 pub use oneloop_native::OneLoopNativeMasters;
 #[cfg(feature = "native-kernels")]
 mod native_kernels;

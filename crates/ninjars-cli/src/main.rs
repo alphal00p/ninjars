@@ -4,6 +4,7 @@ mod compare;
 mod export_bench;
 mod numerator_bench;
 mod numerator_coefficients;
+mod pipeline_bench;
 mod prepare;
 mod reduce;
 #[cfg(feature = "reference-codegen")]
@@ -37,6 +38,9 @@ enum Command {
     ExportBench(export_bench::Args),
     /// Physical tensor-numerator generation timings and per-point preparation benchmark.
     NumeratorBench(numerator_bench::Args),
+    /// End-to-end binary64 pipeline benchmark (physical numerator, fast
+    /// reduction, native masters) with a per-component breakdown.
+    PipelineBench(pipeline_bench::Args),
 }
 
 fn main() {
@@ -76,6 +80,13 @@ fn main() {
             .expect("cannot start numerator benchmark worker")
             .join()
             .unwrap_or_else(|_| Err("numerator benchmark worker panicked".into())),
+        Command::PipelineBench(args) => std::thread::Builder::new()
+            .name("ninjars-pipeline-bench".into())
+            .stack_size(128 * 1024 * 1024)
+            .spawn(move || pipeline_bench::run(args).map_err(|error| error.to_string()))
+            .expect("cannot start pipeline benchmark worker")
+            .join()
+            .unwrap_or_else(|_| Err("pipeline benchmark worker panicked".into())),
         #[cfg(feature = "reference-codegen")]
         Command::Compare(args) => std::thread::Builder::new()
             .name("ninjars-compare".into())
