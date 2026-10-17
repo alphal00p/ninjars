@@ -219,6 +219,7 @@ fn mixed_cut_batches_preserve_lane_order_and_isolate_failures() {
                 id: SampleId { lane, sample: 0 },
                 shifts: std::array::from_fn(|i| &bubble_shifts[lane][i]),
                 masses_squared: [&masses[0], &masses[1]],
+                complementary_shifts: &[],
             })
             .collect();
         let mut out = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); order.len()];
@@ -319,6 +320,92 @@ fn mixed_cut_batches_preserve_lane_order_and_isolate_failures() {
     provider.tadpole_batch(&[], &mut []).unwrap();
     provider.sample_triangle_batch(&[], &mut []).unwrap();
     provider.sample_bubble_batch(&[], &mut []).unwrap();
+}
+
+/// Largest component modulus of a momentum.
+fn component_scale<T: Real + RealLike>(v: &FourMomentum<Complex<T>>) -> f64 {
+    v.components()
+        .into_iter()
+        .map(|c| c.norm().re.to_f64())
+        .fold(0., f64::max)
+}
+
+/// The transverse directions of a bubble cut must not be orthogonal to an
+/// uncut shift difference: that uncut denominator would lose its leading
+/// Laurent coefficient 2 e3.(V_uncut - V_first), leaving only round-off to
+/// divide by. At the integer pentagon point below (examples/graphs/
+/// pentagon-rank4.dot), V1 = 2 V3 - 3 r for the rational reference
+/// r = (1, -2/3, -2/3, -1/3) with the largest |k.r| on the {0, 3} double cut,
+/// so choosing by |k.r| alone hits exactly this plane.
+fn coplanar_bubble_check<T: Real + RealLike + SingleFloat>(prototype: T, tolerance: f64)
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    let mut provider = SymbolicaCuts::new(prototype.clone()).unwrap();
+    let zero = Complex::new(prototype.zero(), prototype.zero());
+    let shifts = [
+        momentum(&zero, [0, 0, 0, 0]),
+        momentum(&zero, [-2, -1, -2, -2]),
+    ];
+    let uncut = [
+        momentum(&zero, [-7, 0, -2, -3]),
+        momentum(&zero, [-5, -1, -1, -3]),
+        momentum(&zero, [5, -1, -2, -1]),
+    ];
+    let one = Complex::new(prototype.one(), prototype.zero());
+    let masses = [one.clone(), one];
+    let collinear = [shifts[1].clone() * Complex::new(prototype.from_i64(2), prototype.zero())];
+    let request = |complementary_shifts| BubbleCutRequest {
+        id: SampleId { lane: 0, sample: 0 },
+        shifts: [&shifts[0], &shifts[1]],
+        masses_squared: [&masses[0], &masses[1]],
+        complementary_shifts,
+    };
+    let requests = [request(&[]), request(&uncut), request(&collinear)];
+    let mut output = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); 3];
+    provider.bubble_batch(&requests, &mut output).unwrap();
+    // Leading coefficients relative to the vector sizes, as in the selection.
+    let leading = |cut: &BubbleCut<Complex<T>>, v: &FourMomentum<Complex<T>>| {
+        let v = v.clone() - shifts[0].clone();
+        [&cut.basis.e3, &cut.basis.e4]
+            .map(|e| v.dot(e).norm().re.to_f64() / (component_scale(e) * component_scale(&v)))
+    };
+    let check = |v: Complex<T>| assert!(v.norm().re.to_f64() < tolerance, "{v}");
+    // Without the uncut lines the provider keeps the |k.r| choice, which is
+    // exactly degenerate for V1 here (only round-off survives).
+    let CutOutcome::Stable(blind) = &output[0] else {
+        panic!("bubble without uncut lines failed")
+    };
+    check_bubble(blind, &shifts, &masses, &check);
+    for value in leading(blind, &uncut[0]) {
+        assert!(
+            value < tolerance,
+            "the fixture is no longer degenerate: {value}"
+        );
+    }
+    // With them, every uncut line keeps an O(1) leading coefficient.
+    let CutOutcome::Stable(cut) = &output[1] else {
+        panic!("bubble with uncut lines failed: {:?}", output[1])
+    };
+    check_bubble(cut, &shifts, &masses, &check);
+    for v in &uncut {
+        for value in leading(cut, v) {
+            assert!(value > 1e-2, "uncut leading coefficient {value}");
+        }
+    }
+    // An uncut shift collinear with the cut momentum lies in the plane of
+    // every reference; the provider reports it instead of dividing by zero.
+    assert!(matches!(
+        output[2],
+        CutOutcome::Unstable(CutFailure::DegenerateReference)
+    ));
+}
+
+#[test]
+fn bubble_reference_avoids_uncut_lines_in_its_plane() {
+    coplanar_bubble_check(0., 1e-12);
+    coplanar_bubble_check(DoubleFloat::from(0.), 1e-27);
+    coplanar_bubble_check(Float::new(256), 1e-70);
 }
 
 fn precision_check<T: Real + RealLike + SingleFloat>(prototype: T, tolerance: f64)
@@ -444,6 +531,7 @@ fn dual_check<D: Real + DualNumber<Complex<f64>>>(prototype: D) {
         id: SampleId { lane: 0, sample: 0 },
         shifts: [&bubble_shifts[0], &bubble_shifts[1]],
         masses_squared: [&masses[0], &masses[1]],
+        complementary_shifts: &shifts[2..],
     };
     let mut output = [CutOutcome::Unstable(CutFailure::NonFiniteResult)];
     provider.bubble_batch(&[request], &mut output).unwrap();
@@ -540,11 +628,13 @@ fn reordered_dual_components_are_rejected_per_lane() {
             id: SampleId { lane: 0, sample: 0 },
             shifts: [&shifts[0], &shifts[1]],
             masses_squared: [&mass, &bad],
+            complementary_shifts: &[],
         },
         BubbleCutRequest {
             id: SampleId { lane: 1, sample: 0 },
             shifts: [&shifts[0], &shifts[1]],
             masses_squared: [&mass, &mass],
+            complementary_shifts: &[],
         },
     ];
     let mut output = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); 2];

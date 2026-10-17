@@ -612,6 +612,7 @@ fn selected_parent_errors_are_skipped_only_for_failed_bubble_targets_and_retry_i
             },
             shifts: [&shifts[1], &shifts[2]],
             masses_squared: [&masses[1], &masses[2]],
+            complementary_shifts: &[],
         }],
         &mut bubble,
     )
@@ -824,6 +825,7 @@ fn tadpole_parent_failures_standalone_and_distinct_borrows_remain_correct() {
             },
             shifts: [&shifts[0], &shifts[1]],
             masses_squared: [&masses[0], &masses[1]],
+            complementary_shifts: &[],
         }],
         &mut bubble,
     )

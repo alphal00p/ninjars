@@ -67,6 +67,11 @@ pub struct BubbleCutRequest<'a, T> {
     pub id: SampleId,
     pub shifts: [&'a FourMomentum<T>; 2],
     pub masses_squared: [&'a T; 2],
+    /// Uncut propagator shifts. The leading large-t coefficient of an uncut
+    /// denominator is 2 e3.(V_uncut - V_first), which vanishes when that
+    /// difference lies in the plane of the cut momentum and the auxiliary
+    /// reference; providers use these shifts to choose a reference avoiding it.
+    pub complementary_shifts: &'a [FourMomentum<T>],
 }
 
 pub struct TriangleSampleRequest<'a, T> {

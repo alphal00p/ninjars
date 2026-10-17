@@ -67,12 +67,25 @@ Original Ninja's `basis.cc::Basis(const RealMomentum&)` uses a generic null
 reference with nonzero components along every spatial axis. The earlier NinjaRS
 axis references could place both transverse vectors outside a planar physical
 graph, making an uncut denominator's leading Laurent coefficient identically
-zero. Eight rational off-axis references now follow the same principle, with
-the largest primal dot product selected at working precision. Every reference
-component and dot product comes from Symbolica arithmetic. This fixes the
-equal-mass lightlike bubbles in the H→gg triangle geometry; complement-aware
-reference retries and broader numerical rescue remain outstanding. The existing
-zero-leading-denominator rejection is retained.
+zero. Eight rational off-axis references now follow the same principle. Every
+reference component and dot product comes from Symbolica arithmetic. This fixes
+the equal-mass lightlike bubbles in the H→gg triangle geometry.
+
+Unlike Ninja's irrational reference, a rational reference can lie exactly in
+the plane of the cut momentum k and an uncut shift difference v at rational
+kinematics (e.g. the integer pentagon point of
+`generic_bubble_reference_avoids_uncut_lines_in_its_plane` in
+`crates/ninjars-cli/tests/fast_engine.rs`). That uncut denominator then has a
+vanishing leading Laurent coefficient 2 e3.v, and the exact-zero rejection only
+sees round-off: the generic engine reported success with values growing like
+2^(2p) at precision p. The bubble cut request therefore carries the uncut
+shifts, and the provider scores every reference by the minimum of
+(|k.r|/|k|)^2 and, per uncut line, |G(k,r,v)|/((k.r)^2 |v|^2) =
+2|(e3.v)(e4.v)/(e3.e4)|/|v|^2 (G the Gram determinant, |.| the largest
+component modulus), choosing the highest score at working precision. A cut
+whose best reference is below the tolerance (for instance an uncut line along
+k) is reported as `DegenerateReference`. The existing zero-leading-denominator
+rejection is retained; broader numerical rescue remains outstanding.
 
 ## Reference callback constants
 

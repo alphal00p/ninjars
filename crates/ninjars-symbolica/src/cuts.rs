@@ -112,6 +112,8 @@ struct CutEngine<T> {
     tadpole_finishes: Vec<Kernel<T>>,
     tadpole_probe_rows: Vec<usize>,
     tadpole_scores: Vec<[T; 6]>,
+    bubble_complement_probe: Kernel<T>,
+    bubble_complement_starts: Vec<usize>,
     samplers: [Kernel<T>; 2],
     active: Vec<usize>,
     seeded: Vec<usize>,
@@ -135,6 +137,35 @@ fn vector(p: &[Atom], offset: usize) -> FourMomentum<Atom> {
 }
 fn append_vector(out: &mut Vec<Atom>, v: &FourMomentum<Atom>) {
     out.extend(v.components().into_iter().cloned());
+}
+
+/// The bubble's auxiliary null references, in probe column order.
+///
+/// As in Ninja's one-momentum Basis constructor, keep every spatial component
+/// nonzero. Axis references put the two transverse vectors outside a planar
+/// scattering geometry. Exact Weyl pairs give eight references
+/// (1, ±2/3, ±2/3, ±1/3), without a square-root branch or binary64 constants.
+/// Being rational, any one of them can lie exactly in the plane of the cut
+/// momentum and an uncut shift difference at rational kinematics (Ninja's
+/// irrational reference avoids this only generically), so the provider scores
+/// all of them against the uncut lines of each request.
+fn bubble_references() -> Vec<FourMomentum<Atom>> {
+    let mut references = Vec::new();
+    for swap in [false, true] {
+        for x in [-1, 1] {
+            for y in [-1, 1] {
+                let mut angle = [Atom::num(1), Atom::num(x) + Atom::i() * y];
+                let mut square = [Atom::num(1), Atom::num(x) - Atom::i() * y];
+                if swap {
+                    angle.swap(0, 1);
+                    square.swap(0, 1);
+                }
+                references
+                    .push(FourMomentum::from_weyl_spinors(&angle, &square) * (Atom::num(2) / 3));
+            }
+        }
+    }
+    references
 }
 
 fn tadpole_kernels<T: Real + SingleFloat>(
@@ -197,31 +228,37 @@ where
         let k = vector(&p, 0) - vector(&p, 4);
         let mut expressions = Vec::new();
         append_vector(&mut expressions, &k);
-        // As in Ninja's one-momentum Basis constructor, keep every spatial
-        // component of the auxiliary null reference nonzero. Axis references
-        // put the two transverse vectors outside a planar scattering geometry;
-        // then an uncut propagator can have zero leading Laurent coefficient
-        // even for an otherwise regular massive bubble. Exact Weyl pairs give
-        // eight references (1, ±2/3, ±2/3, ±1/3), without a square-root branch
-        // or binary64 constants. This is a generic chart choice, not a proof
-        // that every complement denominator is nonsingular.
-        for swap in [false, true] {
-            for x in [-1, 1] {
-                for y in [-1, 1] {
-                    let mut angle = [Atom::num(1), Atom::num(x) + Atom::i() * y];
-                    let mut square = [Atom::num(1), Atom::num(x) - Atom::i() * y];
-                    if swap {
-                        angle.swap(0, 1);
-                        square.swap(0, 1);
-                    }
-                    let reference =
-                        FourMomentum::from_weyl_spinors(&angle, &square) * (Atom::num(2) / 3);
-                    expressions.push(k.dot(&reference));
-                    append_vector(&mut expressions, &reference);
-                }
-            }
+        let references = bubble_references();
+        for reference in &references {
+            expressions.push(k.dot(reference));
+            append_vector(&mut expressions, reference);
         }
         let bubble_probe = Kernel::new(&expressions, &p, &prototype, shape)?;
+        // Uncut-line probe: [V_first, V_second, V_uncut] gives v = V_uncut -
+        // V_first and, per reference r, the Gram determinant of (k, r, v).
+        // With e1.e2 = k.r it equals 2 (k.r) (e3.v)(e4.v): it vanishes exactly
+        // when the uncut denominator loses its leading Laurent coefficient in
+        // either orientation, independently of the spinor chart normalization.
+        let p = variables(12);
+        let k = vector(&p, 0) - vector(&p, 4);
+        let v = vector(&p, 8) - vector(&p, 0);
+        let mut expressions = Vec::new();
+        append_vector(&mut expressions, &v);
+        for reference in &references {
+            let rows = [&k, reference, &v];
+            let gram: Vec<Vec<Atom>> = rows
+                .iter()
+                .map(|a| rows.iter().map(|b| a.dot(b)).collect())
+                .collect();
+            let minor = |i: usize, j: usize, k: usize, l: usize| {
+                &gram[i][k] * &gram[j][l] - &gram[i][l] * &gram[j][k]
+            };
+            expressions.push(
+                &gram[0][0] * minor(1, 2, 1, 2) - &gram[0][1] * minor(1, 2, 0, 2)
+                    + &gram[0][2] * minor(1, 2, 0, 1),
+            );
+        }
+        let bubble_complement_probe = Kernel::new(&expressions, &p, &prototype, shape)?;
 
         let mut seeds = Vec::new();
         for mode in 0..2 {
@@ -353,6 +390,8 @@ where
             tadpole_finishes,
             tadpole_probe_rows: Vec::new(),
             tadpole_scores: Vec::new(),
+            bubble_complement_probe,
+            bubble_complement_starts: Vec::new(),
             samplers: [triangle_sampler, bubble_sampler],
             active: Vec::new(),
             seeded: Vec::new(),
@@ -370,6 +409,81 @@ where
     }
     fn too_small(&self, value: &Complex<T>, scale: &T) -> bool {
         !Self::greater(&Self::magnitude(value), &(self.tolerance.clone() * scale))
+    }
+
+    /// Choose the bubble reference for one probed row: the probe column of
+    /// its k.r, or None when no reference is well conditioned.
+    ///
+    /// Each uncut difference v has, for reference r, the scale-free ratio
+    /// |G(k,r,v)|/((k.r)^2 |v|^2) = 2|(e3.v)(e4.v)/(e3.e4)|/|v|^2 (|.| is
+    /// the largest component modulus). It vanishes when v lies in the plane
+    /// of k and r, where that uncut denominator's leading Laurent coefficient
+    /// is exactly zero and only round-off would otherwise be divided by. A
+    /// reference scores the minimum of (|k.r|/|k|)^2 and these ratios, and
+    /// the highest score wins (the largest |k.r| without uncut lines). As
+    /// before, |k.r| must exceed the tolerance relative to |k|. The plane
+    /// ratios, quadratic in the transverse components like the triangle Gram
+    /// determinant, must exceed the tolerance itself; only an uncut line
+    /// (nearly) along k is in the plane of every reference.
+    fn bubble_reference(&self, probe_row: usize, scale: &T) -> Option<usize> {
+        let probe = &self.probes[1];
+        let uncut = &self.bubble_complement_probe;
+        let zero = self.prototype.zero();
+        let products: [T; 8] = std::array::from_fn(|candidate| {
+            Self::magnitude(&probe.component(probe_row, 4 + 5 * candidate)[0])
+        });
+        let mut planes: [Option<T>; 8] = std::array::from_fn(|_| None);
+        let lines =
+            self.bubble_complement_starts[probe_row]..self.bubble_complement_starts[probe_row + 1];
+        for line in lines {
+            let mut norm = zero.clone();
+            for i in 0..4 {
+                let value = Self::magnitude(&uncut.component(line, i)[0]);
+                if Self::greater(&value, &norm) {
+                    norm = value;
+                }
+            }
+            if !norm.is_finite() || norm.is_fully_zero() {
+                return None;
+            }
+            for (candidate, plane) in planes.iter_mut().enumerate() {
+                let gram = Self::magnitude(&uncut.component(line, 4 + candidate)[0]);
+                let product = &products[candidate];
+                let mut ratio = gram / (product.clone() * product * &norm * &norm);
+                if !ratio.is_finite() {
+                    ratio = zero.clone();
+                }
+                if plane
+                    .as_ref()
+                    .is_none_or(|plane| Self::greater(plane, &ratio))
+                {
+                    *plane = Some(ratio);
+                }
+            }
+        }
+        let score = |candidate: usize| {
+            let ratio = products[candidate].clone() / scale;
+            let leading = ratio.clone() * ratio;
+            match &planes[candidate] {
+                Some(plane) if Self::greater(&leading, plane) => plane.clone(),
+                _ => leading,
+            }
+        };
+        let mut best = 0;
+        let mut best_score = score(0);
+        for candidate in 1..8 {
+            let candidate_score = score(candidate);
+            if Self::greater(&candidate_score, &best_score) {
+                best = candidate;
+                best_score = candidate_score;
+            }
+        }
+        let column = 4 + 5 * best;
+        (!self.too_small(&probe.component(probe_row, column)[0], scale)
+            && planes[best]
+                .as_ref()
+                .is_none_or(|plane| Self::greater(plane, &self.tolerance)))
+        .then_some(column)
     }
 
     fn run_tadpole<D>(
@@ -584,12 +698,15 @@ where
         Ok(())
     }
 
+    /// `complement` lists a bubble row's uncut shifts (ignored for triangles).
+    #[allow(clippy::too_many_arguments)]
     fn run<'a, D: 'a>(
         &mut self,
         rows: usize,
         mode: usize,
         shift: impl Fn(usize, usize) -> &'a FourMomentum<D>,
         mass: impl Fn(usize, usize) -> &'a D,
+        complement: impl Fn(usize) -> &'a [FourMomentum<D>],
         components: impl for<'v> Fn(&'v D) -> &'v [Complex<T>],
         valid: impl Fn(&D) -> bool,
     ) -> Result<()> {
@@ -609,18 +726,23 @@ where
         }
         self.probes[mode].inputs.clear();
         self.seeds[mode].inputs.clear();
+        self.bubble_complement_probe.inputs.clear();
+        self.bubble_complement_starts.clear();
+        let mut complement_rows = 0;
         for row in 0..rows {
             let mut failure = None;
-            for i in 0..shifts {
-                for value in shift(row, i).components().into_iter().chain([mass(row, i)]) {
-                    if !valid(value) || components(value).len() != self.width {
-                        failure = Some(CutFailure::DerivativeShape);
-                        break;
-                    }
-                    if components(value).iter().any(|v| !v.is_finite()) {
-                        failure = Some(CutFailure::NonFiniteInput);
-                        break;
-                    }
+            let uncut: &[FourMomentum<D>] = if mode == 1 { complement(row) } else { &[] };
+            let values = (0..shifts)
+                .flat_map(|i| shift(row, i).components().into_iter().chain([mass(row, i)]))
+                .chain(uncut.iter().flat_map(FourMomentum::components));
+            for value in values {
+                if !valid(value) || components(value).len() != self.width {
+                    failure = Some(CutFailure::DerivativeShape);
+                    break;
+                }
+                if components(value).iter().any(|v| !v.is_finite()) {
+                    failure = Some(CutFailure::NonFiniteInput);
+                    break;
                 }
             }
             if let Some(failure) = failure {
@@ -635,8 +757,26 @@ where
                         .extend_from_slice(components(value));
                 }
             }
+            self.bubble_complement_starts.push(complement_rows);
+            for line in uncut {
+                complement_rows += 1;
+                for value in shift(row, 0)
+                    .components()
+                    .into_iter()
+                    .chain(shift(row, 1).components())
+                    .chain(line.components())
+                {
+                    self.bubble_complement_probe
+                        .inputs
+                        .extend_from_slice(components(value));
+                }
+            }
         }
+        self.bubble_complement_starts.push(complement_rows);
         self.probes[mode].evaluate(self.active.len())?;
+        if mode == 1 {
+            self.bubble_complement_probe.evaluate(complement_rows)?;
+        }
         for (probe_row, &row) in self.active.iter().enumerate() {
             let probe = &self.probes[mode];
             let columns = if mode == 0 { 8 } else { 4 };
@@ -670,20 +810,13 @@ where
                     9
                 }
             } else {
-                let mut best = 4;
-                for i in (9..probe.columns).step_by(5) {
-                    if Self::greater(
-                        &Self::magnitude(&probe.component(probe_row, i)[0]),
-                        &Self::magnitude(&probe.component(probe_row, best)[0]),
-                    ) {
-                        best = i;
+                match self.bubble_reference(probe_row, &scale) {
+                    Some(column) => column,
+                    None => {
+                        self.failures[row] = Some(CutFailure::DegenerateReference);
+                        continue;
                     }
                 }
-                if self.too_small(&probe.component(probe_row, best)[0], &scale) {
-                    self.failures[row] = Some(CutFailure::DegenerateReference);
-                    continue;
-                }
-                best
             };
             self.seeded.push(row);
             for i in 0..columns {
@@ -915,6 +1048,7 @@ where
             0,
             |row, i| requests[row].shifts[i],
             |row, i| requests[row].masses_squared[i],
+            |_| &[][..],
             std::slice::from_ref,
             |_| true,
         )?;
@@ -938,6 +1072,7 @@ where
             1,
             |row, i| requests[row].shifts[i],
             |row, i| requests[row].masses_squared[i],
+            |row| requests[row].complementary_shifts,
             std::slice::from_ref,
             |_| true,
         )?;
@@ -1019,6 +1154,7 @@ where
             0,
             |row, i| requests[row].shifts[i],
             |row, i| requests[row].masses_squared[i],
+            |_| &[][..],
             |value| value.values(),
             |value| {
                 value
@@ -1049,6 +1185,7 @@ where
             1,
             |row, i| requests[row].shifts[i],
             |row, i| requests[row].masses_squared[i],
+            |row| requests[row].complementary_shifts,
             |value| value.values(),
             |value| {
                 value

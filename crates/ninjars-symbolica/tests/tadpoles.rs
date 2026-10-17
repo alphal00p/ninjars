@@ -271,6 +271,8 @@ fn exact_propagator_cancellation_and_both_nonzero_parent_families() {
     }
     // Construct genuine canonical triangle and bubble residues using the
     // independently obtained shared cut bases. Their source origins differ.
+    // The bubble request carries the reducer's uncut line, which takes part
+    // in choosing the bubble reference.
     let mut triangle = [CutOutcome::Unstable(CutFailure::NonFiniteResult)];
     geometry
         .triangle_batch(
@@ -289,6 +291,7 @@ fn exact_propagator_cancellation_and_both_nonzero_parent_families() {
                 id: SampleId { lane: 0, sample: 0 },
                 shifts: [&shifts[1], &shifts[2]],
                 masses_squared: [&masses[1], &masses[2]],
+                complementary_shifts: std::slice::from_ref(&shifts[0]),
             }],
             &mut bubble,
         )
@@ -614,6 +617,7 @@ fn higher_mixed_dual_parent_residue_is_removed_componentwise() {
                 id: SampleId { lane: 0, sample: 0 },
                 shifts: [&shifts[0], &shifts[1]],
                 masses_squared: [&masses[0], &masses[1]],
+                complementary_shifts: &[],
             }],
             &mut cut,
         )

@@ -209,6 +209,7 @@ pub struct BubbleReducer<T, K> {
     staged: Vec<CutOutcome<BubbleResidue<T>>>,
     coefficient_pool: VecPool<T>,
     requested_rows: Vec<usize>,
+    complement_shifts: Vec<FourMomentum<T>>,
     swapped: Vec<FourMomentum<T>>,
     vectors: Vec<[FourMomentum<T>; 4]>,
     correction_starts: Vec<Option<usize>>,
@@ -269,6 +270,7 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
             staged: Vec::new(),
             coefficient_pool: VecPool::default(),
             requested_rows: Vec::new(),
+            complement_shifts: Vec::new(),
             swapped: Vec::new(),
             vectors: Vec::new(),
             correction_starts: Vec::new(),
@@ -384,11 +386,9 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
             CutOutcome::Unstable(CutFailure::NonFiniteResult),
         );
         staged.fill(CutOutcome::Unstable(CutFailure::NonFiniteResult));
-        let mut requests = Vec::with_capacity(output.len());
         let requested_rows = &mut self.requested_rows;
         requested_rows.clear();
-        for (cut_row, &cut_index) in self.cuts.iter().enumerate() {
-            let partition = &self.topology.cuts()[cut_index].partition;
+        for cut_row in 0..self.cuts.len() {
             for lane in 0..lanes {
                 let row = cut_row * lanes + lane;
                 if let Some(failure) = self.parents[cut_row].iter().find_map(|&parent| {
@@ -401,7 +401,27 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
                     continue;
                 }
                 requested_rows.push(row);
-                requests.push(BubbleCutRequest {
+            }
+        }
+        // Every uncut line is divided on the cut, so the provider sees all of
+        // them when it chooses the transverse directions.
+        let uncut = n - 2;
+        let complement_shifts = &mut self.complement_shifts;
+        complement_shifts.clear();
+        complement_shifts.extend(requested_rows.iter().flat_map(|&row| {
+            self.topology.cuts()[self.cuts[row / lanes]]
+                .complement
+                .iter()
+                .map(move |&line| shifts[row % lanes * n + line].clone())
+        }));
+        let requests: Vec<_> = requested_rows
+            .iter()
+            .enumerate()
+            .map(|(i, &row)| {
+                let cut_index = self.cuts[row / lanes];
+                let lane = row % lanes;
+                let partition = &self.topology.cuts()[cut_index].partition;
+                BubbleCutRequest {
                     id: SampleId {
                         lane,
                         sample: cut_index,
@@ -410,9 +430,10 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
                     masses_squared: std::array::from_fn(|i| {
                         &masses_squared[lane * n + partition[i]]
                     }),
-                });
-            }
-        }
+                    complementary_shifts: &complement_shifts[i * uncut..(i + 1) * uncut],
+                }
+            })
+            .collect();
         let cuts = &mut self.geometry_output;
         cuts.resize(
             requests.len(),

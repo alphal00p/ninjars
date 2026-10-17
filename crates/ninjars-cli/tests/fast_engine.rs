@@ -280,6 +280,79 @@ fn fast_engine_matches_generic_and_original_ninja_on_synthetic_fixtures() {
 }
 
 #[test]
+fn generic_bubble_reference_avoids_uncut_lines_in_its_plane() {
+    // At this integer pentagon point the shift difference of uncut line 1 on
+    // the {0, 3} double cut (and of line 3 on {0, 1}) lies in the plane of the
+    // cut momentum and the rational bubble reference with the largest |k.r|
+    // (see crates/ninjars-symbolica/tests/cuts.rs). Choosing the reference by
+    // |k.r| alone divided by that line's vanishing leading Laurent
+    // coefficient: the generic engine reported success with a finite part of
+    // ~1e13 in binary64, growing like 2^(2p) with the precision p (and a
+    // NonFiniteResult at 128 bits). Lane 1, 1e-3 away, lost ~5 digits.
+    let pentagon = TemporaryFixture::new(
+        "coplanar-bubble",
+        "pentagon-rank4.dot",
+        json!({
+            "schema_version": 1, "model": "phi3", "scale_squared": "1",
+            "parameter_overrides": {"UFO::mass": "1"},
+            "samples": [
+                {"external_momenta": {"0": ["-2","1","-1","0"], "1": ["-3","0","1","-1"],
+                    "2": ["-7","0","0","-1"], "3": ["-5","1","2","1"]}},
+                {"external_momenta": {"0": ["-2","1","-1","0"], "1": ["-3","0","1","-1"],
+                    "2": ["-7","0","0","-1"], "3": ["-5","1","2","1001/1000"]}}
+            ]
+        }),
+    );
+    // Original Ninja 05fb0d3 + OneLOop through `ninjars compare` (generated
+    // callback, binary64): finite part, single and double pole.
+    let ninja: [[C; 3]; 2] = [
+        [
+            (0.052975668821023114, -0.13310420568785086),
+            (-5.763550986297161e-17, 7.49314991294308e-17),
+            (0., 0.),
+        ],
+        [
+            (0.052985403608218566, -0.13315181361727552),
+            (-5.79472179875612e-17, 2.4882439858542327e-17),
+            (0., 0.),
+        ],
+    ];
+    let fast = compare_engines(&pentagon.path(), &[]);
+    let precisions: [&[&str]; 3] = [
+        &[],
+        &["--precision", "double-float"],
+        &["--precision", "float", "--bits", "128"],
+    ];
+    for options in precisions {
+        let generic = reduce(&pentagon.path(), options);
+        assert_eq!(generic["success"], true, "{options:?}");
+        for (lane, expected) in ninja.iter().enumerate() {
+            let label = format!("{options:?} lane {lane}");
+            let row = &generic["results"][lane];
+            assert_eq!(row["status"], json!({"kind":"success"}), "{label}");
+            let values = components(row);
+            for k in 0..3 {
+                let error = difference(values[k], expected[k]);
+                assert!(
+                    error <= 1e-12,
+                    "{label} coefficient {k}: {:?} != Ninja {:?} ({error:e})",
+                    values[k],
+                    expected[k]
+                );
+            }
+            assert_split_consistent(&label, &values);
+        }
+    }
+    for (lane, expected) in ninja.iter().enumerate() {
+        assert_laurent_agrees(
+            &format!("fast lane {lane} vs original Ninja"),
+            &components(&fast["results"][lane]),
+            expected,
+        );
+    }
+}
+
+#[test]
 fn fast_engine_reports_spacelike_cut_planes_as_failed_lanes() {
     // Original Ninja's real cut basis does not exist for purely spacelike cut
     // planes (validation/reference/README.md, exceptional-spacelike-triangle):

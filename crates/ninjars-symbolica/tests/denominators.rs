@@ -90,6 +90,7 @@ fn rows_on_cut<T: Real>(
                 id,
                 shifts: [&shifts[0], &shifts[1]],
                 masses_squared: [&masses[0], &masses[1]],
+                complementary_shifts: &shifts[2..],
             };
             let mut out = [CutOutcome::Unstable(CutFailure::NonFiniteResult)];
             provider.bubble_batch(&[request], &mut out).unwrap();
