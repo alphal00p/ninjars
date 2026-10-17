@@ -1,0 +1,42 @@
+{
+"format": "ninjars-reference-ninja-bench-v1",
+"case": "edge-tadpole-bases-n2-r2",
+"case_file": "validation/fast/ninja_reference/cases/edge-tadpole-bases-n2-r2.json",
+"build": "o3-fortranrules",
+"oneloop_warnings": false,
+"n": 2, "rank": 2, "lanes_count": 3,
+"amplitude": "ninja::Amplitude<ninja::ComplexMasses>(n, rank, V, m2); setRenormalizationScale(mu_squared) (Ninja passes mu_R^2 to IntegralLibrary::init, AvHOneLoop uses mu_R=sqrt); setSMatrix if s_matrix given",
+"all_replays_bitwise_identical": true,
+"lanes": [
+ {"id": "second-basis", "return_status": 0,
+  "eps0": [-13454.507562842118,-32111.416768765339], "eps_m1": [37292.486988811113,-989.44974927074509], "eps_m2": [0,0],
+  "cut_constructible": [-36764.541408233825,-38820.700713593076], "rational": [23310.033845391707,6709.2839448277373],
+  "checks": {"recorded_identical":true,"pure_replay_identical":true,"tensor_reduction_identical":true,"replays_fully_consumed":true,"masters_replay_identical":true,"madloop_entry_identical":true},
+  "numerator_calls": {"evaluate": 0, "muExpansion": 0, "t3Expansion": 2, "t2Expansion": 2, "total": 4, "output_values": 14},
+  "master_calls": {"rank2_bubble_cm": 1, "tadpole_cm": 2, "total": 3, "init_calls": 1},
+  "master_call_list": [
+    {"kind": "rank2_bubble_cm", "mu_squared": 15625, "s": [0,0,0,0,0,0], "m2": [[29929,0],[29929,0],[0,0],[0,0]], "result": [[-0.21665190479698526,0],[0.33333333333333331,0],[0,0],[0.32497785719547784,0],[-0.5,-0],[0,0],[-0.64995571439095567,-0],[1,0],[0,0]]},
+    {"kind": "tadpole_cm", "mu_squared": 15625, "s": [0,0,0,0,0,0], "m2": [[29929,0],[0,0],[0,0],[0,0]], "result": [[10476.475423993088,0],[29929,0],[0,0]]},
+    {"kind": "tadpole_cm", "mu_squared": 15625, "s": [0,0,0,0,0,0], "m2": [[29929,0],[0,0],[0,0],[0,0]], "result": [[10476.475423993088,0],[29929,0],[0,0]]}]},
+ {"id": "second-basis-complex", "return_status": 0,
+  "eps0": [4909.0400697049154,20332.656942193709], "eps_m1": [-7033.49225607072,46792.59861550702], "eps_m2": [0,0],
+  "cut_constructible": [-22353.61137480507,-765.05936146766908], "rational": [27262.651444509986,21097.716303661378],
+  "checks": {"recorded_identical":true,"pure_replay_identical":true,"tensor_reduction_identical":true,"replays_fully_consumed":true,"masters_replay_identical":true,"madloop_entry_identical":true},
+  "numerator_calls": {"evaluate": 0, "muExpansion": 0, "t3Expansion": 1, "t2Expansion": 2, "total": 3, "output_values": 12},
+  "master_calls": {"rank2_bubble_cm": 1, "tadpole_cm": 1, "total": 2, "init_calls": 1},
+  "master_call_list": [
+    {"kind": "rank2_bubble_cm", "mu_squared": 15625, "s": [0,0,0,0,0,0], "m2": [[29929,-259.5],[0,0],[0,0],[0,0]], "result": [[0.39444667713156562,0.0028901009879284873],[0.33333333333333331,0],[0,0],[-0.42500334903068177,-0.0043351514818927312],[-0.5,-0],[0,0],[0.35000669806136353,0.0086703029637854624],[1,0],[0,0]]},
+    {"kind": "tadpole_cm", "mu_squared": 15625, "s": [0,0,0,0,0,0], "m2": [[29929,-259.5],[0,0],[0,0],[0,0]], "result": [[10477.600409897652,168.66675925621126],[29929,-259.5],[0,0]]}]},
+ {"id": "timelike", "return_status": 0,
+  "eps0": [127510.47495429407,14684.272866059095], "eps_m1": [87045.357456593832,12778.722982079715], "eps_m2": [0,0],
+  "cut_constructible": [122606.09357272911,16042.743068388936], "rational": [4904.3813815649628,-1358.4702023298414],
+  "checks": {"recorded_identical":true,"pure_replay_identical":true,"tensor_reduction_identical":true,"replays_fully_consumed":true,"masters_replay_identical":true,"madloop_entry_identical":true},
+  "numerator_calls": {"evaluate": 0, "muExpansion": 0, "t3Expansion": 2, "t2Expansion": 2, "total": 4, "output_values": 14},
+  "master_calls": {"rank2_bubble_cm": 1, "tadpole_cm": 2, "total": 3, "init_calls": 1},
+  "master_call_list": [
+    {"kind": "rank2_bubble_cm", "mu_squared": 15625, "s": [87900,0,0,0,0,0], "m2": [[29929,0],[15625,0],[0,0],[0,0]], "result": [[0.49895348442564957,-3.7007434154171881e-16],[0.33333333333333331,0],[0,0],[-0.80148045078331875,2.2204460492503131e-16],[-0.5,-0],[0,0],[1.3282429129163293,-2.2204460492503131e-16],[1,0],[0,0]]},
+    {"kind": "tadpole_cm", "mu_squared": 15625, "s": [0,0,0,0,0,0], "m2": [[29929,0],[0,0],[0,0],[0,0]], "result": [[10476.475423993088,0],[29929,0],[0,0]]},
+    {"kind": "tadpole_cm", "mu_squared": 15625, "s": [0,0,0,0,0,0], "m2": [[15625,0],[0,0],[0,0],[0,0]], "result": [[15625,0],[15625,0],[0,0]]}]}
+],
+"sink": 0
+}

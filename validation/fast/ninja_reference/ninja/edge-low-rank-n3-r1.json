@@ -1,0 +1,35 @@
+{
+"format": "ninjars-reference-ninja-bench-v1",
+"case": "edge-low-rank-n3-r1",
+"case_file": "validation/fast/ninja_reference/cases/edge-low-rank-n3-r1.json",
+"build": "o3-fortranrules",
+"oneloop_warnings": false,
+"n": 3, "rank": 1, "lanes_count": 2,
+"amplitude": "ninja::Amplitude<ninja::ComplexMasses>(n, rank, V, m2); setRenormalizationScale(mu_squared) (Ninja passes mu_R^2 to IntegralLibrary::init, AvHOneLoop uses mu_R=sqrt); setSMatrix if s_matrix given",
+"all_replays_bitwise_identical": true,
+"lanes": [
+ {"id": "top", "return_status": 0,
+  "eps0": [0.0010027134964280995,0.00027539693161092308], "eps_m1": [-4.3368086899420177e-19,-7.589415207398531e-19], "eps_m2": [0,0],
+  "cut_constructible": [0.0010027134964280995,0.00027539693161092308], "rational": [0,0],
+  "checks": {"recorded_identical":true,"pure_replay_identical":true,"tensor_reduction_identical":true,"replays_fully_consumed":true,"masters_replay_identical":true,"madloop_entry_identical":true},
+  "numerator_calls": {"evaluate": 0, "muExpansion": 0, "t3Expansion": 2, "t2Expansion": 3, "total": 5, "output_values": 7},
+  "master_calls": {"rank2_bubble_cm": 3, "triangle_cm": 1, "total": 4, "init_calls": 1},
+  "master_call_list": [
+    {"kind": "triangle_cm", "mu_squared": 15625, "s": [0,0,202500,0,0,0], "m2": [[29929,0],[29929,0],[29929,0],[0,0]], "result": [[-1.8707730169980315e-05,-2.3492237359983104e-05],[0,0],[0,0]]},
+    {"kind": "rank2_bubble_cm", "mu_squared": 15625, "s": [0,0,0,0,0,0], "m2": [[29929,0],[29929,0],[0,0],[0,0]], "result": [[-0.21665190479698526,0],[0.33333333333333331,0],[0,0],[0.32497785719547784,0],[-0.5,-0],[0,0],[-0.64995571439095567,-0],[1,0],[0,0]]},
+    {"kind": "rank2_bubble_cm", "mu_squared": 15625, "s": [202500,0,0,0,0,0], "m2": [[29929,0],[29929,0],[0,0],[0,0]], "result": [[0.1320075602994577,0.57060043169250085],[0.33333333333333331,0],[0,0],[-0.1909275528852688,-1.0043395537291733],[-0.5,-0],[0,0],[0.38185510577053738,2.008679107458347],[1,0],[0,0]]},
+    {"kind": "rank2_bubble_cm", "mu_squared": 15625, "s": [0,0,0,0,0,0], "m2": [[29929,0],[29929,0],[0,0],[0,0]], "result": [[-0.21665190479698526,0],[0.33333333333333331,0],[0,0],[0.32497785719547784,0],[-0.5,-0],[0,0],[-0.64995571439095567,-0],[1,0],[0,0]]}]},
+ {"id": "mixed", "return_status": 0,
+  "eps0": [0.037202231569215864,-0.025622624257347709], "eps_m1": [1.0842021724855044e-18,-3.0357660829594124e-18], "eps_m2": [0,0],
+  "cut_constructible": [0.037202231569215864,-0.025622624257347709], "rational": [0,0],
+  "checks": {"recorded_identical":true,"pure_replay_identical":true,"tensor_reduction_identical":true,"replays_fully_consumed":true,"masters_replay_identical":true,"madloop_entry_identical":true},
+  "numerator_calls": {"evaluate": 0, "muExpansion": 0, "t3Expansion": 2, "t2Expansion": 3, "total": 5, "output_values": 7},
+  "master_calls": {"rank2_bubble_cm": 3, "triangle_cm": 1, "total": 4, "init_calls": 1},
+  "master_call_list": [
+    {"kind": "triangle_cm", "mu_squared": 15625, "s": [0,0,202500,0,0,0], "m2": [[29929,-259.5],[0,0],[15625,0],[0,0]], "result": [[-3.0048173511507419e-05,-6.0757481782113805e-05],[0,0],[0,0]]},
+    {"kind": "rank2_bubble_cm", "mu_squared": 15625, "s": [0,0,0,0,0,0], "m2": [[29929,-259.5],[0,0],[0,0],[0,0]], "result": [[0.39444667713156562,0.0028901009879284873],[0.33333333333333331,0],[0,0],[-0.42500334903068177,-0.0043351514818927312],[-0.5,-0],[0,0],[0.35000669806136353,0.0086703029637854624],[1,0],[0,0]]},
+    {"kind": "rank2_bubble_cm", "mu_squared": 15625, "s": [202500,0,0,0,0,0], "m2": [[29929,-259.5],[15625,0],[0,0],[0,0]], "result": [[0.11554014775683837,0.77790875789168545],[0.33333333333333331,0],[0,0],[-0.11320048028576501,-1.2509702293394342],[-0.5,-0],[0,0],[0.18492332994319649,2.3378701372938107],[1,0],[0,0]]},
+    {"kind": "rank2_bubble_cm", "mu_squared": 15625, "s": [0,0,0,0,0,0], "m2": [[0,0],[15625,0],[0,0],[0,0]], "result": [[0.11111111111111105,0],[0.33333333333333331,0],[0,0],[-0.25,0],[-0.5,-0],[0,0],[1,-0],[1,0],[0,0]]}]}
+],
+"sink": 0
+}

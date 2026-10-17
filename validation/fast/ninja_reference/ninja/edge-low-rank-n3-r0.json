@@ -1,0 +1,29 @@
+{
+"format": "ninjars-reference-ninja-bench-v1",
+"case": "edge-low-rank-n3-r0",
+"case_file": "validation/fast/ninja_reference/cases/edge-low-rank-n3-r0.json",
+"build": "o3-fortranrules",
+"oneloop_warnings": false,
+"n": 3, "rank": 0, "lanes_count": 2,
+"amplitude": "ninja::Amplitude<ninja::ComplexMasses>(n, rank, V, m2); setRenormalizationScale(mu_squared) (Ninja passes mu_R^2 to IntegralLibrary::init, AvHOneLoop uses mu_R=sqrt); setSMatrix if s_matrix given",
+"all_replays_bitwise_identical": true,
+"lanes": [
+ {"id": "top", "return_status": 0,
+  "eps0": [1.8151975432276709e-05,-2.4877799305748162e-05], "eps_m1": [0,0], "eps_m2": [0,0],
+  "cut_constructible": [1.8151975432276709e-05,-2.4877799305748162e-05], "rational": [0,0],
+  "checks": {"recorded_identical":true,"pure_replay_identical":true,"tensor_reduction_identical":true,"replays_fully_consumed":true,"masters_replay_identical":true,"madloop_entry_identical":true},
+  "numerator_calls": {"evaluate": 0, "muExpansion": 0, "t3Expansion": 2, "t2Expansion": 0, "total": 2, "output_values": 2},
+  "master_calls": {"triangle_cm": 1, "total": 1, "init_calls": 1},
+  "master_call_list": [
+    {"kind": "triangle_cm", "mu_squared": 15625, "s": [0,0,202500,0,0,0], "m2": [[29929,0],[29929,0],[29929,0],[0,0]], "result": [[-1.8707730169980315e-05,-2.3492237359983104e-05],[0,0],[0,0]]}]},
+ {"id": "mixed", "return_status": 0,
+  "eps0": [1.0371283322180271e-05,7.4570761037671141e-05], "eps_m1": [0,0], "eps_m2": [0,0],
+  "cut_constructible": [1.0371283322180271e-05,7.4570761037671141e-05], "rational": [0,0],
+  "checks": {"recorded_identical":true,"pure_replay_identical":true,"tensor_reduction_identical":true,"replays_fully_consumed":true,"masters_replay_identical":true,"madloop_entry_identical":true},
+  "numerator_calls": {"evaluate": 0, "muExpansion": 0, "t3Expansion": 2, "t2Expansion": 0, "total": 2, "output_values": 2},
+  "master_calls": {"triangle_cm": 1, "total": 1, "init_calls": 1},
+  "master_call_list": [
+    {"kind": "triangle_cm", "mu_squared": 15625, "s": [0,0,202500,0,0,0], "m2": [[29929,-259.5],[0,0],[15625,0],[0,0]], "result": [[-3.0048173511507419e-05,-6.0757481782113805e-05],[0,0],[0,0]]}]}
+],
+"sink": 0
+}

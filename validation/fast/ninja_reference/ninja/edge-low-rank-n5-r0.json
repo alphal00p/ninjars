@@ -1,0 +1,37 @@
+{
+"format": "ninjars-reference-ninja-bench-v1",
+"case": "edge-low-rank-n5-r0",
+"case_file": "validation/fast/ninja_reference/cases/edge-low-rank-n5-r0.json",
+"build": "o3-fortranrules",
+"oneloop_warnings": false,
+"n": 5, "rank": 0, "lanes_count": 2,
+"amplitude": "ninja::Amplitude<ninja::ComplexMasses>(n, rank, V, m2); setRenormalizationScale(mu_squared) (Ninja passes mu_R^2 to IntegralLibrary::init, AvHOneLoop uses mu_R=sqrt); setSMatrix if s_matrix given",
+"all_replays_bitwise_identical": true,
+"lanes": [
+ {"id": "top", "return_status": 0,
+  "eps0": [8.6742539849192768e-15,2.9289757157442545e-15], "eps_m1": [0,0], "eps_m2": [0,0],
+  "cut_constructible": [8.6742539849192768e-15,2.9289757157442545e-15], "rational": [0,0],
+  "checks": {"recorded_identical":true,"pure_replay_identical":true,"tensor_reduction_identical":true,"replays_fully_consumed":true,"masters_replay_identical":true,"madloop_entry_identical":true},
+  "numerator_calls": {"evaluate": 10, "muExpansion": 0, "t3Expansion": 0, "t2Expansion": 0, "total": 10, "output_values": 10},
+  "master_calls": {"box_cm": 5, "total": 5, "init_calls": 1},
+  "master_call_list": [
+    {"kind": "box_cm", "mu_squared": 15625, "s": [0,0,0,33446.545600726444,202500,-105865.78462240405], "m2": [[29929,0],[29929,0],[29929,0],[29929,0]], "result": [[8.8256515120942567e-11,3.1143504229236645e-10],[0,0],[0,0]]},
+    {"kind": "box_cm", "mu_squared": 15625, "s": [0,0,162073.54106088498,0,202500,-32913.090821962884], "m2": [[29929,0],[29929,0],[29929,0],[29929,0]], "result": [[-2.8146248988921369e-10,3.019227998754816e-10],[0,0],[0,0]]},
+    {"kind": "box_cm", "mu_squared": 15625, "s": [0,-105865.78462240405,0,0,33446.545600726444,-32913.090821962884], "m2": [[29929,0],[29929,0],[29929,0],[29929,0]], "result": [[1.4511304889713957e-10,-1.3616753358977973e-26],[0,0],[0,0]]},
+    {"kind": "box_cm", "mu_squared": 15625, "s": [202500,0,0,0,33446.545600726444,162073.54106088498], "m2": [[29929,0],[29929,0],[29929,0],[29929,0]], "result": [[-3.7622743284191732e-10,3.6249868747583866e-10],[0,0],[0,0]]},
+    {"kind": "box_cm", "mu_squared": 15625, "s": [0,0,0,-32913.090821962884,-105865.78462240405,162073.54106088498], "m2": [[29929,0],[29929,0],[29929,0],[29929,0]], "result": [[1.9757813620345868e-10,2.4461780401612803e-10],[0,0],[0,0]]}]},
+ {"id": "mixed", "return_status": 0,
+  "eps0": [8.8344044236364875e-14,-1.4662320556356721e-14], "eps_m1": [0,0], "eps_m2": [0,0],
+  "cut_constructible": [8.8344044236364875e-14,-1.4662320556356721e-14], "rational": [0,0],
+  "checks": {"recorded_identical":true,"pure_replay_identical":true,"tensor_reduction_identical":true,"replays_fully_consumed":true,"masters_replay_identical":true,"madloop_entry_identical":true},
+  "numerator_calls": {"evaluate": 10, "muExpansion": 0, "t3Expansion": 0, "t2Expansion": 0, "total": 10, "output_values": 10},
+  "master_calls": {"box_cm": 5, "total": 5, "init_calls": 1},
+  "master_call_list": [
+    {"kind": "box_cm", "mu_squared": 15625, "s": [0,0,0,33446.545600726444,202500,-105865.78462240405], "m2": [[29929,-259.5],[0,0],[15625,0],[0,0]], "result": [[-7.2494042199518682e-10,2.3891157672190892e-09],[0,0],[0,0]]},
+    {"kind": "box_cm", "mu_squared": 15625, "s": [0,0,162073.54106088498,0,202500,-32913.090821962884], "m2": [[29929,-259.5],[0,0],[15625,0],[15625,0]], "result": [[-5.2934373912068402e-10,6.7195825868517732e-10],[0,0],[0,0]]},
+    {"kind": "box_cm", "mu_squared": 15625, "s": [0,-105865.78462240405,0,0,33446.545600726444,-32913.090821962884], "m2": [[29929,-259.5],[0,0],[0,0],[15625,0]], "result": [[1.1458730155975491e-09,1.9427934048414582e-10],[0,0],[0,0]]},
+    {"kind": "box_cm", "mu_squared": 15625, "s": [202500,0,0,0,33446.545600726444,162073.54106088498], "m2": [[29929,-259.5],[15625,0],[0,0],[15625,0]], "result": [[-5.6190104091163134e-09,6.3331449750794729e-09],[0,0],[0,0]]},
+    {"kind": "box_cm", "mu_squared": 15625, "s": [0,0,0,-32913.090821962884,-105865.78462240405,162073.54106088498], "m2": [[0,0],[15625,0],[0,0],[15625,0]], "result": [[2.1731515237690722e-10,1.3795092438107442e-09],[0,0],[0,0]]}]}
+],
+"sink": 0
+}
