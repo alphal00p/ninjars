@@ -1,0 +1,19 @@
+test_all_four_settings_all_six_widths (__main__.ProtocolTests.test_all_four_settings_all_six_widths) ... ok
+test_callback_counter_changes (__main__.ProtocolTests.test_callback_counter_changes) ... ok
+test_nonfinite_and_wrong_type_numeric_fields (__main__.ProtocolTests.test_nonfinite_and_wrong_type_numeric_fields) ... ok
+test_order_block_count_and_normalization (__main__.ProtocolTests.test_order_block_count_and_normalization) ... ok
+test_preparation_or_actual_backend_counter (__main__.ProtocolTests.test_preparation_or_actual_backend_counter) ... ok
+test_retained_actual_counter_capture (__main__.ProtocolTests.test_retained_actual_counter_capture) ... ok
+test_schedule_is_complete_deterministic_and_position_balanced (__main__.ProtocolTests.test_schedule_is_complete_deterministic_and_position_balanced) ... ok
+test_schema_and_instrumented_records (__main__.ProtocolTests.test_schema_and_instrumented_records) ... ok
+test_short_block_is_retained_and_flagged (__main__.ProtocolTests.test_short_block_is_retained_and_flagged) ... ok
+test_strict_json_rejects_constants (__main__.ProtocolTests.test_strict_json_rejects_constants) ... ok
+test_union_control_count_and_boolean_rejected (__main__.ProtocolTests.test_union_control_count_and_boolean_rejected) ... ok
+test_wrong_mode_and_selection (__main__.ProtocolTests.test_wrong_mode_and_selection) ... ok
+test_wrong_policy_bound_and_rank_coverage (__main__.ProtocolTests.test_wrong_policy_bound_and_rank_coverage) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 1.476s
+
+OK
+Fake durations plus one retained actual counter fixture: pure Python validation only.

@@ -2042,3 +2042,18 @@ connects the existing kernels into integrated amplitudes and a standalone
   orientation loops. It would retain every output and share common longitudinal
   dot products through Symbolica merge. Only a bounded source inventory is being
   prepared; no production dispatch or numerical/performance claim is made.
+
+### Timing validator counter correction (2026-10-17)
+
+- The first ordinary timing process completed correctly, with zero actual master
+  calls/rows and frozen misses, but strict postprocessing stopped: its expected
+  lookup-row count was 50 rather than 40 per point. Source inspection and archived
+  width1/8 measurements independently confirm D0:5+C0:10+B0:10+B1:10+A0:5;
+  the absent degree-one x² coefficient gives zero B11 weight and no B11 call.
+- Corrected only the external validator and its fixture, adding the retained
+  actual counters as an independent regression. All thirteen Python tests pass.
+  The first attempt's complete logs and raw samples remain archived as a failed
+  validator pilot in `validation/evidence/native-rank-block-protocol-v2`.
+  The entire same-artifact comparison restarts with the identical schedule,
+  rounds, trials, modes and duration floor; no timing magnitudes motivated the
+  correction and no partial favorable results are promoted.

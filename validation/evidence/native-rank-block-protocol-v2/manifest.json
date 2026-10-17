@@ -1,0 +1,17 @@
+{
+  "source_revision": "8b868220f3a438a7f78e0e5329cd011646fef71c",
+  "driver_correction": "Expected Rust master lookup rows per point50\u219240, solely in validation; all clock boundaries, artifact identities, rounds, width/mode/order schedules unchanged.",
+  "independent_source_control": "projection.rs:158-160,190 sets missing degree1 x\u00b2 coefficient c2=0; contraction.rs:110-111 makes B11 weight zero; integration.rs:157-167 skips it. Live groups D0:5+C0:10+B0:10+B1:10+A0:5=40. Archived553f406 actual widths1/8 corroborate40/320.",
+  "stopped_attempt": "One completed process, two records,32 individual blocks. Workload completed successfully and actual backend calls/rows and misses were zero; Python stopped on the wrong lookup-row expectation. Entire attempt retained as failed-validator pilot and excluded from restarted comparison. No timing magnitude was used to choose this correction.",
+  "tests": 13,
+  "test_scope": "Pure Python; all timing durations and union sizes fabricated, plus one real retained counter-only regression.",
+  "restart": "Entire unchanged96process schedule starts anew in /tmp/ninjars-rank-block-timing-v2.",
+  "files_sha256": {
+    "ninjars-rank-block-counter-regression.json": "217a112b8622d87eb37cf889d4f2c704f1e6dd82649d15c1abecf43e1aad94bc",
+    "ninjars-rank-block-sampling-tests-v2.log": "8f84c33f86b9e3642a8a8f7a049486b99254b40a15a3f6454f5b8742da7ff0cd",
+    "ninjars-rank-block-sampling.py": "d63f79fcca262c27dd47c8e282c5f352e6505353a10a5fe7cc43fa4fad95db5f",
+    "stopped-first-attempt.tar.gz": "b994aed08c78ae3bff268e343acfd5e71345f34a64da0680724dfe0809d54ffe",
+    "test-ninjars-rank-block-sampling.py": "9eec92faa0088cecf880d389fbf949caf1c92a3eaac97f8f0d94b8718f5ac3a5"
+  },
+  "performance_acceptance": false
+}
