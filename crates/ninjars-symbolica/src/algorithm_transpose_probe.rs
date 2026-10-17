@@ -36,6 +36,9 @@ mod diagnostic_forward;
 #[path = "algorithm_integrated_weights_probe.rs"]
 mod integrated_weights;
 
+#[path = "algorithm_factored_laurent_probe.rs"]
+mod factored_laurent;
+
 fn substitute(expressions: &[Atom], from: &[Atom], to: &[Atom]) -> Vec<Atom> {
     assert_eq!(from.len(), to.len());
     let replacements: Vec<_> = from
