@@ -62,3 +62,7 @@ required-features = ["native-masters"]
 [[test]]
 name = "fast_parity"
 required-features = ["native-masters"]
+
+[[test]]
+name = "fast_native_masters"
+required-features = ["native-masters"]
