@@ -161,6 +161,14 @@ $10^(-12)$ or better on well-conditioned points.
 - *True numerator rank.* As described above, the exact numerator avoids the
   inflated ranks MadLoop declares, which roughly triples the cost of the
   tensor expansions for the pentagon in the MadLoop pipeline.
+- *Single-dispatch master kernels.* The generated oneloopmaster code
+  evaluated each Laurent order of $C_0$ and $D_0$ separately, repeating the
+  channel and sector selection three times. Hand-transcribed binary64
+  kernels for the dominant sectors (three-mass triangles, contour boxes and
+  the four-mass Denner–Nierste–Scharf box) perform one dispatch per call,
+  never evaluate inactive branches, and keep the exact expressions as their
+  validated reference; they are 2–3.5× faster than the generated code and
+  about twice as fast as OneLOop.
 - *Fast binary64 dilogarithm and native tensor bubbles.* oneloopmaster's
   binary64 dilogarithm now uses a dedicated series kernel (12–79 ns per call
   instead of an MPFR detour; contributed to Symbolica as PR \#89), and the

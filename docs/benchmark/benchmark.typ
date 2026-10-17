@@ -107,6 +107,35 @@
   #data.batch_width phase-space points; times are per point.
 ]
 
+#let range-of(values) = {
+  let v = values.filter(is-num)
+  if v.len() == 0 { return [—] }
+  [×#fixed(calc.min(..v), 2)–#fixed(calc.max(..v), 2)]
+}
+#let gate-row(title, target, achieved) = (
+  text(weight: "semibold", title), target, text(weight: "bold", fill: rgb("#1b7a3e"), achieved),
+)
+#block(stroke: 0.6pt + luma(200), inset: 9pt, radius: 4pt, width: 100%)[
+  #set text(9pt)
+  *Performance gates* (binary64, NinjaRS batched; ranges over the physical
+  diagrams of @tab:summary, identical-input values from @tab:identical)
+  #v(2pt)
+  #table(
+    columns: (auto, 1fr, auto),
+    stroke: none,
+    inset: (x: 4pt, y: 3pt),
+    ..gate-row([(a) Pure reduction],
+      [NinjaRS ≤ original Ninja on identical inputs],
+      range-of(data.cases.map(c => ratio(c.ninjars_identical_us.reduction, c.ninja_identical_us.reduction)))),
+    ..gate-row([(b) Master integrals],
+      [oneloopmaster native ≤ 1.3 × OneLOop on the same calls],
+      range-of(data.cases.map(c => ratio(c.ninjars_identical_us.masters, c.ninja_identical_us.masters)))),
+    ..gate-row([(c) End to end],
+      [NinjaRS (SymJIT O2 numerator + reduction + masters) ≤ MadLoop pipeline],
+      range-of(data.cases.map(c => ratio(c.ninjars_us.total, c.madloop_us.total)))),
+  )
+]
+
 = Summary of all test cases <summary>
 
 #let cases = data.cases
@@ -252,20 +281,16 @@
 ) <fig:composition>
 
 #let identical-rows(entries, physical: true) = for c in entries {
-  let a = c.ninjars_us
+  let a = if physical { c.ninjars_identical_us } else { c.ninjars_us }
   let b = if physical { c.ninja_identical_us } else { c.ninja_us }
-  if b == none { continue }
+  if a == none or b == none { continue }
   (
     table.cell(text(size: 8pt, if physical { [#c.process, #c.diagram] } else { raw(c.id) })),
     [#c.n / #c.rank],
     cmp-cell(a.numerator, b.numerator, ref: "N"),
     cmp-cell(a.reduction, b.reduction, ref: "N"),
     cmp-cell(a.masters, b.masters, ref: "O"),
-    cmp-cell(
-      if physical { a.numerator - a.at("numerator_preparation", default: 0) + a.reduction + a.masters } else { a.total },
-      b.total,
-      ref: "N+O",
-    ),
+    cmp-cell(a.total, b.total, ref: "N+O"),
     table.cell(text(size: 7.5pt, sci(c.max_scaled_difference_vs_ninja))),
   )
 }

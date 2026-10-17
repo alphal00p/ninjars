@@ -66,6 +66,19 @@ def ninja_identical(case, build="o3-fortranrules"):
     }
 
 
+def case_summary(cases, name, width):
+    """NinjaRS on the shared bench case (identical inputs to original Ninja)."""
+    if name not in cases:
+        return None
+    summary = width_entry(cases[name], width)["summary_ns_per_point"]
+    return {
+        "numerator": us(summary["tensor_numerator"]),
+        "reduction": us(summary["reduction"]),
+        "masters": us(summary["masters"]),
+        "total": us(summary["total"]),
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--width", type=int, default=32)
@@ -136,6 +149,7 @@ def main():
                     "total": o3["full"],
                 },
                 "ninja_identical_us": ninja_identical(graph),
+                "ninjars_identical_us": case_summary(cases, graph, args.width),
                 "max_scaled_difference_vs_ninja": check["max_scaled_laurent_difference"]
                 if check
                 else None,
