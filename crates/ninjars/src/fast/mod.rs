@@ -20,6 +20,7 @@ pub mod numerator;
 pub mod replay;
 mod subtractions;
 pub mod tensor;
+mod tensor_jets;
 pub mod tensor_layout;
 #[cfg(test)]
 mod tests;

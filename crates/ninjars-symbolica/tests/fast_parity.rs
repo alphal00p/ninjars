@@ -179,7 +179,7 @@ fn numerator_terms(rank: usize) -> Vec<([u32; 4], u32)> {
 /// the monomials (always including the leading `q0^rank`) keeps Symbolica's
 /// symbolic preparation of the generic engine affordable.
 fn active(rank: usize, k: usize) -> bool {
-    rank <= 5 || k == ncoeff(rank - 1) || (k.wrapping_mul(2_654_435_761) >> 7) % 4 == 0
+    rank <= 5 || k == ncoeff(rank - 1) || (k.wrapping_mul(2_654_435_761) >> 7).is_multiple_of(4)
 }
 
 fn polynomial(rank: usize) -> (Atom, Vec<Atom>) {
@@ -413,14 +413,14 @@ fn parity(n: usize) {
             }
             let fast: Vec<[C64; 5]> = results.iter().map(fast_values).collect();
             let generic: Vec<[C64; 5]> = amplitude.results().iter().map(generic_values).collect();
-            for lane in 0..count {
+            for (lane, status) in statuses.iter().enumerate() {
                 let label = format!("n={n} rank={rank} mu={with_mu} lane={lane}");
                 assert_eq!(
                     amplitude.statuses()[lane],
                     EvaluationStatus::Success,
                     "{label}"
                 );
-                assert_eq!(statuses[lane], FastStatus::Success, "{label}");
+                assert_eq!(*status, FastStatus::Success, "{label}");
             }
             let noise: Vec<f64> = (0..4)
                 .map(|lane| {

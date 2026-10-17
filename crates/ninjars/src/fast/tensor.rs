@@ -17,6 +17,7 @@
 
 use super::complex::{C64, CMom};
 use super::numerator::{FastNumerator, t2_len, t3_len};
+use super::tensor_jets::{self as jets, Jet};
 use super::tensor_layout::{block_offset, ncoeff, ncoeff_homogeneous};
 use crate::{Error, Result};
 
@@ -179,23 +180,7 @@ fn horner_scalar(c: &[C64], rank: usize, q: &CMom, all_blocks: bool, work: &mut 
     }
 }
 
-/// A truncated jet algebra: components, products with the cut vectors and
-/// the slots of pure powers of `u`.
-trait Plan {
-    /// Number of cut-vector slots (`x` components carry one value per slot).
-    const SLOTS: usize;
-    /// `(out, in, slot)`: `jet[in] * x[slot]` contributes to `out`.
-    const PRODUCTS: ([(u8, u8, u8); 40], usize);
-    /// `(out, slot)` products of a scalar (component 0) input.
-    const FIRST: ([(u8, u8); 4], usize);
-    /// Component of `u^k` (no other variables), `u8::MAX` beyond truncation.
-    const PURE: [u8; 5];
-}
-
-const fn t3_index(i: usize, j: usize) -> usize {
-    t3_len_const(i) + j
-}
-
+/// Component index of `u^i s^j` in a T3 jet (Ninja's t3 layout).
 const fn t3_len_const(i: usize) -> usize {
     // t3_len(i - 1) with t3_len(-1) = 0
     let mut total = 0;
@@ -207,6 +192,7 @@ const fn t3_len_const(i: usize) -> usize {
     total
 }
 
+/// Offset of order `u^i` in a T2 jet.
 const fn t2_offset(i: usize) -> usize {
     let mut total = 0;
     let mut k = 0;
@@ -217,150 +203,16 @@ const fn t2_offset(i: usize) -> usize {
     total
 }
 
-/// Internal T2 component of `u^i x^k S^j` (j <= 1 since mindeg <= 3).
-const fn t2_index(i: usize, k: usize, j: usize) -> usize {
-    t2_offset(i) + if j == 0 { k } else { i + 1 + k }
-}
-
-struct T3Plan<const K: usize>;
-struct T2Plan<const K: usize>;
-struct MuPlan;
-
-impl<const K: usize> Plan for T3Plan<K> {
-    const SLOTS: usize = 3;
-    const PRODUCTS: ([(u8, u8, u8); 40], usize) = {
-        // slots: 0 = e3 (u^0), 1 = a (u^1), 2 = e4 (u^2 s)
-        const STEP: [(usize, usize); 3] = [(0, 0), (1, 0), (2, 1)];
-        let mut table = [(0u8, 0u8, 0u8); 40];
-        let mut count = 0;
-        let mut i = 0;
-        while i <= K {
-            let mut j = 0;
-            while j <= i / 2 {
-                let mut s = 0;
-                while s < 3 {
-                    let (di, dj) = STEP[s];
-                    if i + di <= K {
-                        table[count] = (
-                            t3_index(i + di, j + dj) as u8,
-                            t3_index(i, j) as u8,
-                            s as u8,
-                        );
-                        count += 1;
-                    }
-                    s += 1;
-                }
-                j += 1;
-            }
-            i += 1;
-        }
-        (table, count)
-    };
-    const FIRST: ([(u8, u8); 4], usize) = {
-        let mut table = [(0u8, 0u8); 4];
-        let mut count = 0;
-        table[count] = (0, 0);
-        count += 1;
-        if K >= 1 {
-            table[count] = (t3_index(1, 0) as u8, 1);
-            count += 1;
-        }
-        if K >= 2 {
-            table[count] = (t3_index(2, 1) as u8, 2);
-            count += 1;
-        }
-        (table, count)
-    };
-    const PURE: [u8; 5] = {
-        let mut pure = [u8::MAX; 5];
-        let mut k = 0;
-        while k <= K {
-            pure[k] = t3_index(k, 0) as u8;
-            k += 1;
-        }
-        pure
-    };
-}
-
-impl<const K: usize> Plan for T2Plan<K> {
-    const SLOTS: usize = 4;
-    const PRODUCTS: ([(u8, u8, u8); 40], usize) = {
-        // slots: 0 = e3, 1 = a0 (u), 2 = a1 (u x), 3 = e4 (u^2 S)
-        const STEP: [(usize, usize, usize); 4] = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (2, 0, 1)];
-        let mut table = [(0u8, 0u8, 0u8); 40];
-        let mut count = 0;
-        let mut i = 0;
-        while i <= K {
-            let mut j = 0;
-            while j <= i / 2 {
-                let mut k = 0;
-                while k + 2 * j <= i {
-                    let mut s = 0;
-                    while s < 4 {
-                        let (di, dk, dj) = STEP[s];
-                        if i + di <= K {
-                            table[count] = (
-                                t2_index(i + di, k + dk, j + dj) as u8,
-                                t2_index(i, k, j) as u8,
-                                s as u8,
-                            );
-                            count += 1;
-                        }
-                        s += 1;
-                    }
-                    k += 1;
-                }
-                j += 1;
-            }
-            i += 1;
-        }
-        (table, count)
-    };
-    const FIRST: ([(u8, u8); 4], usize) = {
-        let mut table = [(0u8, 0u8); 4];
-        let mut count = 0;
-        table[count] = (0, 0);
-        count += 1;
-        if K >= 1 {
-            table[count] = (t2_index(1, 0, 0) as u8, 1);
-            count += 1;
-            table[count] = (t2_index(1, 1, 0) as u8, 2);
-            count += 1;
-        }
-        if K >= 2 {
-            table[count] = (t2_index(2, 0, 1) as u8, 3);
-            count += 1;
-        }
-        (table, count)
-    };
-    const PURE: [u8; 5] = {
-        let mut pure = [u8::MAX; 5];
-        let mut k = 0;
-        while k <= K {
-            pure[k] = t2_index(k, 0, 0) as u8;
-            k += 1;
-        }
-        pure
-    };
-}
-
-impl Plan for MuPlan {
-    const SLOTS: usize = 2;
-    const PRODUCTS: ([(u8, u8, u8); 40], usize) = {
-        let mut table = [(0u8, 0u8, 0u8); 40];
-        table[0] = (0, 0, 0);
-        table[1] = (1, 0, 1);
-        table[2] = (1, 1, 0);
-        (table, 3)
-    };
-    const FIRST: ([(u8, u8); 4], usize) = ([(0, 0), (1, 1), (0, 0), (0, 0)], 2);
-    const PURE: [u8; 5] = [0, 1, u8::MAX, u8::MAX, u8::MAX];
-}
-
 /// Truncated-jet transposed Horner sweep; returns the jet of
 /// `sum_d u^(R-d) N_d(x(u))` with `x_mu(u) = sum_s slot_s(u) xv[s][mu]`.
+///
+/// Level `d` maps the homogeneous block of degree `d` (ten_build order:
+/// `[x0 M0] ++ [x1 M(<d)] ++ [x2 M(<d(d+1)/2)] ++ [x3 M(all)]`) onto the
+/// block of degree `d-1`: output entry `i` collects at most four products,
+/// so every output jet is written once per level. The lower block `d-1`
+/// enters at the pure power `u^(R-d+1)` (dropped beyond truncation).
 #[inline(always)]
-fn horner_jet<P: Plan, const L: usize>(
+fn horner_jet<P: Jet<L>, const L: usize>(
     c: &[C64],
     rank: usize,
     xv: &[CMom; 4],
@@ -371,15 +223,7 @@ fn horner_jet<P: Plan, const L: usize>(
         result[0] = c[0];
         return result;
     }
-    let (products, nproducts) = P::PRODUCTS;
-    let (first, nfirst) = P::FIRST;
-    let slot = |mu: usize| -> [C64; 4] {
-        let mut xs = [C64::ZERO; 4];
-        for s in 0..P::SLOTS {
-            xs[s] = xv[s][mu];
-        }
-        xs
-    };
+    let slot = |mu: usize| -> [C64; 4] { [xv[0][mu], xv[1][mu], xv[2][mu], xv[3][mu]] };
     let xs = [slot(0), slot(1), slot(2), slot(3)];
     let level = ncoeff_homogeneous(rank - 1);
     let (buf_a, buf_b) = work.split_at_mut(level * L);
@@ -391,29 +235,22 @@ fn horner_jet<P: Plan, const L: usize>(
         let off = block_offset(d);
         let (r1, r2, r3) = splits(d);
         let g = &c[off..off + ncoeff_homogeneous(d)];
-        let scalar = |out: &mut [C64; L], value: C64, x: &[C64; 4], set: bool| {
-            if set {
-                *out = [C64::ZERO; L];
-            }
-            for &(o, s) in &first[..nfirst] {
-                out[o as usize] += value * x[s as usize];
-            }
-        };
+        let (g1, g2, g3) = (&g[1..1 + r1], &g[1 + r1..1 + r1 + r2], &g[1 + r1 + r2..]);
+        let out = &mut cur[..r3];
         for i in 0..r3 {
-            scalar(&mut cur[i], g[1 + r1 + r2 + i], &xs[3], true);
+            P::first_set(&mut out[i], g3[i], &xs[3]);
+            if i < r2 {
+                P::first_acc(&mut out[i], g2[i], &xs[2]);
+                if i < r1 {
+                    P::first_acc(&mut out[i], g1[i], &xs[1]);
+                }
+            }
         }
-        for i in 0..r2 {
-            scalar(&mut cur[i], g[1 + r1 + i], &xs[2], false);
-        }
-        for i in 0..r1 {
-            scalar(&mut cur[i], g[1 + i], &xs[1], false);
-        }
-        scalar(&mut cur[0], g[0], &xs[0], false);
-        let pure = P::PURE[1];
-        if pure != u8::MAX {
+        P::first_acc(&mut out[0], g[0], &xs[0]);
+        if let Some(pure) = P::PURE[1] {
             let low = &c[block_offset(d - 1)..block_offset(d - 1) + r3];
             for i in 0..r3 {
-                cur[i][pure as usize] += low[i];
+                out[i][pure] += low[i];
             }
         }
     }
@@ -422,31 +259,23 @@ fn horner_jet<P: Plan, const L: usize>(
     while d >= 1 {
         let (r1, r2, r3) = splits(d);
         let g = &cur[..cur_len];
-        let next = &mut nxt[..r3];
-        let product = |out: &mut [C64; L], value: &[C64; L], x: &[C64; 4], set: bool| {
-            if set {
-                *out = [C64::ZERO; L];
-            }
-            for &(o, i, s) in &products[..nproducts] {
-                out[o as usize] += value[i as usize] * x[s as usize];
-            }
-        };
+        let (g1, g2, g3) = (&g[1..1 + r1], &g[1 + r1..1 + r1 + r2], &g[1 + r1 + r2..]);
+        let out = &mut nxt[..r3];
         for i in 0..r3 {
-            product(&mut next[i], &g[1 + r1 + r2 + i], &xs[3], true);
+            P::mul_set(&mut out[i], &g3[i], &xs[3]);
+            if i < r2 {
+                P::mul_acc(&mut out[i], &g2[i], &xs[2]);
+                if i < r1 {
+                    P::mul_acc(&mut out[i], &g1[i], &xs[1]);
+                }
+            }
         }
-        for i in 0..r2 {
-            product(&mut next[i], &g[1 + r1 + i], &xs[2], false);
-        }
-        for i in 0..r1 {
-            product(&mut next[i], &g[1 + i], &xs[1], false);
-        }
-        product(&mut next[0], &g[0], &xs[0], false);
+        P::mul_acc(&mut out[0], &g[0], &xs[0]);
         let power = rank - d + 1;
-        if power < 5 && P::PURE[power] != u8::MAX {
-            let pure = P::PURE[power] as usize;
+        if let Some(pure) = P::PURE.get(power).copied().flatten() {
             let low = &c[block_offset(d - 1)..block_offset(d - 1) + r3];
             for i in 0..r3 {
-                next[i][pure] += low[i];
+                out[i][pure] += low[i];
             }
         }
         cur_len = r3;
@@ -515,7 +344,7 @@ fn t2_output<const L: usize>(jet: &[C64; L], mindeg: usize, p: &[C64; 3], out: &
 
 impl TensorNumerator {
     #[allow(clippy::too_many_arguments)]
-    fn t3_rows<const K: usize, const L: usize>(
+    fn t3_rows<P: Jet<L>, const K: usize, const L: usize>(
         &mut self,
         lanes: &[usize],
         a: &[CMom],
@@ -535,14 +364,14 @@ impl TensorNumerator {
             }
             let c = &self.coefficients[lane * ncoeff..(lane + 1) * ncoeff];
             let xv = [e3[row], a[row], e4[row], [C64::ZERO; 4]];
-            let jet = horner_jet::<T3Plan<K>, L>(c, rank, &xv, &mut self.work);
+            let jet = horner_jet::<P, L>(c, rank, &xv, &mut self.work);
             t3_output(&jet, K, param[row], &mut out[row * L..(row + 1) * L]);
         }
         Ok(())
     }
 
     #[allow(clippy::too_many_arguments)]
-    fn t2_rows<const K: usize, const L: usize>(
+    fn t2_rows<P: Jet<L>, const K: usize, const L: usize>(
         &mut self,
         lanes: &[usize],
         a0: &[CMom],
@@ -563,7 +392,7 @@ impl TensorNumerator {
             }
             let c = &self.coefficients[lane * ncoeff..(lane + 1) * ncoeff];
             let xv = [e3[row], a0[row], a1[row], e4[row]];
-            let jet = horner_jet::<T2Plan<K>, L>(c, rank, &xv, &mut self.work);
+            let jet = horner_jet::<P, L>(c, rank, &xv, &mut self.work);
             t2_output(&jet, K, &param[row], &mut out[row * L..(row + 1) * L]);
         }
         Ok(())
@@ -622,7 +451,7 @@ impl FastNumerator for TensorNumerator {
                     }
                     let c = &self.coefficients[lane * ncoeff..(lane + 1) * ncoeff];
                     let xv = [v0[row], v1[row], [C64::ZERO; 4], [C64::ZERO; 4]];
-                    let jet = horner_jet::<MuPlan, 2>(c, rank, &xv, &mut self.work);
+                    let jet = horner_jet::<jets::Mu, 2>(c, rank, &xv, &mut self.work);
                     out[2 * row..2 * row + 2].copy_from_slice(&jet);
                 }
             }
@@ -646,11 +475,11 @@ impl FastNumerator for TensorNumerator {
         }
         Self::check_rows(lanes.len(), out.len(), t3_len(mindeg))?;
         match mindeg {
-            0 => self.t3_rows::<0, 1>(lanes, a, e3, e4, param, out),
-            1 => self.t3_rows::<1, 2>(lanes, a, e3, e4, param, out),
-            2 => self.t3_rows::<2, 4>(lanes, a, e3, e4, param, out),
-            3 => self.t3_rows::<3, 6>(lanes, a, e3, e4, param, out),
-            _ => self.t3_rows::<4, 9>(lanes, a, e3, e4, param, out),
+            0 => self.t3_rows::<jets::T3K0, 0, 1>(lanes, a, e3, e4, param, out),
+            1 => self.t3_rows::<jets::T3K1, 1, 2>(lanes, a, e3, e4, param, out),
+            2 => self.t3_rows::<jets::T3K2, 2, 4>(lanes, a, e3, e4, param, out),
+            3 => self.t3_rows::<jets::T3K3, 3, 6>(lanes, a, e3, e4, param, out),
+            _ => self.t3_rows::<jets::T3K4, 4, 9>(lanes, a, e3, e4, param, out),
         }
     }
 
@@ -671,10 +500,10 @@ impl FastNumerator for TensorNumerator {
         }
         Self::check_rows(lanes.len(), out.len(), t2_len(mindeg))?;
         match mindeg {
-            0 => self.t2_rows::<0, 1>(lanes, a0, a1, e3, e4, param, out),
-            1 => self.t2_rows::<1, 3>(lanes, a0, a1, e3, e4, param, out),
-            2 => self.t2_rows::<2, 7>(lanes, a0, a1, e3, e4, param, out),
-            _ => self.t2_rows::<3, 13>(lanes, a0, a1, e3, e4, param, out),
+            0 => self.t2_rows::<jets::T2K0, 0, 1>(lanes, a0, a1, e3, e4, param, out),
+            1 => self.t2_rows::<jets::T2K1, 1, 3>(lanes, a0, a1, e3, e4, param, out),
+            2 => self.t2_rows::<jets::T2K2, 2, 7>(lanes, a0, a1, e3, e4, param, out),
+            _ => self.t2_rows::<jets::T2K3, 3, 13>(lanes, a0, a1, e3, e4, param, out),
         }
     }
 }

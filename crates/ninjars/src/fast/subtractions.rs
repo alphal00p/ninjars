@@ -16,16 +16,19 @@ pub(super) fn bubble_from_triangle_rm2_all(
     et3: &CMom,
     et4: &CMom,
     c: &[C64],
-    eb1: &CMom,
-    eb2: &RMom,
     eb3: &CMom,
     eb4: &CMom,
     param: &[C64; 3],
-    k: &RMom,
+    eb1k: C64,
+    eb2k: f64,
+    eb3k: C64,
+    ieb3k: C64,
+    eb4k: C64,
+    eb1t: &[C64; 4],
     f: C64,
 ) {
-    let z1_1 = 1.0 / ((mp_cr(eb3, k) * mp_cr(eb3, k)) * mp_cr(eb3, k));
-    let z2_1 = mp_cr(eb3, k);
+    let z1_1 = (ieb3k * ieb3k) * ieb3k;
+    let z2_1 = eb3k;
     let z3_1 = mp_cc(eb3, et3);
     let z5_1 = mp_cc(eb3, et4);
     let z19_1 = 0.5 * c[1];
@@ -49,24 +52,27 @@ pub(super) fn bubble_from_triangle_rm1_all(
     et3: &CMom,
     et4: &CMom,
     c: &[C64],
-    eb1: &CMom,
-    eb2: &RMom,
     eb3: &CMom,
     eb4: &CMom,
     param: &[C64; 3],
-    k: &RMom,
+    eb1k: C64,
+    eb2k: f64,
+    eb3k: C64,
+    ieb3k: C64,
+    eb4k: C64,
+    eb1t: &[C64; 4],
     f: C64,
 ) {
-    let z1_1 = 1.0 / ((mp_cr(eb3, k) * mp_cr(eb3, k)) * mp_cr(eb3, k));
-    let z2_1 = mp_cr(eb3, k);
+    let z1_1 = (ieb3k * ieb3k) * ieb3k;
+    let z2_1 = eb3k;
     let z3_1 = mp_cc(eb3, et3);
     let z5_1 = mp_cc(eb3, et4);
-    let z8_1 = mp_cr(eb1, k);
-    let z9_1 = mp_cc(eb1, et3);
-    let z10_1 = mp_cc(eb1, et4);
-    let z11_1 = mp_rr(eb2, k);
-    let z12_1 = mp_cr(et3, eb2);
-    let z13_1 = mp_cr(et4, eb2);
+    let z8_1 = eb1k;
+    let z9_1 = eb1t[0];
+    let z10_1 = eb1t[1];
+    let z11_1 = eb2k;
+    let z12_1 = eb1t[2];
+    let z13_1 = eb1t[3];
     let z14_1 = z3_1 * z3_1;
     let z18_1 = z5_1 * z5_1;
     let z20_1 = 0.5 * z1_1;
@@ -120,16 +126,19 @@ pub(super) fn bubble_from_triangle_rm1_spurious(
     et3: &CMom,
     et4: &CMom,
     c: &[C64],
-    eb1: &CMom,
-    eb2: &RMom,
     eb3: &CMom,
     eb4: &CMom,
     param: &[C64; 3],
-    k: &RMom,
+    eb1k: C64,
+    eb2k: f64,
+    eb3k: C64,
+    ieb3k: C64,
+    eb4k: C64,
+    eb1t: &[C64; 4],
     f: C64,
 ) {
     let z1_1 = mp_cc(eb3, et3);
-    let z2_1 = 1.0 / mp_cr(eb3, k);
+    let z2_1 = ieb3k;
     let z3_1 = mp_cc(eb3, et4);
     let z11_1 = 0.5 * z2_1;
     let z13_1 = z3_1 * z3_1;
@@ -149,27 +158,30 @@ pub(super) fn bubble_from_triangle_r0_all(
     et3: &CMom,
     et4: &CMom,
     c: &[C64],
-    eb1: &CMom,
-    eb2: &RMom,
     eb3: &CMom,
     eb4: &CMom,
     param: &[C64; 3],
-    k: &RMom,
+    eb1k: C64,
+    eb2k: f64,
+    eb3k: C64,
+    ieb3k: C64,
+    eb4k: C64,
+    eb1t: &[C64; 4],
     f: C64,
 ) {
-    let z1_1 = 1.0 / ((mp_cr(eb3, k) * mp_cr(eb3, k)) * mp_cr(eb3, k));
-    let z2_1 = mp_cr(eb3, k);
+    let z1_1 = (ieb3k * ieb3k) * ieb3k;
+    let z2_1 = eb3k;
     let z3_1 = mp_cc(eb3, et3);
     let z4_1 = mp_cc(eb4, et3);
     let z5_1 = mp_cc(eb3, et4);
     let z6_1 = mp_cc(eb4, et4);
-    let z7_1 = mp_cr(eb4, k);
-    let z8_1 = mp_cr(eb1, k);
-    let z9_1 = mp_cc(eb1, et3);
-    let z10_1 = mp_cc(eb1, et4);
-    let z11_1 = mp_rr(eb2, k);
-    let z12_1 = mp_cr(et3, eb2);
-    let z13_1 = mp_cr(et4, eb2);
+    let z7_1 = eb4k;
+    let z8_1 = eb1k;
+    let z9_1 = eb1t[0];
+    let z10_1 = eb1t[1];
+    let z11_1 = eb2k;
+    let z12_1 = eb1t[2];
+    let z13_1 = eb1t[3];
     let z14_1 = z3_1 * z3_1;
     let z15_1 = z14_1 * z4_1;
     let z16_1 = 3.0 * c[3];
@@ -284,23 +296,26 @@ pub(super) fn bubble_from_triangle_r0_spurious(
     et3: &CMom,
     et4: &CMom,
     c: &[C64],
-    eb1: &CMom,
-    eb2: &RMom,
     eb3: &CMom,
     eb4: &CMom,
     param: &[C64; 3],
-    k: &RMom,
+    eb1k: C64,
+    eb2k: f64,
+    eb3k: C64,
+    ieb3k: C64,
+    eb4k: C64,
+    eb1t: &[C64; 4],
     f: C64,
 ) {
     let z1_1 = mp_cc(eb3, et3);
-    let z2_1 = 1.0 / mp_cr(eb3, k);
+    let z2_1 = ieb3k;
     let z3_1 = mp_cc(eb3, et4);
-    let z4_1 = mp_rr(k, eb2);
-    let z5_1 = mp_cr(et3, eb2);
-    let z6_1 = mp_cr(et4, eb2);
-    let z7_1 = mp_cr(eb1, k);
-    let z8_1 = mp_cc(eb1, et3);
-    let z9_1 = mp_cc(eb1, et4);
+    let z4_1 = eb2k;
+    let z5_1 = eb1t[2];
+    let z6_1 = eb1t[3];
+    let z7_1 = eb1k;
+    let z8_1 = eb1t[0];
+    let z9_1 = eb1t[1];
     let z10_1 = c[3] * ((z1_1 * z1_1) * z1_1);
     let z11_1 = c[6] * ((z3_1 * z3_1) * z3_1);
     let z10_2 = z10_1 + z11_1;
@@ -339,27 +354,30 @@ pub(super) fn bubble_from_triangle_x1_all(
     et3: &CMom,
     et4: &CMom,
     c: &[C64],
-    eb1: &CMom,
-    eb2: &RMom,
     eb3: &CMom,
     eb4: &CMom,
     param: &[C64; 3],
-    k: &RMom,
+    eb1k: C64,
+    eb2k: f64,
+    eb3k: C64,
+    ieb3k: C64,
+    eb4k: C64,
+    eb1t: &[C64; 4],
     f: C64,
 ) {
-    let z1_1 = 1.0 / (((mp_cr(eb3, k) * mp_cr(eb3, k)) * mp_cr(eb3, k)) * mp_cr(eb3, k));
-    let z2_1 = mp_cr(eb1, k);
-    let z3_1 = mp_cr(eb3, k);
+    let z1_1 = ((ieb3k * ieb3k) * ieb3k) * ieb3k;
+    let z2_1 = eb1k;
+    let z3_1 = eb3k;
     let z4_1 = mp_cc(eb3, et3);
     let z5_1 = mp_cc(eb4, et3);
     let z6_1 = mp_cc(eb3, et4);
     let z7_1 = mp_cc(eb4, et4);
-    let z8_1 = mp_cr(eb4, k);
-    let z9_1 = mp_cc(eb1, et3);
-    let z10_1 = mp_cc(eb1, et4);
-    let z11_1 = mp_rr(eb2, k);
-    let z12_1 = mp_cr(et3, eb2);
-    let z13_1 = mp_cr(et4, eb2);
+    let z8_1 = eb4k;
+    let z9_1 = eb1t[0];
+    let z10_1 = eb1t[1];
+    let z11_1 = eb2k;
+    let z12_1 = eb1t[2];
+    let z13_1 = eb1t[3];
     let z14_1 = z9_1 * c[12];
     let z15_1 = (2.0 * z14_1) + (0.5 * c[3]);
     let z16_1 = z4_1 * z4_1;
@@ -716,27 +734,30 @@ pub(super) fn bubble_from_triangle_x1_spurious(
     et3: &CMom,
     et4: &CMom,
     c: &[C64],
-    eb1: &CMom,
-    eb2: &RMom,
     eb3: &CMom,
     eb4: &CMom,
     param: &[C64; 3],
-    k: &RMom,
+    eb1k: C64,
+    eb2k: f64,
+    eb3k: C64,
+    ieb3k: C64,
+    eb4k: C64,
+    eb1t: &[C64; 4],
     f: C64,
 ) {
-    let z1_1 = 1.0 / (((mp_cr(eb3, k) * mp_cr(eb3, k)) * mp_cr(eb3, k)) * mp_cr(eb3, k));
-    let z2_1 = mp_cr(eb1, k);
-    let z3_1 = mp_cr(eb3, k);
+    let z1_1 = ((ieb3k * ieb3k) * ieb3k) * ieb3k;
+    let z2_1 = eb1k;
+    let z3_1 = eb3k;
     let z4_1 = mp_cc(eb3, et3);
     let z5_1 = mp_cc(eb3, et4);
-    let z6_1 = mp_cc(eb1, et3);
-    let z7_1 = mp_cc(eb1, et4);
+    let z6_1 = eb1t[0];
+    let z7_1 = eb1t[1];
     let z8_1 = mp_cc(eb4, et3);
     let z9_1 = mp_cc(eb4, et4);
-    let z10_1 = mp_cr(eb4, k);
-    let z11_1 = mp_rr(eb2, k);
-    let z12_1 = mp_cr(et3, eb2);
-    let z13_1 = mp_cr(et4, eb2);
+    let z10_1 = eb4k;
+    let z11_1 = eb2k;
+    let z12_1 = eb1t[2];
+    let z13_1 = eb1t[3];
     let z14_1 = z5_1 * z5_1;
     let z15_1 = c[13] * z1_1;
     let z16_1 = z14_1 * z15_1;
@@ -874,19 +895,21 @@ pub(super) fn tadpole_from_triangle_x1(
     e3: &CMom,
     e4: &CMom,
     param: C64,
-    k0: &RMom,
+    e3k0: C64,
+    ie3k0: C64,
+    e4k0: C64,
     f0: C64,
-    k1: &RMom,
+    e3k1: C64,
+    ie3k1: C64,
+    e4k1: C64,
     f1: C64,
 ) {
-    let z1_1 = 1.0
-        / (((mp_cr(e3, k0) * mp_cr(e3, k0)) * mp_cr(e3, k0))
-            * ((mp_cr(e3, k1) * mp_cr(e3, k1)) * mp_cr(e3, k1)));
+    let z1_1 = ((((ie3k0 * ie3k0) * ie3k0) * ie3k1) * ie3k1) * ie3k1;
     let z2_1 = mp_cc(e3, et3);
-    let z3_1 = mp_cr(e3, k0);
-    let z4_1 = mp_cr(e3, k1);
-    let z5_1 = mp_cr(e4, k1);
-    let z6_1 = mp_cr(e4, k0);
+    let z3_1 = e3k0;
+    let z4_1 = e3k1;
+    let z5_1 = e4k1;
+    let z6_1 = e4k0;
     let z7_1 = mp_cc(e4, et3);
     let z8_1 = mp_cc(e3, et4);
     let z9_1 = mp_cc(e4, et4);
@@ -966,18 +989,20 @@ pub(super) fn tadpole_from_bubble_x1(
     e3: &CMom,
     e4: &CMom,
     param: C64,
-    k: &RMom,
+    e3k: C64,
+    ie3k: C64,
+    e4k: C64,
     f: C64,
 ) {
-    let z1_1 = 1.0 / ((mp_cr(e3, k) * mp_cr(e3, k)) * mp_cr(e3, k));
-    let z2_1 = mp_cr(e3, k);
+    let z1_1 = (ie3k * ie3k) * ie3k;
+    let z2_1 = e3k;
     let z3_1 = mp_cr(e3, eb2);
     let z4_1 = mp_cr(e4, eb2);
     let z5_1 = mp_cc(e4, eb3);
     let z6_1 = mp_cc(e4, eb4);
     let z7_1 = mp_cc(e3, eb3);
     let z8_1 = mp_cc(e3, eb4);
-    let z9_1 = mp_cr(e4, k);
+    let z9_1 = e4k;
     let z10_1 = mp_rr(eb2, kbol);
     let z11_1 = z4_1 * z8_1;
     let z12_1 = 0.5 * z3_1;

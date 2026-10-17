@@ -14,6 +14,12 @@ Both only drop exact `0 * x` / `x + 0` contributions, so finite results agree
 with original Ninja up to rounding. Every temporary is renamed into static
 single assignment form (`zN_v`).
 
+Scalar products with the uncut-propagator momentum `k` (e.g. `mp(eb3,k)`)
+are computed once per uncut propagator by the engine, which already needs
+them for the Laurent division, and are passed in as arguments (`eb3k`). The
+single complex division of each subtraction, `1/(mp(eb3,k)^m)`, becomes the
+product of precomputed reciprocals (`ieb3k`): equal up to rounding.
+
 Usage: translate_subtractions.py <ninja checkout> <output .rs>
 """
 
@@ -203,8 +209,21 @@ def is_num(node, value=None):
     return node[0] == "num" and (value is None or node[1] == value)
 
 
-def simplify(node, env, zeros):
-    """Rename temporaries to SSA names, substitute structural zeros, fold."""
+def product_factors(node):
+    """Variable names of a pure product of variables, else None."""
+    if node[0] == "var":
+        return [node[1]]
+    if node[0] == "bin" and node[1] == "*":
+        left, right = product_factors(node[2]), product_factors(node[3])
+        if left is not None and right is not None:
+            return left + right
+    return None
+
+
+def simplify(node, env, zeros, products=None, inverses=frozenset()):
+    """Rename temporaries to SSA names, substitute structural zeros and
+    precomputed scalar products, fold."""
+    products = products or {}
     kind = node[0]
     if kind == "num":
         return node
@@ -219,13 +238,27 @@ def simplify(node, env, zeros):
             return ("num", 0.0)
         return node
     if kind == "call":
-        return ("call", node[1], [simplify(a, env, zeros) for a in node[2]])
+        args = node[2]
+        if node[1] == "mp" and all(a[0] == "var" for a in args):
+            key = frozenset(a[1] for a in args)
+            if key in products:
+                return ("var", products[key])
+        return ("call", node[1], [simplify(a, env, zeros, products, inverses) for a in args])
     if kind == "neg":
-        inner = simplify(node[1], env, zeros)
+        inner = simplify(node[1], env, zeros, products, inverses)
         if is_num(inner):
             return ("num", -inner[1])
         return ("neg", inner)
-    op, left, right = node[1], simplify(node[2], env, zeros), simplify(node[3], env, zeros)
+    op = node[1]
+    left = simplify(node[2], env, zeros, products, inverses)
+    right = simplify(node[3], env, zeros, products, inverses)
+    if op == "/" and is_num(left, 1.0):
+        factors = product_factors(right)
+        if factors and all(f in inverses for f in factors):
+            out = ("var", "i" + factors[0])
+            for f in factors[1:]:
+                out = ("bin", "*", out, ("var", "i" + f))
+            return out
     if is_num(left) and is_num(right):
         a, b = left[1], right[1]
         if op == "/" and b == 0.0:
@@ -265,14 +298,14 @@ def uses(node, out):
         uses(node[3], out)
 
 
-def specialize(stmts, zeros):
+def specialize(stmts, zeros, products=None, inverses=frozenset()):
     env = {}
     version = {}
     lowered = []
     for stmt in stmts:
         if stmt[0] == "set":
             _, target, expr = stmt
-            expr = simplify(expr, env, zeros)
+            expr = simplify(expr, env, zeros, products, inverses)
             if is_num(expr, 0.0):
                 env[target] = None
                 continue
@@ -363,13 +396,22 @@ X1_TADPOLE_JEXT = {"jext0": 2, "jext0mu2": 3}
 # Triangle coefficients never set by original Ninja for rank - n = rmn.
 TRIANGLE_ZEROS = {-2: {2, 3, 5, 6, 7, 8, 9}, -1: {3, 6, 8, 9}, 0: set(), 1: set()}
 
-BUBBLE_SIGNATURE = ("divnum: &mut [C64], et3: &CMom, et4: &CMom, c: &[C64], eb1: &CMom, "
-                    "eb2: &RMom, eb3: &CMom, eb4: &CMom, param: &[C64; 3], k: &RMom, f: C64")
+BUBBLE_SIGNATURE = ("divnum: &mut [C64], et3: &CMom, et4: &CMom, c: &[C64], eb3: &CMom, "
+                    "eb4: &CMom, param: &[C64; 3], eb1k: C64, eb2k: f64, eb3k: C64, ieb3k: C64, "
+                    "eb4k: C64, eb1t: &[C64; 4], f: C64")
+# eb1t = [eb1.et3, eb1.et4, eb2.et3, eb2.et4] is shared by both bubble orientations.
+BUBBLE_PRODUCTS = {frozenset(("eb1", "k")): "eb1k", frozenset(("eb2", "k")): "eb2k",
+                   frozenset(("eb3", "k")): "eb3k", frozenset(("eb4", "k")): "eb4k",
+                   frozenset(("eb1", "et3")): "eb1t[0]", frozenset(("eb1", "et4")): "eb1t[1]",
+                   frozenset(("eb2", "et3")): "eb1t[2]", frozenset(("eb2", "et4")): "eb1t[3]"}
 TAD_TRI_SIGNATURE = ("divnum: &mut [C64], et3: &CMom, et4: &CMom, c: &[C64], e3: &CMom, e4: &CMom, "
-                     "param: C64, k0: &RMom, f0: C64, k1: &RMom, f1: C64")
+                     "param: C64, e3k0: C64, ie3k0: C64, e4k0: C64, f0: C64, e3k1: C64, ie3k1: C64, "
+                     "e4k1: C64, f1: C64")
+TAD_TRI_PRODUCTS = {frozenset(("e3", "k0")): "e3k0", frozenset(("e3", "k1")): "e3k1",
+                    frozenset(("e4", "k0")): "e4k0", frozenset(("e4", "k1")): "e4k1"}
 TAD_BUB_SIGNATURE = ("divnum: &mut [C64], eb2: &RMom, eb3: &CMom, eb4: &CMom, kbol: &RMom, c: &[C64], "
-                     "e3: &CMom, e4: &CMom, param: C64, k: &RMom, f: C64")
-
+                     "e3: &CMom, e4: &CMom, param: C64, e3k: C64, ie3k: C64, e4k: C64, f: C64")
+TAD_BUB_PRODUCTS = {frozenset(("e3", "k")): "e3k", frozenset(("e4", "k")): "e4k"}
 
 def main():
     if len(sys.argv) != 3:
@@ -400,34 +442,38 @@ def main():
         "use super::complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr};",
         "",
     ]
-    bubble_real = {"eb2", "k"}
+    bubble_real = {"eb2"}
     for rmn in (-2, -1, 0):
         all_block, else_block = split_allcoeffs(normal_bubble)
         jext = normal_bubble_jext(rmn)
         variants = [("all", all_block, "all"), ("spurious", else_block, "second-orientation")]
         # Without linear bubble terms (rank = n-2) original Ninja has no second orientation.
         for suffix, block, which in variants[:1 if rmn < -1 else 2]:
-            stmts = specialize(statements(block, jext, rmn), TRIANGLE_ZEROS[rmn])
+            stmts = specialize(statements(block, jext, rmn), TRIANGLE_ZEROS[rmn],
+                               BUBBLE_PRODUCTS, {"eb3k"})
             name = f"bubble_from_triangle_r{'m' + str(-rmn) if rmn < 0 else rmn}_{suffix}"
             doc = (f"`cuts::correctbubcoeffs` for rank - n = {rmn}, {which} coefficients.")
             out.append(rust_function(name, doc, BUBBLE_SIGNATURE, stmts, bubble_real))
             out.append("")
     all_block, else_block = split_allcoeffs(x1_bubble)
     for suffix, block, which in (("all", all_block, "all"), ("spurious", else_block, "second-orientation")):
-        stmts = specialize(statements(block, X1_BUBBLE_JEXT, 1), TRIANGLE_ZEROS[1])
+        stmts = specialize(statements(block, X1_BUBBLE_JEXT, 1), TRIANGLE_ZEROS[1],
+                           BUBBLE_PRODUCTS, {"eb3k"})
         name = f"bubble_from_triangle_x1_{suffix}"
         doc = f"`x1cuts::correctbubcoeffs` (rank n+1), {which} coefficients."
         out.append(rust_function(name, doc, BUBBLE_SIGNATURE, stmts, bubble_real))
         out.append("")
-    stmts = specialize(statements(x1_tad_tri, X1_TADPOLE_JEXT, 1), set())
+    stmts = specialize(statements(x1_tad_tri, X1_TADPOLE_JEXT, 1), set(), TAD_TRI_PRODUCTS,
+                       {"e3k0", "e3k1"})
     out.append(rust_function("tadpole_from_triangle_x1",
                              "`x1cuts::correcttadcoeffs` (triangle parent, rank n+1).",
-                             TAD_TRI_SIGNATURE, stmts, {"k0", "k1"}))
+                             TAD_TRI_SIGNATURE, stmts, set()))
     out.append("")
-    stmts = specialize(statements(x1_tad_bub, X1_TADPOLE_JEXT, 1), set())
+    stmts = specialize(statements(x1_tad_bub, X1_TADPOLE_JEXT, 1), set(), TAD_BUB_PRODUCTS,
+                       {"e3k"})
     out.append(rust_function("tadpole_from_bubble_x1",
                              "`x1cuts::correcttadcoeffs` (bubble parent, rank n+1).",
-                             TAD_BUB_SIGNATURE, stmts, {"eb2", "kbol", "k"}))
+                             TAD_BUB_SIGNATURE, stmts, {"eb2", "kbol"}))
     out.append("")
     pathlib.Path(sys.argv[2]).write_text("\n".join(out))
 

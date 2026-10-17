@@ -74,6 +74,24 @@ struct TadpoleData {
     e34: f64,
 }
 
+/// Scalar products of one uncut propagator `j` with the expansion vectors of
+/// the current cut, shared by the Laurent division and the subtractions.
+#[derive(Clone, Copy, Debug, Default)]
+struct Uncut {
+    /// `e3.(V_j - V_0)` and its reciprocal (`2 e3k` is the division's `d0`).
+    e3k: C64,
+    ie3k: C64,
+    /// `e4.(V_j - V_0)` (unscaled `e4`; `e4eff` products follow by scaling).
+    e4k: C64,
+    /// Bubble `a0 = e1effl` and `a1 = e2eff` products.
+    e1k: C64,
+    e2k: f64,
+    /// Constant part of the division's `d1`.
+    d1: C64,
+    /// `(V_j - V_0)² + m0² - m_j²`.
+    f: C64,
+}
+
 #[derive(Clone, Copy, Debug, Default)]
 struct BoxRow {
     lane: usize,
@@ -96,7 +114,9 @@ struct TriangleRow {
 struct BubbleRow {
     lane: usize,
     e: Basis,
-    e1effl: CMom,
+    /// Ninja's `e1effl = b0 e2` (before the `-V0` shift) and `e2eff = e1 + b1 e2`.
+    b0: C64,
+    b1: f64,
     e1eff: CMom,
     e2eff: RMom,
     param: [C64; 3],
@@ -328,24 +348,36 @@ fn fail(alive: &mut [bool], status: &mut [FastStatus], lane: usize) {
 }
 
 /// Polynomial division of a triangle/tadpole Laurent expansion
-/// (`divpolyby<3>`) by `d0 t + d1 + (d2[0] + d2[1] mu²)/t`, using one
-/// reciprocal of `d0`.
+/// (`divpolyby<3>`) by `d0 t + d1 + (d2[0] + d2[1] mu²)/t`, given `1/d0`.
 #[inline(always)]
 pub(super) fn divide_t3(num: &mut [C64], nterms: usize, d0inv: C64, d1: C64, d2: [C64; 2]) {
+    match nterms {
+        1 => divide_t3_n::<1>(num, d0inv, d1, d2),
+        2 => divide_t3_n::<2>(num, d0inv, d1, d2),
+        3 => divide_t3_n::<3>(num, d0inv, d1, d2),
+        4 => divide_t3_n::<4>(num, d0inv, d1, d2),
+        _ => divide_t3_n::<5>(num, d0inv, d1, d2),
+    }
+}
+
+/// [`divide_t3`] for a compile-time number of orders (fully unrolled).
+#[inline(always)]
+fn divide_t3_n<const NT: usize>(num: &mut [C64], d0inv: C64, d1: C64, d2: [C64; 2]) {
     const OFF: [usize; 6] = [0, 1, 2, 4, 6, 9];
-    for i in 0..nterms {
+    let num = &mut num[..OFF[NT]];
+    for i in 0..NT {
         let size = 1 + i / 2;
         let o = OFF[i];
         for j in 0..size {
             num[o + j] *= d0inv;
         }
-        if i + 1 < nterms {
+        if i + 1 < NT {
             let o1 = OFF[i + 1];
             for j in 0..size {
                 let v = num[o + j];
                 num[o1 + j] -= d1 * v;
             }
-            if i + 2 < nterms {
+            if i + 2 < NT {
                 let o2 = OFF[i + 2];
                 for j in 0..size {
                     let v = num[o + j];
@@ -358,17 +390,30 @@ pub(super) fn divide_t3(num: &mut [C64], nterms: usize, d0inv: C64, d1: C64, d2:
 }
 
 /// Polynomial division of a bubble Laurent expansion (`divpolyby<2>`) by
-/// `d0 t + (d1[0] + d1[1] x) + (d2[0] + d2[1] mu² + d2[2] x + d2[3] x²)/t`.
+/// `d0 t + (d1[0] + d1[1] x) + (d2[0] + d2[1] mu² + d2[2] x + d2[3] x²)/t`,
+/// given `1/d0`.
 #[inline(always)]
 pub(super) fn divide_t2(num: &mut [C64], nterms: usize, d0inv: C64, d1: [C64; 2], d2: [C64; 4]) {
+    match nterms {
+        1 => divide_t2_n::<1>(num, d0inv, d1, d2),
+        2 => divide_t2_n::<2>(num, d0inv, d1, d2),
+        3 => divide_t2_n::<3>(num, d0inv, d1, d2),
+        _ => divide_t2_n::<4>(num, d0inv, d1, d2),
+    }
+}
+
+/// [`divide_t2`] for a compile-time number of orders (fully unrolled).
+#[inline(always)]
+fn divide_t2_n<const NT: usize>(num: &mut [C64], d0inv: C64, d1: [C64; 2], d2: [C64; 4]) {
     const OFF: [usize; 5] = [0, 1, 3, 7, 13];
-    for i in 0..nterms {
+    let num = &mut num[..OFF[NT]];
+    for i in 0..NT {
         let size = 1 + i + i / 2 + i / 3;
         let o = OFF[i];
         for j in 0..size {
             num[o + j] *= d0inv;
         }
-        if i + 1 < nterms {
+        if i + 1 < NT {
             let n1 = OFF[i + 1];
             let v0 = num[o];
             num[n1] -= d1[0] * v0;
@@ -391,7 +436,7 @@ pub(super) fn divide_t2(num: &mut [C64], nterms: usize, d0inv: C64, d1: [C64; 2]
                     num[n1 + 5] -= d1[1] * v3;
                 }
             }
-            if i + 2 < nterms {
+            if i + 2 < NT {
                 let n2 = OFF[i + 2];
                 num[n2] -= d2[0] * v0;
                 if i == 0 {
@@ -413,8 +458,22 @@ pub(super) fn divide_t2(num: &mut [C64], nterms: usize, d0inv: C64, d1: [C64; 2]
     }
 }
 
-type BubbleCorrection =
-    fn(&mut [C64], &CMom, &CMom, &[C64], &CMom, &RMom, &CMom, &CMom, &[C64; 3], &RMom, C64);
+type BubbleCorrection = fn(
+    &mut [C64],
+    &CMom,
+    &CMom,
+    &[C64],
+    &CMom,
+    &CMom,
+    &[C64; 3],
+    C64,
+    f64,
+    C64,
+    C64,
+    C64,
+    &[C64; 4],
+    C64,
+);
 
 /// Batched binary64 Ninja reduction for a fixed `(n, rank)` topology.
 ///
@@ -441,6 +500,9 @@ pub struct FastAmplitude {
     bub_rows: Vec<BubbleRow>,
     tad_rows: Vec<TadpoleRow>,
     second: Vec<usize>,
+    uncut: Vec<Uncut>,
+    /// Per bubble row and parent triangle: `[a0.et3, a0.et4, a1.et3, a1.et4]`.
+    pairs: Vec<[C64; 4]>,
     masters: [MasterBatch; 5],
     staged: Vec<FastResult>,
 }
@@ -486,6 +548,8 @@ impl FastAmplitude {
             bub_rows: Vec::new(),
             tad_rows: Vec::new(),
             second: Vec::new(),
+            uncut: vec![Uncut::default(); n],
+            pairs: Vec::new(),
             masters: Default::default(),
             staged: Vec::new(),
         })
@@ -876,7 +940,7 @@ impl FastAmplitude {
             let cp = &self.topo.triangle_complements[t * (n - 3)..(t + 1) * (n - 3)];
             let (head, tail) = self.calls.out.split_at_mut(rows * width);
             for r in 0..rows {
-                let row = self.tri_rows[r];
+                let row = &self.tri_rows[r];
                 let lane = row.lane;
                 let v = &input.shifts[lane * n..(lane + 1) * n];
                 let m = &input.masses_squared[lane * n..(lane + 1) * n];
@@ -1043,7 +1107,8 @@ impl FastAmplitude {
                 self.bub_rows.push(BubbleRow {
                     lane,
                     e,
-                    e1effl,
+                    b0,
+                    b1,
                     e1eff,
                     e2eff,
                     param,
@@ -1068,7 +1133,7 @@ impl FastAmplitude {
             let parents = &self.topo.bubble_parents[b];
             self.second.clear();
             for r in 0..self.bub_rows.len() {
-                let row = self.bub_rows[r];
+                let row = &self.bub_rows[r];
                 let lane = row.lane;
                 let v = &input.shifts[lane * n..(lane + 1) * n];
                 let m = &input.masses_squared[lane * n..(lane + 1) * n];
@@ -1076,53 +1141,80 @@ impl FastAmplitude {
                 let numexp = &mut self.calls.out[r * width..(r + 1) * width];
                 let e = &row.e;
                 let inv34 = 1. / e.mp34();
+                let e4s = 0.5 * inv34;
+                let uncut = &mut self.uncut;
                 let mut stable = true;
                 for &j in cp {
                     let pdiff = sub(&v[j], &v[c1]);
-                    let d0 = mp_cr(&e.e3, &pdiff) * 2.;
-                    if !check(d0.taxicab()) {
+                    let e3k = mp_cr(&e.e3, &pdiff);
+                    if !check(e3k.taxicab() * 2.) {
                         stable = false;
                         break;
                     }
-                    let terms = nterms;
-                    let d1 = if terms > 1 {
-                        [
-                            mp_cr(&row.e1eff, &pdiff) * 2. + (vsq[j] - vsq[c1]) + (-m[j] + m[c1]),
-                            C64::real(2. * mp_rr(&row.e2eff, &pdiff)),
-                        ]
-                    } else {
-                        [C64::ZERO; 2]
+                    // a0 = b0 e2 and a1 = e1 + b1 e2 with real e1, e2.
+                    let e2p = mp_rr(&e.e2, &pdiff);
+                    let e1k = row.b0 * e2p;
+                    uncut[j] = Uncut {
+                        e3k,
+                        ie3k: e3k.inv(),
+                        e4k: mp_cr(&e.e4, &pdiff),
+                        e1k,
+                        e2k: mp_rr(&e.e1, &pdiff) + row.b1 * e2p,
+                        d1: (e1k - mp_rr(&v[c1], &pdiff)) * 2.
+                            + (vsq[j] - vsq[c1])
+                            + (-m[j] + m[c1]),
+                        f: mp2(&pdiff) + (m[c1] - m[j]),
                     };
-                    let d2 = if terms > 2 {
-                        let d2 = mp_cr(&e.e4, &pdiff) * inv34;
-                        [row.param[0] * d2, d2, row.param[1] * d2, row.param[2] * d2]
-                    } else {
-                        [C64::ZERO; 4]
-                    };
-                    divide_t2(numexp, terms, d0.inv(), d1, d2);
                 }
                 if !stable {
                     fail(&mut self.alive, &mut self.lane_status, lane);
                     continue;
                 }
+                for &j in cp {
+                    let u = &uncut[j];
+                    let d2 = u.e4k * inv34;
+                    divide_t2(
+                        numexp,
+                        nterms,
+                        u.ie3k * 0.5,
+                        [u.d1, C64::real(2. * u.e2k)],
+                        [row.param[0] * d2, d2, row.param[1] * d2, row.param[2] * d2],
+                    );
+                }
                 if let Some(all) = correct_all {
-                    let e4eff = scale_c(&e.e4, 0.5 * inv34);
-                    for &(t, unc) in parents {
+                    let e4eff = scale_c(&e.e4, e4s);
+                    let np = parents.len();
+                    if self.pairs.len() < (r + 1) * np {
+                        self.pairs.resize((r + 1) * np, [C64::ZERO; 4]);
+                    }
+                    for (pi, &(t, unc)) in parents.iter().enumerate() {
                         let tri = &self.tri[t * lanes + lane];
-                        let kk = sub(&v[unc], &v[c1]);
-                        let f = mp2(&kk) + (m[c1] - m[unc]);
+                        let u = &uncut[unc];
+                        // Shared with the second orientation: a0 = b0 e2,
+                        // a1 = e1 + b1 e2 against the triangle's e3, e4.
+                        let (e2t3, e2t4) = (mp_cr(&tri.e3, &e.e2), mp_cr(&tri.e4, &e.e2));
+                        let pair = [
+                            row.b0 * e2t3,
+                            row.b0 * e2t4,
+                            mp_cr(&tri.e3, &e.e1) + e2t3 * row.b1,
+                            mp_cr(&tri.e4, &e.e1) + e2t4 * row.b1,
+                        ];
+                        self.pairs[r * np + pi] = pair;
                         all(
                             numexp,
                             &tri.e3,
                             &tri.e4,
                             &tri.c,
-                            &row.e1effl,
-                            &row.e2eff,
                             &e.e3,
                             &e4eff,
                             &row.param,
-                            &kk,
-                            f,
+                            u.e1k,
+                            u.e2k,
+                            u.e3k,
+                            u.ie3k,
+                            u.e4k * e4s,
+                            &pair,
+                            u.f,
                         );
                     }
                 }
@@ -1203,7 +1295,7 @@ impl FastAmplitude {
                 &mut self.calls.out,
             )?;
             for s in 0..self.second.len() {
-                let row = self.bub_rows[self.second[s]];
+                let row = &self.bub_rows[self.second[s]];
                 let lane = row.lane;
                 let v = &input.shifts[lane * n..(lane + 1) * n];
                 let m = &input.masses_squared[lane * n..(lane + 1) * n];
@@ -1211,53 +1303,68 @@ impl FastAmplitude {
                 let numexp = &mut self.calls.out[s * width2..(s + 1) * width2];
                 let e = &row.e;
                 let inv34 = 1. / e.mp34();
+                let e3s = 0.5 * inv34;
+                let uncut = &mut self.uncut;
                 let mut stable = true;
                 for &j in cp {
                     let pdiff = sub(&v[j], &v[c1]);
-                    let d0 = mp_cr(&e.e4, &pdiff) * 2.;
-                    if !check(d0.taxicab()) {
+                    // Orientation e3 <-> e4: `e3k` holds e4.(V_j - V_0) here.
+                    let e4k = mp_cr(&e.e4, &pdiff);
+                    if !check(e4k.taxicab() * 2.) {
                         stable = false;
                         break;
                     }
-                    let terms = nterms - 1;
-                    let d1 = if terms > 1 {
-                        [
-                            mp_cr(&row.e1eff, &pdiff) * 2. + (vsq[j] - vsq[c1]) + (-m[j] + m[c1]),
-                            C64::real(2. * mp_rr(&row.e2eff, &pdiff)),
-                        ]
-                    } else {
-                        [C64::ZERO; 2]
+                    let e2p = mp_rr(&e.e2, &pdiff);
+                    let e1k = row.b0 * e2p;
+                    uncut[j] = Uncut {
+                        e3k: e4k,
+                        ie3k: e4k.inv(),
+                        e4k: mp_cr(&e.e3, &pdiff),
+                        e1k,
+                        e2k: mp_rr(&e.e1, &pdiff) + row.b1 * e2p,
+                        d1: (e1k - mp_rr(&v[c1], &pdiff)) * 2.
+                            + (vsq[j] - vsq[c1])
+                            + (-m[j] + m[c1]),
+                        f: mp2(&pdiff) + (m[c1] - m[j]),
                     };
-                    let d2 = if terms > 2 {
-                        let d2 = mp_cr(&e.e3, &pdiff) * inv34;
-                        [row.param[0] * d2, d2, row.param[1] * d2, row.param[2] * d2]
-                    } else {
-                        [C64::ZERO; 4]
-                    };
-                    divide_t2(numexp, terms, d0.inv(), d1, d2);
                 }
                 if !stable {
                     fail(&mut self.alive, &mut self.lane_status, lane);
                     continue;
                 }
+                for &j in cp {
+                    let u = &uncut[j];
+                    let d2 = u.e4k * inv34;
+                    divide_t2(
+                        numexp,
+                        nterms - 1,
+                        u.ie3k * 0.5,
+                        [u.d1, C64::real(2. * u.e2k)],
+                        [row.param[0] * d2, d2, row.param[1] * d2, row.param[2] * d2],
+                    );
+                }
                 if let Some(spurious) = correct_spurious {
-                    let e3eff = scale_c(&e.e3, 0.5 * inv34);
-                    for &(t, unc) in parents {
+                    let e3eff = scale_c(&e.e3, e3s);
+                    let np = parents.len();
+                    let r = self.second[s];
+                    for (pi, &(t, unc)) in parents.iter().enumerate() {
                         let tri = &self.tri[t * lanes + lane];
-                        let kk = sub(&v[unc], &v[c1]);
-                        let f = mp2(&kk) + (m[c1] - m[unc]);
+                        let u = &uncut[unc];
                         spurious(
                             numexp,
                             &tri.e3,
                             &tri.e4,
                             &tri.c,
-                            &row.e1effl,
-                            &row.e2eff,
                             &e.e4,
                             &e3eff,
                             &row.param,
-                            &kk,
-                            f,
+                            u.e1k,
+                            u.e2k,
+                            u.e3k,
+                            u.ie3k,
+                            u.e4k * e3s,
+                            &self.pairs[r * np + pi],
+                            u.f,
                         );
                     }
                 }
@@ -1387,44 +1494,45 @@ impl FastAmplitude {
                     let offset = (orientation * rows + r) * width;
                     let numexp = &mut self.calls.out[offset..offset + width];
                     let (ev3, ev4) = vectors(&e, orientation);
+                    let uncut = &mut self.uncut;
                     for &j in cp {
                         let pdiff = sub(&v[j], &v[a]);
-                        let d0 = mp_cr(&ev3, &pdiff) * 2.;
-                        if !check(d0.taxicab()) {
+                        let e3k = mp_cr(&ev3, &pdiff);
+                        if !check(e3k.taxicab() * 2.) {
                             stable = false;
                             break;
                         }
-                        let d1 = if nterms > 1 {
-                            C64::real(2. * mp_rr(&amu, &pdiff) + (vsq[j] - vsq[a])) - m[j] + m[a]
-                        } else {
-                            C64::ZERO
+                        uncut[j] = Uncut {
+                            e3k,
+                            ie3k: e3k.inv(),
+                            e4k: mp_cr(&ev4, &pdiff),
+                            e1k: C64::ZERO,
+                            e2k: 0.,
+                            d1: C64::real(2. * mp_rr(&amu, &pdiff) + (vsq[j] - vsq[a])) - m[j]
+                                + m[a],
+                            f: mp2(&pdiff) + (m[a] - m[j]),
                         };
-                        let d2 = if nterms > 2 {
-                            let d2 = mp_cr(&ev4, &pdiff) * 2.;
-                            [param * d2, d2]
-                        } else {
-                            [C64::ZERO; 2]
-                        };
-                        divide_t3(numexp, nterms, d0.inv(), d1, d2);
                     }
                     if !stable {
                         break;
                     }
+                    for &j in cp {
+                        let u = &uncut[j];
+                        let d2 = u.e4k * 2.;
+                        divide_t3(numexp, nterms, u.ie3k * 0.5, u.d1, [param * d2, d2]);
+                    }
                     if any_triangle {
                         for &(t, [u0, u1]) in tri_parents {
                             let tri = &self.tri[t * lanes + lane];
-                            let kk0 = sub(&v[u0], &v[a]);
-                            let f0 = mp2(&kk0) + (m[a] - m[u0]);
-                            let kk1 = sub(&v[u1], &v[a]);
-                            let f1 = mp2(&kk1) + (m[a] - m[u1]);
+                            let (k0, k1) = (&uncut[u0], &uncut[u1]);
                             if x1 {
                                 subs::tadpole_from_triangle_x1(
-                                    numexp, &tri.e3, &tri.e4, &tri.c, &ev3, &ev4, param, &kk0, f0,
-                                    &kk1, f1,
+                                    numexp, &tri.e3, &tri.e4, &tri.c, &ev3, &ev4, param, k0.e3k,
+                                    k0.ie3k, k0.e4k, k0.f, k1.e3k, k1.ie3k, k1.e4k, k1.f,
                                 );
                             } else {
                                 tadpole_from_triangle(
-                                    numexp, &tri.e3, &tri.e4, &tri.c, &ev3, &kk0, f0, &kk1, f1, rmn,
+                                    numexp, &tri.e3, &tri.e4, &tri.c, &ev3, k0, k1, rmn,
                                 );
                             }
                         }
@@ -1432,18 +1540,16 @@ impl FastAmplitude {
                     if any_bubble {
                         for &(bb, unc) in bub_parents {
                             let bub = &self.bub[bb * lanes + lane];
-                            let kk = sub(&v[unc], &v[a]);
                             let kbol = sub(&v[self.topo.bubbles[bb][0]], &v[a]);
-                            let f = mp2(&kk) + (m[a] - m[unc]);
+                            let u = &uncut[unc];
                             if x1 {
                                 subs::tadpole_from_bubble_x1(
                                     numexp, &bub.e2, &bub.e3, &bub.e4, &kbol, &bub.c, &ev3, &ev4,
-                                    param, &kk, f,
+                                    param, u.e3k, u.ie3k, u.e4k, u.f,
                                 );
                             } else {
                                 tadpole_from_bubble(
-                                    numexp, &bub.e2, &bub.e3, &bub.e4, &kbol, &bub.c, &ev3, &kk, f,
-                                    rmn,
+                                    numexp, &bub.e2, &bub.e3, &bub.e4, &kbol, &bub.c, &ev3, u, rmn,
                                 );
                             }
                         }
@@ -1694,7 +1800,8 @@ impl FastAmplitude {
 }
 
 /// `cuts::correcttadcoeffs` (triangle parent) for rank <= n. The cubic
-/// triangle coefficients exist only for rank = n.
+/// triangle coefficients exist only for rank = n. `k0`, `k1` carry the
+/// tadpole's precomputed products with the two uncut propagators.
 #[allow(clippy::too_many_arguments)]
 #[inline(always)]
 fn tadpole_from_triangle(
@@ -1703,14 +1810,11 @@ fn tadpole_from_triangle(
     et4: &CMom,
     c: &[C64],
     e3: &CMom,
-    k0: &RMom,
-    f0: C64,
-    k1: &RMom,
-    f1: C64,
+    k0: &Uncut,
+    k1: &Uncut,
     rmn: isize,
 ) {
-    let e3k0 = mp_cr(e3, k0);
-    let e3k1 = mp_cr(e3, k1);
+    let (e3k0, e3k1) = (k0.e3k, k1.e3k);
     let e3t3 = mp_cc(e3, et3);
     let e3t4 = mp_cc(e3, et4);
     let e3t3q = e3t3 * e3t3;
@@ -1719,9 +1823,10 @@ fn tadpole_from_triangle(
     if rmn >= 0 {
         let e3t3c = e3t3q * e3t3;
         let e3t4c = e3t4q * e3t4;
-        numerator -= (c[3] * e3t3c + c[6] * e3t4c) * (e3k1 * f0 + e3k0 * f1);
+        numerator -= (c[3] * e3t3c + c[6] * e3t4c) * (e3k1 * k0.f + e3k0 * k1.f);
     }
-    divnum[(rmn + 1) as usize] -= numerator * 0.125 / (e3k0 * e3k0 * e3k1 * e3k1);
+    let inverse = k0.ie3k * k0.ie3k * (k1.ie3k * k1.ie3k);
+    divnum[(rmn + 1) as usize] -= numerator * 0.125 * inverse;
 }
 
 /// `cuts::correcttadcoeffs` (bubble parent) for rank <= n. The quadratic
@@ -1736,14 +1841,13 @@ fn tadpole_from_bubble(
     kbol: &RMom,
     b: &[C64],
     e3: &CMom,
-    k: &RMom,
-    f: C64,
+    k: &Uncut,
     rmn: isize,
 ) {
     let e3b2 = mp_cr(e3, eb2);
     let e3b3 = mp_cc(e3, eb3);
     let e3b4 = mp_cc(e3, eb4);
-    let e3k = mp_cr(e3, k);
+    let e3k = k.e3k;
     let value = if rmn >= 0 {
         let kbolb2 = mp_rr(eb2, kbol);
         let abbr9 = b[2] * e3b2 * e3b2
@@ -1751,7 +1855,7 @@ fn tadpole_from_bubble(
             + b[4] * e3b3 * e3b3
             + b[8] * e3b2 * e3b4
             + b[6] * e3b4 * e3b4;
-        -(abbr9 * f)
+        -(abbr9 * k.f)
             + e3k
                 * 2.
                 * (b[1] * e3b2
@@ -1763,5 +1867,5 @@ fn tadpole_from_bubble(
     } else {
         e3k * 2. * (b[1] * e3b2 + b[3] * e3b3 + b[5] * e3b4)
     };
-    divnum[(rmn + 1) as usize] -= value / (e3k * e3k * 4.);
+    divnum[(rmn + 1) as usize] -= value * 0.25 * (k.ie3k * k.ie3k);
 }

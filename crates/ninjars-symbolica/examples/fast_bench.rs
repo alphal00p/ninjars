@@ -21,7 +21,13 @@
 //! cargo run --profile perf -p ninjars-symbolica --features native-masters \
 //!     --example fast_bench -- [--widths 1,8,32,128] [--blocks 7] \
 //!     [--min-block-ms 20] [--with-masters] [--only-reduction] [--cut-stop k] \
-//!     [--dump] cases/*.json
+//!     [--fake-masters] [--dump] cases/*.json
+//! ```
+//!
+//! `--fake-masters` records unit master values instead of native ones (fast
+//! setup for profiling the pure reduction; results are then meaningless).
+//!
+//! ```text
 //! ```
 //!
 //! `--dump` instead prints one JSON line per point (all points in one batch)
@@ -299,6 +305,31 @@ fn c(z: C64) -> Value {
     json!([z.re, z.im])
 }
 
+/// Live native masters, or (`--fake-masters`, profiling only) unit values.
+enum MasterSource {
+    Native(Box<OneLoopNativeMasters>),
+    Fake,
+}
+
+impl FastMasters for MasterSource {
+    fn evaluate(
+        &mut self,
+        family: FastMaster,
+        args: &[C64],
+        out: &mut [[C64; 3]],
+        ok: &mut [bool],
+    ) -> ninjars::Result<()> {
+        match self {
+            Self::Native(masters) => masters.evaluate(family, args, out, ok),
+            Self::Fake => {
+                out.fill([C64::ONE, C64::ONE, C64::ZERO]);
+                ok.fill(true);
+                Ok(())
+            }
+        }
+    }
+}
+
 /// Records the arguments and values of every master row.
 struct ArgumentRecorder<M> {
     inner: M,
@@ -397,6 +428,7 @@ fn dump(case: &Case) -> Result<(), Error> {
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn bench(
     case: &Case,
     widths: &[usize],
@@ -405,6 +437,7 @@ fn bench(
     options: FastOptions,
     with_masters: bool,
     only_reduction: bool,
+    fake_masters: bool,
 ) -> Result<(), Error> {
     for &width in widths {
         let mut batch = Batch::new(case, width);
@@ -413,7 +446,11 @@ fn bench(
         let mut statuses = vec![FastStatus::NotEvaluated; width];
         let tensor = std::mem::replace(&mut batch.tensor, TensorNumerator::new(case.rank, 0));
         let mut recorded_numerator = RecordingNumerator::new(tensor);
-        let mut recorded_masters = RecordingMasters::new(OneLoopNativeMasters::new()?);
+        let mut recorded_masters = RecordingMasters::new(if fake_masters {
+            MasterSource::Fake
+        } else {
+            MasterSource::Native(Box::new(OneLoopNativeMasters::new()?))
+        });
         evaluate(
             &mut amplitude,
             &batch,
@@ -513,6 +550,7 @@ fn main() -> Result<(), Error> {
     let mut dump_mode = false;
     let mut with_masters = false;
     let mut only_reduction = false;
+    let mut fake_masters = false;
     let mut options = FastOptions::default();
     let mut files = Vec::new();
     let mut args = std::env::args().skip(1);
@@ -537,6 +575,7 @@ fn main() -> Result<(), Error> {
             "--dump" => dump_mode = true,
             "--with-masters" => with_masters = true,
             "--only-reduction" => only_reduction = true,
+            "--fake-masters" => fake_masters = true,
             "--cut-stop" => {
                 options.cut_stop = args.next().ok_or("--cut-stop needs a value")?.parse()?
             }
@@ -559,6 +598,7 @@ fn main() -> Result<(), Error> {
                 options,
                 with_masters,
                 only_reduction,
+                fake_masters,
             )?;
         }
     }

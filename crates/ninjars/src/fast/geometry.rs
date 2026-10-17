@@ -79,12 +79,27 @@ impl Spinor {
                 bme: v,
             }
         } else {
-            let ap = signed_root(p[0] + p[3]);
-            Self {
-                ap,
-                ame: C64::new(p[1], p[2]) / ap,
-                bp: ap,
-                bme: C64::new(p[1], -p[2]) / ap,
+            // ap = sqrt(p+) is real or purely imaginary: divide by it with a
+            // single real reciprocal.
+            let plus = p[0] + p[3];
+            if plus < 0. {
+                let s = (-plus).sqrt();
+                let inv = 1. / s;
+                Self {
+                    ap: C64::new(0., s),
+                    ame: C64::new(p[2] * inv, -p[1] * inv),
+                    bp: C64::new(0., s),
+                    bme: C64::new(-p[2] * inv, -p[1] * inv),
+                }
+            } else {
+                let s = plus.sqrt();
+                let inv = 1. / s;
+                Self {
+                    ap: C64::real(s),
+                    ame: C64::new(p[1] * inv, p[2] * inv),
+                    bp: C64::real(s),
+                    bme: C64::new(p[1] * inv, -p[2] * inv),
+                }
             }
         }
     }
@@ -139,14 +154,14 @@ impl Basis {
             e1 = sub(&e1, &scale(k2, r1));
             mp12 = k1k2;
         } else {
+            // Reciprocals are hoisted: one division per denominator.
             let gamma = k1k2 + sign(1., k1k2) * (k1k2 * k1k2 - k1q * k2q).sqrt();
-            r1 = k1q / gamma;
-            r2 = k2q / gamma;
-            let den = 1. - r1 * r2;
-            e1 = sub(&e1, &scale(k2, r1));
-            e1 = [e1[0] / den, e1[1] / den, e1[2] / den, e1[3] / den];
-            e2 = sub(&e2, &scale(k1, r2));
-            e2 = [e2[0] / den, e2[1] / den, e2[2] / den, e2[3] / den];
+            let inv_gamma = 1. / gamma;
+            r1 = k1q * inv_gamma;
+            r2 = k2q * inv_gamma;
+            let inv_den = 1. / (1. - r1 * r2);
+            e1 = scale(&sub(&e1, &scale(k2, r1)), inv_den);
+            e2 = scale(&sub(&e2, &scale(k1, r2)), inv_den);
             mp12 = k1k2 / (1. + r1 * r2);
         }
         Self::complete(e1, e2, r1, r2, mp12, eps)
@@ -286,8 +301,9 @@ pub(crate) fn box_solutions(
     let mk11 = mp2(k1);
     let mk22 = mp2(k2);
     let beta = 1. / (1. - e.r1 * e.r2);
-    let a1 = (m1q - m4q + mk11) / 2. / e.mp12;
-    let a2 = (m2q - m1q - mk22) / 2. / e.mp12;
+    let half12 = 0.5 / e.mp12;
+    let a1 = (m1q - m4q + mk11) * half12;
+    let a2 = (m2q - m1q - mk22) * half12;
     let x1 = (a2 - a1 * e.r2) * beta;
     let x2 = (a1 - a2 * e.r1) * beta;
     let k23 = add(k2, k3);
@@ -296,14 +312,16 @@ pub(crate) fn box_solutions(
     let me32 = mp_rr(&k23, &e.e2);
     let me33 = mp_cr(&e.e3, &k23);
     let me34 = mp_cr(&e.e4, &k23);
-    let a3 = (m3q - m1q - mk33 - x1 * (2. * me31) - x2 * (2. * me32)) / 2. / me33;
-    let a4 = -(me34 / me33);
+    let inv33 = me33.inv();
+    let a3 = (m3q - m1q - mk33 - x1 * (2. * me31) - x2 * (2. * me32)) * inv33 * 0.5;
+    let a4 = -(me34 * inv33);
     let b1 = a3 * (-2. * e.mp12);
     let b2 = a4 * (-2. * e.mp12);
     let b0 = x1 * x2 * (2. * e.mp12) - m1q;
     let rtdel = (b1 * b1 - b0 * b2 * 4.).sqrt();
-    let x41 = (-b1 + rtdel) / 2. / b2;
-    let x42 = (-b1 - rtdel) / 2. / b2;
+    let half_b2 = b2.inv() * 0.5;
+    let x41 = (-b1 + rtdel) * half_b2;
+    let x42 = (-b1 - rtdel) * half_b2;
     let x31 = x41 * a4 + a3;
     let x32 = x42 * a4 + a3;
     let base = combine_real2(x1, &e.e1, x2, &e.e2);
@@ -329,8 +347,9 @@ pub(crate) fn triangle_solution(
     let mk11 = mp2(k1);
     let mk22 = mp2(k2);
     let beta = 1. / (1. - e.r1 * e.r2);
-    let a1 = (m1q - m3q + mk11) / 2. / e.mp12;
-    let a2 = (m2q - m1q - mk22) / 2. / e.mp12;
+    let half12 = 0.5 / e.mp12;
+    let a1 = (m1q - m3q + mk11) * half12;
+    let a2 = (m2q - m1q - mk22) * half12;
     let x1 = (a2 - a1 * e.r2) * beta;
     let x2 = (a1 - a2 * e.r1) * beta;
     let param = m1q - x1 * x2 * (2. * e.mp12);
@@ -344,7 +363,8 @@ pub(crate) fn bubble_solution(k: &RMom, e: &Basis, m1q: C64, m2q: C64) -> (C64, 
     let e12 = 2. * e.mp12;
     let e1k = 2. * mp_rr(&e.e1, k);
     let e2k = 2. * mp_rr(&e.e2, k);
-    let b0 = (-m2q + m1q + kq) / e2k;
-    let b1 = -e1k / e2k;
+    let inv_e2k = 1. / e2k;
+    let b0 = (-m2q + m1q + kq) * inv_e2k;
+    let b1 = -e1k * inv_e2k;
     (b0, b1, [m1q, -(b0 * e12), C64::real(-b1 * e12)])
 }
