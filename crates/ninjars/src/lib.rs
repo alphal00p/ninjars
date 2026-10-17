@@ -6,6 +6,7 @@
 #![forbid(unsafe_code)]
 
 mod amplitude;
+pub mod fast;
 mod batch;
 mod boxes;
 mod bubbles;
