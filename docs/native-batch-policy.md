@@ -48,10 +48,10 @@ kernels on a shared host; it does not establish complete-reduction acceptance or
 an automatic policy. The supported path must pass its own correctness and runtime
 checks before production conclusions.
 
-Implementation dependency during review: isolated oneloopmaster branch
-`codex/native-blocking-policy`, based on `53106429b849e5bcf843f111429be76227b4e0ce`.
-Canonical dependency checkouts and frozen measurement sources remain unchanged.
-Upstream publication is directly to oneloopmaster main after validation, without a PR.
+Implementation dependency: oneloopmaster main commit
+`c9dd82fd1a6e3fc638b01df95bd0cf09ceda3460`, published directly after independent
+review and validation. NinjaRS pins this revision. Historical measurement
+worktrees retain the previous dependency revision and their original artifacts.
 
 Validation covers full shape rejection before mutation, workspace
 grow/tighten/shrink, bounds 8/16/32/64, empty/single/natural tails, exact f64,
@@ -69,3 +69,5 @@ are recorded in `validation/evidence/native-batch-policy`. Generated reduction
 bodies remain byte-identical to the consumer base revision. No performance
 benchmark has been run for this supported implementation; the separate earlier
 diagnostic does not measure this API or complete reduction.
+A separate CLI/harness execution-policy option and optimized physical controls
+remain to be added before comparing this opt-in with Whole on the physical workload.

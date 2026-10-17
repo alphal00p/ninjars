@@ -1852,3 +1852,39 @@ connects the existing kernels into integrated amplitudes and a standalone
   runtime. The latter two candidates' new CLI/API validation is now underway.
   See `validation/performance/shared_provider/REUSE-TIMING-553f406.md` and its
   evidence index for intervals, repeated-point results, counters and limitations.
+
+### Rank selectors and supported native execution integrated (2026-10-17)
+
+- Integrated rank-harness `5f0f7a9` as `d0fc61f`. CLI and shared-provider modes
+  `interpreted-rank` and `native-rank` support n5/r4 explicitly. Existing family
+  metadata remains generic/fallback coverage; conditional alternates have their
+  own metadata and an additive accessor. Existing selectors and ten-cell ABI
+  remain compatible, including historical three-mode reports.
+- The candidate passes 22 test executions, including two strengthened tail
+  reruns, strict CLI/ABI Clippy, C++ syntax and formatting. All five modes pass
+  physical widths 0/1/3/8 (60 complex outputs each): maximum catalog difference
+  4.00e-18, original integrated difference 2.15e-16. These use the dev profile
+  and do not establish optimized performance or additional CLI precision.
+  Root verified 27 source hashes, eight preserved executable artifacts, six
+  physical artifacts, 47 log members and 1,970 physical source entries.
+- Published reviewed oneloopmaster `c9dd82f` directly to upstream main, without
+  a PR, and pinned it in `dependencies/manifest.json`. Integrated consumer
+  `9013b78` and evidence `c9e51c2` as `d951046`/`13b3775`. Whole retains direct
+  generated dispatch; fixed row bounds remain an explicit library opt-in.
+- Independent review found no source blocker. Its suggestions are covered:
+  callback errors explicitly permit writes in the failing block, and an
+  executed asymmetric mixed-Dual n5/r4 factory control observes both generic
+  and rank-alternate workspace bounds in both builder orders. All 58 distinct
+  focused tests pass, including emitted lazy-helper/six-component-Dual tests;
+  strict Clippy, formatting and feature-off checks pass. Root verified two
+  owner and 15 consumer source hashes, 31 unchanged generated files, four test
+  executables and 20 logs. The ignored timing probe remains unrun here.
+- Before updating the canonical owner checkout, ten historical NinjaRS worktree
+  aliases were pinned directly to the immutable old5310642 checkout. Their
+  source bytes and archived benchmark artifacts remain intact. Combined-main
+  checks are next. No new rank or supported-blocking timing is claimed.
+- The next harness extension will use an independent positive
+  `--native-block-rows` option, an additive constructor/query, and separate
+  execution-policy metadata. Existing calls/reports retain Whole behavior;
+  explicit blocking requires native coverage. Physical controls must precede
+  same-artifact timings, with actual masters kept separate from reduction.

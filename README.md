@@ -138,6 +138,13 @@ identifies existing Symbolica annotations that generated Rust could use while
 preserving complex masses and all derivative components; that experiment is
 not yet implemented or measured.
 
+An explicit [native batch execution policy](docs/native-batch-policy.md) can
+bound generated-kernel scratch by processing whole rows in fixed blocks. `Whole`
+remains the default. The policy preserves complete Dual rows and applies to
+native generic kernels and guarded alternates; callbacks and masters retain
+their separate providers. Supported-path correctness controls pass, with physical
+performance measurements still outstanding.
+
 See [synthetic graph fixtures](examples/graphs/README.md) and the
 [original Ninja reference harness](validation/reference/README.md).
 The [physical preparation guide](docs/physical-preparation.md) gives exact
