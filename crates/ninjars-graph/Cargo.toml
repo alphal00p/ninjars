@@ -15,6 +15,10 @@ feynkit-graph.workspace = true
 feynkit-kinematics.workspace = true
 feynkit-model.workspace = true
 idenso.workspace = true
+ninjars.workspace = true
 spenso.workspace = true
 symbolica.workspace = true
 thiserror.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

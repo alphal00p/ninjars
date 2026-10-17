@@ -1,0 +1,264 @@
+{
+  "construction": "Gluons are massless rational momenta E_i (1, n_i) with rational unit directions; E_2 = MH^2/(2 E_1 (1 - n_1.n_2)) and p_H = p_1 + p_2. The first point is the Higgs rest frame, the other two are boosted Higgs bosons with generic gluon directions.",
+  "exact_model_inputs": [
+    "173",
+    "173",
+    "125",
+    "116639/10000000000",
+    "59/500",
+    "132507/1000",
+    "22797/250"
+  ],
+  "fixed_parameters": {
+    "WH": "0",
+    "WT": "0"
+  },
+  "format": "ninjars-phase-space-pool-v1",
+  "generator": "cargo run --profile perf -p ninjars-cli --example benchmark_pools -- .",
+  "graphs": [
+    {
+      "bench_case": "validation/benchmark/cases/hgg-top-triangle-0.json",
+      "bench_case_command": "ninjars export-bench examples/graphs/physical/hgg/top-triangle-0-pool.json --name hgg-top-triangle-0 --output validation/benchmark/cases/hgg-top-triangle-0.json",
+      "fixture": "examples/graphs/physical/hgg/top-triangle-0-pool.json",
+      "graph": "top-triangle-0",
+      "integrated_laurent_factor": "-8*pi^2",
+      "loop_momentum": "q_FeynKit = -q of the MadLoop LOOPNUM/CutTools numerator (recorded momentum rule K(0) -> -K(0))",
+      "madloop_denominator_map": [
+        2,
+        0,
+        1
+      ],
+      "madloop_evidence": "validation/evidence/physical-hgg-madloop.json (denominator_order, routing, ninjars_conversion)",
+      "madloop_loop_filter_id": 3,
+      "raw_numerator_factor": "-1/2"
+    }
+  ],
+  "helicities": [
+    0,
+    1,
+    1
+  ],
+  "helicity_convention": {
+    "feynkit": "FourMomentum::wavefunction(Epsilon, +1) for incoming and (EpsilonBar, +1) for outgoing vectors; ninjars_graph::vector_wavefunction reproduces it without allocation. Scalars have helicity 0 and wavefunction 1.",
+    "fixtures": "external_polarizations hold these vectors exactly; external_momenta keys are FeynKit external-basis positions.",
+    "label": "pp (all vector bosons helicity +1)",
+    "madloop": "HELAS VXXXXX(P,0,NHEL,-1) for incoming and VXXXXX(P,0,NHEL,+1) for outgoing vectors (IC=1); NHEL is the physical helicity of each leg in MadGraph leg order. The row equals one line of MadLoop5_resources/ML5_0_HelConfigs.dat; in the generated reference exports (+1,+1,...) is helicity configuration 4 of 4 for h>gg, gg>hh and gg>hhh and 16 of 16 for aa>aa (1-based)."
+  },
+  "legs": [
+    {
+      "index": 0,
+      "mass": "125",
+      "pdg": 25,
+      "state": "incoming"
+    },
+    {
+      "index": 1,
+      "mass": "0",
+      "pdg": 21,
+      "state": "outgoing"
+    },
+    {
+      "index": 2,
+      "mass": "0",
+      "pdg": 21,
+      "state": "outgoing"
+    }
+  ],
+  "madgraph_process": "h > g g QED=1 [virt=QCD]",
+  "model": "sm",
+  "model_parameters": [
+    "MT",
+    "ymt",
+    "MH",
+    "Gf",
+    "aS",
+    "aEWM1",
+    "MZ"
+  ],
+  "momentum_convention": "MadGraph leg order, incoming then outgoing, physical positive-energy four-momenta (E,px,py,pz); binary64 values are 256-bit evaluations of exact_momenta rounded once.",
+  "points": [
+    {
+      "exact_momenta": [
+        [
+          "125",
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "125/2",
+          "125/3",
+          "125/6",
+          "125/3"
+        ],
+        [
+          "125/2",
+          "-125/3",
+          "-125/6",
+          "-125/3"
+        ]
+      ],
+      "helicities": [
+        0,
+        1,
+        1
+      ],
+      "id": "rest_frame",
+      "model": [
+        173.0,
+        173.0,
+        125.0,
+        0.0000116639,
+        0.118,
+        132.507,
+        91.188
+      ],
+      "momenta": [
+        [
+          125.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          62.5,
+          41.666666666666664,
+          20.833333333333332,
+          41.666666666666664
+        ],
+        [
+          62.5,
+          -41.666666666666664,
+          -20.833333333333332,
+          -41.666666666666664
+        ]
+      ],
+      "mu": 125.0,
+      "scale_squared": 15625.0,
+      "sqrt_s": 125.0
+    },
+    {
+      "exact_momenta": [
+        [
+          "89025/584",
+          "-33475/2044",
+          "118225/2044",
+          "258525/4088"
+        ],
+        [
+          "100",
+          "200/7",
+          "300/7",
+          "600/7"
+        ],
+        [
+          "30625/584",
+          "-13125/292",
+          "4375/292",
+          "-13125/584"
+        ]
+      ],
+      "helicities": [
+        0,
+        1,
+        1
+      ],
+      "id": "boosted_a",
+      "model": [
+        173.0,
+        173.0,
+        125.0,
+        0.0000116639,
+        0.118,
+        132.507,
+        91.188
+      ],
+      "momenta": [
+        [
+          152.44006849315068,
+          -16.37720156555773,
+          57.84001956947162,
+          63.23997064579256
+        ],
+        [
+          100.0,
+          28.571428571428573,
+          42.857142857142854,
+          85.71428571428571
+        ],
+        [
+          52.44006849315068,
+          -44.9486301369863,
+          14.982876712328768,
+          -22.47431506849315
+        ]
+      ],
+      "mu": 125.0,
+      "scale_squared": 15625.0,
+      "sqrt_s": 125.0
+    },
+    {
+      "exact_momenta": [
+        [
+          "725/4",
+          "925/12",
+          "-275/6",
+          "575/6"
+        ],
+        [
+          "150",
+          "200/3",
+          "-200/3",
+          "350/3"
+        ],
+        [
+          "125/4",
+          "125/12",
+          "125/6",
+          "-125/6"
+        ]
+      ],
+      "helicities": [
+        0,
+        1,
+        1
+      ],
+      "id": "boosted_b",
+      "model": [
+        173.0,
+        173.0,
+        125.0,
+        0.0000116639,
+        0.118,
+        132.507,
+        91.188
+      ],
+      "momenta": [
+        [
+          181.25,
+          77.08333333333333,
+          -45.833333333333336,
+          95.83333333333333
+        ],
+        [
+          150.0,
+          66.66666666666667,
+          -66.66666666666667,
+          116.66666666666667
+        ],
+        [
+          31.25,
+          10.416666666666666,
+          20.833333333333332,
+          -20.833333333333332
+        ]
+      ],
+      "mu": 125.0,
+      "scale_squared": 15625.0,
+      "sqrt_s": 125.0
+    }
+  ],
+  "process": "hgg",
+  "scale_squared": "15625",
+  "widths": "WT=0,WH=0"
+}

@@ -1,6 +1,8 @@
 mod bench;
 #[cfg(feature = "reference-codegen")]
 mod compare;
+mod export_bench;
+mod numerator_bench;
 mod numerator_coefficients;
 mod prepare;
 mod reduce;
@@ -31,6 +33,10 @@ enum Command {
     /// Compare prepared samples against original Ninja and OneLOop.
     #[cfg(feature = "reference-codegen")]
     Compare(compare::Args),
+    /// Export fixture samples as a shared tensor-numerator bench case (ninjars-bench-case-v1).
+    ExportBench(export_bench::Args),
+    /// Physical tensor-numerator generation timings and per-point preparation benchmark.
+    NumeratorBench(numerator_bench::Args),
 }
 
 fn main() {
@@ -56,6 +62,20 @@ fn main() {
             .expect("cannot start benchmark worker")
             .join()
             .unwrap_or_else(|_| Err("benchmark worker panicked".into())),
+        Command::ExportBench(args) => std::thread::Builder::new()
+            .name("ninjars-export-bench".into())
+            .stack_size(128 * 1024 * 1024)
+            .spawn(move || export_bench::run(args).map_err(|error| error.to_string()))
+            .expect("cannot start export worker")
+            .join()
+            .unwrap_or_else(|_| Err("export worker panicked".into())),
+        Command::NumeratorBench(args) => std::thread::Builder::new()
+            .name("ninjars-numerator-bench".into())
+            .stack_size(128 * 1024 * 1024)
+            .spawn(move || numerator_bench::run(args).map_err(|error| error.to_string()))
+            .expect("cannot start numerator benchmark worker")
+            .join()
+            .unwrap_or_else(|_| Err("numerator benchmark worker panicked".into())),
         #[cfg(feature = "reference-codegen")]
         Command::Compare(args) => std::thread::Builder::new()
             .name("ninjars-compare".into())

@@ -1572,6 +1572,8 @@ dependencies = [
  "feynkit-kinematics",
  "feynkit-model",
  "idenso",
+ "ninjars",
+ "serde_json",
  "spenso",
  "symbolica",
  "thiserror",

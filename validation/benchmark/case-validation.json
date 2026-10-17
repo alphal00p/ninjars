@@ -1,0 +1,2633 @@
+{
+  "schema_version": 1,
+  "criterion": "each complex Laurent coefficient abs(a-b)/max(1,abs(b)) <= 1e-09",
+  "pools": [
+    {
+      "process": "hgg",
+      "points": [
+        {
+          "id": "rest_frame",
+          "sqrt_s": 125.0,
+          "production_threshold": 0.0,
+          "conservation_relative_to_max_energy": 0.0,
+          "mass_shell_relative_to_energy_squared": 1.164153218269348e-16
+        },
+        {
+          "id": "boosted_a",
+          "sqrt_s": 124.99999999999999,
+          "production_threshold": 0.0,
+          "conservation_relative_to_max_energy": 4.661128421049127e-17,
+          "mass_shell_relative_to_energy_squared": 9.094947017729283e-17
+        },
+        {
+          "id": "boosted_b",
+          "sqrt_s": 125.0,
+          "production_threshold": 0.0,
+          "conservation_relative_to_max_energy": 5.880353675256002e-17,
+          "mass_shell_relative_to_energy_squared": 1.164153218269348e-16
+        }
+      ],
+      "worst": {
+        "conservation": 5.880353675256002e-17,
+        "mass_shell": 1.164153218269348e-16
+      }
+    },
+    {
+      "process": "four-photon",
+      "points": [
+        {
+          "id": "sqrt_s_200",
+          "sqrt_s": 200.0,
+          "production_threshold": 0.0,
+          "conservation_relative_to_max_energy": 0.0,
+          "mass_shell_relative_to_energy_squared": 1.8189894035458566e-16
+        },
+        {
+          "id": "sqrt_s_500",
+          "sqrt_s": 500.0,
+          "production_threshold": 0.0,
+          "conservation_relative_to_max_energy": 0.0,
+          "mass_shell_relative_to_energy_squared": 0.0
+        },
+        {
+          "id": "sqrt_s_800",
+          "sqrt_s": 800.0,
+          "production_threshold": 0.0,
+          "conservation_relative_to_max_energy": 0.0,
+          "mass_shell_relative_to_energy_squared": 0.0
+        }
+      ],
+      "worst": {
+        "conservation": 0.0,
+        "mass_shell": 1.8189894035458566e-16
+      }
+    },
+    {
+      "process": "gg-hh",
+      "points": [
+        {
+          "id": "sqrt_s_312.5",
+          "sqrt_s": 312.5,
+          "production_threshold": 250.0,
+          "conservation_relative_to_max_energy": 0.0,
+          "mass_shell_relative_to_energy_squared": 0.0
+        },
+        {
+          "id": "sqrt_s_416.7",
+          "sqrt_s": 416.6666666666667,
+          "production_threshold": 250.0,
+          "conservation_relative_to_max_energy": 0.0,
+          "mass_shell_relative_to_energy_squared": 0.0
+        },
+        {
+          "id": "sqrt_s_650",
+          "sqrt_s": 650.0,
+          "production_threshold": 250.0,
+          "conservation_relative_to_max_energy": 0.0,
+          "mass_shell_relative_to_energy_squared": 6.888480581475432e-17
+        }
+      ],
+      "worst": {
+        "conservation": 0.0,
+        "mass_shell": 6.888480581475432e-17
+      }
+    },
+    {
+      "process": "gg-hhh",
+      "points": [
+        {
+          "id": "sqrt_s_450",
+          "sqrt_s": 450.0,
+          "production_threshold": 375.0,
+          "conservation_relative_to_max_energy": 0.0,
+          "mass_shell_relative_to_energy_squared": 0.0
+        },
+        {
+          "id": "sqrt_s_525",
+          "sqrt_s": 525.0,
+          "production_threshold": 375.0,
+          "conservation_relative_to_max_energy": 0.0,
+          "mass_shell_relative_to_energy_squared": 5.939557236068102e-17
+        },
+        {
+          "id": "sqrt_s_600",
+          "sqrt_s": 600.0,
+          "production_threshold": 375.0,
+          "conservation_relative_to_max_energy": 0.0,
+          "mass_shell_relative_to_energy_squared": 9.094947017729283e-17
+        }
+      ],
+      "worst": {
+        "conservation": 0.0,
+        "mass_shell": 9.094947017729283e-17
+      }
+    }
+  ],
+  "cases": [
+    {
+      "case": "validation/benchmark/cases/hgg-top-triangle-0.json",
+      "case_sha256": "395a62cdeb818d2ef8e07b29056395a4bc3a13ba440d22f4400822f831c4a466",
+      "fixture": "examples/graphs/physical/hgg/top-triangle-0-pool.json",
+      "reduce_commands": {
+        "double-float": [
+          "ninjars",
+          "reduce",
+          "examples/graphs/physical/hgg/top-triangle-0-pool.json",
+          "--precision",
+          "double-float",
+          "--output",
+          "<tmp>"
+        ],
+        "f64": [
+          "ninjars",
+          "reduce",
+          "examples/graphs/physical/hgg/top-triangle-0-pool.json",
+          "--precision",
+          "f64",
+          "--output",
+          "<tmp>"
+        ]
+      },
+      "structure": {
+        "s_matrix_vs_rounded_shifts_relative_to_energy_squared": 7.827659011070246e-17
+      },
+      "summary": {
+        "double-float": {
+          "max_scaled_error": 9.144818749568554e-13,
+          "max_error_relative_to_largest_laurent_coefficient": 1.466902421712597e-14,
+          "pass": true
+        },
+        "f64": {
+          "max_scaled_error": 1.1869254318424454e-12,
+          "max_error_relative_to_largest_laurent_coefficient": 2.036347900974616e-14,
+          "pass": true
+        }
+      },
+      "lanes": [
+        {
+          "id": "rest_frame",
+          "ninja_exported_s_matrix": [
+            [
+              -147.8684334962251,
+              -9.437037315355074e-13
+            ],
+            [
+              -6.394884621840902e-14,
+              9.122431938315243e-13
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              -147.86843349622492,
+              -8.93862772968781e-13
+            ],
+            [
+              -6.394884621840902e-14,
+              9.122431938315243e-13
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                -147.86843349622436,
+                9.517840217735686e-30
+              ],
+              [
+                -1.4199496293978212e-29,
+                4.468435815213596e-30
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              8.105863547969773e-15,
+              9.144818749568554e-13,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              8.105863547969814e-15,
+              6.1844293155388404e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              7.163773951477481e-15,
+              9.144818749568554e-13,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              7.16377395147751e-15,
+              6.1844293155388404e-15,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                -147.86843349622504,
+                7.415370575897928e-13
+              ],
+              [
+                -3.694822225952521e-13,
+                1.6416433252000563e-13
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.1403374913511329e-14,
+              8.080672167718302e-13,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              1.1403374913511334e-14,
+              5.464771605850951e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.1086521779921819e-14,
+              8.080672167718302e-13,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              1.108652177992181e-14,
+              5.464771605850951e-15,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "boosted_a",
+          "ninja_exported_s_matrix": [
+            [
+              -56.43226309570787,
+              -84.83201372088189
+            ],
+            [
+              4.547473508864641e-13,
+              1.7053025658242404e-13
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              -56.43226309570778,
+              -84.83201372088172
+            ],
+            [
+              4.547473508864641e-13,
+              1.7053025658242404e-13
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                -56.43226309570837,
+                -84.83201372088048
+              ],
+              [
+                -4.259848888193464e-29,
+                -4.417621069237666e-29
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.466902421712584e-14,
+              4.856703836433969e-13,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              1.466902421712597e-14,
+              4.766729888410061e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.344423807216245e-14,
+              4.856703836433969e-13,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              1.3444238072162544e-14,
+              4.766729888410061e-15,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                -56.43226309570943,
+                -84.83201372088052
+              ],
+              [
+                -6.821210263296962e-13,
+                -1.7053025658242404e-13
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              2.0363479009746108e-14,
+              1.1869254318424454e-12,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              2.036347900974616e-14,
+              1.1649367805452944e-14,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.997575144020315e-14,
+              1.1869254318424454e-12,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              1.9975751440203165e-14,
+              1.1649367805452944e-14,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "boosted_b",
+          "ninja_exported_s_matrix": [
+            [
+              -67.06863618444018,
+              -96.87691893308218
+            ],
+            [
+              -5.488942633746774e-13,
+              -2.1316282072803006e-13
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              -67.06863618444012,
+              -96.87691893308195
+            ],
+            [
+              -5.488942633746774e-13,
+              -2.1316282072803006e-13
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                -67.06863618444054,
+                -96.87691893308077
+              ],
+              [
+                1.6146996653742585e-29,
+                1.9958180902091599e-28
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.2314934028183829e-14,
+              5.888321496881434e-13,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              1.231493402818393e-14,
+              4.997404964920846e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.0603835365999763e-14,
+              5.888321496881434e-13,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              1.0603835365999829e-14,
+              4.997404964920846e-15,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                -67.0686361844411,
+                -96.87691893308103
+              ],
+              [
+                -4.636291350834654e-13,
+                -1.7053025658242404e-13
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.2525741287037289e-14,
+              9.532931148469529e-14,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              1.2525741287037335e-14,
+              8.090576826832738e-16,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.1432900831960283e-14,
+              9.532931148469529e-14,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              1.1432900831960303e-14,
+              8.090576826832738e-16,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "validation/benchmark/cases/four-photon-top-box-0.json",
+      "case_sha256": "0e8f7afb2c527d46008c365303babcd8745d8c49ff6b8205677837704bf07372",
+      "fixture": "examples/graphs/physical/four-photon/top-box-0-pool.json",
+      "reduce_commands": {
+        "double-float": [
+          "ninjars",
+          "reduce",
+          "examples/graphs/physical/four-photon/top-box-0-pool.json",
+          "--precision",
+          "double-float",
+          "--output",
+          "<tmp>"
+        ],
+        "f64": [
+          "ninjars",
+          "reduce",
+          "examples/graphs/physical/four-photon/top-box-0-pool.json",
+          "--precision",
+          "f64",
+          "--output",
+          "<tmp>"
+        ]
+      },
+      "structure": {
+        "s_matrix_vs_rounded_shifts_relative_to_energy_squared": 1.8189894035458566e-16
+      },
+      "summary": {
+        "double-float": {
+          "max_scaled_error": 2.069533397042804e-15,
+          "max_error_relative_to_largest_laurent_coefficient": 8.064817564134131e-13,
+          "pass": true
+        },
+        "f64": {
+          "max_scaled_error": 3.595850443451949e-09,
+          "max_error_relative_to_largest_laurent_coefficient": 1.4012761454244279e-06,
+          "pass": false
+        }
+      },
+      "lanes": [
+        {
+          "id": "sqrt_s_200",
+          "ninja_exported_s_matrix": [
+            [
+              -0.0008263439634514824,
+              -9.490040153748783e-17
+            ],
+            [
+              0.002566125495813889,
+              -6.738153745940084e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              -0.000826343963451413,
+              -8.646056525104599e-17
+            ],
+            [
+              0.002566125495813889,
+              -6.738153745940084e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                -0.0008263439634516072,
+                1.1788797745526557e-32
+              ],
+              [
+                0.0025661254958158457,
+                -4.7606580812821986e-33
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.567770618636974e-16,
+              2.069533397042804e-15,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              6.109485374714825e-14,
+              8.064817564134131e-13,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              2.1255949353282306e-16,
+              2.069533397042804e-15,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              8.28328520485099e-14,
+              8.064817564134131e-13,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                -0.0008263403741908277,
+                2.175966972185468e-10
+              ],
+              [
+                0.0025661254958156826,
+                -7.068998164605489e-17
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              3.595850443451949e-09,
+              1.8923885819981246e-15,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              1.4012761454244279e-06,
+              7.37449740896869e-13,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              3.5958503736794503e-09,
+              1.8923885819981246e-15,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              1.4012761182346048e-06,
+              7.37449740896869e-13,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "sqrt_s_500",
+          "ninja_exported_s_matrix": [
+            [
+              -0.00991094989096774,
+              0.0004973894902211027
+            ],
+            [
+              0.005112108719294056,
+              5.62305947743507e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              -0.00991094989096774,
+              0.0004973894902211027
+            ],
+            [
+              0.005112108719294056,
+              5.62305947743507e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                -0.009910949890967838,
+                0.0004973894902209589
+              ],
+              [
+                0.005112108719294048,
+                9.957283507397367e-33
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.7457584211538185e-16,
+              5.689561869889334e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              1.7592300772335604e-14,
+              5.733467040173378e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.7457584211538185e-16,
+              5.689561869889334e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              1.7592300772335604e-14,
+              5.733467040173378e-15,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                -0.009910949890969191,
+                0.0004973894902209181
+              ],
+              [
+                0.005112108719293931,
+                1.865505363032871e-17
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.463656360530627e-15,
+              1.3126070728489462e-16,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              1.474951093449408e-13,
+              1.3227361897065104e-14,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.463656360530627e-15,
+              1.3126070728489462e-16,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              1.474951093449408e-13,
+              1.3227361897065104e-14,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "sqrt_s_800",
+          "ninja_exported_s_matrix": [
+            [
+              -0.012755526780081627,
+              -0.004728868494000586
+            ],
+            [
+              0.004035616164360026,
+              -3.542284071958272e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              -0.012755526780081627,
+              -0.004728868494000586
+            ],
+            [
+              0.004035616164360026,
+              -3.542284071958272e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                -0.012755526780081638,
+                -0.004728868494000885
+              ],
+              [
+                0.004035616164359963,
+                8.472963280727048e-33
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              2.994207595134485e-16,
+              7.255254411656002e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              2.2009946488666738e-14,
+              5.33322277392191e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              2.994207595134485e-16,
+              7.255254411656002e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              2.2009946488666738e-14,
+              5.33322277392191e-15,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                -0.012755526780081194,
+                -0.004728868494001803
+              ],
+              [
+                0.004035616164359848,
+                -1.1523036214447502e-17
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.2918767117184692e-15,
+              1.7940818463799227e-16,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              9.496381393555759e-14,
+              1.3188011913161021e-14,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.2918767117184692e-15,
+              1.7940818463799227e-16,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              9.496381393555759e-14,
+              1.3188011913161021e-14,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "validation/benchmark/cases/gg-hh-top-triangle-0.json",
+      "case_sha256": "29fa9965251d328727e05fbb4ae48ce35e34fcc56500eae35301064e910517d0",
+      "fixture": "examples/graphs/physical/gg-hh/top-triangle-0-pool.json",
+      "reduce_commands": {
+        "double-float": [
+          "ninjars",
+          "reduce",
+          "examples/graphs/physical/gg-hh/top-triangle-0-pool.json",
+          "--precision",
+          "double-float",
+          "--output",
+          "<tmp>"
+        ],
+        "f64": [
+          "ninjars",
+          "reduce",
+          "examples/graphs/physical/gg-hh/top-triangle-0-pool.json",
+          "--precision",
+          "f64",
+          "--output",
+          "<tmp>"
+        ]
+      },
+      "structure": {
+        "s_matrix_vs_rounded_shifts_relative_to_energy_squared": 0.0
+      },
+      "summary": {
+        "double-float": {
+          "max_scaled_error": 4.126162952233366e-16,
+          "max_error_relative_to_largest_laurent_coefficient": 1.875114692738435e-15,
+          "pass": true
+        },
+        "f64": {
+          "max_scaled_error": 4.965068306494546e-16,
+          "max_error_relative_to_largest_laurent_coefficient": 1.872213187282285e-15,
+          "pass": true
+        }
+      },
+      "lanes": [
+        {
+          "id": "sqrt_s_312.5",
+          "ninja_exported_s_matrix": [
+            [
+              0.17822591060341889,
+              1.8342565695770533e-17
+            ],
+            [
+              3.3306690738754696e-16,
+              2.742408818336964e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              0.17822591060341889,
+              1.8342565695770533e-17
+            ],
+            [
+              3.3306690738754696e-16,
+              2.742408818336964e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                0.17822591060341866,
+                -1.0440911642615517e-31
+              ],
+              [
+                -9.244463733058732e-33,
+                -1.128338479888197e-33
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              2.2280093422743294e-16,
+              3.3419402359915715e-16,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              1.2501040587931172e-15,
+              1.875114692738435e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              2.2280093422743294e-16,
+              3.3419402359915715e-16,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              1.2501040587931172e-15,
+              1.875114692738435e-15,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                0.17822591060341875,
+                6.83641993877984e-18
+              ],
+              [
+                0.0,
+                4.7591113127133816e-17
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.392540514098368e-16,
+              3.3367690014711417e-16,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              7.813344924896998e-16,
+              1.872213187282285e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.392540514098368e-16,
+              3.3367690014711417e-16,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              7.813344924896998e-16,
+              1.872213187282285e-15,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "sqrt_s_416.7",
+          "ninja_exported_s_matrix": [
+            [
+              0.4966380451028808,
+              0.2663616630518525
+            ],
+            [
+              1.1102230246251565e-16,
+              1.0284033068763613e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              0.4966380451028808,
+              0.2663616630518525
+            ],
+            [
+              1.1102230246251565e-16,
+              1.0284033068763613e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                0.4966380451028809,
+                0.26636166305185244
+              ],
+              [
+                -9.244463733058732e-33,
+                -2.1445711742247896e-33
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.2412670766236366e-16,
+              1.1149759181362497e-16,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              2.2025533497574068e-16,
+              1.9784573277088988e-16,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.2412670766236366e-16,
+              1.1149759181362497e-16,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              2.2025533497574068e-16,
+              1.9784573277088988e-16,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                0.49663804510288123,
+                0.2663616630518527
+              ],
+              [
+                -2.7755575615628914e-17,
+                1.425985260658535e-17
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              4.965068306494546e-16,
+              1.388348176246495e-16,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              8.810213399029621e-16,
+              2.46353986487671e-16,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              4.965068306494546e-16,
+              1.388348176246495e-16,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              8.810213399029621e-16,
+              2.46353986487671e-16,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "sqrt_s_650",
+          "ninja_exported_s_matrix": [
+            [
+              0.19557668083615523,
+              0.4723656638124717
+            ],
+            [
+              9.71445146547012e-17,
+              -4.689630047035217e-18
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              0.19557668083615523,
+              0.4723656638124717
+            ],
+            [
+              9.71445146547012e-17,
+              -4.689630047035217e-18
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                0.19557668083615537,
+                0.4723656638124713
+              ],
+              [
+                -7.125940794232773e-33,
+                -8.795342606440061e-35
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              4.126162952233366e-16,
+              9.725764421101055e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              8.070688127333018e-16,
+              1.9023391066058593e-16,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              4.126162952233366e-16,
+              9.725764421101055e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              8.070688127333018e-16,
+              1.9023391066058593e-16,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                0.1955766808361553,
+                0.47236566381247125
+              ],
+              [
+                4.5102810375396984e-17,
+                -7.922140336991861e-19
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              4.47545209131181e-16,
+              5.21874394454792e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              8.7538903518697225e-16,
+              1.0207753615270172e-16,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              4.47545209131181e-16,
+              5.21874394454792e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              8.7538903518697225e-16,
+              1.0207753615270172e-16,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "validation/benchmark/cases/gg-hh-top-box-2.json",
+      "case_sha256": "a55ce1e42ee93f5c9bfa5cb730211459d46ff35283af8ecea3bc798b71d17d31",
+      "fixture": "examples/graphs/physical/gg-hh/top-box-2-pool.json",
+      "reduce_commands": {
+        "double-float": [
+          "ninjars",
+          "reduce",
+          "examples/graphs/physical/gg-hh/top-box-2-pool.json",
+          "--precision",
+          "double-float",
+          "--output",
+          "<tmp>"
+        ],
+        "f64": [
+          "ninjars",
+          "reduce",
+          "examples/graphs/physical/gg-hh/top-box-2-pool.json",
+          "--precision",
+          "f64",
+          "--output",
+          "<tmp>"
+        ]
+      },
+      "structure": {
+        "s_matrix_vs_rounded_shifts_relative_to_energy_squared": 1.3776961162950864e-16
+      },
+      "summary": {
+        "double-float": {
+          "max_scaled_error": 2.670429670942364e-13,
+          "max_error_relative_to_largest_laurent_coefficient": 3.64786100324745e-13,
+          "pass": true
+        },
+        "f64": {
+          "max_scaled_error": 2.643139524755481e-13,
+          "max_error_relative_to_largest_laurent_coefficient": 3.6105821109660575e-13,
+          "pass": true
+        }
+      },
+      "lanes": [
+        {
+          "id": "sqrt_s_312.5",
+          "ninja_exported_s_matrix": [
+            [
+              -0.4317832848207038,
+              3.12514169227522e-14
+            ],
+            [
+              -0.7320535701787503,
+              -1.6361054335577393e-13
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              -0.4317832848207038,
+              3.12514169227522e-14
+            ],
+            [
+              -0.7320535701787503,
+              -1.6361054335577393e-13
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                -0.4317832848207373,
+                -1.2535862585802697e-30
+              ],
+              [
+                -0.7320535701785392,
+                1.3143604599837657e-31
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              4.579418956065933e-14,
+              2.670429670942364e-13,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              6.255579021285378e-14,
+              3.64786100324745e-13,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              4.579418956065933e-14,
+              2.670429670942364e-13,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              6.255579021285378e-14,
+              3.64786100324745e-13,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                -0.43178328482073397,
+                5.93325262875295e-15
+              ],
+              [
+                -0.7320535701785424,
+                -3.102134511330249e-16
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              3.9364744026783027e-14,
+              2.643139524755481e-13,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              5.3773037425638475e-14,
+              3.6105821109660575e-13,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              3.9364744026783027e-14,
+              2.643139524755481e-13,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              5.3773037425638475e-14,
+              3.6105821109660575e-13,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "sqrt_s_416.7",
+          "ninja_exported_s_matrix": [
+            [
+              -1.0469336272291534,
+              -1.5884584238264703
+            ],
+            [
+              -0.7320535701785387,
+              -4.626188600320469e-15
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              -1.046933627229154,
+              -1.5884584238264703
+            ],
+            [
+              -0.7320535701785387,
+              -4.626188600320469e-15
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                -1.0469336272291523,
+                -1.5884584238264792
+              ],
+              [
+                -0.7320535701785392,
+                -1.2303745343871974e-31
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              4.704965092276703e-15,
+              4.6593743954351876e-15,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              4.704965092276687e-15,
+              2.4491597089071604e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              4.761089921017176e-15,
+              4.6593743954351876e-15,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              4.76108992101716e-15,
+              2.4491597089071604e-15,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                -1.0469336272291594,
+                -1.588458423826473
+              ],
+              [
+                -0.7320535701785338,
+                -8.900155381006618e-16
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              3.448552522352214e-15,
+              6.149961913198531e-15,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              3.448552522352204e-15,
+              3.2326740997409434e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              3.1318140719024887e-15,
+              6.149961913198531e-15,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              3.1318140719024796e-15,
+              3.2326740997409434e-15,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "sqrt_s_650",
+          "ninja_exported_s_matrix": [
+            [
+              0.6064174143023204,
+              -2.3554911123431745
+            ],
+            [
+              -0.7320535701785232,
+              6.323910618346436e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              0.6064174143023182,
+              -2.355491112343177
+            ],
+            [
+              -0.7320535701785232,
+              6.323910618346436e-16
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                0.6064174143023409,
+                -2.355491112343168
+              ],
+              [
+                -0.7320535701785392,
+                -8.036233875266404e-32
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              8.833928747759546e-15,
+              1.5999714114530176e-14,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              8.833928747759551e-15,
+              6.578019956574909e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.0070076969260227e-14,
+              1.5999714114530176e-14,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              1.0070076969260241e-14,
+              6.578019956574909e-15,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                0.6064174143023445,
+                -2.3554911123431674
+              ],
+              [
+                -0.7320535701785376,
+                2.336781546570816e-15
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.0326771027972469e-14,
+              1.4422936879622206e-14,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              1.0326771027972474e-14,
+              5.9297538660653155e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.1539521362929624e-14,
+              1.4422936879622206e-14,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              1.1539521362929638e-14,
+              5.9297538660653155e-15,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "validation/benchmark/cases/gg-hhh-top-triangle-0.json",
+      "case_sha256": "a23038b56049e6599fadd217a0d7b645080795daece0ff8f392736fdd1839111",
+      "fixture": "examples/graphs/physical/gg-hhh/top-triangle-0-pool.json",
+      "reduce_commands": {
+        "double-float": [
+          "ninjars",
+          "reduce",
+          "examples/graphs/physical/gg-hhh/top-triangle-0-pool.json",
+          "--precision",
+          "double-float",
+          "--output",
+          "<tmp>"
+        ],
+        "f64": [
+          "ninjars",
+          "reduce",
+          "examples/graphs/physical/gg-hhh/top-triangle-0-pool.json",
+          "--precision",
+          "f64",
+          "--output",
+          "<tmp>"
+        ]
+      },
+      "structure": {
+        "s_matrix_vs_rounded_shifts_relative_to_energy_squared": 0.0
+      },
+      "summary": {
+        "double-float": {
+          "max_scaled_error": 8.940560153363745e-19,
+          "max_error_relative_to_largest_laurent_coefficient": 3.739357905900495e-16,
+          "pass": true
+        },
+        "f64": {
+          "max_scaled_error": 2.2638805996750743e-18,
+          "max_error_relative_to_largest_laurent_coefficient": 1.0283008822192091e-15,
+          "pass": true
+        }
+      },
+      "lanes": [
+        {
+          "id": "sqrt_s_450",
+          "ninja_exported_s_matrix": [
+            [
+              0.0019007770290157804,
+              0.001450384393559995
+            ],
+            [
+              0.0,
+              -6.183045405049282e-20
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              0.0019007770290157804,
+              0.001450384393559995
+            ],
+            [
+              0.0,
+              -6.183045405049282e-20
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                0.0019007770290157806,
+                0.0014503843935599959
+              ],
+              [
+                0.0,
+                3.840696349439748e-36
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              8.940560153363745e-19,
+              6.183045405049282e-20,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              3.739357905900495e-16,
+              2.5860370403317508e-17,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              8.940560153363745e-19,
+              6.183045405049282e-20,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              3.739357905900495e-16,
+              2.5860370403317508e-17,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                0.0019007770290157804,
+                0.0014503843935599944
+              ],
+              [
+                -5.421010862427522e-19,
+                -7.210908182293038e-21
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              6.505213034913027e-19,
+              5.448457419274012e-19,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              2.7207825208263903e-16,
+              2.2787981934285397e-16,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              6.505213034913027e-19,
+              5.448457419274012e-19,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              2.7207825208263903e-16,
+              2.2787981934285397e-16,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "sqrt_s_525",
+          "ninja_exported_s_matrix": [
+            [
+              0.0014525466667211682,
+              0.0018627804676179084
+            ],
+            [
+              -2.710505431213761e-20,
+              -8.308548271443879e-20
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              0.0014525466667211682,
+              0.0018627804676179084
+            ],
+            [
+              -2.710505431213761e-20,
+              -8.308548271443879e-20
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                0.0014525466667211682,
+                0.0018627804676179078
+              ],
+              [
+                5.266214691683848e-36,
+                0.0
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              6.505213034913027e-19,
+              8.739497358060838e-20,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              2.753915041874371e-16,
+              3.6997763337825637e-17,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              6.505213034913027e-19,
+              8.739497358060838e-20,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              2.753915041874371e-16,
+              3.6997763337825637e-17,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                0.0014525466667211673,
+                0.0018627804676179067
+              ],
+              [
+                -1.3552527156068805e-19,
+                0.0
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.939479807224432e-18,
+              1.3659480570693084e-19,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              8.210588317187035e-16,
+              5.782600632129083e-17,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.939479807224432e-18,
+              1.3659480570693084e-19,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              8.210588317187035e-16,
+              5.782600632129083e-17,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "sqrt_s_600",
+          "ninja_exported_s_matrix": [
+            [
+              0.0010261133131180499,
+              0.0019478244353263213
+            ],
+            [
+              3.5236570605778894e-19,
+              5.64876833865564e-20
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              0.0010261133131180499,
+              0.0019478244353263213
+            ],
+            [
+              3.5236570605778894e-19,
+              5.64876833865564e-20
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                0.0010261133131180505,
+                0.0019478244353263213
+              ],
+              [
+                7.711242941394206e-36,
+                -5.572126859897145e-37
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              6.505213034913027e-19,
+              3.568647491417217e-19,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              2.9548008423169706e-16,
+              1.6209526970107778e-16,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              6.505213034913027e-19,
+              3.568647491417217e-19,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              2.9548008423169706e-16,
+              1.6209526970107778e-16,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                0.0010261133131180505,
+                0.0019478244353263192
+              ],
+              [
+                -3.2526065174565133e-19,
+                4.793572197539611e-20
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              2.2638805996750743e-18,
+              6.776803205302143e-19,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              1.0283008822192091e-15,
+              3.0781626538247346e-16,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              2.2638805996750743e-18,
+              6.776803205302143e-19,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              1.0283008822192091e-15,
+              3.0781626538247346e-16,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "validation/benchmark/cases/gg-hhh-top-box-8.json",
+      "case_sha256": "bea1f9301b8485fb99bfa45662568000ed12f1f16d937f4914bfac2310ab956d",
+      "fixture": "examples/graphs/physical/gg-hhh/top-box-8-pool.json",
+      "reduce_commands": {
+        "double-float": [
+          "ninjars",
+          "reduce",
+          "examples/graphs/physical/gg-hhh/top-box-8-pool.json",
+          "--precision",
+          "double-float",
+          "--output",
+          "<tmp>"
+        ],
+        "f64": [
+          "ninjars",
+          "reduce",
+          "examples/graphs/physical/gg-hhh/top-box-8-pool.json",
+          "--precision",
+          "f64",
+          "--output",
+          "<tmp>"
+        ]
+      },
+      "structure": {
+        "s_matrix_vs_rounded_shifts_relative_to_energy_squared": 1.010549668636587e-17
+      },
+      "summary": {
+        "double-float": {
+          "max_scaled_error": 7.10803118364002e-17,
+          "max_error_relative_to_largest_laurent_coefficient": 1.335746820186796e-14,
+          "pass": true
+        },
+        "f64": {
+          "max_scaled_error": 1.1026074901770089e-16,
+          "max_error_relative_to_largest_laurent_coefficient": 2.0720286825807835e-14,
+          "pass": true
+        }
+      },
+      "lanes": [
+        {
+          "id": "sqrt_s_450",
+          "ninja_exported_s_matrix": [
+            [
+              -0.0023727019072308283,
+              -0.004763138507663591
+            ],
+            [
+              -0.0020647133393873612,
+              -7.10591406169663e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              -0.0023727019072308283,
+              -0.004763138507663591
+            ],
+            [
+              -0.0020647133393873612,
+              -7.10591406169663e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                -0.002372701907230805,
+                -0.00476313850766365
+              ],
+              [
+                -0.0020647133393873595,
+                2.0284421634465806e-33
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              6.345982671240988e-17,
+              7.10803118364002e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              1.1925420633466864e-14,
+              1.335746820186796e-14,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              6.345982671240988e-17,
+              7.10803118364002e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              1.1925420633466864e-14,
+              1.335746820186796e-14,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                -0.002372701907230783,
+                -0.0047631385076636916
+              ],
+              [
+                -0.002064713339387375,
+                1.6656862626654783e-17
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.1026074901770089e-16,
+              8.880703924506022e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              2.0720286825807835e-14,
+              1.6688688782741865e-14,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.1026074901770089e-16,
+              8.880703924506022e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              2.0720286825807835e-14,
+              1.6688688782741865e-14,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "sqrt_s_525",
+          "ninja_exported_s_matrix": [
+            [
+              -0.0002288406993573117,
+              -0.004471757516537195
+            ],
+            [
+              -0.0015169322493458022,
+              -4.096145829606468e-20
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              -0.0002288406993573117,
+              -0.004471757516537195
+            ],
+            [
+              -0.0015169322493458022,
+              -4.096145829606468e-20
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                -0.0002288406993573093,
+                -0.004471757516537181
+              ],
+              [
+                -0.0015169322493458152,
+                3.908638458727977e-34
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.4085894581433696e-17,
+              1.3010490550301136e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              3.1458517775278343e-15,
+              2.9056780588235854e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.4085894581433696e-17,
+              1.3010490550301136e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              3.1458517775278343e-15,
+              2.9056780588235854e-15,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                -0.00022884069935732174,
+                -0.004471757516537189
+              ],
+              [
+                -0.0015169322493458089,
+                1.1015248246967612e-17
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.1723554846292097e-17,
+              1.2939311260355996e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              2.6182622366608102e-15,
+              2.8897813406916527e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.1723554846292097e-17,
+              1.2939311260355996e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              2.6182622366608102e-15,
+              2.8897813406916527e-15,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "sqrt_s_600",
+          "ninja_exported_s_matrix": [
+            [
+              0.0009334843588687674,
+              -0.0035278733965606345
+            ],
+            [
+              -0.0011614012534053727,
+              4.690728698827368e-18
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              0.0009334843588687683,
+              -0.0035278733965606337
+            ],
+            [
+              -0.0011614012534053727,
+              4.690728698827368e-18
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                0.0009334843588687845,
+                -0.00352787339656063
+              ],
+              [
+                -0.0011614012534053896,
+                -9.275040845298844e-34
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.7565748266081415e-17,
+              1.7551958322139288e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              4.813476190421161e-15,
+              4.809697383744257e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.652297076734315e-17,
+              1.7551958322139288e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              4.5277277790212456e-15,
+              4.809697383744257e-15,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                0.0009334843588687551,
+                -0.0035278733965606168
+              ],
+              [
+                -0.0011614012534053792,
+                -1.5950330577624757e-18
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              2.1654750204747846e-17,
+              9.045916066944784e-18,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              5.933970072959771e-15,
+              2.478818490918785e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              2.147158318318659e-17,
+              9.045916066944784e-18,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              5.883777500243815e-15,
+              2.478818490918785e-15,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "validation/benchmark/cases/gg-hhh-top-pentagon-26.json",
+      "case_sha256": "69706fb8176abdc56aba0f59c30c930668efc77731f2d16761fdcc895da69d14",
+      "fixture": "examples/graphs/physical/gg-hhh/top-pentagon-26-pool.json",
+      "reduce_commands": {
+        "double-float": [
+          "ninjars",
+          "reduce",
+          "examples/graphs/physical/gg-hhh/top-pentagon-26-pool.json",
+          "--precision",
+          "double-float",
+          "--output",
+          "<tmp>"
+        ],
+        "f64": [
+          "ninjars",
+          "reduce",
+          "examples/graphs/physical/gg-hhh/top-pentagon-26-pool.json",
+          "--precision",
+          "f64",
+          "--output",
+          "<tmp>"
+        ]
+      },
+      "structure": {
+        "s_matrix_vs_rounded_shifts_relative_to_energy_squared": 1.010549668636587e-17
+      },
+      "summary": {
+        "double-float": {
+          "max_scaled_error": 8.007022061249002e-17,
+          "max_error_relative_to_largest_laurent_coefficient": 1.0283243992782613e-14,
+          "pass": true
+        },
+        "f64": {
+          "max_scaled_error": 1.8007576516936334e-16,
+          "max_error_relative_to_largest_laurent_coefficient": 2.312673820877075e-14,
+          "pass": true
+        }
+      },
+      "lanes": [
+        {
+          "id": "sqrt_s_450",
+          "ninja_exported_s_matrix": [
+            [
+              0.003809348899842945,
+              0.006791027269619956
+            ],
+            [
+              -2.4502969098172397e-17,
+              -1.2569671439627197e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              0.003809348899842945,
+              0.006791027269619956
+            ],
+            [
+              -2.4502969098172397e-17,
+              -1.2569671439627197e-17
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                0.0038093488998428835,
+                0.006791027269620008
+              ],
+              [
+                1.8001444799825975e-33,
+                -2.013324256807879e-33
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              8.007022061249002e-17,
+              2.7538920362392044e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              1.0283243992782613e-14,
+              3.536763546023158e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              8.007022061249002e-17,
+              2.7538920362392044e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              1.0283243992782613e-14,
+              3.536763546023158e-15,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                0.0038093488998428293,
+                0.006791027269620094
+              ],
+              [
+                -3.821867388762176e-18,
+                -1.180555323639831e-17
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.8007576516936334e-16,
+              2.0695213082823673e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              2.312673820877075e-14,
+              2.65784112976585e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.8007576516936334e-16,
+              2.0695213082823673e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              2.312673820877075e-14,
+              2.65784112976585e-15,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "sqrt_s_525",
+          "ninja_exported_s_matrix": [
+            [
+              0.0006995016869653645,
+              0.0062777287920478386
+            ],
+            [
+              -6.0715321659188256e-18,
+              -5.5777420308098335e-18
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              0.0006995016869653676,
+              0.006277728792047838
+            ],
+            [
+              -6.0715321659188256e-18,
+              -5.5777420308098335e-18
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                0.0006995016869653639,
+                0.0062777287920478654
+              ],
+              [
+                2.511043136809048e-33,
+                -1.042949359137035e-34
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              2.689608193577711e-17,
+              8.24467761674461e-18,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              4.258013425191201e-15,
+              1.3052439408200228e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              2.799929807067313e-17,
+              8.24467761674461e-18,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              4.4326674556366604e-15,
+              1.3052439408200228e-15,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                0.0006995016869653693,
+                0.006277728792047854
+              ],
+              [
+                -4.076276250979721e-18,
+                2.543164087979617e-18
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              1.6325075167313288e-17,
+              8.362425626353361e-18,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              2.5844801259773956e-15,
+              1.3238850427805556e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              1.657092273689327e-17,
+              8.362425626353361e-18,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              2.6234011202813916e-15,
+              1.3238850427805556e-15,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "sqrt_s_600",
+          "ninja_exported_s_matrix": [
+            [
+              -0.0019070575220222414,
+              0.004810513910374003
+            ],
+            [
+              -1.951563910473908e-18,
+              6.986280574603601e-18
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninja_s_matrix_from_shifts": [
+            [
+              -0.0019070575220222475,
+              0.004810513910374005
+            ],
+            [
+              -1.951563910473908e-18,
+              6.986280574603601e-18
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ninjars_reduce_double-float": {
+            "values": [
+              [
+                -0.001907057522022211,
+                0.0048105139103740415
+              ],
+              [
+                4.869466707862251e-34,
+                3.967470389373777e-34
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              4.876548053169906e-17,
+              7.253738206176719e-18,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              9.423758525771828e-15,
+              1.4017595339748624e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              5.1518658800561366e-17,
+              7.253738206176719e-18,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              9.955800595311072e-15,
+              1.4017595339748624e-15,
+              0.0
+            ]
+          },
+          "ninjars_reduce_f64": {
+            "values": [
+              [
+                -0.0019070575220222305,
+                0.004810513910374062
+              ],
+              [
+                -7.519387552560686e-18,
+                -1.3905241322619913e-17
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            "scaled_errors_vs_ninja_exported_s_matrix": [
+              5.996882854560087e-17,
+              2.1620738823905858e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_exported_s_matrix": [
+              1.1588766338922865e-14,
+              4.178132146013098e-15,
+              0.0
+            ],
+            "scaled_errors_vs_ninja_s_matrix_from_shifts": [
+              5.969219778339978e-17,
+              2.1620738823905858e-17,
+              0.0
+            ],
+            "relative_errors_vs_ninja_s_matrix_from_shifts": [
+              1.1535308411812136e-14,
+              4.178132146013098e-15,
+              0.0
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "reference": {
+    "command": [
+      "g++",
+      "-O3",
+      "-DNDEBUG",
+      "-std=c++11",
+      "-I/shared/external/ninja/target/reference-uncached-v2/ninja-source/src",
+      "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build/src",
+      "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build",
+      "/shared/external/ninja/references/claude_numerator/validation/reference/tensor_runner.cc",
+      "/shared/external/ninja/target/reference-uncached-v2/ninja-build/src/.libs/libninja.a",
+      "/shared/external/ninja/target/reference-uncached-v2/oneloop/libavh_olo.a",
+      "/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib/libgfortran.so",
+      "-Wl,-rpath,/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib",
+      "-lquadmath",
+      "-o",
+      "<tmp>/ninja-tensor-runner"
+    ],
+    "libraries_sha256": {
+      "libninja.a": "8f4d39dad292a28a05dd4e56bd4cbb7014cf08532ef4d8484c00ea44e0b097a3",
+      "libavh_olo.a": "28c37c328fadd6f4f09f973bfb961b3bccb3c729583a92dc2186fd947ccbe4dd"
+    },
+    "ninja_revision": {
+      "commit": "05fb0d3a0f47f216eceef411a09ac19e1b9a19f0",
+      "dirty": false
+    },
+    "configuration": {
+      "config_sha256": "2468fc46b1fe8e5d2351ba81952a7c3432da07d771c421b8ad90efe7d32c191a",
+      "oneloop": true,
+      "master_result_cache": false,
+      "higher_rank": true
+    },
+    "runner_source_sha256": "4e83946c3906a92cef4fc0fb6e0e3c2fd0fa0bbbf2698aeec267cbba36d2ed4c"
+  },
+  "pass": true,
+  "pass_by_reduce_precision": {
+    "double-float": true,
+    "f64": false
+  },
+  "laurent_order": [
+    "finite",
+    "single_pole",
+    "double_pole"
+  ],
+  "ninjars_build": {
+    "executable": "target/perf/ninjars",
+    "sha256": "e5879ba7f6e9401b28c5eb8b34d1f4cbb961c7fcb1ee71f67bf92251e40b69dd"
+  }
+}

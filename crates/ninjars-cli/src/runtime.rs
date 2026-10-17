@@ -33,7 +33,11 @@ use crate::{
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 type NumericalAmplitude<T> = Amplitude<Complex<T>, SymbolicaAmplitudeKernels<T>>;
 
-fn numerical<T: NativeFloat>(expression: &Atom, prototype: &T, label: &str) -> Result<Complex<T>>
+pub(crate) fn numerical<T: NativeFloat>(
+    expression: &Atom,
+    prototype: &T,
+    label: &str,
+) -> Result<Complex<T>>
 where
     Complex<T>: EvaluationDomain,
 {
