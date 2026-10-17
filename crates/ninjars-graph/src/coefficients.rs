@@ -47,6 +47,12 @@ pub enum CoefficientError {
     Symbolic(String),
     #[error("coefficient JIT compilation: {0}")]
     Jit(String),
+    #[error(
+        "numerator has an explicit mu^2 term (power {power}); Ninja's dense tensor numerator has no mu^2 slots"
+    )]
+    ExplicitMuSquared { power: i32 },
+    #[error("tensor rank {requested} is below the numerator degree {required}")]
+    TensorRank { requested: usize, required: usize },
 }
 
 type Result<T> = std::result::Result<T, CoefficientError>;
