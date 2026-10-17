@@ -1,0 +1,851 @@
+[
+ {
+  "graph": "hgg-top-triangle-0",
+  "filter_id": 3,
+  "helicity": [
+   0,
+   1,
+   1
+  ],
+  "hel_index": 4,
+  "n_helicity_configs": 4,
+  "madloop_rank": 3,
+  "ninjars_rank": 2,
+  "n": 3,
+  "diagram_check": true,
+  "ninja_input_check": true,
+  "generation_seconds_median": 0.8931013670226093,
+  "generation_seconds_all": [
+   0.9292302950634621,
+   0.9181980100111105,
+   0.8946557420422323,
+   0.8652498960727826,
+   0.8915469920029864,
+   0.8638756119180471
+  ],
+  "generation_wall_seconds_median": 2.261013674462447,
+  "compile_seconds": {
+   "default": {
+    "source": 1.3190845840144902,
+    "pdir": 2.0494176209904253,
+    "source_all": [
+     1.3812804169720039,
+     1.2759061639662832,
+     1.3190845840144902
+    ],
+    "pdir_all": [
+     2.147948333004024,
+     2.0494176209904253,
+     2.007963185023982
+    ]
+   },
+   "O3": {
+    "source": 2.931931154045742,
+    "pdir": 4.544714862015098,
+    "source_all": [
+     2.987526265962515,
+     2.931931154045742,
+     2.833725942997262
+    ],
+    "pdir_all": [
+     4.6220067359972745,
+     4.544714862015098,
+     4.4112203970435075
+    ]
+   }
+  },
+  "per_point_us": {
+   "default": {
+    "full": 25.6148345,
+    "numerator_coefficients": 13.066647099999999,
+    "full_instrumented": 25.814197749999998,
+    "helicity_summed": 82.9987284,
+    "ninja_total": 11.4648109846331,
+    "tensor_numerator": 4.760107944603197,
+    "masters": 3.3120801493350798,
+    "ninja_reduction": 3.3926228906948235,
+    "madloop_glue": 1.2827396653668988,
+    "ninja_calls_per_point": 1.0,
+    "tensor_numerator_calls_per_point": 11.0,
+    "master_calls_per_point": 7.0,
+    "n_rank": [
+     {
+      "n": 3,
+      "rank": 3,
+      "calls": 10989.0
+     }
+    ]
+   },
+   "O3": {
+    "full": 21.405384200000004,
+    "numerator_coefficients": 9.48677799,
+    "full_instrumented": 21.604897949999998,
+    "helicity_summed": 74.1401569,
+    "ninja_total": 11.403610264787474,
+    "tensor_numerator": 4.7702412045944245,
+    "masters": 3.2640621635520697,
+    "ninja_reduction": 3.36930689664098,
+    "madloop_glue": 0.7145096952125236,
+    "ninja_calls_per_point": 1.0,
+    "tensor_numerator_calls_per_point": 11.0,
+    "master_calls_per_point": 7.0,
+    "n_rank": [
+     {
+      "n": 3,
+      "rank": 3,
+      "calls": 12285.0
+     }
+    ]
+   }
+  },
+  "replay_of_madloop_inputs_us": {
+   "o3-fortranrules": {
+    "full_ns": 10.918793899782134,
+    "pure_reduction_ns": 2.943615275310835,
+    "numerator_part_ns": 4.641526065301843,
+    "numerator_only_ns": 4.257394897959183,
+    "masters_ns": 3.2269904577691815,
+    "sum_pure_numerator_masters_ns": 10.81213179838186,
+    "entry_ns": 11.09393059239611
+   },
+   "o3": {
+    "full_ns": 13.051260937499999,
+    "pure_reduction_ns": 3.5222828713574983,
+    "numerator_part_ns": 6.1419739845714325,
+    "numerator_only_ns": 5.726149140893471,
+    "masters_ns": 3.240133049425732,
+    "sum_pure_numerator_masters_ns": 12.904389905354662,
+    "entry_ns": 13.284662433862433
+   }
+  }
+ },
+ {
+  "graph": "four-photon-top-box-0",
+  "filter_id": 182,
+  "helicity": [
+   1,
+   1,
+   1,
+   1
+  ],
+  "hel_index": 16,
+  "n_helicity_configs": 16,
+  "madloop_rank": 4,
+  "ninjars_rank": 4,
+  "n": 4,
+  "diagram_check": true,
+  "ninja_input_check": true,
+  "generation_seconds_median": 1.498714031506097,
+  "generation_seconds_all": [
+   1.4814503809902817,
+   1.5050681980210356,
+   1.616027288022451,
+   1.5364676699973643,
+   1.4923598649911582,
+   1.4868153880233876
+  ],
+  "generation_wall_seconds_median": 2.7337403655110393,
+  "compile_seconds": {
+   "default": {
+    "source": 1.1795161879854277,
+    "pdir": 2.507202838023659,
+    "source_all": [
+     1.1795161879854277,
+     1.1998021239996888,
+     1.1228961540036835
+    ],
+    "pdir_all": [
+     2.6267282880144194,
+     2.507202838023659,
+     2.47646028699819
+    ]
+   },
+   "O3": {
+    "source": 2.576157820993103,
+    "pdir": 5.31106296001235,
+    "source_all": [
+     2.7623684180434793,
+     2.551320601021871,
+     2.576157820993103
+    ],
+    "pdir_all": [
+     5.594599223986734,
+     5.31106296001235,
+     5.287191749957856
+    ]
+   }
+  },
+  "per_point_us": {
+   "default": {
+    "full": 65.80478575,
+    "numerator_coefficients": 20.31224445,
+    "full_instrumented": 66.4818784,
+    "helicity_summed": 931.416,
+    "ninja_total": 42.565855408208385,
+    "tensor_numerator": 22.592550048708425,
+    "masters": 9.23842118927619,
+    "ninja_reduction": 10.73488417022377,
+    "madloop_glue": 3.6037785417916126,
+    "ninja_calls_per_point": 1.0,
+    "tensor_numerator_calls_per_point": 27.0,
+    "master_calls_per_point": 15.0,
+    "n_rank": [
+     {
+      "n": 4,
+      "rank": 4,
+      "calls": 3780.0
+     }
+    ]
+   },
+   "O3": {
+    "full": 59.86166575,
+    "numerator_coefficients": 18.64101155,
+    "full_instrumented": 60.4080477,
+    "helicity_summed": 896.4186000000001,
+    "ninja_total": 42.20487378552802,
+    "tensor_numerator": 22.574133595178658,
+    "masters": 9.084521484455736,
+    "ninja_reduction": 10.546218705893628,
+    "madloop_glue": -0.4378376355280267,
+    "ninja_calls_per_point": 1.0,
+    "tensor_numerator_calls_per_point": 27.0,
+    "master_calls_per_point": 15.0,
+    "n_rank": [
+     {
+      "n": 4,
+      "rank": 4,
+      "calls": 3942.0
+     }
+    ]
+   }
+  },
+  "replay_of_madloop_inputs_us": {
+   "o3-fortranrules": {
+    "full_ns": 41.751470833333336,
+    "pure_reduction_ns": 9.068991256830602,
+    "numerator_part_ns": 22.70123814747865,
+    "numerator_only_ns": 21.25568363019508,
+    "masters_ns": 8.953115288220552,
+    "sum_pure_numerator_masters_ns": 40.72334469252981,
+    "entry_ns": 41.688660033167494
+   },
+   "o3": {
+    "full_ns": 51.867226337448564,
+    "pure_reduction_ns": 11.07707273538599,
+    "numerator_part_ns": 31.22104510973185,
+    "numerator_only_ns": 29.08220138888889,
+    "masters_ns": 8.970108243727598,
+    "sum_pure_numerator_masters_ns": 51.26822608884544,
+    "entry_ns": 52.23187708333333
+   }
+  }
+ },
+ {
+  "graph": "gg-hh-top-triangle-0",
+  "filter_id": 11,
+  "helicity": [
+   1,
+   1,
+   0,
+   0
+  ],
+  "hel_index": 4,
+  "n_helicity_configs": 4,
+  "madloop_rank": 3,
+  "ninjars_rank": 2,
+  "n": 3,
+  "diagram_check": true,
+  "ninja_input_check": true,
+  "generation_seconds_median": 1.0601804479956627,
+  "generation_seconds_all": [
+   1.1036350509966724,
+   1.0726459799916483,
+   1.0670233800192364,
+   1.0487562110065483,
+   1.0139693780220114,
+   1.053337515972089
+  ],
+  "generation_wall_seconds_median": 2.522426469513448,
+  "compile_seconds": {
+   "default": {
+    "source": 1.4265855600242503,
+    "pdir": 2.0872957590036094,
+    "source_all": [
+     1.472995390999131,
+     1.4265855600242503,
+     1.3556758890044875
+    ],
+    "pdir_all": [
+     2.1578592190053314,
+     2.0872957590036094,
+     2.032660599972587
+    ]
+   },
+   "O3": {
+    "source": 2.955837752961088,
+    "pdir": 4.722369959985372,
+    "source_all": [
+     3.0673820270458236,
+     2.901200535998214,
+     2.955837752961088
+    ],
+    "pdir_all": [
+     4.722369959985372,
+     4.4959660220192745,
+     4.78687475703191
+    ]
+   }
+  },
+  "per_point_us": {
+   "default": {
+    "full": 23.2334744,
+    "numerator_coefficients": 11.971818149999999,
+    "full_instrumented": 23.549627700000002,
+    "helicity_summed": 23.1375097,
+    "ninja_total": 10.226938374495063,
+    "tensor_numerator": 4.886840519828827,
+    "masters": 1.9650091954910562,
+    "ninja_reduction": 3.375088659175179,
+    "madloop_glue": 1.35087117550494,
+    "ninja_calls_per_point": 1.0,
+    "tensor_numerator_calls_per_point": 11.0,
+    "master_calls_per_point": 7.0,
+    "n_rank": [
+     {
+      "n": 3,
+      "rank": 3,
+      "calls": 13527.0
+     }
+    ]
+   },
+   "O3": {
+    "full": 18.25091805,
+    "numerator_coefficients": 7.8153830399999995,
+    "full_instrumented": 18.4269632,
+    "helicity_summed": 18.2829799,
+    "ninja_total": 10.07859618297669,
+    "tensor_numerator": 4.754166412750914,
+    "masters": 1.9742713198848485,
+    "ninja_reduction": 3.3501584503409285,
+    "madloop_glue": 0.5329839770233082,
+    "ninja_calls_per_point": 1.0,
+    "tensor_numerator_calls_per_point": 11.0,
+    "master_calls_per_point": 7.0,
+    "n_rank": [
+     {
+      "n": 3,
+      "rank": 3,
+      "calls": 15201.0
+     }
+    ]
+   }
+  },
+  "replay_of_madloop_inputs_us": {
+   "o3-fortranrules": {
+    "full_ns": 9.560240931653302,
+    "pure_reduction_ns": 2.902663770130923,
+    "numerator_part_ns": 4.652501834964618,
+    "numerator_only_ns": 4.23348424796748,
+    "masters_ns": 1.905212486724321,
+    "sum_pure_numerator_masters_ns": 9.46037809181986,
+    "entry_ns": 9.674876356589147
+   },
+   "o3": {
+    "full_ns": 11.719366666666668,
+    "pure_reduction_ns": 3.556406179138322,
+    "numerator_part_ns": 6.130898925270031,
+    "numerator_only_ns": 5.7420608775557085,
+    "masters_ns": 1.8960066095838968,
+    "sum_pure_numerator_masters_ns": 11.58331171399225,
+    "entry_ns": 11.912672848311935
+   }
+  }
+ },
+ {
+  "graph": "gg-hh-top-box-2",
+  "filter_id": 10,
+  "helicity": [
+   1,
+   1,
+   0,
+   0
+  ],
+  "hel_index": 4,
+  "n_helicity_configs": 4,
+  "madloop_rank": 4,
+  "ninjars_rank": 4,
+  "n": 4,
+  "diagram_check": true,
+  "ninja_input_check": true,
+  "generation_seconds_median": 1.1374192035000306,
+  "generation_seconds_all": [
+   1.03060254099546,
+   1.2442358660046011,
+   1.0303354989737272,
+   1.0176674489630386,
+   1.2445736869703978,
+   1.4710588729940355
+  ],
+  "generation_wall_seconds_median": 2.4923275530163664,
+  "compile_seconds": {
+   "default": {
+    "source": 1.2835617730161175,
+    "pdir": 2.526594755006954,
+    "source_all": [
+     1.279700862010941,
+     1.2884891700232401,
+     1.2835617730161175
+    ],
+    "pdir_all": [
+     2.4634497509687208,
+     2.526594755006954,
+     2.560977645975072
+    ]
+   },
+   "O3": {
+    "source": 2.8119562140200287,
+    "pdir": 5.253800032951403,
+    "source_all": [
+     2.8119562140200287,
+     2.7999647030374035,
+     2.8330099399900064
+    ],
+    "pdir_all": [
+     5.253800032951403,
+     5.2072803570190445,
+     5.397570736997295
+    ]
+   }
+  },
+  "per_point_us": {
+   "default": {
+    "full": 84.08642135,
+    "numerator_coefficients": 16.534258899999998,
+    "full_instrumented": 84.48971494999999,
+    "helicity_summed": 160.467315,
+    "ninja_total": 65.93182661258015,
+    "tensor_numerator": 22.579349920506363,
+    "masters": 32.63412767490992,
+    "ninja_reduction": 10.718349017163874,
+    "madloop_glue": 2.0236294374198422,
+    "ninja_calls_per_point": 1.0,
+    "tensor_numerator_calls_per_point": 27.0,
+    "master_calls_per_point": 15.0,
+    "n_rank": [
+     {
+      "n": 4,
+      "rank": 4,
+      "calls": 2889.0
+     }
+    ]
+   },
+   "O3": {
+    "full": 78.21400155,
+    "numerator_coefficients": 12.16641995,
+    "full_instrumented": 78.41648595,
+    "helicity_summed": 152.624123,
+    "ninja_total": 65.26356944706345,
+    "tensor_numerator": 22.585455603595065,
+    "masters": 32.124893069753,
+    "ninja_reduction": 10.553220773715381,
+    "madloop_glue": 0.9864965529365435,
+    "ninja_calls_per_point": 1.0,
+    "tensor_numerator_calls_per_point": 27.0,
+    "master_calls_per_point": 15.0,
+    "n_rank": [
+     {
+      "n": 4,
+      "rank": 4,
+      "calls": 2754.0
+     }
+    ]
+   }
+  },
+  "replay_of_madloop_inputs_us": {
+   "o3-fortranrules": {
+    "full_ns": 64.53215897435898,
+    "pure_reduction_ns": 9.126608679795769,
+    "numerator_part_ns": 22.772528724784383,
+    "numerator_only_ns": 21.299613402061855,
+    "masters_ns": 31.71154752851711,
+    "sum_pure_numerator_masters_ns": 63.61068493309726,
+    "entry_ns": 64.89070284237727
+   },
+   "o3": {
+    "full_ns": 75.01494642857143,
+    "pure_reduction_ns": 11.195213548676536,
+    "numerator_part_ns": 31.112464902501912,
+    "numerator_only_ns": 29.08300929152149,
+    "masters_ns": 31.818024081115336,
+    "sum_pure_numerator_masters_ns": 74.12570253229379,
+    "entry_ns": 75.25345945945945
+   }
+  }
+ },
+ {
+  "graph": "gg-hhh-top-triangle-0",
+  "filter_id": 66,
+  "helicity": [
+   1,
+   1,
+   0,
+   0,
+   0
+  ],
+  "hel_index": 4,
+  "n_helicity_configs": 4,
+  "madloop_rank": 3,
+  "ninjars_rank": 2,
+  "n": 3,
+  "diagram_check": true,
+  "ninja_input_check": true,
+  "generation_seconds_median": 2.0977545985369943,
+  "generation_seconds_all": [
+   2.077794393990189,
+   2.2568495059385896,
+   2.0468833829509094,
+   2.094049197039567,
+   2.1127861959394068,
+   2.1014600000344217
+  ],
+  "generation_wall_seconds_median": 3.5939273510011844,
+  "compile_seconds": {
+   "default": {
+    "source": 1.425655204046052,
+    "pdir": 2.1330993430456147,
+    "source_all": [
+     1.3993056879844517,
+     1.425655204046052,
+     1.4338459810242057
+    ],
+    "pdir_all": [
+     2.0531615839572623,
+     2.180765167984646,
+     2.1330993430456147
+    ]
+   },
+   "O3": {
+    "source": 2.994733683997765,
+    "pdir": 4.802484687999822,
+    "source_all": [
+     2.8823210690170527,
+     2.994733683997765,
+     3.041774665005505
+    ],
+    "pdir_all": [
+     4.619597575976513,
+     4.802484687999822,
+     4.904200358025264
+    ]
+   }
+  },
+  "per_point_us": {
+   "default": {
+    "full": 22.260059449999996,
+    "numerator_coefficients": 11.86304225,
+    "full_instrumented": 22.527804999999997,
+    "helicity_summed": 22.4590222,
+    "ninja_total": 9.342169266078493,
+    "tensor_numerator": 4.737060215006564,
+    "masters": 1.269981343539304,
+    "ninja_reduction": 3.3351277075326244,
+    "madloop_glue": 1.322593483921505,
+    "ninja_calls_per_point": 1.0,
+    "tensor_numerator_calls_per_point": 11.0,
+    "master_calls_per_point": 7.0,
+    "n_rank": [
+     {
+      "n": 3,
+      "rank": 3,
+      "calls": 13986.0
+     }
+    ]
+   },
+   "O3": {
+    "full": 17.5312407,
+    "numerator_coefficients": 7.82916839,
+    "full_instrumented": 17.669048150000002,
+    "helicity_summed": 17.5572713,
+    "ninja_total": 9.308068053210631,
+    "tensor_numerator": 4.731117648484416,
+    "masters": 1.2519000529675728,
+    "ninja_reduction": 3.3250503517586427,
+    "madloop_glue": 0.5318117067893713,
+    "ninja_calls_per_point": 1.0,
+    "tensor_numerator_calls_per_point": 11.0,
+    "master_calls_per_point": 7.0,
+    "n_rank": [
+     {
+      "n": 3,
+      "rank": 3,
+      "calls": 15849.0
+     }
+    ]
+   }
+  },
+  "replay_of_madloop_inputs_us": {
+   "o3-fortranrules": {
+    "full_ns": 8.855211572594959,
+    "pure_reduction_ns": 2.90611083973017,
+    "numerator_part_ns": 4.653681128868864,
+    "numerator_only_ns": 4.242153715930252,
+    "masters_ns": 1.265807562219193,
+    "sum_pure_numerator_masters_ns": 8.825599530818229,
+    "entry_ns": 9.021187342682488
+   },
+   "o3": {
+    "full_ns": 11.051142540947321,
+    "pure_reduction_ns": 3.561477618426771,
+    "numerator_part_ns": 6.1359559859092725,
+    "numerator_only_ns": 5.732857600732601,
+    "masters_ns": 1.2732839751426244,
+    "sum_pure_numerator_masters_ns": 10.970717579478666,
+    "entry_ns": 11.18483109919571
+   }
+  }
+ },
+ {
+  "graph": "gg-hhh-top-box-8",
+  "filter_id": 58,
+  "helicity": [
+   1,
+   1,
+   0,
+   0,
+   0
+  ],
+  "hel_index": 4,
+  "n_helicity_configs": 4,
+  "madloop_rank": 4,
+  "ninjars_rank": 4,
+  "n": 4,
+  "diagram_check": true,
+  "ninja_input_check": true,
+  "generation_seconds_median": 2.1540324239758775,
+  "generation_seconds_all": [
+   2.0255850520334207,
+   2.148854262952227,
+   2.1129604349844158,
+   2.159210584999528,
+   2.1793771820375696,
+   2.4380118820117787
+  ],
+  "generation_wall_seconds_median": 3.6653905144776218,
+  "compile_seconds": {
+   "default": {
+    "source": 1.3912059210124426,
+    "pdir": 2.489979701989796,
+    "source_all": [
+     1.336916583997663,
+     1.3912059210124426,
+     1.4048033239669167
+    ],
+    "pdir_all": [
+     2.489979701989796,
+     2.578970809991006,
+     2.4715983100468293
+    ]
+   },
+   "O3": {
+    "source": 2.976491731009446,
+    "pdir": 5.4165483910473995,
+    "source_all": [
+     2.976491731009446,
+     3.0536116720177233,
+     2.8929756589932367
+    ],
+    "pdir_all": [
+     5.4165483910473995,
+     5.53282602695981,
+     5.3507486039889045
+    ]
+   }
+  },
+  "per_point_us": {
+   "default": {
+    "full": 78.69679310000001,
+    "numerator_coefficients": 16.577748300000003,
+    "full_instrumented": 79.6244149,
+    "helicity_summed": 150.30049100000002,
+    "ninja_total": 60.79604474507229,
+    "tensor_numerator": 22.594094993277114,
+    "masters": 27.606354068918257,
+    "ninja_reduction": 10.595595682876912,
+    "madloop_glue": 2.250621854927715,
+    "ninja_calls_per_point": 1.0,
+    "tensor_numerator_calls_per_point": 27.0,
+    "master_calls_per_point": 15.0,
+    "n_rank": [
+     {
+      "n": 4,
+      "rank": 4,
+      "calls": 3105.0
+     }
+    ]
+   },
+   "O3": {
+    "full": 73.35015925,
+    "numerator_coefficients": 12.215290950000002,
+    "full_instrumented": 73.65189845,
+    "helicity_summed": 143.031316,
+    "ninja_total": 60.22593531587462,
+    "tensor_numerator": 22.502452315432947,
+    "masters": 27.22901204600349,
+    "ninja_reduction": 10.494470954438185,
+    "madloop_glue": 1.2106721841253787,
+    "ninja_calls_per_point": 1.0,
+    "tensor_numerator_calls_per_point": 27.0,
+    "master_calls_per_point": 15.0,
+    "n_rank": [
+     {
+      "n": 4,
+      "rank": 4,
+      "calls": 3105.0
+     }
+    ]
+   }
+  },
+  "replay_of_madloop_inputs_us": {
+   "o3-fortranrules": {
+    "full_ns": 59.8140071942446,
+    "pure_reduction_ns": 9.299307378568779,
+    "numerator_part_ns": 22.76934774963635,
+    "numerator_only_ns": 21.335375,
+    "masters_ns": 26.82555305466238,
+    "sum_pure_numerator_masters_ns": 58.89420818286751,
+    "entry_ns": 60.147606714628296
+   },
+   "o3": {
+    "full_ns": 70.05083888888889,
+    "pure_reduction_ns": 11.157273984828201,
+    "numerator_part_ns": 31.075320291266078,
+    "numerator_only_ns": 29.08137282229965,
+    "masters_ns": 26.867323655913978,
+    "sum_pure_numerator_masters_ns": 69.09991793200825,
+    "entry_ns": 70.36694957983192
+   }
+  }
+ },
+ {
+  "graph": "gg-hhh-top-pentagon-26",
+  "filter_id": 55,
+  "helicity": [
+   1,
+   1,
+   0,
+   0,
+   0
+  ],
+  "hel_index": 4,
+  "n_helicity_configs": 4,
+  "madloop_rank": 5,
+  "ninjars_rank": 4,
+  "n": 5,
+  "diagram_check": true,
+  "ninja_input_check": true,
+  "generation_seconds_median": 1.9800370020093396,
+  "generation_seconds_all": [
+   2.0005470589967445,
+   1.9912473289878108,
+   1.9633871790138073,
+   1.9650224829674698,
+   1.9688266750308685,
+   2.021984818042256
+  ],
+  "generation_wall_seconds_median": 3.269529096025508,
+  "compile_seconds": {
+   "default": {
+    "source": 1.232484103005845,
+    "pdir": 3.613132575992495,
+    "source_all": [
+     1.2919900069828145,
+     1.232484103005845,
+     1.218807837984059
+    ],
+    "pdir_all": [
+     3.601353638980072,
+     3.665879598003812,
+     3.613132575992495
+    ]
+   },
+   "O3": {
+    "source": 2.7156864710268565,
+    "pdir": 7.039128553995397,
+    "source_all": [
+     2.7060348099912517,
+     2.735339724982623,
+     2.7156864710268565
+    ],
+    "pdir_all": [
+     7.176075410970952,
+     7.039128553995397,
+     6.99268966197269
+    ]
+   }
+  },
+  "per_point_us": {
+   "default": {
+    "full": 239.77482849999998,
+    "numerator_coefficients": 25.5820137,
+    "full_instrumented": 241.25957549999998,
+    "helicity_summed": 710.0917499999999,
+    "ninja_total": 212.67636664770316,
+    "tensor_numerator": 81.23225756824226,
+    "masters": 105.38540713115309,
+    "ninja_reduction": 26.058701948307814,
+    "madloop_glue": 3.001195152296816,
+    "ninja_calls_per_point": 1.0,
+    "tensor_numerator_calls_per_point": 60.0,
+    "master_calls_per_point": 30.0,
+    "n_rank": [
+     {
+      "n": 5,
+      "rank": 5,
+      "calls": 945.0
+     }
+    ]
+   },
+   "O3": {
+    "full": 234.9374775,
+    "numerator_coefficients": 23.98330895,
+    "full_instrumented": 235.484636,
+    "helicity_summed": 694.0553060000001,
+    "ninja_total": 211.6721912957011,
+    "tensor_numerator": 80.54623704315668,
+    "masters": 105.10346735086372,
+    "ninja_reduction": 26.022486901680708,
+    "madloop_glue": -0.17086424570112513,
+    "ninja_calls_per_point": 1.0,
+    "tensor_numerator_calls_per_point": 60.0,
+    "master_calls_per_point": 30.0,
+    "n_rank": [
+     {
+      "n": 5,
+      "rank": 5,
+      "calls": 972.0
+     }
+    ]
+   }
+  },
+  "replay_of_madloop_inputs_us": {
+   "o3-fortranrules": {
+    "full_ns": 209.60985,
+    "pure_reduction_ns": 22.602070460704606,
+    "numerator_part_ns": 81.06122995081803,
+    "numerator_only_ns": 78.10390031152647,
+    "masters_ns": 101.58358232931727,
+    "sum_pure_numerator_masters_ns": 205.2468827408399,
+    "entry_ns": 208.95326666666665
+   },
+   "o3": {
+    "full_ns": 245.1906960784314,
+    "pure_reduction_ns": 27.08301954397394,
+    "numerator_part_ns": 112.79443601158162,
+    "numerator_only_ns": 107.48017948717948,
+    "masters_ns": 101.34663855421687,
+    "sum_pure_numerator_masters_ns": 241.2240941097724,
+    "entry_ns": 244.22869523809524
+   }
+  }
+ }
+]

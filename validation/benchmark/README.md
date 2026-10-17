@@ -151,7 +151,13 @@ C0(0,0,490000; 173²,0,173²): native 3.46e-5, OneLOop -5.70e-6-3.41e-5i).
 
 ## Part 3 — MadLoop
 
-See `madloop/README.md` and `madloop/SUMMARY.md`.
+See `madloop/README.md` (commands, definitions, results) and `madloop/SUMMARY.md`.
+In short, for the gg→HHH pentagon (filter id 55), one helicity, MadLoop's default
+flags: 240 µs per point = 25.6 coefficient construction + 81.2 TensorNumerator
+(MadLoop passes rank 5) + 26.1 Ninja reduction + 105.4 OneLOop + 3.0 glue;
+generation 2.0 s + compilation 4.8 s. Replaying MadLoop's exact Ninja inputs
+with `ninja_bench` reproduces the split (pure 22.6, numerator 81.1, masters
+101.6 µs).
 
 ## Caveats
 
