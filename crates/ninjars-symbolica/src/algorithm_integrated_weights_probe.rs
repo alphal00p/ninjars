@@ -26,7 +26,10 @@ struct ByteBudget(usize);
 
 impl ByteBudget {
     fn include(&mut self, context: &str, expressions: &[Atom]) -> ProbeResult<()> {
-        self.0 += expressions.iter().map(|e| e.to_string().len()).sum::<usize>();
+        self.0 += expressions
+            .iter()
+            .map(|e| e.to_string().len())
+            .sum::<usize>();
         if self.0 > MAX_COMPOSED_BYTES {
             return Err(format!("{context}: expression budget exceeded ({} bytes)", self.0).into());
         }
@@ -48,8 +51,15 @@ fn stage(network: &Network, heads: &[Atom], prefix: &[Atom]) -> ProbeResult<Stag
     let mut required = heads.to_vec();
     let mut selected = Vec::new();
     for (index, candidate) in network.blocks.iter().enumerate().rev() {
-        if candidate.outputs.iter().any(|x| required.contains(x) && !prefix.contains(x)) {
-            assert!(pre_master(candidate), "master block entered a pre-master stage");
+        if candidate
+            .outputs
+            .iter()
+            .any(|x| required.contains(x) && !prefix.contains(x))
+        {
+            assert!(
+                pre_master(candidate),
+                "master block entered a pre-master stage"
+            );
             assert!(candidate.outputs.iter().all(|x| !prefix.contains(x)));
             selected.push(index);
             required.extend(candidate.exact.parameters.clone());
@@ -70,33 +80,62 @@ fn stage(network: &Network, heads: &[Atom], prefix: &[Atom]) -> ProbeResult<Stag
     budget.include("stage outputs", &expressions)?;
     let mut parameters = prefix.to_vec();
     parameters.extend(
-        network.external.iter()
+        network
+            .external
+            .iter()
             .filter(|p| required.contains(p))
             .cloned(),
     );
-    let plan = ExactKernel { expressions, parameters };
+    let plan = ExactKernel {
+        expressions,
+        parameters,
+    };
     check_pre_master(network, &plan, prefix);
-    Ok(Stage { plan, blocks: selected, prefix: prefix.to_vec(), composition_bytes: budget.0 })
+    Ok(Stage {
+        plan,
+        blocks: selected,
+        prefix: prefix.to_vec(),
+        composition_bytes: budget.0,
+    })
 }
 
 fn check_pre_master(network: &Network, plan: &ExactKernel, prefix: &[Atom]) {
     assert_eq!(&plan.parameters[..prefix.len()], prefix);
     for (index, parameter) in plan.parameters.iter().enumerate() {
-        assert!(!plan.parameters[..index].contains(parameter), "duplicate parameter");
-        assert!(!network.master_values.contains(parameter), "master parameter before weights");
+        assert!(
+            !plan.parameters[..index].contains(parameter),
+            "duplicate parameter"
+        );
+        assert!(
+            !network.master_values.contains(parameter),
+            "master parameter before weights"
+        );
     }
-    let suffix: Vec<_> = network.external.iter()
-        .filter(|p| plan.parameters.contains(p)).cloned().collect();
+    let suffix: Vec<_> = network
+        .external
+        .iter()
+        .filter(|p| plan.parameters.contains(p))
+        .cloned()
+        .collect();
     assert_eq!(&plan.parameters[prefix.len()..], suffix.as_slice());
     for expression in &plan.expressions {
-        assert!(network.master_values.iter().all(|m| !expression.contains(m)));
+        assert!(
+            network
+                .master_values
+                .iter()
+                .all(|m| !expression.contains(m))
+        );
         for intermediate in network.blocks.iter().flat_map(|b| &b.outputs) {
-            assert!(prefix.contains(intermediate) || !expression.contains(intermediate),
-                "unresolved nonboundary intermediate {intermediate}");
+            assert!(
+                prefix.contains(intermediate) || !expression.contains(intermediate),
+                "unresolved nonboundary intermediate {intermediate}"
+            );
         }
         for variable in &network.variables {
-            assert!(!expression.contains(variable) || plan.parameters.contains(variable),
-                "unbound stage input {variable}");
+            assert!(
+                !expression.contains(variable) || plan.parameters.contains(variable),
+                "unbound stage input {variable}"
+            );
         }
     }
 }
@@ -127,9 +166,21 @@ fn stage_layout(network: &Network, stage: &Stage, heads: &[Atom]) -> Value {
 fn ordered_weights(network: &Network) -> ProbeResult<(Vec<Atom>, Vec<Value>)> {
     let cuts = [
         ("tri012", 3, vec![MasterIntegral::C0]),
-        ("bub01", 2, vec![MasterIntegral::B0, MasterIntegral::B1, MasterIntegral::B11]),
-        ("bub02", 2, vec![MasterIntegral::B0, MasterIntegral::B1, MasterIntegral::B11]),
-        ("bub12", 2, vec![MasterIntegral::B0, MasterIntegral::B1, MasterIntegral::B11]),
+        (
+            "bub01",
+            2,
+            vec![MasterIntegral::B0, MasterIntegral::B1, MasterIntegral::B11],
+        ),
+        (
+            "bub02",
+            2,
+            vec![MasterIntegral::B0, MasterIntegral::B1, MasterIntegral::B11],
+        ),
+        (
+            "bub12",
+            2,
+            vec![MasterIntegral::B0, MasterIntegral::B1, MasterIntegral::B11],
+        ),
         ("tad0_o0", 1, vec![MasterIntegral::A0]),
         ("tad1_o0", 1, vec![MasterIntegral::A0]),
         ("tad2_o0", 1, vec![MasterIntegral::A0]),
@@ -145,16 +196,23 @@ fn ordered_weights(network: &Network) -> ProbeResult<(Vec<Atom>, Vec<Value>)> {
         assert_eq!(weights.outputs.len(), plan.weight_columns());
         let end = master_offset + plan.masters().len() * 3;
         let masters = &network.master_values[master_offset..end];
-        let expected_symbols: Vec<_> = (0..masters.len()).map(|i|
-            Atom::var(symbol!(format!("ninjars_transpose::{label}_masters_{i}")))).collect();
+        let expected_symbols: Vec<_> = (0..masters.len())
+            .map(|i| Atom::var(symbol!(format!("ninjars_transpose::{label}_masters_{i}"))))
+            .collect();
         assert_eq!(masters, expected_symbols.as_slice());
         let mut arguments = weights.outputs.clone();
         arguments.extend_from_slice(masters);
         let contract = block(network, &format!("{label}_contract"));
         assert_eq!(contract.category, "master_contraction");
-        assert_eq!(bind(&plan.contraction, &arguments), contract.exact.expressions);
+        assert_eq!(
+            bind(&plan.contraction, &arguments),
+            contract.exact.expressions
+        );
         for (local, head) in weights.outputs.iter().enumerate() {
-            let kind = plan.masters().get(local).map(|m| format!("{m:?}"))
+            let kind = plan
+                .masters()
+                .get(local)
+                .map(|m| format!("{m:?}"))
                 .unwrap_or_else(|| "rational".into());
             inventory.push(json!({"column":heads.len(),"cut":label,"cut_size":size,
                 "local_column":local,"kind":kind,"symbol":head.to_string()}));
@@ -164,15 +222,22 @@ fn ordered_weights(network: &Network) -> ProbeResult<(Vec<Atom>, Vec<Value>)> {
     }
     assert_eq!(master_offset, network.master_values.len());
     assert_eq!(heads.len(), WEIGHT_HEADS);
-    let network_order: Vec<_> = network.blocks.iter().filter(|b| b.category == "master_weights")
-        .flat_map(|b| b.outputs.clone()).collect();
+    let network_order: Vec<_> = network
+        .blocks
+        .iter()
+        .filter(|b| b.category == "master_weights")
+        .flat_map(|b| b.outputs.clone())
+        .collect();
     assert_eq!(heads, network_order);
     Ok((heads, inventory))
 }
 
-fn exact_rows(label: &str, actual: &[Atom], expected: &[Atom], budget: &mut ByteBudget)
-    -> ProbeResult<Value>
-{
+fn exact_rows(
+    label: &str,
+    actual: &[Atom],
+    expected: &[Atom],
+    budget: &mut ByteBudget,
+) -> ProbeResult<Value> {
     assert_eq!(actual.len(), expected.len());
     budget.include(label, actual)?;
     budget.include(label, expected)?;
@@ -183,9 +248,12 @@ fn exact_rows(label: &str, actual: &[Atom], expected: &[Atom], budget: &mut Byte
 }
 
 /// Only unchanged contraction/sum blocks are added after the 20 weight values.
-fn recover_integrated(network: &Network, integrated: &[Atom], weights: &[Atom], values: &[Atom])
-    -> ProbeResult<Vec<Atom>>
-{
+fn recover_integrated(
+    network: &Network,
+    integrated: &[Atom],
+    weights: &[Atom],
+    values: &[Atom],
+) -> ProbeResult<Vec<Atom>> {
     assert_eq!(weights.len(), WEIGHT_HEADS);
     assert_eq!(values.len(), WEIGHT_HEADS);
     let mut from = weights.to_vec();
@@ -200,8 +268,13 @@ fn recover_integrated(network: &Network, integrated: &[Atom], weights: &[Atom], 
     let result = substitute(integrated, &from, &to);
     budget.include("integrated recovery", &result)?;
     for expression in &result {
-        assert!(network.blocks.iter().flat_map(|b| &b.outputs)
-            .all(|p| !expression.contains(p)));
+        assert!(
+            network
+                .blocks
+                .iter()
+                .flat_map(|b| &b.outputs)
+                .all(|p| !expression.contains(p))
+        );
     }
     Ok(result)
 }
@@ -210,8 +283,11 @@ fn recover_integrated(network: &Network, integrated: &[Atom], weights: &[Atom], 
 #[ignore = "bounded symbolic pre-master fusion inventory; no numerical or performance acceptance"]
 fn inventory_integrated_weights_n3_r3() -> ProbeResult<()> {
     let output = std::env::var_os("NINJARS_INTEGRATED_WEIGHTS_OUTPUT")
-        .map(PathBuf::from).unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../../target/integrated-weights-n3-r3.json"));
+        .map(PathBuf::from)
+        .unwrap_or_else(|| {
+            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("../../target/integrated-weights-n3-r3.json")
+        });
     let mut report = json!({
         "schema":"ninjars-integrated-weights-v1","propagators":3,"rank":3,
         "status":"incomplete_preparing_network","production_dispatch":false,
@@ -242,7 +318,9 @@ fn inventory_integrated_weights_n3_r3() -> ProbeResult<()> {
     let (weights, order) = ordered_weights(&network)?;
     let triangle = block(&network, "tri012_projection").outputs.clone();
     let bubbles: Vec<_> = ["bub01_projection", "bub02_projection", "bub12_projection"]
-        .iter().flat_map(|name| block(&network, name).outputs.clone()).collect();
+        .iter()
+        .flat_map(|name| block(&network, name).outputs.clone())
+        .collect();
     assert_eq!(triangle.len(), TRIANGLE_HEADS);
     assert_eq!(bubbles.len(), BUBBLE_HEADS);
     let parents: Vec<_> = triangle.iter().chain(&bubbles).cloned().collect();
@@ -250,21 +328,35 @@ fn inventory_integrated_weights_n3_r3() -> ProbeResult<()> {
     report["external_inputs"] = json!(symbols(&network.external));
     report["callback_inputs"] = json!(symbols(&network.callbacks));
     report["symbolic_master_inputs"] = json!(symbols(&network.master_values));
-    report["pre_master_external_inputs"] = json!(symbols(&network.external.iter()
-        .filter(|p| !network.master_values.contains(p)).cloned().collect::<Vec<_>>()));
+    report["pre_master_external_inputs"] = json!(symbols(
+        &network
+            .external
+            .iter()
+            .filter(|p| !network.master_values.contains(p))
+            .cloned()
+            .collect::<Vec<_>>()
+    ));
     report["status"] = json!("incomplete_separate_inventory");
     write_report(&output, &report)?;
     let mut separate = Vec::new();
     let mut before_masters = Vec::new();
     for current in &network.blocks {
         let row = record(&current.name, current.category, &current.exact)?;
-        if pre_master(current) { before_masters.push(row.clone()); }
+        if pre_master(current) {
+            before_masters.push(row.clone());
+        }
         separate.push(row);
         report["separate_blocks"] = json!(separate);
         report["last_recorded_block"] = json!(current.name);
         write_report(&output, &report)?;
     }
-    assert_eq!(before_masters.iter().map(|v| v["outputs"].as_u64().unwrap()).sum::<u64>(), 243);
+    assert_eq!(
+        before_masters
+            .iter()
+            .map(|v| v["outputs"].as_u64().unwrap())
+            .sum::<u64>(),
+        243
+    );
     report["separate_full_totals"] = totals(&separate);
     report["separate_pre_master_totals"] = totals(&before_masters);
     report["separate_pre_master_blocks"] = json!(before_masters);
@@ -291,16 +383,35 @@ fn inventory_integrated_weights_n3_r3() -> ProbeResult<()> {
     report["status"] = json!("incomplete_checking_stage_boundaries");
     write_report(&output, &report)?;
     let stages = [&triangles, &bubbles_stage, &final_stage];
-    let selected: Vec<_> = stages.iter().flat_map(|s| s.blocks.iter().copied()).collect();
+    let selected: Vec<_> = stages
+        .iter()
+        .flat_map(|s| s.blocks.iter().copied())
+        .collect();
     for (i, index) in selected.iter().enumerate() {
         assert!(!selected[..i].contains(index), "earlier stage recomputed");
     }
     let mut selected_order = selected;
     selected_order.sort_unstable();
-    assert_eq!(selected_order, network.blocks.iter().enumerate()
-        .filter_map(|(i,b)| pre_master(b).then_some(i)).collect::<Vec<_>>());
-    let callback_groups: Vec<_> = stages.iter().map(|s| s.plan.parameters.iter()
-        .filter(|p| network.callbacks.contains(p)).cloned().collect::<Vec<_>>()).collect();
+    assert_eq!(
+        selected_order,
+        network
+            .blocks
+            .iter()
+            .enumerate()
+            .filter_map(|(i, b)| pre_master(b).then_some(i))
+            .collect::<Vec<_>>()
+    );
+    let callback_groups: Vec<_> = stages
+        .iter()
+        .map(|s| {
+            s.plan
+                .parameters
+                .iter()
+                .filter(|p| network.callbacks.contains(p))
+                .cloned()
+                .collect::<Vec<_>>()
+        })
+        .collect();
     let staged_callbacks: Vec<_> = callback_groups.iter().flatten().cloned().collect();
     assert_eq!(staged_callbacks, network.callbacks);
     report["staged_parent_buffer_values"] = json!(parents.len());
@@ -319,19 +430,56 @@ fn inventory_integrated_weights_n3_r3() -> ProbeResult<()> {
     let all_heads: Vec<_> = parents.iter().chain(&weights).cloned().collect();
     let reference = network.compose(&all_heads)?;
     for expression in &reference.expressions {
-        assert!(network.master_values.iter().all(|m| !expression.contains(m)));
-        assert!(network.blocks.iter().flat_map(|b| &b.outputs).all(|p| !expression.contains(p)));
+        assert!(
+            network
+                .master_values
+                .iter()
+                .all(|m| !expression.contains(m))
+        );
+        assert!(
+            network
+                .blocks
+                .iter()
+                .flat_map(|b| &b.outputs)
+                .all(|p| !expression.contains(p))
+        );
     }
-    let full_bubbles = substitute(&bubbles_stage.plan.expressions, &triangle, &triangles.plan.expressions);
-    let full_parents: Vec<_> = triangles.plan.expressions.iter().chain(&full_bubbles).cloned().collect();
+    let full_bubbles = substitute(
+        &bubbles_stage.plan.expressions,
+        &triangle,
+        &triangles.plan.expressions,
+    );
+    let full_parents: Vec<_> = triangles
+        .plan
+        .expressions
+        .iter()
+        .chain(&full_bubbles)
+        .cloned()
+        .collect();
     let full_weights = substitute(&final_stage.plan.expressions, &parents, &full_parents);
     let mut identity_budget = ByteBudget::default();
     let mut identities = Vec::new();
     for (label, actual, expected) in [
-        ("triangle_boundary10", triangles.plan.expressions.as_slice(), &reference.expressions[..10]),
-        ("bubble_boundary30", full_bubbles.as_slice(), &reference.expressions[10..40]),
-        ("staged_weights20", full_weights.as_slice(), &reference.expressions[40..]),
-        ("weights_only20", one_shot.plan.expressions.as_slice(), &reference.expressions[40..]),
+        (
+            "triangle_boundary10",
+            triangles.plan.expressions.as_slice(),
+            &reference.expressions[..10],
+        ),
+        (
+            "bubble_boundary30",
+            full_bubbles.as_slice(),
+            &reference.expressions[10..40],
+        ),
+        (
+            "staged_weights20",
+            full_weights.as_slice(),
+            &reference.expressions[40..],
+        ),
+        (
+            "weights_only20",
+            one_shot.plan.expressions.as_slice(),
+            &reference.expressions[40..],
+        ),
     ] {
         identities.push(exact_rows(label, actual, expected, &mut identity_budget)?);
         report["exact_identities"] = json!(identities);
@@ -339,11 +487,19 @@ fn inventory_integrated_weights_n3_r3() -> ProbeResult<()> {
     }
     let integrated_reference = network.compose(&integrated)?;
     for (label, values) in [
-        ("weights_only_recovered_integrated5", &one_shot.plan.expressions),
+        (
+            "weights_only_recovered_integrated5",
+            &one_shot.plan.expressions,
+        ),
         ("staged_recovered_integrated5", &full_weights),
     ] {
         let recovered = recover_integrated(&network, &integrated, &weights, values)?;
-        identities.push(exact_rows(label, &recovered, &integrated_reference.expressions, &mut identity_budget)?);
+        identities.push(exact_rows(
+            label,
+            &recovered,
+            &integrated_reference.expressions,
+            &mut identity_budget,
+        )?);
         report["exact_identities"] = json!(identities);
         write_report(&output, &report)?;
     }
@@ -354,14 +510,18 @@ fn inventory_integrated_weights_n3_r3() -> ProbeResult<()> {
     write_report(&output, &report)?;
     let mut staged_records = Vec::new();
     for (name, stage) in [
-        ("triangle10", &triangles), ("bubbles30", &bubbles_stage), ("weights20", &final_stage)
+        ("triangle10", &triangles),
+        ("bubbles30", &bubbles_stage),
+        ("weights20", &final_stage),
     ] {
         staged_records.push(record(name, "pre_master_stage", &stage.plan)?);
         report["staged_evaluators"] = json!(staged_records);
         write_report(&output, &report)?;
     }
     report["staged_totals"] = totals(&staged_records);
-    let baseline = report["separate_pre_master_totals"]["instructions"].as_i64().unwrap();
+    let baseline = report["separate_pre_master_totals"]["instructions"]
+        .as_i64()
+        .unwrap();
     report["instruction_differences"] = json!({
         "separate_pre_master_minus_weights20":baseline-report["weights20"]["instructions"].as_i64().unwrap(),
         "separate_pre_master_minus_staged":baseline-report["staged_totals"]["instructions"].as_i64().unwrap()
