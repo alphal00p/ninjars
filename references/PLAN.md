@@ -1797,3 +1797,58 @@ connects the existing kernels into integrated amplitudes and a standalone
   harness, and optimized physical timing remains outstanding. The frozen blocking
   probe is still compiling in thin LTO; its build cost is preparation, not timed
   reduction. Fresh timing authorization follows completion of all validation jobs.
+
+### Bounded execution evidence and real-domain audit (2026-10-17)
+
+- Integrated blocking diagnostic evidence `aae2f6a` as `6fa83dd`. Frozen source
+  `b3c69ae` passed eight optimized controls, including 421,872 exact complex
+  components per numerical domain. Its 24m43s build is preparation, not runtime.
+  All 2,100 raw timing blocks are retained; the minimum is 21.467 ms and none
+  fell below 20 ms. Root verified 30 source hashes, six raw-file hashes and the
+  preserved executable, and recomputed all 42 groups' paired statistics.
+- Block32/whole median ratios span 0.975–1.019 at phase width one and
+  0.581–0.824 at width 1024; intermediate widths include regressions, reaching
+  1.139 at width eight. These repeated synthetic kernel measurements include
+  packing/arithmetic/unpacking and zero actual master computation. They exclude
+  complete reduction, callbacks and changing physical inputs. CPU75's SMT sibling
+  remained unreserved. No default policy or performance acceptance follows.
+- An explicit owner-level policy is drafted in isolated oneloopmaster and NinjaRS
+  worktrees. It retains Whole by default, complete-buffer validation, natural
+  whole-row tails, all flattened Dual components and the explicit scalar
+  prototype; tightened bounds release oversized arenas. Correctness validation
+  is underway. Canonical dependencies remain unchanged. After review, any
+  oneloopmaster publication goes directly to main as requested, without a PR.
+- The independent algorithm auditor checked the actual reference harness and
+  found complex masses on both sides, but real external shifts and longitudinal
+  geometry in original Ninja. Symbolica already exports real-operand metadata;
+  the current Rust emitters do not consume it for Add/Mul. The documented
+  bounded candidate reuses Numerica mixed operations and preserves generic
+  complex fallback, every Dual component and precision. Operand reordering,
+  signed zeros and intermediate overflow require separate controls. No emitter
+  change or measured gain is claimed. See `docs/audits/real-domain-arithmetic.md`.
+
+### Matched physical reduction timing checkpoint (2026-10-17)
+
+- Integrated `a41df4e` as `b36ccf2`. Frozen runtime `553f406` completed all
+  18 cached processes: three selections, six widths, repeated and changing
+  phase-space workloads, eight balanced paired blocks per record. All 576
+  individual blocks exceeded 20 ms; the minimum was 38.015065 ms. No builds or
+  links ran during sampling. The coordinated hold is released.
+- Root independently reran verification of all 18 lossless archives, 35,136
+  source entries (1,952 distinct files), 108 artifact entries and every paired
+  statistic/bootstrap interval. Source and artifact guards pass. Actual master
+  backend calls/rows and frozen-union misses are exactly zero in this scope.
+  Coefficient preparation is excluded; geometry, ordinary callbacks, reduction,
+  master lookup/transport and contraction are included. Separate older actual
+  master-computation controls retain their original source identity.
+- Changing-point native-catalog NinjaRS/original ratios are 2.726, 2.103, 2.217,
+  2.302, 2.638 and 2.289 at widths 1, 8, 32, 128, 1024 and 31. The performance
+  target remains unmet. CPU75 was pinned but its SMT sibling was unreserved.
+  Each mode is paired with original Ninja, not directly with the other modes;
+  earlier pre-reuse schedules are not paired before/after speedup evidence.
+- The same numerator callback provider and equal sampled rows are used, but
+  original Ninja requests fewer swapped-orientation expansion heads. Native
+  geometry, guarded rank alternates and blocking are excluded from this frozen
+  runtime. The latter two candidates' new CLI/API validation is now underway.
+  See `validation/performance/shared_provider/REUSE-TIMING-553f406.md` and its
+  evidence index for intervals, repeated-point results, counters and limitations.

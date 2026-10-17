@@ -24,6 +24,13 @@ compiled and passed its symbolic test. It quantifies selected-head and
 structural-zero simplifications without changing production dispatch or claiming
 numerical/performance acceptance.
 
+Subsequent work is recorded separately: [same-call denominator reuse](../denominator-reuse.md)
+is integrated, [guarded rank corrections](../guarded-rank-specialization.md)
+have explicit interpreted/native opt-ins, and the [bounded transpose probe](transpose-probe.md)
+favors forward fusion for its single-numerator operation count. The follow-up
+[real-domain audit](real-domain-arithmetic.md) identifies a further native-emitter
+experiment. The recommendations below retain their original audit scope.
+
 The [immutable interpreted baseline](../../validation/evidence/shared-reduction-timing-0c77597.json)
 measures graph26, n=5/rank4, with the same numerator callback provider and frozen
 masters. Changing-point batch-one medians are approximately 309.7 microseconds

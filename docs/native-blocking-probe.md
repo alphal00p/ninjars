@@ -1,8 +1,9 @@
 # Native executor blocking probe
 
 This is a test-only scheduling experiment. Production dispatch, existing
-reduction expressions and their generated bodies are unchanged. No performance
-result or acceptance claim is established by the source audit.
+reduction expressions and their generated bodies are unchanged. The source
+audit below is followed by an optimized diagnostic result; it does not establish
+whole-reduction performance acceptance.
 
 The n5/r4 coordinator expands a phase-space lane into many cut/parent rows.
 Even width one therefore enters the generated instruction-major batch path:
@@ -94,6 +95,31 @@ identities and the test executable hash are retained in
 Native Dual controls use the existing ordered shape
 `[[0,0],[1,0],[0,1],[2,0],[1,1]]`. The conditional fixture covers ordinary
 f64/DoubleFloat/Float; the supported native Dual reduction bodies tested here
-are straight-line. Validation was performed in the debug profile. Optimized
-correctness controls and coordinated timings remain required before interpreting
-performance or selecting a production policy.
+are straight-line. That initial validation used the debug profile; optimized
+controls and diagnostic timings follow below.
+
+## Optimized diagnostic, 2026-10-17
+
+The frozen `b3c69ae` source passed the same eight controls in release mode,
+including 421,872 exact complex components per numerical domain. The build took
+24m43s; that preparation cost is outside the kernel timings.
+
+The [retained release evidence](../validation/evidence/native-blocking-release/summary.json)
+contains all 2,100 raw timing blocks across 42 case/width groups and five modes.
+Ten balanced repeats use the original fixed rounds without omission or resampling.
+The minimum block was 21.467 ms; none missed the 20 ms target. Root independently
+verified 30 source hashes, six raw-file hashes and the preserved executable,
+recomputed every group's median and paired ratios, and checked before/after
+source, dependency and executable guards. Actual master computations were zero.
+
+Block32/whole paired median ratios range from 0.975 to 1.019 across the seven
+kernel shapes at phase width one, and from 0.581 to 0.824 at width 1024. Several
+intermediate widths regress; width eight reaches 1.139. These are individual
+kernel results, including packing and unpacking. They do not measure the full
+reduction, changing physical points or numerator preparation. Execution used
+CPU75 with an unreserved SMT sibling on a shared host; observed ratio minima
+and maxima are dispersion summaries, not confidence intervals.
+
+These results justify validating an explicit supported opt-in in oneloopmaster
+and NinjaRS. They do not justify changing the default. Whole-reduction controls
+and timings are required for that separate implementation.

@@ -119,7 +119,7 @@ kernel graphs through oneloopmaster's shared emitter. The `native-kernels`
 feature enables explicit native batch dispatch for selected denominator,
 bubble-correction and tadpole-projection plans. Coverage is partial: geometry
 and other reduction stages still use Symbolica evaluators. The
-[saved native-catalog timings](validation/performance/shared_provider/TIMING-de0f190.md)
+[saved denominator-reuse timings](validation/performance/shared_provider/REUSE-TIMING-553f406.md)
 record the remaining performance gap and keep actual master computation separate.
 
 [Same-call denominator reuse](docs/denominator-reuse.md) is integrated. The
@@ -133,6 +133,10 @@ experiments. Its [bounded triangle study](docs/audits/transpose-probe.md) proves
 the forward/transposed symbolic identities but finds lower instruction counts
 from forward fusion at one changing point. These counts exclude some required
 intermediate diagnostics and do not establish the final performance gates.
+A follow-up [real-domain arithmetic audit](docs/audits/real-domain-arithmetic.md)
+identifies existing Symbolica annotations that generated Rust could use while
+preserving complex masses and all derivative components; that experiment is
+not yet implemented or measured.
 
 See [synthetic graph fixtures](examples/graphs/README.md) and the
 [original Ninja reference harness](validation/reference/README.md).

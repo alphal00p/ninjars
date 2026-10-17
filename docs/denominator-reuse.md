@@ -63,3 +63,11 @@ Symbolica's `atom.rs`; no dependency sources are changed here. The reproducible
 commands, dependency revisions, source and executable hashes, and retained logs
 are recorded in
 [`denominator-reuse.json`](../validation/evidence/denominator-reuse.json).
+
+Optimized physical controls and a subsequent frozen-source timing schedule are
+retained in [the matched reduction report](../validation/performance/shared_provider/REUSE-TIMING-553f406.md).
+All 576 individual blocks passed source/artifact guards and had zero actual
+master computation or frozen-union misses. The native catalog remains 2.10–2.73
+times original Ninja on the changing-point graph26 workload. These shared-host
+diagnostics do not meet the performance target. Older pre-reuse runs were not
+paired with this schedule and do not establish a causal before/after speedup.
