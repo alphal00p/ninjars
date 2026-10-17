@@ -14,6 +14,7 @@
 pub mod complex;
 pub mod masters;
 pub mod numerator;
+pub mod tensor_layout;
 
 pub use complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr, to_complex};
 pub use masters::{FastMaster, FastMasters};

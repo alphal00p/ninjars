@@ -6,11 +6,11 @@
 #![forbid(unsafe_code)]
 
 mod amplitude;
-pub mod fast;
 mod batch;
 mod boxes;
 mod bubbles;
 mod cuts;
+pub mod fast;
 mod high_cuts;
 mod integration;
 mod kinematics;

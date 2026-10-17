@@ -107,10 +107,7 @@ mod tests {
 
     #[test]
     fn layouts_match_original_ninja() {
-        assert_eq!(
-            (0..5).map(t3_len).collect::<Vec<_>>(),
-            [1, 2, 4, 6, 9]
-        );
+        assert_eq!((0..5).map(t3_len).collect::<Vec<_>>(), [1, 2, 4, 6, 9]);
         assert_eq!((0..4).map(t2_len).collect::<Vec<_>>(), [1, 3, 7, 13]);
     }
 }
