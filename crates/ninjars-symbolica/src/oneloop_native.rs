@@ -199,19 +199,24 @@ impl OneLoopNativeMasters {
         let args = &args[..count];
         let value = match integral {
             MasterIntegral::A0 => self.scalar(ScalarIntegral::A0, args),
-            MasterIntegral::B0 => self.scalar(ScalarIntegral::B0, args),
+            // Bubbles come from the same tensor families as the batched
+            // `FastMasters` interface, so both interfaces agree bit for bit.
+            MasterIntegral::B0 | MasterIntegral::B1 | MasterIntegral::B11 => {
+                let slot = match integral {
+                    MasterIntegral::B0 => 0,
+                    MasterIntegral::B1 => 1,
+                    _ => 2,
+                };
+                let mut out = [[C64::ZERO; 3]; 3];
+                self.tensor(TensorIntegral::B11, args, &mut out)
+                    .then_some(out[slot])
+            }
             MasterIntegral::DB0 => self.scalar(ScalarIntegral::DB0, args),
             MasterIntegral::C0 => self.scalar(ScalarIntegral::C0, args),
             MasterIntegral::D0 => self.scalar(ScalarIntegral::D0, args),
-            MasterIntegral::B1 | MasterIntegral::B11 | MasterIntegral::B111 => {
-                let slot = match integral {
-                    MasterIntegral::B1 => 1,
-                    MasterIntegral::B11 => 2,
-                    _ => 3,
-                };
-                self.bubble(args[0], args[1], args[2], args[3])
-                    .map(|b| b[slot])
-            }
+            MasterIntegral::B111 => self
+                .bubble(args[0], args[1], args[2], args[3])
+                .map(|b| b[3]),
             MasterIntegral::An { rank } => self.an(rank, args[0], args[1]),
         };
         value.ok_or(MasterFailure::NonFiniteResult)
