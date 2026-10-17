@@ -7,7 +7,7 @@ use oneloop::NativeFloat;
 use symbolica::{
     atom::Atom,
     create_hyperdual_from_components,
-    domains::dual::{DualNumber, DualNumberStructure, HyperDual},
+    domains::dual::{DualNumber, HyperDual},
     evaluate::EvaluationDomain,
     parse,
 };
