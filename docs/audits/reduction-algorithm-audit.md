@@ -29,7 +29,10 @@ is integrated, [guarded rank corrections](../guarded-rank-specialization.md)
 have explicit interpreted/native opt-ins, and the [bounded transpose probe](transpose-probe.md)
 favors forward fusion for its single-numerator operation count. The follow-up
 [real-domain audit](real-domain-arithmetic.md) identifies a further native-emitter
-experiment. The recommendations below retain their original audit scope.
+experiment. The [swapped-bubble design](swapped-bubble-heads.md) details the
+projection-specific API needed to prune arithmetic while preserving existing
+raw outputs, and separates that control from callback trimming. The
+recommendations below retain their original audit scope.
 
 The [immutable interpreted baseline](../../validation/evidence/shared-reduction-timing-0c77597.json)
 measures graph26, n=5/rank4, with the same numerator callback provider and frozen

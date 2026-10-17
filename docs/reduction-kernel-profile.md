@@ -2,10 +2,12 @@
 
 This is the retained pre-catalog profile. The denominator, bubble correction
 and tadpole source projections proposed below have since been implemented;
-see [current coverage](native-reduction-catalog.md). Their optimized comparison
-is held pending the confirmed reciprocal overflow-masking fix recorded in
-`shared-reduction-catalog-ee1f152-superseded.json`. The historical span timings
-below are not measurements of the current native implementation.
+see [current coverage](native-reduction-catalog.md). The reciprocal overflow
+fix and same-call denominator reuse are integrated. The subsequent
+[matched physical timings](../validation/performance/shared_provider/REUSE-TIMING-553f406.md)
+still miss reduction performance acceptance. Those timings exclude the newer
+guarded rank and bounded execution options. The historical span timings below
+are not measurements of the current native implementation.
 
 The retained diagnostic evidence contains two external CPU profiles and six
 instrumented kernel runs. Every run passed pre/post total-Laurent checks,

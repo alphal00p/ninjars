@@ -1905,3 +1905,22 @@ connects the existing kernels into integrated amplitudes and a standalone
   next algorithm audit examines swapped bubble expansion head liveness and
   the smallest compatible batched change. Neither effort has new timing
   evidence; the last physical reduction measurements still miss acceptance.
+
+### Swapped bubble audit follow-up (2026-10-17)
+
+- The requested independent algorithm audit has a concrete, bounded follow-up
+  in `docs/audits/swapped-bubble-heads.md` (`a048832`). Original Ninja already
+  requests reduced depth in the second bubble orientation. The proposed first
+  control keeps callbacks unchanged and selects positive-power division and
+  correction heads through Symbolica. For n5/r4 this reduces computed division
+  heads from 60 to 40 and correction heads from 180 to 120 per lane; these
+  counts are not runtime predictions.
+- Existing combined and standalone kernel APIs expose full raw outputs. A
+  defaulted projection-specific method is needed to preserve them. The opt-in
+  must retain original rank/higher-rank layouts, full Dual checks, denominator
+  reuse and complete residues. A failure confined to discarded arithmetic can
+  disappear; the default and old raw APIs retain their original behavior.
+- Callback trimming is a separate control because it doubles the shared
+  wrapper's n5/r4 callback groups from ten batches of 2L rows to twenty of L
+  rows. No implementation, numerical or performance claim follows from the
+  audit. Current rank/block validation and performance remain the next checkpoint.
