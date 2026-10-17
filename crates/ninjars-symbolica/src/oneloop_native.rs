@@ -66,6 +66,8 @@ pub struct OneLoopNativeMasters {
     args: [C64; 11],
     input: Vec<Complex<f64>>,
     output: [Complex<f64>; 12],
+    batch_input: Vec<Complex<f64>>,
+    batch_output: Vec<Complex<f64>>,
 }
 
 fn native_error(error: String) -> Error {
@@ -86,7 +88,35 @@ impl OneLoopNativeMasters {
             args: [C64::ZERO; 11],
             input: Vec::with_capacity(11),
             output: [Complex::new(0., 0.); 12],
+            batch_input: Vec::new(),
+            batch_output: Vec::new(),
         })
+    }
+
+    /// oneloopmaster's native domain contract for one thresholded row.
+    fn row_is_valid(row: &[C64], invariants: usize) -> bool {
+        let mu2 = row[row.len() - 1];
+        row.iter().all(|z| z.is_finite())
+            && row[..invariants].iter().all(|z| z.im == 0.)
+            && row[invariants..row.len() - 1].iter().all(|z| z.im <= 0.)
+            && mu2.im == 0.
+            && mu2.re > 0.
+    }
+
+    /// Stage every row of a family call (thresholded, in Symbolica's
+    /// complex layout). Returns whether all rows satisfy the domain contract.
+    fn stage_batch(&mut self, args: &[C64], arity: usize, invariants: usize) -> bool {
+        self.batch_input.clear();
+        let mut valid = true;
+        for point in args.chunks_exact(arity) {
+            let row = &mut self.args[..arity];
+            row.copy_from_slice(point);
+            snap_onshell(row, invariants);
+            valid &= Self::row_is_valid(row, invariants);
+            self.batch_input
+                .extend(row.iter().map(|z| z.to_symbolica()));
+        }
+        valid
     }
 
     /// Copy and threshold the arguments of one row.
@@ -244,6 +274,49 @@ impl FastMasters for OneLoopNativeMasters {
             columns: width,
         }
         .validate("native master outputs", out.len())?;
+        if rows == 0 {
+            return Ok(());
+        }
+        let invariants = match family {
+            FastMaster::A0 => 0,
+            FastMaster::BubbleRank2 | FastMaster::BubbleRank3 => 1,
+            FastMaster::C0 => 3,
+            FastMaster::D0 => 6,
+        };
+        // Common case: one batched native call for the whole family. Rows
+        // violating the domain contract (the native batch call would reject
+        // the whole batch) fall back to row-wise evaluation below.
+        if self.stage_batch(args, arity, invariants) {
+            self.batch_output
+                .resize(rows * width * 3, Complex::new(0., 0.));
+            let input = &self.batch_input;
+            let output = &mut self.batch_output;
+            let result = match family {
+                FastMaster::A0 => self.a0.evaluate_batch(input, output, rows),
+                FastMaster::C0 => self.c0.evaluate_batch(input, output, rows),
+                FastMaster::D0 => self.d0.evaluate_batch(input, output, rows),
+                FastMaster::BubbleRank2 => self.b11.evaluate_batch(input, output, rows),
+                FastMaster::BubbleRank3 => self.b111.evaluate_batch(input, output, rows),
+            };
+            if result.is_ok() {
+                for ((values, result), ok) in self
+                    .batch_output
+                    .chunks_exact(width * 3)
+                    .zip(out.chunks_exact_mut(width))
+                    .zip(ok.iter_mut())
+                {
+                    for (triple, value) in result.iter_mut().zip(values.chunks_exact(3)) {
+                        *triple = [
+                            C64::from_symbolica(value[0]),
+                            C64::from_symbolica(value[1]),
+                            C64::from_symbolica(value[2]),
+                        ];
+                    }
+                    *ok = result.iter().flatten().all(|z| z.is_finite());
+                }
+                return Ok(());
+            }
+        }
         for (row, (point, result)) in args
             .chunks_exact(arity)
             .zip(out.chunks_exact_mut(width))
