@@ -1,0 +1,1431 @@
+{
+ "description": "Pinned timings (ns per phase-space point) on one CPU in one session: original Ninja o3-fortranrules (validation/benchmark/ninja_bench.cc, modes pure_reduction and reduction_plus_tensor_numerator, 7 interleaved rounds of >=25 ms blocks, lanes cycled) and the fast engine (examples/fast_bench.rs, phases reduction = replayed numerator and masters, reduction+tensor = live TensorNumerator with replayed masters; medians of 7 blocks of >=20 ms; every run cycles over all case points). Two repetitions per case, interleaved Ninja/Rust per case; the medians of the repetitions are reported.",
+ "cpu": 203,
+ "date_utc": "2026-10-17T15:05:26+00:00",
+ "build": {
+  "rust": "--profile perf (x86-64 baseline target)",
+  "ninja": "o3-fortranrules (-O3 -DNDEBUG -fcx-fortran-rules)"
+ },
+ "cases": [
+  {
+   "case": "four-photon-top-box-0",
+   "n": 4,
+   "rank": 4,
+   "points": 3,
+   "ninja_o3_fortranrules_ns": {
+    "pure_reduction": 9168.965221511051,
+    "reduction_plus_tensor_numerator": 32054.97916047916,
+    "numerator_only": 21405.275381719213,
+    "full": 43171.301724444915
+   },
+   "ninja_repeats_ns": [
+    {
+     "pure_reduction": 9131.543761638733,
+     "reduction_plus_tensor_numerator": 32043.496782496783,
+     "numerator_only": 21377.52677029361,
+     "full": 43149.73575129534
+    },
+    {
+     "pure_reduction": 9206.38668138337,
+     "reduction_plus_tensor_numerator": 32066.46153846154,
+     "numerator_only": 21433.023993144816,
+     "full": 43192.8676975945
+    }
+   ],
+   "rust_ns": {
+    "reduction": {
+     "1": {
+      "median": 6172.349202473958,
+      "repeats": [
+       6221.600423177083,
+       6123.097981770833
+      ],
+      "block_range": [
+       6114.30078125,
+       6304.465169270833
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 5300.917805989584,
+      "repeats": [
+       5268.089518229167,
+       5333.746093750001
+      ],
+      "block_range": [
+       5255.184407552083,
+       5380.515462239583
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 5200.642496744791,
+      "repeats": [
+       5196.154134114584,
+       5205.130859374999
+      ],
+      "block_range": [
+       5192.140299479167,
+       5223.324218750001
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 5351.790445963542,
+      "repeats": [
+       5337.437174479167,
+       5366.143717447917
+      ],
+      "block_range": [
+       5320.765625,
+       5469.51171875
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    },
+    "reduction+tensor": {
+     "1": {
+      "median": 17340.936848958332,
+      "repeats": [
+       17398.003255208332,
+       17283.870442708332
+      ],
+      "block_range": [
+       17255.302734375,
+       17476.981119791668
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 14957.409505208334,
+      "repeats": [
+       15019.544270833334,
+       14895.274739583334
+      ],
+      "block_range": [
+       14851.797526041666,
+       15217.559244791666
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 14711.341145833332,
+      "repeats": [
+       14721.848307291666,
+       14700.833984375
+      ],
+      "block_range": [
+       14641.373697916666,
+       14765.494140625
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 14809.08203125,
+      "repeats": [
+       14796.347005208334,
+       14821.817057291666
+      ],
+      "block_range": [
+       14761.640625,
+       14866.003255208334
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    }
+   },
+   "speedup_vs_ninja": {
+    "reduction": {
+     "1": 1.4854903571943094,
+     "8": 1.729693905298985,
+     "32": 1.7630447059666434,
+     "128": 1.7132519133716306
+    },
+    "reduction+tensor": {
+     "1": 1.8485148432107172,
+     "8": 2.1430836101209416,
+     "32": 2.1789297687218707,
+     "128": 2.1645486933516214
+    }
+   }
+  },
+  {
+   "case": "gg-hh-top-box-2",
+   "n": 4,
+   "rank": 4,
+   "points": 3,
+   "ninja_o3_fortranrules_ns": {
+    "pure_reduction": 9369.672128379538,
+    "reduction_plus_tensor_numerator": 32393.74213562417,
+    "numerator_only": 21437.92587121926,
+    "full": 62052.11659908084
+   },
+   "ninja_repeats_ns": [
+    {
+     "pure_reduction": 9388.429450211457,
+     "reduction_plus_tensor_numerator": 32562.99468791501,
+     "numerator_only": 21490.02319587629,
+     "full": 62512.14074074074
+    },
+    {
+     "pure_reduction": 9350.914806547618,
+     "reduction_plus_tensor_numerator": 32224.489583333332,
+     "numerator_only": 21385.82854656223,
+     "full": 61592.09245742093
+    }
+   ],
+   "rust_ns": {
+    "reduction": {
+     "1": {
+      "median": 6288.539306640625,
+      "repeats": [
+       6308.763671875,
+       6268.31494140625
+      ],
+      "block_range": [
+       6258.845052083333,
+       6435.445475260417
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 5425.744954427084,
+      "repeats": [
+       5449.9423828125,
+       5401.547526041667
+      ],
+      "block_range": [
+       5390.326822916667,
+       5465.393391927083
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 5349.764892578125,
+      "repeats": [
+       5348.985026041667,
+       5350.544759114583
+      ],
+      "block_range": [
+       5342.706217447917,
+       5630.89892578125
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 5422.838785807291,
+      "repeats": [
+       5373.913411458333,
+       5471.76416015625
+      ],
+      "block_range": [
+       5361.2880859375,
+       5477.5732421875
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    },
+    "reduction+tensor": {
+     "1": {
+      "median": 17414.901692708336,
+      "repeats": [
+       17400.060546875,
+       17429.742838541668
+      ],
+      "block_range": [
+       17367.5078125,
+       17578.03125
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 14986.514322916668,
+      "repeats": [
+       15012.3046875,
+       14960.723958333334
+      ],
+      "block_range": [
+       14951.621744791666,
+       15088.315104166666
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 14810.3935546875,
+      "repeats": [
+       14847.447265625,
+       14773.33984375
+      ],
+      "block_range": [
+       14751.614583333334,
+       14899.172526041666
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 14864.013671875,
+      "repeats": [
+       14789.179036458334,
+       14938.848307291666
+      ],
+      "block_range": [
+       14784.23046875,
+       15058.11328125
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    }
+   },
+   "speedup_vs_ninja": {
+    "reduction": {
+     "1": 1.4899600163881097,
+     "8": 1.7268913682967064,
+     "32": 1.7514175513354502,
+     "128": 1.7278168314540234
+    },
+    "reduction+tensor": {
+     "1": 1.8601162789903953,
+     "8": 2.161526118591112,
+     "32": 2.1872303403694175,
+     "128": 2.1793401735708917
+    }
+   }
+  },
+  {
+   "case": "gg-hh-top-triangle-0",
+   "n": 3,
+   "rank": 2,
+   "points": 3,
+   "ninja_o3_fortranrules_ns": {
+    "pure_reduction": 2545.548050823695,
+    "reduction_plus_tensor_numerator": 3504.17087096809,
+    "numerator_only": 849.9657004969836,
+    "full": 5426.695884892326
+   },
+   "ninja_repeats_ns": [
+    {
+     "pure_reduction": 2559.654928152196,
+     "reduction_plus_tensor_numerator": 3508.830349531117,
+     "numerator_only": 853.5954319551655,
+     "full": 5428.8934134401425
+    },
+    {
+     "pure_reduction": 2531.4411734951946,
+     "reduction_plus_tensor_numerator": 3499.5113924050634,
+     "numerator_only": 846.3359690388016,
+     "full": 5424.49835634451
+    }
+   ],
+   "rust_ns": {
+    "reduction": {
+     "1": {
+      "median": 1694.1282958984375,
+      "repeats": [
+       1718.029296875,
+       1670.227294921875
+      ],
+      "block_range": [
+       1667.0477701822917,
+       1739.1922200520833
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 1286.630900065104,
+      "repeats": [
+       1303.4611409505208,
+       1269.8006591796875
+      ],
+      "block_range": [
+       1267.1866861979167,
+       1317.26611328125
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 1254.0184733072915,
+      "repeats": [
+       1257.1812744140625,
+       1250.8556722005208
+      ],
+      "block_range": [
+       1247.2403564453125,
+       1265.9618326822917
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 1259.6815388997395,
+      "repeats": [
+       1268.8589680989583,
+       1250.5041097005208
+      ],
+      "block_range": [
+       1247.4169514973958,
+       1275.7087809244792
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    },
+    "reduction+tensor": {
+     "1": {
+      "median": 2493.2102457682295,
+      "repeats": [
+       2506.9854329427085,
+       2479.43505859375
+      ],
+      "block_range": [
+       2471.7047526041665,
+       2572.0769856770835
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 1781.880411783854,
+      "repeats": [
+       1800.6962890625,
+       1763.0645345052083
+      ],
+      "block_range": [
+       1759.2950032552083,
+       1818.599365234375
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 1706.9509684244792,
+      "repeats": [
+       1715.4755045572917,
+       1698.4264322916667
+      ],
+      "block_range": [
+       1695.4454752604167,
+       1724.6341145833333
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 1683.4666341145835,
+      "repeats": [
+       1691.48779296875,
+       1675.4454752604167
+      ],
+      "block_range": [
+       1671.1103515625,
+       1693.4807942708333
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    }
+   },
+   "speedup_vs_ninja": {
+    "reduction": {
+     "1": 1.5025710018459546,
+     "8": 1.9784602178409436,
+     "32": 2.029912720591892,
+     "128": 2.020786978466865
+    },
+    "reduction+tensor": {
+     "1": 1.4054855088598253,
+     "8": 1.9665578272225566,
+     "32": 2.0528831441493893,
+     "128": 2.0815208332365334
+    }
+   }
+  },
+  {
+   "case": "gg-hhh-top-box-8",
+   "n": 4,
+   "rank": 4,
+   "points": 3,
+   "ninja_o3_fortranrules_ns": {
+    "pure_reduction": 9356.441334629257,
+    "reduction_plus_tensor_numerator": 32221.09781209781,
+    "numerator_only": 21394.856467587037,
+    "full": 56086.84896396396
+   },
+   "ninja_repeats_ns": [
+    {
+     "pure_reduction": 9349.33371559633,
+     "reduction_plus_tensor_numerator": 32177.68211068211,
+     "numerator_only": 21335.803921568626,
+     "full": 56039.02
+    },
+    {
+     "pure_reduction": 9363.548953662183,
+     "reduction_plus_tensor_numerator": 32264.513513513513,
+     "numerator_only": 21453.909013605444,
+     "full": 56134.67792792793
+    }
+   ],
+   "rust_ns": {
+    "reduction": {
+     "1": {
+      "median": 6290.365478515625,
+      "repeats": [
+       6281.501139322917,
+       6299.229817708333
+      ],
+      "block_range": [
+       6269.787434895833,
+       6331.57958984375
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 5454.800130208334,
+      "repeats": [
+       5466.451171875,
+       5443.149088541667
+      ],
+      "block_range": [
+       5441.196126302084,
+       5495.75634765625
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 5361.438151041666,
+      "repeats": [
+       5428.9560546875,
+       5293.920247395833
+      ],
+      "block_range": [
+       5286.673990885417,
+       5709.481119791667
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 5431.689697265625,
+      "repeats": [
+       5411.324055989583,
+       5452.055338541667
+      ],
+      "block_range": [
+       5400.912109375,
+       5541.5263671875
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    },
+    "reduction+tensor": {
+     "1": {
+      "median": 17481.262369791664,
+      "repeats": [
+       17453.784505208332,
+       17508.740234375
+      ],
+      "block_range": [
+       17423.205078125,
+       17763.448567708332
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 15132.673502604166,
+      "repeats": [
+       15221.328776041666,
+       15044.018229166666
+      ],
+      "block_range": [
+       14997.429036458334,
+       16571.725911458332
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 14838.6875,
+      "repeats": [
+       14862.361979166666,
+       14815.013020833334
+      ],
+      "block_range": [
+       14798.685546875,
+       14959.921875
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 15012.275716145832,
+      "repeats": [
+       14988.313151041666,
+       15036.23828125
+      ],
+      "block_range": [
+       14889.805338541666,
+       15096.212239583334
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    }
+   },
+   "speedup_vs_ninja": {
+    "reduction": {
+     "1": 1.4874241197249403,
+     "8": 1.7152674912530494,
+     "32": 1.7451364859653202,
+     "128": 1.7225655102019906
+    },
+    "reduction+tensor": {
+     "1": 1.8431791211930544,
+     "8": 2.1292402698408126,
+     "32": 2.171425054412515,
+     "128": 2.1463166825162783
+    }
+   }
+  },
+  {
+   "case": "gg-hhh-top-pentagon-26",
+   "n": 5,
+   "rank": 4,
+   "points": 3,
+   "ninja_o3_fortranrules_ns": {
+    "pure_reduction": 18625.42092124663,
+    "reduction_plus_tensor_numerator": 41268.67230351102,
+    "numerator_only": 21863.64211213412,
+    "full": 140983.88055555557
+   },
+   "ninja_repeats_ns": [
+    {
+     "pure_reduction": 18598.63520599251,
+     "reduction_plus_tensor_numerator": 41247.35130718954,
+     "numerator_only": 21835.66492602263,
+     "full": 140604.77222222224
+    },
+    {
+     "pure_reduction": 18652.206636500756,
+     "reduction_plus_tensor_numerator": 41289.993299832495,
+     "numerator_only": 21891.619298245612,
+     "full": 141362.98888888888
+    }
+   ],
+   "rust_ns": {
+    "reduction": {
+     "1": {
+      "median": 10005.6337890625,
+      "repeats": [
+       10011.610026041666,
+       9999.657552083334
+      ],
+      "block_range": [
+       9974.693684895834,
+       10108.2421875
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 9074.452311197918,
+      "repeats": [
+       9119.2861328125,
+       9029.618489583334
+      ],
+      "block_range": [
+       9011.36328125,
+       9685.821940104166
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 8976.96337890625,
+      "repeats": [
+       9073.556640625,
+       8880.3701171875
+      ],
+      "block_range": [
+       8868.690104166666,
+       9160.959309895834
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 9131.547037760416,
+      "repeats": [
+       9250.354166666666,
+       9012.739908854166
+      ],
+      "block_range": [
+       8993.888997395834,
+       9302.9326171875
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    },
+    "reduction+tensor": {
+     "1": {
+      "median": 22218.8017578125,
+      "repeats": [
+       22286.6328125,
+       22150.970703125
+      ],
+      "block_range": [
+       22121.184895833332,
+       22895.274088541668
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 20657.191080729164,
+      "repeats": [
+       20722.824869791668,
+       20591.557291666664
+      ],
+      "block_range": [
+       20559.994791666668,
+       20984.212890625004
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 20540.823893229168,
+      "repeats": [
+       20621.529296875004,
+       20460.118489583332
+      ],
+      "block_range": [
+       20417.402994791668,
+       20988.510416666664
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 20679.434244791664,
+      "repeats": [
+       20769.1015625,
+       20589.766927083332
+      ],
+      "block_range": [
+       20549.785807291664,
+       32209.319010416668
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    }
+   },
+   "speedup_vs_ninja": {
+    "reduction": {
+     "1": 1.8614933660281185,
+     "8": 2.052511852231872,
+     "32": 2.074801927454888,
+     "128": 2.039678582854309
+    },
+    "reduction+tensor": {
+     "1": 1.8573761426626108,
+     "8": 1.9977872181281242,
+     "32": 2.009105015359892,
+     "128": 1.9956383629743146
+    }
+   }
+  },
+  {
+   "case": "gg-hhh-top-triangle-0",
+   "n": 3,
+   "rank": 2,
+   "points": 3,
+   "ninja_o3_fortranrules_ns": {
+    "pure_reduction": 2528.5491625433597,
+    "reduction_plus_tensor_numerator": 3504.3147395494607,
+    "numerator_only": 846.2248945793333,
+    "full": 4750.014364468986
+   },
+   "ninja_repeats_ns": [
+    {
+     "pure_reduction": 2521.6434459187776,
+     "reduction_plus_tensor_numerator": 3495.659616469261,
+     "numerator_only": 845.7747925311203,
+     "full": 4750.569516159878
+    },
+    {
+     "pure_reduction": 2535.4548791679413,
+     "reduction_plus_tensor_numerator": 3512.969862629661,
+     "numerator_only": 846.6749966275462,
+     "full": 4749.459212778094
+    }
+   ],
+   "rust_ns": {
+    "reduction": {
+     "1": {
+      "median": 1695.5361328125,
+      "repeats": [
+       1719.7325032552083,
+       1671.3397623697917
+      ],
+      "block_range": [
+       1666.9549153645833,
+       1723.8642578125
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 1293.485575358073,
+      "repeats": [
+       1301.0010172526042,
+       1285.9701334635417
+      ],
+      "block_range": [
+       1282.6046549479167,
+       1305.683349609375
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 1258.569091796875,
+      "repeats": [
+       1252.5214436848958,
+       1264.6167399088542
+      ],
+      "block_range": [
+       1250.7273763020833,
+       1266.90673828125
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 1258.594685872396,
+      "repeats": [
+       1261.9383544921875,
+       1255.2510172526042
+      ],
+      "block_range": [
+       1253.3597412109375,
+       1269.3363037109375
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    },
+    "reduction+tensor": {
+     "1": {
+      "median": 2494.220174153646,
+      "repeats": [
+       2488.3435872395835,
+       2500.0967610677085
+      ],
+      "block_range": [
+       2484.6904296875,
+       2511.7859700520835
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 1773.1153564453125,
+      "repeats": [
+       1781.1780598958333,
+       1765.0526529947917
+      ],
+      "block_range": [
+       1761.310791015625,
+       1796.5858561197917
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 1701.094034830729,
+      "repeats": [
+       1698.2244466145833,
+       1703.963623046875
+      ],
+      "block_range": [
+       1694.32470703125,
+       1853.2601725260417
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 1686.874796549479,
+      "repeats": [
+       1690.3460286458333,
+       1683.403564453125
+      ],
+      "block_range": [
+       1674.778076171875,
+       1787.9384765625
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    }
+   },
+   "speedup_vs_ninja": {
+    "reduction": {
+     "1": 1.491297716167856,
+     "8": 1.9548336763194183,
+     "32": 2.0090666289391534,
+     "128": 2.009025773687177
+    },
+    "reduction+tensor": {
+     "1": 1.404974098061959,
+     "8": 1.9763602671485536,
+     "32": 2.0600358756170496,
+     "128": 2.0774006148634
+    }
+   }
+  },
+  {
+   "case": "hgg-top-triangle-0",
+   "n": 3,
+   "rank": 2,
+   "points": 3,
+   "ninja_o3_fortranrules_ns": {
+    "pure_reduction": 2634.48728963987,
+    "reduction_plus_tensor_numerator": 3557.131201625194,
+    "numerator_only": 865.9330523302667,
+    "full": 10190.73233302316
+   },
+   "ninja_repeats_ns": [
+    {
+     "pure_reduction": 2616.2760846560845,
+     "reduction_plus_tensor_numerator": 3550.1543798785774,
+     "numerator_only": 864.3146548541897,
+     "full": 10183.50560897436
+    },
+    {
+     "pure_reduction": 2652.6984946236557,
+     "reduction_plus_tensor_numerator": 3564.108023371811,
+     "numerator_only": 867.5514498063436,
+     "full": 10197.959057071961
+    }
+   ],
+   "rust_ns": {
+    "reduction": {
+     "1": {
+      "median": 1700.204142252604,
+      "repeats": [
+       1708.799072265625,
+       1691.6092122395833
+      ],
+      "block_range": [
+       1683.126953125,
+       1722.0130208333333
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 1276.1674194335938,
+      "repeats": [
+       1283.753662109375,
+       1268.5811767578125
+      ],
+      "block_range": [
+       1268.2084554036458,
+       1297.3930257161458
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 1248.302937825521,
+      "repeats": [
+       1246.51513671875,
+       1250.0907389322917
+      ],
+      "block_range": [
+       1236.704833984375,
+       1254.3583170572917
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 1245.5014038085938,
+      "repeats": [
+       1248.7034505208333,
+       1242.2993570963542
+      ],
+      "block_range": [
+       1237.659423828125,
+       1259.3741861979167
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    },
+    "reduction+tensor": {
+     "1": {
+      "median": 2516.4810384114585,
+      "repeats": [
+       2502.9156087239585,
+       2530.0464680989585
+      ],
+      "block_range": [
+       2488.9712727864585,
+       2563.6663411458335
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 1757.5013427734375,
+      "repeats": [
+       1765.8330078125,
+       1749.169677734375
+      ],
+      "block_range": [
+       1746.1830240885417,
+       1774.8206380208333
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 1684.1901041666665,
+      "repeats": [
+       1686.3030598958333,
+       1682.0771484375
+      ],
+      "block_range": [
+       1680.0890299479167,
+       1705.8368326822917
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 1675.4677327473958,
+      "repeats": [
+       1684.4793294270833,
+       1666.4561360677083
+      ],
+      "block_range": [
+       1662.8435872395833,
+       1693.8982747395833
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    }
+   },
+   "speedup_vs_ninja": {
+    "reduction": {
+     "1": 1.5495123345302715,
+     "8": 2.0643743520808147,
+     "32": 2.110455090515937,
+     "128": 2.115202184103466
+    },
+    "reduction+tensor": {
+     "1": 1.4135338781931182,
+     "8": 2.0239706878470076,
+     "32": 2.1120722612161735,
+     "128": 2.1230675662086833
+    }
+   }
+  },
+  {
+   "case": "syn-n4-r5",
+   "n": 4,
+   "rank": 5,
+   "points": 3,
+   "ninja_o3_fortranrules_ns": {
+    "pure_reduction": 19970.879402247432,
+    "reduction_plus_tensor_numerator": 100120.60515873015,
+    "numerator_only": 76047.9381706978,
+    "full": 114570.8390410959
+   },
+   "ninja_repeats_ns": [
+    {
+     "pure_reduction": 20052.08814102564,
+     "reduction_plus_tensor_numerator": 100129.47222222222,
+     "numerator_only": 76188.39755351681,
+     "full": 114782.17808219178
+    },
+    {
+     "pure_reduction": 19889.670663469224,
+     "reduction_plus_tensor_numerator": 100111.73809523809,
+     "numerator_only": 75907.47878787879,
+     "full": 114359.5
+    }
+   ],
+   "rust_ns": {
+    "reduction": {
+     "1": {
+      "median": 13947.470703125,
+      "repeats": [
+       13945.881510416666,
+       13949.059895833334
+      ],
+      "block_range": [
+       13916.012369791666,
+       14005.432291666666
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 11972.090983072918,
+      "repeats": [
+       11985.1357421875,
+       11959.046223958334
+      ],
+      "block_range": [
+       11927.483072916666,
+       13410.079427083334
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 11837.87158203125,
+      "repeats": [
+       11859.0966796875,
+       11816.646484375
+      ],
+      "block_range": [
+       11791.297200520834,
+       11898.0810546875
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 12004.99951171875,
+      "repeats": [
+       11894.533203125,
+       12115.4658203125
+      ],
+      "block_range": [
+       11816.259114583334,
+       12131.103841145834
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    },
+    "reduction+tensor": {
+     "1": {
+      "median": 48830.130859375,
+      "repeats": [
+       48897.798177083336,
+       48762.463541666664
+      ],
+      "block_range": [
+       48574.83203125,
+       51603.4453125
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 43817.548828125,
+      "repeats": [
+       43853.158854166664,
+       43781.938802083336
+      ],
+      "block_range": [
+       43721.8984375,
+       44118.524739583336
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 43535.613932291664,
+      "repeats": [
+       43492.936197916664,
+       43578.291666666664
+      ],
+      "block_range": [
+       43359.627604166664,
+       43755.17578125
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 43738.100911458336,
+      "repeats": [
+       43550.501302083336,
+       43925.700520833336
+      ],
+      "block_range": [
+       43425.553385416664,
+       44088.41015625
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    }
+   },
+   "speedup_vs_ninja": {
+    "reduction": {
+     "1": 1.431863871760839,
+     "8": 1.6681195816573586,
+     "32": 1.687032948774449,
+     "128": 1.6635468733466205
+    },
+    "reduction+tensor": {
+     "1": 2.0503857638036163,
+     "8": 2.284943084138612,
+     "32": 2.2997402842289474,
+     "128": 2.2890935608157816
+    }
+   }
+  },
+  {
+   "case": "syn-n5-r4",
+   "n": 5,
+   "rank": 4,
+   "points": 3,
+   "ninja_o3_fortranrules_ns": {
+    "pure_reduction": 18560.358991805013,
+    "reduction_plus_tensor_numerator": 41350.443986042694,
+    "numerator_only": 21852.104712041888,
+    "full": 112399.33333333334
+   },
+   "ninja_repeats_ns": [
+    {
+     "pure_reduction": 18425.76821192053,
+     "reduction_plus_tensor_numerator": 41208.91297208539,
+     "numerator_only": 21846.70855148342,
+     "full": 112077.73873873874
+    },
+    {
+     "pure_reduction": 18694.9497716895,
+     "reduction_plus_tensor_numerator": 41491.975,
+     "numerator_only": 21857.50087260035,
+     "full": 112720.92792792793
+    }
+   ],
+   "rust_ns": {
+    "reduction": {
+     "1": {
+      "median": 10132.818522135416,
+      "repeats": [
+       10355.638020833332,
+       9909.9990234375
+      ],
+      "block_range": [
+       9898.3779296875,
+       10427.311197916666
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 8831.604654947916,
+      "repeats": [
+       8869.809244791666,
+       8793.400065104166
+      ],
+      "block_range": [
+       8779.832356770834,
+       8911.1767578125
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 8804.9736328125,
+      "repeats": [
+       8796.081380208334,
+       8813.865885416666
+      ],
+      "block_range": [
+       8764.033854166666,
+       8828.835611979166
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 9172.740397135418,
+      "repeats": [
+       9192.310546875,
+       9153.170247395834
+      ],
+      "block_range": [
+       9126.0634765625,
+       9244.009440104166
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    },
+    "reduction+tensor": {
+     "1": {
+      "median": 22688.552083333332,
+      "repeats": [
+       23113.321614583332,
+       22263.782552083332
+      ],
+      "block_range": [
+       22122.805989583332,
+       23613.968098958332
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 20456.149088541668,
+      "repeats": [
+       20495.324869791668,
+       20416.973307291668
+      ],
+      "block_range": [
+       20373.7109375,
+       20542.968098958332
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 20363.453125,
+      "repeats": [
+       20390.98828125,
+       20335.91796875
+      ],
+      "block_range": [
+       20253.072265625,
+       20503.579427083332
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 20938.214518229168,
+      "repeats": [
+       20732.076822916668,
+       21144.352213541668
+      ],
+      "block_range": [
+       20605.475911458332,
+       22916.447916666668
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    }
+   },
+   "speedup_vs_ninja": {
+    "reduction": {
+     "1": 1.8317074317732431,
+     "8": 2.1015839948640083,
+     "32": 2.1079403262081584,
+     "128": 2.0234257362828325
+    },
+    "reduction+tensor": {
+     "1": 1.822524585710258,
+     "8": 2.021418782541274,
+     "32": 2.030620432213296,
+     "128": 1.9748791832294148
+    }
+   }
+  },
+  {
+   "case": "syn-n6-r7",
+   "n": 6,
+   "rank": 7,
+   "points": 3,
+   "ninja_o3_fortranrules_ns": {
+    "pure_reduction": 97979.47311901505,
+    "reduction_plus_tensor_numerator": 793761.393939394,
+    "numerator_only": 679548.641025641,
+    "full": 1369077.3571428573
+   },
+   "ninja_repeats_ns": [
+    {
+     "pure_reduction": 98311.0431372549,
+     "reduction_plus_tensor_numerator": 796849.696969697,
+     "numerator_only": 684282.3333333334,
+     "full": 1373180.4285714286
+    },
+    {
+     "pure_reduction": 97647.90310077519,
+     "reduction_plus_tensor_numerator": 790673.0909090909,
+     "numerator_only": 674814.9487179487,
+     "full": 1364974.2857142857
+    }
+   ],
+   "rust_ns": {
+    "reduction": {
+     "1": {
+      "median": 61656.28255208333,
+      "repeats": [
+       61886.28125,
+       61426.283854166664
+      ],
+      "block_range": [
+       61356.182291666664,
+       62064.796875
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 56241.56380208333,
+      "repeats": [
+       56311.393229166664,
+       56171.734375
+      ],
+      "block_range": [
+       55977.434895833336,
+       57170.302083333336
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 57557.84244791667,
+      "repeats": [
+       57592.4375,
+       57523.247395833336
+      ],
+      "block_range": [
+       56985.559895833336,
+       59300.854166666664
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 59259.99609375,
+      "repeats": [
+       58826.216145833336,
+       59693.776041666664
+      ],
+      "block_range": [
+       58177.286458333336,
+       60169.791666666664
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    },
+    "reduction+tensor": {
+     "1": {
+      "median": 379074.7552083334,
+      "repeats": [
+       379229.9479166667,
+       378919.5625
+      ],
+      "block_range": [
+       378165.7083333333,
+       380183.2916666667
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "8": {
+      "median": 366204.65625,
+      "repeats": [
+       366685.7395833333,
+       365723.5729166667
+      ],
+      "block_range": [
+       365031.6979166667,
+       367904.1770833333
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "32": {
+      "median": 368667.9427083334,
+      "repeats": [
+       367992.09375,
+       369343.7916666667
+      ],
+      "block_range": [
+       367378.5520833333,
+       370544.3229166667
+      ],
+      "allocations_in_timed_blocks": 0
+     },
+     "128": {
+      "median": 371345.94140625,
+      "repeats": [
+       369892.6432291667,
+       372799.2395833333
+      ],
+      "block_range": [
+       368613.1041666667,
+       392804.8541666667
+      ],
+      "allocations_in_timed_blocks": 0
+     }
+    }
+   },
+   "speedup_vs_ninja": {
+    "reduction": {
+     "1": 1.5891239150892398,
+     "8": 1.7421185773533852,
+     "32": 1.702278420315622,
+     "128": 1.653383050582899
+    },
+    "reduction+tensor": {
+     "1": 2.093944223490049,
+     "8": 2.167534957276759,
+     "32": 2.1530523866767757,
+     "128": 2.1375254323057873
+    }
+   }
+  }
+ ]
+}

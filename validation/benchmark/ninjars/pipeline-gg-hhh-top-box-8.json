@@ -1,0 +1,364 @@
+{
+  "boundary": "per point: raw binary64 momenta, helicities and model row -> wavefunctions -> SymJIT O2 coefficient heads -> dense Ninja tensor + propagator data (numerator_preparation) -> ninjars::fast reduction with the batched TensorNumerator (tensor_numerator = reduction_and_tensor_numerator - reduction) -> oneloopmaster native masters; total is uninstrumented; setup excluded",
+  "coefficient_heads": 57,
+  "coefficients_factored": true,
+  "command": [
+    "target/perf/ninjars",
+    "pipeline-bench",
+    "examples/graphs/physical/gg-hhh/top-box-8-pool.json",
+    "--points",
+    "validation/benchmark/points/gg-hhh.json",
+    "--feynman-rules",
+    "--factor",
+    "--widths",
+    "1,32",
+    "--blocks",
+    "7",
+    "--min-block-ms",
+    "20",
+    "--reference",
+    "validation/benchmark/ninja/gg-hhh-top-box-8.json",
+    "-o",
+    "/tmp/claude-1134/-shared-external-ninja/191aef8e-9579-487f-b79d-13d6de4c94fa/scratchpad/pipe/gg-hhh-top-box-8.json"
+  ],
+  "construction_wall_ns": 2206094788.0,
+  "cpu_affinity": "250",
+  "generation_ns": {
+    "coefficient_factoring": 1387322218.0,
+    "coefficient_planning": 540208709.0,
+    "color_invariants": 6306915.0,
+    "compilation_total": 117408924.0,
+    "contraction": 37052707.0,
+    "evaluator_construction": 107283591.0,
+    "feynman_rules": 318001.0,
+    "graph_import": 2989787.0,
+    "kinematics_setup": 229781.0,
+    "planning_total": 1927618157.0,
+    "polynomial": 110947359.0,
+    "prepare_total": 160627986.0,
+    "propagators": 3013217.0,
+    "symjit_compilation": 10125333.0,
+    "tensor_plan": 87230.0,
+    "total": 2205884848.0
+  },
+  "graph": "examples/graphs/physical/gg-hhh/top-box-8.dot",
+  "input": "examples/graphs/physical/gg-hhh/top-box-8-pool.json",
+  "ncoeff": 70,
+  "numerator_mode": "feynman_rules",
+  "operation": "pipeline-bench",
+  "per_point_timing": [
+    {
+      "master_rows_per_batch": {
+        "A0": 4,
+        "BubbleRank2": 6,
+        "C0": 4,
+        "D0": 1
+      },
+      "masters": {
+        "block_ms": [
+          34.36951,
+          34.067739,
+          33.989289,
+          33.945828999999996,
+          34.08504,
+          34.21783,
+          34.031448999999995
+        ],
+        "block_ns_per_point": [
+          33563.974609375,
+          33269.2763671875,
+          33192.6650390625,
+          33150.2236328125,
+          33286.171875,
+          33415.849609375,
+          33233.8369140625
+        ],
+        "blocks": 7,
+        "calls_per_block": 1024,
+        "max_ns_per_point": 33563.974609375,
+        "median_ns_per_point": 33269.2763671875,
+        "min_ns_per_point": 33150.2236328125
+      },
+      "numerator_preparation": {
+        "block_ms": [
+          24.937898,
+          24.835638,
+          24.823358,
+          24.857878,
+          24.659548,
+          24.657237,
+          24.852657999999998
+        ],
+        "block_ns_per_point": [
+          1522.0885009765625,
+          1515.8470458984375,
+          1515.0975341796875,
+          1517.2044677734375,
+          1505.099365234375,
+          1504.9583129882812,
+          1516.8858642578125
+        ],
+        "blocks": 7,
+        "calls_per_block": 16384,
+        "max_ns_per_point": 1522.0885009765625,
+        "median_ns_per_point": 1515.8470458984375,
+        "min_ns_per_point": 1504.9583129882812
+      },
+      "reduction": {
+        "block_ms": [
+          25.707620000000002,
+          25.8587,
+          26.639792,
+          29.717619,
+          27.275584,
+          26.498452,
+          26.828812
+        ],
+        "block_ns_per_point": [
+          6276.2744140625,
+          6313.1591796875,
+          6503.85546875,
+          7255.278076171875,
+          6659.078125,
+          6469.3486328125,
+          6550.0029296875
+        ],
+        "blocks": 7,
+        "calls_per_block": 4096,
+        "max_ns_per_point": 7255.278076171875,
+        "median_ns_per_point": 6503.85546875,
+        "min_ns_per_point": 6276.2744140625
+      },
+      "reduction_and_tensor_numerator": {
+        "block_ms": [
+          36.556255,
+          36.591766,
+          36.786106,
+          36.516335,
+          36.582074999999996,
+          36.526286,
+          36.590185999999996
+        ],
+        "block_ns_per_point": [
+          17849.73388671875,
+          17867.0732421875,
+          17961.9658203125,
+          17830.24169921875,
+          17862.34130859375,
+          17835.1005859375,
+          17866.3017578125
+        ],
+        "blocks": 7,
+        "calls_per_block": 2048,
+        "max_ns_per_point": 17961.9658203125,
+        "median_ns_per_point": 17862.34130859375,
+        "min_ns_per_point": 17830.24169921875
+      },
+      "reference_check": {
+        "max_scaled_laurent_difference": 1.508664293872011e-14,
+        "points_checked": [
+          "sqrt_s_450"
+        ],
+        "reference": "validation/benchmark/ninja/gg-hhh-top-box-8.json"
+      },
+      "summary_ns_per_point": {
+        "masters": 33269.2763671875,
+        "numerator": 12874.332885742188,
+        "numerator_preparation": 1515.8470458984375,
+        "reduction": 6503.85546875,
+        "sum_of_components": 52647.46472167969,
+        "sum_over_total": 0.9876789912700403,
+        "tensor_numerator": 11358.48583984375,
+        "total": 53304.2265625
+      },
+      "total": {
+        "block_ms": [
+          27.268812999999998,
+          27.304404,
+          27.343474,
+          27.291154000000002,
+          27.268293,
+          27.291764,
+          27.465114
+        ],
+        "block_ns_per_point": [
+          53259.400390625,
+          53328.9140625,
+          53405.22265625,
+          53303.03515625,
+          53258.384765625,
+          53304.2265625,
+          53642.80078125
+        ],
+        "blocks": 7,
+        "calls_per_block": 512,
+        "max_ns_per_point": 53642.80078125,
+        "median_ns_per_point": 53304.2265625,
+        "min_ns_per_point": 53258.384765625
+      },
+      "width": 1
+    },
+    {
+      "master_rows_per_batch": {
+        "A0": 128,
+        "BubbleRank2": 192,
+        "C0": 128,
+        "D0": 32
+      },
+      "masters": {
+        "block_ms": [
+          33.259927000000005,
+          33.334618000000006,
+          33.277007999999995,
+          33.532129,
+          33.391348,
+          33.360618,
+          33.333728
+        ],
+        "block_ns_per_point": [
+          32480.3974609375,
+          32553.337890625004,
+          32497.078124999996,
+          32746.2197265625,
+          32608.73828125,
+          32578.728515625,
+          32552.46875
+        ],
+        "blocks": 7,
+        "calls_per_block": 32,
+        "max_ns_per_point": 32746.2197265625,
+        "median_ns_per_point": 32553.337890625004,
+        "min_ns_per_point": 32480.3974609375
+      },
+      "numerator_preparation": {
+        "block_ms": [
+          23.330465,
+          23.277494,
+          23.308675,
+          23.358833999999998,
+          23.353325,
+          23.333954000000002,
+          23.385514999999998
+        ],
+        "block_ns_per_point": [
+          1423.9785766601562,
+          1420.7454833984375,
+          1422.6486206054688,
+          1425.7100830078125,
+          1425.3738403320312,
+          1424.1915283203125,
+          1427.3385620117188
+        ],
+        "blocks": 7,
+        "calls_per_block": 512,
+        "max_ns_per_point": 1427.3385620117188,
+        "median_ns_per_point": 1424.1915283203125,
+        "min_ns_per_point": 1420.7454833984375
+      },
+      "reduction": {
+        "block_ms": [
+          22.115921,
+          22.176551999999997,
+          22.123982,
+          22.120962000000002,
+          22.151362000000002,
+          22.189740999999998,
+          22.175192
+        ],
+        "block_ns_per_point": [
+          5399.394775390625,
+          5414.197265625,
+          5401.36279296875,
+          5400.62548828125,
+          5408.04736328125,
+          5417.417236328125,
+          5413.865234375
+        ],
+        "blocks": 7,
+        "calls_per_block": 128,
+        "max_ns_per_point": 5417.417236328125,
+        "median_ns_per_point": 5408.04736328125,
+        "min_ns_per_point": 5399.394775390625
+      },
+      "reduction_and_tensor_numerator": {
+        "block_ms": [
+          30.425562,
+          30.453511,
+          30.509071,
+          30.388301,
+          30.406701,
+          30.394961000000002,
+          30.441372
+        ],
+        "block_ns_per_point": [
+          14856.2314453125,
+          14869.87841796875,
+          14897.00732421875,
+          14838.03759765625,
+          14847.02197265625,
+          14841.28955078125,
+          14863.951171875
+        ],
+        "blocks": 7,
+        "calls_per_block": 64,
+        "max_ns_per_point": 14897.00732421875,
+        "median_ns_per_point": 14856.2314453125,
+        "min_ns_per_point": 14838.03759765625
+      },
+      "reference_check": {
+        "max_scaled_laurent_difference": 1.508664293872011e-14,
+        "points_checked": [
+          "sqrt_s_450",
+          "sqrt_s_525",
+          "sqrt_s_600"
+        ],
+        "reference": "validation/benchmark/ninja/gg-hhh-top-box-8.json"
+      },
+      "summary_ns_per_point": {
+        "masters": 32553.337890625004,
+        "numerator": 10872.375610351562,
+        "numerator_preparation": 1424.1915283203125,
+        "reduction": 5408.04736328125,
+        "sum_of_components": 48833.76086425781,
+        "sum_over_total": 0.9949081528207883,
+        "tensor_numerator": 9448.18408203125,
+        "total": 49083.6875
+      },
+      "total": {
+        "block_ms": [
+          25.130848,
+          25.188669,
+          25.225319,
+          25.145819,
+          25.083549,
+          24.989568,
+          25.011779
+        ],
+        "block_ns_per_point": [
+          49083.6875,
+          49196.619140625,
+          49268.201171875,
+          49112.927734375,
+          48991.306640625,
+          48807.75,
+          48851.130859375
+        ],
+        "blocks": 7,
+        "calls_per_block": 16,
+        "max_ns_per_point": 49268.201171875,
+        "median_ns_per_point": 49083.6875,
+        "min_ns_per_point": 48807.75
+      },
+      "width": 32
+    }
+  ],
+  "point_ids": [
+    "sqrt_s_450",
+    "sqrt_s_525",
+    "sqrt_s_600"
+  ],
+  "points": "validation/benchmark/points/gg-hhh.json",
+  "propagators": 4,
+  "rank": 4,
+  "schema_version": 1
+}

@@ -33,12 +33,21 @@
 #let pale = rgb("#eef3f9")
 #let is-num(x) = type(x) == int or type(x) == float
 
+// Fixed-decimal formatting (keeps trailing zeros: 0.30, 1.05).
+#let fixed(x, d) = {
+  let s = str(calc.round(x, digits: d))
+  if d == 0 { return s }
+  let parts = s.split(".")
+  let frac = if parts.len() > 1 { parts.at(1) } else { "" }
+  parts.at(0) + "." + frac + "0" * (d - frac.len())
+}
+
 // Significant-figure formatting suited to timings.
 #let fmt(x) = {
   if not is-num(x) { return [—] }
   let a = calc.abs(x)
-  let d = if a >= 1000 { 0 } else if a >= 100 { 0 } else if a >= 10 { 1 } else if a >= 1 { 2 } else { 3 }
-  let s = str(calc.round(x, digits: d))
+  let d = if a >= 100 { 0 } else if a >= 10 { 1 } else if a >= 1 { 2 } else { 3 }
+  let s = fixed(x, d)
   if a >= 10000 {
     // thin-space thousands separator
     let int-part = str(int(calc.round(x)))
@@ -100,14 +109,6 @@
 
 #let cases = data.cases
 
-// Fixed-decimal formatting (keeps trailing zeros: 0.30, 1.05).
-#let fixed(x, d) = {
-  let s = str(calc.round(x, digits: d))
-  if d == 0 { return s }
-  let parts = s.split(".")
-  let frac = if parts.len() > 1 { parts.at(1) } else { "" }
-  parts.at(0) + "." + frac + "0" * (d - frac.len())
-}
 #let fmt-ratio(r) = if r >= 10 { fixed(r, 0) } else { fixed(r, 2) }
 // One comparison cell: NinjaRS value, reference value and the multiplier.
 #let cmp-cell(a, b, unit: none, ref: "ref") = {
@@ -122,58 +123,120 @@
   })
 }
 
+#let header-style(body) = {
+  set text(8pt, font: "DejaVu Sans")
+  set par(justify: false)
+  show table.cell.where(y: 0): set text(fill: white, weight: "bold")
+  body
+}
+#let table-stroke = (x, y) => (
+  top: if y <= 1 { none } else { 0.4pt + luma(225) },
+  left: if x >= 2 and y > 0 { 0.4pt + luma(225) } else { none },
+)
+#let sci(x) = {
+  if not is-num(x) { return [—] }
+  if x == 0 { return [0] }
+  let e = calc.floor(calc.log(calc.abs(x), base: 10))
+  let m = x / calc.pow(10.0, e)
+  [#fixed(m, 1)e#e]
+}
+
 #figure(
   kind: table,
-  caption: [Generation time and per-phase-space-point evaluation time
-    (binary64, one helicity configuration). Each cell shows the NinjaRS value
+  caption: [*Physical diagrams versus the MadLoop pipeline.* Generation
+    time and per-phase-space-point evaluation time (binary64, one helicity
+    configuration, a single loop diagram). Each cell shows the NinjaRS value
     in bold, the reference value below it and the multiplier
-    NinjaRS ÷ reference. Generation: NinjaRS CLI preparation including the
-    SymJIT O2 compilation of the numerator coefficients, versus MadLoop
-    process output plus compilation (ML). Numerator versus MadLoop's loop
-    coefficients and tensor expansions (ML); pure reduction versus original
-    Ninja (N); master integrals versus OneLOop (O); total versus the complete
-    MadLoop pipeline (ML).],
-  {
-    set text(8pt, font: "DejaVu Sans")
-    set par(justify: false)
-    show table.cell.where(y: 0): set text(fill: white, weight: "bold")
-    table(
-      columns: (1fr, auto, auto, auto, auto, auto, auto),
-      align: (x, y) => if x == 0 { left + horizon } else { center + horizon },
-      inset: (x: 5pt, y: 4.5pt),
-      stroke: (x, y) => (
-        top: if y <= 1 { none } else { 0.4pt + luma(225) },
-        left: if x >= 2 and y > 0 { 0.4pt + luma(225) } else { none },
-      ),
-      fill: (x, y) => if y == 0 { navy } else { none },
-      table.header(
-        [Test case], [$n$ / $r$], [Generation [s]], [Numerator [µs]],
-        [Reduction [µs]], [Masters [µs]], [Total [µs]],
-      ),
-      ..for c in cases {
-        let g = c.generation_s
-        let a = c.ninjars_us
-        let b = c.madloop_us
-        (
-          table.cell(text(size: 8.3pt, c.label)),
-          [#c.n / #c.rank],
-          cmp-cell(g.ninjars, g.madloop, ref: "ML"),
-          cmp-cell(a.numerator, b.numerator, ref: "ML"),
-          cmp-cell(a.reduction, b.reduction, ref: "N"),
-          cmp-cell(a.masters, b.masters, ref: "O"),
-          cmp-cell(a.total, b.total, ref: "ML"),
-        )
-      },
-    )
-  },
+    NinjaRS ÷ reference. Generation: NinjaRS CLI graph preparation,
+    coefficient planning and SymJIT O2 compilation versus MadLoop process
+    output plus compilation (ML). Numerator: SymJIT O2 coefficient heads and
+    tensor-numerator expansions versus MadLoop's loop-coefficient
+    construction and Ninja's tensor-numerator expansions (ML). Reduction:
+    pure reduction versus original Ninja inside MadLoop (N). Masters:
+    oneloopmaster's native code versus OneLOop (O). Total: complete
+    evaluation versus the complete MadLoop pipeline (ML). The rank column
+    gives NinjaRS's rank and, in brackets, the rank MadLoop passes to Ninja.],
+  header-style(table(
+    columns: (1fr, auto, auto, auto, auto, auto, auto),
+    align: (x, y) => if x == 0 { left + horizon } else { center + horizon },
+    inset: (x: 5pt, y: 4.5pt),
+    stroke: table-stroke,
+    fill: (x, y) => if y == 0 { navy } else { none },
+    table.header(
+      [Test case], [$n$ / $r$], [Generation [s]], [Numerator [µs]],
+      [Reduction [µs]], [Masters [µs]], [Total [µs]],
+    ),
+    ..for c in cases {
+      let g = c.generation_s
+      let a = c.ninjars_us
+      let b = c.madloop_us
+      (
+        table.cell(text(size: 8.3pt)[#c.process \ #text(fill: luma(90), c.diagram)]),
+        [#c.n / #c.rank #text(fill: luma(110))[(#c.madloop_rank)]],
+        cmp-cell(g.ninjars, g.madloop, ref: "ML"),
+        cmp-cell(a.numerator, b.numerator, ref: "ML"),
+        cmp-cell(a.reduction, b.reduction, ref: "N"),
+        cmp-cell(a.masters, b.masters, ref: "O"),
+        cmp-cell(a.total, b.total, ref: "ML"),
+      )
+    },
+  )),
 ) <tab:summary>
 
-#v(0.3em)
+#v(0.2em)
 #align(center)[
   #set text(8pt)
   #box(width: 9cm, height: 0.35cm, fill: palette, radius: 2pt)
   #h(0.4em)
   #box(width: 9cm)[×1/4 #h(1fr) ×1/2 #h(1fr) ×1 #h(1fr) ×2 #h(1fr) ×4]
 ]
+
+#let identical-rows(entries, physical: true) = for c in entries {
+  let a = c.ninjars_us
+  let b = if physical { c.ninja_identical_us } else { c.ninja_us }
+  if b == none { continue }
+  (
+    table.cell(text(size: 8pt, if physical { [#c.process, #c.diagram] } else { raw(c.id) })),
+    [#c.n / #c.rank],
+    cmp-cell(a.numerator, b.numerator, ref: "N"),
+    cmp-cell(a.reduction, b.reduction, ref: "N"),
+    cmp-cell(a.masters, b.masters, ref: "O"),
+    cmp-cell(
+      if physical { a.numerator - a.at("numerator_preparation", default: 0) + a.reduction + a.masters } else { a.total },
+      b.total,
+      ref: "N+O",
+    ),
+    table.cell(text(size: 7.5pt, sci(c.max_scaled_difference_vs_ninja))),
+  )
+}
+
+#figure(
+  kind: table,
+  caption: [*Identical inputs versus original Ninja and OneLOop.* Both
+    implementations receive the same tensor-numerator coefficients,
+    propagators and invariants (binary64), and evaluate the same rank.
+    Tensor numerator: Ninja-layout tensor expansions in NinjaRS's batched
+    `TensorNumerator` versus Ninja's `TensorNumerator` (N); pure reduction
+    with replayed numerator and master values (N); master integrals on the
+    identical call stream, oneloopmaster native versus OneLOop (O); total
+    with live numerator and masters. Original Ninja is built with
+    `g++ -O3 -fcx-fortran-rules` (MadLoop's flag; 20 % faster than plain
+    `-O3`). The last column is the maximal difference of the three Laurent
+    coefficients relative to the largest, NinjaRS versus Ninja.],
+  header-style(table(
+    columns: (1fr, auto, auto, auto, auto, auto, auto),
+    align: (x, y) => if x == 0 { left + horizon } else { center + horizon },
+    inset: (x: 4pt, y: 3.5pt),
+    stroke: table-stroke,
+    fill: (x, y) => if y == 0 { navy } else { none },
+    table.header(
+      [Case], [$n$ / $r$], [Tensor num. [µs]], [Reduction [µs]],
+      [Masters [µs]], [Total [µs]], [Δ vs Ninja],
+    ),
+    ..identical-rows(cases, physical: true),
+    table.cell(colspan: 7, fill: pale, text(size: 7.5pt, weight: "semibold")[Synthetic topologies (random kinematics, real and complex masses, dense random tensors)]),
+    ..identical-rows(data.synthetic, physical: false),
+  )),
+) <tab:identical>
 
 #include "sections.typ"

@@ -1,0 +1,29 @@
+{
+"format": "ninjars-reference-ninja-bench-v1",
+"case": "edge-tadpole-n1-r2",
+"case_file": "validation/fast/ninja_reference/cases/edge-tadpole-n1-r2.json",
+"build": "o3-fortranrules",
+"oneloop_warnings": false,
+"n": 1, "rank": 2, "lanes_count": 2,
+"amplitude": "ninja::Amplitude<ninja::ComplexMasses>(n, rank, V, m2); setRenormalizationScale(mu_squared) (Ninja passes mu_R^2 to IntegralLibrary::init, AvHOneLoop uses mu_R=sqrt); setSMatrix if s_matrix given",
+"all_replays_bitwise_identical": true,
+"lanes": [
+ {"id": "real", "return_status": 0,
+  "eps0": [328664967.35337752,-969120469.91414392], "eps_m1": [756989056.20420849,-1770780274.3135972], "eps_m2": [0,0],
+  "cut_constructible": [264979693.39286688,-619851516.09269071], "rational": [63685273.960510641,-349268953.82145321],
+  "checks": {"recorded_identical":true,"pure_replay_identical":true,"tensor_reduction_identical":true,"replays_fully_consumed":true,"masters_replay_identical":true,"madloop_entry_identical":true},
+  "numerator_calls": {"evaluate": 0, "muExpansion": 0, "t3Expansion": 2, "t2Expansion": 0, "total": 2, "output_values": 8},
+  "master_calls": {"tadpole_cm": 1, "total": 1, "init_calls": 1},
+  "master_call_list": [
+    {"kind": "tadpole_cm", "mu_squared": 15625, "s": [0,0,0,0,0,0], "m2": [[29929,0],[0,0],[0,0],[0,0]], "result": [[10476.475423993088,0],[29929,0],[0,0]]}]},
+ {"id": "complex", "return_status": 0,
+  "eps0": [-135545006.37488812,-263317894.31591335], "eps_m1": [-248292254.19802213,180872363.34917834], "eps_m2": [0,0],
+  "cut_constructible": [-88472170.23407571,61153769.598943017], "rational": [-47072836.140812412,-324471663.91485637],
+  "checks": {"recorded_identical":true,"pure_replay_identical":true,"tensor_reduction_identical":true,"replays_fully_consumed":true,"masters_replay_identical":true,"madloop_entry_identical":true},
+  "numerator_calls": {"evaluate": 0, "muExpansion": 0, "t3Expansion": 2, "t2Expansion": 0, "total": 2, "output_values": 8},
+  "master_calls": {"tadpole_cm": 1, "total": 1, "init_calls": 1},
+  "master_call_list": [
+    {"kind": "tadpole_cm", "mu_squared": 15625, "s": [0,0,0,0,0,0], "m2": [[29929,-259.5],[0,0],[0,0],[0,0]], "result": [[10477.600409897652,168.66675925621126],[29929,-259.5],[0,0]]}]}
+],
+"sink": 0
+}

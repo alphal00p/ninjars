@@ -1,0 +1,5124 @@
+{
+  "boundary": "per point: TensorNumerator expansions (tensor_numerator = reduction_and_tensor_numerator - reduction), ninjars::fast reduction (replayed numerator and masters), oneloopmaster native masters (recorded calls replayed); total uninstrumented",
+  "cases": [
+    {
+      "case": "syn-gghhh-ggHHH-n5-r4",
+      "file": "validation/benchmark/synthetic/syn-gghhh-ggHHH-n5-r4.json",
+      "lanes": 3,
+      "n": 5,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 5,
+            "BubbleRank2": 10,
+            "C0": 10,
+            "D0": 5
+          },
+          "masters": {
+            "block_ms": [
+              35.534872,
+              35.205621,
+              35.361021,
+              35.371881,
+              35.133331,
+              35.165910000000004,
+              35.508711999999996
+            ],
+            "block_ns_per_point": [
+              138808.09375,
+              137521.95703125,
+              138128.98828125,
+              138171.41015625,
+              137239.57421875,
+              137366.8359375,
+              138705.90625
+            ],
+            "blocks": 7,
+            "calls_per_block": 256,
+            "max_ns_per_point": 138808.09375,
+            "median_ns_per_point": 138128.98828125,
+            "min_ns_per_point": 137239.57421875
+          },
+          "reduction": {
+            "block_ms": [
+              20.573263,
+              20.571013,
+              21.104063999999997,
+              20.303152,
+              20.241042,
+              20.255563000000002,
+              20.278203
+            ],
+            "block_ns_per_point": [
+              10045.53857421875,
+              10044.43994140625,
+              10304.71875,
+              9913.6484375,
+              9883.3212890625,
+              9890.41162109375,
+              9901.46630859375
+            ],
+            "blocks": 7,
+            "calls_per_block": 2048,
+            "max_ns_per_point": 10304.71875,
+            "median_ns_per_point": 9913.6484375,
+            "min_ns_per_point": 9883.3212890625
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              22.809348,
+              22.726318999999997,
+              22.715408999999998,
+              22.672239,
+              22.702668,
+              23.24307,
+              23.077859999999998
+            ],
+            "block_ns_per_point": [
+              22274.75390625,
+              22193.6708984375,
+              22183.0166015625,
+              22140.8583984375,
+              22170.57421875,
+              22698.310546875,
+              22536.97265625
+            ],
+            "blocks": 7,
+            "calls_per_block": 1024,
+            "max_ns_per_point": 22698.310546875,
+            "median_ns_per_point": 22193.6708984375,
+            "min_ns_per_point": 22140.8583984375
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 1.3347569244151472e-13,
+            "reference": "validation/benchmark/ninja/syn-gghhh-ggHHH-n5-r4.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 138128.98828125,
+            "reduction": 9913.6484375,
+            "sum_of_components": 160322.6591796875,
+            "sum_over_total": 0.9967305896225258,
+            "tensor_numerator": 12280.0224609375,
+            "total": 160848.5390625
+          },
+          "total": {
+            "block_ms": [
+              20.676533,
+              20.743964000000002,
+              20.704483,
+              20.588613,
+              20.521252999999998,
+              20.371192,
+              20.411012999999997
+            ],
+            "block_ns_per_point": [
+              161535.4140625,
+              162062.21875,
+              161753.7734375,
+              160848.5390625,
+              160322.2890625,
+              159149.9375,
+              159461.0390625
+            ],
+            "blocks": 7,
+            "calls_per_block": 128,
+            "max_ns_per_point": 162062.21875,
+            "median_ns_per_point": 160848.5390625,
+            "min_ns_per_point": 159149.9375
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 160,
+            "BubbleRank2": 320,
+            "C0": 320,
+            "D0": 160
+          },
+          "masters": {
+            "block_ms": [
+              34.96801,
+              34.619879,
+              34.559489,
+              34.469398999999996,
+              34.547609,
+              34.565898999999995,
+              34.559429
+            ],
+            "block_ns_per_point": [
+              136593.7890625,
+              135233.90234375,
+              134998.00390625,
+              134646.08984375,
+              134951.59765625,
+              135023.04296875,
+              134997.76953125
+            ],
+            "blocks": 7,
+            "calls_per_block": 8,
+            "max_ns_per_point": 136593.7890625,
+            "median_ns_per_point": 134998.00390625,
+            "min_ns_per_point": 134646.08984375
+          },
+          "reduction": {
+            "block_ms": [
+              36.658374,
+              36.198544,
+              36.454683,
+              36.542285,
+              36.446253999999996,
+              36.478903,
+              36.517525
+            ],
+            "block_ns_per_point": [
+              8949.79833984375,
+              8837.53515625,
+              8900.069091796875,
+              8921.456298828125,
+              8898.01123046875,
+              8905.982177734375,
+              8915.411376953125
+            ],
+            "blocks": 7,
+            "calls_per_block": 128,
+            "max_ns_per_point": 8949.79833984375,
+            "median_ns_per_point": 8905.982177734375,
+            "min_ns_per_point": 8837.53515625
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              20.926304,
+              21.010104000000002,
+              20.971644,
+              20.932314,
+              20.952814,
+              20.978434,
+              20.932494
+            ],
+            "block_ns_per_point": [
+              20435.84375,
+              20517.6796875,
+              20480.12109375,
+              20441.712890625,
+              20461.732421875,
+              20486.751953125,
+              20441.888671875
+            ],
+            "blocks": 7,
+            "calls_per_block": 32,
+            "max_ns_per_point": 20517.6796875,
+            "median_ns_per_point": 20461.732421875,
+            "min_ns_per_point": 20435.84375
+          },
+          "reference_check": {
+            "lanes_checked": 3,
+            "max_scaled_laurent_difference": 2.852754288267999e-12,
+            "reference": "validation/benchmark/ninja/syn-gghhh-ggHHH-n5-r4.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 134998.00390625,
+            "reduction": 8905.982177734375,
+            "sum_of_components": 155459.736328125,
+            "sum_over_total": 0.9890430662271813,
+            "tensor_numerator": 11555.750244140625,
+            "total": 157181.96875
+          },
+          "total": {
+            "block_ms": [
+              20.195892,
+              20.091972,
+              20.119292,
+              20.088682,
+              20.044020999999997,
+              20.166382,
+              20.119422
+            ],
+            "block_ns_per_point": [
+              157780.40625,
+              156968.53125,
+              157181.96875,
+              156942.828125,
+              156593.9140625,
+              157549.859375,
+              157182.984375
+            ],
+            "blocks": 7,
+            "calls_per_block": 4,
+            "max_ns_per_point": 157780.40625,
+            "median_ns_per_point": 157181.96875,
+            "min_ns_per_point": 156593.9140625
+          },
+          "width": 32
+        }
+      ],
+      "rank": 4
+    },
+    {
+      "case": "syn-gghhh-ggHHH-n5-r5",
+      "file": "validation/benchmark/synthetic/syn-gghhh-ggHHH-n5-r5.json",
+      "lanes": 3,
+      "n": 5,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 5,
+            "BubbleRank2": 10,
+            "C0": 10,
+            "D0": 5
+          },
+          "masters": {
+            "block_ms": [
+              34.439469,
+              34.766659,
+              34.86715,
+              34.478047999999994,
+              34.474109000000006,
+              34.418089,
+              34.415709
+            ],
+            "block_ns_per_point": [
+              134529.17578125,
+              135807.26171875,
+              136199.8046875,
+              134679.875,
+              134664.48828125,
+              134445.66015625,
+              134436.36328125
+            ],
+            "blocks": 7,
+            "calls_per_block": 256,
+            "max_ns_per_point": 136199.8046875,
+            "median_ns_per_point": 134664.48828125,
+            "min_ns_per_point": 134436.36328125
+          },
+          "reduction": {
+            "block_ms": [
+              29.647845999999998,
+              29.582627,
+              29.580067000000003,
+              29.633536,
+              29.555115999999998,
+              29.516526000000002,
+              29.615156
+            ],
+            "block_ns_per_point": [
+              14476.4873046875,
+              14444.64208984375,
+              14443.39208984375,
+              14469.5,
+              14431.208984375,
+              14412.3662109375,
+              14460.525390625
+            ],
+            "blocks": 7,
+            "calls_per_block": 2048,
+            "max_ns_per_point": 14476.4873046875,
+            "median_ns_per_point": 14444.64208984375,
+            "min_ns_per_point": 14412.3662109375
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              27.113519999999998,
+              27.17861,
+              27.13026,
+              27.26698,
+              27.132369999999998,
+              27.099699,
+              27.23565
+            ],
+            "block_ns_per_point": [
+              52956.09375,
+              53083.22265625,
+              52988.7890625,
+              53255.8203125,
+              52992.91015625,
+              52929.099609375,
+              53194.62890625
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 53255.8203125,
+            "median_ns_per_point": 52992.91015625,
+            "min_ns_per_point": 52929.099609375
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 4.820434637742801e-12,
+            "reference": "validation/benchmark/ninja/syn-gghhh-ggHHH-n5-r5.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 134664.48828125,
+            "reduction": 14444.64208984375,
+            "sum_of_components": 187657.3984375,
+            "sum_over_total": 0.9829713733233268,
+            "tensor_numerator": 38548.26806640625,
+            "total": 190908.3046875
+          },
+          "total": {
+            "block_ms": [
+              24.331243,
+              24.300233000000002,
+              24.256592,
+              24.436263,
+              25.521956,
+              25.135715,
+              24.733403000000003
+            ],
+            "block_ns_per_point": [
+              190087.8359375,
+              189845.5703125,
+              189504.625,
+              190908.3046875,
+              199390.28125,
+              196372.7734375,
+              193229.7109375
+            ],
+            "blocks": 7,
+            "calls_per_block": 128,
+            "max_ns_per_point": 199390.28125,
+            "median_ns_per_point": 190908.3046875,
+            "min_ns_per_point": 189504.625
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 160,
+            "BubbleRank2": 320,
+            "C0": 320,
+            "D0": 160
+          },
+          "masters": {
+            "block_ms": [
+              34.93551,
+              35.100851000000006,
+              34.85841,
+              34.931909999999995,
+              34.88839,
+              34.89115,
+              34.81969
+            ],
+            "block_ns_per_point": [
+              136466.8359375,
+              137112.69921875,
+              136165.6640625,
+              136452.7734375,
+              136282.7734375,
+              136293.5546875,
+              136014.4140625
+            ],
+            "blocks": 7,
+            "calls_per_block": 8,
+            "max_ns_per_point": 137112.69921875,
+            "median_ns_per_point": 136293.5546875,
+            "min_ns_per_point": 136014.4140625
+          },
+          "reduction": {
+            "block_ms": [
+              26.498499,
+              26.485288,
+              26.889279,
+              26.917938999999997,
+              26.702029,
+              26.744019,
+              26.589079
+            ],
+            "block_ns_per_point": [
+              12938.72021484375,
+              12932.26953125,
+              13129.53076171875,
+              13143.52490234375,
+              13038.10009765625,
+              13058.60302734375,
+              12982.94873046875
+            ],
+            "blocks": 7,
+            "calls_per_block": 64,
+            "max_ns_per_point": 13143.52490234375,
+            "median_ns_per_point": 13038.10009765625,
+            "min_ns_per_point": 12932.26953125
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              25.437845,
+              25.246586,
+              25.251385000000003,
+              25.212305,
+              25.319385,
+              25.254395,
+              25.250635
+            ],
+            "block_ns_per_point": [
+              49683.291015625,
+              49309.73828125,
+              49319.111328125,
+              49242.783203125,
+              49451.923828125,
+              49324.990234375,
+              49317.646484375
+            ],
+            "blocks": 7,
+            "calls_per_block": 16,
+            "max_ns_per_point": 49683.291015625,
+            "median_ns_per_point": 49319.111328125,
+            "min_ns_per_point": 49242.783203125
+          },
+          "reference_check": {
+            "lanes_checked": 3,
+            "max_scaled_laurent_difference": 0.00901343295961894,
+            "reference": "validation/benchmark/ninja/syn-gghhh-ggHHH-n5-r5.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 136293.5546875,
+            "reduction": 13038.10009765625,
+            "sum_of_components": 185612.666015625,
+            "sum_over_total": 0.987586150378629,
+            "tensor_numerator": 36281.01123046875,
+            "total": 187945.796875
+          },
+          "total": {
+            "block_ms": [
+              24.131982,
+              23.982732,
+              24.083402,
+              24.057062000000002,
+              24.051662,
+              24.428284,
+              24.023781
+            ],
+            "block_ns_per_point": [
+              188531.109375,
+              187365.09375,
+              188151.578125,
+              187945.796875,
+              187903.609375,
+              190845.96875,
+              187685.7890625
+            ],
+            "blocks": 7,
+            "calls_per_block": 4,
+            "max_ns_per_point": 190845.96875,
+            "median_ns_per_point": 187945.796875,
+            "min_ns_per_point": 187365.09375
+          },
+          "width": 32
+        }
+      ],
+      "rank": 5
+    },
+    {
+      "case": "syn-gghhh-gHgHH-n5-r4",
+      "file": "validation/benchmark/synthetic/syn-gghhh-gHgHH-n5-r4.json",
+      "lanes": 3,
+      "n": 5,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 5,
+            "BubbleRank2": 10,
+            "C0": 10,
+            "D0": 5
+          },
+          "masters": {
+            "block_ms": [
+              29.792026,
+              29.744227000000002,
+              29.724197,
+              29.595066,
+              29.610337,
+              29.594126,
+              29.624115999999997
+            ],
+            "block_ns_per_point": [
+              58187.55078125,
+              58094.193359375,
+              58055.072265625,
+              57802.86328125,
+              57832.689453125,
+              57801.02734375,
+              57859.6015625
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 58187.55078125,
+            "median_ns_per_point": 57859.6015625,
+            "min_ns_per_point": 57801.02734375
+          },
+          "reduction": {
+            "block_ms": [
+              20.307722000000002,
+              20.405163,
+              20.512133,
+              20.259262,
+              20.447193,
+              20.280752,
+              20.297183
+            ],
+            "block_ns_per_point": [
+              9915.8798828125,
+              9963.45849609375,
+              10015.68994140625,
+              9892.2177734375,
+              9983.98095703125,
+              9902.7109375,
+              9910.73388671875
+            ],
+            "blocks": 7,
+            "calls_per_block": 2048,
+            "max_ns_per_point": 10015.68994140625,
+            "median_ns_per_point": 9915.8798828125,
+            "min_ns_per_point": 9892.2177734375
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              22.688598000000002,
+              22.94554,
+              22.688178,
+              22.631458,
+              22.604529000000003,
+              22.652368,
+              22.697219
+            ],
+            "block_ns_per_point": [
+              22156.833984375,
+              22407.75390625,
+              22156.423828125,
+              22101.033203125,
+              22074.7353515625,
+              22121.453125,
+              22165.2529296875
+            ],
+            "blocks": 7,
+            "calls_per_block": 1024,
+            "max_ns_per_point": 22407.75390625,
+            "median_ns_per_point": 22156.423828125,
+            "min_ns_per_point": 22074.7353515625
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 1.2230927575120096e-13,
+            "reference": "validation/benchmark/ninja/syn-gghhh-gHgHH-n5-r4.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 57859.6015625,
+            "reduction": 9915.8798828125,
+            "sum_of_components": 80016.025390625,
+            "sum_over_total": 0.9959062981520643,
+            "tensor_numerator": 12240.5439453125,
+            "total": 80344.93359375
+          },
+          "total": {
+            "block_ms": [
+              20.522043,
+              20.585723,
+              20.666793,
+              20.568303,
+              20.654643,
+              20.553803,
+              20.549043
+            ],
+            "block_ns_per_point": [
+              80164.23046875,
+              80412.98046875,
+              80729.66015625,
+              80344.93359375,
+              80682.19921875,
+              80288.29296875,
+              80269.69921875
+            ],
+            "blocks": 7,
+            "calls_per_block": 256,
+            "max_ns_per_point": 80729.66015625,
+            "median_ns_per_point": 80344.93359375,
+            "min_ns_per_point": 80164.23046875
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 160,
+            "BubbleRank2": 320,
+            "C0": 320,
+            "D0": 160
+          },
+          "masters": {
+            "block_ms": [
+              29.773547,
+              29.661867,
+              29.715387,
+              29.861667,
+              29.779697000000002,
+              29.957887,
+              29.853527
+            ],
+            "block_ns_per_point": [
+              58151.458984375,
+              57933.333984375,
+              58037.865234375,
+              58323.568359375,
+              58163.470703125,
+              58511.498046875,
+              58307.669921875
+            ],
+            "blocks": 7,
+            "calls_per_block": 16,
+            "max_ns_per_point": 58511.498046875,
+            "median_ns_per_point": 58163.470703125,
+            "min_ns_per_point": 57933.333984375
+          },
+          "reduction": {
+            "block_ms": [
+              36.077464,
+              35.887403,
+              35.797052,
+              35.844012,
+              35.962433000000004,
+              35.902582,
+              35.821363000000005
+            ],
+            "block_ns_per_point": [
+              8807.974609375,
+              8761.572998046875,
+              8739.5146484375,
+              8750.9794921875,
+              8779.890869140625,
+              8765.27880859375,
+              8745.449951171875
+            ],
+            "blocks": 7,
+            "calls_per_block": 128,
+            "max_ns_per_point": 8807.974609375,
+            "median_ns_per_point": 8761.572998046875,
+            "min_ns_per_point": 8739.5146484375
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              20.784874,
+              20.777124,
+              20.806473999999998,
+              20.818584,
+              20.738633999999998,
+              20.798013,
+              20.742724
+            ],
+            "block_ns_per_point": [
+              20297.728515625,
+              20290.16015625,
+              20318.822265625,
+              20330.6484375,
+              20252.572265625,
+              20310.5595703125,
+              20256.56640625
+            ],
+            "blocks": 7,
+            "calls_per_block": 32,
+            "max_ns_per_point": 20330.6484375,
+            "median_ns_per_point": 20297.728515625,
+            "min_ns_per_point": 20252.572265625
+          },
+          "reference_check": {
+            "lanes_checked": 3,
+            "max_scaled_laurent_difference": 1.2698454543398076e-12,
+            "reference": "validation/benchmark/ninja/syn-gghhh-gHgHH-n5-r4.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 58163.470703125,
+            "reduction": 8761.572998046875,
+            "sum_of_components": 78461.19921875,
+            "sum_over_total": 0.9862707213260273,
+            "tensor_numerator": 11536.155517578125,
+            "total": 79553.41015625
+          },
+          "total": {
+            "block_ms": [
+              20.547762000000002,
+              20.380803,
+              20.365673,
+              20.399222,
+              20.297843,
+              20.350442,
+              20.293583
+            ],
+            "block_ns_per_point": [
+              80264.6953125,
+              79612.51171875,
+              79553.41015625,
+              79684.4609375,
+              79288.44921875,
+              79493.9140625,
+              79271.80859375
+            ],
+            "blocks": 7,
+            "calls_per_block": 8,
+            "max_ns_per_point": 80264.6953125,
+            "median_ns_per_point": 79553.41015625,
+            "min_ns_per_point": 79271.80859375
+          },
+          "width": 32
+        }
+      ],
+      "rank": 4
+    },
+    {
+      "case": "syn-gghhh-gHgHH-n5-r5",
+      "file": "validation/benchmark/synthetic/syn-gghhh-gHgHH-n5-r5.json",
+      "lanes": 3,
+      "n": 5,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 5,
+            "BubbleRank2": 10,
+            "C0": 10,
+            "D0": 5
+          },
+          "masters": {
+            "block_ms": [
+              29.653077,
+              29.684176,
+              29.691316999999998,
+              29.671317,
+              29.636096000000002,
+              29.708007000000002,
+              29.662896
+            ],
+            "block_ns_per_point": [
+              57916.166015625,
+              57976.90625,
+              57990.853515625,
+              57951.791015625,
+              57883.0,
+              58023.451171875,
+              57935.34375
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 58023.451171875,
+            "median_ns_per_point": 57951.791015625,
+            "min_ns_per_point": 57883.0
+          },
+          "reduction": {
+            "block_ms": [
+              30.68146,
+              30.636879,
+              30.765579000000002,
+              30.751029,
+              30.635599,
+              30.701158999999997,
+              30.70995
+            ],
+            "block_ns_per_point": [
+              14981.181640625,
+              14959.41357421875,
+              15022.25537109375,
+              15015.15087890625,
+              14958.78857421875,
+              14990.80029296875,
+              14995.0927734375
+            ],
+            "blocks": 7,
+            "calls_per_block": 2048,
+            "max_ns_per_point": 15022.25537109375,
+            "median_ns_per_point": 14990.80029296875,
+            "min_ns_per_point": 14958.78857421875
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              27.618831,
+              27.783421,
+              27.653612000000003,
+              27.650530999999997,
+              27.760432,
+              27.655741000000003,
+              27.650532
+            ],
+            "block_ns_per_point": [
+              53943.029296875,
+              54264.494140625,
+              54010.9609375,
+              54004.943359375,
+              54219.59375,
+              54015.119140625,
+              54004.9453125
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 54264.494140625,
+            "median_ns_per_point": 54010.9609375,
+            "min_ns_per_point": 53943.029296875
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 1.897901121038849e-12,
+            "reference": "validation/benchmark/ninja/syn-gghhh-gHgHH-n5-r5.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 57951.791015625,
+            "reduction": 14990.80029296875,
+            "sum_of_components": 111962.751953125,
+            "sum_over_total": 0.9978554393328382,
+            "tensor_numerator": 39020.16064453125,
+            "total": 112203.37890625
+          },
+          "total": {
+            "block_ms": [
+              28.714503,
+              28.849774,
+              28.784104000000003,
+              28.658465,
+              28.747263,
+              28.724065,
+              28.719084
+            ],
+            "block_ns_per_point": [
+              112166.02734375,
+              112694.4296875,
+              112437.90625,
+              111947.12890625,
+              112293.99609375,
+              112203.37890625,
+              112183.921875
+            ],
+            "blocks": 7,
+            "calls_per_block": 256,
+            "max_ns_per_point": 112694.4296875,
+            "median_ns_per_point": 112203.37890625,
+            "min_ns_per_point": 111947.12890625
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 160,
+            "BubbleRank2": 320,
+            "C0": 320,
+            "D0": 160
+          },
+          "masters": {
+            "block_ms": [
+              30.103398,
+              30.110267999999998,
+              29.899366999999998,
+              29.874136999999997,
+              30.168048,
+              30.036818,
+              29.829227
+            ],
+            "block_ns_per_point": [
+              58795.69921875,
+              58809.1171875,
+              58397.201171875,
+              58347.923828125,
+              58921.96875,
+              58665.66015625,
+              58260.208984375
+            ],
+            "blocks": 7,
+            "calls_per_block": 16,
+            "max_ns_per_point": 58921.96875,
+            "median_ns_per_point": 58665.66015625,
+            "min_ns_per_point": 58260.208984375
+          },
+          "reduction": {
+            "block_ms": [
+              26.504558,
+              26.517189,
+              26.567189000000003,
+              26.565989000000002,
+              26.511208,
+              26.620998,
+              27.944833
+            ],
+            "block_ns_per_point": [
+              12941.6787109375,
+              12947.84619140625,
+              12972.26025390625,
+              12971.67431640625,
+              12944.92578125,
+              12998.5341796875,
+              13644.93798828125
+            ],
+            "blocks": 7,
+            "calls_per_block": 64,
+            "max_ns_per_point": 13644.93798828125,
+            "median_ns_per_point": 12971.67431640625,
+            "min_ns_per_point": 12941.6787109375
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              25.250795,
+              25.203465,
+              25.213135,
+              25.322695,
+              25.275645,
+              25.196614999999998,
+              25.212605
+            ],
+            "block_ns_per_point": [
+              49317.958984375,
+              49225.517578125,
+              49244.404296875,
+              49458.388671875,
+              49366.494140625,
+              49212.138671875,
+              49243.369140625
+            ],
+            "blocks": 7,
+            "calls_per_block": 16,
+            "max_ns_per_point": 49458.388671875,
+            "median_ns_per_point": 49244.404296875,
+            "min_ns_per_point": 49212.138671875
+          },
+          "reference_check": {
+            "lanes_checked": 3,
+            "max_scaled_laurent_difference": 1.4206601095646777e-11,
+            "reference": "validation/benchmark/ninja/syn-gghhh-gHgHH-n5-r5.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 58665.66015625,
+            "reduction": 12971.67431640625,
+            "sum_of_components": 107910.064453125,
+            "sum_over_total": 0.9896784776399826,
+            "tensor_numerator": 36272.72998046875,
+            "total": 109035.4765625
+          },
+          "total": {
+            "block_ms": [
+              28.090942000000002,
+              27.853222,
+              27.922262,
+              27.913082,
+              28.019631999999998,
+              27.799702,
+              27.814382
+            ],
+            "block_ns_per_point": [
+              109730.2421875,
+              108801.6484375,
+              109071.3359375,
+              109035.4765625,
+              109451.6875,
+              108592.5859375,
+              108649.9296875
+            ],
+            "blocks": 7,
+            "calls_per_block": 8,
+            "max_ns_per_point": 109730.2421875,
+            "median_ns_per_point": 109035.4765625,
+            "min_ns_per_point": 108592.5859375
+          },
+          "width": 32
+        }
+      ],
+      "rank": 5
+    },
+    {
+      "case": "syn-gghhh-nosmat-n5-r4",
+      "file": "validation/benchmark/synthetic/syn-gghhh-nosmat-n5-r4.json",
+      "lanes": 3,
+      "n": 5,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 5,
+            "BubbleRank2": 10,
+            "C0": 10,
+            "D0": 5
+          },
+          "masters": {
+            "block_ms": [
+              33.45410699999999,
+              33.534866,
+              33.501436000000005,
+              33.438016,
+              33.457827,
+              33.351845999999995,
+              33.426776
+            ],
+            "block_ns_per_point": [
+              130680.10546874999,
+              130995.57031250001,
+              130864.98437500001,
+              130617.25,
+              130694.63671875001,
+              130280.64843749999,
+              130573.34375
+            ],
+            "blocks": 7,
+            "calls_per_block": 256,
+            "max_ns_per_point": 130995.57031250001,
+            "median_ns_per_point": 130680.10546874999,
+            "min_ns_per_point": 130280.64843749999
+          },
+          "reduction": {
+            "block_ms": [
+              20.183733,
+              20.260392,
+              20.191292,
+              20.269052,
+              20.174953,
+              20.252012,
+              20.291552
+            ],
+            "block_ns_per_point": [
+              9855.33837890625,
+              9892.76953125,
+              9859.029296875,
+              9896.998046875,
+              9851.05126953125,
+              9888.677734375,
+              9907.984375
+            ],
+            "blocks": 7,
+            "calls_per_block": 2048,
+            "max_ns_per_point": 9907.984375,
+            "median_ns_per_point": 9888.677734375,
+            "min_ns_per_point": 9851.05126953125
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              22.575738,
+              22.598289,
+              22.636078,
+              22.539648999999997,
+              22.540949,
+              22.518238,
+              22.691498
+            ],
+            "block_ns_per_point": [
+              22046.619140625,
+              22068.6416015625,
+              22105.544921875,
+              22011.3759765625,
+              22012.6455078125,
+              21990.466796875,
+              22159.666015625
+            ],
+            "blocks": 7,
+            "calls_per_block": 1024,
+            "max_ns_per_point": 22159.666015625,
+            "median_ns_per_point": 22046.619140625,
+            "min_ns_per_point": 21990.466796875
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 2.3443221153723675e-13,
+            "reference": "validation/benchmark/ninja/syn-gghhh-nosmat-n5-r4.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 130680.10546874999,
+            "reduction": 9888.677734375,
+            "sum_of_components": 152726.724609375,
+            "sum_over_total": 0.994447082870994,
+            "tensor_numerator": 12157.94140625,
+            "total": 153579.5390625
+          },
+          "total": {
+            "block_ms": [
+              39.331162000000006,
+              39.538802,
+              39.212292000000005,
+              39.316362,
+              39.306842,
+              39.209731,
+              39.345242
+            ],
+            "block_ns_per_point": [
+              153637.3515625,
+              154448.4453125,
+              153173.015625,
+              153579.5390625,
+              153542.3515625,
+              153163.01171875,
+              153692.3515625
+            ],
+            "blocks": 7,
+            "calls_per_block": 256,
+            "max_ns_per_point": 154448.4453125,
+            "median_ns_per_point": 153579.5390625,
+            "min_ns_per_point": 153163.01171875
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 160,
+            "BubbleRank2": 320,
+            "C0": 320,
+            "D0": 160
+          },
+          "masters": {
+            "block_ms": [
+              34.6031,
+              34.247768,
+              35.614492999999996,
+              35.493202000000004,
+              34.83101,
+              34.523360000000004,
+              34.543389
+            ],
+            "block_ns_per_point": [
+              135168.359375,
+              133780.34375,
+              139119.11328125,
+              138645.3203125,
+              136058.6328125,
+              134856.875,
+              134935.11328125
+            ],
+            "blocks": 7,
+            "calls_per_block": 8,
+            "max_ns_per_point": 139119.11328125,
+            "median_ns_per_point": 135168.359375,
+            "min_ns_per_point": 133780.34375
+          },
+          "reduction": {
+            "block_ms": [
+              35.866071999999996,
+              35.849663,
+              35.860453,
+              35.849032,
+              35.940422999999996,
+              35.975773000000004,
+              35.977843
+            ],
+            "block_ns_per_point": [
+              8756.365234375,
+              8752.359130859375,
+              8754.993408203125,
+              8752.205078125,
+              8774.517333984375,
+              8783.147705078125,
+              8783.653076171875
+            ],
+            "blocks": 7,
+            "calls_per_block": 128,
+            "max_ns_per_point": 8783.653076171875,
+            "median_ns_per_point": 8756.365234375,
+            "min_ns_per_point": 8752.205078125
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              20.758164,
+              20.754663,
+              20.856165,
+              20.788663999999997,
+              20.962004,
+              20.748624,
+              20.741984000000002
+            ],
+            "block_ns_per_point": [
+              20271.64453125,
+              20268.2255859375,
+              20367.3486328125,
+              20301.4296875,
+              20470.70703125,
+              20262.328125,
+              20255.84375
+            ],
+            "blocks": 7,
+            "calls_per_block": 32,
+            "max_ns_per_point": 20470.70703125,
+            "median_ns_per_point": 20271.64453125,
+            "min_ns_per_point": 20255.84375
+          },
+          "reference_check": {
+            "lanes_checked": 3,
+            "max_scaled_laurent_difference": 3.664373501484456e-12,
+            "reference": "validation/benchmark/ninja/syn-gghhh-nosmat-n5-r4.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 135168.359375,
+            "reduction": 8756.365234375,
+            "sum_of_components": 155440.00390625,
+            "sum_over_total": 0.9849852809053956,
+            "tensor_numerator": 11515.279296875,
+            "total": 157809.46875
+          },
+          "total": {
+            "block_ms": [
+              20.151302,
+              20.199612,
+              20.282473,
+              20.188382,
+              20.225572,
+              20.254821999999997,
+              20.156362
+            ],
+            "block_ns_per_point": [
+              157432.046875,
+              157809.46875,
+              158456.8203125,
+              157721.734375,
+              158012.28125,
+              158240.796875,
+              157471.578125
+            ],
+            "blocks": 7,
+            "calls_per_block": 4,
+            "max_ns_per_point": 158456.8203125,
+            "median_ns_per_point": 157809.46875,
+            "min_ns_per_point": 157432.046875
+          },
+          "width": 32
+        }
+      ],
+      "rank": 4
+    },
+    {
+      "case": "syn-n2-r1",
+      "file": "validation/benchmark/synthetic/syn-n2-r1.json",
+      "lanes": 3,
+      "n": 2,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 1,
+            "BubbleRank2": 1
+          },
+          "masters": {
+            "block_ms": [
+              38.83371,
+              38.709540000000004,
+              38.85757,
+              39.204612,
+              39.003941,
+              39.059321000000004,
+              38.877841000000004
+            ],
+            "block_ns_per_point": [
+              296.27769470214844,
+              295.3303527832031,
+              296.45973205566406,
+              299.1074523925781,
+              297.57645416259766,
+              297.9989700317383,
+              296.61438751220703
+            ],
+            "blocks": 7,
+            "calls_per_block": 131072,
+            "max_ns_per_point": 299.1074523925781,
+            "median_ns_per_point": 296.61438751220703,
+            "min_ns_per_point": 295.3303527832031
+          },
+          "reduction": {
+            "block_ms": [
+              28.392664,
+              28.474703,
+              29.234336,
+              28.805744,
+              28.092493,
+              28.121602999999997,
+              28.237113
+            ],
+            "block_ns_per_point": [
+              433.2376708984375,
+              434.48948669433594,
+              446.08056640625,
+              439.540771484375,
+              428.6574249267578,
+              429.1016082763672,
+              430.86415100097656
+            ],
+            "blocks": 7,
+            "calls_per_block": 65536,
+            "max_ns_per_point": 446.08056640625,
+            "median_ns_per_point": 433.2376708984375,
+            "min_ns_per_point": 428.6574249267578
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              32.299174,
+              32.695235000000004,
+              31.982511999999996,
+              32.260243,
+              32.076214,
+              32.001583,
+              32.056833
+            ],
+            "block_ns_per_point": [
+              492.8462829589844,
+              498.88969421386724,
+              488.01440429687494,
+              492.2522430419922,
+              489.4441833496094,
+              488.30540466308594,
+              489.14845275878906
+            ],
+            "blocks": 7,
+            "calls_per_block": 65536,
+            "max_ns_per_point": 498.88969421386724,
+            "median_ns_per_point": 489.4441833496094,
+            "min_ns_per_point": 488.01440429687494
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 7.000750005758879e-16,
+            "reference": "validation/benchmark/ninja/syn-n2-r1.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 296.61438751220703,
+            "reduction": 433.2376708984375,
+            "sum_of_components": 786.0585708618164,
+            "sum_over_total": 0.8438585831357346,
+            "tensor_numerator": 56.206512451171875,
+            "total": 931.5050964355469
+          },
+          "total": {
+            "block_ms": [
+              30.366628,
+              30.512409,
+              30.505489,
+              30.523559,
+              30.540679,
+              30.613039,
+              30.597929
+            ],
+            "block_ns_per_point": [
+              926.7159423828125,
+              931.1648254394531,
+              930.9536437988281,
+              931.5050964355469,
+              932.0275573730469,
+              934.2358093261719,
+              933.7746887207031
+            ],
+            "blocks": 7,
+            "calls_per_block": 32768,
+            "max_ns_per_point": 934.2358093261719,
+            "median_ns_per_point": 931.5050964355469,
+            "min_ns_per_point": 926.7159423828125
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 32,
+            "BubbleRank2": 32
+          },
+          "masters": {
+            "block_ms": [
+              33.385006000000004,
+              33.087676,
+              32.613474000000004,
+              32.638633999999996,
+              32.722014,
+              32.578355,
+              32.768603999999996
+            ],
+            "block_ns_per_point": [
+              254.70738220214844,
+              252.4389343261719,
+              248.8210601806641,
+              249.0130157470703,
+              249.64915466308594,
+              248.55312347412112,
+              250.00460815429688
+            ],
+            "blocks": 7,
+            "calls_per_block": 4096,
+            "max_ns_per_point": 254.70738220214844,
+            "median_ns_per_point": 249.64915466308594,
+            "min_ns_per_point": 248.55312347412112
+          },
+          "reduction": {
+            "block_ms": [
+              33.747516999999995,
+              33.771317,
+              33.927168,
+              33.842677,
+              33.860208,
+              33.868708,
+              33.813937
+            ],
+            "block_ns_per_point": [
+              257.4731216430664,
+              257.65470123291016,
+              258.84375,
+              258.19913482666016,
+              258.3328857421875,
+              258.3977355957031,
+              257.97986602783203
+            ],
+            "blocks": 7,
+            "calls_per_block": 4096,
+            "max_ns_per_point": 258.84375,
+            "median_ns_per_point": 258.19913482666016,
+            "min_ns_per_point": 257.4731216430664
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              38.247378999999995,
+              38.233519,
+              38.220459,
+              38.097989,
+              38.24761899999999,
+              38.231029,
+              38.233969
+            ],
+            "block_ns_per_point": [
+              291.8043441772461,
+              291.69860076904297,
+              291.59896087646484,
+              290.66458892822266,
+              291.8061752319336,
+              291.67960357666016,
+              291.70203399658203
+            ],
+            "blocks": 7,
+            "calls_per_block": 4096,
+            "max_ns_per_point": 291.8061752319336,
+            "median_ns_per_point": 291.69860076904297,
+            "min_ns_per_point": 290.66458892822266
+          },
+          "reference_check": {
+            "lanes_checked": 3,
+            "max_scaled_laurent_difference": 4.0092002255153444e-15,
+            "reference": "validation/benchmark/ninja/syn-n2-r1.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 249.64915466308594,
+            "reduction": 258.19913482666016,
+            "sum_of_components": 541.3477554321289,
+            "sum_over_total": 0.9892310762025511,
+            "tensor_numerator": 33.49946594238281,
+            "total": 547.2409515380859
+          },
+          "total": {
+            "block_ms": [
+              35.848563,
+              35.905013,
+              35.947223,
+              35.868613,
+              35.863983000000005,
+              35.772552,
+              35.821853
+            ],
+            "block_ns_per_point": [
+              547.0056610107422,
+              547.8670196533203,
+              548.5110931396484,
+              547.3115997314453,
+              547.2409515380859,
+              545.8458251953125,
+              546.5980987548828
+            ],
+            "blocks": 7,
+            "calls_per_block": 2048,
+            "max_ns_per_point": 548.5110931396484,
+            "median_ns_per_point": 547.2409515380859,
+            "min_ns_per_point": 545.8458251953125
+          },
+          "width": 32
+        }
+      ],
+      "rank": 1
+    },
+    {
+      "case": "syn-n2-r2",
+      "file": "validation/benchmark/synthetic/syn-n2-r2.json",
+      "lanes": 3,
+      "n": 2,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 1,
+            "BubbleRank2": 1
+          },
+          "masters": {
+            "block_ms": [
+              38.198239,
+              38.45993,
+              38.484488999999996,
+              38.47223,
+              38.466300000000004,
+              38.67281,
+              38.386769
+            ],
+            "block_ns_per_point": [
+              291.42943572998047,
+              293.4259796142578,
+              293.6133499145508,
+              293.5198211669922,
+              293.4745788574219,
+              295.0501251220703,
+              292.86780548095703
+            ],
+            "blocks": 7,
+            "calls_per_block": 131072,
+            "max_ns_per_point": 295.0501251220703,
+            "median_ns_per_point": 293.4745788574219,
+            "min_ns_per_point": 291.42943572998047
+          },
+          "reduction": {
+            "block_ms": [
+              30.105828000000002,
+              30.085397999999998,
+              30.128998,
+              30.082358,
+              30.160748,
+              30.200347999999998,
+              30.387659
+            ],
+            "block_ns_per_point": [
+              459.37847900390625,
+              459.0667419433594,
+              459.7320251464844,
+              459.0203552246094,
+              460.21649169921875,
+              460.82073974609375,
+              463.6788787841797
+            ],
+            "blocks": 7,
+            "calls_per_block": 65536,
+            "max_ns_per_point": 463.6788787841797,
+            "median_ns_per_point": 459.7320251464844,
+            "min_ns_per_point": 459.0203552246094
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              27.233891,
+              27.575830999999997,
+              27.21743,
+              27.27138,
+              27.423291,
+              27.208541,
+              27.324041
+            ],
+            "block_ns_per_point": [
+              831.1123962402344,
+              841.5475769042969,
+              830.6100463867188,
+              832.2564697265625,
+              836.8924255371094,
+              830.3387756347656,
+              833.8635559082031
+            ],
+            "blocks": 7,
+            "calls_per_block": 32768,
+            "max_ns_per_point": 841.5475769042969,
+            "median_ns_per_point": 832.2564697265625,
+            "min_ns_per_point": 830.3387756347656
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 3.422370363938951e-14,
+            "reference": "validation/benchmark/ninja/syn-n2-r2.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 293.4745788574219,
+            "reduction": 459.7320251464844,
+            "sum_of_components": 1125.7310485839844,
+            "sum_over_total": 0.9078662542639961,
+            "tensor_numerator": 372.5244445800781,
+            "total": 1239.9745483398438
+          },
+          "total": {
+            "block_ms": [
+              20.298863,
+              20.436553,
+              20.278453,
+              20.282963000000002,
+              20.315743,
+              20.350112,
+              20.432683
+            ],
+            "block_ns_per_point": [
+              1238.9442749023438,
+              1247.3482055664062,
+              1237.6985473632812,
+              1237.9738159179688,
+              1239.9745483398438,
+              1242.072265625,
+              1247.1119995117188
+            ],
+            "blocks": 7,
+            "calls_per_block": 16384,
+            "max_ns_per_point": 1247.3482055664062,
+            "median_ns_per_point": 1239.9745483398438,
+            "min_ns_per_point": 1237.6985473632812
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 32,
+            "BubbleRank2": 32
+          },
+          "masters": {
+            "block_ms": [
+              34.083338999999995,
+              34.139658000000004,
+              34.110709,
+              34.204938,
+              34.125559,
+              34.142078,
+              34.055698
+            ],
+            "block_ns_per_point": [
+              260.03524017333984,
+              260.4649200439453,
+              260.24405670166016,
+              260.9629669189453,
+              260.3573532104492,
+              260.48338317871094,
+              259.82435607910156
+            ],
+            "blocks": 7,
+            "calls_per_block": 4096,
+            "max_ns_per_point": 260.9629669189453,
+            "median_ns_per_point": 260.3573532104492,
+            "min_ns_per_point": 259.82435607910156
+          },
+          "reduction": {
+            "block_ms": [
+              37.764298000000004,
+              38.041698,
+              37.831809,
+              37.812498,
+              37.965218,
+              37.934108,
+              37.952468
+            ],
+            "block_ns_per_point": [
+              288.1187286376953,
+              290.23512268066406,
+              288.63379669189453,
+              288.48646545410156,
+              289.65162658691406,
+              289.4142761230469,
+              289.5543518066406
+            ],
+            "blocks": 7,
+            "calls_per_block": 4096,
+            "max_ns_per_point": 290.23512268066406,
+            "median_ns_per_point": 289.4142761230469,
+            "min_ns_per_point": 288.1187286376953
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              32.793065000000006,
+              32.852365,
+              32.944534999999995,
+              33.852538,
+              32.807154,
+              32.697845,
+              32.673985
+            ],
+            "block_ns_per_point": [
+              500.3824615478516,
+              501.2873077392578,
+              502.6937103271484,
+              516.5487365722656,
+              500.59744262695307,
+              498.92951965332037,
+              498.5654449462891
+            ],
+            "blocks": 7,
+            "calls_per_block": 2048,
+            "max_ns_per_point": 516.5487365722656,
+            "median_ns_per_point": 500.59744262695307,
+            "min_ns_per_point": 498.5654449462891
+          },
+          "reference_check": {
+            "lanes_checked": 3,
+            "max_scaled_laurent_difference": 1.9445906782406196e-13,
+            "reference": "validation/benchmark/ninja/syn-n2-r2.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 260.3573532104492,
+            "reduction": 289.4142761230469,
+            "sum_of_components": 760.9547958374023,
+            "sum_over_total": 1.0020508312712935,
+            "tensor_numerator": 211.1831665039062,
+            "total": 759.3973999023438
+          },
+          "total": {
+            "block_ms": [
+              24.872374,
+              24.887715,
+              24.973634,
+              24.919835000000003,
+              24.883854,
+              24.875185000000002,
+              24.883934
+            ],
+            "block_ns_per_point": [
+              759.0446166992188,
+              759.5127868652344,
+              762.1348266601562,
+              760.4930114746094,
+              759.3949584960938,
+              759.1304016113281,
+              759.3973999023438
+            ],
+            "blocks": 7,
+            "calls_per_block": 1024,
+            "max_ns_per_point": 762.1348266601562,
+            "median_ns_per_point": 759.3973999023438,
+            "min_ns_per_point": 759.0446166992188
+          },
+          "width": 32
+        }
+      ],
+      "rank": 2
+    },
+    {
+      "case": "syn-n2-r3",
+      "file": "validation/benchmark/synthetic/syn-n2-r3.json",
+      "lanes": 3,
+      "n": 2,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 1,
+            "BubbleRank3": 1
+          },
+          "masters": {
+            "block_ms": [
+              22.204857,
+              22.224278,
+              22.242957,
+              22.191478,
+              22.214807999999998,
+              22.192066999999998,
+              22.223228000000002
+            ],
+            "block_ns_per_point": [
+              338.81922912597656,
+              339.1155700683594,
+              339.4005889892578,
+              338.6150817871094,
+              338.9710693359375,
+              338.6240692138672,
+              339.09954833984375
+            ],
+            "blocks": 7,
+            "calls_per_block": 65536,
+            "max_ns_per_point": 339.4005889892578,
+            "median_ns_per_point": 338.9710693359375,
+            "min_ns_per_point": 338.6150817871094
+          },
+          "reduction": {
+            "block_ms": [
+              25.985037,
+              26.048717999999997,
+              25.959937,
+              25.936837,
+              26.020548,
+              25.900586999999998,
+              26.022357
+            ],
+            "block_ns_per_point": [
+              793.0003967285156,
+              794.9437866210938,
+              792.2344055175781,
+              791.5294494628906,
+              794.0841064453125,
+              790.4231872558594,
+              794.1393127441406
+            ],
+            "blocks": 7,
+            "calls_per_block": 32768,
+            "max_ns_per_point": 794.9437866210938,
+            "median_ns_per_point": 793.0003967285156,
+            "min_ns_per_point": 790.4231872558594
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              38.495799,
+              38.473079,
+              38.56376,
+              38.48312,
+              38.66514,
+              38.535109999999996,
+              38.607639999999996
+            ],
+            "block_ns_per_point": [
+              2349.5971069335938,
+              2348.2103881835938,
+              2353.7451171875,
+              2348.8232421875,
+              2359.932861328125,
+              2351.9964599609375,
+              2356.42333984375
+            ],
+            "blocks": 7,
+            "calls_per_block": 16384,
+            "max_ns_per_point": 2359.932861328125,
+            "median_ns_per_point": 2351.9964599609375,
+            "min_ns_per_point": 2348.2103881835938
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 1.1948627618718718e-14,
+            "reference": "validation/benchmark/ninja/syn-n2-r3.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 338.9710693359375,
+            "reduction": 793.0003967285156,
+            "sum_of_components": 2690.967529296875,
+            "sum_over_total": 1.006615208650996,
+            "tensor_numerator": 1558.9960632324219,
+            "total": 2673.283203125
+          },
+          "total": {
+            "block_ms": [
+              21.884777,
+              21.865776999999998,
+              21.952416999999997,
+              21.916767,
+              21.899536,
+              21.878067,
+              21.932677
+            ],
+            "block_ns_per_point": [
+              2671.4815673828125,
+              2669.1622314453125,
+              2679.7384033203125,
+              2675.3865966796875,
+              2673.283203125,
+              2670.6624755859375,
+              2677.3287353515625
+            ],
+            "blocks": 7,
+            "calls_per_block": 8192,
+            "max_ns_per_point": 2679.7384033203125,
+            "median_ns_per_point": 2673.283203125,
+            "min_ns_per_point": 2669.1622314453125
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 32,
+            "BubbleRank3": 32
+          },
+          "masters": {
+            "block_ms": [
+              33.988919,
+              33.969978999999995,
+              34.050959,
+              33.965238,
+              33.987428,
+              33.992928,
+              33.996839
+            ],
+            "block_ns_per_point": [
+              259.3148727416992,
+              259.17037200927734,
+              259.78820037841797,
+              259.1342010498047,
+              259.3034973144531,
+              259.345458984375,
+              259.3752975463867
+            ],
+            "blocks": 7,
+            "calls_per_block": 4096,
+            "max_ns_per_point": 259.78820037841797,
+            "median_ns_per_point": 259.3148727416992,
+            "min_ns_per_point": 259.1342010498047
+          },
+          "reduction": {
+            "block_ms": [
+              33.953558,
+              33.903238,
+              33.908578,
+              33.995368,
+              33.930958,
+              33.927038,
+              33.965868
+            ],
+            "block_ns_per_point": [
+              518.0901794433594,
+              517.3223571777344,
+              517.4038391113281,
+              518.7281494140625,
+              517.7453308105469,
+              517.6855163574219,
+              518.2780151367188
+            ],
+            "blocks": 7,
+            "calls_per_block": 2048,
+            "max_ns_per_point": 518.7281494140625,
+            "median_ns_per_point": 517.7453308105469,
+            "min_ns_per_point": 517.3223571777344
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              25.236076,
+              25.286595,
+              25.272826000000002,
+              25.253465,
+              25.227915,
+              25.332516,
+              25.297756
+            ],
+            "block_ns_per_point": [
+              1540.287841796875,
+              1543.3712768554688,
+              1542.5308837890625,
+              1541.3491821289062,
+              1539.7897338867188,
+              1546.174072265625,
+              1544.052490234375
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 1546.174072265625,
+            "median_ns_per_point": 1542.5308837890625,
+            "min_ns_per_point": 1539.7897338867188
+          },
+          "reference_check": {
+            "lanes_checked": 3,
+            "max_scaled_laurent_difference": 3.482322837484838e-11,
+            "reference": "validation/benchmark/ninja/syn-n2-r3.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 259.3148727416992,
+            "reduction": 517.7453308105469,
+            "sum_of_components": 1801.8457565307617,
+            "sum_over_total": 0.999343074861733,
+            "tensor_numerator": 1024.7855529785156,
+            "total": 1803.0302124023438
+          },
+          "total": {
+            "block_ms": [
+              29.567317,
+              29.494916,
+              29.540847,
+              29.666747,
+              29.525606,
+              29.477576,
+              29.562796
+            ],
+            "block_ns_per_point": [
+              1804.6458129882812,
+              1800.226806640625,
+              1803.0302124023438,
+              1810.7145385742188,
+              1802.0999755859375,
+              1799.16845703125,
+              1804.369873046875
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 1810.7145385742188,
+            "median_ns_per_point": 1803.0302124023438,
+            "min_ns_per_point": 1799.16845703125
+          },
+          "width": 32
+        }
+      ],
+      "rank": 3
+    },
+    {
+      "case": "syn-n3-r2",
+      "file": "validation/benchmark/synthetic/syn-n3-r2.json",
+      "lanes": 3,
+      "n": 3,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 3,
+            "BubbleRank2": 3,
+            "C0": 1
+          },
+          "masters": {
+            "block_ms": [
+              32.479124999999996,
+              32.598113999999995,
+              32.606935,
+              32.403453999999996,
+              32.420984,
+              32.455754000000006,
+              32.386744
+            ],
+            "block_ns_per_point": [
+              3964.736938476562,
+              3979.2619628906245,
+              3980.338745117187,
+              3955.499755859375,
+              3957.6396484375,
+              3961.8840332031255,
+              3953.4599609375005
+            ],
+            "blocks": 7,
+            "calls_per_block": 8192,
+            "max_ns_per_point": 3980.338745117187,
+            "median_ns_per_point": 3961.8840332031255,
+            "min_ns_per_point": 3953.4599609375005
+          },
+          "reduction": {
+            "block_ms": [
+              28.632644,
+              28.707505,
+              28.472934,
+              28.562324,
+              28.664884,
+              28.591674,
+              28.599674
+            ],
+            "block_ns_per_point": [
+              1747.597900390625,
+              1752.1670532226562,
+              1737.8499755859375,
+              1743.305908203125,
+              1749.565673828125,
+              1745.0972900390625,
+              1745.5855712890625
+            ],
+            "blocks": 7,
+            "calls_per_block": 16384,
+            "max_ns_per_point": 1752.1670532226562,
+            "median_ns_per_point": 1745.5855712890625,
+            "min_ns_per_point": 1737.8499755859375
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              20.288443,
+              20.213602,
+              20.218353,
+              20.256612,
+              20.251223,
+              20.228831999999997,
+              20.231923
+            ],
+            "block_ns_per_point": [
+              2476.6165771484375,
+              2467.480712890625,
+              2468.0606689453125,
+              2472.73095703125,
+              2472.0731201171875,
+              2469.33984375,
+              2469.7171630859375
+            ],
+            "blocks": 7,
+            "calls_per_block": 8192,
+            "max_ns_per_point": 2476.6165771484375,
+            "median_ns_per_point": 2469.7171630859375,
+            "min_ns_per_point": 2467.480712890625
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 2.5248485982893117e-14,
+            "reference": "validation/benchmark/ninja/syn-n3-r2.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 3961.8840332031255,
+            "reduction": 1745.5855712890625,
+            "sum_of_components": 6431.6011962890625,
+            "sum_over_total": 0.9751061578198116,
+            "tensor_numerator": 724.131591796875,
+            "total": 6595.7958984375
+          },
+          "total": {
+            "block_ms": [
+              27.016379999999998,
+              26.97952,
+              27.019911,
+              27.09645,
+              27.06165,
+              27.00073,
+              26.985329999999998
+            ],
+            "block_ns_per_point": [
+              6595.7958984375,
+              6586.796875,
+              6596.657958984375,
+              6615.34423828125,
+              6606.84814453125,
+              6591.97509765625,
+              6588.21533203125
+            ],
+            "blocks": 7,
+            "calls_per_block": 4096,
+            "max_ns_per_point": 6615.34423828125,
+            "median_ns_per_point": 6595.7958984375,
+            "min_ns_per_point": 6586.796875
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 96,
+            "BubbleRank2": 96,
+            "C0": 32
+          },
+          "masters": {
+            "block_ms": [
+              32.399214,
+              32.348084,
+              32.330164,
+              32.381834,
+              32.368114000000006,
+              32.388824,
+              32.416575
+            ],
+            "block_ns_per_point": [
+              3954.9821777343755,
+              3948.74072265625,
+              3946.55322265625,
+              3952.860595703125,
+              3951.1857910156255,
+              3953.7138671874995,
+              3957.101440429688
+            ],
+            "blocks": 7,
+            "calls_per_block": 256,
+            "max_ns_per_point": 3957.101440429688,
+            "median_ns_per_point": 3952.860595703125,
+            "min_ns_per_point": 3946.55322265625
+          },
+          "reduction": {
+            "block_ms": [
+              21.083685000000003,
+              21.051804999999998,
+              21.043995,
+              21.144415,
+              21.104115,
+              21.046154,
+              21.063655
+            ],
+            "block_ns_per_point": [
+              1286.8460083007812,
+              1284.9002075195312,
+              1284.4235229492188,
+              1290.5526733398438,
+              1288.0929565429688,
+              1284.5552978515625,
+              1285.6234741210938
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 1290.5526733398438,
+            "median_ns_per_point": 1285.6234741210938,
+            "min_ns_per_point": 1284.4235229492188
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              27.986323,
+              27.976582999999998,
+              28.019142,
+              27.973113,
+              27.957392000000002,
+              27.973623,
+              28.012432
+            ],
+            "block_ns_per_point": [
+              1708.1495971679688,
+              1707.5551147460938,
+              1710.1527099609375,
+              1707.3433227539062,
+              1706.3837890625,
+              1707.3744506835938,
+              1709.7431640625
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 1710.1527099609375,
+            "median_ns_per_point": 1707.5551147460938,
+            "min_ns_per_point": 1706.3837890625
+          },
+          "reference_check": {
+            "lanes_checked": 3,
+            "max_scaled_laurent_difference": 2.5248485982893117e-14,
+            "reference": "validation/benchmark/ninja/syn-n3-r2.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 3952.860595703125,
+            "reduction": 1285.6234741210938,
+            "sum_of_components": 5660.415710449219,
+            "sum_over_total": 0.9960511522542873,
+            "tensor_numerator": 421.931640625,
+            "total": 5682.8564453125
+          },
+          "total": {
+            "block_ms": [
+              23.33646,
+              23.295081,
+              23.25251,
+              23.227231,
+              23.20964,
+              23.358141,
+              23.27698
+            ],
+            "block_ns_per_point": [
+              5697.3779296875,
+              5687.275634765625,
+              5676.88232421875,
+              5670.710693359375,
+              5666.416015625,
+              5702.671142578125,
+              5682.8564453125
+            ],
+            "blocks": 7,
+            "calls_per_block": 128,
+            "max_ns_per_point": 5702.671142578125,
+            "median_ns_per_point": 5682.8564453125,
+            "min_ns_per_point": 5666.416015625
+          },
+          "width": 32
+        }
+      ],
+      "rank": 2
+    },
+    {
+      "case": "syn-n3-r3",
+      "file": "validation/benchmark/synthetic/syn-n3-r3.json",
+      "lanes": 3,
+      "n": 3,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 3,
+            "BubbleRank2": 3,
+            "C0": 1
+          },
+          "masters": {
+            "block_ms": [
+              34.037728,
+              33.741977999999996,
+              33.788188,
+              33.889228,
+              34.464169000000005,
+              33.834028,
+              33.875068
+            ],
+            "block_ns_per_point": [
+              4154.99609375,
+              4118.893798828125,
+              4124.53466796875,
+              4136.86865234375,
+              4207.0518798828125,
+              4130.13037109375,
+              4135.14013671875
+            ],
+            "blocks": 7,
+            "calls_per_block": 8192,
+            "max_ns_per_point": 4207.0518798828125,
+            "median_ns_per_point": 4135.14013671875,
+            "min_ns_per_point": 4118.893798828125
+          },
+          "reduction": {
+            "block_ms": [
+              37.365277,
+              37.615798,
+              37.518167,
+              37.680748,
+              37.390847,
+              37.551916999999996,
+              37.482307999999996
+            ],
+            "block_ns_per_point": [
+              2280.5955200195312,
+              2295.8861083984375,
+              2289.9271850585938,
+              2299.850341796875,
+              2282.1561889648438,
+              2291.9871215820312,
+              2287.738525390625
+            ],
+            "blocks": 7,
+            "calls_per_block": 16384,
+            "max_ns_per_point": 2299.850341796875,
+            "median_ns_per_point": 2289.9271850585938,
+            "min_ns_per_point": 2280.5955200195312
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              38.738081,
+              38.79477,
+              38.51574,
+              38.598851,
+              38.463038999999995,
+              38.400349,
+              39.085012
+            ],
+            "block_ns_per_point": [
+              4728.7696533203125,
+              4735.689697265625,
+              4701.62841796875,
+              4711.7738037109375,
+              4695.1951904296875,
+              4687.5426025390625,
+              4771.11962890625
+            ],
+            "blocks": 7,
+            "calls_per_block": 8192,
+            "max_ns_per_point": 4771.11962890625,
+            "median_ns_per_point": 4711.7738037109375,
+            "min_ns_per_point": 4687.5426025390625
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 2.062522095204486e-15,
+            "reference": "validation/benchmark/ninja/syn-n3-r3.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 4135.14013671875,
+            "reduction": 2289.9271850585938,
+            "sum_of_components": 8846.913940429688,
+            "sum_over_total": 0.9901840724654769,
+            "tensor_numerator": 2421.8466186523438,
+            "total": 8934.615478515625
+          },
+          "total": {
+            "block_ms": [
+              36.628724,
+              36.468194000000004,
+              36.701496,
+              36.605875000000005,
+              36.509964,
+              36.596185000000006,
+              36.576685
+            ],
+            "block_ns_per_point": [
+              8942.5595703125,
+              8903.36767578125,
+              8960.326171875,
+              8936.981201171875,
+              8913.5654296875,
+              8934.615478515625,
+              8929.854736328125
+            ],
+            "blocks": 7,
+            "calls_per_block": 4096,
+            "max_ns_per_point": 8960.326171875,
+            "median_ns_per_point": 8934.615478515625,
+            "min_ns_per_point": 8903.36767578125
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 96,
+            "BubbleRank2": 96,
+            "C0": 32
+          },
+          "masters": {
+            "block_ms": [
+              33.377956,
+              33.165546,
+              32.869485,
+              32.953746,
+              32.839214999999996,
+              32.838065,
+              32.787985
+            ],
+            "block_ns_per_point": [
+              4074.45751953125,
+              4048.5285644531245,
+              4012.388305664062,
+              4022.674072265625,
+              4008.693237304687,
+              4008.5528564453125,
+              4002.4395751953125
+            ],
+            "blocks": 7,
+            "calls_per_block": 256,
+            "max_ns_per_point": 4074.45751953125,
+            "median_ns_per_point": 4012.388305664062,
+            "min_ns_per_point": 4002.4395751953125
+          },
+          "reduction": {
+            "block_ms": [
+              28.060353,
+              28.129613000000003,
+              28.104212999999998,
+              28.091193,
+              28.119833,
+              28.106393,
+              28.137033
+            ],
+            "block_ns_per_point": [
+              1712.6680297851562,
+              1716.8953247070312,
+              1715.3450317382812,
+              1714.5503540039062,
+              1716.2984008789062,
+              1715.4780883789062,
+              1717.3482055664062
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 1717.3482055664062,
+            "median_ns_per_point": 1715.4780883789062,
+            "min_ns_per_point": 1712.6680297851562
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              29.270276000000003,
+              29.296886,
+              29.281585999999997,
+              29.290176000000002,
+              29.345467,
+              29.286737,
+              29.264626
+            ],
+            "block_ns_per_point": [
+              3573.03173828125,
+              3576.280029296875,
+              3574.412353515625,
+              3575.4609375,
+              3582.2103271484375,
+              3575.0411376953125,
+              3572.342041015625
+            ],
+            "blocks": 7,
+            "calls_per_block": 256,
+            "max_ns_per_point": 3582.2103271484375,
+            "median_ns_per_point": 3575.0411376953125,
+            "min_ns_per_point": 3572.342041015625
+          },
+          "reference_check": {
+            "lanes_checked": 3,
+            "max_scaled_laurent_difference": 1.3679887447820976e-14,
+            "reference": "validation/benchmark/ninja/syn-n3-r3.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 4012.388305664062,
+            "reduction": 1715.4780883789062,
+            "sum_of_components": 7587.429443359375,
+            "sum_over_total": 0.9973572278022459,
+            "tensor_numerator": 1859.5630493164062,
+            "total": 7607.534423828125
+          },
+          "total": {
+            "block_ms": [
+              31.125180999999998,
+              31.157691,
+              31.168801,
+              31.135071,
+              31.160461,
+              31.192180999999998,
+              31.168191
+            ],
+            "block_ns_per_point": [
+              7598.921142578125,
+              7606.858154296875,
+              7609.570556640625,
+              7601.335693359375,
+              7607.534423828125,
+              7615.278564453125,
+              7609.421630859375
+            ],
+            "blocks": 7,
+            "calls_per_block": 128,
+            "max_ns_per_point": 7615.278564453125,
+            "median_ns_per_point": 7607.534423828125,
+            "min_ns_per_point": 7598.921142578125
+          },
+          "width": 32
+        }
+      ],
+      "rank": 3
+    },
+    {
+      "case": "syn-n3-r4",
+      "file": "validation/benchmark/synthetic/syn-n3-r4.json",
+      "lanes": 3,
+      "n": 3,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 3,
+            "BubbleRank3": 3,
+            "C0": 1
+          },
+          "masters": {
+            "block_ms": [
+              32.903355000000005,
+              32.933766000000006,
+              32.931276000000004,
+              32.902795,
+              32.966696,
+              32.852545,
+              32.886945
+            ],
+            "block_ns_per_point": [
+              4016.522827148438,
+              4020.2351074218755,
+              4019.9311523437505,
+              4016.4544677734375,
+              4024.2548828124995,
+              4010.320434570312,
+              4014.5196533203125
+            ],
+            "blocks": 7,
+            "calls_per_block": 8192,
+            "max_ns_per_point": 4024.2548828124995,
+            "median_ns_per_point": 4016.522827148438,
+            "min_ns_per_point": 4010.320434570312
+          },
+          "reduction": {
+            "block_ms": [
+              20.991714,
+              20.972034999999998,
+              21.037404,
+              21.005844999999997,
+              21.059075,
+              21.059784,
+              21.102825
+            ],
+            "block_ns_per_point": [
+              5124.93017578125,
+              5120.125732421875,
+              5136.0849609375,
+              5128.380126953125,
+              5141.375732421875,
+              5141.548828125,
+              5152.056884765625
+            ],
+            "blocks": 7,
+            "calls_per_block": 4096,
+            "max_ns_per_point": 5152.056884765625,
+            "median_ns_per_point": 5136.0849609375,
+            "min_ns_per_point": 5120.125732421875
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              29.377845999999998,
+              29.004185,
+              28.723045,
+              29.245586,
+              28.822415,
+              28.750815,
+              28.822765
+            ],
+            "block_ns_per_point": [
+              14344.6513671875,
+              14162.19970703125,
+              14024.92431640625,
+              14280.0712890625,
+              14073.44482421875,
+              14038.48388671875,
+              14073.61572265625
+            ],
+            "blocks": 7,
+            "calls_per_block": 2048,
+            "max_ns_per_point": 14344.6513671875,
+            "median_ns_per_point": 14073.61572265625,
+            "min_ns_per_point": 14024.92431640625
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 5.936815595596658e-15,
+            "reference": "validation/benchmark/ninja/syn-n3-r4.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 4016.522827148438,
+            "reduction": 5136.0849609375,
+            "sum_of_components": 18090.138549804688,
+            "sum_over_total": 0.9963909855947631,
+            "tensor_numerator": 8937.53076171875,
+            "total": 18155.66259765625
+          },
+          "total": {
+            "block_ms": [
+              37.182796999999994,
+              37.171396,
+              37.173237,
+              37.283986999999996,
+              37.166976999999996,
+              37.189507,
+              37.218177
+            ],
+            "block_ns_per_point": [
+              18155.66259765625,
+              18150.095703125,
+              18150.99462890625,
+              18205.07177734375,
+              18147.93798828125,
+              18158.93896484375,
+              18172.93798828125
+            ],
+            "blocks": 7,
+            "calls_per_block": 2048,
+            "max_ns_per_point": 18205.07177734375,
+            "median_ns_per_point": 18155.66259765625,
+            "min_ns_per_point": 18147.93798828125
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 96,
+            "BubbleRank3": 96,
+            "C0": 32
+          },
+          "masters": {
+            "block_ms": [
+              32.225374,
+              32.167743,
+              32.229783999999995,
+              32.184684,
+              32.223954,
+              32.203634,
+              32.226594
+            ],
+            "block_ns_per_point": [
+              3933.761474609375,
+              3926.7264404296875,
+              3934.2998046874995,
+              3928.7944335937495,
+              3933.588134765625,
+              3931.107666015625,
+              3933.9104003906245
+            ],
+            "blocks": 7,
+            "calls_per_block": 256,
+            "max_ns_per_point": 3934.2998046874995,
+            "median_ns_per_point": 3933.588134765625,
+            "min_ns_per_point": 3926.7264404296875
+          },
+          "reduction": {
+            "block_ms": [
+              32.661755,
+              32.635375,
+              32.620155,
+              32.647605000000006,
+              32.602685,
+              32.575405,
+              32.657615
+            ],
+            "block_ns_per_point": [
+              3987.0306396484375,
+              3983.8104248046875,
+              3981.952514648437,
+              3985.303344726563,
+              3979.8199462890625,
+              3976.4898681640625,
+              3986.5252685546875
+            ],
+            "blocks": 7,
+            "calls_per_block": 256,
+            "max_ns_per_point": 3987.0306396484375,
+            "median_ns_per_point": 3983.8104248046875,
+            "min_ns_per_point": 3976.4898681640625
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              24.091393,
+              24.110713,
+              24.070452,
+              24.074783,
+              24.095622000000002,
+              24.096102000000002,
+              24.062752
+            ],
+            "block_ns_per_point": [
+              11763.37548828125,
+              11772.80908203125,
+              11753.150390625,
+              11755.26513671875,
+              11765.4404296875,
+              11765.6748046875,
+              11749.390625
+            ],
+            "blocks": 7,
+            "calls_per_block": 64,
+            "max_ns_per_point": 11772.80908203125,
+            "median_ns_per_point": 11763.37548828125,
+            "min_ns_per_point": 11749.390625
+          },
+          "reference_check": {
+            "lanes_checked": 3,
+            "max_scaled_laurent_difference": 1.8945709939797528e-14,
+            "reference": "validation/benchmark/ninja/syn-n3-r4.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 3933.588134765625,
+            "reduction": 3983.8104248046875,
+            "sum_of_components": 15696.963623046875,
+            "sum_over_total": 0.9976110467222875,
+            "tensor_numerator": 7779.5650634765625,
+            "total": 15734.552734375
+          },
+          "total": {
+            "block_ms": [
+              32.217743999999996,
+              32.224364,
+              32.273075,
+              32.313283999999996,
+              32.201414,
+              32.221354,
+              32.234894
+            ],
+            "block_ns_per_point": [
+              15731.3203125,
+              15734.552734375,
+              15758.33740234375,
+              15777.970703124998,
+              15723.346679687498,
+              15733.0830078125,
+              15739.6943359375
+            ],
+            "blocks": 7,
+            "calls_per_block": 64,
+            "max_ns_per_point": 15777.970703124998,
+            "median_ns_per_point": 15734.552734375,
+            "min_ns_per_point": 15723.346679687498
+          },
+          "width": 32
+        }
+      ],
+      "rank": 4
+    },
+    {
+      "case": "syn-n4-r3",
+      "file": "validation/benchmark/synthetic/syn-n4-r3.json",
+      "lanes": 3,
+      "n": 4,
+      "per_point_timing": [
+        {
+          "failed_lanes": 1,
+          "master_rows_per_batch": {
+            "A0": 3,
+            "BubbleRank2": 6,
+            "C0": 4,
+            "D0": 1
+          },
+          "masters": {
+            "block_ms": [
+              20.424743,
+              20.400053,
+              20.446623,
+              20.432333,
+              20.383763,
+              20.437293,
+              20.447153
+            ],
+            "block_ns_per_point": [
+              19946.0380859375,
+              19921.9267578125,
+              19967.4052734375,
+              19953.4501953125,
+              19906.0185546875,
+              19958.2939453125,
+              19967.9228515625
+            ],
+            "blocks": 7,
+            "calls_per_block": 1024,
+            "max_ns_per_point": 19967.9228515625,
+            "median_ns_per_point": 19953.4501953125,
+            "min_ns_per_point": 19906.0185546875
+          },
+          "reduction": {
+            "block_ms": [
+              34.141429,
+              34.034518999999996,
+              34.395920000000004,
+              34.912051,
+              34.63439,
+              34.177659,
+              34.192968
+            ],
+            "block_ns_per_point": [
+              4167.6549072265625,
+              4154.6043701171875,
+              4198.720703125,
+              4261.7249755859375,
+              4227.830810546875,
+              4172.0775146484375,
+              4173.9462890625
+            ],
+            "blocks": 7,
+            "calls_per_block": 8192,
+            "max_ns_per_point": 4261.7249755859375,
+            "median_ns_per_point": 4173.9462890625,
+            "min_ns_per_point": 4154.6043701171875
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              29.799297,
+              29.735827,
+              29.709767000000003,
+              29.745868,
+              29.870366999999998,
+              29.717297,
+              29.709297
+            ],
+            "block_ns_per_point": [
+              7275.218994140625,
+              7259.723388671875,
+              7253.361083984375,
+              7262.1748046875,
+              7292.570068359375,
+              7255.199462890625,
+              7253.246337890625
+            ],
+            "blocks": 7,
+            "calls_per_block": 4096,
+            "max_ns_per_point": 7292.570068359375,
+            "median_ns_per_point": 7259.723388671875,
+            "min_ns_per_point": 7253.246337890625
+          },
+          "reference_check": {
+            "lanes_checked": 0,
+            "max_scaled_laurent_difference": 0.0,
+            "reference": "validation/benchmark/ninja/syn-n4-r3.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 19953.4501953125,
+            "reduction": 4173.9462890625,
+            "sum_of_components": 27213.173583984375,
+            "sum_over_total": 0.9957910612225747,
+            "tensor_numerator": 3085.777099609375,
+            "total": 27328.1962890625
+          },
+          "total": {
+            "block_ms": [
+              27.986143000000002,
+              27.980873,
+              28.051673,
+              27.984073000000002,
+              27.977133000000002,
+              28.027673,
+              27.963413
+            ],
+            "block_ns_per_point": [
+              27330.2177734375,
+              27325.0712890625,
+              27394.2119140625,
+              27328.1962890625,
+              27321.4189453125,
+              27370.7744140625,
+              27308.0205078125
+            ],
+            "blocks": 7,
+            "calls_per_block": 1024,
+            "max_ns_per_point": 27394.2119140625,
+            "median_ns_per_point": 27328.1962890625,
+            "min_ns_per_point": 27308.0205078125
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 22,
+          "master_rows_per_batch": {
+            "A0": 96,
+            "BubbleRank2": 192,
+            "C0": 128,
+            "D0": 32
+          },
+          "masters": {
+            "block_ms": [
+              20.387173,
+              20.394953,
+              20.418794000000002,
+              20.387493,
+              20.384222,
+              20.373662,
+              20.506424
+            ],
+            "block_ns_per_point": [
+              19909.3486328125,
+              19916.9462890625,
+              19940.228515625,
+              19909.6611328125,
+              19906.466796875,
+              19896.154296875,
+              20025.8046875
+            ],
+            "blocks": 7,
+            "calls_per_block": 32,
+            "max_ns_per_point": 20025.8046875,
+            "median_ns_per_point": 19909.6611328125,
+            "min_ns_per_point": 19896.154296875
+          },
+          "reduction": {
+            "block_ms": [
+              27.812862,
+              27.807012,
+              27.781682,
+              27.814792,
+              27.829863,
+              27.800341999999997,
+              27.756003
+            ],
+            "block_ns_per_point": [
+              3395.124755859375,
+              3394.41064453125,
+              3391.318603515625,
+              3395.3603515625,
+              3397.2000732421875,
+              3393.596435546875,
+              3388.1839599609375
+            ],
+            "blocks": 7,
+            "calls_per_block": 256,
+            "max_ns_per_point": 3397.2000732421875,
+            "median_ns_per_point": 3394.41064453125,
+            "min_ns_per_point": 3388.1839599609375
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              24.466563999999998,
+              24.574783999999998,
+              24.534823,
+              24.476573000000002,
+              24.478574,
+              24.525143999999997,
+              24.541263
+            ],
+            "block_ns_per_point": [
+              5973.2822265625,
+              5999.703125,
+              5989.947021484375,
+              5975.725830078125,
+              5976.21435546875,
+              5987.583984375,
+              5991.519287109375
+            ],
+            "blocks": 7,
+            "calls_per_block": 128,
+            "max_ns_per_point": 5999.703125,
+            "median_ns_per_point": 5987.583984375,
+            "min_ns_per_point": 5973.2822265625
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 0.13498055070932474,
+            "reference": "validation/benchmark/ninja/syn-n4-r3.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 19909.6611328125,
+            "reduction": 3394.41064453125,
+            "sum_of_components": 25897.2451171875,
+            "sum_over_total": 0.9903174460852446,
+            "tensor_numerator": 2593.17333984375,
+            "total": 26150.4482421875
+          },
+          "total": {
+            "block_ms": [
+              26.73527,
+              27.04035,
+              26.86484,
+              26.683669000000002,
+              26.86351,
+              26.778059,
+              26.662699
+            ],
+            "block_ns_per_point": [
+              26108.662109375,
+              26406.591796875,
+              26235.1953125,
+              26058.2705078125,
+              26233.896484375,
+              26150.4482421875,
+              26037.7919921875
+            ],
+            "blocks": 7,
+            "calls_per_block": 32,
+            "max_ns_per_point": 26406.591796875,
+            "median_ns_per_point": 26150.4482421875,
+            "min_ns_per_point": 26037.7919921875
+          },
+          "width": 32
+        }
+      ],
+      "rank": 3
+    },
+    {
+      "case": "syn-n4-r4",
+      "file": "validation/benchmark/synthetic/syn-n4-r4.json",
+      "lanes": 3,
+      "n": 4,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 3,
+            "BubbleRank2": 6,
+            "C0": 4,
+            "D0": 1
+          },
+          "masters": {
+            "block_ms": [
+              35.329042,
+              35.410982,
+              35.352762000000006,
+              37.947399,
+              36.764905,
+              36.210644,
+              36.241094000000004
+            ],
+            "block_ns_per_point": [
+              34501.017578125,
+              34581.037109375,
+              34524.181640625,
+              37058.0068359375,
+              35903.2275390625,
+              35361.95703125,
+              35391.693359375
+            ],
+            "blocks": 7,
+            "calls_per_block": 1024,
+            "max_ns_per_point": 37058.0068359375,
+            "median_ns_per_point": 35361.95703125,
+            "min_ns_per_point": 34501.017578125
+          },
+          "reduction": {
+            "block_ms": [
+              24.760915,
+              24.678484,
+              24.691384,
+              24.704744,
+              24.721005,
+              24.715224,
+              24.681865000000002
+            ],
+            "block_ns_per_point": [
+              6045.145263671875,
+              6025.0205078125,
+              6028.169921875,
+              6031.431640625,
+              6035.401611328125,
+              6033.990234375,
+              6025.845947265625
+            ],
+            "blocks": 7,
+            "calls_per_block": 4096,
+            "max_ns_per_point": 6045.145263671875,
+            "median_ns_per_point": 6031.431640625,
+            "min_ns_per_point": 6025.0205078125
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              34.208079000000005,
+              34.138669,
+              34.46288,
+              34.118838,
+              34.221709000000004,
+              34.15876,
+              34.097398
+            ],
+            "block_ns_per_point": [
+              16703.16357421875,
+              16669.27197265625,
+              16827.578125,
+              16659.5888671875,
+              16709.81884765625,
+              16679.08203125,
+              16649.1201171875
+            ],
+            "blocks": 7,
+            "calls_per_block": 2048,
+            "max_ns_per_point": 16827.578125,
+            "median_ns_per_point": 16679.08203125,
+            "min_ns_per_point": 16649.1201171875
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 2.0005910518018606,
+            "reference": "validation/benchmark/ninja/syn-n4-r4.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 35361.95703125,
+            "reduction": 6031.431640625,
+            "sum_of_components": 52041.0390625,
+            "sum_over_total": 0.9852423009052503,
+            "tensor_numerator": 10647.650390625,
+            "total": 52820.548828125
+          },
+          "total": {
+            "block_ms": [
+              27.01811,
+              27.044121,
+              26.9017,
+              26.96731,
+              27.09162,
+              27.090871,
+              27.07089
+            ],
+            "block_ns_per_point": [
+              52769.74609375,
+              52820.548828125,
+              52542.3828125,
+              52670.52734375,
+              52913.3203125,
+              52911.857421875,
+              52872.83203125
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 52913.3203125,
+            "median_ns_per_point": 52820.548828125,
+            "min_ns_per_point": 52542.3828125
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 21,
+          "master_rows_per_batch": {
+            "A0": 96,
+            "BubbleRank2": 192,
+            "C0": 128,
+            "D0": 32
+          },
+          "masters": {
+            "block_ms": [
+              27.395431000000002,
+              26.9303,
+              26.84993,
+              26.76383,
+              26.636019,
+              26.770200000000003,
+              26.782420000000002
+            ],
+            "block_ns_per_point": [
+              26753.3505859375,
+              26299.12109375,
+              26220.634765625,
+              26136.552734375,
+              26011.7373046875,
+              26142.7734375,
+              26154.70703125
+            ],
+            "blocks": 7,
+            "calls_per_block": 32,
+            "max_ns_per_point": 26753.3505859375,
+            "median_ns_per_point": 26154.70703125,
+            "min_ns_per_point": 26011.7373046875
+          },
+          "reduction": {
+            "block_ms": [
+              21.256495,
+              21.143185,
+              21.194015,
+              20.936635,
+              20.774724000000003,
+              20.793504000000002,
+              20.783154000000003
+            ],
+            "block_ns_per_point": [
+              5189.573974609375,
+              5161.910400390625,
+              5174.320068359375,
+              5111.483154296875,
+              5071.9541015625,
+              5076.5390625,
+              5074.01220703125
+            ],
+            "blocks": 7,
+            "calls_per_block": 128,
+            "max_ns_per_point": 5189.573974609375,
+            "median_ns_per_point": 5111.483154296875,
+            "min_ns_per_point": 5071.9541015625
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              29.483435999999998,
+              29.399477,
+              29.423356000000002,
+              29.394427,
+              29.692597000000003,
+              29.292316999999997,
+              29.344935999999997
+            ],
+            "block_ns_per_point": [
+              14396.208984375,
+              14355.21337890625,
+              14366.873046875,
+              14352.74755859375,
+              14498.33837890625,
+              14302.88916015625,
+              14328.58203125
+            ],
+            "blocks": 7,
+            "calls_per_block": 64,
+            "max_ns_per_point": 14498.33837890625,
+            "median_ns_per_point": 14355.21337890625,
+            "min_ns_per_point": 14302.88916015625
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 2.0005910518018606,
+            "reference": "validation/benchmark/ninja/syn-n4-r4.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 26154.70703125,
+            "reduction": 5111.483154296875,
+            "sum_of_components": 40509.92041015625,
+            "sum_over_total": 0.986492521429769,
+            "tensor_numerator": 9243.730224609375,
+            "total": 41064.599609375
+          },
+          "total": {
+            "block_ms": [
+              20.870364,
+              21.025075,
+              21.074935,
+              21.067125,
+              21.017464,
+              21.089745999999998,
+              21.021014
+            ],
+            "block_ns_per_point": [
+              40762.4296875,
+              41064.599609375,
+              41161.982421875,
+              41146.728515625,
+              41049.734375,
+              41190.91015625,
+              41056.66796875
+            ],
+            "blocks": 7,
+            "calls_per_block": 16,
+            "max_ns_per_point": 41190.91015625,
+            "median_ns_per_point": 41064.599609375,
+            "min_ns_per_point": 40762.4296875
+          },
+          "width": 32
+        }
+      ],
+      "rank": 4
+    },
+    {
+      "case": "syn-n4-r5",
+      "file": "validation/benchmark/synthetic/syn-n4-r5.json",
+      "lanes": 3,
+      "n": 4,
+      "per_point_timing": [
+        {
+          "failed_lanes": 1,
+          "master_rows_per_batch": {
+            "A0": 3,
+            "BubbleRank3": 6,
+            "C0": 4,
+            "D0": 1
+          },
+          "masters": {
+            "block_ms": [
+              38.884301,
+              38.861551,
+              38.914352,
+              38.873561,
+              38.893511,
+              38.867631,
+              38.938992
+            ],
+            "block_ns_per_point": [
+              18986.47509765625,
+              18975.36669921875,
+              19001.1484375,
+              18981.23095703125,
+              18990.97216796875,
+              18978.33544921875,
+              19013.1796875
+            ],
+            "blocks": 7,
+            "calls_per_block": 2048,
+            "max_ns_per_point": 19013.1796875,
+            "median_ns_per_point": 18986.47509765625,
+            "min_ns_per_point": 18975.36669921875
+          },
+          "reduction": {
+            "block_ms": [
+              29.279157,
+              28.703785,
+              28.603655,
+              28.640525,
+              29.083906,
+              28.837024999999997,
+              28.695584999999998
+            ],
+            "block_ns_per_point": [
+              14296.46337890625,
+              14015.52001953125,
+              13966.62841796875,
+              13984.63134765625,
+              14201.1259765625,
+              14080.57861328125,
+              14011.51611328125
+            ],
+            "blocks": 7,
+            "calls_per_block": 2048,
+            "max_ns_per_point": 14296.46337890625,
+            "median_ns_per_point": 14015.52001953125,
+            "min_ns_per_point": 13966.62841796875
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              24.895435,
+              24.868444999999998,
+              24.944385,
+              24.880515,
+              24.997664999999998,
+              24.954255,
+              24.929855
+            ],
+            "block_ns_per_point": [
+              48623.896484375,
+              48571.181640625,
+              48719.501953125,
+              48594.755859375,
+              48823.564453125,
+              48738.779296875,
+              48691.123046875
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 48823.564453125,
+            "median_ns_per_point": 48691.123046875,
+            "min_ns_per_point": 48571.181640625
+          },
+          "reference_check": {
+            "lanes_checked": 0,
+            "max_scaled_laurent_difference": 0.0,
+            "reference": "validation/benchmark/ninja/syn-n4-r5.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 18986.47509765625,
+            "reduction": 14015.52001953125,
+            "sum_of_components": 67677.59814453125,
+            "sum_over_total": 0.9840080479758205,
+            "tensor_numerator": 34675.60302734375,
+            "total": 68777.484375
+          },
+          "total": {
+            "block_ms": [
+              35.214072,
+              35.228742,
+              35.188131999999996,
+              35.161011,
+              35.280112,
+              35.231532,
+              35.174192
+            ],
+            "block_ns_per_point": [
+              68777.484375,
+              68806.13671875,
+              68726.8203125,
+              68673.849609375,
+              68906.46875,
+              68811.5859375,
+              68699.59375
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 68906.46875,
+            "median_ns_per_point": 68777.484375,
+            "min_ns_per_point": 68673.849609375
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 22,
+          "master_rows_per_batch": {
+            "A0": 96,
+            "BubbleRank3": 192,
+            "C0": 128,
+            "D0": 32
+          },
+          "masters": {
+            "block_ms": [
+              38.725151,
+              38.65116,
+              38.61924,
+              38.731341,
+              38.658861,
+              38.665811,
+              38.65326
+            ],
+            "block_ns_per_point": [
+              18908.76513671875,
+              18872.63671875,
+              18857.05078125,
+              18911.78759765625,
+              18876.39697265625,
+              18879.79052734375,
+              18873.662109375
+            ],
+            "blocks": 7,
+            "calls_per_block": 64,
+            "max_ns_per_point": 18911.78759765625,
+            "median_ns_per_point": 18876.39697265625,
+            "min_ns_per_point": 18857.05078125
+          },
+          "reduction": {
+            "block_ms": [
+              24.314943,
+              24.280493,
+              24.352944,
+              24.267753,
+              24.314342999999997,
+              24.313703999999998,
+              24.351952999999998
+            ],
+            "block_ns_per_point": [
+              11872.53076171875,
+              11855.70947265625,
+              11891.0859375,
+              11849.48876953125,
+              11872.23779296875,
+              11871.92578125,
+              11890.60205078125
+            ],
+            "blocks": 7,
+            "calls_per_block": 64,
+            "max_ns_per_point": 11891.0859375,
+            "median_ns_per_point": 11872.23779296875,
+            "min_ns_per_point": 11849.48876953125
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              21.736736,
+              21.741137000000002,
+              21.791827,
+              21.760046000000003,
+              21.745476999999998,
+              21.719637,
+              21.863507000000002
+            ],
+            "block_ns_per_point": [
+              42454.5625,
+              42463.158203125,
+              42562.162109375,
+              42500.08984375,
+              42471.634765625,
+              42421.166015625,
+              42702.162109375
+            ],
+            "blocks": 7,
+            "calls_per_block": 16,
+            "max_ns_per_point": 42702.162109375,
+            "median_ns_per_point": 42471.634765625,
+            "min_ns_per_point": 42421.166015625
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 1.419333369668044e-13,
+            "reference": "validation/benchmark/ninja/syn-n4-r5.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 18876.39697265625,
+            "reduction": 11872.23779296875,
+            "sum_of_components": 61348.03173828125,
+            "sum_over_total": 0.9682008312420252,
+            "tensor_numerator": 30599.39697265625,
+            "total": 63362.919921875
+          },
+          "total": {
+            "block_ms": [
+              32.411443999999996,
+              32.449574,
+              32.420895,
+              32.441815,
+              32.464914,
+              32.459175,
+              32.272113999999995
+            ],
+            "block_ns_per_point": [
+              63303.60156249999,
+              63378.07421875,
+              63322.060546875,
+              63362.919921875,
+              63408.03515624999,
+              63396.826171875,
+              63031.47265624999
+            ],
+            "blocks": 7,
+            "calls_per_block": 16,
+            "max_ns_per_point": 63408.03515624999,
+            "median_ns_per_point": 63362.919921875,
+            "min_ns_per_point": 63031.47265624999
+          },
+          "width": 32
+        }
+      ],
+      "rank": 5
+    },
+    {
+      "case": "syn-n5-r4",
+      "file": "validation/benchmark/synthetic/syn-n5-r4.json",
+      "lanes": 3,
+      "n": 5,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 5,
+            "BubbleRank2": 10,
+            "C0": 10,
+            "D0": 5
+          },
+          "masters": {
+            "block_ms": [
+              25.010195999999997,
+              24.946735,
+              24.949855,
+              24.933565,
+              25.014855,
+              24.981475,
+              25.005485
+            ],
+            "block_ns_per_point": [
+              48848.0390625,
+              48724.091796875,
+              48730.185546875,
+              48698.369140625,
+              48857.138671875,
+              48791.943359375,
+              48838.837890625
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 48857.138671875,
+            "median_ns_per_point": 48791.943359375,
+            "min_ns_per_point": 48698.369140625
+          },
+          "reduction": {
+            "block_ms": [
+              20.833114,
+              20.745704,
+              20.765944,
+              20.795804,
+              20.739814,
+              20.747723,
+              20.659274
+            ],
+            "block_ns_per_point": [
+              10172.4189453125,
+              10129.73828125,
+              10139.62109375,
+              10154.201171875,
+              10126.8623046875,
+              10130.72412109375,
+              10087.5361328125
+            ],
+            "blocks": 7,
+            "calls_per_block": 2048,
+            "max_ns_per_point": 10172.4189453125,
+            "median_ns_per_point": 10130.72412109375,
+            "min_ns_per_point": 10087.5361328125
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              22.462968,
+              22.433549,
+              22.427358,
+              22.418479,
+              22.466178,
+              22.514868,
+              22.444428
+            ],
+            "block_ns_per_point": [
+              21936.4921875,
+              21907.7626953125,
+              21901.716796875,
+              21893.0458984375,
+              21939.626953125,
+              21987.17578125,
+              21918.38671875
+            ],
+            "blocks": 7,
+            "calls_per_block": 1024,
+            "max_ns_per_point": 21987.17578125,
+            "median_ns_per_point": 21918.38671875,
+            "min_ns_per_point": 21893.0458984375
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 1.3098900755832623e-13,
+            "reference": "validation/benchmark/ninja/syn-n5-r4.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 48791.943359375,
+            "reduction": 10130.72412109375,
+            "sum_of_components": 70710.330078125,
+            "sum_over_total": 0.9911518324105655,
+            "tensor_numerator": 11787.66259765625,
+            "total": 71341.572265625
+          },
+          "total": {
+            "block_ms": [
+              36.446504999999995,
+              36.513985,
+              36.526885,
+              36.456135,
+              36.611644999999996,
+              36.609325999999996,
+              36.543465
+            ],
+            "block_ns_per_point": [
+              71184.580078125,
+              71316.376953125,
+              71341.572265625,
+              71203.388671875,
+              71507.119140625,
+              71502.58984375,
+              71373.955078125
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 71507.119140625,
+            "median_ns_per_point": 71341.572265625,
+            "min_ns_per_point": 71184.580078125
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 160,
+            "BubbleRank2": 320,
+            "C0": 320,
+            "D0": 160
+          },
+          "masters": {
+            "block_ms": [
+              22.683519,
+              22.829169,
+              22.607948999999998,
+              22.638709,
+              22.144338,
+              22.169108,
+              22.087567999999997
+            ],
+            "block_ns_per_point": [
+              88607.49609375,
+              89176.44140625,
+              88312.30078125,
+              88432.45703125,
+              86501.3203125,
+              86598.078125,
+              86279.5625
+            ],
+            "blocks": 7,
+            "calls_per_block": 8,
+            "max_ns_per_point": 89176.44140625,
+            "median_ns_per_point": 88312.30078125,
+            "min_ns_per_point": 86279.5625
+          },
+          "reduction": {
+            "block_ms": [
+              35.534283,
+              35.577362,
+              37.390898,
+              36.827756,
+              36.224485,
+              36.217934,
+              36.145274
+            ],
+            "block_ns_per_point": [
+              8675.362060546875,
+              8685.87939453125,
+              9128.63720703125,
+              8991.1513671875,
+              8843.868408203125,
+              8842.26904296875,
+              8824.52978515625
+            ],
+            "blocks": 7,
+            "calls_per_block": 128,
+            "max_ns_per_point": 9128.63720703125,
+            "median_ns_per_point": 8842.26904296875,
+            "min_ns_per_point": 8675.362060546875
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              21.158105,
+              21.231765,
+              21.011054,
+              21.174205,
+              21.200986,
+              21.303455,
+              21.257066000000002
+            ],
+            "block_ns_per_point": [
+              20662.2119140625,
+              20734.1455078125,
+              20518.607421875,
+              20677.9345703125,
+              20704.087890625,
+              20804.1552734375,
+              20758.853515625
+            ],
+            "blocks": 7,
+            "calls_per_block": 32,
+            "max_ns_per_point": 20804.1552734375,
+            "median_ns_per_point": 20704.087890625,
+            "min_ns_per_point": 20518.607421875
+          },
+          "reference_check": {
+            "lanes_checked": 3,
+            "max_scaled_laurent_difference": 2.304414276170224e-13,
+            "reference": "validation/benchmark/ninja/syn-n5-r4.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 88312.30078125,
+            "reduction": 8842.26904296875,
+            "sum_of_components": 109016.388671875,
+            "sum_over_total": 0.9839865837746868,
+            "tensor_numerator": 11861.81884765625,
+            "total": 110790.5234375
+          },
+          "total": {
+            "block_ms": [
+              28.986214999999998,
+              28.308994000000002,
+              28.467354,
+              28.362374,
+              28.320794,
+              28.422283999999998,
+              28.313274
+            ],
+            "block_ns_per_point": [
+              113227.40234375,
+              110582.0078125,
+              111200.6015625,
+              110790.5234375,
+              110628.1015625,
+              111024.546875,
+              110598.7265625
+            ],
+            "blocks": 7,
+            "calls_per_block": 8,
+            "max_ns_per_point": 113227.40234375,
+            "median_ns_per_point": 110790.5234375,
+            "min_ns_per_point": 110582.0078125
+          },
+          "width": 32
+        }
+      ],
+      "rank": 4
+    },
+    {
+      "case": "syn-n5-r5",
+      "file": "validation/benchmark/synthetic/syn-n5-r5.json",
+      "lanes": 3,
+      "n": 5,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 5,
+            "BubbleRank2": 10,
+            "C0": 10,
+            "D0": 5
+          },
+          "masters": {
+            "block_ms": [
+              26.726679,
+              26.729670000000002,
+              26.71743,
+              26.73237,
+              26.742569,
+              26.706039,
+              26.70596
+            ],
+            "block_ns_per_point": [
+              52200.544921875,
+              52206.38671875,
+              52182.48046875,
+              52211.66015625,
+              52231.580078125,
+              52160.232421875,
+              52160.078125
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 52231.580078125,
+            "median_ns_per_point": 52200.544921875,
+            "min_ns_per_point": 52160.078125
+          },
+          "reduction": {
+            "block_ms": [
+              30.841621,
+              30.861390999999998,
+              30.813380000000002,
+              30.878231,
+              30.892200000000003,
+              30.717950000000002,
+              30.76184
+            ],
+            "block_ns_per_point": [
+              15059.38525390625,
+              15069.03857421875,
+              15045.595703125,
+              15077.26123046875,
+              15084.08203125,
+              14998.9990234375,
+              15020.4296875
+            ],
+            "blocks": 7,
+            "calls_per_block": 2048,
+            "max_ns_per_point": 15084.08203125,
+            "median_ns_per_point": 15059.38525390625,
+            "min_ns_per_point": 14998.9990234375
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              27.156921,
+              27.109641,
+              27.170451000000003,
+              27.078850000000003,
+              27.166421,
+              27.065151,
+              27.178961
+            ],
+            "block_ns_per_point": [
+              53040.861328125,
+              52948.517578125,
+              53067.287109375,
+              52888.37890625,
+              53059.416015625,
+              52861.623046875,
+              53083.908203125
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 53083.908203125,
+            "median_ns_per_point": 53040.861328125,
+            "min_ns_per_point": 52861.623046875
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 1.9071298559271874e-12,
+            "reference": "validation/benchmark/ninja/syn-n5-r5.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 52200.544921875,
+            "reduction": 15059.38525390625,
+            "sum_of_components": 105241.40625,
+            "sum_over_total": 0.9854921399633088,
+            "tensor_numerator": 37981.47607421875,
+            "total": 106790.7109375
+          },
+          "total": {
+            "block_ms": [
+              27.338422,
+              27.279541000000002,
+              27.257301000000002,
+              27.487492,
+              27.190542,
+              27.346572,
+              27.352731000000002
+            ],
+            "block_ns_per_point": [
+              106790.7109375,
+              106560.70703125,
+              106473.83203125,
+              107373.015625,
+              106213.0546875,
+              106822.546875,
+              106846.60546875
+            ],
+            "blocks": 7,
+            "calls_per_block": 256,
+            "max_ns_per_point": 107373.015625,
+            "median_ns_per_point": 106790.7109375,
+            "min_ns_per_point": 106213.0546875
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 160,
+            "BubbleRank2": 320,
+            "C0": 320,
+            "D0": 160
+          },
+          "masters": {
+            "block_ms": [
+              22.530379,
+              22.430038999999997,
+              22.473189,
+              22.583249,
+              22.442679000000002,
+              22.469618999999998,
+              22.447927999999997
+            ],
+            "block_ns_per_point": [
+              88009.29296875,
+              87617.33984375,
+              87785.89453125,
+              88215.81640625,
+              87666.71484375,
+              87771.94921875,
+              87687.21875
+            ],
+            "blocks": 7,
+            "calls_per_block": 8,
+            "max_ns_per_point": 88215.81640625,
+            "median_ns_per_point": 87771.94921875,
+            "min_ns_per_point": 87617.33984375
+          },
+          "reduction": {
+            "block_ms": [
+              26.54923,
+              26.773809999999997,
+              26.68422,
+              26.488208999999998,
+              26.926961,
+              27.135701,
+              26.85303
+            ],
+            "block_ns_per_point": [
+              12963.4912109375,
+              13073.1494140625,
+              13029.404296875,
+              12933.69580078125,
+              13147.93017578125,
+              13249.85400390625,
+              13111.8310546875
+            ],
+            "blocks": 7,
+            "calls_per_block": 64,
+            "max_ns_per_point": 13249.85400390625,
+            "median_ns_per_point": 13073.1494140625,
+            "min_ns_per_point": 12933.69580078125
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              25.217264999999998,
+              27.244422,
+              27.572242,
+              27.515743,
+              27.519882,
+              26.54386,
+              26.43412
+            ],
+            "block_ns_per_point": [
+              49252.470703125,
+              53211.76171875,
+              53852.03515625,
+              53741.685546875,
+              53749.76953125,
+              51843.4765625,
+              51629.140625
+            ],
+            "blocks": 7,
+            "calls_per_block": 16,
+            "max_ns_per_point": 53852.03515625,
+            "median_ns_per_point": 53211.76171875,
+            "min_ns_per_point": 49252.470703125
+          },
+          "reference_check": {
+            "lanes_checked": 3,
+            "max_scaled_laurent_difference": 5.188796044636388e-12,
+            "reference": "validation/benchmark/ninja/syn-n5-r5.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 87771.94921875,
+            "reduction": 13073.1494140625,
+            "sum_of_components": 140983.7109375,
+            "sum_over_total": 1.011621055820404,
+            "tensor_numerator": 40138.6123046875,
+            "total": 139364.15234375
+          },
+          "total": {
+            "block_ms": [
+              35.570583000000006,
+              35.746353,
+              35.673963,
+              35.725844,
+              35.639793000000004,
+              35.677223,
+              35.693673000000004
+            ],
+            "block_ns_per_point": [
+              138947.58984375,
+              139634.19140625,
+              139351.41796875,
+              139554.078125,
+              139217.94140625,
+              139364.15234375,
+              139428.41015625
+            ],
+            "blocks": 7,
+            "calls_per_block": 8,
+            "max_ns_per_point": 139634.19140625,
+            "median_ns_per_point": 139364.15234375,
+            "min_ns_per_point": 138947.58984375
+          },
+          "width": 32
+        }
+      ],
+      "rank": 5
+    },
+    {
+      "case": "syn-n5-r6",
+      "file": "validation/benchmark/synthetic/syn-n5-r6.json",
+      "lanes": 3,
+      "n": 5,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 5,
+            "BubbleRank3": 10,
+            "C0": 10,
+            "D0": 5
+          },
+          "masters": {
+            "block_ms": [
+              28.521373999999998,
+              28.793366000000002,
+              28.575525000000003,
+              28.613045,
+              28.562284000000002,
+              28.535794,
+              28.499544
+            ],
+            "block_ns_per_point": [
+              55705.80859375,
+              56237.04296875,
+              55811.572265625,
+              55884.853515625,
+              55785.7109375,
+              55733.97265625,
+              55663.171875
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 56237.04296875,
+            "median_ns_per_point": 55785.7109375,
+            "min_ns_per_point": 55663.171875
+          },
+          "reduction": {
+            "block_ms": [
+              35.051041,
+              35.029161,
+              35.075572,
+              35.028791,
+              35.062552,
+              35.103221,
+              35.555552999999996
+            ],
+            "block_ns_per_point": [
+              34229.5322265625,
+              34208.1650390625,
+              34253.48828125,
+              34207.8037109375,
+              34240.7734375,
+              34280.4892578125,
+              34722.2197265625
+            ],
+            "blocks": 7,
+            "calls_per_block": 1024,
+            "max_ns_per_point": 34722.2197265625,
+            "median_ns_per_point": 34240.7734375,
+            "min_ns_per_point": 34207.8037109375
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              38.18647,
+              38.274531,
+              38.23961,
+              38.24669,
+              38.27568,
+              38.41243,
+              38.1637
+            ],
+            "block_ns_per_point": [
+              149165.8984375,
+              149509.88671875,
+              149373.4765625,
+              149401.1328125,
+              149514.375,
+              150048.5546875,
+              149076.953125
+            ],
+            "blocks": 7,
+            "calls_per_block": 256,
+            "max_ns_per_point": 150048.5546875,
+            "median_ns_per_point": 149401.1328125,
+            "min_ns_per_point": 149076.953125
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 2.58610073318317e-9,
+            "reference": "validation/benchmark/ninja/syn-n5-r6.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 55785.7109375,
+            "reduction": 34240.7734375,
+            "sum_of_components": 205186.84375,
+            "sum_over_total": 0.9914870163257633,
+            "tensor_numerator": 115160.359375,
+            "total": 206948.59375
+          },
+          "total": {
+            "block_ms": [
+              26.501939,
+              26.481289,
+              26.478159,
+              26.599549,
+              26.48942,
+              26.450399,
+              26.495689
+            ],
+            "block_ns_per_point": [
+              207046.3984375,
+              206885.0703125,
+              206860.6171875,
+              207808.9765625,
+              206948.59375,
+              206643.7421875,
+              206997.5703125
+            ],
+            "blocks": 7,
+            "calls_per_block": 128,
+            "max_ns_per_point": 207808.9765625,
+            "median_ns_per_point": 206948.59375,
+            "min_ns_per_point": 206643.7421875
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 160,
+            "BubbleRank3": 320,
+            "C0": 320,
+            "D0": 160
+          },
+          "masters": {
+            "block_ms": [
+              27.173801,
+              27.332532,
+              27.266641,
+              27.230671,
+              27.323841,
+              27.288801000000003,
+              27.188812
+            ],
+            "block_ns_per_point": [
+              106147.66015625,
+              106767.703125,
+              106510.31640625,
+              106369.80859375,
+              106733.75390625,
+              106596.87890625,
+              106206.296875
+            ],
+            "blocks": 7,
+            "calls_per_block": 8,
+            "max_ns_per_point": 106767.703125,
+            "median_ns_per_point": 106510.31640625,
+            "min_ns_per_point": 106147.66015625
+          },
+          "reduction": {
+            "block_ms": [
+              30.41013,
+              30.43454,
+              30.371029,
+              30.37405,
+              30.483619,
+              30.43831,
+              30.429599000000003
+            ],
+            "block_ns_per_point": [
+              29697.392578125,
+              29721.23046875,
+              29659.2080078125,
+              29662.158203125,
+              29769.1591796875,
+              29724.912109375,
+              29716.4052734375
+            ],
+            "blocks": 7,
+            "calls_per_block": 32,
+            "max_ns_per_point": 29769.1591796875,
+            "median_ns_per_point": 29716.4052734375,
+            "min_ns_per_point": 29659.2080078125
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              35.422022,
+              35.486473,
+              35.441712,
+              35.469352,
+              35.483823,
+              35.430053,
+              35.511353
+            ],
+            "block_ns_per_point": [
+              138367.2734375,
+              138619.03515625,
+              138444.1875,
+              138552.15625,
+              138608.68359375,
+              138398.64453125,
+              138716.22265625
+            ],
+            "blocks": 7,
+            "calls_per_block": 8,
+            "max_ns_per_point": 138716.22265625,
+            "median_ns_per_point": 138552.15625,
+            "min_ns_per_point": 138367.2734375
+          },
+          "reference_check": {
+            "lanes_checked": 3,
+            "max_scaled_laurent_difference": 2.58610073318317e-9,
+            "reference": "validation/benchmark/ninja/syn-n5-r6.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 106510.31640625,
+            "reduction": 29716.4052734375,
+            "sum_of_components": 245062.47265625,
+            "sum_over_total": 0.987280469108092,
+            "tensor_numerator": 108835.7509765625,
+            "total": 248219.7109375
+          },
+          "total": {
+            "block_ms": [
+              31.772123,
+              31.761703,
+              31.755374000000003,
+              31.730103000000003,
+              31.944514,
+              31.857882999999998,
+              31.778793
+            ],
+            "block_ns_per_point": [
+              248219.7109375,
+              248138.30468750003,
+              248088.85937500003,
+              247891.42968750003,
+              249566.515625,
+              248889.71093749997,
+              248271.8203125
+            ],
+            "blocks": 7,
+            "calls_per_block": 4,
+            "max_ns_per_point": 249566.515625,
+            "median_ns_per_point": 248219.7109375,
+            "min_ns_per_point": 247891.42968750003
+          },
+          "width": 32
+        }
+      ],
+      "rank": 6
+    },
+    {
+      "case": "syn-n6-r5",
+      "file": "validation/benchmark/synthetic/syn-n6-r5.json",
+      "lanes": 3,
+      "n": 6,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 5,
+            "BubbleRank2": 15,
+            "C0": 20,
+            "D0": 15
+          },
+          "masters": {
+            "block_ms": [
+              33.406437,
+              33.290317,
+              33.429677,
+              33.335147,
+              33.273315999999994,
+              33.332687,
+              33.353336999999996
+            ],
+            "block_ns_per_point": [
+              521975.57812499994,
+              520161.203125,
+              522338.70312499994,
+              520861.67187500006,
+              519895.56249999994,
+              520823.234375,
+              521145.89062499994
+            ],
+            "blocks": 7,
+            "calls_per_block": 64,
+            "max_ns_per_point": 522338.70312499994,
+            "median_ns_per_point": 520861.67187500006,
+            "min_ns_per_point": 519895.56249999994
+          },
+          "reduction": {
+            "block_ms": [
+              20.229972999999998,
+              20.212583,
+              20.195142,
+              20.188602,
+              20.236733,
+              20.254833,
+              20.218103000000003
+            ],
+            "block_ns_per_point": [
+              19755.8330078125,
+              19738.8505859375,
+              19721.818359375,
+              19715.431640625,
+              19762.4345703125,
+              19780.1103515625,
+              19744.2412109375
+            ],
+            "blocks": 7,
+            "calls_per_block": 1024,
+            "max_ns_per_point": 19780.1103515625,
+            "median_ns_per_point": 19744.2412109375,
+            "min_ns_per_point": 19715.431640625
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              30.71343,
+              30.70148,
+              30.706881,
+              30.7341,
+              30.7393,
+              30.73453,
+              30.82504
+            ],
+            "block_ns_per_point": [
+              59987.16796875,
+              59963.828125,
+              59974.376953125,
+              60027.5390625,
+              60037.6953125,
+              60028.37890625,
+              60205.15625
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 60205.15625,
+            "median_ns_per_point": 60027.5390625,
+            "min_ns_per_point": 59963.828125
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 2.754170472294974e-8,
+            "reference": "validation/benchmark/ninja/syn-n6-r5.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 520861.67187500006,
+            "reduction": 19744.2412109375,
+            "sum_of_components": 580889.2109375,
+            "sum_over_total": 0.9898596582895071,
+            "tensor_numerator": 40283.2978515625,
+            "total": 586839.96875
+          },
+          "total": {
+            "block_ms": [
+              37.407518,
+              37.358527,
+              37.437148,
+              37.557758,
+              38.07701,
+              37.752709,
+              37.648189
+            ],
+            "block_ns_per_point": [
+              584492.46875,
+              583726.984375,
+              584955.4375,
+              586839.96875,
+              594953.28125,
+              589886.078125,
+              588252.953125
+            ],
+            "blocks": 7,
+            "calls_per_block": 64,
+            "max_ns_per_point": 594953.28125,
+            "median_ns_per_point": 586839.96875,
+            "min_ns_per_point": 583726.984375
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 160,
+            "BubbleRank2": 480,
+            "C0": 640,
+            "D0": 480
+          },
+          "masters": {
+            "block_ms": [
+              38.899052000000005,
+              38.941981,
+              38.954561999999996,
+              38.996782,
+              39.019893,
+              39.107602,
+              39.013902
+            ],
+            "block_ns_per_point": [
+              607797.6875,
+              608468.453125,
+              608665.03125,
+              609324.71875,
+              609685.828125,
+              611056.28125,
+              609592.21875
+            ],
+            "blocks": 7,
+            "calls_per_block": 2,
+            "max_ns_per_point": 611056.28125,
+            "median_ns_per_point": 609324.71875,
+            "min_ns_per_point": 607797.6875
+          },
+          "reduction": {
+            "block_ms": [
+              37.517898,
+              37.575808,
+              37.542948,
+              37.541758,
+              37.511408,
+              37.564927999999995,
+              37.722128
+            ],
+            "block_ns_per_point": [
+              18319.2861328125,
+              18347.5625,
+              18331.517578125,
+              18330.9365234375,
+              18316.1171875,
+              18342.25,
+              18419.0078125
+            ],
+            "blocks": 7,
+            "calls_per_block": 64,
+            "max_ns_per_point": 18419.0078125,
+            "median_ns_per_point": 18331.517578125,
+            "min_ns_per_point": 18316.1171875
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              29.574438,
+              29.498018000000002,
+              29.531647,
+              29.566057,
+              29.561947,
+              29.506897000000002,
+              29.536127
+            ],
+            "block_ns_per_point": [
+              57762.57421875,
+              57613.31640625,
+              57678.998046875,
+              57746.205078125,
+              57738.177734375,
+              57630.658203125,
+              57687.748046875
+            ],
+            "blocks": 7,
+            "calls_per_block": 16,
+            "max_ns_per_point": 57762.57421875,
+            "median_ns_per_point": 57687.748046875,
+            "min_ns_per_point": 57613.31640625
+          },
+          "reference_check": {
+            "lanes_checked": 3,
+            "max_scaled_laurent_difference": 2.754170472294974e-8,
+            "reference": "validation/benchmark/ninja/syn-n6-r5.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 609324.71875,
+            "reduction": 18331.517578125,
+            "sum_of_components": 667012.466796875,
+            "sum_over_total": 0.982169608074071,
+            "tensor_numerator": 39356.23046875,
+            "total": 679121.46875
+          },
+          "total": {
+            "block_ms": [
+              21.780807,
+              21.731886999999997,
+              21.729717,
+              21.704697,
+              21.708256,
+              21.790817,
+              21.793606999999998
+            ],
+            "block_ns_per_point": [
+              680650.21875,
+              679121.46875,
+              679053.65625,
+              678271.78125,
+              678383.0,
+              680963.03125,
+              681050.21875
+            ],
+            "blocks": 7,
+            "calls_per_block": 1,
+            "max_ns_per_point": 681050.21875,
+            "median_ns_per_point": 679121.46875,
+            "min_ns_per_point": 678271.78125
+          },
+          "width": 32
+        }
+      ],
+      "rank": 5
+    },
+    {
+      "case": "syn-n6-r6",
+      "file": "validation/benchmark/synthetic/syn-n6-r6.json",
+      "lanes": 3,
+      "n": 6,
+      "per_point_timing": [
+        {
+          "failed_lanes": 1,
+          "master_rows_per_batch": {
+            "A0": 5,
+            "BubbleRank2": 15,
+            "C0": 20,
+            "D0": 15
+          },
+          "masters": {
+            "block_ms": [
+              30.963131,
+              30.928401,
+              30.979241000000002,
+              31.013690999999998,
+              30.881931,
+              31.215021999999998,
+              31.103782
+            ],
+            "block_ns_per_point": [
+              483798.921875,
+              483256.265625,
+              484050.640625,
+              484588.921875,
+              482530.171875,
+              487734.71875,
+              485996.59375
+            ],
+            "blocks": 7,
+            "calls_per_block": 64,
+            "max_ns_per_point": 487734.71875,
+            "median_ns_per_point": 484050.640625,
+            "min_ns_per_point": 482530.171875
+          },
+          "reduction": {
+            "block_ms": [
+              30.632161,
+              30.779561,
+              30.143909,
+              29.550077,
+              29.502527,
+              29.608398,
+              29.738158000000002
+            ],
+            "block_ns_per_point": [
+              29914.2197265625,
+              30058.1650390625,
+              29437.4111328125,
+              28857.4970703125,
+              28811.0615234375,
+              28914.451171875,
+              29041.169921875
+            ],
+            "blocks": 7,
+            "calls_per_block": 1024,
+            "max_ns_per_point": 30058.1650390625,
+            "median_ns_per_point": 29041.169921875,
+            "min_ns_per_point": 28811.0615234375
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              37.184147,
+              37.097097000000005,
+              37.165547000000004,
+              37.162807,
+              37.135298,
+              37.135677,
+              37.107917
+            ],
+            "block_ns_per_point": [
+              145250.57421875,
+              144910.53515625,
+              145177.91796875,
+              145167.21484375,
+              145059.7578125,
+              145061.23828125,
+              144952.80078125
+            ],
+            "blocks": 7,
+            "calls_per_block": 256,
+            "max_ns_per_point": 145250.57421875,
+            "median_ns_per_point": 145061.23828125,
+            "min_ns_per_point": 144910.53515625
+          },
+          "reference_check": {
+            "lanes_checked": 0,
+            "max_scaled_laurent_difference": 0.0,
+            "reference": "validation/benchmark/ninja/syn-n6-r6.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 484050.640625,
+            "reduction": 29041.169921875,
+            "sum_of_components": 629111.87890625,
+            "sum_over_total": 0.9875667174539281,
+            "tensor_numerator": 116020.068359375,
+            "total": 637032.28125
+          },
+          "total": {
+            "block_ms": [
+              20.454054,
+              20.385033,
+              20.584314,
+              20.388213,
+              20.307913,
+              20.244063,
+              20.320174
+            ],
+            "block_ns_per_point": [
+              639189.1875,
+              637032.28125,
+              643259.8125,
+              637131.65625,
+              634622.28125,
+              632626.96875,
+              635005.4375
+            ],
+            "blocks": 7,
+            "calls_per_block": 32,
+            "max_ns_per_point": 643259.8125,
+            "median_ns_per_point": 637032.28125,
+            "min_ns_per_point": 632626.96875
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 21,
+          "master_rows_per_batch": {
+            "A0": 160,
+            "BubbleRank2": 480,
+            "C0": 640,
+            "D0": 480
+          },
+          "masters": {
+            "block_ms": [
+              33.985218999999994,
+              33.178056999999995,
+              33.109446,
+              33.250927,
+              33.401137999999996,
+              33.255247000000004,
+              33.270367
+            ],
+            "block_ns_per_point": [
+              531019.046875,
+              518407.14062499994,
+              517335.09375,
+              519545.734375,
+              521892.78124999994,
+              519613.234375,
+              519849.48437500006
+            ],
+            "blocks": 7,
+            "calls_per_block": 2,
+            "max_ns_per_point": 531019.046875,
+            "median_ns_per_point": 519613.234375,
+            "min_ns_per_point": 517335.09375
+          },
+          "reduction": {
+            "block_ms": [
+              27.327991,
+              27.438641,
+              27.405742,
+              27.464751999999997,
+              27.493462,
+              27.378882,
+              27.448791
+            ],
+            "block_ns_per_point": [
+              26687.4912109375,
+              26795.5478515625,
+              26763.419921875,
+              26821.046875,
+              26849.083984375,
+              26737.189453125,
+              26805.4599609375
+            ],
+            "blocks": 7,
+            "calls_per_block": 32,
+            "max_ns_per_point": 26849.083984375,
+            "median_ns_per_point": 26795.5478515625,
+            "min_ns_per_point": 26687.4912109375
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              35.843733,
+              35.994934,
+              35.870954,
+              35.807023,
+              35.900004,
+              35.854784,
+              35.814674
+            ],
+            "block_ns_per_point": [
+              140014.58203125,
+              140605.2109375,
+              140120.9140625,
+              139871.18359375,
+              140234.390625,
+              140057.75,
+              139901.0703125
+            ],
+            "blocks": 7,
+            "calls_per_block": 8,
+            "max_ns_per_point": 140605.2109375,
+            "median_ns_per_point": 140057.75,
+            "min_ns_per_point": 139871.18359375
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 8.604317791431713e-10,
+            "reference": "validation/benchmark/ninja/syn-n6-r6.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 519613.234375,
+            "reduction": 26795.5478515625,
+            "sum_of_components": 659670.984375,
+            "sum_over_total": 0.9933090186905817,
+            "tensor_numerator": 113262.2021484375,
+            "total": 664114.5625
+          },
+          "total": {
+            "block_ms": [
+              21.883788000000003,
+              21.481165999999998,
+              21.134055,
+              21.217816,
+              21.277276,
+              21.100845,
+              21.251666
+            ],
+            "block_ns_per_point": [
+              683868.375,
+              671286.4375,
+              660439.21875,
+              663056.75,
+              664914.875,
+              659401.40625,
+              664114.5625
+            ],
+            "blocks": 7,
+            "calls_per_block": 1,
+            "max_ns_per_point": 683868.375,
+            "median_ns_per_point": 664114.5625,
+            "min_ns_per_point": 659401.40625
+          },
+          "width": 32
+        }
+      ],
+      "rank": 6
+    },
+    {
+      "case": "syn-n6-r7",
+      "file": "validation/benchmark/synthetic/syn-n6-r7.json",
+      "lanes": 3,
+      "n": 6,
+      "per_point_timing": [
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 5,
+            "BubbleRank3": 15,
+            "C0": 20,
+            "D0": 15
+          },
+          "masters": {
+            "block_ms": [
+              37.890539000000004,
+              37.98841,
+              38.083139,
+              37.98692,
+              37.864249,
+              37.840489,
+              37.872828999999996
+            ],
+            "block_ns_per_point": [
+              592039.671875,
+              593568.90625,
+              595049.046875,
+              593545.625,
+              591628.890625,
+              591257.640625,
+              591762.953125
+            ],
+            "blocks": 7,
+            "calls_per_block": 64,
+            "max_ns_per_point": 595049.046875,
+            "median_ns_per_point": 592039.671875,
+            "min_ns_per_point": 591257.640625
+          },
+          "reduction": {
+            "block_ms": [
+              31.644123000000004,
+              31.598612,
+              31.660173,
+              31.640413,
+              31.591123,
+              31.676513000000003,
+              31.605463
+            ],
+            "block_ns_per_point": [
+              61804.92773437501,
+              61716.0390625,
+              61836.275390625,
+              61797.681640625,
+              61701.412109375,
+              61868.18945312501,
+              61729.419921875
+            ],
+            "blocks": 7,
+            "calls_per_block": 512,
+            "max_ns_per_point": 61868.18945312501,
+            "median_ns_per_point": 61797.681640625,
+            "min_ns_per_point": 61701.412109375
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              24.171224000000002,
+              24.171963,
+              24.184493,
+              24.232544,
+              24.229243,
+              24.148813,
+              24.194434
+            ],
+            "block_ns_per_point": [
+              377675.375,
+              377686.921875,
+              377882.703125,
+              378633.5,
+              378581.921875,
+              377325.203125,
+              378038.03125
+            ],
+            "blocks": 7,
+            "calls_per_block": 64,
+            "max_ns_per_point": 378633.5,
+            "median_ns_per_point": 377882.703125,
+            "min_ns_per_point": 377325.203125
+          },
+          "reference_check": {
+            "lanes_checked": 1,
+            "max_scaled_laurent_difference": 1.163238452440578e-11,
+            "reference": "validation/benchmark/ninja/syn-n6-r7.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 592039.671875,
+            "reduction": 61797.681640625,
+            "sum_of_components": 969922.375,
+            "sum_over_total": 0.9771639846080578,
+            "tensor_numerator": 316085.021484375,
+            "total": 992589.15625
+          },
+          "total": {
+            "block_ms": [
+              31.580143,
+              31.762853,
+              31.613312999999998,
+              31.675233,
+              31.917163,
+              31.867494000000004,
+              31.971304
+            ],
+            "block_ns_per_point": [
+              986879.4687499999,
+              992589.15625,
+              987916.0312499999,
+              989851.0312499999,
+              997411.34375,
+              995859.1875000001,
+              999103.25
+            ],
+            "blocks": 7,
+            "calls_per_block": 32,
+            "max_ns_per_point": 999103.25,
+            "median_ns_per_point": 992589.15625,
+            "min_ns_per_point": 986879.4687499999
+          },
+          "width": 1
+        },
+        {
+          "failed_lanes": 0,
+          "master_rows_per_batch": {
+            "A0": 160,
+            "BubbleRank3": 480,
+            "C0": 640,
+            "D0": 480
+          },
+          "masters": {
+            "block_ms": [
+              19.999332000000003,
+              19.983172,
+              19.992043000000002,
+              20.003962,
+              20.053603,
+              19.912282,
+              19.911432
+            ],
+            "block_ns_per_point": [
+              624979.125,
+              624474.125,
+              624751.34375,
+              625123.8125,
+              626675.09375,
+              622258.8125,
+              622232.25
+            ],
+            "blocks": 7,
+            "calls_per_block": 1,
+            "max_ns_per_point": 626675.09375,
+            "median_ns_per_point": 624751.34375,
+            "min_ns_per_point": 622232.25
+          },
+          "reduction": {
+            "block_ms": [
+              28.804366,
+              28.759605,
+              28.723226,
+              28.871546000000002,
+              28.759255,
+              28.693566,
+              28.752384999999997
+            ],
+            "block_ns_per_point": [
+              56258.52734375,
+              56171.103515625,
+              56100.05078125,
+              56389.73828125,
+              56170.419921875,
+              56042.12109375,
+              56157.001953125
+            ],
+            "blocks": 7,
+            "calls_per_block": 16,
+            "max_ns_per_point": 56389.73828125,
+            "median_ns_per_point": 56170.419921875,
+            "min_ns_per_point": 56042.12109375
+          },
+          "reduction_and_tensor_numerator": {
+            "block_ms": [
+              23.230961,
+              23.306061,
+              23.20001,
+              23.228180000000002,
+              23.216531,
+              23.258561,
+              23.184111
+            ],
+            "block_ns_per_point": [
+              362983.765625,
+              364157.203125,
+              362500.15625,
+              362940.3125,
+              362758.296875,
+              363415.015625,
+              362251.734375
+            ],
+            "blocks": 7,
+            "calls_per_block": 2,
+            "max_ns_per_point": 364157.203125,
+            "median_ns_per_point": 362940.3125,
+            "min_ns_per_point": 362251.734375
+          },
+          "reference_check": {
+            "lanes_checked": 3,
+            "max_scaled_laurent_difference": 1.7138699455226035e-7,
+            "reference": "validation/benchmark/ninja/syn-n6-r7.json"
+          },
+          "summary_ns_per_point": {
+            "masters": 624751.34375,
+            "reduction": 56170.419921875,
+            "sum_of_components": 987691.65625,
+            "sum_over_total": 0.9767802576623353,
+            "tensor_numerator": 306769.892578125,
+            "total": 1011170.7812500001
+          },
+          "total": {
+            "block_ms": [
+              31.688923,
+              31.656802999999996,
+              31.912103999999996,
+              32.419055,
+              32.357465000000005,
+              32.419465,
+              32.439136
+            ],
+            "block_ns_per_point": [
+              990278.84375,
+              989275.0937499999,
+              997253.2499999999,
+              1013095.4687500001,
+              1011170.7812500001,
+              1013108.28125,
+              1013723.0
+            ],
+            "blocks": 7,
+            "calls_per_block": 1,
+            "max_ns_per_point": 1013723.0,
+            "median_ns_per_point": 1011170.7812500001,
+            "min_ns_per_point": 989275.0937499999
+          },
+          "width": 32
+        }
+      ],
+      "rank": 7
+    }
+  ],
+  "command": [
+    "target/perf/ninjars",
+    "case-bench",
+    "validation/benchmark/synthetic/syn-gghhh-ggHHH-n5-r4.json",
+    "validation/benchmark/synthetic/syn-gghhh-ggHHH-n5-r5.json",
+    "validation/benchmark/synthetic/syn-gghhh-gHgHH-n5-r4.json",
+    "validation/benchmark/synthetic/syn-gghhh-gHgHH-n5-r5.json",
+    "validation/benchmark/synthetic/syn-gghhh-nosmat-n5-r4.json",
+    "validation/benchmark/synthetic/syn-n2-r1.json",
+    "validation/benchmark/synthetic/syn-n2-r2.json",
+    "validation/benchmark/synthetic/syn-n2-r3.json",
+    "validation/benchmark/synthetic/syn-n3-r2.json",
+    "validation/benchmark/synthetic/syn-n3-r3.json",
+    "validation/benchmark/synthetic/syn-n3-r4.json",
+    "validation/benchmark/synthetic/syn-n4-r3.json",
+    "validation/benchmark/synthetic/syn-n4-r4.json",
+    "validation/benchmark/synthetic/syn-n4-r5.json",
+    "validation/benchmark/synthetic/syn-n5-r4.json",
+    "validation/benchmark/synthetic/syn-n5-r5.json",
+    "validation/benchmark/synthetic/syn-n5-r6.json",
+    "validation/benchmark/synthetic/syn-n6-r5.json",
+    "validation/benchmark/synthetic/syn-n6-r6.json",
+    "validation/benchmark/synthetic/syn-n6-r7.json",
+    "--widths",
+    "1,32",
+    "--blocks",
+    "7",
+    "--min-block-ms",
+    "20",
+    "--reference-dir",
+    "validation/benchmark/ninja",
+    "-o",
+    "/tmp/claude-1134/-shared-external-ninja/191aef8e-9579-487f-b79d-13d6de4c94fa/scratchpad/pipe/synthetic.json"
+  ],
+  "cpu_affinity": "250",
+  "operation": "case-bench",
+  "schema_version": 1
+}

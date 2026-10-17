@@ -10,15 +10,38 @@
 //! and master providers receive compact batched requests.
 //!
 //! Results use Ninja/OneLOop Laurent order `[finite, 1/eps, 1/eps²]`.
+//!
+//! - [`FastAmplitude`] ports original Ninja's default `Amplitude::evaluate`
+//!   (`ComplexMasses`, mu-expansion, no tests) for any `n >= 1` and
+//!   `rank <= n + 1` (`Xninja.cc`), including its skip rules and stability
+//!   checks. Coefficient-level subtractions are translated mechanically from
+//!   Ninja (`tools/fast/translate_subtractions.py` → `subtractions.rs`).
+//! - [`TensorNumerator`] is Ninja's/MadLoop's tensor numerator.
+//! - [`GenericNumerator`] / [`GenericMasters`] adapt the generic NinjaRS
+//!   provider traits; [`replay`] records providers and replays them in O(1)
+//!   to time the pure reduction.
 
+pub mod adapters;
 pub mod complex;
+mod engine;
+mod geometry;
 pub mod masters;
 pub mod numerator;
+pub mod replay;
+mod subtractions;
+pub mod tensor;
+mod tensor_jets;
 pub mod tensor_layout;
+#[cfg(test)]
+mod tests;
 
+pub use adapters::{GenericMasters, GenericNumerator};
 pub use complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr, to_complex};
+pub use engine::{FastAmplitude, FastOptions};
 pub use masters::{FastMaster, FastMasters};
 pub use numerator::{FastNumerator, t2_len, t3_len};
+pub use replay::{RecordingMasters, RecordingNumerator, ReplayMasters, ReplayNumerator};
+pub use tensor::TensorNumerator;
 
 /// Lane-major numerical inputs of a fast-path evaluation.
 ///

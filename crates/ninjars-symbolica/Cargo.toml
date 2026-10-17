@@ -10,6 +10,9 @@ description = "Symbolica numerator adapters and master integration for NinjaRS"
 reference-codegen = ["symbolica/native_code_generation"]
 rust-codegen = ["oneloop/rust-codegen"]
 native-kernels = ["rust-codegen"]
+# Ahead-of-time oneloopmaster masters for the binary64 fast path (A0/B0/C0/D0
+# generated Rust; bubble tensor coefficients derived from them).
+native-masters = ["oneloop/generated-evaluators"]
 
 [[example]]
 name = "generate_reference"
@@ -51,3 +54,15 @@ symbolica-utils.workspace = true
 
 [dev-dependencies]
 serde_json.workspace = true
+
+[[example]]
+name = "fast_bench"
+required-features = ["native-masters"]
+
+[[test]]
+name = "fast_parity"
+required-features = ["native-masters"]
+
+[[test]]
+name = "fast_native_masters"
+required-features = ["native-masters"]

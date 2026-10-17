@@ -1,0 +1,4 @@
+{"format": "ninjars-bench-case-v1", "name": "edge-tadpole-n1-r0", "n": 1, "rank": 0, "lanes": [
+{"id": "real", "shifts": [[10.0, 20.0, -30.0, 5.0]], "masses_squared": [[29929.0, 0.0]], "mu_squared": 15625.0, "s_matrix": [[0.0]], "tensor": [[0.5134977171637917, -1.0483251222488554]]},
+{"id": "complex", "shifts": [[0.0, 0.0, 0.0, 0.0]], "masses_squared": [[29929.0, -259.5]], "mu_squared": 15625.0, "s_matrix": [[0.0]], "tensor": [[-1.1479327968334634, 0.3806547511871753]]}
+]}

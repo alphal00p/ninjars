@@ -1,22 +1,761 @@
 {
-  "status": "placeholder",
-  "date": "2026-10-17",
-  "host": "AMD EPYC 9754 (shared), single pinned core",
-  "batch_width": 32,
-  "cases": [
-    {
-      "id": "hgg-tri0", "label": "gg → H, top triangle", "kind": "physical",
-      "n": 3, "rank": 2, "madloop_rank": 3,
-      "generation_s": {"ninjars": null, "madloop": null},
-      "ninjars_us": {"numerator": null, "reduction": null, "masters": null, "total": null},
-      "madloop_us": {"numerator": null, "reduction": null, "masters": null, "total": null}
+ "status": "measured",
+ "date": "2026-10-17 (preliminary)",
+ "host": "AMD EPYC 9754 (shared host), one pinned core",
+ "batch_width": 32,
+ "cases": [
+  {
+   "id": "hgg-top-triangle-0",
+   "process": "gg \u2192 H",
+   "diagram": "top triangle",
+   "label": "gg \u2192 H, top triangle",
+   "n": 3,
+   "rank": 2,
+   "madloop_rank": 3,
+   "coefficient_heads": 15,
+   "generation_s": {
+    "ninjars": 0.11851903,
+    "ninjars_detail": {
+     "prepare_total": 0.093436903,
+     "planning_total": 0.017919241,
+     "compilation_total": 0.006972016
     },
-    {
-      "id": "gghhh-pent26", "label": "gg → HHH, top pentagon (graph 26)", "kind": "physical",
-      "n": 5, "rank": 4, "madloop_rank": 5,
-      "generation_s": {"ninjars": null, "madloop": null},
-      "ninjars_us": {"numerator": null, "reduction": null, "masters": null, "total": null},
-      "madloop_us": {"numerator": null, "reduction": null, "masters": null, "total": null}
+    "madloop": 4.261603572027525,
+    "madloop_detail": {
+     "output": 0.8931013670226093,
+     "compile_source": 1.3190845840144902,
+     "compile_process": 2.0494176209904253
     }
-  ]
+   },
+   "ninjars_us": {
+    "numerator": 0.8840450439453125,
+    "numerator_preparation": 0.44886944580078125,
+    "tensor_numerator": 0.4351755981445313,
+    "reduction": 1.284978515625,
+    "masters": 3.377054931640625,
+    "total": 5.53130419921875
+   },
+   "ninjars_width1_us": {
+    "numerator": 1.2773054504394532,
+    "reduction": 1.7422012329101562,
+    "masters": 3.391295654296875,
+    "total": 6.696768310546875
+   },
+   "madloop_us": {
+    "numerator": 14.257019194594424,
+    "numerator_coefficients": 9.48677799,
+    "tensor_numerator": 4.7702412045944245,
+    "reduction": 4.083816591853504,
+    "masters": 3.2640621635520697,
+    "total": 21.405384200000004
+   },
+   "ninja_identical_us": {
+    "numerator": 0.9019260552072106,
+    "reduction": 2.6095649752475247,
+    "masters": 6.536345872518286,
+    "total": 10.088544093851134
+   },
+   "max_scaled_difference_vs_ninja": 1.831482953476498e-14
+  },
+  {
+   "id": "four-photon-top-box-0",
+   "process": "\u03b3\u03b3 \u2192 \u03b3\u03b3",
+   "diagram": "top box",
+   "label": "\u03b3\u03b3 \u2192 \u03b3\u03b3, top box",
+   "n": 4,
+   "rank": 4,
+   "madloop_rank": 4,
+   "coefficient_heads": 70,
+   "generation_s": {
+    "ninjars": 12.441955988,
+    "ninjars_detail": {
+     "prepare_total": 0.581300503,
+     "planning_total": 10.52593,
+     "compilation_total": 1.334484635
+    },
+    "madloop": 5.1854330575151835,
+    "madloop_detail": {
+     "output": 1.498714031506097,
+     "compile_source": 1.1795161879854277,
+     "compile_process": 2.507202838023659
+    }
+   },
+   "ninjars_us": {
+    "numerator": 18.21974951171875,
+    "numerator_preparation": 8.744192626953126,
+    "tensor_numerator": 9.475556884765625,
+    "reduction": 5.266738037109375,
+    "masters": 16.060314941406247,
+    "total": 40.132708984375
+   },
+   "ninjars_width1_us": {
+    "numerator": 19.7024697265625,
+    "reduction": 6.3646044921875,
+    "masters": 17.27603125,
+    "total": 46.601923828125
+   },
+   "madloop_us": {
+    "numerator": 41.21514514517866,
+    "numerator_coefficients": 18.64101155,
+    "tensor_numerator": 22.574133595178658,
+    "reduction": 10.546218705893628,
+    "masters": 9.084521484455736,
+    "total": 59.86166575
+   },
+   "ninja_identical_us": {
+    "numerator": 22.650565710535027,
+    "reduction": 9.096761285662694,
+    "masters": 10.134715555555557,
+    "total": 42.7004268707483
+   },
+   "max_scaled_difference_vs_ninja": 8.397192314229188e-13
+  },
+  {
+   "id": "gg-hh-top-triangle-0",
+   "process": "gg \u2192 HH",
+   "diagram": "top triangle",
+   "label": "gg \u2192 HH, top triangle",
+   "n": 3,
+   "rank": 2,
+   "madloop_rank": 3,
+   "coefficient_heads": 15,
+   "generation_s": {
+    "ninjars": 0.143054873,
+    "ninjars_detail": {
+     "prepare_total": 0.095222792,
+     "planning_total": 0.037883188,
+     "compilation_total": 0.009763543
+    },
+    "madloop": 4.574061767023522,
+    "madloop_detail": {
+     "output": 1.0601804479956627,
+     "compile_source": 1.4265855600242503,
+     "compile_process": 2.0872957590036094
+    }
+   },
+   "ninjars_us": {
+    "numerator": 0.7981550903320312,
+    "numerator_preparation": 0.37365093994140625,
+    "tensor_numerator": 0.424504150390625,
+    "reduction": 1.2884917602539063,
+    "masters": 2.0006906738281254,
+    "total": 4.113045532226563
+   },
+   "ninjars_width1_us": {
+    "numerator": 1.190096923828125,
+    "reduction": 1.7929978637695312,
+    "masters": 2.1348688354492187,
+    "total": 5.4276103515625
+   },
+   "madloop_us": {
+    "numerator": 12.569549452750913,
+    "numerator_coefficients": 7.8153830399999995,
+    "tensor_numerator": 4.754166412750914,
+    "reduction": 3.8831424273642368,
+    "masters": 1.9742713198848485,
+    "total": 18.25091805
+   },
+   "ninja_identical_us": {
+    "numerator": 0.8829570317644102,
+    "reduction": 2.5533895520865215,
+    "masters": 1.8786228386708765,
+    "total": 5.376472707659115
+   },
+   "max_scaled_difference_vs_ninja": 2.687629252435699e-15
+  },
+  {
+   "id": "gg-hh-top-box-2",
+   "process": "gg \u2192 HH",
+   "diagram": "top box",
+   "label": "gg \u2192 HH, top box",
+   "n": 4,
+   "rank": 4,
+   "madloop_rank": 4,
+   "coefficient_heads": 57,
+   "generation_s": {
+    "ninjars": 0.750350151,
+    "ninjars_detail": {
+     "prepare_total": 0.161661184,
+     "planning_total": 0.506827316,
+     "compilation_total": 0.08165013
+    },
+    "madloop": 4.947575731523102,
+    "madloop_detail": {
+     "output": 1.1374192035000306,
+     "compile_source": 1.2835617730161175,
+     "compile_process": 2.526594755006954
+    }
+   },
+   "ninjars_us": {
+    "numerator": 10.832002624511718,
+    "numerator_preparation": 1.3884840698242187,
+    "tensor_numerator": 9.4435185546875,
+    "reduction": 5.5144462890625,
+    "masters": 33.1389248046875,
+    "total": 49.82390625
+   },
+   "ninjars_width1_us": {
+    "numerator": 12.374853149414063,
+    "reduction": 6.3323486328125,
+    "masters": 34.9587822265625,
+    "total": 56.035892578125
+   },
+   "madloop_us": {
+    "numerator": 34.75187555359506,
+    "numerator_coefficients": 12.16641995,
+    "tensor_numerator": 22.585455603595065,
+    "reduction": 11.539717326651925,
+    "masters": 32.124893069753,
+    "total": 78.21400155
+   },
+   "ninja_identical_us": {
+    "numerator": 22.76218166569678,
+    "reduction": 9.251356502242151,
+    "masters": 27.06454261057174,
+    "total": 60.37475059952038
+   },
+   "max_scaled_difference_vs_ninja": 6.912736418058108e-13
+  },
+  {
+   "id": "gg-hhh-top-triangle-0",
+   "process": "gg \u2192 HHH",
+   "diagram": "top triangle",
+   "label": "gg \u2192 HHH, top triangle",
+   "n": 3,
+   "rank": 2,
+   "madloop_rank": 3,
+   "coefficient_heads": 15,
+   "generation_s": {
+    "ninjars": 0.135891826,
+    "ninjars_detail": {
+     "prepare_total": 0.096196954,
+     "planning_total": 0.029712909,
+     "compilation_total": 0.009785883
+    },
+    "madloop": 5.656509145628661,
+    "madloop_detail": {
+     "output": 2.0977545985369943,
+     "compile_source": 1.425655204046052,
+     "compile_process": 2.1330993430456147
+    }
+   },
+   "ninjars_us": {
+    "numerator": 0.9311578369140625,
+    "numerator_preparation": 0.501006103515625,
+    "tensor_numerator": 0.4301517333984375,
+    "reduction": 1.2782982788085937,
+    "masters": 1.8453497314453124,
+    "total": 4.076181396484375
+   },
+   "ninjars_width1_us": {
+    "numerator": 1.3478322143554688,
+    "reduction": 1.7519834594726562,
+    "masters": 1.8961072998046875,
+    "total": 5.328408447265625
+   },
+   "madloop_us": {
+    "numerator": 12.560286038484417,
+    "numerator_coefficients": 7.82916839,
+    "tensor_numerator": 4.731117648484416,
+    "reduction": 3.856862058548014,
+    "masters": 1.2519000529675728,
+    "total": 17.5312407
+   },
+   "ninja_identical_us": {
+    "numerator": 0.9010744751539969,
+    "reduction": 2.541642916150351,
+    "masters": 1.2561733172714953,
+    "total": 4.776668589004229
+   },
+   "max_scaled_difference_vs_ninja": 1.2167709337122091e-15
+  },
+  {
+   "id": "gg-hhh-top-box-8",
+   "process": "gg \u2192 HHH",
+   "diagram": "top box",
+   "label": "gg \u2192 HHH, top box",
+   "n": 4,
+   "rank": 4,
+   "madloop_rank": 4,
+   "coefficient_heads": 57,
+   "generation_s": {
+    "ninjars": 2.205884848,
+    "ninjars_detail": {
+     "prepare_total": 0.160627986,
+     "planning_total": 1.927618157,
+     "compilation_total": 0.117408924
+    },
+    "madloop": 6.035218046978116,
+    "madloop_detail": {
+     "output": 2.1540324239758775,
+     "compile_source": 1.3912059210124426,
+     "compile_process": 2.489979701989796
+    }
+   },
+   "ninjars_us": {
+    "numerator": 10.872375610351563,
+    "numerator_preparation": 1.4241915283203126,
+    "tensor_numerator": 9.44818408203125,
+    "reduction": 5.40804736328125,
+    "masters": 32.553337890625,
+    "total": 49.0836875
+   },
+   "ninjars_width1_us": {
+    "numerator": 12.874332885742188,
+    "reduction": 6.50385546875,
+    "masters": 33.2692763671875,
+    "total": 53.3042265625
+   },
+   "madloop_us": {
+    "numerator": 34.71774326543295,
+    "numerator_coefficients": 12.215290950000002,
+    "tensor_numerator": 22.502452315432947,
+    "reduction": 11.705143138563564,
+    "masters": 27.22901204600349,
+    "total": 73.35015925
+   },
+   "ninja_identical_us": {
+    "numerator": 22.646273348988586,
+    "reduction": 9.296882461994809,
+    "masters": 22.01630789473684,
+    "total": 54.83728289473684
+   },
+   "max_scaled_difference_vs_ninja": 1.508664293872011e-14
+  },
+  {
+   "id": "gg-hhh-top-pentagon-26",
+   "process": "gg \u2192 HHH",
+   "diagram": "top pentagon",
+   "label": "gg \u2192 HHH, top pentagon",
+   "n": 5,
+   "rank": 4,
+   "madloop_rank": 5,
+   "coefficient_heads": 57,
+   "generation_s": {
+    "ninjars": 2.852595509,
+    "ninjars_detail": {
+     "prepare_total": 0.628856091,
+     "planning_total": 1.97688603,
+     "compilation_total": 0.246573768
+    },
+    "madloop": 6.8256536810076796,
+    "madloop_detail": {
+     "output": 1.9800370020093396,
+     "compile_source": 1.232484103005845,
+     "compile_process": 3.613132575992495
+    }
+   },
+   "ninjars_us": {
+    "numerator": 14.607024169921875,
+    "numerator_preparation": 3.033669189453125,
+    "tensor_numerator": 11.57335498046875,
+    "reduction": 8.82601904296875,
+    "masters": 132.01253515625,
+    "total": 157.874984375
+   },
+   "ninjars_width1_us": {
+    "numerator": 14.844609985351562,
+    "reduction": 10.435009765625,
+    "masters": 135.0873125,
+    "total": 163.0425703125
+   },
+   "madloop_us": {
+    "numerator": 104.52954599315669,
+    "numerator_coefficients": 23.98330895,
+    "tensor_numerator": 80.54623704315668,
+    "reduction": 26.022486901680708,
+    "masters": 105.10346735086372,
+    "total": 234.9374775
+   },
+   "ninja_identical_us": {
+    "numerator": 22.044588814616752,
+    "reduction": 18.954955303030303,
+    "masters": 91.3788115942029,
+    "total": 134.02887634408603
+   },
+   "max_scaled_difference_vs_ninja": 1.213308448987954e-14
+  }
+ ],
+ "synthetic": [
+  {
+   "id": "syn-gghhh-gHgHH-n5-r4",
+   "n": 5,
+   "rank": 4,
+   "ninjars_us": {
+    "numerator": 11.536155517578125,
+    "reduction": 8.761572998046875,
+    "masters": 58.163470703125,
+    "total": 79.55341015625
+   },
+   "ninja_us": {
+    "numerator": 22.504133764938793,
+    "reduction": 18.455835189309575,
+    "masters": 60.75036496350365,
+    "total": 103.53679166666667
+   },
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 1.2698454543398076e-12
+  },
+  {
+   "id": "syn-gghhh-gHgHH-n5-r5",
+   "n": 5,
+   "rank": 5,
+   "ninjars_us": {
+    "numerator": 36.27272998046875,
+    "reduction": 12.97167431640625,
+    "masters": 58.66566015625,
+    "total": 109.0354765625
+   },
+   "ninja_us": {
+    "numerator": 80.95858597417839,
+    "reduction": 23.426376525821595,
+    "masters": 59.09030751173709,
+    "total": 166.39113333333333
+   },
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 1.4206601095646777e-11
+  },
+  {
+   "id": "syn-gghhh-ggHHH-n5-r4",
+   "n": 5,
+   "rank": 4,
+   "ninjars_us": {
+    "numerator": 11.555750244140626,
+    "reduction": 8.905982177734375,
+    "masters": 134.99800390625,
+    "total": 157.18196875
+   },
+   "ninja_us": {
+    "numerator": 22.36459463630477,
+    "reduction": 18.43778097345133,
+    "masters": 109.97434649122808,
+    "total": 152.70279393939396
+   },
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 2.852754288267999e-12
+  },
+  {
+   "id": "syn-gghhh-ggHHH-n5-r5",
+   "n": 5,
+   "rank": 5,
+   "ninjars_us": {
+    "numerator": 36.28101123046875,
+    "reduction": 13.03810009765625,
+    "masters": 136.2935546875,
+    "total": 187.945796875
+   },
+   "ninja_us": {
+    "numerator": 81.71820493450768,
+    "reduction": 22.549549232158988,
+    "masters": 109.71912719298246,
+    "total": 217.5351452991453
+   },
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 0.00901343295961894
+  },
+  {
+   "id": "syn-gghhh-nosmat-n5-r4",
+   "n": 5,
+   "rank": 4,
+   "ninjars_us": {
+    "numerator": 11.515279296875,
+    "reduction": 8.756365234375,
+    "masters": 135.168359375,
+    "total": 157.80946875
+   },
+   "ninja_us": {
+    "numerator": 22.535518652504106,
+    "reduction": 18.590640625,
+    "masters": 109.60883982683983,
+    "total": 153.88758787878788
+   },
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 3.664373501484456e-12
+  },
+  {
+   "id": "syn-n2-r1",
+   "n": 2,
+   "rank": 1,
+   "ninjars_us": {
+    "numerator": 0.03349946594238281,
+    "reduction": 0.2581991348266602,
+    "masters": 0.24964915466308593,
+    "total": 0.5472409515380859
+   },
+   "ninja_us": {
+    "numerator": 0.06171955017341122,
+    "reduction": 0.4222156699889258,
+    "masters": 0.21166000064640195,
+    "total": 0.6651528954237921
+   },
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 4.0092002255153444e-15
+  },
+  {
+   "id": "syn-n2-r2",
+   "n": 2,
+   "rank": 2,
+   "ninjars_us": {
+    "numerator": 0.2111831665039062,
+    "reduction": 0.2894142761230469,
+    "masters": 0.2603573532104492,
+    "total": 0.7593973999023438
+   },
+   "ninja_us": {
+    "numerator": 0.4351354621430444,
+    "reduction": 0.46179899821372666,
+    "masters": 0.19492543532917403,
+    "total": 1.0832057372793353
+   },
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 1.9445906782406196e-13
+  },
+  {
+   "id": "syn-n2-r3",
+   "n": 2,
+   "rank": 3,
+   "ninjars_us": {
+    "numerator": 1.0247855529785157,
+    "reduction": 0.5177453308105469,
+    "masters": 0.25931487274169923,
+    "total": 1.8030302124023438
+   },
+   "ninja_us": {
+    "numerator": 2.706283354676286,
+    "reduction": 0.9775238493390667,
+    "masters": 0.306819154687308,
+    "total": 4.043194607843137
+   },
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 3.482322837484838e-11
+  },
+  {
+   "id": "syn-n3-r2",
+   "n": 3,
+   "rank": 2,
+   "ninjars_us": {
+    "numerator": 0.421931640625,
+    "reduction": 1.2856234741210937,
+    "masters": 3.952860595703125,
+    "total": 5.6828564453125
+   },
+   "ninja_us": {
+    "numerator": 0.9329791240746813,
+    "reduction": 2.5091976060052747,
+    "masters": 4.284243220048061,
+    "total": 7.719802960222017
+   },
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 2.5248485982893117e-14
+  },
+  {
+   "id": "syn-n3-r3",
+   "n": 3,
+   "rank": 3,
+   "ninjars_us": {
+    "numerator": 1.8595630493164061,
+    "reduction": 1.7154780883789063,
+    "masters": 4.012388305664062,
+    "total": 7.607534423828125
+   },
+   "ninja_us": {
+    "numerator": 4.66857738596988,
+    "reduction": 2.957007097317455,
+    "masters": 3.854339784946237,
+    "total": 11.632202431042543
+   },
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 1.3679887447820976e-14
+  },
+  {
+   "id": "syn-n3-r4",
+   "n": 3,
+   "rank": 4,
+   "ninjars_us": {
+    "numerator": 7.7795650634765625,
+    "reduction": 3.9838104248046875,
+    "masters": 3.933588134765625,
+    "total": 15.734552734375
+   },
+   "ninja_us": {
+    "numerator": 20.329967274577697,
+    "reduction": 7.212491197183099,
+    "masters": 4.9763295634920635,
+    "total": 32.78164041994751
+   },
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 1.8945709939797528e-14
+  },
+  {
+   "id": "syn-n4-r3",
+   "n": 4,
+   "rank": 3,
+   "ninjars_us": {
+    "numerator": 2.59317333984375,
+    "reduction": 3.39441064453125,
+    "masters": 19.9096611328125,
+    "total": 26.1504482421875
+   },
+   "ninja_us": {
+    "numerator": 5.35557013608004,
+    "reduction": 7.079378045285183,
+    "masters": 16.697167333333336,
+    "total": 29.50126266195524
+   },
+   "failed_lanes": 22,
+   "max_scaled_difference_vs_ninja": 0.13498055070932474
+  },
+  {
+   "id": "syn-n4-r4",
+   "n": 4,
+   "rank": 4,
+   "ninjars_us": {
+    "numerator": 9.243730224609376,
+    "reduction": 5.111483154296875,
+    "masters": 26.15470703125,
+    "total": 41.064599609375
+   },
+   "ninja_us": {
+    "numerator": 22.454644827166064,
+    "reduction": 8.682915271966527,
+    "masters": 15.780201886792453,
+    "total": 47.62871401515151
+   },
+   "failed_lanes": 21,
+   "max_scaled_difference_vs_ninja": 2.0005910518018606
+  },
+  {
+   "id": "syn-n4-r5",
+   "n": 4,
+   "rank": 5,
+   "ninjars_us": {
+    "numerator": 30.59939697265625,
+    "reduction": 11.87223779296875,
+    "masters": 18.87639697265625,
+    "total": 63.362919921875
+   },
+   "ninja_us": {
+    "numerator": 79.7967015873016,
+    "reduction": 19.82092142857143,
+    "masters": 12.035081896551725,
+    "total": 113.46883783783784
+   },
+   "failed_lanes": 22,
+   "max_scaled_difference_vs_ninja": 1.419333369668044e-13
+  },
+  {
+   "id": "syn-n5-r4",
+   "n": 5,
+   "rank": 4,
+   "ninjars_us": {
+    "numerator": 11.86181884765625,
+    "reduction": 8.84226904296875,
+    "masters": 88.31230078125,
+    "total": 110.7905234375
+   },
+   "ninja_us": {
+    "numerator": 22.178615501115186,
+    "reduction": 18.617191002949856,
+    "masters": 65.07447916666666,
+    "total": 107.75304273504274
+   },
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 2.304414276170224e-13
+  },
+  {
+   "id": "syn-n5-r5",
+   "n": 5,
+   "rank": 5,
+   "ninjars_us": {
+    "numerator": 40.1386123046875,
+    "reduction": 13.0731494140625,
+    "masters": 87.77194921875,
+    "total": 139.36415234375
+   },
+   "ninja_us": {
+    "numerator": 81.18769366656629,
+    "reduction": 22.670705510388437,
+    "masters": 71.1382824858757,
+    "total": 179.2705035460993
+   },
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 5.188796044636388e-12
+  },
+  {
+   "id": "syn-n5-r6",
+   "n": 5,
+   "rank": 6,
+   "ninjars_us": {
+    "numerator": 108.8357509765625,
+    "reduction": 29.7164052734375,
+    "masters": 106.51031640625,
+    "total": 248.2197109375
+   },
+   "ninja_us": {
+    "numerator": 259.2620282828283,
+    "reduction": 50.854527272727275,
+    "masters": 85.40462925170068,
+    "total": 406.82734920634925
+   },
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 2.58610073318317e-09
+  },
+  {
+   "id": "syn-n6-r5",
+   "n": 6,
+   "rank": 5,
+   "ninjars_us": {
+    "numerator": 39.35623046875,
+    "reduction": 18.331517578125,
+    "masters": 609.32471875,
+    "total": 679.12146875
+   },
+   "ninja_us": {
+    "numerator": 74.2610757947185,
+    "reduction": 37.470973094170404,
+    "masters": 483.90764705882356,
+    "total": 607.1365
+   },
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 2.754170472294974e-08
+  },
+  {
+   "id": "syn-n6-r6",
+   "n": 6,
+   "rank": 6,
+   "ninjars_us": {
+    "numerator": 113.2622021484375,
+    "reduction": 26.7955478515625,
+    "masters": 519.613234375,
+    "total": 664.1145625
+   },
+   "ninja_us": {
+    "numerator": 238.37562081031305,
+    "reduction": 46.25941252302025,
+    "masters": 419.9987,
+    "total": 725.3270833333333
+   },
+   "failed_lanes": 21,
+   "max_scaled_difference_vs_ninja": 8.604317791431713e-10
+  },
+  {
+   "id": "syn-n6-r7",
+   "n": 6,
+   "rank": 7,
+   "ninjars_us": {
+    "numerator": 306.769892578125,
+    "reduction": 56.170419921875,
+    "masters": 624.75134375,
+    "total": 1011.1707812500001
+   },
+   "ninja_us": {
+    "numerator": 689.8418615221987,
+    "reduction": 96.81492635658914,
+    "masters": 535.3050625,
+    "total": 1353.119619047619
+   },
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 1.7138699455226035e-07
+  }
+ ]
 }
