@@ -69,8 +69,19 @@ fn strict_status(statuses: &[MasterStatus]) -> Result<()> {
 /// `evaluate` retains its strict all-or-nothing contract.
 /// Expression preparation uses the calling thread, which must provide the stack
 /// required by oneloopmaster (128 MiB is its documented regression-test setting).
+///
+/// For fixed-precision carriers the provider applies OneLOop's on-shell
+/// threshold, as original Ninja configures it (`olo_onshell(INFRARED_EPS)`):
+/// invariants and squared masses whose magnitude is below the threshold are
+/// set to zero, and real invariants within the threshold of a real squared
+/// mass are set equal to it. Rounded external momenta otherwise turn exact
+/// light-like or on-shell configurations into tiny nonzero values, which the
+/// exact branch selection of oneloopmaster evaluates literally with severe
+/// cancellation. The default threshold is Ninja's `1e-9` in binary64 and
+/// `1e15` ulp in DoubleFloat; see [`Self::with_onshell_threshold`].
 pub struct SymbolicaMasters<T: NativeFloat> {
     representative: T,
+    onshell_threshold: Option<T>,
     evaluators: BTreeMap<MasterIntegral, BatchExpressionEvaluator<Complex<T>>>,
     native: BTreeMap<MasterIntegral, NativeEvaluator<T>>,
     arguments: Vec<Complex<T>>,
@@ -84,14 +95,59 @@ where
     Complex<T>: EvaluationDomain,
 {
     pub fn new(representative: T) -> Self {
+        // Original Ninja: INFRARED_EPS = 1e-9 in double and 1e15 machine
+        // epsilons in quadruple precision.
+        let onshell_threshold = match T::FIXED_BITS {
+            Some(53) => Some(representative.from_rational(&Rational::from((1, 1_000_000_000)))),
+            Some(bits) => {
+                let epsilon = representative
+                    .from_rational(&Rational::from((1, 2)))
+                    .powf(&representative.from_i64(i64::from(bits) - 1));
+                Some(epsilon * representative.from_i64(1_000_000_000_000_000))
+            }
+            None => None,
+        };
         Self {
             representative,
+            onshell_threshold,
             evaluators: BTreeMap::new(),
             native: BTreeMap::new(),
             arguments: Vec::new(),
             results: Vec::new(),
             active: Vec::new(),
             statuses: Vec::new(),
+        }
+    }
+
+    /// Set (or with `None` disable) the absolute on-shell threshold used on the
+    /// fixed-precision path.
+    pub fn with_onshell_threshold(mut self, threshold: Option<T>) -> Self {
+        self.onshell_threshold = threshold;
+        self
+    }
+
+    /// Apply OneLOop's on-shell threshold to one row of native arguments
+    /// (`invariants`, then squared masses, then the squared scale).
+    fn snap_onshell(threshold: &T, row: &mut [Complex<T>], invariants: usize) {
+        let zero = threshold.zero();
+        let small = |value: &Complex<T>| value.re.norm() + value.im.norm() < *threshold;
+        let masses = row.len() - invariants - 1;
+        for value in &mut row[invariants..invariants + masses] {
+            if small(value) {
+                *value = Complex::new(zero.clone(), zero.clone());
+            }
+        }
+        let (momenta, rest) = row.split_at_mut(invariants);
+        for momentum in momenta {
+            if small(momentum) {
+                *momentum = Complex::new(zero.clone(), zero.clone());
+                continue;
+            }
+            if let Some(mass) = rest[..masses].iter().find(|mass| {
+                mass.im.is_fully_zero() && (momentum.re.clone() - &mass.re).norm() < *threshold
+            }) {
+                *momentum = mass.clone();
+            }
         }
     }
 
@@ -240,9 +296,17 @@ where
                 Ok(()) => {
                     self.statuses.push(MasterStatus::Success);
                     self.active.push(row);
+                    let start = self.arguments.len();
                     self.arguments.extend_from_slice(point.invariants);
                     self.arguments.extend_from_slice(point.masses_squared);
                     self.arguments.extend_from_slice(point.scales_squared);
+                    if let Some(threshold) = &self.onshell_threshold {
+                        Self::snap_onshell(
+                            threshold,
+                            &mut self.arguments[start..],
+                            request.integral.invariant_count(),
+                        );
+                    }
                 }
             }
         }
