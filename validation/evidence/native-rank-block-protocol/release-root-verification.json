@@ -1,0 +1,8 @@
+{
+  "archived_logs_verified": 41,
+  "parity_components": 67485,
+  "release_manifest_sha256": "d12273632f58e85f3ce88336c3d8f42d29501ddd53cc6f074022b1f4015b1f47",
+  "source_hashes_claimed": 1971,
+  "strict_preflight_pending": false,
+  "strict_preflight": "Passed source/dependency/artifact/compiler/loader/report/width/mode/bound checks; no sampling"
+}

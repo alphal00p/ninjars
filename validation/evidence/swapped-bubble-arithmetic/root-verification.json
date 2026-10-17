@@ -1,0 +1,20 @@
+{
+  "source_files": 8,
+  "executables": 8,
+  "logs": 13,
+  "passed_test_executions": 87,
+  "variants": {
+    "feature-off": 31,
+    "native": 56
+  },
+  "excluded_attempts": 1,
+  "strict_checks_pending": false,
+  "numerical_source": "597846145bac80ef768af7f6c22c997e617192d5",
+  "final_source": "6da695ed244a7c7eb0440b6d0174c7e454c7ecba",
+  "evidence_files_verified": 32,
+  "main_source_files_match": true,
+  "scope": "87 numerical test executions, exact saved binaries/logs, final import-only lint cleanup and strict feature variants; no timings",
+  "main_cli_command": "cargo check -p ninjars-cli --features native-kernels --locked",
+  "main_cli_check_passed": true,
+  "main_cli_log_sha256": "357e287f5282eb2eb342ac7eeeb1711e8f4f4a6ca009ef887b0394a0afc1af1f"
+}

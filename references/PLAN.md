@@ -2012,3 +2012,33 @@ connects the existing kernels into integrated amplitudes and a standalone
   `docs/swapped-bubble-arithmetic.md`. This is an opt-in correctness candidate,
   with no performance measurement or speedup claim. Future measurements must
   keep actual masters separate from reduction and the shared-master control.
+
+### Integrated pruning and optimized rank/block controls (2026-10-17)
+
+- Integrated pruning source as `048fa59`, root amplitude test as `020bc3d`, and
+  the import-only cleanup as `c13cc2f`; evidence is `c1b6587`. Root independently
+  verified all eight source snapshots, eight tested binaries and the 87 test
+  executions. The complete native-enabled CLI compiles with the integrated
+  core and adapter. All eight test binaries now have read-only preserved copies.
+- Optimized physical controls from frozen `8b86822` pass across widths
+  0/1/3/8/31/32/128/1024. Three native Whole/fixed32 pairs agree exactly;
+  five Whole modes agree within 4.0e-18. Together these check 67,485 complex
+  parity components; integrated agreement with original Ninja is within
+  2.2e-16. Evidence `a113221` is integrated as `dffbd82`.
+- Root verified all 41 archived release logs and ran the independent strict
+  preflight against reviewed manifest
+  `d12273632f58e85f3ce88336c3d8f42d29501ddd53cc6f074022b1f4015b1f47`.
+  It checks all 1,971 source hashes, dependencies, release artifacts, actual
+  runtime loader target, compiler configuration, modes/bound and physical widths.
+- The archived protocol has twelve pure Python corruption/schema regressions.
+  Its preselected 2x2 comparison isolates rank specialization and fixed32
+  execution on one executable/library, across four cyclic process-order sweeps.
+  Raw paired blocks and uncertainty remain separate from cross-setting process
+  ratios. Actual master calls/rows and misses must be zero in reduction timing.
+  No speedup or acceptance claim follows from these correctness controls;
+  actual-master/preparation instrumentation and complete timings remain separate.
+- A source audit identifies paired bubble denominator and source-projection
+  evaluators as a smaller possible improvement beyond original Ninja's separate
+  orientation loops. It would retain every output and share common longitudinal
+  dot products through Symbolica merge. Only a bounded source inventory is being
+  prepared; no production dispatch or numerical/performance claim is made.

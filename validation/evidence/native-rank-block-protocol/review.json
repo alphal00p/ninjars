@@ -1,0 +1,14 @@
+{
+  "success": true,
+  "tests": 12,
+  "fixture": "self-contained fake protocol data; not numerical or performance evidence",
+  "builds": false,
+  "numerical_executables": false,
+  "preflight_executed": false,
+  "sampling": false,
+  "sha256": {
+    "/tmp/ninjars-rank-block-sampling.py": "d1720dd5e7f6a5c3766188eac2fdb86d152f92216f9832abc052f24cf7e1484a",
+    "/tmp/test-ninjars-rank-block-sampling.py": "30647f18d6ae5adb3a8f571c89859e298538c0c8c49075a2436e9e293a1f6fd9",
+    "/tmp/ninjars-rank-block-sampling-tests.log": "8f3992ad2bc0d3cc26c431f642d4eb65f57aae0dfcdd63ca3d0b66d56c8b6db5"
+  }
+}
