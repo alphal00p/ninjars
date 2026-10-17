@@ -1,0 +1,828 @@
+{
+  "schema_version": 1,
+  "units": "seconds (median over cold processes)",
+  "build": "cargo build --locked --profile perf -p ninjars-cli --features numerator-jit",
+  "ninjars_sha256": "e5879ba7f6e9401b28c5eb8b34d1f4cbb961c7fcb1ee71f67bf92251e40b69dd",
+  "git": {
+    "commit": "e1da61da9fbe1b7e939409d6f53df1d824b9303b",
+    "tracked_changes": false
+  },
+  "host": {
+    "cpu_model": "AMD EPYC 9754 128-Core Processor",
+    "logical_cpus": 384,
+    "pinned_cpu": 383,
+    "load_average_at_start": [
+      50.72802734375,
+      46.96728515625,
+      44.03173828125
+    ],
+    "kernel": "6.18.45"
+  },
+  "repeats": 3,
+  "script": "python3 validation/benchmark/generation_ninjars.py --repeats 3",
+  "stages": {
+    "prepare": [
+      "graph_import",
+      "feynman_rules",
+      "propagators",
+      "contraction",
+      "color_invariants",
+      "polynomial"
+    ],
+    "planning": [
+      "coefficient_planning",
+      "coefficient_factoring",
+      "tensor_plan"
+    ],
+    "compile": [
+      "evaluator_construction",
+      "symjit_compilation"
+    ]
+  },
+  "graphs": [
+    {
+      "process": "hgg",
+      "graph": "top-triangle-0",
+      "propagators": 3,
+      "rank": 2,
+      "ncoeff": 15,
+      "symjit-o2": {
+        "command": [
+          "taskset",
+          "-c",
+          "383",
+          "ninjars",
+          "numerator-bench",
+          "examples/graphs/physical/hgg/top-triangle-0-pool.json",
+          "--points",
+          "validation/benchmark/points/hgg.json",
+          "--feynman-rules",
+          "--generation-only",
+          "--output",
+          "<output>"
+        ],
+        "coefficient_heads": 15,
+        "summary": {
+          "prepare": 0.09233089200000001,
+          "planning": 0.007885966000000001,
+          "compile": 0.021767262000000002,
+          "total": 0.12213582,
+          "process_wall_clock": 0.13245561497751623
+        },
+        "stages": {
+          "coefficient_factoring": 0.0,
+          "coefficient_planning": 0.007861676,
+          "color_invariants": 0.001016723,
+          "compilation_total": 0.021767262000000002,
+          "contraction": 0.010470155,
+          "evaluator_construction": 0.019461633000000002,
+          "feynman_rules": 0.000250021,
+          "graph_import": 0.002310017,
+          "kinematics_setup": 0.000206061,
+          "planning_total": 0.007885966,
+          "polynomial": 0.07668789200000001,
+          "prepare_total": 0.09233089200000001,
+          "propagators": 0.001549725,
+          "symjit_compilation": 0.002305629,
+          "tensor_plan": 2.4290000000000003e-05,
+          "total": 0.12213582
+        },
+        "raw_total": [
+          0.12213582,
+          0.12190381800000001,
+          0.122605132
+        ],
+        "raw_process_wall_clock": [
+          0.13245561497751623,
+          0.13174430199433118,
+          0.13248968496918678
+        ]
+      },
+      "symjit-o2-factored": {
+        "command": [
+          "taskset",
+          "-c",
+          "383",
+          "ninjars",
+          "numerator-bench",
+          "examples/graphs/physical/hgg/top-triangle-0-pool.json",
+          "--points",
+          "validation/benchmark/points/hgg.json",
+          "--feynman-rules",
+          "--generation-only",
+          "--factor",
+          "--output",
+          "<output>"
+        ],
+        "coefficient_heads": 15,
+        "summary": {
+          "prepare": 0.091651721,
+          "planning": 0.017684808,
+          "compile": 0.006838742,
+          "total": 0.11641599200000001,
+          "process_wall_clock": 0.12622192403068766
+        },
+        "stages": {
+          "coefficient_factoring": 0.009879022000000001,
+          "coefficient_planning": 0.007757255,
+          "color_invariants": 0.001015403,
+          "compilation_total": 0.006838742,
+          "contraction": 0.010412015,
+          "evaluator_construction": 0.004841456,
+          "feynman_rules": 0.000249431,
+          "graph_import": 0.002278178,
+          "kinematics_setup": 0.00019678000000000002,
+          "planning_total": 0.017684808,
+          "polynomial": 0.07619989,
+          "prepare_total": 0.091651721,
+          "propagators": 0.0015058250000000001,
+          "symjit_compilation": 0.001997286,
+          "tensor_plan": 6.77e-06,
+          "total": 0.11641599200000001
+        },
+        "raw_total": [
+          0.116336902,
+          0.11641599200000001,
+          0.116508261
+        ],
+        "raw_process_wall_clock": [
+          0.12622192403068766,
+          0.12611991399899125,
+          0.12633929401636124
+        ]
+      }
+    },
+    {
+      "process": "four-photon",
+      "graph": "top-box-0",
+      "propagators": 4,
+      "rank": 4,
+      "ncoeff": 70,
+      "symjit-o2": {
+        "command": [
+          "taskset",
+          "-c",
+          "383",
+          "ninjars",
+          "numerator-bench",
+          "examples/graphs/physical/four-photon/top-box-0-pool.json",
+          "--points",
+          "validation/benchmark/points/four-photon.json",
+          "--feynman-rules",
+          "--generation-only",
+          "--output",
+          "<output>"
+        ],
+        "coefficient_heads": 70,
+        "summary": {
+          "prepare": 0.587507828,
+          "planning": 2.724171837,
+          "compile": 1.9242481720000002,
+          "total": 5.236186848,
+          "process_wall_clock": 5.24910378002096
+        },
+        "stages": {
+          "coefficient_factoring": 0.0,
+          "coefficient_planning": 2.72206729,
+          "color_invariants": 0.033585500000000004,
+          "compilation_total": 1.9242481720000002,
+          "contraction": 0.06762399100000001,
+          "evaluator_construction": 1.823822883,
+          "feynman_rules": 0.00027939100000000004,
+          "graph_import": 0.002624148,
+          "kinematics_setup": 0.00025901100000000007,
+          "planning_total": 2.724171837,
+          "polynomial": 0.479373402,
+          "prepare_total": 0.587507828,
+          "propagators": 0.002677539,
+          "symjit_compilation": 0.096614898,
+          "tensor_plan": 0.002104547,
+          "total": 5.236186848
+        },
+        "raw_total": [
+          5.228308603,
+          5.236186848,
+          5.262187969
+        ],
+        "raw_process_wall_clock": [
+          5.241576737957075,
+          5.24910378002096,
+          5.275179432996083
+        ]
+      },
+      "symjit-o2-factored": {
+        "command": [
+          "taskset",
+          "-c",
+          "383",
+          "ninjars",
+          "numerator-bench",
+          "examples/graphs/physical/four-photon/top-box-0-pool.json",
+          "--points",
+          "validation/benchmark/points/four-photon.json",
+          "--feynman-rules",
+          "--generation-only",
+          "--factor",
+          "--output",
+          "<output>"
+        ],
+        "coefficient_heads": 70,
+        "summary": {
+          "prepare": 0.583364564,
+          "planning": 10.366904839,
+          "compile": 1.297812283,
+          "total": 12.249429958,
+          "process_wall_clock": 12.26221313199494
+        },
+        "stages": {
+          "coefficient_factoring": 7.655083877,
+          "coefficient_planning": 2.7036554020000003,
+          "color_invariants": 0.033124388,
+          "compilation_total": 1.297812283,
+          "contraction": 0.066308257,
+          "evaluator_construction": 1.2137662980000001,
+          "feynman_rules": 0.000279471,
+          "graph_import": 0.002577568,
+          "kinematics_setup": 0.00023764100000000002,
+          "planning_total": 10.366904839,
+          "polynomial": 0.47736060500000005,
+          "prepare_total": 0.583364564,
+          "propagators": 0.0026787990000000004,
+          "symjit_compilation": 0.08393639600000001,
+          "tensor_plan": 0.0007312530000000001,
+          "total": 12.249429958
+        },
+        "raw_total": [
+          12.191102912000002,
+          12.270627362,
+          12.249429958
+        ],
+        "raw_process_wall_clock": [
+          12.204810765048023,
+          12.284694017027505,
+          12.26221313199494
+        ]
+      }
+    },
+    {
+      "process": "gg-hh",
+      "graph": "top-triangle-0",
+      "propagators": 3,
+      "rank": 2,
+      "ncoeff": 15,
+      "symjit-o2": {
+        "command": [
+          "taskset",
+          "-c",
+          "383",
+          "ninjars",
+          "numerator-bench",
+          "examples/graphs/physical/gg-hh/top-triangle-0-pool.json",
+          "--points",
+          "validation/benchmark/points/gg-hh.json",
+          "--feynman-rules",
+          "--generation-only",
+          "--output",
+          "<output>"
+        ],
+        "coefficient_heads": 15,
+        "summary": {
+          "prepare": 0.093381196,
+          "planning": 0.009741032,
+          "compile": 0.037466493000000003,
+          "total": 0.14096646300000001,
+          "process_wall_clock": 0.15031716303201392
+        },
+        "stages": {
+          "coefficient_factoring": 0.0,
+          "coefficient_planning": 0.009709412,
+          "color_invariants": 0.001052404,
+          "compilation_total": 0.037466493000000003,
+          "contraction": 0.010468954,
+          "evaluator_construction": 0.034653404,
+          "feynman_rules": 0.00023703100000000001,
+          "graph_import": 0.0022996170000000003,
+          "kinematics_setup": 0.00017433000000000002,
+          "planning_total": 0.009741032,
+          "polynomial": 0.07718053300000001,
+          "prepare_total": 0.093381196,
+          "propagators": 0.0018059360000000002,
+          "symjit_compilation": 0.0028130890000000004,
+          "tensor_plan": 3.162e-05,
+          "total": 0.14096646300000001
+        },
+        "raw_total": [
+          0.14096646300000001,
+          0.13958562700000002,
+          0.14097785200000001
+        ],
+        "raw_process_wall_clock": [
+          0.15076320298248902,
+          0.1491502680000849,
+          0.15031716303201392
+        ]
+      },
+      "symjit-o2-factored": {
+        "command": [
+          "taskset",
+          "-c",
+          "383",
+          "ninjars",
+          "numerator-bench",
+          "examples/graphs/physical/gg-hh/top-triangle-0-pool.json",
+          "--points",
+          "validation/benchmark/points/gg-hh.json",
+          "--feynman-rules",
+          "--generation-only",
+          "--factor",
+          "--output",
+          "<output>"
+        ],
+        "coefficient_heads": 15,
+        "summary": {
+          "prepare": 0.092725054,
+          "planning": 0.033402009,
+          "compile": 0.009495301000000001,
+          "total": 0.135696215,
+          "process_wall_clock": 0.14553599699866027
+        },
+        "stages": {
+          "coefficient_factoring": 0.023658038000000003,
+          "coefficient_planning": 0.009711052000000001,
+          "color_invariants": 0.001052694,
+          "compilation_total": 0.009495301000000001,
+          "contraction": 0.010321874,
+          "evaluator_construction": 0.007369004,
+          "feynman_rules": 0.00024349000000000002,
+          "graph_import": 0.002305468,
+          "kinematics_setup": 0.00018332,
+          "planning_total": 0.033402009,
+          "polynomial": 0.077030443,
+          "prepare_total": 0.092725054,
+          "propagators": 0.0017957460000000002,
+          "symjit_compilation": 0.002121687,
+          "tensor_plan": 7.280000000000001e-06,
+          "total": 0.135696215
+        },
+        "raw_total": [
+          0.13764958200000002,
+          0.135311693,
+          0.135696215
+        ],
+        "raw_process_wall_clock": [
+          0.1470756420167163,
+          0.14493011496961117,
+          0.14553599699866027
+        ]
+      }
+    },
+    {
+      "process": "gg-hh",
+      "graph": "top-box-2",
+      "propagators": 4,
+      "rank": 4,
+      "ncoeff": 70,
+      "symjit-o2": {
+        "command": [
+          "taskset",
+          "-c",
+          "383",
+          "ninjars",
+          "numerator-bench",
+          "examples/graphs/physical/gg-hh/top-box-2-pool.json",
+          "--points",
+          "validation/benchmark/points/gg-hh.json",
+          "--feynman-rules",
+          "--generation-only",
+          "--output",
+          "<output>"
+        ],
+        "coefficient_heads": 57,
+        "summary": {
+          "prepare": 0.15762899900000002,
+          "planning": 0.22641659300000003,
+          "compile": 0.28824672500000004,
+          "total": 0.672618057,
+          "process_wall_clock": 0.6824654170195572
+        },
+        "stages": {
+          "coefficient_factoring": 0.0,
+          "coefficient_planning": 0.22604079100000002,
+          "color_invariants": 0.0059104100000000005,
+          "compilation_total": 0.28824672500000004,
+          "contraction": 0.042795311,
+          "evaluator_construction": 0.275790364,
+          "feynman_rules": 0.000279392,
+          "graph_import": 0.0025584080000000003,
+          "kinematics_setup": 0.00018195100000000002,
+          "planning_total": 0.22641659300000003,
+          "polynomial": 0.102938388,
+          "prepare_total": 0.15762899900000002,
+          "propagators": 0.002697469,
+          "symjit_compilation": 0.012599491,
+          "tensor_plan": 0.000370821,
+          "total": 0.672618057
+        },
+        "raw_total": [
+          0.672618057,
+          0.671686591,
+          0.674262062
+        ],
+        "raw_process_wall_clock": [
+          0.6824654170195572,
+          0.6820012450334616,
+          0.6843463529949076
+        ]
+      },
+      "symjit-o2-factored": {
+        "command": [
+          "taskset",
+          "-c",
+          "383",
+          "ninjars",
+          "numerator-bench",
+          "examples/graphs/physical/gg-hh/top-box-2-pool.json",
+          "--points",
+          "validation/benchmark/points/gg-hh.json",
+          "--feynman-rules",
+          "--generation-only",
+          "--factor",
+          "--output",
+          "<output>"
+        ],
+        "coefficient_heads": 57,
+        "summary": {
+          "prepare": 0.157832297,
+          "planning": 0.48272349200000003,
+          "compile": 0.080657245,
+          "total": 0.725404306,
+          "process_wall_clock": 0.7360860019689426
+        },
+        "stages": {
+          "coefficient_factoring": 0.253860792,
+          "coefficient_planning": 0.22933361200000002,
+          "color_invariants": 0.005954809,
+          "compilation_total": 0.080657245,
+          "contraction": 0.043105912,
+          "evaluator_construction": 0.07027203900000001,
+          "feynman_rules": 0.000283721,
+          "graph_import": 0.0025594890000000003,
+          "kinematics_setup": 0.00017996100000000002,
+          "planning_total": 0.48272349200000003,
+          "polynomial": 0.103230288,
+          "prepare_total": 0.157832297,
+          "propagators": 0.0027046490000000004,
+          "symjit_compilation": 0.010303943000000001,
+          "tensor_plan": 5.6051e-05,
+          "total": 0.725404306
+        },
+        "raw_total": [
+          0.717113114,
+          0.7256125670000001,
+          0.725404306
+        ],
+        "raw_process_wall_clock": [
+          0.7280523559893481,
+          0.736240011989139,
+          0.7360860019689426
+        ]
+      }
+    },
+    {
+      "process": "gg-hhh",
+      "graph": "top-triangle-0",
+      "propagators": 3,
+      "rank": 2,
+      "ncoeff": 15,
+      "symjit-o2": {
+        "command": [
+          "taskset",
+          "-c",
+          "383",
+          "ninjars",
+          "numerator-bench",
+          "examples/graphs/physical/gg-hhh/top-triangle-0-pool.json",
+          "--points",
+          "validation/benchmark/points/gg-hhh.json",
+          "--feynman-rules",
+          "--generation-only",
+          "--output",
+          "<output>"
+        ],
+        "coefficient_heads": 15,
+        "summary": {
+          "prepare": 0.09252727300000001,
+          "planning": 0.010617164,
+          "compile": 0.038858997,
+          "total": 0.142168345,
+          "process_wall_clock": 0.15183319698553532
+        },
+        "stages": {
+          "coefficient_factoring": 0.0,
+          "coefficient_planning": 0.010584584000000001,
+          "color_invariants": 0.0010542630000000002,
+          "compilation_total": 0.038858997,
+          "contraction": 0.010238213000000001,
+          "evaluator_construction": 0.035959227,
+          "feynman_rules": 0.000236161,
+          "graph_import": 0.002351628,
+          "kinematics_setup": 0.00017491000000000002,
+          "planning_total": 0.010617164,
+          "polynomial": 0.07651738100000001,
+          "prepare_total": 0.09252727300000001,
+          "propagators": 0.001906036,
+          "symjit_compilation": 0.002890801,
+          "tensor_plan": 3.261e-05,
+          "total": 0.142168345
+        },
+        "raw_total": [
+          0.142168345,
+          0.141612063,
+          0.142770417
+        ],
+        "raw_process_wall_clock": [
+          0.15183319698553532,
+          0.15135463594924659,
+          0.15226032899226993
+        ]
+      },
+      "symjit-o2-factored": {
+        "command": [
+          "taskset",
+          "-c",
+          "383",
+          "ninjars",
+          "numerator-bench",
+          "examples/graphs/physical/gg-hhh/top-triangle-0-pool.json",
+          "--points",
+          "validation/benchmark/points/gg-hhh.json",
+          "--feynman-rules",
+          "--generation-only",
+          "--factor",
+          "--output",
+          "<output>"
+        ],
+        "coefficient_heads": 15,
+        "summary": {
+          "prepare": 0.092532444,
+          "planning": 0.028881234000000002,
+          "compile": 0.009508712,
+          "total": 0.131123661,
+          "process_wall_clock": 0.14076776098227128
+        },
+        "stages": {
+          "coefficient_factoring": 0.01833931,
+          "coefficient_planning": 0.010512144000000001,
+          "color_invariants": 0.001050104,
+          "compilation_total": 0.009508712,
+          "contraction": 0.010262494,
+          "evaluator_construction": 0.007223594000000001,
+          "feynman_rules": 0.000244221,
+          "graph_import": 0.002371598,
+          "kinematics_setup": 0.00014815,
+          "planning_total": 0.028881234000000002,
+          "polynomial": 0.076636511,
+          "prepare_total": 0.092532444,
+          "propagators": 0.0019597360000000006,
+          "symjit_compilation": 0.002285118,
+          "tensor_plan": 7.84e-06,
+          "total": 0.131123661
+        },
+        "raw_total": [
+          0.130934151,
+          0.131842152,
+          0.131123661
+        ],
+        "raw_process_wall_clock": [
+          0.14005028898827732,
+          0.14106481295311823,
+          0.14076776098227128
+        ]
+      }
+    },
+    {
+      "process": "gg-hhh",
+      "graph": "top-box-8",
+      "propagators": 4,
+      "rank": 4,
+      "ncoeff": 70,
+      "symjit-o2": {
+        "command": [
+          "taskset",
+          "-c",
+          "383",
+          "ninjars",
+          "numerator-bench",
+          "examples/graphs/physical/gg-hhh/top-box-8-pool.json",
+          "--points",
+          "validation/benchmark/points/gg-hhh.json",
+          "--feynman-rules",
+          "--generation-only",
+          "--output",
+          "<output>"
+        ],
+        "coefficient_heads": 57,
+        "summary": {
+          "prepare": 0.156138841,
+          "planning": 0.5145748050000001,
+          "compile": 0.786264897,
+          "total": 1.457551045,
+          "process_wall_clock": 1.468937493977137
+        },
+        "stages": {
+          "coefficient_factoring": 0.0,
+          "coefficient_planning": 0.513762563,
+          "color_invariants": 0.005560858,
+          "compilation_total": 0.786264897,
+          "contraction": 0.035608327,
+          "evaluator_construction": 0.774471738,
+          "feynman_rules": 0.000287101,
+          "graph_import": 0.002738529,
+          "kinematics_setup": 0.00021310100000000002,
+          "planning_total": 0.514574805,
+          "polynomial": 0.108739866,
+          "prepare_total": 0.156138841,
+          "propagators": 0.0027958790000000002,
+          "symjit_compilation": 0.011793159000000001,
+          "tensor_plan": 0.000812242,
+          "total": 1.457551045
+        },
+        "raw_total": [
+          1.457551045,
+          1.4665133460000002,
+          1.4545173040000001
+        ],
+        "raw_process_wall_clock": [
+          1.468937493977137,
+          1.4782894040108658,
+          1.4652736409916542
+        ]
+      },
+      "symjit-o2-factored": {
+        "command": [
+          "taskset",
+          "-c",
+          "383",
+          "ninjars",
+          "numerator-bench",
+          "examples/graphs/physical/gg-hhh/top-box-8-pool.json",
+          "--points",
+          "validation/benchmark/points/gg-hhh.json",
+          "--feynman-rules",
+          "--generation-only",
+          "--factor",
+          "--output",
+          "<output>"
+        ],
+        "coefficient_heads": 57,
+        "summary": {
+          "prepare": 0.157200104,
+          "planning": 1.873897989,
+          "compile": 0.11527738700000001,
+          "total": 2.14577287,
+          "process_wall_clock": 2.1562291040318087
+        },
+        "stages": {
+          "coefficient_factoring": 1.3616777910000002,
+          "coefficient_planning": 0.512154328,
+          "color_invariants": 0.005579368,
+          "compilation_total": 0.11527738700000001,
+          "contraction": 0.036312399,
+          "evaluator_construction": 0.10563533600000001,
+          "feynman_rules": 0.00028576100000000004,
+          "graph_import": 0.002758019,
+          "kinematics_setup": 0.00019528000000000001,
+          "planning_total": 1.873897989,
+          "polynomial": 0.109092807,
+          "prepare_total": 0.157200104,
+          "propagators": 0.0028065190000000004,
+          "symjit_compilation": 0.009696451,
+          "tensor_plan": 7.091000000000001e-05,
+          "total": 2.14577287
+        },
+        "raw_total": [
+          2.169340746,
+          2.145290148,
+          2.14577287
+        ],
+        "raw_process_wall_clock": [
+          2.1800554229994304,
+          2.155924803984817,
+          2.1562291040318087
+        ]
+      }
+    },
+    {
+      "process": "gg-hhh",
+      "graph": "top-pentagon-26",
+      "propagators": 5,
+      "rank": 4,
+      "ncoeff": 70,
+      "symjit-o2": {
+        "command": [
+          "taskset",
+          "-c",
+          "383",
+          "ninjars",
+          "numerator-bench",
+          "examples/graphs/physical/gg-hhh/top-pentagon-26-pool.json",
+          "--points",
+          "validation/benchmark/points/gg-hhh.json",
+          "--feynman-rules",
+          "--generation-only",
+          "--output",
+          "<output>"
+        ],
+        "coefficient_heads": 57,
+        "summary": {
+          "prepare": 0.625255859,
+          "planning": 1.032956574,
+          "compile": 1.148510962,
+          "total": 2.811641788,
+          "process_wall_clock": 2.823622500000056
+        },
+        "stages": {
+          "coefficient_factoring": 0.0,
+          "coefficient_planning": 1.03177289,
+          "color_invariants": 0.045339278000000004,
+          "compilation_total": 1.148510962,
+          "contraction": 0.273558705,
+          "evaluator_construction": 1.118867306,
+          "feynman_rules": 0.00031085,
+          "graph_import": 0.0029743200000000003,
+          "kinematics_setup": 0.00026914,
+          "planning_total": 1.032956574,
+          "polynomial": 0.29914027000000004,
+          "prepare_total": 0.625255859,
+          "propagators": 0.004594296,
+          "symjit_compilation": 0.029643656,
+          "tensor_plan": 0.0011836840000000002,
+          "total": 2.811641788
+        },
+        "raw_total": [
+          2.776279315,
+          2.811641788,
+          2.827337951
+        ],
+        "raw_process_wall_clock": [
+          2.7877537930035032,
+          2.823622500000056,
+          2.8408712950185873
+        ]
+      },
+      "symjit-o2-factored": {
+        "command": [
+          "taskset",
+          "-c",
+          "383",
+          "ninjars",
+          "numerator-bench",
+          "examples/graphs/physical/gg-hhh/top-pentagon-26-pool.json",
+          "--points",
+          "validation/benchmark/points/gg-hhh.json",
+          "--feynman-rules",
+          "--generation-only",
+          "--factor",
+          "--output",
+          "<output>"
+        ],
+        "coefficient_heads": 57,
+        "summary": {
+          "prepare": 0.641826542,
+          "planning": 1.9227878070000002,
+          "compile": 0.23445220700000002,
+          "total": 2.802257569,
+          "process_wall_clock": 2.814891810005065
+        },
+        "stages": {
+          "coefficient_factoring": 0.8815748080000001,
+          "coefficient_planning": 1.0410615090000002,
+          "color_invariants": 0.049064041,
+          "compilation_total": 0.23445220700000002,
+          "contraction": 0.284444542,
+          "evaluator_construction": 0.207070838,
+          "feynman_rules": 0.00032554100000000005,
+          "graph_import": 0.003087241,
+          "kinematics_setup": 0.000272821,
+          "planning_total": 1.9227878070000002,
+          "polynomial": 0.300029983,
+          "prepare_total": 0.641826542,
+          "propagators": 0.004668855,
+          "symjit_compilation": 0.027381369000000003,
+          "tensor_plan": 0.00013783,
+          "total": 2.802257569
+        },
+        "raw_total": [
+          2.802257569,
+          2.798654575,
+          2.8052682680000003
+        ],
+        "raw_process_wall_clock": [
+          2.814891810005065,
+          2.8108925059786998,
+          2.8169021459762007
+        ]
+      }
+    }
+  ]
+}
