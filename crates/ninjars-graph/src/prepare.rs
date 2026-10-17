@@ -1,4 +1,7 @@
-use std::sync::Arc;
+use std::{
+    sync::Arc,
+    time::{Duration, Instant},
+};
 
 use feynkit_generator::{FeynmanDiagramRulesExt, GenerationError};
 use feynkit_graph::{
@@ -65,14 +68,54 @@ pub fn prepare_dot(
     prepare_diagram(FeynmanDiagram::from_dot(model, dot)?, kinematics, mode)
 }
 
+/// Wall-clock durations of the setup stages of one graph preparation.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct PreparationTimings {
+    /// FeynKit DOT import into a `FeynmanDiagram`.
+    pub import: Duration,
+    /// Model Feynman rules and the default external-state projector; zero in
+    /// [`NumeratorMode::Explicit`], where the DOT carries its local factors.
+    pub feynman_rules: Duration,
+    /// Integral family, ordered propagators and exact quadratic decompositions.
+    pub propagators: Duration,
+    /// Routing, tensor contraction and algebra simplification of the numerator.
+    pub contraction: Duration,
+}
+
+/// [`prepare_dot`] with per-stage wall-clock timings; the result is identical.
+pub fn prepare_dot_timed(
+    model: impl Into<Arc<Model>>,
+    dot: &str,
+    kinematics: &Kinematics,
+    mode: NumeratorMode,
+) -> Result<(PreparedIntegrand, PreparationTimings), PreparationError> {
+    let start = Instant::now();
+    let diagram = FeynmanDiagram::from_dot(model, dot)?;
+    let import = start.elapsed();
+    let (prepared, mut timings) = prepare_diagram_timed(diagram, kinematics, mode)?;
+    timings.import = import;
+    Ok((prepared, timings))
+}
+
 pub fn prepare_diagram(
-    mut diagram: FeynmanDiagram,
+    diagram: FeynmanDiagram,
     kinematics: &Kinematics,
     mode: NumeratorMode,
 ) -> Result<PreparedIntegrand, PreparationError> {
+    prepare_diagram_timed(diagram, kinematics, mode).map(|(prepared, _)| prepared)
+}
+
+/// [`prepare_diagram`] with per-stage wall-clock timings (`import` is zero).
+pub fn prepare_diagram_timed(
+    mut diagram: FeynmanDiagram,
+    kinematics: &Kinematics,
+    mode: NumeratorMode,
+) -> Result<(PreparedIntegrand, PreparationTimings), PreparationError> {
+    let mut timings = PreparationTimings::default();
     if diagram.loop_count() != 1 {
         return Err(PreparationError::LoopCount(diagram.loop_count()));
     }
+    let start = Instant::now();
     if mode == NumeratorMode::FeynmanRules {
         diagram = diagram.apply_feynman_rules()?;
         if diagram.projector().is_one() {
@@ -80,6 +123,8 @@ pub fn prepare_diagram(
             diagram = diagram.with_projector(projector);
         }
     }
+    timings.feynman_rules = start.elapsed();
+    let start = Instant::now();
     let full_family = diagram.propagator_family(kinematics)?;
     let ordered = diagram.ordered_propagators(kinematics)?;
     let mut overall_factor =
@@ -125,13 +170,19 @@ pub fn prepare_diagram(
         denominators,
         full_family.kinematics(),
     )?;
+    timings.propagators = start.elapsed();
+    let start = Instant::now();
     let numerator = contract_numerator(&diagram, family.kinematics())?;
-    Ok(PreparedIntegrand {
-        diagram,
-        family,
-        numerator,
-        overall_factor: overall_factor.together(),
-        propagator_edges,
-        quadratics,
-    })
+    timings.contraction = start.elapsed();
+    Ok((
+        PreparedIntegrand {
+            diagram,
+            family,
+            numerator,
+            overall_factor: overall_factor.together(),
+            propagator_edges,
+            quadratics,
+        },
+        timings,
+    ))
 }

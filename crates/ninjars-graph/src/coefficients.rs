@@ -316,6 +316,17 @@ mod jit {
         outputs: usize,
         evaluator: Option<JITCompiledEvaluator<Complex<f64>>>,
         scratch: Vec<Complex<f64>>,
+        timings: SymJitCompilationTimings,
+    }
+
+    /// Wall-clock split of [`PolynomialCoefficientPlan::compile_symjit_o2`].
+    #[derive(Clone, Copy, Debug, Default, PartialEq)]
+    pub struct SymJitCompilationTimings {
+        /// Symbolica's shared multi-output evaluator (graph optimization) and
+        /// its exact-to-binary64 coefficient mapping.
+        pub evaluator: std::time::Duration,
+        /// SymJIT O2 translation and machine-code compilation.
+        pub jit: std::time::Duration,
     }
 
     impl PolynomialCoefficientPlan {
@@ -326,11 +337,15 @@ mod jit {
             {
                 return Err(CoefficientError::Jit("external SymJIT configuration overrides must be unset for the explicit O2 policy".into()));
             }
+            let mut timings = SymJitCompilationTimings::default();
+            let start = std::time::Instant::now();
             let evaluator = self
                 .exact_evaluator()?
                 .map(|exact| {
                     let mapped = exact
                         .map_coeff_with_prec(&|v| Complex::new(v.re.to_f64(), v.im.to_f64()), 53);
+                    timings.evaluator = start.elapsed();
+                    let start = std::time::Instant::now();
                     // Complex helper calls consume two real argument slots. Inspect
                     // the shared exported graph; top-level arity is not this bound.
                     let graph = mapped.export_instructions();
@@ -359,7 +374,7 @@ mod jit {
                             "helper arity exceeds the pinned SymJIT argument-slot limit".into(),
                         ));
                     }
-                    mapped
+                    let compiled = mapped
                         .jit_compile(
                             JITCompilationSettings::new()
                                 .optimization_level(2)
@@ -372,7 +387,9 @@ mod jit {
                                 .with_option("enable_simd512", "false")
                                 .with_option("num_args", slots.to_string()),
                         )
-                        .map_err(CoefficientError::Jit)
+                        .map_err(CoefficientError::Jit);
+                    timings.jit = start.elapsed();
+                    compiled
                 })
                 .transpose()?;
             Ok(SymJitCoefficientEvaluator {
@@ -380,11 +397,18 @@ mod jit {
                 outputs: self.heads.len(),
                 evaluator,
                 scratch: Vec::new(),
+                timings,
             })
         }
     }
 
     impl SymJitCoefficientEvaluator {
+        /// Setup cost of this evaluator, split into evaluator construction and
+        /// SymJIT compilation. Both are zero for a zero polynomial.
+        pub fn compilation_timings(&self) -> SymJitCompilationTimings {
+            self.timings
+        }
+
         pub fn evaluate_batch(
             &mut self,
             input: &[Complex<f64>],
@@ -414,4 +438,4 @@ mod jit {
 }
 
 #[cfg(feature = "numerator-jit")]
-pub use jit::SymJitCoefficientEvaluator;
+pub use jit::{SymJitCoefficientEvaluator, SymJitCompilationTimings};
