@@ -1924,3 +1924,29 @@ connects the existing kernels into integrated amplitudes and a standalone
   wrapper's n5/r4 callback groups from ten batches of 2L rows to twenty of L
   rows. No implementation, numerical or performance claim follows from the
   audit. Current rank/block validation and performance remain the next checkpoint.
+
+### Forward fusion with retained outputs (2026-10-17)
+
+- The bounded n3/r3 follow-up (`bf6bde1`, evidence `39e2ba7`) keeps every existing
+  forward block output, with the five integrated outputs first. Its single
+  1.30-second symbolic run passes all 283 local identities and five integrated
+  identities. The unchanged inputs include 60 callback heads and 39 symbolic
+  master components; no provider or numerical master executes.
+- The conservative retained-output graph has 3,177 instructions and 470 local
+  temporaries, compared with 1,954 separate instructions (largest local plan:
+  30 temporaries) and 1,075 five-output fused instructions (132 temporaries).
+  This loses the earlier count advantage. It does not rule out smaller fusion
+  regions or establish runtime behavior. Denominator/source-projection
+  construction, validation ordering, compaction and lazy master control remain
+  outside this experiment.
+- Root verified 38 source hashes, the retained executable, 15 raw artifacts,
+  complete/nonoverlapping output ranges, category totals and all reported
+  counts. Strict Clippy with native kernels and formatting pass. The separate
+  feature-off strict lint attempt hits the existing test-only `probe_workspace`
+  dead-code configuration issue; that failed log is retained, with no unrelated
+  source edit. See `validation/evidence/forward-diagnostic-fusion`.
+- Whole-network fusion is not promoted. Arithmetic-only bubble pruning is now
+  being prepared in an isolated source candidate, with independent sampled-cut
+  reconstruction tests; its execution awaits review. The native row-bound CLI
+  has passed both feature variants and is validating its standalone ABI and
+  physical controls before the next optimized reduction checkpoint.

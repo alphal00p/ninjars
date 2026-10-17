@@ -32,6 +32,9 @@ favors forward fusion for its single-numerator operation count. The follow-up
 experiment. The [swapped-bubble design](swapped-bubble-heads.md) details the
 projection-specific API needed to prune arithmetic while preserving existing
 raw outputs, and separates that control from callback trimming. The
+[retained-output fusion probe](forward-diagnostic-fusion.md) loses the original
+whole-network instruction-count advantage when all current block heads are
+retained. Smaller fusion regions remain untested. The
 recommendations below retain their original audit scope.
 
 The [immutable interpreted baseline](../../validation/evidence/shared-reduction-timing-0c77597.json)
