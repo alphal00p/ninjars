@@ -2080,7 +2080,7 @@ connects the existing kernels into integrated amplitudes and a standalone
   adds an independent disabled-by-default ABI option, explicit interpreted
   configuration metadata, full/pruned five-head physical controls, and timing
   preflight checks for the same sources, selection, policy and covered widths.
-  passes independent source review, formatting and syntax checks. Its tests
+  It passes independent source review, formatting and syntax checks. Its tests
   are unexecuted pending the current timing window.
 - A separate instrumented-release driver is prepared for all four native/rank
   and Whole/fixed32 settings, widths 1/8, and preparation/shared-reduction/live
@@ -2090,3 +2090,26 @@ connects the existing kernels into integrated amplitudes and a standalone
 - The full 96-process rank/block comparison continues under the preselected
   schedule. Source-only work proceeds while builds and numerical/symbolic tests
   are held. No partial timing results are selected or promoted.
+
+### Master-weight fusion audit outcome (2026-10-17)
+
+- The independent n3/r3 source audit identifies 20 pre-master outputs: thirteen
+  separate master weights and seven per-cut rational terms. Keeping this
+  boundary permits existing all-component Dual zero tests and lazy master
+  requests; no abstract master value belongs in the reduction inputs.
+- A global weight graph would need every callback head up front. A staged
+  alternative retains the ten triangle residue slots and thirty bubble slots
+  at their callback boundaries, then emits the twenty weights/rational heads.
+  Three separate evaluators must be inventoried; a single sixty-output graph
+  would not preserve stage-dependent callback eligibility.
+- Geometry/input/pivot/scale constraints remain outside this experiment.
+  Avoiding an overflowing intermediate can change a lane's acceptance relative
+  to today's route; any production opt-in must explicitly validate that change.
+  Reconstruction, residue diagnostics and cut stopping require the existing
+  fallback. Weight zero-mask agreement and master-domain failures need separate
+  numerical controls, even after exact algebraic identities pass.
+- Source preparation now targets these two alternatives and the same separate
+  pre-master blocks, excluding contractions/final summation from the comparison.
+  It retains the existing 8 MiB/180-second limits and checks all weight/parent
+  identities plus recovery of the five integrated expressions. No symbolic or
+  numerical execution, production dispatch or timing claim has occurred.
