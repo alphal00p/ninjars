@@ -34,7 +34,7 @@ pub(crate) trait KernelExecutor<V> {
     #[cfg(feature = "native-kernels")]
     fn set_native_batch_execution(&mut self, _policy: crate::BatchExecutionPolicy) {}
 
-    #[cfg(test)]
+    #[cfg(all(test, feature = "native-kernels"))]
     fn probe_workspace(&self) -> Option<(usize, usize)> {
         None
     }
@@ -44,18 +44,11 @@ impl<T: Real + SingleFloat> KernelExecutor<Complex<T>> for CompiledKernel<T>
 where
     Complex<T>: Real + EvaluationDomain,
 {
-    #[cfg(test)]
+    #[cfg(all(test, feature = "native-kernels"))]
     fn probe_workspace(&self) -> Option<(usize, usize)> {
-        #[cfg(feature = "native-kernels")]
-        {
-            self.native
-                .as_ref()
-                .and_then(|native| native.probe_workspace())
-        }
-        #[cfg(not(feature = "native-kernels"))]
-        {
-            None
-        }
+        self.native
+            .as_ref()
+            .and_then(|native| native.probe_workspace())
     }
 
     #[cfg(feature = "native-kernels")]
@@ -79,7 +72,7 @@ impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> KernelExecutor<D>
 where
     Complex<T>: Real + EvaluationDomain,
 {
-    #[cfg(test)]
+    #[cfg(all(test, feature = "native-kernels"))]
     fn probe_workspace(&self) -> Option<(usize, usize)> {
         self.kernel.probe_workspace()
     }

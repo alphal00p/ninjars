@@ -1950,3 +1950,12 @@ connects the existing kernels into integrated amplitudes and a standalone
   reconstruction tests; its execution awaits review. The native row-bound CLI
   has passed both feature variants and is validating its standalone ABI and
   physical controls before the next optimized reduction checkpoint.
+
+### Test-only native probe configuration (2026-10-17)
+
+- Restricted workspace probe hooks to tests with native kernels enabled. Strict
+  adapter library/tests Clippy now passes with both rust-codegen alone and
+  rust-codegen/native-kernels; workspace formatting and diff checks pass.
+  Production code is unchanged. Logs are in
+  `validation/evidence/native-probe-cfg-lint`. The earlier failed feature-off
+  fusion audit log remains intact as historical evidence.

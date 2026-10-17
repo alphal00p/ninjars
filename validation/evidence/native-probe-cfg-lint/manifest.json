@@ -1,0 +1,19 @@
+{
+  "source_parent": "8054f70",
+  "scope": "Test-only native workspace probes now require both test and native-kernels. No production arithmetic changes.",
+  "commands": [
+    "cargo clippy -p ninjars-symbolica --features rust-codegen --lib --tests -- -D warnings",
+    "cargo clippy -p ninjars-symbolica --features rust-codegen,native-kernels --lib --tests -- -D warnings",
+    "cargo fmt --all --check",
+    "git diff --check"
+  ],
+  "status": "All commands passed; historical fusion feature-off failed log remains archived unchanged.",
+  "source_sha256": {
+    "crates/ninjars-symbolica/src/kernel.rs": "7b84852f741c5ad24b9c1cc7cda4295811ec096dbffed66ea87b4bdd5df00252"
+  },
+  "logs_sha256": {
+    "feature-off.log": "fe1191135f184ad4f52803c1778b4038e1f0eb4ea2cf49c3ce752c1a2990136d",
+    "native.log": "fdf39bf9546860ee9067bd692b4e379ef6052ada4a500228160b261004ffbd8a",
+    "format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
