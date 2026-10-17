@@ -54,6 +54,49 @@ one with the MadLoop loop diagram given by its loop-filter identifier.
   ),
 ) <fig:synthetic-diagrams>
 
+= Correctness <correctness>
+
+Speed is only meaningful at equal accuracy. The binary64 results of the
+benchmark were checked as follows.
+
+- *Reduction.* With identical master values, `ninjars::fast` agrees with
+  original Ninja to $7 times 10^(-13)$ (relative to the largest Laurent
+  coefficient) on every lane of the physical cases and to
+  $4 times 10^(-12)$ on 30 dedicated edge cases (light-like and zero
+  invariants, mixed and complex masses, infrared-divergent triangles and
+  boxes, all tadpole reference bases, ranks $n - 5, dots, n + 1$ and
+  $n = 7$), including the split into cut-constructible and rational parts.
+  Where the two differ more (rank $n + 1$ hexagons, up to $10^(-7)$), both
+  are compared with the generic NinjaRS engine at 256 bits: the error ratio
+  NinjaRS ÷ Ninja has median 1.1, i.e. the deviation is inherited binary64
+  conditioning, not a porting error. Results are bitwise identical for every
+  batch width and lane order, and the warmed path performs no heap
+  allocation.
+- *End to end.* Every physical diagram matches original Ninja fed with the
+  same tensors to $2 times 10^(-12)$ or better (last column of
+  @tab:identical), and the NinjaRS and MadLoop integrated results differ by
+  a single constant normalization over all phase-space points ($2$ for the
+  QCD diagrams, $1/3$ for $gamma gamma -> gamma gamma$, spread
+  $lt.eq 10^(-14)$), which fixes diagram identity, routing and helicity.
+- *Masters.* oneloopmaster's native $C_0$/$D_0$ agree with OneLOop 3.6 on
+  all 783 distinct calls of the benchmark streams (median $2 times
+  10^(-15)$); the native bubble tensors were validated against 595 direct
+  Feynman-parameter integrations, including thresholds and massless limits.
+
+*Defects found on the way.* The comparison exposed and fixed: an MPFR detour
+in oneloopmaster's binary64 dilogarithm (performance), inexact unit roots in
+massless bubble tensors, rounded light-like invariants entering the masters
+without OneLOop's on-shell threshold (a $10^(-7)$ error in
+$gamma gamma -> gamma gamma$ below threshold), a degenerate rational bubble
+reference vector in the generic NinjaRS engine (an $O(10^13)$ blow-up at
+exactly coplanar rational kinematics), and inaccurate Passarino–Veltman
+bubble tensors in an intermediate provider. It also exposed defects in
+oneloopmaster's exact expressions for $B_0$ with a massless second line,
+$C_0$ with one massless internal line and some real-mass $D_0$ sectors,
+none of which occur in the physical benchmark diagrams — and two wrong
+$D_0$ values in reference copies of OneLOop itself (versions 3.4 and a 2024
+snapshot; OneLOop 3.6 and COLLIER agree with each other there).
+
 = How the numbers are measured <methodology>
 
 *Test cases.* Seven physical one-loop diagrams with a top-quark loop,
