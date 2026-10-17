@@ -59,6 +59,11 @@ int32_t sp_session_create(size_t propagators,size_t rank,size_t rows,struct SpSe
  * leaves *out unchanged. No selector changes numerator or master providers. */
 enum SpReductionKernels { SP_KERNEL_SYMBOLICA=0, SP_KERNEL_DENOMINATORS=1, SP_KERNEL_NATIVE=2, SP_KERNEL_INTERPRETED_RANK=3, SP_KERNEL_NATIVE_RANK=4 };
 int32_t sp_session_create_with_kernels(size_t propagators,size_t rank,size_t rows,uint32_t selection,struct SpSession **out);
+/* Independent setup policy: Whole=(0,0), FixedRows=(1,N>0). A bound counts
+ * complete native kernel rows, not phase-space lanes. Old constructors use
+ * Whole. FixedRows requires a native selection/build. Invalid pairs preserve *out. */
+enum SpNativeExecution { SP_EXECUTION_WHOLE=0, SP_EXECUTION_FIXED_ROWS=1 };
+int32_t sp_session_create_with_execution(size_t propagators,size_t rank,size_t rows,uint32_t selection,uint32_t policy,size_t block_rows,struct SpSession **out);
 /* selection,native_feature_enabled,then eight backend flags in exact order:
  * T2,T3,bubble_source,triangle_bubble,tadpole_source,other_reduction,integration,accumulation.
  * Backend0=interpreter,1=native Rust. Every family is reported, including unused. */
@@ -67,6 +72,8 @@ int32_t sp_session_kernel_info(struct SpSession *,uint64_t *out,size_t len);
  * The last two cells are boolean; backend0=interpreter,1=native Rust.
  * Generic/fallback family coverage remains in the unchanged ten-cell accessor. */
 int32_t sp_session_rank_correction_info(struct SpSession *,uint64_t *out,size_t len);
+/* Exactly two cells: configured policy tag and bound. Errors preserve output. */
+int32_t sp_session_native_execution_info(struct SpSession *,uint64_t *out,size_t len);
 /* Retained topology/geometry/wire buffers. Both Rust providers call the same
  * non-inlined sp_call/sp_master_call entry points used by the C++ adapters.
  * Handles must be mutually disjoint and exclusive. All arrays are row-major. */

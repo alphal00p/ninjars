@@ -9,7 +9,7 @@ from pathlib import Path
 import shutil
 import subprocess
 
-from kernel_selection import add_arguments, native_enabled, validate_report
+from kernel_selection import add_arguments, native_enabled, validate_arguments, validate_report
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
@@ -44,6 +44,10 @@ def main():
     parser.add_argument('--release', action='store_true', help='use the optimized Rust configuration used by timing probes')
     add_arguments(parser, all_catalog=True)
     args = parser.parse_args()
+    try:
+        validate_arguments(args)
+    except ValueError as error:
+        parser.error(str(error))
     if args.all_reduction_kernels and args.reduction_kernels != "symbolica":
         parser.error("all-catalog checks use interpreted as the primary selection")
     if args.maximum_integrated_batch < 3:
@@ -121,12 +125,16 @@ def main():
                      '-I'+str(reference/'ninja-source/src'), '-I'+str(reference/'ninja-build/src'), '-I'+str(reference/'ninja-build'),
                      HERE/'physical_probe.cc', library, ninja, olo, fortran, '-lquadmath',
                      '-Wl,-rpath,'+str(out), '-Wl,-rpath,'+str(fortran.parent), '-o', binary])
-    stdout = run('physical-probe', [binary, ROOT/'examples/graphs/physical/gg-hhh/top-pentagon-26.dot', args.maximum_integrated_batch, "all" if args.all_reduction_kernels else args.reduction_kernels], '\n'.join(protocol)+'\n')
+    probe_command = [binary, ROOT/'examples/graphs/physical/gg-hhh/top-pentagon-26.dot', args.maximum_integrated_batch, "all" if args.all_reduction_kernels else args.reduction_kernels]
+    if args.native_block_rows is not None:
+        probe_command.append(args.native_block_rows)
+    stdout = run('physical-probe', probe_command, '\n'.join(protocol)+'\n')
     results = [json.loads(line) for line in stdout.splitlines() if line.startswith("{")]
     if len(results) != 1:
         raise RuntimeError("expected exactly one physical probe report")
     result = results[0]
-    validate_report(result, args.reduction_kernels, native_enabled(args), all_catalog=args.all_reduction_kernels)
+    validate_report(result, args.reduction_kernels, native_enabled(args), all_catalog=args.all_reduction_kernels,
+                    native_block_rows=args.native_block_rows, execution_controls=args.native_block_rows is not None)
     if not result['success']:
         raise RuntimeError('physical provider controls did not pass')
     # Mode1 is separately visible, with no automatic switching or substitution.

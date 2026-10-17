@@ -1,0 +1,894 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-10-17T01:01:42.807232+00:00",
+  "source_parent_revision": "a6739cab16754750b72605c90be86ee7dfd19717",
+  "status": "Validated explicit native row-block CLI/shared-provider controls; development Rust correctness only, no Rust release build or timing acceptance",
+  "scope": {
+    "option": "--native-block-rows",
+    "default": "Whole",
+    "native_modes": [
+      "native-denominators",
+      "native",
+      "native-rank"
+    ],
+    "rejected_modes": [
+      "symbolica",
+      "interpreted-rank"
+    ],
+    "configured_metadata": "native_execution separately reports policy, block_rows and native-kernel-rows scope; does not count actual native calls",
+    "rows": "Complete native kernel rows, independent of phase-space batch size; native generic fallback and native alternate both receive policy",
+    "ffi": "Old constructors and ten-/four-cell queries retained; additive execution constructor accepts Whole=(0,0), FixedRows=(1,N>0), with two-cell configured policy query",
+    "boundaries": "CLI selection and standalone validation bridge only; no core/algebra/provider/master/dependency/timing-scope changes",
+    "historical_reports": "Missing native_execution accepted only for historical Whole; explicit fixed request requires exact metadata; --all-reduction-kernels stays Whole"
+  },
+  "tests": {
+    "executions_passed": 33,
+    "rust_executions_passed": 21,
+    "python_tests_passed": 12,
+    "failed": 0,
+    "ignored": 0,
+    "rust_runs": [
+      {
+        "log": "ninjars-native-block-abi-native-ninjars_shared_provider_probe-kernel_tests.log",
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "log": "ninjars-native-block-abi-off-ninjars_shared_provider_probe-kernel_tests.log",
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "log": "ninjars-native-block-cli-native-bench-native_block_rows.log",
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "log": "ninjars-native-block-cli-native-bench-rank_selection.log",
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "log": "ninjars-native-block-cli-native-reduce-native_block_rows.log",
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "log": "ninjars-native-block-cli-native-reduce-rank_selection.log",
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "log": "ninjars-native-block-cli-off-bench-native_block_rows.log",
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "log": "ninjars-native-block-cli-off-bench-rank_selection.log",
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "log": "ninjars-native-block-cli-off-reduce-native_block_rows.log",
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "log": "ninjars-native-block-cli-off-reduce-rank_selection.log",
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0
+      }
+    ],
+    "coverage": [
+      "feature-off bounds/native refusal and unchanged rank selections",
+      "CLI serialized f64/DoubleFloat/Float Whole/fixed parity for all three native modes, bounds1/7/1024 and three-lane width2 tail",
+      "separate preparation/coefficient/callback/master/residual accounting",
+      "FFI malformed tags/pairs/selection/topology rejection before publishing handles",
+      "null/misaligned constructor/query outputs and exact query lengths preserve sentinels",
+      "old/new Whole equivalence and fixed configuration retained through empty/single/tail reset",
+      "exact execution metadata, integer size_t bounds and overflow/type/zero rejection",
+      "same-selection Whole/fixed parity order, row counts, finite scaled errors and metadata corruption",
+      "historical three-mode and rank-mode Whole reports accepted unchanged"
+    ],
+    "precision_limitation": "CLI values are parsed to f64 for serialized parity; no claim of extra precision. Core policy/precision/Dual tests are separately archived on main."
+  },
+  "physical": {
+    "report": "validation/evidence/native-block-harness-physical.json.gz",
+    "report_sha256": "b750d596b4318150e217915183aa516e22cb06670493c343ac7c81bbaeba9a05",
+    "success": true,
+    "stress_bound": 7,
+    "profile": "dev",
+    "integrated_widths": [
+      0,
+      1,
+      3,
+      8,
+      31,
+      32
+    ],
+    "primary_execution_parity": [
+      {
+        "coverage": {
+          "selection": "native-rank",
+          "native_feature_enabled": true,
+          "families": {
+            "t2_denominators": "native-rust",
+            "t3_denominators": "native-rust",
+            "bubble_source_projection": "native-rust",
+            "triangle_bubble_correction": "native-rust",
+            "tadpole_source_projection": "native-rust",
+            "other_reduction": "symbolica-interpreter",
+            "integration": "symbolica-interpreter",
+            "accumulation": "symbolica-interpreter"
+          },
+          "topology": {
+            "propagators": 5,
+            "rank": 4
+          },
+          "conditional_corrections": {
+            "backend": "native-rust",
+            "guard": "all-active-source-kind-structural-zeros",
+            "fallback": "reported-generic-families"
+          },
+          "native_execution": {
+            "policy": "whole",
+            "block_rows": null,
+            "scope": "native-kernel-rows"
+          },
+          "selection_scope": "Setup-only partial catalog; family fields describe generic fallback and conditional corrections require the full source-kind zero guard. Numerator, geometry and masters are independent."
+        },
+        "complex_components_checked": 375,
+        "max_scaled_error": 0
+      },
+      {
+        "coverage": {
+          "selection": "native-rank",
+          "native_feature_enabled": true,
+          "families": {
+            "t2_denominators": "native-rust",
+            "t3_denominators": "native-rust",
+            "bubble_source_projection": "native-rust",
+            "triangle_bubble_correction": "native-rust",
+            "tadpole_source_projection": "native-rust",
+            "other_reduction": "symbolica-interpreter",
+            "integration": "symbolica-interpreter",
+            "accumulation": "symbolica-interpreter"
+          },
+          "topology": {
+            "propagators": 5,
+            "rank": 4
+          },
+          "conditional_corrections": {
+            "backend": "native-rust",
+            "guard": "all-active-source-kind-structural-zeros",
+            "fallback": "reported-generic-families"
+          },
+          "native_execution": {
+            "policy": "fixed-rows",
+            "block_rows": 7,
+            "scope": "native-kernel-rows"
+          },
+          "selection_scope": "Setup-only partial catalog; family fields describe generic fallback and conditional corrections require the full source-kind zero guard. Numerator, geometry and masters are independent."
+        },
+        "complex_components_checked": 375,
+        "max_scaled_error": 0
+      }
+    ],
+    "same_artifact_replays": [
+      {
+        "label": "native-denominators-fixed7",
+        "argv": [
+          "flock",
+          "/tmp/ninjars-symbolica-tests.lock",
+          "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-physical/physical-probe",
+          "/shared/external/ninja/references/ninjars_native_block_harness/examples/graphs/physical/gg-hhh/top-pentagon-26.dot",
+          "32",
+          "native-denominators",
+          "7"
+        ],
+        "returncode": 0,
+        "report": "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-physical/native-denominators-fixed7.json",
+        "sha256": "d390ae3cdacc572831ab981db866b41ccf497c320f98f50f82217af9a2a72f71",
+        "artifact_hashes_unchanged": true
+      },
+      {
+        "label": "native-fixed7",
+        "argv": [
+          "flock",
+          "/tmp/ninjars-symbolica-tests.lock",
+          "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-physical/physical-probe",
+          "/shared/external/ninja/references/ninjars_native_block_harness/examples/graphs/physical/gg-hhh/top-pentagon-26.dot",
+          "32",
+          "native",
+          "7"
+        ],
+        "returncode": 0,
+        "report": "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-physical/native-fixed7.json",
+        "sha256": "c9c5317c811fa46dca4cff18ac4737ee78a942f77d24853e20cb1a44e5facf90",
+        "artifact_hashes_unchanged": true
+      },
+      {
+        "label": "all-whole",
+        "argv": [
+          "flock",
+          "/tmp/ninjars-symbolica-tests.lock",
+          "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-physical/physical-probe",
+          "/shared/external/ninja/references/ninjars_native_block_harness/examples/graphs/physical/gg-hhh/top-pentagon-26.dot",
+          "32",
+          "all"
+        ],
+        "returncode": 0,
+        "report": "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-physical/all-whole.json",
+        "sha256": "cdf40622689347ec282da83464d1e96d152be46169708e8e9868e4aca90fb591",
+        "artifact_hashes_unchanged": true
+      }
+    ],
+    "same_artifact_parity": {
+      "native-denominators-fixed7": {
+        "reduction_kernels": {
+          "selection": "native-denominators",
+          "native_feature_enabled": true,
+          "families": {
+            "t2_denominators": "native-rust",
+            "t3_denominators": "native-rust",
+            "bubble_source_projection": "symbolica-interpreter",
+            "triangle_bubble_correction": "symbolica-interpreter",
+            "tadpole_source_projection": "symbolica-interpreter",
+            "other_reduction": "symbolica-interpreter",
+            "integration": "symbolica-interpreter",
+            "accumulation": "symbolica-interpreter"
+          },
+          "topology": {
+            "propagators": 5,
+            "rank": 4
+          },
+          "native_execution": {
+            "policy": "fixed-rows",
+            "block_rows": 7,
+            "scope": "native-kernel-rows"
+          },
+          "selection_scope": "Setup-only partial catalog; family fields describe generic fallback and conditional corrections require the full source-kind zero guard. Numerator, geometry and masters are independent."
+        },
+        "catalog_parity": [],
+        "execution_parity": [
+          {
+            "coverage": {
+              "selection": "native-denominators",
+              "native_feature_enabled": true,
+              "families": {
+                "t2_denominators": "native-rust",
+                "t3_denominators": "native-rust",
+                "bubble_source_projection": "symbolica-interpreter",
+                "triangle_bubble_correction": "symbolica-interpreter",
+                "tadpole_source_projection": "symbolica-interpreter",
+                "other_reduction": "symbolica-interpreter",
+                "integration": "symbolica-interpreter",
+                "accumulation": "symbolica-interpreter"
+              },
+              "topology": {
+                "propagators": 5,
+                "rank": 4
+              },
+              "native_execution": {
+                "policy": "whole",
+                "block_rows": null,
+                "scope": "native-kernel-rows"
+              },
+              "selection_scope": "Setup-only partial catalog; family fields describe generic fallback and conditional corrections require the full source-kind zero guard. Numerator, geometry and masters are independent."
+            },
+            "complex_components_checked": 375,
+            "max_scaled_error": 0
+          },
+          {
+            "coverage": {
+              "selection": "native-denominators",
+              "native_feature_enabled": true,
+              "families": {
+                "t2_denominators": "native-rust",
+                "t3_denominators": "native-rust",
+                "bubble_source_projection": "symbolica-interpreter",
+                "triangle_bubble_correction": "symbolica-interpreter",
+                "tadpole_source_projection": "symbolica-interpreter",
+                "other_reduction": "symbolica-interpreter",
+                "integration": "symbolica-interpreter",
+                "accumulation": "symbolica-interpreter"
+              },
+              "topology": {
+                "propagators": 5,
+                "rank": 4
+              },
+              "native_execution": {
+                "policy": "fixed-rows",
+                "block_rows": 7,
+                "scope": "native-kernel-rows"
+              },
+              "selection_scope": "Setup-only partial catalog; family fields describe generic fallback and conditional corrections require the full source-kind zero guard. Numerator, geometry and masters are independent."
+            },
+            "complex_components_checked": 375,
+            "max_scaled_error": 0
+          }
+        ],
+        "integrated_max_scaled_error": 2.1453487309187703e-16,
+        "madloop_integrated_max_scaled_error": 1.162555970610204e-16
+      },
+      "native-fixed7": {
+        "reduction_kernels": {
+          "selection": "native",
+          "native_feature_enabled": true,
+          "families": {
+            "t2_denominators": "native-rust",
+            "t3_denominators": "native-rust",
+            "bubble_source_projection": "native-rust",
+            "triangle_bubble_correction": "native-rust",
+            "tadpole_source_projection": "native-rust",
+            "other_reduction": "symbolica-interpreter",
+            "integration": "symbolica-interpreter",
+            "accumulation": "symbolica-interpreter"
+          },
+          "topology": {
+            "propagators": 5,
+            "rank": 4
+          },
+          "native_execution": {
+            "policy": "fixed-rows",
+            "block_rows": 7,
+            "scope": "native-kernel-rows"
+          },
+          "selection_scope": "Setup-only partial catalog; family fields describe generic fallback and conditional corrections require the full source-kind zero guard. Numerator, geometry and masters are independent."
+        },
+        "catalog_parity": [],
+        "execution_parity": [
+          {
+            "coverage": {
+              "selection": "native",
+              "native_feature_enabled": true,
+              "families": {
+                "t2_denominators": "native-rust",
+                "t3_denominators": "native-rust",
+                "bubble_source_projection": "native-rust",
+                "triangle_bubble_correction": "native-rust",
+                "tadpole_source_projection": "native-rust",
+                "other_reduction": "symbolica-interpreter",
+                "integration": "symbolica-interpreter",
+                "accumulation": "symbolica-interpreter"
+              },
+              "topology": {
+                "propagators": 5,
+                "rank": 4
+              },
+              "native_execution": {
+                "policy": "whole",
+                "block_rows": null,
+                "scope": "native-kernel-rows"
+              },
+              "selection_scope": "Setup-only partial catalog; family fields describe generic fallback and conditional corrections require the full source-kind zero guard. Numerator, geometry and masters are independent."
+            },
+            "complex_components_checked": 375,
+            "max_scaled_error": 0
+          },
+          {
+            "coverage": {
+              "selection": "native",
+              "native_feature_enabled": true,
+              "families": {
+                "t2_denominators": "native-rust",
+                "t3_denominators": "native-rust",
+                "bubble_source_projection": "native-rust",
+                "triangle_bubble_correction": "native-rust",
+                "tadpole_source_projection": "native-rust",
+                "other_reduction": "symbolica-interpreter",
+                "integration": "symbolica-interpreter",
+                "accumulation": "symbolica-interpreter"
+              },
+              "topology": {
+                "propagators": 5,
+                "rank": 4
+              },
+              "native_execution": {
+                "policy": "fixed-rows",
+                "block_rows": 7,
+                "scope": "native-kernel-rows"
+              },
+              "selection_scope": "Setup-only partial catalog; family fields describe generic fallback and conditional corrections require the full source-kind zero guard. Numerator, geometry and masters are independent."
+            },
+            "complex_components_checked": 375,
+            "max_scaled_error": 0
+          }
+        ],
+        "integrated_max_scaled_error": 2.1375320110219073e-16,
+        "madloop_integrated_max_scaled_error": 1.155513357455124e-16
+      },
+      "all-whole": {
+        "reduction_kernels": {
+          "selection": "symbolica",
+          "native_feature_enabled": true,
+          "families": {
+            "t2_denominators": "symbolica-interpreter",
+            "t3_denominators": "symbolica-interpreter",
+            "bubble_source_projection": "symbolica-interpreter",
+            "triangle_bubble_correction": "symbolica-interpreter",
+            "tadpole_source_projection": "symbolica-interpreter",
+            "other_reduction": "symbolica-interpreter",
+            "integration": "symbolica-interpreter",
+            "accumulation": "symbolica-interpreter"
+          },
+          "topology": {
+            "propagators": 5,
+            "rank": 4
+          },
+          "native_execution": {
+            "policy": "whole",
+            "block_rows": null,
+            "scope": "native-kernel-rows"
+          },
+          "selection_scope": "Setup-only partial catalog; family fields describe generic fallback and conditional corrections require the full source-kind zero guard. Numerator, geometry and masters are independent."
+        },
+        "catalog_parity": [
+          {
+            "coverage": {
+              "selection": "symbolica",
+              "native_feature_enabled": true,
+              "families": {
+                "t2_denominators": "symbolica-interpreter",
+                "t3_denominators": "symbolica-interpreter",
+                "bubble_source_projection": "symbolica-interpreter",
+                "triangle_bubble_correction": "symbolica-interpreter",
+                "tadpole_source_projection": "symbolica-interpreter",
+                "other_reduction": "symbolica-interpreter",
+                "integration": "symbolica-interpreter",
+                "accumulation": "symbolica-interpreter"
+              },
+              "topology": {
+                "propagators": 5,
+                "rank": 4
+              },
+              "native_execution": {
+                "policy": "whole",
+                "block_rows": null,
+                "scope": "native-kernel-rows"
+              },
+              "selection_scope": "Setup-only partial catalog; family fields describe generic fallback and conditional corrections require the full source-kind zero guard. Numerator, geometry and masters are independent."
+            },
+            "complex_components_checked": 375,
+            "max_scaled_error": 0
+          },
+          {
+            "coverage": {
+              "selection": "native-denominators",
+              "native_feature_enabled": true,
+              "families": {
+                "t2_denominators": "native-rust",
+                "t3_denominators": "native-rust",
+                "bubble_source_projection": "symbolica-interpreter",
+                "triangle_bubble_correction": "symbolica-interpreter",
+                "tadpole_source_projection": "symbolica-interpreter",
+                "other_reduction": "symbolica-interpreter",
+                "integration": "symbolica-interpreter",
+                "accumulation": "symbolica-interpreter"
+              },
+              "topology": {
+                "propagators": 5,
+                "rank": 4
+              },
+              "native_execution": {
+                "policy": "whole",
+                "block_rows": null,
+                "scope": "native-kernel-rows"
+              },
+              "selection_scope": "Setup-only partial catalog; family fields describe generic fallback and conditional corrections require the full source-kind zero guard. Numerator, geometry and masters are independent."
+            },
+            "complex_components_checked": 375,
+            "max_scaled_error": 2.311115933264683e-33
+          },
+          {
+            "coverage": {
+              "selection": "native",
+              "native_feature_enabled": true,
+              "families": {
+                "t2_denominators": "native-rust",
+                "t3_denominators": "native-rust",
+                "bubble_source_projection": "native-rust",
+                "triangle_bubble_correction": "native-rust",
+                "tadpole_source_projection": "native-rust",
+                "other_reduction": "symbolica-interpreter",
+                "integration": "symbolica-interpreter",
+                "accumulation": "symbolica-interpreter"
+              },
+              "topology": {
+                "propagators": 5,
+                "rank": 4
+              },
+              "native_execution": {
+                "policy": "whole",
+                "block_rows": null,
+                "scope": "native-kernel-rows"
+              },
+              "selection_scope": "Setup-only partial catalog; family fields describe generic fallback and conditional corrections require the full source-kind zero guard. Numerator, geometry and masters are independent."
+            },
+            "complex_components_checked": 375,
+            "max_scaled_error": 3.496446946337351e-18
+          },
+          {
+            "coverage": {
+              "selection": "interpreted-rank",
+              "native_feature_enabled": true,
+              "families": {
+                "t2_denominators": "symbolica-interpreter",
+                "t3_denominators": "symbolica-interpreter",
+                "bubble_source_projection": "symbolica-interpreter",
+                "triangle_bubble_correction": "symbolica-interpreter",
+                "tadpole_source_projection": "symbolica-interpreter",
+                "other_reduction": "symbolica-interpreter",
+                "integration": "symbolica-interpreter",
+                "accumulation": "symbolica-interpreter"
+              },
+              "topology": {
+                "propagators": 5,
+                "rank": 4
+              },
+              "conditional_corrections": {
+                "backend": "symbolica-interpreter",
+                "guard": "all-active-source-kind-structural-zeros",
+                "fallback": "reported-generic-families"
+              },
+              "native_execution": {
+                "policy": "whole",
+                "block_rows": null,
+                "scope": "native-kernel-rows"
+              },
+              "selection_scope": "Setup-only partial catalog; family fields describe generic fallback and conditional corrections require the full source-kind zero guard. Numerator, geometry and masters are independent."
+            },
+            "complex_components_checked": 375,
+            "max_scaled_error": 3.3871558665088824e-18
+          },
+          {
+            "coverage": {
+              "selection": "native-rank",
+              "native_feature_enabled": true,
+              "families": {
+                "t2_denominators": "native-rust",
+                "t3_denominators": "native-rust",
+                "bubble_source_projection": "native-rust",
+                "triangle_bubble_correction": "native-rust",
+                "tadpole_source_projection": "native-rust",
+                "other_reduction": "symbolica-interpreter",
+                "integration": "symbolica-interpreter",
+                "accumulation": "symbolica-interpreter"
+              },
+              "topology": {
+                "propagators": 5,
+                "rank": 4
+              },
+              "conditional_corrections": {
+                "backend": "native-rust",
+                "guard": "all-active-source-kind-structural-zeros",
+                "fallback": "reported-generic-families"
+              },
+              "native_execution": {
+                "policy": "whole",
+                "block_rows": null,
+                "scope": "native-kernel-rows"
+              },
+              "selection_scope": "Setup-only partial catalog; family fields describe generic fallback and conditional corrections require the full source-kind zero guard. Numerator, geometry and masters are independent."
+            },
+            "complex_components_checked": 375,
+            "max_scaled_error": 3.9983400519694564e-18
+          }
+        ],
+        "execution_parity": [],
+        "integrated_max_scaled_error": 2.1453487309187703e-16,
+        "madloop_integrated_max_scaled_error": 1.162555970610204e-16
+      }
+    },
+    "runtime_sources_match_at_archive": true,
+    "raw_components_checked": 210,
+    "raw_max_scaled_error": 3.771063304099544e-15,
+    "coefficient_oracle_max_scaled_error": 2.3581169793365375e-15,
+    "integrated_max_scaled_error": 2.1647409839460347e-16,
+    "madloop_integrated_max_scaled_error": 1.181714717246786e-16,
+    "scope": "Same factored SymJIT coefficient provider, FeynKit wavefunctions/model binding/routing and shared live masters; separate frozen-union reduction controls. No production-backend or timing acceptance.",
+    "numerator_provider": {
+      "coefficient_heads": "factored SymJIT O2 during physical preparation",
+      "reduction_callbacks": "shared interpreted PolynomialNumerator<f64> direct/Mu/T3/T2",
+      "independent_of_reduction_selection": true
+    },
+    "precision_oracle_boundary": "Float256 exactly promotes binary64 physical component inputs after wavefunction evaluation; this checks coefficient arithmetic, not high-precision physical wavefunctions.",
+    "rational_separation_parity_complete": false,
+    "production_backend_comparison": false,
+    "performance_acceptance": false,
+    "lock_note": "Archived wrapper prepends flock only to the physical-probe subprocess; the existing driver records its original argv. Replays record actual flock argv. Builds run outside the numerical lock."
+  },
+  "checks": {
+    "strict_clippy_cli": true,
+    "strict_clippy_standalone": true,
+    "feature_off_build_and_run": true,
+    "format_and_whitespace": true,
+    "cpp_syntax_commands": [
+      {
+        "argv": [
+          "g++",
+          "-std=c++17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-fsyntax-only",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-source/src",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build/src",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build",
+          "validation/performance/shared_provider/physical_probe.cc"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "g++",
+          "-std=c++17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-fsyntax-only",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-source/src",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build/src",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build",
+          "validation/performance/shared_provider/physical_timing.cc"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "g++",
+          "-std=c++17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-fsyntax-only",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-source/src",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build/src",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build",
+          "validation/performance/shared_provider/physical_timing.cc",
+          "-DSP_EXECUTION_DIAGNOSTICS"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "g++",
+          "-std=c++17",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-fsyntax-only",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-source/src",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build/src",
+          "-I/shared/external/ninja/target/reference-uncached-v2/ninja-build",
+          "validation/performance/shared_provider/physical_timing.cc",
+          "-DSP_ALLOCATION_DIAGNOSTICS"
+        ],
+        "returncode": 0
+      }
+    ],
+    "format_policy": "Mutating formatting package-scoped only; workspace fmt used --check",
+    "warnings": "Existing dependency/unused-patch warnings remain archived."
+  },
+  "execution": {
+    "commands": {
+      "cli_feature_off_build": "cargo test -p ninjars-cli --no-default-features --test reduce --test bench --no-run --message-format=json",
+      "cli_native_build": "cargo test -p ninjars-cli --features native-kernels --test reduce --test bench --no-run --message-format=json",
+      "cli_runs": "python3 /tmp/ninjars-native-block-cached.py <cli-off|cli-native> reduce:native_block_rows bench:native_block_rows reduce:rank_selection bench:rank_selection",
+      "abi_feature_off_build": "cargo test --manifest-path validation/performance/shared_provider/Cargo.toml --locked --no-default-features --lib --no-run --message-format=json",
+      "abi_native_build": "cargo test --manifest-path validation/performance/shared_provider/Cargo.toml --locked --features native-kernels --lib --no-run --message-format=json",
+      "abi_runs": "python3 /tmp/ninjars-native-block-cached.py <abi-off|abi-native> ninjars_shared_provider_probe:kernel_tests",
+      "python": "python3 -m unittest discover -s validation/performance/shared_provider -p test_kernel_selection.py -v",
+      "physical": "python3 /tmp/ninjars-native-block-physical-locked.py --output-dir target/validation/native-block-physical --reference-build-dir /shared/external/ninja/target/reference-uncached-v2 --maximum-integrated-batch 32 --reduction-kernels native-rank --native-block-rows 7",
+      "physical_replays": "python3 /tmp/ninjars-native-block-physical-replay.py",
+      "clippy_cli": "cargo clippy -p ninjars-cli --features native-kernels --all-targets -- -D warnings",
+      "clippy_abi": "cargo clippy --manifest-path validation/performance/shared_provider/Cargo.toml --locked --features native-kernels --all-targets --no-deps -- -D warnings",
+      "format_workspace": "cargo fmt --all --check",
+      "format_abi": "cargo fmt --manifest-path validation/performance/shared_provider/Cargo.toml -p ninjars-shared-provider-probe -- --check",
+      "whitespace": "git diff --check"
+    },
+    "maximum_build_jobs_per_cargo": 4,
+    "numerical_threads": 1,
+    "lock": "/tmp/ninjars-symbolica-tests.lock",
+    "builds_outside_lock": true,
+    "build_caches": {
+      "cli": "/common/build-cache/external/ec/5c0bf1ff54bf16",
+      "standalone": "/common/build-cache/external/81/3cfa84b1b979bf"
+    },
+    "ordering": "Each CLI feature build immediately followed by artifact copies and cached runs before changing features. Hashes checked before and after tests.",
+    "rust_release_builds": false,
+    "cpp_launcher": "Existing correctness-driver -O2 flags retained; Rust provider uses dev profile.",
+    "dedicated_performance_sampling": false,
+    "bench_tests": "CLI bench is invoked only for bounded accounting regressions; its durations are not performance evidence.",
+    "failures": []
+  },
+  "dependencies": [
+    {
+      "name": "symbolica",
+      "revision": "2c06f245835d57535418b5d78f711fe191db49cc",
+      "tracked_clean": true
+    },
+    {
+      "name": "oneloopmaster",
+      "revision": "c9dd82fd1a6e3fc638b01df95bd0cf09ceda3460",
+      "tracked_clean": true
+    },
+    {
+      "name": "gammaloop_ninja_shared",
+      "revision": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93",
+      "tracked_clean": true
+    }
+  ],
+  "source_sha256": {
+    "Cargo.lock": "1035b5beee28438bc1e0841e541f8a5d4986f46e50c0ee25820b4326c8b155b0",
+    "Cargo.toml": "74ee51fef490da00d067cec2a526bd2b7272c05802af556b5f249b15d72ccba6",
+    "crates/ninjars-cli/Cargo.toml": "9eec945a6938c3fba4011d106cbfda5e116a28d4711ba6d2e3c54631174a05e6",
+    "crates/ninjars-cli/src/bench.rs": "9adabcd86e1251608e47da18d31b4a20707f40c3deebdabc190eeb57f2bd3f1a",
+    "crates/ninjars-cli/src/compare.rs": "a919ec6878169c283adc6a1d243070ba40d734fe06af6a9cf6bc4fe86197f7b4",
+    "crates/ninjars-cli/src/reduce.rs": "9913e40a18840d7a8696f168aeabf692b1ef24b382d7f4df743042a5690bac6b",
+    "crates/ninjars-cli/src/runtime.rs": "02a2748b1612c4fc32be84c859c849733285fa2b931a47c2f378f5b750934a4c",
+    "crates/ninjars-cli/tests/bench.rs": "6792dd20906e0d151f5e9f4834d38ba73559bfd91f25c9fe068e050c73545344",
+    "crates/ninjars-cli/tests/reduce.rs": "c0116dad9a8f20c13b75ff55898ae77827875fbc0740804d9cac7b248fb03be1",
+    "dependencies/manifest.json": "dd20a673de5e5ef9c904545fb672f735e8c19feb0c38d1a795f49c5c88169757",
+    "docs/benchmarks.md": "027813397e29c4e17ca7384c27f02a716c6b5d8cc09b87aea056a3a93389977d",
+    "docs/native-block-execution.md": "bcd7b2d677f0a6d0de87af5a2def1d097767fae0f5717c3ae9b71d27881f94ff",
+    "validation/performance/shared_provider/Cargo.lock": "463923b808db82d6c150ac05ef538d08130f6b3b3892260512e335a83d3d01d9",
+    "validation/performance/shared_provider/Cargo.toml": "22b3c0a288f6ed3e99c39c89942f11d678458dd4377efa0396e6ee31217de236",
+    "validation/performance/shared_provider/PHYSICAL.md": "299d6f3d5383a2bcb636017c3b12136a46cc1b12518ab67225bee3f48c0d0260",
+    "validation/performance/shared_provider/TIMING.md": "8a925c576eee91326bf7219c878e3724fda1dc17f479e9b91da0b4c01a55d68a",
+    "validation/performance/shared_provider/bridge.h": "1dafcd5ca909ae96c9eeefceb832b9eafaa9b19bea941c3baea19c51a9c5174f",
+    "validation/performance/shared_provider/kernel_selection.hh": "02a01c9f232da8eaac8f792f3cad92aa65b118369d4e9fdeb439988327d06b7e",
+    "validation/performance/shared_provider/kernel_selection.py": "80665bbdece02a037aed31eeb6540501ec26e097c6d56ba326b3613e5c5b2aae",
+    "validation/performance/shared_provider/physical_probe.cc": "b677fea6ad24329424a0e4c59b3c090a4eb070a5e269525d38eb8187edafa953",
+    "validation/performance/shared_provider/physical_timing.cc": "75725a198b5f066737b9e1dd1fb7a24c3c8f209d6d94b8a3ba3072b6ec43e2ee",
+    "validation/performance/shared_provider/physical_workload.hh": "1bd4e3a42d29c926602efe40d2447016e3b12056176316719bbd4687d2fd4f84",
+    "validation/performance/shared_provider/run_physical.py": "e43dc4daa246f4593e71624134bbefa73fac06dbab3873d0c618c8ec1ef6b9a8",
+    "validation/performance/shared_provider/run_timing.py": "9da15983315b0868fe0a68759d4577ef87116715a008162969810eed8929942e",
+    "validation/performance/shared_provider/src/session.rs": "12993e05479ffa72c3e7adc30db8cb8846273faff179a52e161a75e874b94f99",
+    "validation/performance/shared_provider/test_kernel_selection.py": "9653fdec33709a65d5028b38718e20df938e63de187d68995342374d2679d5a4"
+  },
+  "test_executable_snapshots": {
+    "cli-off": {
+      "bench": {
+        "path": "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/bench-69ef627bad1cb443",
+        "sha256": "f8bb5dabf3d464212dcd348e7552c58802854c3107792a032249c4e1f3ef6304",
+        "preserved_path": "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-artifacts/cli-off-bench-f8bb5dabf3d4"
+      },
+      "reduce": {
+        "path": "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/reduce-d8cd5c8cb5bc72bb",
+        "sha256": "2dc490a86d3089766f39203a33abb69e7896cf4fc88c5aa3345f231d9802fe65",
+        "preserved_path": "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-artifacts/cli-off-reduce-2dc490a86d30"
+      },
+      "ninjars": {
+        "path": "/shared/external/ninja/references/ninjars_native_block_harness/target/debug/ninjars",
+        "sha256": "c41e5b0c2075665f2b6f70087e6d78f3d63b80886a0433d7c0ed7fe9f4373e4e",
+        "preserved_path": "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-artifacts/cli-off-ninjars-c41e5b0c2075"
+      }
+    },
+    "cli-native": {
+      "bench": {
+        "path": "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/bench-f3b3725396385ebb",
+        "sha256": "49e9b85ffd316134e1e5cb813faa3a4ce52032e840e46be22432e451fb8e8d01",
+        "preserved_path": "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-artifacts/cli-native-bench-49e9b85ffd31"
+      },
+      "reduce": {
+        "path": "/common/build-cache/external/ec/5c0bf1ff54bf16/debug/deps/reduce-9992620cd227e8a8",
+        "sha256": "b551b3102cc0546de790ec1d2383e2ed55974380e53b06a295770e5fdbc88669",
+        "preserved_path": "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-artifacts/cli-native-reduce-b551b3102cc0"
+      },
+      "ninjars": {
+        "path": "/shared/external/ninja/references/ninjars_native_block_harness/target/debug/ninjars",
+        "sha256": "58d8bb396dfd58da590ee494f1ca8a0985b3b2f76a4ddf05b1d209e9d06ecf0f",
+        "preserved_path": "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-artifacts/cli-native-ninjars-58d8bb396dfd"
+      }
+    },
+    "abi-off": {
+      "ninjars_shared_provider_probe": {
+        "path": "/common/build-cache/external/81/3cfa84b1b979bf/debug/deps/ninjars_shared_provider_probe-d34556c589e523e3",
+        "sha256": "97ddb1bef443dd25b3d105d44d393f391cc60e8a2b392c7378647f708ccc71f6",
+        "preserved_path": "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-artifacts/abi-off-ninjars_shared_provider_probe-97ddb1bef443"
+      }
+    },
+    "abi-native": {
+      "ninjars_shared_provider_probe": {
+        "path": "/common/build-cache/external/81/3cfa84b1b979bf/debug/deps/ninjars_shared_provider_probe-4fe14671291d7761",
+        "sha256": "1c02f7d21057bd399706ffda996486a01d8fe457cc771805cfde259b82d563a4",
+        "preserved_path": "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-artifacts/abi-native-ninjars_shared_provider_probe-1c02f7d21057"
+      }
+    }
+  },
+  "physical_artifacts_sha256": {
+    "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-physical/libninjars_shared_provider_probe.so": "0a0112ab6917381d53848dd372fef4b6a3cb5c479b92c10a48288fc2b676255d",
+    "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-physical/physical-probe": "65931b333c5257a9da4369648a2598fd145269a80db7d9fa3622eee13d4ca979",
+    "/shared/external/ninja/target/reference-uncached-v2/ninja-build/src/.libs/libninja.a": "8f4d39dad292a28a05dd4e56bd4cbb7014cf08532ef4d8484c00ea44e0b097a3",
+    "/shared/external/ninja/target/reference-uncached-v2/oneloop/libavh_olo.a": "28c37c328fadd6f4f09f973bfb961b3bccb3c729583a92dc2186fd947ccbe4dd",
+    "/nix/store/d17h7hf0qr99v6fadj50ybzgyvbsds81-gfortran-15.3.0-lib/lib/libgfortran.so": "dce24abf076b71460d7df11c8bf00dcc2bb7eb69489f79aff48b53ae07e57b38",
+    "/shared/external/ninja/references/ninjars_native_block_harness/target/validation/native-block-physical/input.txt": "01c34e7c21fd3063ec86ea6d9ee559c3a70975214ae3756b0f8783a3e06477ba"
+  },
+  "logs": {
+    "archive": "validation/evidence/native-block-harness-logs.tar.gz",
+    "sha256": "7c67f4ea41c7eddac4010257ed3f2087c5a493c9557d94f75c106476487d5e6d",
+    "members": {
+      "ninjars-native-block-abi-clippy.log": "0b981e1effc2975cc96e7d129faf17e59ba671acef2eac7368050d8aaafd924a",
+      "ninjars-native-block-abi-native-build.jsonl": "af0f63e0a648abe695846dfc1563bc7883473ba7a41e08ccec27703f1132ea25",
+      "ninjars-native-block-abi-native-build.log": "aa21ee2f3ba9721939ecc1441377e8cc874b69c55445e8c64a967456a5cb58d1",
+      "ninjars-native-block-abi-native-commands.json": "4f8ef719bf6514f8e1eccda91ffc2d9aa8e77a7a3f8ded4dacbe0f6ea586ef85",
+      "ninjars-native-block-abi-native-executables.json": "f5fecce5d3902e4f3f4c9f4696c7979235dbc58c0580fdf779e301e9837998b7",
+      "ninjars-native-block-abi-native-ninjars_shared_provider_probe-kernel_tests.log": "7b7846085ab091521776355a45c95afb5ed149d7c974ad8ea86a61d53eec2a50",
+      "ninjars-native-block-abi-off-build.jsonl": "e46606f3a9956de7bdb7149c26651302851a0a39d6d7ec05ed703e46f7f74111",
+      "ninjars-native-block-abi-off-build.log": "abb39705f10aade0c2cfa823e4d65ae8908a51e0f8141715680fa249a6ffdcf3",
+      "ninjars-native-block-abi-off-commands.json": "76a03ea1d454a95410817505bc3b3ced6ee15e929ae44b3c839c282a0e22a066",
+      "ninjars-native-block-abi-off-executables.json": "e1dadb4204a1f746437e0b933c06c556a8c7c89712f257d480027f99d27c7443",
+      "ninjars-native-block-abi-off-ninjars_shared_provider_probe-kernel_tests.log": "a0f09a32453f036eaf627a4bc512ab6e9bc2abba3f6e15c8984800af82582360",
+      "ninjars-native-block-cached.py": "3a751d607973000202690df21b965f6eb56561549d999bf387d30b20049aa9e2",
+      "ninjars-native-block-cli-clippy.log": "d097ea4e3c819f411248b211df1af944ecb80786933c957de6e002b37e92c62a",
+      "ninjars-native-block-cli-native-bench-native_block_rows.log": "76060da6df06867b04caf81253a06a02f67ea9e93ced2db9fe49c67278144be1",
+      "ninjars-native-block-cli-native-bench-rank_selection.log": "103d79ca31f796b1a65d0fcbeaeafd803ffd89f85e57286ba489f15d00a05974",
+      "ninjars-native-block-cli-native-build.jsonl": "bac281d8aaa383d9ca359fda8b77ca527704c89b173c98355607b846aad825c1",
+      "ninjars-native-block-cli-native-build.log": "1f59f6ef123eedf7684c0da621deaac3653f1b8980167008503b1699e6fc5e7f",
+      "ninjars-native-block-cli-native-commands.json": "c67fe9c95efd8f28b6a4503757dcc98423f4b264bafd03f9989e7d9447aa05f4",
+      "ninjars-native-block-cli-native-executables.json": "01c89871e7ffaed6849b7d21a1f1eb235adcb822a60ed6199389e8df744cf055",
+      "ninjars-native-block-cli-native-reduce-native_block_rows.log": "824ab8822bd49d17717b29ffda7eb6862a5df8d0f5daa304ff9ae8bb36667e87",
+      "ninjars-native-block-cli-native-reduce-rank_selection.log": "04d98316cc8b1c6e955060d69edf694192186ef0cdb7dd15ad67aae43a6e360a",
+      "ninjars-native-block-cli-off-bench-native_block_rows.log": "c8e3c740100a0abe3304fc427c35353b23a4e0e9fa3548a9094639c1d23ad3ea",
+      "ninjars-native-block-cli-off-bench-rank_selection.log": "cf507e4ba10242bef8cab00ca8566ed753e3919737db73944f8aecbefc4be909",
+      "ninjars-native-block-cli-off-build.jsonl": "1ca18e8ba6e1bf60aff0355145256241ae02c177912eaa0112adbcd47608f428",
+      "ninjars-native-block-cli-off-build.log": "340d2434f6288dc3da08d0467467dd82d8de7da45fbdcffdb70e96fa456a8bd7",
+      "ninjars-native-block-cli-off-commands.json": "be2d7a9258f467228b2eccbb4e0f49ac44a816f25de6b26e06617410aeb02629",
+      "ninjars-native-block-cli-off-executables.json": "0ee43c8d8ecc5d7bbcd4336f43a9e368a9fdb3009824286508e54316b6b7a571",
+      "ninjars-native-block-cli-off-reduce-native_block_rows.log": "d3cff210b40c704d7e36d84dae8305518d1c8c6ecc79efb780231820ebec492a",
+      "ninjars-native-block-cli-off-reduce-rank_selection.log": "3d90641f0849e98cbc08326bbf328b23d71685f6448e3f3940f98c1d28893beb",
+      "ninjars-native-block-cpp-syntax-commands.json": "efc91192c1c9b46f3d9109ee6ea2a44471acf3379ce1ceb5eb54a57aca948655",
+      "ninjars-native-block-cpp-syntax.log": "480d4934bbf66c9a222c51ebc8c586d8f8d663de6ad02d7a00cc3159cf743fc0",
+      "ninjars-native-block-diff-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ninjars-native-block-fmt-abi.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ninjars-native-block-fmt-workspace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ninjars-native-block-format-abi.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ninjars-native-block-format-cli.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ninjars-native-block-historical.log": "8ddac66765914f22d0ad4e930f66880f1b6c47dbc1b05d81a76f6abf3aa48263",
+      "ninjars-native-block-physical-driver.log": "60516b197003cc05ceadfed1d19907e4660c918445a355eb25759a89e4a6f495",
+      "ninjars-native-block-physical-locked.py": "f9cfbe938cb65eeb20bcb88c014e4b666b4e0228c3d77fd23b843b91b0eade93",
+      "ninjars-native-block-physical-replay.log": "f3c47915e2ab13ad8a5a315c5871ec1fb9463ce60a2253221effeb281316a776",
+      "ninjars-native-block-physical-replay.py": "8359186ceb0b435ad3b92223d7a226d6cc3ebb7c26e2c8ff5c69b5368d585d61",
+      "ninjars-native-block-python.log": "4c5e6fa66e582a6c062217bbb456a0960ecc228b960dbd829c1eb2f5b4aa6be1",
+      "ninjars-native-block-root-interim-verification.json": "360807f8b5491def4a2dba830d38c75576ddad5c22a735386b18204133e6ead2",
+      "ninjars-native-block-toolchain.json": "225d570ebb764976b24efbc88c7ad2e5b592c96cdc4c350d9b562f179325936d",
+      "physical/all-whole.json": "cdf40622689347ec282da83464d1e96d152be46169708e8e9868e4aca90fb591",
+      "physical/all-whole.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical/all-whole.stdout": "c8ea47f54f8b73d8af5bddc16e86abf4e8fc17f8573d9fe21b6fce5402123338",
+      "physical/cargo-build.stderr": "66541bc3ccbacf35da415adf8b1c1e61ba4e07b8b1e5b44eb5bf5a6cb4302bc4",
+      "physical/cargo-build.stdout": "2be94e7797c4c0c0191242f9727542cd54542a45691f59a1800d172a22426bcc",
+      "physical/commands.json": "176928c597695acdbb04583137b150fd0d36e424265d8b64d7dc987440affd6b",
+      "physical/cpp-build.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical/cpp-build.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical/input.txt": "01c34e7c21fd3063ec86ea6d9ee559c3a70975214ae3756b0f8783a3e06477ba",
+      "physical/native-denominators-fixed7.json": "d390ae3cdacc572831ab981db866b41ccf497c320f98f50f82217af9a2a72f71",
+      "physical/native-denominators-fixed7.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical/native-denominators-fixed7.stdout": "18d25d100858d94816a84dccc65dc3c97cc72360a4d7f0be1bf9d50ae38b3f9a",
+      "physical/native-fixed7.json": "c9c5317c811fa46dca4cff18ac4737ee78a942f77d24853e20cb1a44e5facf90",
+      "physical/native-fixed7.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical/native-fixed7.stdout": "cf9c6db2b076b38eae82625909cc724335ea8e38589a0bcc2f7b762fd642fed6",
+      "physical/physical-probe.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "physical/physical-probe.stdout": "48a8d486366b00a2694401564e3d826edc03b1fd53156951850866041fbd2645",
+      "physical/same-artifact-commands.json": "43d311665c6520f79de89d475abcfd7abc2d4a3cb26365470e433426ff4caf38"
+    }
+  },
+  "independent_interim_verification": "The archived root-interim-verification.json rehashes eight retained executables and confirms 21 Rust test executions; it predates physical controls and is not final physical verification.",
+  "remaining_limits": [
+    "No Rust release build, timing or speed claim. Bound7 is a correctness-tail stress setting, not the preselected32 performance setting.",
+    "Release correctness must use the exact source/mode/bound and immutable artifact for subsequent comparisons.",
+    "run_timing accepts historical separate physical evidence; warmup/configuration does not prove Whole/fixed parity. Future fixed runs must explicitly supply fresh matching physical controls.",
+    "Conditional backend/policy configuration does not prove that a particular stage executed.",
+    "Physical shared-master/provider controls do not establish production-backend or complete rational-decomposition parity."
+  ]
+}

@@ -2,6 +2,7 @@
 #pragma once
 #include "bridge.h"
 #include <array>
+#include <limits>
 #include <ostream>
 #include <stdexcept>
 #include <string>
@@ -24,6 +25,16 @@ inline bool rank_selection(unsigned selection) {
 inline bool requires_native(unsigned selection) {
   return selection==SP_KERNEL_DENOMINATORS||selection==SP_KERNEL_NATIVE||selection==SP_KERNEL_NATIVE_RANK;
 }
+inline size_t native_block_rows(const std::string&text) {
+  if(text.empty()||text.find_first_not_of("0123456789")!=std::string::npos)throw std::runtime_error("native block rows must be a positive size_t");
+  const auto value=std::stoull(text);
+  if(!value||value>std::numeric_limits<size_t>::max())throw std::runtime_error("native block rows must be a positive size_t");
+  return static_cast<size_t>(value);
+}
+inline void validate_native_execution_info(const std::array<uint64_t,2>&info,unsigned selection,unsigned policy,size_t block_rows) {
+  if((policy==SP_EXECUTION_WHOLE&&block_rows!=0)||(policy==SP_EXECUTION_FIXED_ROWS&&(!block_rows||!requires_native(selection)))||policy>SP_EXECUTION_FIXED_ROWS)throw std::runtime_error("invalid requested native execution policy/bound");
+  if(info[0]!=policy||info[1]!=block_rows)throw std::runtime_error("configured native execution does not match request");
+}
 inline std::vector<unsigned> supported_kernel_selections(size_t n,size_t rank,bool compiled) {
   std::vector<unsigned> result{SP_KERNEL_SYMBOLICA};
   if(compiled){result.push_back(SP_KERNEL_DENOMINATORS);result.push_back(SP_KERNEL_NATIVE);}
@@ -41,11 +52,14 @@ inline void validate_rank_correction_info(const std::array<uint64_t,4>&info,unsi
   if(info[0]!=n||info[1]!=rank||info[2]!=static_cast<uint64_t>(rank_selection(selection))||info[3]!=static_cast<uint64_t>(selection==SP_KERNEL_NATIVE_RANK))throw std::runtime_error("conditional correction/topology mismatch");
   if(rank_selection(selection)&&(n!=5||rank!=4))throw std::runtime_error("unsupported rank correction topology");
 }
-inline void emit_kernel_info(std::ostream&out,const std::array<uint64_t,10>&info,const std::array<uint64_t,4>&conditional) {
+inline void emit_kernel_info(std::ostream&out,const std::array<uint64_t,10>&info,const std::array<uint64_t,4>&conditional,const std::array<uint64_t,2>&execution) {
   const std::array<const char*,8> names{{"t2_denominators","t3_denominators","bubble_source_projection","triangle_bubble_correction","tadpole_source_projection","other_reduction","integration","accumulation"}};
   out<<"{\"selection\":\""<<kernel_name(info[0])<<"\",\"native_feature_enabled\":"<<(info[1]?"true":"false")<<",\"families\":{";
   for(size_t i=0;i<names.size();++i){if(i){out<<',';}out<<'"'<<names[i]<<"\":\""<<(info[i+2]?"native-rust":"symbolica-interpreter")<<'"';}
   out<<"},\"topology\":{\"propagators\":"<<conditional[0]<<",\"rank\":"<<conditional[1]<<'}';
   if(conditional[2])out<<",\"conditional_corrections\":{\"backend\":\""<<(conditional[3]?"native-rust":"symbolica-interpreter")<<"\",\"guard\":\"all-active-source-kind-structural-zeros\",\"fallback\":\"reported-generic-families\"}";
+  out<<",\"native_execution\":{\"policy\":\""<<(execution[0]?"fixed-rows":"whole")<<"\",\"block_rows\":";
+  if(execution[0])out<<execution[1];else out<<"null";
+  out<<",\"scope\":\"native-kernel-rows\"}";
   out<<",\"selection_scope\":\"Setup-only partial catalog; family fields describe generic fallback and conditional corrections require the full source-kind zero guard. Numerator, geometry and masters are independent.\"}";
 }

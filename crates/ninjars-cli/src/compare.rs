@@ -173,7 +173,9 @@ fn compare_lane(actual: &Value, original: &Value) -> Value {
 }
 
 pub fn run(args: Args) -> Result<()> {
-    args.reduction.reduction_kernels.validate()?;
+    args.reduction
+        .reduction_kernels
+        .validate(args.reduction.native_block_rows)?;
     args.reduction
         .numerator_evaluator
         .validate(args.reduction.precision)?;

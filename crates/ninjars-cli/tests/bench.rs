@@ -321,3 +321,55 @@ fn rank_selection_reports_keep_master_and_reduction_accounting_separate() {
         }
     }
 }
+
+#[test]
+fn native_block_rows_keep_benchmark_accounting_separate() {
+    let args = [
+        "examples/graphs/pentagon-rank4.json",
+        "--reduction-kernels",
+        "native-rank",
+        "--native-block-rows",
+        "7",
+        "--batch-sizes",
+        "2",
+        "--points",
+        "3",
+        "--rounds",
+        "1",
+    ];
+    let output = run("bench", &args);
+    if !cfg!(feature = "native-kernels") {
+        assert!(!output.status.success());
+        assert!(
+            String::from_utf8_lossy(&output.stderr)
+                .contains("requires a build with --features native-kernels")
+        );
+        return;
+    }
+    let report = value(output);
+    assert_eq!(report["performance_acceptance"], false);
+    assert_eq!(
+        report["reduction_kernels"]["native_execution"],
+        json!({"policy":"fixed-rows","block_rows":7,"scope":"native-kernel-rows"})
+    );
+    assert_eq!(report["cases"].as_array().unwrap().len(), 2);
+    for case in report["cases"].as_array().unwrap() {
+        assert_eq!(case["tail_lanes"], 1);
+        assert_eq!(case["diagnostic"]["failed_lanes"], 0);
+        assert_eq!(case["diagnostic"]["additivity_checked"], true);
+        let stages = &case["diagnostic"]["same_pass_nanoseconds"];
+        let ns = |name: &str| stages[name].as_u64().unwrap();
+        assert_eq!(
+            ns("total"),
+            ns("numerator_coefficients")
+                + ns("numerator_callbacks")
+                + ns("actual_master_provider")
+                + ns("residual_reduction")
+        );
+        assert_eq!(
+            ns("reduction_excluding_masters_and_coefficients"),
+            ns("numerator_callbacks") + ns("residual_reduction")
+        );
+        assert!(case["diagnostic"]["masters"]["calls"].as_u64().unwrap() > 0);
+    }
+}

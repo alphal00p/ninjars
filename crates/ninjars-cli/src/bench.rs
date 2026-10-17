@@ -51,6 +51,9 @@ pub struct Args {
     /// Reduction execution, independently of the numerator preparation provider.
     #[arg(long, value_enum, default_value = "symbolica")]
     pub reduction_kernels: ReductionKernels,
+    /// Bound complete native kernel rows per call; omission keeps whole-batch execution.
+    #[arg(long)]
+    pub native_block_rows: Option<NonZeroUsize>,
     #[arg(long)]
     pub bits: Option<u32>,
     /// Phase-space batch widths; the default 1025-point round includes tails.
@@ -92,6 +95,7 @@ impl Args {
             precision: self.precision,
             numerator_evaluator: self.numerator_evaluator,
             reduction_kernels: self.reduction_kernels,
+            native_block_rows: self.native_block_rows,
             bits: self.bits,
             batch_size: self.batch_sizes[0],
             cut_stop: self.cut_stop,
@@ -299,7 +303,7 @@ where
 }
 
 pub(crate) fn run(args: Args) -> Result<()> {
-    args.reduction_kernels.validate()?;
+    args.reduction_kernels.validate(args.native_block_rows)?;
     args.numerator_evaluator.validate(args.precision)?;
     if args.bits.is_some() && !matches!(args.precision, Precision::Float) {
         return Err("--bits applies only to --precision float".into());

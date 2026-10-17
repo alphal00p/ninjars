@@ -383,7 +383,7 @@ where
     Complex<T>: EvaluationDomain,
 {
     pub(crate) fn new(prepared: &PreparedDocument, args: &Args, prototype: T) -> Result<Self> {
-        args.reduction_kernels.validate()?;
+        args.reduction_kernels.validate(args.native_block_rows)?;
         let variables = ["q0", "q1", "q2", "q3", "mu2"]
             .map(|name| Atom::var(symbol!(format!("ninjars::{name}"))));
         let (expression, parameters, coefficients, numerator_info) = match args.numerator_evaluator
@@ -471,6 +471,14 @@ where
                 .with_native_rank_specialized_corrections()?,
             ReductionKernels::Symbolica | ReductionKernels::InterpretedRank => kernels,
         };
+        #[cfg(feature = "native-kernels")]
+        let kernels = if let Some(rows) = args.native_block_rows {
+            kernels.with_native_batch_execution(ninjars_symbolica::BatchExecutionPolicy::FixedRows(
+                rows,
+            ))
+        } else {
+            kernels
+        };
         // Preserve the established fields as generic/fallback coverage. A
         // conditional alternate is reported separately, never as an all-native
         // claim for a family that may still execute its generic fallback.
@@ -486,6 +494,19 @@ where
             "accumulation": "symbolica-interpreter",
             "scope": "Partial generated reduction catalog; numerator callbacks, cut geometry and masters retain their separate providers. Unused cut stages need not execute."
         });
+        #[cfg(feature = "native-kernels")]
+        let native_execution = match kernels.native_batch_execution() {
+            ninjars_symbolica::BatchExecutionPolicy::Whole => {
+                serde_json::json!({"policy":"whole","block_rows":null,"scope":"native-kernel-rows"})
+            }
+            ninjars_symbolica::BatchExecutionPolicy::FixedRows(rows) => {
+                serde_json::json!({"policy":"fixed-rows","block_rows":rows.get(),"scope":"native-kernel-rows"})
+            }
+        };
+        #[cfg(not(feature = "native-kernels"))]
+        let native_execution =
+            serde_json::json!({"policy":"whole","block_rows":null,"scope":"native-kernel-rows"});
+        kernel_info["native_execution"] = native_execution;
         #[cfg(feature = "native-kernels")]
         for entry in kernels.kernel_backends() {
             use ninjars_symbolica::{KernelBackend, KernelFamily};

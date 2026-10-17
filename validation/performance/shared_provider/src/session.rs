@@ -15,6 +15,7 @@ type C = Complex<f64>;
 pub struct Session {
     kernel_info: [u64; 10],
     rank_correction_info: [u64; 4],
+    native_execution_info: [u64; 2],
     n: usize,
     rank: usize,
     amplitude: Amplitude<C, SymbolicaAmplitudeKernels<f64>>,
@@ -29,6 +30,25 @@ pub struct Session {
     sampling: Vec<C>,
     matrix: Vec<C>,
     output: Vec<Pair>,
+}
+fn execution_bound(
+    selection: u32,
+    policy: u32,
+    block_rows: usize,
+) -> Result<Option<std::num::NonZeroUsize>> {
+    match (policy, block_rows) {
+        (0, 0) => Ok(None),
+        (1, rows) if rows > 0 => {
+            if !matches!(selection, 1 | 2 | 4) {
+                return Err("fixed native rows require a native reduction-kernel selection".into());
+            }
+            if !cfg!(feature = "native-kernels") {
+                return Err("fixed native rows require native-kernels feature".into());
+            }
+            Ok(std::num::NonZeroUsize::new(rows))
+        }
+        _ => Err("invalid native execution policy/bound pair".into()),
+    }
 }
 unsafe fn session<'a>(handle: *mut Session) -> Result<&'a mut Session> {
     if handle.is_null() || !handle.is_aligned() {
@@ -143,14 +163,47 @@ pub unsafe extern "C" fn sp_session_create_with_kernels(
     selection: u32,
     out: *mut *mut Session,
 ) -> i32 {
+    unsafe { sp_session_create_with_execution(n, rank, rows, selection, 0, 0, out) }
+}
+/// # Safety
+/// Same ownership/output contract as sp_session_create. Policy pairs are
+/// Whole=(0,0), FixedRows=(1,positive bound). Bounds count complete native
+/// kernel rows, not phase-space lanes. Invalid inputs preserve the output slot.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sp_session_create_with_execution(
+    n: usize,
+    rank: usize,
+    rows: usize,
+    selection: u32,
+    policy: u32,
+    block_rows: usize,
+    out: *mut *mut Session,
+) -> i32 {
     guard(|| {
         if out.is_null() || !out.is_aligned() {
             return Err("invalid session output".into());
         }
+        let bound = execution_bound(selection, policy, block_rows)?;
         let (kernels, kernel_info, rank_correction_info) = kernels(n, rank, selection)?;
+        #[cfg(feature = "native-kernels")]
+        let kernels = kernels.with_native_batch_execution(match bound {
+            None => ninjars_symbolica::BatchExecutionPolicy::Whole,
+            Some(rows) => ninjars_symbolica::BatchExecutionPolicy::FixedRows(rows),
+        });
+        #[cfg(feature = "native-kernels")]
+        let native_execution_info = match kernels.native_batch_execution() {
+            ninjars_symbolica::BatchExecutionPolicy::Whole => [0, 0],
+            ninjars_symbolica::BatchExecutionPolicy::FixedRows(rows) => [1, rows.get() as u64],
+        };
+        #[cfg(not(feature = "native-kernels"))]
+        let native_execution_info = {
+            debug_assert!(bound.is_none());
+            [0, 0]
+        };
         let state = Session {
             kernel_info,
             rank_correction_info,
+            native_execution_info,
             n,
             rank,
             amplitude: kernels.into_amplitude(rows).map_err(|e| e.to_string())?,
@@ -197,6 +250,17 @@ pub unsafe extern "C" fn sp_session_rank_correction_info(
     len: usize,
 ) -> i32 {
     guard(|| unsafe { write(out, len, &session(handle)?.rank_correction_info) })
+}
+/// # Safety
+/// Live exclusive session and exactly two writable cells: configured policy
+/// tag and native kernel row bound. Whole returns [0,0], FixedRows [1,N].
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn sp_session_native_execution_info(
+    handle: *mut Session,
+    out: *mut u64,
+    len: usize,
+) -> i32 {
+    guard(|| unsafe { write(out, len, &session(handle)?.native_execution_info) })
 }
 /// # Safety
 /// All handles are live, exclusive and mutually disjoint. Buffers are valid for
@@ -450,6 +514,171 @@ pub unsafe extern "C" fn sp_session_production_stats(
 #[cfg(test)]
 mod kernel_tests {
     use super::*;
+    #[test]
+    fn native_execution_rejects_bad_pairs_and_preserves_outputs() {
+        let mut handle = std::ptr::null_mut();
+        assert_eq!(unsafe { sp_session_create(2, 2, 0, &mut handle) }, 0);
+        let original = handle;
+        for (selection, policy, bound) in [
+            (1, 0, 1),
+            (1, 1, 0),
+            (1, 2, 1),
+            (1, u32::MAX, 0),
+            (0, 1, 8),
+            (3, 1, 8),
+            (u32::MAX, 0, 0),
+        ] {
+            assert_ne!(
+                unsafe {
+                    sp_session_create_with_execution(5, 4, 0, selection, policy, bound, &mut handle)
+                },
+                0
+            );
+            assert_eq!(handle, original);
+        }
+        assert_ne!(
+            unsafe { sp_session_create_with_execution(5, 5, 0, 4, 1, 8, &mut handle) },
+            0
+        );
+        assert_eq!(handle, original);
+        if !cfg!(feature = "native-kernels") {
+            for selection in [1, 2, 4] {
+                assert_ne!(
+                    unsafe {
+                        sp_session_create_with_execution(5, 4, 0, selection, 1, 8, &mut handle)
+                    },
+                    0
+                );
+                assert_eq!(handle, original);
+            }
+        }
+        assert_ne!(
+            unsafe { sp_session_create_with_execution(2, 2, 0, 0, 0, 0, std::ptr::null_mut()) },
+            0
+        );
+        let mut slots = [0usize; 3];
+        let misaligned = unsafe {
+            slots
+                .as_mut_ptr()
+                .cast::<u8>()
+                .add(1)
+                .cast::<*mut Session>()
+        };
+        assert_ne!(
+            unsafe { sp_session_create_with_execution(2, 2, 0, 0, 0, 0, misaligned) },
+            0
+        );
+        assert_eq!(slots, [0; 3]);
+        let mut output = [99u64; 3];
+        for length in [0, 1, 3] {
+            assert_ne!(
+                unsafe { sp_session_native_execution_info(handle, output.as_mut_ptr(), length) },
+                0
+            );
+            assert_eq!(output, [99; 3]);
+        }
+        assert_ne!(
+            unsafe { sp_session_native_execution_info(handle, std::ptr::null_mut(), 2) },
+            0
+        );
+        assert_ne!(
+            unsafe {
+                sp_session_native_execution_info(std::ptr::null_mut(), output.as_mut_ptr(), 2)
+            },
+            0
+        );
+        let misaligned = unsafe { output.as_mut_ptr().cast::<u8>().add(1).cast::<u64>() };
+        assert_ne!(
+            unsafe { sp_session_native_execution_info(handle, misaligned, 2) },
+            0
+        );
+        assert_eq!(output, [99; 3]);
+        assert_eq!(
+            unsafe { sp_session_native_execution_info(handle, output.as_mut_ptr(), 2) },
+            0
+        );
+        assert_eq!(output, [0, 0, 99]);
+        assert_eq!(unsafe { sp_session_destroy(handle) }, 0);
+    }
+    #[test]
+    fn native_execution_old_constructors_keep_whole_and_fixed_reports_survive_reset() {
+        for selection in 0..=4 {
+            if matches!(selection, 1 | 2 | 4) && !cfg!(feature = "native-kernels") {
+                continue;
+            }
+            let mut old = std::ptr::null_mut();
+            assert_eq!(
+                unsafe { sp_session_create_with_kernels(5, 4, 0, selection, &mut old) },
+                0
+            );
+            let mut old_generic = [99; 10];
+            let mut old_conditional = [99; 4];
+            let mut old_execution = [99; 2];
+            assert_eq!(
+                unsafe { sp_session_kernel_info(old, old_generic.as_mut_ptr(), 10) },
+                0
+            );
+            assert_eq!(
+                unsafe { sp_session_rank_correction_info(old, old_conditional.as_mut_ptr(), 4) },
+                0
+            );
+            assert_eq!(
+                unsafe { sp_session_native_execution_info(old, old_execution.as_mut_ptr(), 2) },
+                0
+            );
+            assert_eq!(old_execution, [0, 0]);
+            for bound in [0, 1, 7, 1024] {
+                if bound != 0 && !matches!(selection, 1 | 2 | 4) {
+                    continue;
+                }
+                let mut current = std::ptr::null_mut();
+                let policy = u32::from(bound != 0);
+                assert_eq!(
+                    unsafe {
+                        sp_session_create_with_execution(
+                            5,
+                            4,
+                            0,
+                            selection,
+                            policy,
+                            bound,
+                            &mut current,
+                        )
+                    },
+                    0
+                );
+                let mut generic = [99; 10];
+                let mut conditional = [99; 4];
+                let mut execution = [99; 2];
+                assert_eq!(
+                    unsafe { sp_session_kernel_info(current, generic.as_mut_ptr(), 10) },
+                    0
+                );
+                assert_eq!(
+                    unsafe {
+                        sp_session_rank_correction_info(current, conditional.as_mut_ptr(), 4)
+                    },
+                    0
+                );
+                assert_eq!(generic, old_generic);
+                assert_eq!(conditional, old_conditional);
+                for rows in [0, 3, 1] {
+                    unsafe { session(current).unwrap() }
+                        .amplitude
+                        .reset_batch(rows);
+                    assert_eq!(
+                        unsafe {
+                            sp_session_native_execution_info(current, execution.as_mut_ptr(), 2)
+                        },
+                        0
+                    );
+                    assert_eq!(execution, [u64::from(policy), bound as u64]);
+                }
+                assert_eq!(unsafe { sp_session_destroy(current) }, 0);
+            }
+            assert_eq!(unsafe { sp_session_destroy(old) }, 0);
+        }
+    }
     #[test]
     fn compatibility_selection_and_transactional_creation() {
         let mut handle = std::ptr::null_mut();

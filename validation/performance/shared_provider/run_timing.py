@@ -12,7 +12,7 @@ import subprocess
 from run_physical import ROOT, HERE, digest, runtime_sources
 from timing_statistics import summarize_record
 from execution_report import validate_execution_record
-from kernel_selection import add_arguments, native_enabled, validate_report
+from kernel_selection import add_arguments, native_enabled, validate_arguments, validate_report
 
 
 def host_snapshot():
@@ -62,6 +62,10 @@ def main():
     parser.add_argument('--physical-controls', type=Path, default=ROOT/'validation/evidence/shared-physical-provider-probe.json', help='separate raw/oracle/empty-batch report; its exact source revisions remain explicit')
     add_arguments(parser)
     args = parser.parse_args()
+    try:
+        validate_arguments(args)
+    except ValueError as error:
+        parser.error(str(error))
     if args.scopes is None:
         args.scopes = '1' if args.timing else '0,1,2,3'
     if args.cpu is not None and args.cpu not in os.sched_getaffinity(0):
@@ -152,13 +156,16 @@ def main():
     run('cpp-build', command)
     actual_mode = 'timing' if args.timing else 'allocations' if args.allocation_diagnostics else 'execution' if args.execution_diagnostics else 'check'
     host_before = host_snapshot()
-    stdout = run('physical-workloads', [binary, ROOT/'examples/graphs/physical/gg-hhh/top-pentagon-26.dot', actual_mode, args.rounds, args.trials, args.widths, args.scopes, args.reduction_kernels], input_text, affinity=True)
+    workload_command = [binary, ROOT/'examples/graphs/physical/gg-hhh/top-pentagon-26.dot', actual_mode, args.rounds, args.trials, args.widths, args.scopes, args.reduction_kernels]
+    if args.native_block_rows is not None:
+        workload_command.append(args.native_block_rows)
+    stdout = run('physical-workloads', workload_command, input_text, affinity=True)
     host_after = host_snapshot()
     results = [json.loads(line) for line in stdout.splitlines() if line.startswith('{')]
     if len(results) != 1 or not results[0]['success']:
         raise RuntimeError('missing successful workload report')
     result = results[0]
-    validate_report(result, args.reduction_kernels, native_enabled(args))
+    validate_report(result, args.reduction_kernels, native_enabled(args), native_block_rows=args.native_block_rows)
     if args.execution_diagnostics:
         for item in result['records']:
             item['validated_execution_breakdown'] = validate_execution_record(item)

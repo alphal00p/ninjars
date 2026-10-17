@@ -131,3 +131,21 @@ the five-mode physical comparison. It has no timing evidence and changes no
 scopes, counters, clock boundaries, master policy, or preparation/numerator
 provider. Use a separately coordinated same-artifact comparison before any
 performance conclusion.
+
+The independent `--native-block-rows N` option passes a positive complete-kernel
+row bound through session setup and records the configured `native_execution`
+policy. Omission retains Whole. It changes no timing boundaries, counters,
+master policy or numerator provider. Before sampling, use the physical runner's
+same-artifact Whole/FixedRows control for the explicitly selected native mode.
+Development execution controls are recorded in
+`validation/evidence/native-block-harness.json`; they provide no timing evidence.
+Bounds are never selected by timed autotuning.
+
+`run_timing.py` continues to accept historical separate physical-control files.
+For a future fixed-row measurement, explicitly supply a new physical report
+matching the current source, selected mode and exact bound, including its
+same-artifact Whole/FixedRows parity rows. Timing warmup and configuration
+metadata do not establish that parity. The preselected performance bound is
+32; the bound 7 used by development correctness tests stresses tails and is
+not evidence for bound 32. Release correctness must validate the selected bound
+on the immutable artifact used for the subsequent comparison.

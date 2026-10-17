@@ -108,3 +108,18 @@ identities. Feature-off/native ABI and CLI tests, strict metadata corruption
 tests and an unchanged historical report also pass. The CLI precision checks
 compare serialized values; they do not measure additional accuracy. No new
 measurement or performance claim is recorded.
+
+An independent optional `--native-block-rows N` is wired for native selections.
+It cannot accompany `--all-reduction-kernels`, whose semantics remain Whole.
+The selected-mode control records `execution_parity` with Whole then FixedRows,
+using the same executable, provider and frozen master union. Each row carries
+separate `native_execution` metadata and checks every one of the five outputs
+over the same integrated widths. The option counts complete native kernel rows,
+not phase-space lanes. Its additive constructor/two-cell query and historical
+report rules are described in [the execution contract](../../../docs/native-block-execution.md).
+Development validation is archived in
+`validation/evidence/native-block-harness.json`: the same artifact passes each
+native mode with bound 7, checking 375 complex outputs per policy at widths
+0, 1, 3, 8, 31 and 32, with zero Whole/FixedRows scaled discrepancy. The existing
+all-mode Whole control also passes on that artifact. These are correctness
+controls; no timing result or bound-32 release claim is made.

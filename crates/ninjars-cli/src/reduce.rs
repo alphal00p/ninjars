@@ -55,7 +55,7 @@ impl ReductionKernels {
         }
     }
 
-    pub(crate) fn validate(self) -> Result<()> {
+    pub(crate) fn validate(self, native_block_rows: Option<NonZeroUsize>) -> Result<()> {
         if matches!(
             self,
             Self::NativeDenominators | Self::Native | Self::NativeRank
@@ -66,6 +66,9 @@ impl ReductionKernels {
                 self.name()
             )
             .into());
+        }
+        if native_block_rows.is_some() && matches!(self, Self::Symbolica | Self::InterpretedRank) {
+            return Err("--native-block-rows requires a native reduction-kernel selection".into());
         }
         Ok(())
     }
@@ -124,6 +127,10 @@ pub struct Args {
     /// Reduction execution, independently of the numerator preparation provider.
     #[arg(long, value_enum, default_value = "symbolica")]
     pub reduction_kernels: ReductionKernels,
+    /// Bound complete native kernel rows per call, independently of phase-space batch size.
+    /// Omission keeps whole-batch execution; requires a native reduction selection.
+    #[arg(long)]
+    pub native_block_rows: Option<NonZeroUsize>,
     /// Working precision in bits for --precision float (default 256).
     #[arg(long)]
     pub bits: Option<u32>,
@@ -299,7 +306,7 @@ where
 }
 
 pub(crate) fn evaluate_prepared(prepared: &mut PreparedDocument, args: &Args) -> Result<bool> {
-    args.reduction_kernels.validate()?;
+    args.reduction_kernels.validate(args.native_block_rows)?;
     args.numerator_evaluator.validate(args.precision)?;
     if args.bits.is_some() && !matches!(args.precision, Precision::Float) {
         return Err("--bits applies only to --precision float".into());
@@ -315,7 +322,7 @@ pub(crate) fn evaluate_prepared(prepared: &mut PreparedDocument, args: &Args) ->
 }
 
 pub fn run(args: Args) -> Result<()> {
-    args.reduction_kernels.validate()?;
+    args.reduction_kernels.validate(args.native_block_rows)?;
     args.numerator_evaluator.validate(args.precision)?;
     let mut prepared = prepare::prepare(&prepare::Args {
         input: args.input.clone(),

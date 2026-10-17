@@ -370,3 +370,116 @@ fn rank_selections_preserve_laurent_values_and_report_conditional_coverage() {
         }
     }
 }
+
+#[test]
+fn native_block_rows_reject_invalid_bounds_selections_and_builds() {
+    for bound in ["0", "-1", "1.5", "184467440737095516160"] {
+        assert!(
+            !run(&[
+                "missing.json",
+                "--reduction-kernels",
+                "native",
+                &format!("--native-block-rows={bound}")
+            ])
+            .status
+            .success()
+        );
+    }
+    for selection in ["symbolica", "interpreted-rank"] {
+        let output = run(&[
+            "missing.json",
+            "--reduction-kernels",
+            selection,
+            "--native-block-rows",
+            "8",
+        ]);
+        assert!(!output.status.success());
+        assert!(
+            String::from_utf8_lossy(&output.stderr)
+                .contains("requires a native reduction-kernel selection")
+        );
+    }
+    for selection in ["native-denominators", "native", "native-rank"] {
+        if !cfg!(feature = "native-kernels") {
+            let output = run(&[
+                "missing.json",
+                "--reduction-kernels",
+                selection,
+                "--native-block-rows",
+                "8",
+            ]);
+            assert!(!output.status.success());
+            assert!(
+                String::from_utf8_lossy(&output.stderr)
+                    .contains("requires a build with --features native-kernels")
+            );
+        }
+    }
+    #[cfg(feature = "native-kernels")]
+    {
+        let output = run(&[
+            "examples/graphs/bubble.json",
+            "--reduction-kernels",
+            "native-rank",
+            "--native-block-rows",
+            "8",
+        ]);
+        assert!(!output.status.success());
+        assert!(String::from_utf8_lossy(&output.stderr).contains("requires n=5 and rank=4"));
+    }
+}
+
+#[cfg(feature = "native-kernels")]
+#[test]
+fn native_block_rows_preserve_serialized_values_tail_and_kernel_coverage() {
+    for selection in ["native-denominators", "native", "native-rank"] {
+        for precision in ["f64", "double-float", "float"] {
+            let args = [
+                "examples/graphs/pentagon-rank4.json",
+                "--reduction-kernels",
+                selection,
+                "--precision",
+                precision,
+                "--batch-size",
+                "2",
+            ];
+            let whole = value(run(&args));
+            assert_eq!(whole["results"].as_array().unwrap().len(), 3);
+            assert_eq!(
+                whole["reduction_kernels"]["native_execution"],
+                json!({"policy":"whole","block_rows":null,"scope":"native-kernel-rows"})
+            );
+            for bound in ["1", "7", "1024"] {
+                let mut blocked_args = args.to_vec();
+                blocked_args.extend(["--native-block-rows", bound]);
+                let blocked = value(run(&blocked_args));
+                assert_eq!(blocked["results"].as_array().unwrap().len(), 3);
+                assert_eq!(
+                    blocked["reduction_kernels"]["native_execution"],
+                    json!({"policy":"fixed-rows","block_rows":bound.parse::<usize>().unwrap(),"scope":"native-kernel-rows"})
+                );
+                let mut coverage = blocked["reduction_kernels"].clone();
+                coverage["native_execution"] =
+                    whole["reduction_kernels"]["native_execution"].clone();
+                assert_eq!(coverage, whole["reduction_kernels"]);
+                // Serialized parity; binary64 parsing is not an additional-accuracy test.
+                for (actual, expected) in blocked["results"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .zip(whole["results"].as_array().unwrap())
+                {
+                    assert_eq!(actual["status"]["kind"], "success");
+                    for head in 0..5 {
+                        for part in 0..2 {
+                            near(
+                                component(actual, head, part),
+                                component(expected, head, part),
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

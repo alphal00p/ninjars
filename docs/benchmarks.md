@@ -188,3 +188,11 @@ scaled error over widths 0, 1, 3 and 8. See the
 Master computation, numerator coefficients, callbacks, preparation and residual
 reduction retain their existing separate accounting. These correctness and
 accounting controls provide no new timing or performance acceptance result.
+
+Native row scheduling is an independent explicit option:
+`--native-block-rows N`. It bounds complete native kernel rows, not phase-space
+samples, and reports `native_execution` separately from generic and conditional
+backend coverage. Omission retains Whole execution. See
+[the execution-policy contract](native-block-execution.md) for supported modes,
+compatibility and bounded development validation. No timing scopes or
+master/preparation/callback accounting change.
