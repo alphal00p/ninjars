@@ -1,0 +1,649 @@
+{
+ "format": "ninjars-reference-ninja-results-v1",
+ "case": "four-photon-top-box-0",
+ "case_file": "/shared/external/ninja/references/claude_numerator/validation/benchmark/cases/four-photon-top-box-0.json",
+ "case_sha256": "0e8f7afb2c527d46008c365303babcd8745d8c49ff6b8205677837704bf07372",
+ "n": 4,
+ "rank": 4,
+ "lanes_count": 3,
+ "amplitude": "ninja::Amplitude<ninja::ComplexMasses>(n, rank, V, m2); setRenormalizationScale(mu_squared) (Ninja passes mu_R^2 to IntegralLibrary::init, AvHOneLoop uses mu_R=sqrt); setSMatrix if s_matrix given",
+ "all_replays_bitwise_identical": true,
+ "lanes": [
+  {
+   "id": "sqrt_s_200",
+   "return_status": 0,
+   "eps0": [
+    -0.0008263439634514824,
+    -9.490040153748783e-17
+   ],
+   "eps_m1": [
+    0.002566125495813889,
+    -6.738153745940084e-16
+   ],
+   "eps_m2": [
+    0,
+    0
+   ],
+   "cut_constructible": [
+    0.0027154532887280923,
+    -8.772521898370709e-17
+   ],
+   "rational": [
+    -0.0035417972521795747,
+    -7.175182553780745e-18
+   ],
+   "checks": {
+    "recorded_identical": true,
+    "pure_replay_identical": true,
+    "tensor_reduction_identical": true,
+    "replays_fully_consumed": true,
+    "masters_replay_identical": true,
+    "madloop_entry_identical": true
+   },
+   "numerator_calls": {
+    "evaluate": 2,
+    "muExpansion": 1,
+    "t3Expansion": 12,
+    "t2Expansion": 12,
+    "total": 27,
+    "output_values": 119
+   },
+   "master_calls": {
+    "box_cm": 1,
+    "rank2_bubble_cm": 6,
+    "tadpole_cm": 4,
+    "triangle_cm": 4,
+    "total": 15,
+    "init_calls": 1
+   },
+   "max_scaled_difference_between_builds": 0.0,
+   "checks_all_builds": true
+  },
+  {
+   "id": "sqrt_s_500",
+   "return_status": 0,
+   "eps0": [
+    -0.00991094989096774,
+    0.0004973894902211027
+   ],
+   "eps_m1": [
+    0.005112108719294056,
+    5.62305947743507e-17
+   ],
+   "eps_m2": [
+    0,
+    0
+   ],
+   "cut_constructible": [
+    -0.011812029068279887,
+    0.0004973894902210993
+   ],
+   "rational": [
+    0.0019010791773121476,
+    3.469446951953614e-18
+   ],
+   "checks": {
+    "recorded_identical": true,
+    "pure_replay_identical": true,
+    "tensor_reduction_identical": true,
+    "replays_fully_consumed": true,
+    "masters_replay_identical": true,
+    "madloop_entry_identical": true
+   },
+   "numerator_calls": {
+    "evaluate": 2,
+    "muExpansion": 1,
+    "t3Expansion": 12,
+    "t2Expansion": 12,
+    "total": 27,
+    "output_values": 119
+   },
+   "master_calls": {
+    "box_cm": 1,
+    "rank2_bubble_cm": 6,
+    "tadpole_cm": 4,
+    "triangle_cm": 4,
+    "total": 15,
+    "init_calls": 1
+   },
+   "max_scaled_difference_between_builds": 0.0,
+   "checks_all_builds": true
+  },
+  {
+   "id": "sqrt_s_800",
+   "return_status": 0,
+   "eps0": [
+    -0.012755526780081627,
+    -0.004728868494000586
+   ],
+   "eps_m1": [
+    0.004035616164360026,
+    -3.542284071958272e-17
+   ],
+   "eps_m2": [
+    0,
+    0
+   ],
+   "cut_constructible": [
+    -0.015941894815028945,
+    -0.004728868494000587
+   ],
+   "rational": [
+    0.003186368034947318,
+    8.673617379884035e-19
+   ],
+   "checks": {
+    "recorded_identical": true,
+    "pure_replay_identical": true,
+    "tensor_reduction_identical": true,
+    "replays_fully_consumed": true,
+    "masters_replay_identical": true,
+    "madloop_entry_identical": true
+   },
+   "numerator_calls": {
+    "evaluate": 2,
+    "muExpansion": 1,
+    "t3Expansion": 12,
+    "t2Expansion": 12,
+    "total": 27,
+    "output_values": 119
+   },
+   "master_calls": {
+    "box_cm": 1,
+    "rank2_bubble_cm": 6,
+    "tadpole_cm": 4,
+    "triangle_cm": 4,
+    "total": 15,
+    "init_calls": 1
+   },
+   "max_scaled_difference_between_builds": 0.0,
+   "checks_all_builds": true
+  }
+ ],
+ "timing_unit": "ns per phase-space point (one lane), lanes cycled; median of interleaved blocks",
+ "timing_cpu": 29,
+ "timing_modes": {
+  "full": "TensorNumerator + AvHOneLoop (OneLOop, cache disabled), Amplitude::evaluate",
+  "pure_reduction": "ReplayNumerator + ReplayIntegralLibrary, Amplitude::evaluate",
+  "reduction_plus_tensor_numerator": "TensorNumerator + ReplayIntegralLibrary, Amplitude::evaluate",
+  "masters_only": "recorded AvHOneLoop interface calls replayed through ninja::avh_olo, no reduction",
+  "numerator_only": "recorded TensorNumerator calls (inputs) replayed, no reduction",
+  "full_madloop_entry": "MadLoop's entry point ninja_tensor_evaluate_[smat_]cm_ (new TensorNumerator + Amplitude per call, default AvHOneLoop)",
+  "masters_boxes": "recorded boxes calls only, replayed through ninja::avh_olo",
+  "masters_triangles": "recorded triangles calls only, replayed through ninja::avh_olo",
+  "masters_bubbles": "recorded bubbles calls only, replayed through ninja::avh_olo",
+  "masters_tadpoles": "recorded tadpoles calls only, replayed through ninja::avh_olo"
+ },
+ "timing": {
+  "o3": {
+   "median_ns": {
+    "full": 54563.49673202614,
+    "pure_reduction": 11138.7811942959,
+    "reduction_plus_tensor_numerator": 42312.7986463621,
+    "masters_only": 11529.978762696213,
+    "numerator_only": 29224.79487179487,
+    "full_madloop_entry": 55084.04605263158,
+    "masters_boxes": 5133.221949724096,
+    "masters_triangles": 4787.5440215301805,
+    "masters_bubbles": 1331.793617703656,
+    "masters_tadpoles": 155.08755876789223
+   },
+   "blocks_ns": {
+    "full": [
+     54739.836601307186,
+     54542.94989106754,
+     54590.20479302832,
+     54488.22440087146,
+     54562.450980392154,
+     54651.94989106754,
+     82332.95860566449,
+     54563.49673202614,
+     54506.2614379085
+    ],
+    "pure_reduction": [
+     11174.837344028521,
+     11208.26871657754,
+     11146.59714795009,
+     11138.7811942959,
+     11124.988859180035,
+     11135.773172905527,
+     11199.80614973262,
+     11130.554367201426,
+     11109.707664884136
+    ],
+    "reduction_plus_tensor_numerator": [
+     42341.869712351945,
+     42295.456852791875,
+     42321.73434856176,
+     42244.033840947544,
+     42301.05583756345,
+     42312.7986463621,
+     42381.345177664974,
+     42270.00676818951,
+     42487.74111675127
+    ],
+    "masters_only": [
+     11526.530009233611,
+     11541.632040627885,
+     11543.04893813481,
+     11489.461680517083,
+     11564.872576177286,
+     11529.978762696213,
+     11588.27516158818,
+     11523.395198522623,
+     11521.059095106186
+    ],
+    "numerator_only": [
+     29217.090909090908,
+     29251.356643356645,
+     29353.85198135198,
+     29092.58041958042,
+     29239.143356643355,
+     29164.22494172494,
+     29224.79487179487,
+     29233.117715617715,
+     29186.3682983683
+    ],
+    "full_madloop_entry": [
+     54994.396929824565,
+     55172.57675438596,
+     55084.04605263158,
+     55620.01315789474,
+     68864.02631578948,
+     55060.44736842105,
+     54987.05043859649,
+     58332.93640350877,
+     55003.71710526316
+    ],
+    "masters_boxes": [
+     5156.7330880850195,
+     5133.221949724096,
+     5155.147148988351,
+     5123.023707337012,
+     5030.301042305334,
+     5137.540363784999,
+     5129.303903535663,
+     5125.05926834253,
+     5135.1203760474145
+    ],
+    "masters_triangles": [
+     4806.492502883506,
+     4784.766243752403,
+     4785.929257977701,
+     4804.23567858516,
+     4813.266820453671,
+     4790.437139561707,
+     4787.5440215301805,
+     4779.318339100346,
+     4786.325259515571
+    ],
+    "masters_bubbles": [
+     1331.793617703656,
+     1331.8491554415223,
+     1333.4618345093008,
+     1325.8458413512935,
+     1330.2273893521487,
+     1332.5664956168484,
+     1329.0364549925166,
+     1332.1805644644003,
+     1329.7821252939918
+    ],
+    "masters_tadpoles": [
+     154.59979296448972,
+     155.15262707112532,
+     154.22102273077374,
+     155.5956584160551,
+     155.08755876789223,
+     197.85975808886505,
+     155.3451824192346,
+     155.05538816077294,
+     154.42541484124197
+    ]
+   },
+   "iterations_per_block": {
+    "full": 153,
+    "pure_reduction": 748,
+    "reduction_plus_tensor_numerator": 197,
+    "masters_only": 722,
+    "numerator_only": 286,
+    "full_madloop_entry": 152,
+    "masters_boxes": 1631,
+    "masters_triangles": 1734,
+    "masters_bubbles": 6236,
+    "masters_tadpoles": 54097
+   },
+   "derived": {
+    "full_ns": 54563.49673202614,
+    "pure_reduction_ns": 11138.7811942959,
+    "numerator_part_ns": 31174.017452066197,
+    "numerator_only_ns": 29224.79487179487,
+    "masters_ns": 11529.978762696213,
+    "sum_pure_numerator_masters_ns": 53842.77740905831,
+    "sum_over_full": 0.9867911815383195
+   },
+   "protocol": "one calibration and one discarded warm-up block per mode; then 9 interleaved rounds, each running one block (>= 25 ms) of every mode; median over rounds",
+   "host_loadavg_before": [
+    "70.10",
+    "45.43",
+    "40.95"
+   ],
+   "libninja_sha256": "b6c3a01e70c155211b3abdab557afa99eb60ec9a50e5ab5b49323f22381b1869",
+   "libavh_olo_sha256": "502929c43f0dcb301cad8aa37ca4e88e15052a6f7e2042c6d88620d922ca68bb",
+   "driver_binary_sha256": "39f3bbe22ebed561cb74ec95067ba4b71bb25944c9cf449a8446bac29c478651"
+  },
+  "o3-fortranrules": {
+   "median_ns": {
+    "full": 44166.728070175435,
+    "pure_reduction": 9173.738969225065,
+    "reduction_plus_tensor_numerator": 31843.415384615386,
+    "masters_only": 11407.997732426304,
+    "numerator_only": 21283.201017811705,
+    "full_madloop_entry": 44475.46808510638,
+    "masters_boxes": 5069.58586472256,
+    "masters_triangles": 4733.209981167608,
+    "masters_bubbles": 1328.7049692731512,
+    "masters_tadpoles": 154.16294472118057
+   },
+   "blocks_ns": {
+    "full": [
+     44182.850877192985,
+     44268.78070175439,
+     44267.570175438595,
+     44145.67543859649,
+     44132.235087719295,
+     44137.34210526316,
+     44147.60526315789,
+     44166.728070175435,
+     58953.145614035086
+    ],
+    "pure_reduction": [
+     9177.669262143121,
+     9173.738969225065,
+     9150.93177604746,
+     9180.527623285132,
+     9146.067111605487,
+     9184.858361142009,
+     9118.632925472748,
+     9172.578420467185,
+     9204.08750463478
+    ],
+    "reduction_plus_tensor_numerator": [
+     31837.798717948717,
+     31843.415384615386,
+     31864.3641025641,
+     31859.53076923077,
+     31835.78717948718,
+     31835.54358974359,
+     31830.978205128205,
+     31914.723076923077,
+     32127.133333333335
+    ],
+    "masters_only": [
+     11397.303854875283,
+     11430.727891156463,
+     11396.614058956917,
+     11394.496145124716,
+     11413.598185941042,
+     11407.997732426304,
+     11402.469387755102,
+     11438.061224489797,
+     11436.252154195012
+    ],
+    "numerator_only": [
+     21267.374045801527,
+     21272.056827820186,
+     21283.201017811705,
+     21271.76759966073,
+     21290.665818490244,
+     21310.90245971162,
+     21379.85072094996,
+     21319.20695504665,
+     21260.928753180662
+    ],
+    "full_madloop_entry": [
+     44603.85638297872,
+     44608.82092198582,
+     44312.22340425532,
+     44434.24645390071,
+     44399.26241134752,
+     44467.06560283688,
+     44954.4609929078,
+     44475.46808510638,
+     44627.313829787236
+    ],
+    "masters_boxes": [
+     5063.014378290806,
+     5069.830700688538,
+     5053.5265289590925,
+     5085.3068043742405,
+     5069.58586472256,
+     5064.889428918591,
+     5071.296881328473,
+     5081.088497367356,
+     5063.698663426489
+    ],
+    "masters_triangles": [
+     4744.138229755179,
+     4717.65988700565,
+     4727.75988700565,
+     4720.279661016949,
+     4733.209981167608,
+     4735.249529190207,
+     4747.074387947269,
+     5343.816384180791,
+     4714.377401129944
+    ],
+    "masters_bubbles": [
+     1332.3359821996185,
+     1329.3518224200043,
+     1326.9540156812884,
+     1328.1332909514729,
+     1328.7049692731512,
+     1331.0561029879211,
+     1326.6636999364273,
+     2055.2262661580844,
+     1327.0976372112736
+    ],
+    "masters_tadpoles": [
+     154.64645560095272,
+     154.16294472118057,
+     153.99951493442288,
+     154.09833149879046,
+     154.48464269945214,
+     154.73177739221282,
+     153.49255921842254,
+     265.4861165525519,
+     153.86698631244442
+    ]
+   },
+   "iterations_per_block": {
+    "full": 190,
+    "pure_reduction": 899,
+    "reduction_plus_tensor_numerator": 260,
+    "masters_only": 735,
+    "numerator_only": 393,
+    "full_madloop_entry": 188,
+    "masters_boxes": 1646,
+    "masters_triangles": 1770,
+    "masters_bubbles": 6292,
+    "masters_tadpoles": 53601
+   },
+   "derived": {
+    "full_ns": 44166.728070175435,
+    "pure_reduction_ns": 9173.738969225065,
+    "numerator_part_ns": 22669.67641539032,
+    "numerator_only_ns": 21283.201017811705,
+    "masters_ns": 11407.997732426304,
+    "sum_pure_numerator_masters_ns": 43251.41311704169,
+    "sum_over_full": 0.979275916665608
+   },
+   "protocol": "one calibration and one discarded warm-up block per mode; then 9 interleaved rounds, each running one block (>= 25 ms) of every mode; median over rounds",
+   "host_loadavg_before": [
+    "70.10",
+    "45.43",
+    "40.95"
+   ],
+   "libninja_sha256": "858309a8a0759066bcdb6a95d216e84a27470bdab1b005b54caa743d742458cb",
+   "libavh_olo_sha256": "502929c43f0dcb301cad8aa37ca4e88e15052a6f7e2042c6d88620d922ca68bb",
+   "driver_binary_sha256": "cfdb8de15455baa7a11c1a485d9ea4917b4615f6781a859b792635fb2390eec5"
+  },
+  "o3-ol34": {
+   "median_ns": {
+    "full": 52912.033755274264,
+    "pure_reduction": 11026.64687774846,
+    "reduction_plus_tensor_numerator": 42220.98484848485,
+    "masters_only": 10046.869810560258,
+    "numerator_only": 29116.80023228804,
+    "full_madloop_entry": 53397.738853503186,
+    "masters_boxes": 3743.5489406147417,
+    "masters_triangles": 4770.965563165905,
+    "masters_bubbles": 1335.2125053487377,
+    "masters_tadpoles": 154.30284661775485
+   },
+   "blocks_ns": {
+    "full": [
+     52990.240506329115,
+     52911.55063291139,
+     53015.49578059072,
+     52912.033755274264,
+     52923.47046413502,
+     52905.6835443038,
+     52874.50421940928,
+     52915.20042194093,
+     52854.694092827005
+    ],
+    "pure_reduction": [
+     11024.975813544415,
+     11100.982849604221,
+     11710.224274406333,
+     11047.904573438875,
+     11044.364555848724,
+     11026.64687774846,
+     11019.293755496921,
+     11019.92260334213,
+     11024.170624450308
+    ],
+    "reduction_plus_tensor_numerator": [
+     42160.19191919192,
+     42256.723905723906,
+     42283.49158249158,
+     42360.17676767677,
+     42155.46127946128,
+     42345.412457912455,
+     42220.98484848485,
+     42147.44781144781,
+     42117.04377104377
+    ],
+    "masters_only": [
+     10060.02579604998,
+     10035.237404272471,
+     10082.778718258767,
+     10048.615477629988,
+     10028.143490528013,
+     10046.869810560258,
+     10023.234179766223,
+     10044.61265618702,
+     10069.070536074163
+    ],
+    "numerator_only": [
+     29196.881533101045,
+     29095.54587688734,
+     29141.224157955865,
+     29163.91986062718,
+     29116.80023228804,
+     29097.542392566782,
+     29270.76074332172,
+     29081.1556329849,
+     29107.786295005808
+    ],
+    "full_madloop_entry": [
+     53560.6050955414,
+     53376.05944798302,
+     53355.21231422506,
+     53397.738853503186,
+     53525.700636942674,
+     53420.668789808915,
+     53456.9957537155,
+     53368.80042462845,
+     53337.208067940555
+    ],
+    "masters_boxes": [
+     3747.4865711727844,
+     3743.5489406147417,
+     3736.5837063563117,
+     3735.424350940018,
+     3743.356460757983,
+     3754.876902417189,
+     3741.1198149806028,
+     3759.7620113398984,
+     3743.630856460758
+    ],
+    "masters_triangles": [
+     4784.376902587519,
+     4755.288051750381,
+     4779.816400304414,
+     4772.348744292238,
+     4770.965563165905,
+     4797.717846270928,
+     4768.509132420091,
+     4765.630707762557,
+     4760.4119101978695
+    ],
+    "masters_bubbles": [
+     1337.2012195121952,
+     1329.0032092426188,
+     1333.367244330338,
+     1338.9112109542148,
+     1335.2125053487377,
+     1336.3406076166025,
+     1332.7981386392812,
+     1334.492618741977,
+     1342.428540864356
+    ],
+    "masters_tadpoles": [
+     154.40775443070726,
+     154.36297610467372,
+     154.24075819457533,
+     154.30284661775485,
+     154.11003308015006,
+     154.01331830250166,
+     153.60342013022614,
+     154.36426358165008,
+     154.44435204179064
+    ]
+   },
+   "iterations_per_block": {
+    "full": 158,
+    "pure_reduction": 758,
+    "reduction_plus_tensor_numerator": 198,
+    "masters_only": 827,
+    "numerator_only": 287,
+    "full_madloop_entry": 157,
+    "masters_boxes": 2234,
+    "masters_triangles": 1752,
+    "masters_bubbles": 6232,
+    "masters_tadpoles": 54111
+   },
+   "derived": {
+    "full_ns": 52912.033755274264,
+    "pure_reduction_ns": 11026.64687774846,
+    "numerator_part_ns": 31194.337970736386,
+    "numerator_only_ns": 29116.80023228804,
+    "masters_ns": 10046.869810560258,
+    "sum_pure_numerator_masters_ns": 52267.85465904511,
+    "sum_over_full": 0.9878254708709823
+   },
+   "protocol": "one calibration and one discarded warm-up block per mode; then 9 interleaved rounds, each running one block (>= 25 ms) of every mode; median over rounds",
+   "host_loadavg_before": [
+    "67.93",
+    "45.39",
+    "40.96"
+   ],
+   "libninja_sha256": "d2951af29fd6077981cfd2ebd37f5b399c4c0713241989aa41781d631f75943e",
+   "libavh_olo_sha256": "28c37c328fadd6f4f09f973bfb961b3bccb3c729583a92dc2186fd947ccbe4dd",
+   "driver_binary_sha256": "5bc536e22c7ca21770af08969562e8061d4c81dfa84e62d4dc55912d40a530e7"
+  }
+ },
+ "date_utc": "2026-10-17T12:44:50+00:00",
+ "driver_sha256": "a2939af6273300d795ab42c7ba1ac87b6508175f95a380fd8421cf26083bdfc2"
+}

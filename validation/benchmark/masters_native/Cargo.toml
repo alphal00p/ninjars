@@ -1,0 +1,25 @@
+# Standalone (non-workspace) bench: oneloopmaster's direct native Rust masters
+# (feature generated-evaluators, NativeEvaluator<f64>) on exactly the OneLOop
+# calls original Ninja makes (validation/benchmark/ninja/<case>.masters.json).
+[package]
+name = "masters-native-bench"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+oneloop = { path = "../../../references/oneloopmaster", default-features = false, features = ["generated-evaluators"] }
+symbolica = { version = "3.0.1", default-features = false, features = ["integer-gmp", "float-mpfr", "bincode", "serde", "tracing_max_level_info"] }
+serde_json = "1"
+
+[patch.crates-io]
+symbolica = { path = "../../../references/symbolica" }
+numerica = { path = "../../../references/symbolica/lib/numerica" }
+graphica = { path = "../../../references/symbolica/lib/graphica" }
+
+# Same as NinjaRS's release profile.
+[profile.release]
+lto = "thin"
+codegen-units = 1
