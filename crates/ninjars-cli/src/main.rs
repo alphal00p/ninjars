@@ -2,6 +2,7 @@ mod bench;
 mod case_bench;
 #[cfg(feature = "reference-codegen")]
 mod compare;
+mod draw;
 mod export_bench;
 mod fast_runtime;
 mod numerator_bench;
@@ -45,6 +46,8 @@ enum Command {
     PipelineBench(pipeline_bench::Args),
     /// Binary64 fast-engine benchmark of shared bench cases (ninjars-bench-case-v1).
     CaseBench(case_bench::Args),
+    /// Draw FeynKit DOT graphs as Typst documents with Linnest.
+    Draw(draw::Args),
 }
 
 fn main() {
@@ -84,6 +87,7 @@ fn main() {
             .expect("cannot start numerator benchmark worker")
             .join()
             .unwrap_or_else(|_| Err("numerator benchmark worker panicked".into())),
+        Command::Draw(args) => draw::run(args).map_err(|error| error.to_string()),
         Command::CaseBench(args) => std::thread::Builder::new()
             .name("ninjars-case-bench".into())
             .stack_size(128 * 1024 * 1024)

@@ -1552,6 +1552,7 @@ name = "ninjars-cli"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "feynkit-graph",
  "feynkit-model",
  "ninjars",
  "ninjars-graph",

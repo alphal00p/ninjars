@@ -1,0 +1,15 @@
+digraph hexagon {
+    ext [style=invis];
+    ext -> a [particle="phi"];
+    ext -> b [particle="phi"];
+    c -> ext [particle="phi"];
+    d -> ext [particle="phi"];
+    e -> ext [particle="phi"];
+    f -> ext [particle="phi"];
+    a -> b [particle="phi", lmb_id=0];
+    b -> c [particle="phi"];
+    c -> d [particle="phi"];
+    d -> e [particle="phi"];
+    e -> f [particle="phi"];
+    f -> a [particle="phi"];
+}

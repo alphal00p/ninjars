@@ -1,5 +1,59 @@
 // Prose sections of the NinjaRS benchmark report.
 
+= The benchmarked diagrams <diagrams>
+
+#let drawing(path, title, detail) = box(width: 100%, {
+  set align(center)
+  box(height: 3.4cm, align(horizon, image(path, width: 88%, height: 3.4cm, fit: "contain")))
+  v(-2pt)
+  text(8.5pt, weight: "semibold", title)
+  linebreak()
+  text(7.5pt, fill: luma(90), detail)
+})
+
+The physical diagrams are drawn from the same FeynKit DOT files that NinjaRS
+prepares (`ninjars draw`, laid out and styled by GammaLoop's Linnest
+package): gluons as coils, photons as waves, top quarks as solid lines with
+fermion-flow arrows and Higgs bosons dashed. Each diagram is matched one to
+one with the MadLoop loop diagram given by its loop-filter identifier.
+
+#figure(
+  kind: image,
+  caption: [The seven physical one-loop diagrams with a top-quark loop.
+    Below each drawing: number of propagators $n$, numerator rank $r$ in
+    NinjaRS (rank passed to Ninja by MadLoop in brackets) and the MadLoop
+    loop-diagram identifier.],
+  grid(
+    columns: 4,
+    gutter: 10pt,
+    drawing("linnet/hgg/top-triangle-0.svg", [gg → H], [$n = 3$, $r = 2$ (3), ML \#3]),
+    drawing("linnet/four-photon/top-box-0.svg", [γγ → γγ], [$n = 4$, $r = 4$ (4), ML \#182]),
+    drawing("linnet/gg-hh/top-triangle-0.svg", [gg → HH], [$n = 3$, $r = 2$ (3), ML \#11]),
+    drawing("linnet/gg-hh/top-box-2.svg", [gg → HH], [$n = 4$, $r = 4$ (4), ML \#10]),
+    drawing("linnet/gg-hhh/top-triangle-0.svg", [gg → HHH], [$n = 3$, $r = 2$ (3), ML \#66]),
+    drawing("linnet/gg-hhh/top-box-8.svg", [gg → HHH], [$n = 4$, $r = 4$ (4), ML \#58]),
+    drawing("linnet/gg-hhh/top-pentagon-26.svg", [gg → HHH], [$n = 5$, $r = 4$ (5), ML \#55]),
+  ),
+) <fig:physical-diagrams>
+
+#figure(
+  kind: image,
+  caption: [Scalar topologies of the synthetic cases ($n = 2, dots, 6$).
+    Each synthetic case attaches a dense random tensor numerator of rank
+    $n - 1$, $n$ or $n + 1$, random real external kinematics with time-like
+    and space-like invariants, and real or complex internal masses to one of
+    these topologies.],
+  grid(
+    columns: 5,
+    gutter: 8pt,
+    drawing("linnet/synthetic/bubble.svg", [$n = 2$], [ranks 1–3]),
+    drawing("linnet/synthetic/triangle.svg", [$n = 3$], [ranks 2–4]),
+    drawing("linnet/synthetic/box.svg", [$n = 4$], [ranks 3–5]),
+    drawing("linnet/synthetic/pentagon-rank4.svg", [$n = 5$], [ranks 4–6]),
+    drawing("linnet/synthetic/hexagon.svg", [$n = 6$], [ranks 5–7]),
+  ),
+) <fig:synthetic-diagrams>
+
 = How the numbers are measured <methodology>
 
 *Test cases.* Seven physical one-loop diagrams with a top-quark loop,
