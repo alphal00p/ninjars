@@ -117,6 +117,67 @@ batches, and grow/shrink/retry. A future native row bound would count complete
 pair-kernel rows and must be reported accordingly. No present metadata claims
 that any production pair kernel ran.
 
+## Possible production interface, unimplemented and unmeasured
+
+If the inventory is favorable, prefer explicit provenance for core-produced
+pairs. A borrowed reduction-batch descriptor would encapsulate the complete
+division and correction request slices together with their pair and original-row
+maps. Its fields and constructor would be private to the reduction core; public
+read-only accessors would let another crate implement the kernels. Encapsulating
+the request slices prevents a caller from attaching valid pairing information to
+unrelated requests. This is request metadata over the existing shared momentum
+types, not a new momentum or polynomial representation.
+
+The core can construct that descriptor while borrowing the cuts and parents
+from which it builds both orientations (`crates/ninjars/src/bubbles.rs:453-529`).
+It must record the common inputs and corresponding parent provenance at that
+point. The two cloned `a0/a1` vectors have different addresses, so pointer
+equality cannot establish their shared origin. Adjacency alone is also
+insufficient. A new default trait entry point would delegate to the existing
+combined projection entry point, preserving third-party implementations. The
+existing standalone, full raw, and arbitrary public combined calls would retain
+their current semantics and would not acquire implicit pairing assumptions.
+
+Check all complete buffer shapes, topology and original input values before
+packing. Carry original row indices through each compaction. When both eligible
+orientations share the recorded denominator inputs, evaluate all 14 paired heads
+and scatter them into the unchanged per-orientation seven-head storage. Each
+orientation retains its own finite-result and leading-pivot status. An eligible
+unmatched orientation follows the existing batched unpaired path. Do not merge
+the status of a valid orientation with its invalid partner or silently change
+which scratch outputs a later stage error may leave written.
+
+Source projection remains a separate stage, after the current requirement that
+both divisions succeed and after existing parent validation. Its pairing map
+must identify the same parent source, origin and axes, rather than merely the
+same parent position. Evaluate all 16 projection heads and preserve each
+orientation's status. Keep same-call denominator reuse, whole-active-kind rank
+guards, complete numerator callbacks, subtraction/projection and transactional
+residue publication unchanged. Neither the descriptor nor output retention
+proves unchanged numerical behavior after instruction optimization.
+
+Validation would include malformed or incompatible public requests taking the
+old path; incomplete pairs and independently invalid orientations; mismatched
+parent data; empty, single and tail batches; compaction and reordered rows;
+grow/shrink/retry; and old raw API completeness. Compare every ordinary/complex
+and higher/mixed Dual component, ordered derivative shape, component precision,
+signed zero, exceptional classification and resulting status. The descriptor
+must borrow only the current immutable batch so reused workspace indices cannot
+become stale provenance.
+
+Full numerical matching is a possible later alternative, with additional cost
+and API requirements. `IntegrationChecks::equal` currently compares values and
+Dual shapes, not precision or signed-zero identity
+(`crates/ninjars-symbolica/src/value_checks.rs:58,79`). A correct match would
+inspect both complex parts and every derivative component, with each component's
+precision and zero sign; DoubleFloat also needs its two-part representation
+considered. The generic `Real + SingleFloat` contract does not expose a uniform
+representation-identity operation. Symbolica Float's public `serialize` even
+normalizes both zero signs (`lib/numerica/src/domains/float/multiprecision.rs:834`).
+Do not add numerical matching, serialization-based identities, or new shared
+traits merely to recover provenance already available in the core. Any later
+need requires the same upstream API audit as other shared numerical operations.
+
 ## Intended validation command, not yet executed
 
 Compile the library test outside the numerical lock with jobs at most four.
