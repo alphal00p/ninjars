@@ -585,12 +585,10 @@ fn lane_statuses_isolate_failures_and_keep_previous_results() {
             FastStatus::Success
         ]
     );
-    for lane in 1..4 {
-        assert_eq!(
-            results[lane], sentinel,
-            "failed lane {lane} must keep its result"
-        );
+    for (lane, result) in results.iter().enumerate().take(4).skip(1) {
+        assert_eq!(*result, sentinel, "failed lane {lane} must keep its result");
     }
+
     assert_ne!(results[0], sentinel);
     // Same kinematics and coefficients: lane 4 differs from lane 0 only by mu².
     assert_ne!(results[4], sentinel);
