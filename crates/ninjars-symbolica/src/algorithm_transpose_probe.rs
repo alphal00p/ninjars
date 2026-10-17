@@ -28,6 +28,11 @@ const OUTPUTS: usize = 5;
 // Stop this experiment rather than silently turn it into a large symbolic job.
 const MAX_COMPOSED_BYTES: usize = 8 * 1024 * 1024;
 
+// Reuse the same exact forward network for a bounded output-retention control.
+// The transpose experiment and its historical five-output baseline stay intact.
+#[path = "algorithm_forward_fusion_probe.rs"]
+mod diagnostic_forward;
+
 fn substitute(expressions: &[Atom], from: &[Atom], to: &[Atom]) -> Vec<Atom> {
     assert_eq!(from.len(), to.len());
     let replacements: Vec<_> = from

@@ -34,6 +34,10 @@ The 45% graph-count reduction is not a directly deployable reduction speedup.
 Fused forward also requires 132 local temporaries versus a maximum of 30 for
 one separate forward block; cross-block storage remains unmeasured.
 
+The source-only [diagnostic-output follow-up](forward-diagnostic-fusion.md)
+retains every existing forward block output to quantify this boundary. It reuses
+the same n3/r3 graph and does not add a transpose or physical-geometry experiment.
+
 For H numerators with genuinely fixed geometry and master values, an
 **instruction-count-only** model gives `3054 + 305*H` for the factored
 transpose. It falls below `1954*H` at H=2 and below `1075*H` at H=4
