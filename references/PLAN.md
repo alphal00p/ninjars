@@ -1881,10 +1881,27 @@ connects the existing kernels into integrated amplitudes and a standalone
   executables and 20 logs. The ignored timing probe remains unrun here.
 - Before updating the canonical owner checkout, ten historical NinjaRS worktree
   aliases were pinned directly to the immutable old5310642 checkout. Their
-  source bytes and archived benchmark artifacts remain intact. Combined-main
-  checks are next. No new rank or supported-blocking timing is claimed.
+  source bytes and archived benchmark artifacts remain intact. Root reverified
+  all 1,952 distinct source files of the frozen physical timing runtime after
+  updating these aliases. No new rank or supported-blocking timing is claimed.
 - The next harness extension will use an independent positive
   `--native-block-rows` option, an additive constructor/query, and separate
   execution-policy metadata. Existing calls/reports retain Whole behavior;
   explicit blocking requires native coverage. Physical controls must precede
   same-artifact timings, with actual masters kept separate from reduction.
+
+### Combined native policy checkpoint (2026-10-17)
+
+- Main source `a6739ca` passes 49 tests: all 44 adapter unit tests, two CLI
+  reduction rank tests, one CLI benchmark rank test, and two existing native
+  selection compatibility tests. Four explicit probes remain intentionally
+  ignored. Strict adapter/CLI library/tests/examples Clippy, feature-off
+  compilation, workspace formatting and diff checks pass.
+- Retained logs, commands, executable hashes, 170 source hashes, dependency
+  revisions and independent candidate-verification summaries are recorded in
+  `validation/evidence/native-policy-integrated/manifest.json`. Upstream
+  oneloopmaster main was independently verified at `c9dd82f` after publication.
+- The independent row-bound CLI/harness extension is in source review. The
+  next algorithm audit examines swapped bubble expansion head liveness and
+  the smallest compatible batched change. Neither effort has new timing
+  evidence; the last physical reduction measurements still miss acceptance.
