@@ -1,10 +1,39 @@
 # Paired bubble orientation inventory
 
-Status: source-only experiment prepared from NinjaRS `c13cc2f`. It has not been
-built, symbolically executed, numerically validated, or timed. The ignored test
-must wait for explicit authorization after the active timing window. Dependencies
-are the existing clean Symbolica `2c06f245`, FeynKit/gammaloop `474478a7`, and
-oneloopmaster `c9dd82fd` checkouts; only this new worktree has dependency aliases.
+Status: bounded symbolic inventory completed from frozen source `fda9047`, based
+on NinjaRS `c13cc2f`. All 30 exact parameter/head roundtrip identities passed.
+There has been no numerical evaluator validation, production dispatch or timing.
+Dependencies remained clean at Symbolica `2c06f245`, FeynKit/gammaloop `474478a7`,
+and oneloopmaster `c9dd82fd`; only this worktree has its new dependency aliases.
+
+## Result
+
+| Existing exact graph | Retained outputs | Separate instructions | Merged instructions | Separate scalar-carrier operations | Merged scalar-carrier operations |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| T2 denominator pair | 14 | 174 | 124 | 222 | 158 |
+| Source-projection pair | 16 | 120 | 92 | 136 | 100 |
+| Sum of independent families | 30 | 294 | 216 | 358 | 258 |
+
+`merge(Some(0))` and `merge(Some(2))` have identical inventories in both families.
+The original-parameter controls match the separate canonically rebound plans;
+parameter remapping did not change their operation counts. Neither graph has
+inversions, functions or hidden evaluator bodies. Retained expression text is
+4,984 bytes, below the 8 MiB cap. Denominator temporary slots are 14 per separate
+orientation versus 19 merged; projections use 12 versus 16. Summed separate
+temporaries (28/24) are not peak-memory comparisons. Packing, validation,
+transport, finite-status behavior, precision and Dual numerical execution remain
+unmeasured. These counts justify considering a bounded numerical prototype;
+they do not establish a runtime improvement.
+
+The [retained evidence](../../validation/evidence/paired-orientation-inventory/README.md)
+contains both execution records. The first symbolic test passed, but its JSON
+was overwritten by a command-metadata filename collision. After preserving its
+logs and repairing the wrapper, the coordinating agent explicitly authorized
+one replacement execution with the same frozen executable, lock and bounds.
+Exactly two symbolic executions occurred; all reported counts come only from
+the second retained report. Source/dependency/executable guards remained equal.
+Focused strict Clippy and package formatting passed; existing dependency warnings
+are retained in the raw logs.
 
 ## Algebra reuse checks, recorded before implementation
 
@@ -178,13 +207,15 @@ Do not add numerical matching, serialization-based identities, or new shared
 traits merely to recover provenance already available in the core. Any later
 need requires the same upstream API audit as other shared numerical operations.
 
-## Intended validation command, not yet executed
+## Validation command and retained scope
 
-Compile the library test outside the numerical lock with jobs at most four.
-After explicit authorization, invoke only
+The library test was compiled outside the numerical lock with jobs four and
+`--features rust-codegen`. Both explicitly authorized invocations ran only
 `paired_orientation_probe::inventory_paired_orientations` with `--exact --ignored
 --nocapture --test-threads=1`, under `flock /tmp/ninjars-symbolica-tests.lock`
-followed by `timeout 180s`. Set `NINJARS_PAIRED_ORIENTATION_OUTPUT` to a retained
-JSON path. Archive the raw log, partial/final report, source/dependency identities,
-executable and hash. No numerical or performance acceptance follows from this
+followed by `timeout 180s`. `NINJARS_PAIRED_ORIENTATION_OUTPUT` selected the
+retained JSON path, distinct from all command/log paths. The evidence archives
+raw logs, status, full report, source/dependency identities, executable path and
+hash. Build/check time and lock-wait wall time are recorded separately and are
+not performance data. No numerical or performance acceptance follows from this
 symbolic instruction inventory.

@@ -1,0 +1,54 @@
+{
+  "schema": "logging-wrapper-guards-v1",
+  "passed": 3,
+  "tests": [
+    {
+      "case": "command.json",
+      "command": [
+        "/nix/store/0srdpi18gkibqqrzllfvphsykkq0kdnx-python3-3.14.7-env/bin/python3",
+        "/tmp/ninjars-paired-orientation/run_command.py",
+        "guard_command_json",
+        "/nix/store/0srdpi18gkibqqrzllfvphsykkq0kdnx-python3-3.14.7-env/bin/python3",
+        "-c",
+        "raise RuntimeError(\"MUST_NOT_EXECUTE\")"
+      ],
+      "report_path": "/tmp/ninjars-paired-orientation/guard_command_json.command.json",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/tmp/ninjars-paired-orientation/run_command.py\", line 18, in <module>\n    assert len(set(reserved)) == len(reserved), \\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Command evidence paths must not overwrite the symbolic report\n",
+      "child_started": false
+    },
+    {
+      "case": "stdout",
+      "command": [
+        "/nix/store/0srdpi18gkibqqrzllfvphsykkq0kdnx-python3-3.14.7-env/bin/python3",
+        "/tmp/ninjars-paired-orientation/run_command.py",
+        "guard_stdout",
+        "/nix/store/0srdpi18gkibqqrzllfvphsykkq0kdnx-python3-3.14.7-env/bin/python3",
+        "-c",
+        "raise RuntimeError(\"MUST_NOT_EXECUTE\")"
+      ],
+      "report_path": "/tmp/ninjars-paired-orientation/guard_stdout.stdout",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/tmp/ninjars-paired-orientation/run_command.py\", line 18, in <module>\n    assert len(set(reserved)) == len(reserved), \\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Command evidence paths must not overwrite the symbolic report\n",
+      "child_started": false
+    },
+    {
+      "case": "stderr",
+      "command": [
+        "/nix/store/0srdpi18gkibqqrzllfvphsykkq0kdnx-python3-3.14.7-env/bin/python3",
+        "/tmp/ninjars-paired-orientation/run_command.py",
+        "guard_stderr",
+        "/nix/store/0srdpi18gkibqqrzllfvphsykkq0kdnx-python3-3.14.7-env/bin/python3",
+        "-c",
+        "raise RuntimeError(\"MUST_NOT_EXECUTE\")"
+      ],
+      "report_path": "/tmp/ninjars-paired-orientation/guard_stderr.stderr",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/tmp/ninjars-paired-orientation/run_command.py\", line 18, in <module>\n    assert len(set(reserved)) == len(reserved), \\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Command evidence paths must not overwrite the symbolic report\n",
+      "child_started": false
+    }
+  ]
+}

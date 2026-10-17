@@ -1,0 +1,24 @@
+{
+  "first_test_exit_code": 0,
+  "first_test_reported_seconds": 0.03,
+  "first_wrapper_seconds_including_lock_wait": 49.95726423000451,
+  "lost_artifact": "symbolic inventory.json (overwritten by old wrapper command metadata after successful test)",
+  "retained": [
+    "attempt1.command.json",
+    "attempt1.stdout",
+    "attempt1.stderr",
+    "run_command.original.py"
+  ],
+  "repair": "Metadata uses .command.json; reject collisions with symbolic output and existing evidence before subprocess launch.",
+  "runtime_source_or_executable_changed": false,
+  "second_execution_authorized": true,
+  "cancellation_attempt": "No process remained at /proc/1067999; no signal was sent.",
+  "authorized_action": "One replacement bounded symbolic execution; unchanged frozen source/executable; same lock and180s limit.",
+  "replacement_report": "attempt2-inventory.json",
+  "symbolic_executions_expected": 2,
+  "report_retained_from": "attempt2 only",
+  "symbolic_executions": 2,
+  "second_test_exit_code": 0,
+  "retained_report_status": "complete_symbolic_inventory",
+  "report_derived_counts_source": "attempt2-inventory.json only"
+}

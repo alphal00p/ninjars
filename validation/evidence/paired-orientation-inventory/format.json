@@ -1,0 +1,30 @@
+{
+  "command": [
+    "cargo",
+    "fmt",
+    "-p",
+    "ninjars-symbolica",
+    "--",
+    "--check"
+  ],
+  "cwd": "/shared/external/ninja/references/ninjars_paired_orientation_audit",
+  "start_utc": "2026-10-17T02:17:27.614136+00:00",
+  "environment": {
+    "CC": "gcc",
+    "CXX": "g++",
+    "PKG_CONFIG": "pkg-config",
+    "CARGO_TARGET_DIR": null,
+    "CARGO_BUILD_BUILD_DIR": null,
+    "CARGO_BUILD_JOBS": null,
+    "RUST_MIN_STACK": null,
+    "RAYON_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "RUSTFLAGS": null,
+    "CARGO_ENCODED_RUSTFLAGS": null,
+    "NINJARS_PAIRED_ORIENTATION_OUTPUT": null
+  },
+  "exit_code": 0,
+  "elapsed_seconds": 0.4476862810261082,
+  "end_utc": "2026-10-17T02:17:28.061857+00:00"
+}
