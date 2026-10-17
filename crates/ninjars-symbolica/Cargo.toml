@@ -46,7 +46,7 @@ required-features = ["rust-codegen"]
 [dependencies]
 ninjars.workspace = true
 symbolica.workspace = true
-oneloop.workspace = true
+oneloop = { workspace = true, features = ["generated-evaluators"] }
 symbolica-utils.workspace = true
 
 [dev-dependencies]

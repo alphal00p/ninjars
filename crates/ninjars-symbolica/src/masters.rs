@@ -1,4 +1,13 @@
-//! OneLOop's exact formulas executed by Symbolica's batched interpreter.
+//! One-loop master integrals from oneloopmaster.
+//!
+//! For the fixed-precision carriers (binary64 and DoubleFloat), scalar
+//! families (A0, B0, dB0, C0, D0) use oneloopmaster's native direct-Rust
+//! implementation generated from its exact expressions. Arbitrary-precision
+//! `Float` keeps Symbolica's interpreter, which tracks the significant
+//! precision of every input component instead of padding inputs to the
+//! working precision. Tensor families without a native implementation and
+//! all Dual (derivative) evaluations also use the same exact formulas through
+//! the interpreter.
 
 use std::collections::BTreeMap;
 
@@ -6,7 +15,7 @@ use ninjars::{
     BatchShape, Complex, Error, FloatLike, Laurent, MasterFailure, MasterIntegral, MasterProvider,
     MasterRequest, MasterStatus, Result,
 };
-use oneloop::{NativeFloat, OneLoopExpressions};
+use oneloop::{NativeEvaluator, NativeFloat, OneLoopExpressions, ScalarIntegral};
 use symbolica::{
     domains::{
         dual::{DualNumber, DualNumberStructure, HyperDual},
@@ -60,9 +69,10 @@ fn strict_status(statuses: &[MasterStatus]) -> Result<()> {
 /// `evaluate` retains its strict all-or-nothing contract.
 /// Expression preparation uses the calling thread, which must provide the stack
 /// required by oneloopmaster (128 MiB is its documented regression-test setting).
-pub struct SymbolicaMasters<T> {
+pub struct SymbolicaMasters<T: NativeFloat> {
     representative: T,
     evaluators: BTreeMap<MasterIntegral, BatchExpressionEvaluator<Complex<T>>>,
+    native: BTreeMap<MasterIntegral, NativeEvaluator<T>>,
     arguments: Vec<Complex<T>>,
     results: Vec<Complex<T>>,
     active: Vec<usize>,
@@ -77,11 +87,40 @@ where
         Self {
             representative,
             evaluators: BTreeMap::new(),
+            native: BTreeMap::new(),
             arguments: Vec::new(),
             results: Vec::new(),
             active: Vec::new(),
             statuses: Vec::new(),
         }
+    }
+
+    /// The oneloopmaster family with a native implementation, if any.
+    fn native_family(integral: MasterIntegral) -> Option<ScalarIntegral> {
+        match integral {
+            MasterIntegral::A0 => Some(ScalarIntegral::A0),
+            MasterIntegral::B0 => Some(ScalarIntegral::B0),
+            MasterIntegral::DB0 => Some(ScalarIntegral::DB0),
+            MasterIntegral::C0 => Some(ScalarIntegral::C0),
+            MasterIntegral::D0 => Some(ScalarIntegral::D0),
+            _ => None,
+        }
+    }
+
+    fn native_evaluator(
+        &mut self,
+        integral: MasterIntegral,
+    ) -> Result<Option<&mut NativeEvaluator<T>>> {
+        // The native backend converts every input to the working precision;
+        // only use it where that precision is fixed by the carrier type.
+        let (Some(family), Some(_)) = (Self::native_family(integral), T::FIXED_BITS) else {
+            return Ok(None);
+        };
+        if !self.native.contains_key(&integral) {
+            let evaluator = NativeEvaluator::new(family).map_err(Error::Symbolic)?;
+            self.native.insert(integral, evaluator);
+        }
+        Ok(self.native.get_mut(&integral))
     }
 
     /// Working bits used to prepare constants; computed component precision may differ.
@@ -91,6 +130,9 @@ where
 
     /// Compile a family and reserve its reusable workspace before timing calls.
     pub fn prepare(&mut self, integral: MasterIntegral, rows: usize) -> Result<()> {
+        if self.native_evaluator(integral)?.is_some() {
+            return Ok(());
+        }
         if !self.evaluators.contains_key(&integral) {
             let exact = Self::exact_evaluator(integral)?;
             let evaluator = Self::numeric_evaluator(exact, &self.representative);
@@ -218,11 +260,18 @@ where
         self.results.resize_with(size, || {
             Complex::new(self.representative.zero(), self.representative.zero())
         });
-        self.evaluators
-            .get_mut(&request.integral)
-            .unwrap()
-            .evaluate_batch(&self.arguments, &mut self.results, rows)
-            .map_err(|error| Error::Symbolic(error.to_string()))?;
+        let results = &mut self.results[..size];
+        if let Some(native) = self.native.get_mut(&request.integral) {
+            native
+                .evaluate_batch(&self.arguments, results, rows)
+                .map_err(Error::Symbolic)?;
+        } else {
+            self.evaluators
+                .get_mut(&request.integral)
+                .unwrap()
+                .evaluate_batch(&self.arguments, results, rows)
+                .map_err(|error| Error::Symbolic(error.to_string()))?;
+        }
         for (&row, values) in self.active.iter().zip(self.results.as_chunks::<3>().0) {
             if values
                 .iter()
@@ -260,7 +309,7 @@ where
 /// [`SymbolicaMasters`], constants use the representative's working precision;
 /// each input and computed component keeps its own tracked significant precision.
 /// Success does not certify that all derivatives achieve the working precision.
-pub struct SymbolicaDualMasters<T> {
+pub struct SymbolicaDualMasters<T: NativeFloat> {
     representative: T,
     shape: Vec<Vec<usize>>,
     evaluators: BTreeMap<MasterIntegral, BatchExpressionEvaluator<Complex<T>>>,
