@@ -1,9 +1,49 @@
 # Factored one-line Laurent division inventory
 
-Status: source-only draft, based on the validated integrated-weight inventory
-`c16e09b`. No build or symbolic execution has run for this probe. The only
-inventoried cases are **n6/r7/cut2** and **n5/r4/cut2**. There is no production
-kernel change, numerical evaluation, or performance claim.
+Status: the single bounded symbolic inventory passed at frozen source
+`0988bbd`, based on the validated integrated-weight inventory `c16e09b`.
+All 16 quotient identities and five layout guards passed. The only inventoried
+cases are **n6/r7/cut2** and **n5/r4/cut2**. There is no production kernel
+change, numerical evaluation, or performance claim.
+
+## Result
+
+For n6/r7, four existing one-line evaluator calls use **472 instructions**,
+compared with 712 for the expanded-product plan. For n5/r4, the three-call
+candidate instead uses **36 instructions versus 32**. The high-rank case has a
+useful instruction-count reduction; the ordinary-rank control does not support
+a general replacement. No runtime or numerical-stability conclusion follows.
+
+| Case and graph | Calls | Instructions | Additions | Multiplications | Inversions | Local temporaries | Source bytes |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| n6/r7 expanded product | 1 | 712 | 291 | 533 | 16 | 115 | 135,243 |
+| n6/r7 reusable one-line body | 1 local body | 118 | 45 | 90 | 4 | 30 | 25,571 unique |
+| n6/r7 repeated calls | 4 | 472 | 180 | 360 | 16 | largest 30; sum 120 | 102,284 unrolled callsites |
+| n5/r4 expanded product | 1 | 32 | 6 | 22 | 6 | 9 | 9,638 |
+| n5/r4 reusable one-line body | 1 local body | 12 | 2 | 8 | 2 | 6 | 4,661 unique |
+| n5/r4 repeated calls | 3 | 36 | 6 | 24 | 6 | largest 6; sum 18 | 13,983 unrolled callsites |
+
+All function-call operation counts are zero. The n6/r7/n5/r4 layouts retain
+13/three output heads and 41/24 original input columns. A straightforward
+reusable-buffer schedule has 26/six coefficient-buffer slots and a 20/ten-slot
+argument row, separately from final output and evaluator temporaries. Those
+quantities are not measured peak memory, allocation, dispatch, or copying cost.
+The exact composed expressions are proof data only; no flattened candidate
+evaluator was inventoried.
+
+All 13 high-rank and three ordinary-rank quotient identities passed, including
+the full explicit mu-squared layout. The zero-uncut, inactive, degree-zero, and
+two T3 mapping guards passed. The shared expression budget consumed 69,512
+bytes of its fixed 8 MiB cap. The ignored test completed in 0.11 seconds under
+the external 180-second limit; this is symbolic-check elapsed time only. No
+failure, cap increase, source fix, or repeated symbolic run was needed.
+
+Package formatting and strict `rust-codegen` library/test Clippy passed. All
+182 recorded source hashes, three clean dependency revisions, and the copied
+read-only test executable remained unchanged after validation. The previously
+retained integrated-weight executable was also unchanged. Commands, raw logs,
+maps, counts, source identities and the frozen source snapshot are retained in
+[`validation/evidence/factored-laurent-inventory`](../../validation/evidence/factored-laurent-inventory/README.md).
 
 ## Algebra reuse check before implementation
 

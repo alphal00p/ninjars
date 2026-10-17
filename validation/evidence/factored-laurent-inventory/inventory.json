@@ -1,0 +1,1994 @@
+{
+  "candidate_count_boundary": "Actual repeated local evaluator calls; recomposed expressions only prove exact identities",
+  "cases": [
+    {
+      "actual_call_inventories": [
+        {
+          "category": "actual_repeated_local_call",
+          "constants_bytes": 391,
+          "expression_bytes": 796,
+          "inputs": 20,
+          "instructions": 118,
+          "name": "one_line_call_1",
+          "operations": {
+            "additions": 45,
+            "function_calls": 0,
+            "inversions": 4,
+            "multiplications": 90
+          },
+          "outputs": 13,
+          "source_bytes": 25571,
+          "temporary_slots": 30
+        },
+        {
+          "category": "actual_repeated_local_call",
+          "constants_bytes": 391,
+          "expression_bytes": 796,
+          "inputs": 20,
+          "instructions": 118,
+          "name": "one_line_call_2",
+          "operations": {
+            "additions": 45,
+            "function_calls": 0,
+            "inversions": 4,
+            "multiplications": 90
+          },
+          "outputs": 13,
+          "source_bytes": 25571,
+          "temporary_slots": 30
+        },
+        {
+          "category": "actual_repeated_local_call",
+          "constants_bytes": 391,
+          "expression_bytes": 796,
+          "inputs": 20,
+          "instructions": 118,
+          "name": "one_line_call_3",
+          "operations": {
+            "additions": 45,
+            "function_calls": 0,
+            "inversions": 4,
+            "multiplications": 90
+          },
+          "outputs": 13,
+          "source_bytes": 25571,
+          "temporary_slots": 30
+        },
+        {
+          "category": "actual_repeated_local_call",
+          "constants_bytes": 391,
+          "expression_bytes": 796,
+          "inputs": 20,
+          "instructions": 118,
+          "name": "one_line_call_4",
+          "operations": {
+            "additions": 45,
+            "function_calls": 0,
+            "inversions": 4,
+            "multiplications": 90
+          },
+          "outputs": 13,
+          "source_bytes": 25571,
+          "temporary_slots": 30
+        }
+      ],
+      "cut": 2,
+      "exact_columns_checked": 13,
+      "expanded_product": {
+        "category": "original_division",
+        "constants_bytes": 441,
+        "expression_bytes": 15145,
+        "inputs": 41,
+        "instructions": 712,
+        "name": "expanded_product",
+        "operations": {
+          "additions": 291,
+          "function_calls": 0,
+          "inversions": 16,
+          "multiplications": 533
+        },
+        "outputs": 13,
+        "source_bytes": 135243,
+        "temporary_slots": 115
+      },
+      "instruction_difference_expanded_minus_repeated": 240,
+      "layout": {
+        "degree": 3,
+        "denominator_powers": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ],
+          [
+            -1,
+            0,
+            1
+          ],
+          [
+            -1,
+            1,
+            0
+          ],
+          [
+            -1,
+            2,
+            0
+          ]
+        ],
+        "final_output_map": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "higher_rank": true,
+        "initial_input_map": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "next_input_map": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "numerator_powers": [
+          [
+            7,
+            0,
+            0
+          ],
+          [
+            6,
+            0,
+            0
+          ],
+          [
+            6,
+            1,
+            0
+          ],
+          [
+            5,
+            0,
+            0
+          ],
+          [
+            5,
+            0,
+            1
+          ],
+          [
+            5,
+            1,
+            0
+          ],
+          [
+            5,
+            2,
+            0
+          ],
+          [
+            4,
+            0,
+            0
+          ],
+          [
+            4,
+            0,
+            1
+          ],
+          [
+            4,
+            1,
+            0
+          ],
+          [
+            4,
+            1,
+            1
+          ],
+          [
+            4,
+            2,
+            0
+          ],
+          [
+            4,
+            3,
+            0
+          ]
+        ],
+        "one_line_constructed": true,
+        "one_line_dimensions": {
+          "cut": 2,
+          "propagators": 3,
+          "rank": 4
+        },
+        "one_line_numerator_powers": [
+          [
+            4,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            0
+          ],
+          [
+            3,
+            1,
+            0
+          ],
+          [
+            2,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            1
+          ],
+          [
+            2,
+            1,
+            0
+          ],
+          [
+            2,
+            2,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            1,
+            1,
+            1
+          ],
+          [
+            1,
+            2,
+            0
+          ],
+          [
+            1,
+            3,
+            0
+          ]
+        ],
+        "one_line_quotient_powers": [
+          [
+            3,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            0
+          ],
+          [
+            2,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            1,
+            2,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            1,
+            1
+          ],
+          [
+            0,
+            2,
+            0
+          ],
+          [
+            0,
+            3,
+            0
+          ]
+        ],
+        "quotient_powers": [
+          [
+            3,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            0
+          ],
+          [
+            2,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            1,
+            2,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            1,
+            1
+          ],
+          [
+            0,
+            2,
+            0
+          ],
+          [
+            0,
+            3,
+            0
+          ]
+        ],
+        "uncut": 4
+      },
+      "original_input_symbols": [
+        "a0",
+        "a1",
+        "a2",
+        "a3",
+        "a4",
+        "a5",
+        "a6",
+        "a7",
+        "a8",
+        "a9",
+        "a10",
+        "a11",
+        "a12",
+        "a13",
+        "a14",
+        "a15",
+        "a16",
+        "a17",
+        "a18",
+        "a19",
+        "a20",
+        "a21",
+        "a22",
+        "a23",
+        "a24",
+        "a25",
+        "a26",
+        "a27",
+        "a28",
+        "a29",
+        "a30",
+        "a31",
+        "a32",
+        "a33",
+        "a34",
+        "a35",
+        "a36",
+        "a37",
+        "a38",
+        "a39",
+        "a40"
+      ],
+      "propagators": 6,
+      "rank": 7,
+      "repeated_call_totals": {
+        "instructions": 472,
+        "largest_local_temporary_slots": 30,
+        "operations": {
+          "additions": 180,
+          "function_calls": 0,
+          "inversions": 16,
+          "multiplications": 360
+        },
+        "separate_temporary_slots_sum": 120,
+        "unrolled_callsite_source_bytes": 102284
+      },
+      "stages": [
+        {
+          "composed_output_expression_bytes": 796,
+          "denominator_input_range": [
+            13,
+            20
+          ],
+          "local_inventory": "unique_one_line_evaluator; composed output is identity-check data, not candidate evaluator",
+          "output_columns": 13,
+          "physical_output_powers": [
+            [
+              6,
+              0,
+              0
+            ],
+            [
+              5,
+              0,
+              0
+            ],
+            [
+              5,
+              1,
+              0
+            ],
+            [
+              4,
+              0,
+              0
+            ],
+            [
+              4,
+              0,
+              1
+            ],
+            [
+              4,
+              1,
+              0
+            ],
+            [
+              4,
+              2,
+              0
+            ],
+            [
+              3,
+              0,
+              0
+            ],
+            [
+              3,
+              0,
+              1
+            ],
+            [
+              3,
+              1,
+              0
+            ],
+            [
+              3,
+              1,
+              1
+            ],
+            [
+              3,
+              2,
+              0
+            ],
+            [
+              3,
+              3,
+              0
+            ]
+          ],
+          "stage": 1
+        },
+        {
+          "composed_output_expression_bytes": 2437,
+          "denominator_input_range": [
+            20,
+            27
+          ],
+          "local_inventory": "unique_one_line_evaluator; composed output is identity-check data, not candidate evaluator",
+          "output_columns": 13,
+          "physical_output_powers": [
+            [
+              5,
+              0,
+              0
+            ],
+            [
+              4,
+              0,
+              0
+            ],
+            [
+              4,
+              1,
+              0
+            ],
+            [
+              3,
+              0,
+              0
+            ],
+            [
+              3,
+              0,
+              1
+            ],
+            [
+              3,
+              1,
+              0
+            ],
+            [
+              3,
+              2,
+              0
+            ],
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              1
+            ],
+            [
+              2,
+              1,
+              0
+            ],
+            [
+              2,
+              1,
+              1
+            ],
+            [
+              2,
+              2,
+              0
+            ],
+            [
+              2,
+              3,
+              0
+            ]
+          ],
+          "stage": 2
+        },
+        {
+          "composed_output_expression_bytes": 5234,
+          "denominator_input_range": [
+            27,
+            34
+          ],
+          "local_inventory": "unique_one_line_evaluator; composed output is identity-check data, not candidate evaluator",
+          "output_columns": 13,
+          "physical_output_powers": [
+            [
+              4,
+              0,
+              0
+            ],
+            [
+              3,
+              0,
+              0
+            ],
+            [
+              3,
+              1,
+              0
+            ],
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              1
+            ],
+            [
+              2,
+              1,
+              0
+            ],
+            [
+              2,
+              2,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              1
+            ],
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              2,
+              0
+            ],
+            [
+              1,
+              3,
+              0
+            ]
+          ],
+          "stage": 3
+        },
+        {
+          "composed_output_expression_bytes": 9525,
+          "denominator_input_range": [
+            34,
+            41
+          ],
+          "local_inventory": "unique_one_line_evaluator; composed output is identity-check data, not candidate evaluator",
+          "output_columns": 13,
+          "physical_output_powers": [
+            [
+              3,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              2,
+              1,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              1
+            ],
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              1,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              2,
+              0
+            ],
+            [
+              0,
+              3,
+              0
+            ]
+          ],
+          "stage": 4
+        }
+      ],
+      "status": "complete_exact_identities",
+      "storage_and_body_accounting": {
+        "actual_local_calls": 4,
+        "final_output_columns": 13,
+        "local_temporary_slots": 30,
+        "one_reusable_argument_row_columns": 20,
+        "original_input_columns": 41,
+        "scope": "Buffer quantities are separate logical stores for one row, not measured peak memory; copying, dispatch and packing remain unmeasured",
+        "two_reusable_coefficient_buffers_columns": 26,
+        "unique_constants_source_bytes": 391,
+        "unique_local_evaluator_bodies": 1,
+        "unique_local_source_bytes": 25571,
+        "unrolled_repeated_callsite_source_bytes": 102284
+      },
+      "unique_one_line_evaluator": {
+        "category": "reusable_local_evaluator",
+        "constants_bytes": 391,
+        "expression_bytes": 796,
+        "inputs": 20,
+        "instructions": 118,
+        "name": "one_line",
+        "operations": {
+          "additions": 45,
+          "function_calls": 0,
+          "inversions": 4,
+          "multiplications": 90
+        },
+        "outputs": 13,
+        "source_bytes": 25571,
+        "temporary_slots": 30
+      }
+    },
+    {
+      "actual_call_inventories": [
+        {
+          "category": "actual_repeated_local_call",
+          "constants_bytes": 292,
+          "expression_bytes": 39,
+          "inputs": 10,
+          "instructions": 12,
+          "name": "one_line_call_1",
+          "operations": {
+            "additions": 2,
+            "function_calls": 0,
+            "inversions": 2,
+            "multiplications": 8
+          },
+          "outputs": 3,
+          "source_bytes": 4661,
+          "temporary_slots": 6
+        },
+        {
+          "category": "actual_repeated_local_call",
+          "constants_bytes": 292,
+          "expression_bytes": 39,
+          "inputs": 10,
+          "instructions": 12,
+          "name": "one_line_call_2",
+          "operations": {
+            "additions": 2,
+            "function_calls": 0,
+            "inversions": 2,
+            "multiplications": 8
+          },
+          "outputs": 3,
+          "source_bytes": 4661,
+          "temporary_slots": 6
+        },
+        {
+          "category": "actual_repeated_local_call",
+          "constants_bytes": 292,
+          "expression_bytes": 39,
+          "inputs": 10,
+          "instructions": 12,
+          "name": "one_line_call_3",
+          "operations": {
+            "additions": 2,
+            "function_calls": 0,
+            "inversions": 2,
+            "multiplications": 8
+          },
+          "outputs": 3,
+          "source_bytes": 4661,
+          "temporary_slots": 6
+        }
+      ],
+      "cut": 2,
+      "exact_columns_checked": 3,
+      "expanded_product": {
+        "category": "original_division",
+        "constants_bytes": 292,
+        "expression_bytes": 177,
+        "inputs": 24,
+        "instructions": 32,
+        "name": "expanded_product",
+        "operations": {
+          "additions": 6,
+          "function_calls": 0,
+          "inversions": 6,
+          "multiplications": 22
+        },
+        "outputs": 3,
+        "source_bytes": 9638,
+        "temporary_slots": 9
+      },
+      "instruction_difference_expanded_minus_repeated": -4,
+      "layout": {
+        "degree": 1,
+        "denominator_powers": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ],
+          [
+            -1,
+            0,
+            1
+          ],
+          [
+            -1,
+            1,
+            0
+          ],
+          [
+            -1,
+            2,
+            0
+          ]
+        ],
+        "final_output_map": [
+          0,
+          1,
+          2
+        ],
+        "higher_rank": false,
+        "initial_input_map": [
+          0,
+          1,
+          2
+        ],
+        "next_input_map": [
+          0,
+          1,
+          2
+        ],
+        "numerator_powers": [
+          [
+            4,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            0
+          ],
+          [
+            3,
+            1,
+            0
+          ]
+        ],
+        "one_line_constructed": true,
+        "one_line_dimensions": {
+          "cut": 2,
+          "propagators": 3,
+          "rank": 2
+        },
+        "one_line_numerator_powers": [
+          [
+            2,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            1,
+            0
+          ]
+        ],
+        "one_line_quotient_powers": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ]
+        ],
+        "quotient_powers": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ]
+        ],
+        "uncut": 3
+      },
+      "original_input_symbols": [
+        "a0",
+        "a1",
+        "a2",
+        "a3",
+        "a4",
+        "a5",
+        "a6",
+        "a7",
+        "a8",
+        "a9",
+        "a10",
+        "a11",
+        "a12",
+        "a13",
+        "a14",
+        "a15",
+        "a16",
+        "a17",
+        "a18",
+        "a19",
+        "a20",
+        "a21",
+        "a22",
+        "a23"
+      ],
+      "propagators": 5,
+      "rank": 4,
+      "repeated_call_totals": {
+        "instructions": 36,
+        "largest_local_temporary_slots": 6,
+        "operations": {
+          "additions": 6,
+          "function_calls": 0,
+          "inversions": 6,
+          "multiplications": 24
+        },
+        "separate_temporary_slots_sum": 18,
+        "unrolled_callsite_source_bytes": 13983
+      },
+      "stages": [
+        {
+          "composed_output_expression_bytes": 39,
+          "denominator_input_range": [
+            3,
+            10
+          ],
+          "local_inventory": "unique_one_line_evaluator; composed output is identity-check data, not candidate evaluator",
+          "output_columns": 3,
+          "physical_output_powers": [
+            [
+              3,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              2,
+              1,
+              0
+            ]
+          ],
+          "stage": 1
+        },
+        {
+          "composed_output_expression_bytes": 95,
+          "denominator_input_range": [
+            10,
+            17
+          ],
+          "local_inventory": "unique_one_line_evaluator; composed output is identity-check data, not candidate evaluator",
+          "output_columns": 3,
+          "physical_output_powers": [
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              1,
+              1,
+              0
+            ]
+          ],
+          "stage": 2
+        },
+        {
+          "composed_output_expression_bytes": 157,
+          "denominator_input_range": [
+            17,
+            24
+          ],
+          "local_inventory": "unique_one_line_evaluator; composed output is identity-check data, not candidate evaluator",
+          "output_columns": 3,
+          "physical_output_powers": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ]
+          ],
+          "stage": 3
+        }
+      ],
+      "status": "complete_exact_identities",
+      "storage_and_body_accounting": {
+        "actual_local_calls": 3,
+        "final_output_columns": 3,
+        "local_temporary_slots": 6,
+        "one_reusable_argument_row_columns": 10,
+        "original_input_columns": 24,
+        "scope": "Buffer quantities are separate logical stores for one row, not measured peak memory; copying, dispatch and packing remain unmeasured",
+        "two_reusable_coefficient_buffers_columns": 6,
+        "unique_constants_source_bytes": 292,
+        "unique_local_evaluator_bodies": 1,
+        "unique_local_source_bytes": 4661,
+        "unrolled_repeated_callsite_source_bytes": 13983
+      },
+      "unique_one_line_evaluator": {
+        "category": "reusable_local_evaluator",
+        "constants_bytes": 292,
+        "expression_bytes": 39,
+        "inputs": 10,
+        "instructions": 12,
+        "name": "one_line",
+        "operations": {
+          "additions": 2,
+          "function_calls": 0,
+          "inversions": 2,
+          "multiplications": 8
+        },
+        "outputs": 3,
+        "source_bytes": 4661,
+        "temporary_slots": 6
+      }
+    }
+  ],
+  "cumulative_expression_bytes": 69512,
+  "layout_guards": [
+    {
+      "cut": 2,
+      "layout": {
+        "degree": 3,
+        "denominator_powers": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ],
+          [
+            -1,
+            0,
+            1
+          ],
+          [
+            -1,
+            1,
+            0
+          ],
+          [
+            -1,
+            2,
+            0
+          ]
+        ],
+        "final_output_map": [],
+        "higher_rank": true,
+        "initial_input_map": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "next_input_map": [],
+        "numerator_powers": [
+          [
+            3,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            0
+          ],
+          [
+            2,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            1,
+            2,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            1,
+            1
+          ],
+          [
+            0,
+            2,
+            0
+          ],
+          [
+            0,
+            3,
+            0
+          ]
+        ],
+        "one_line_constructed": false,
+        "one_line_dimensions": null,
+        "one_line_numerator_powers": null,
+        "one_line_quotient_powers": null,
+        "quotient_powers": [
+          [
+            3,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            0
+          ],
+          [
+            2,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            1,
+            2,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            1,
+            1
+          ],
+          [
+            0,
+            2,
+            0
+          ],
+          [
+            0,
+            3,
+            0
+          ]
+        ],
+        "uncut": 0
+      },
+      "layout_only": true,
+      "name": "uncut_zero",
+      "propagators": 2,
+      "rank": 3
+    },
+    {
+      "cut": 2,
+      "layout": {
+        "degree": -3,
+        "denominator_powers": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ],
+          [
+            -1,
+            0,
+            1
+          ],
+          [
+            -1,
+            1,
+            0
+          ],
+          [
+            -1,
+            2,
+            0
+          ]
+        ],
+        "final_output_map": [],
+        "higher_rank": false,
+        "initial_input_map": [],
+        "next_input_map": [],
+        "numerator_powers": [],
+        "one_line_constructed": false,
+        "one_line_dimensions": null,
+        "one_line_numerator_powers": null,
+        "one_line_quotient_powers": null,
+        "quotient_powers": [],
+        "uncut": 3
+      },
+      "layout_only": true,
+      "name": "inactive_degree",
+      "propagators": 5,
+      "rank": 0
+    },
+    {
+      "cut": 2,
+      "layout": {
+        "degree": 0,
+        "denominator_powers": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ],
+          [
+            -1,
+            0,
+            1
+          ],
+          [
+            -1,
+            1,
+            0
+          ],
+          [
+            -1,
+            2,
+            0
+          ]
+        ],
+        "final_output_map": [
+          0
+        ],
+        "higher_rank": false,
+        "initial_input_map": [
+          0
+        ],
+        "next_input_map": [
+          0
+        ],
+        "numerator_powers": [
+          [
+            3,
+            0,
+            0
+          ]
+        ],
+        "one_line_constructed": true,
+        "one_line_dimensions": {
+          "cut": 2,
+          "propagators": 3,
+          "rank": 1
+        },
+        "one_line_numerator_powers": [
+          [
+            1,
+            0,
+            0
+          ]
+        ],
+        "one_line_quotient_powers": [
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "quotient_powers": [
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "uncut": 3
+      },
+      "layout_only": true,
+      "name": "degree_zero",
+      "propagators": 5,
+      "rank": 3
+    },
+    {
+      "cut": 3,
+      "layout": {
+        "degree": 4,
+        "denominator_powers": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ],
+          [
+            -1,
+            0,
+            1
+          ]
+        ],
+        "final_output_map": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "higher_rank": true,
+        "initial_input_map": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "next_input_map": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "numerator_powers": [
+          [
+            5,
+            0,
+            0
+          ],
+          [
+            4,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            1
+          ],
+          [
+            2,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            1
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            1
+          ],
+          [
+            1,
+            0,
+            2
+          ]
+        ],
+        "one_line_constructed": true,
+        "one_line_dimensions": {
+          "cut": 3,
+          "propagators": 4,
+          "rank": 5
+        },
+        "one_line_numerator_powers": [
+          [
+            5,
+            0,
+            0
+          ],
+          [
+            4,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            1
+          ],
+          [
+            2,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            1
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            1
+          ],
+          [
+            1,
+            0,
+            2
+          ]
+        ],
+        "one_line_quotient_powers": [
+          [
+            4,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            1
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            2
+          ]
+        ],
+        "quotient_powers": [
+          [
+            4,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            1
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            2
+          ]
+        ],
+        "uncut": 1
+      },
+      "layout_only": true,
+      "name": "t3_triangle_mu",
+      "propagators": 4,
+      "rank": 5
+    },
+    {
+      "cut": 1,
+      "layout": {
+        "degree": 2,
+        "denominator_powers": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ],
+          [
+            -1,
+            0,
+            1
+          ]
+        ],
+        "final_output_map": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "higher_rank": true,
+        "initial_input_map": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "next_input_map": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "numerator_powers": [
+          [
+            4,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            1
+          ]
+        ],
+        "one_line_constructed": true,
+        "one_line_dimensions": {
+          "cut": 1,
+          "propagators": 2,
+          "rank": 3
+        },
+        "one_line_numerator_powers": [
+          [
+            3,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            1
+          ]
+        ],
+        "one_line_quotient_powers": [
+          [
+            2,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "quotient_powers": [
+          [
+            2,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "uncut": 2
+      },
+      "layout_only": true,
+      "name": "t3_tadpole_mu",
+      "propagators": 3,
+      "rank": 4
+    }
+  ],
+  "limitations": [
+    "No callback changes, runtime recurrence, numerical tests or timing.",
+    "Exact identities do not validate roundoff, overflow, conditioning, full Dual behavior or failure semantics.",
+    "Input and primal-pivot checks remain external; intermediate-finiteness rejection is not introduced.",
+    "Source/body/buffer accounting does not measure allocation, dispatch or packing costs."
+  ],
+  "numerical_execution": false,
+  "performance_acceptance": false,
+  "production_dispatch": false,
+  "required_external_timeout_seconds_after_lock": 180,
+  "schema": "ninjars-factored-laurent-v1",
+  "shared_cumulative_expression_budget": 8388608,
+  "status": "complete_exact_identities",
+  "total_exact_quotient_identities": 16
+}
