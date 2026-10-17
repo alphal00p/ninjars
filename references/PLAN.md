@@ -2113,3 +2113,28 @@ connects the existing kernels into integrated amplitudes and a standalone
   It retains the existing 8 MiB/180-second limits and checks all weight/parent
   identities plus recovery of the five integrated expressions. No symbolic or
   numerical execution, production dispatch or timing claim has occurred.
+
+### Broader reduction algorithm follow-up (2026-10-17)
+
+- The independent source audit `3fc262d`, integrated as `0818970`, examines
+  alternatives beyond the prepared paired-orientation and master-weight probes.
+  It finds no current evidence for replacing Laurent reduction wholesale. Its
+  ranked candidates and stopping criteria are in
+  `docs/audits/reduction-algorithm-followup.md`.
+- The strongest additional higher-rank candidate preserves a factored sequence
+  of existing one-line Laurent plans instead of expanding their complete
+  denominator product. Exact power relabeling retains the full weighted degree
+  and mu-squared layout. The proposed first comparison covers n6/r7 and n5/r4
+  bubbles, keeping callbacks and all final quotient heads unchanged. No new
+  divider, symbolic manipulation, runtime dispatch, or experiment was added.
+- Another candidate shares leading reciprocals among parents of one tadpole.
+  For an all-active, successfully guarded n5/r4 evaluation, emitted ordinary
+  correction bodies predict 80 reciprocal evaluations referring to 20 distinct
+  denominator values. These are source counts, not observed dispatch or timing.
+  The conservative candidate charges a separate 20-value preparation pass;
+  existing numerator-division scratch is not a supported reusable table.
+- Source-only staged master-weight inventory is frozen at `ee0c8b6`, including
+  formatting, and paired-orientation inventory remains `fda9047`. Both await
+  bounded symbolic execution after the active 96-process timing window. The
+  existing release comparison keeps actual master computation excluded; the
+  separate instrumented pass will account for preparation and live masters.
