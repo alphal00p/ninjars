@@ -2166,3 +2166,30 @@ connects the existing kernels into integrated amplitudes and a standalone
   separate caches. The instrumented execution wrapper passes seven pure Python
   regressions and its separate optimized build is running; it will report
   preparation, callback, actual-master and remaining execution spans separately.
+
+### Validated staged master-weight instruction inventory (2026-10-17)
+
+- The bounded symbolic test at `ee0c8b6` passed once, with all 90 exact
+  identities. Separate pre-master blocks use 1,884 instructions; a single
+  20-weight graph uses 1,097; three actual triangle/bubble/final stages use
+  19+753+299=1,071. The full historical 1,954-instruction baseline is reproduced.
+  Inversions fall from 81 to 36 in this abstract n3/r3 graph. These counts
+  exclude geometry construction and are not performance measurements.
+- The three stages retain all 60 callbacks (12/42/6), explicit prefixes
+  0/10/40, and all ordered master weights/rational heads, without master values
+  among their inputs. Largest local temporary count is 55, with 40 separately
+  retained parent values; neither their sum nor the aggregate temporary count
+  is a peak-memory measurement. Composition/identity limits were respected.
+- Source and evidence are integrated as `9417a17`, `24b5663`, and `452187d`.
+  Root verified 181 frozen source hashes, all retained artifacts including the
+  executable, 15 archived files, the four successful build/symbolic/format/lint
+  statuses, and equality of all 173 code/manifest files after integration.
+  Evidence is `validation/evidence/integrated-weight-inventory`.
+- Strict package Clippy and formatting pass. No production dispatch or ordinary
+  numerical test ran: callback eligibility, finite/status behavior, lane
+  compaction, precision/Dual accuracy, zero-weight master requests, and runtime
+  still require a separate implementation and validation.
+- The instrumented release build passed independent provenance review at
+  manifest `0760a4215aa46f83431e78e24585522e3f93e86f582c313e1fee3a373ec5539b`.
+  Its preparation/shared/live/production execution checks have started, using
+  a separate copied instrumented artifact and preserving the primary timings.

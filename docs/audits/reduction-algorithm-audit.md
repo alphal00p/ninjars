@@ -34,8 +34,11 @@ projection-specific API needed to prune arithmetic while preserving existing
 raw outputs, and separates that control from callback trimming. The
 [retained-output fusion probe](forward-diagnostic-fusion.md) loses the original
 whole-network instruction-count advantage when all current block heads are
-retained. Smaller fusion regions remain untested. The
-recommendations below retain their original audit scope.
+retained. The [staged master-weight follow-up](integrated-weight-fusion.md)
+reduces the n3/r3 pre-master inventory from 1,884 to 1,071 instructions while
+retaining the triangle/bubble parent boundaries; all 90 symbolic identities
+pass. It has no numerical or performance validation yet. The recommendations
+below retain their original audit scope.
 
 A later [source-only follow-up](reduction-algorithm-followup.md) prioritizes
 preserving the one-line Laurent recurrence at higher rank and sharing leading

@@ -136,7 +136,10 @@ from forward fusion at one changing point. These counts exclude some required
 intermediate diagnostics and do not establish the final performance gates.
 The [retained-output follow-up](docs/audits/forward-diagnostic-fusion.md) finds
 that whole-network fusion increases the instruction count when those outputs
-are retained; smaller fusion regions remain under investigation.
+are retained. A [staged master-weight inventory](docs/audits/integrated-weight-fusion.md)
+instead preserves callback parent boundaries and separate lazy masters: its
+n3/r3 graph uses 1,071 pre-master instructions versus 1,884, with 90 exact
+identities passing. Numerical behavior and runtime remain unvalidated.
 A follow-up [real-domain arithmetic audit](docs/audits/real-domain-arithmetic.md)
 identifies existing Symbolica annotations that generated Rust could use while
 preserving complex masses and all derivative components; that experiment is

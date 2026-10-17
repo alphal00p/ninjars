@@ -1,0 +1,23 @@
+{
+  "verified_source_revision": "ee0c8b6b77a2aa41a8c6feec0d53bd7a94cc3286",
+  "evidence_commit": "c16e09b6dd1c93771ee85fd57f166baca6ee7d23",
+  "integrated_commit": "452187d",
+  "source_snapshots_verified": 181,
+  "integrated_code_manifests_identical": 173,
+  "all_retained_artifact_hashes_verified": true,
+  "archived_logs_verified": 15,
+  "source_dependency_executable_identity_verified": true,
+  "exact_identities": 90,
+  "symbolic_test_executions": 1,
+  "successful_command_statuses": [
+    "build",
+    "symbolic",
+    "fmt",
+    "clippy"
+  ],
+  "pre_master_instructions": 1884,
+  "weights20_instructions": 1097,
+  "staged_instructions": 1071,
+  "numerical_execution": false,
+  "performance_acceptance": false
+}
