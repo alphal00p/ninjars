@@ -1,2 +1,4 @@
 # Patch context lines intentionally contain a single leading space.
 dependencies/patches/*.patch -whitespace
+# Preserve byte-exact test harness logs, including their final empty line.
+validation/evidence/swapped-bubble-arithmetic/*.log whitespace=-blank-at-eof

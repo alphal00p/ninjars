@@ -1,0 +1,85 @@
+[
+  {
+    "name": "swapped-unit",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-bfa72ee958dcd1ce",
+      "swapped_arithmetic_tests::",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "6b18ea3d7c6e8673b1f6e1fc846c8ec2b3b4619db3ad26a636ad199233f3f9cd",
+    "log": "feature-off-swapped-unit-initial.log"
+  },
+  {
+    "name": "swapped-public",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/swapped_bubbles-9bba0a007c00c19b",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "b0a2ce1c168b61ca96950f85f338967017c3cca08a6a8dea51472eea08723a59",
+    "log": "feature-off-swapped-public-initial.log"
+  },
+  {
+    "name": "bubbles",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/bubbles-de6735f46b4e90ec",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "356215751a8a12dfb37274edce8a3d8bb0c2d9fa7a53dd0c18f14f4ddee5cdb6",
+    "log": "feature-off-bubbles-initial.log"
+  },
+  {
+    "name": "denominator-reuse",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-bfa72ee958dcd1ce",
+      "denominator_reuse_tests::",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "6b18ea3d7c6e8673b1f6e1fc846c8ec2b3b4619db3ad26a636ad199233f3f9cd",
+    "log": "feature-off-denominator-reuse-initial.log"
+  },
+  {
+    "name": "rank-specialization",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-bfa72ee958dcd1ce",
+      "rank_specialization_tests::",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "6b18ea3d7c6e8673b1f6e1fc846c8ec2b3b4619db3ad26a636ad199233f3f9cd",
+    "log": "feature-off-rank-specialization-initial.log"
+  }
+]

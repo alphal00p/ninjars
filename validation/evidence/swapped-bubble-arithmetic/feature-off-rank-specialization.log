@@ -1,0 +1,11 @@
+
+running 6 tests
+test rank_specialization::tests::dual_specialization_preserves_explicit_scalar_precision_distinct_from_carrier ... ok
+test rank_specialization::tests::exceptional_overflow_is_classified_by_independent_float_control ... ok
+test rank_specialization::tests::higher_mixed_derivative_only_coefficients_force_fallback ... ok
+test rank_specialization::tests::masks_are_exact_projection_zeros ... ok
+test rank_specialization::tests::nonempty_failed_batches_keep_sentinels_and_retry_cleanly ... ok
+test rank_specialization::tests::ordinary_specialized_and_all_masked_slot_fallbacks ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 21 filtered out; finished in 0.86s
+

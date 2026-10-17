@@ -1,0 +1,302 @@
+{
+  "scope": "Explicit projection-only swapped bubble arithmetic; selected generated graphs remain interpreted and every numerator callback remains unchanged. No performance measurements.",
+  "source_draft": "97e095eb2bedf4f770cb30249b7dd8e82e6ab932",
+  "source_followups": [
+    {
+      "commit": "bd01a8e88ca9eff98539da934a20636eeab9794e",
+      "role": "Root actual-master amplitude test"
+    },
+    {
+      "commit": "597846145bac80ef768af7f6c22c997e617192d5",
+      "upstream_equivalent": "1d0106b6846c7a523960032ba0bc87a1d7eb466a",
+      "role": "Existing test-only native workspace probe cfg fix"
+    },
+    {
+      "commit": "6da695ed244a7c7eb0440b6d0174c7e454c7ecba",
+      "role": "Remove unused test import flagged by strict Clippy; sole validation correction"
+    }
+  ],
+  "numerical_source": "597846145bac80ef768af7f6c22c997e617192d5",
+  "numerical_source_sha256": {
+    "crates/ninjars-symbolica/src/amplitude.rs": "ee5b8da589221ea74e7d3c8cbdc043ab4c2fb779b1feadc1bea0baab9c92953f",
+    "crates/ninjars-symbolica/src/bubble_kernels.rs": "c27bfe4d8209fe05923fe85951858b1391e3cc121a6d0722f0ca5c5f17dae930",
+    "crates/ninjars-symbolica/src/kernel.rs": "7b84852f741c5ad24b9c1cc7cda4295811ec096dbffed66ea87b4bdd5df00252",
+    "crates/ninjars-symbolica/src/lib.rs": "4e6f7c47070ed640a98ffcb39be0fb1fab1982ea3052574bcaa2f7004e98777e",
+    "crates/ninjars-symbolica/src/swapped_arithmetic_tests.rs": "90ee13930728be2b1ba6fed141b50d790a0dd2aca7959253039c65e5f9be6362",
+    "crates/ninjars-symbolica/tests/bubbles.rs": "260dadceb86b321b3f2443fadee944e823506081ef5fcf5dd1887aa635300e81",
+    "crates/ninjars-symbolica/tests/swapped_bubbles.rs": "163589181bd1c0c74a21d1758eaf433ad7dcb43255fb5596c46169bc5ce089e4",
+    "crates/ninjars/src/bubbles.rs": "cd80b2d8127dee942219269f934be234c441db1ce56fc360d87e1379c4a3fb0e"
+  },
+  "final_lint_source": "6da695ed244a7c7eb0440b6d0174c7e454c7ecba",
+  "final_source_sha256": {
+    "crates/ninjars-symbolica/src/amplitude.rs": "ee5b8da589221ea74e7d3c8cbdc043ab4c2fb779b1feadc1bea0baab9c92953f",
+    "crates/ninjars-symbolica/src/bubble_kernels.rs": "c27bfe4d8209fe05923fe85951858b1391e3cc121a6d0722f0ca5c5f17dae930",
+    "crates/ninjars-symbolica/src/kernel.rs": "7b84852f741c5ad24b9c1cc7cda4295811ec096dbffed66ea87b4bdd5df00252",
+    "crates/ninjars-symbolica/src/lib.rs": "4e6f7c47070ed640a98ffcb39be0fb1fab1982ea3052574bcaa2f7004e98777e",
+    "crates/ninjars-symbolica/src/swapped_arithmetic_tests.rs": "90ee13930728be2b1ba6fed141b50d790a0dd2aca7959253039c65e5f9be6362",
+    "crates/ninjars-symbolica/tests/bubbles.rs": "260dadceb86b321b3f2443fadee944e823506081ef5fcf5dd1887aa635300e81",
+    "crates/ninjars-symbolica/tests/swapped_bubbles.rs": "0a154a16de9951e87022884e8bd0ed3f6fbcddfd9bc97a50c55787f13c115e11",
+    "crates/ninjars/src/bubbles.rs": "cd80b2d8127dee942219269f934be234c441db1ce56fc360d87e1379c4a3fb0e"
+  },
+  "source_changes_after_numerics": "Only the unused DualNumberStructure import was removed. Both final strict checks compiled all core/adapter libraries and tests; numerical rerun was not required for this import-only edit.",
+  "dependencies": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93",
+    "oneloopmaster": "c9dd82fd1a6e3fc638b01df95bd0cf09ceda3460"
+  },
+  "dependencies_clean": {
+    "symbolica": true,
+    "gammaloop_ninja_shared": true,
+    "oneloopmaster": true
+  },
+  "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "requested_target_dir": "/common/build-cache/external/cd/5d62942031e3ee",
+  "effective_build_dir": "/common/build-cache/external/20/3495b46d0f541f",
+  "numerical_serialization": "flock /tmp/ninjars-symbolica-tests.lock timeout --signal=TERM --kill-after=10s 600s EXECUTABLE ARGS --test-threads=1; SYMBOLICA_LICENSE supplied from external environment",
+  "test_records": "test-records.json",
+  "test_identity": [
+    "executable_sha256",
+    "argv"
+  ],
+  "artifacts": {
+    "feature-off": {
+      "bubbles": {
+        "path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/bubbles-de6735f46b4e90ec",
+        "sha256": "356215751a8a12dfb37274edce8a3d8bb0c2d9fa7a53dd0c18f14f4ddee5cdb6"
+      },
+      "swapped_bubbles": {
+        "path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/swapped_bubbles-9bba0a007c00c19b",
+        "sha256": "b0a2ce1c168b61ca96950f85f338967017c3cca08a6a8dea51472eea08723a59"
+      },
+      "ninjars_symbolica": {
+        "path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-bfa72ee958dcd1ce",
+        "sha256": "6b18ea3d7c6e8673b1f6e1fc846c8ec2b3b4619db3ad26a636ad199233f3f9cd"
+      }
+    },
+    "native": {
+      "native_bubbles": {
+        "path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/native_bubbles-e0f5492c99468a33",
+        "sha256": "9ae4f2b3017c8371f72551df8d6fb5d37d03bec2a473021de4e815df6953a991"
+      },
+      "bubbles": {
+        "path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/bubbles-290d622ec18a6a5c",
+        "sha256": "2cb0839fef23e30aa2373e9e4715bbfe0920dcf2175b25cf6fad30da84889a49"
+      },
+      "workspace_reuse": {
+        "path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/workspace_reuse-c5dde0f6700de650",
+        "sha256": "c6c826dda8be887d6713b94d1ddbede99bb28b6a8ec828e188872ca719dc838e"
+      },
+      "swapped_bubbles": {
+        "path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/swapped_bubbles-55921c34c7144055",
+        "sha256": "04dc243758074902f2e6c93a16badcea1bd3cb510421f9ed6651c99684f4feb7"
+      },
+      "ninjars_symbolica": {
+        "path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+        "sha256": "b15c9f07237fcf0d354f8023b6af2fee47b64aa7efcd1d4d320ab3cd557207e4"
+      }
+    }
+  },
+  "totals": {
+    "feature-off": {
+      "passed": 31,
+      "failed": 0,
+      "ignored": 0
+    },
+    "native": {
+      "passed": 56,
+      "failed": 0,
+      "ignored": 0
+    }
+  },
+  "zero_test_attempt": "feature-off-rank-specialization-initial.log used the wrong filter. Retained, excluded from totals, replaced by six passing tests with rank_specialization::tests::.",
+  "checks": [
+    {
+      "kind": "build",
+      "source": "597846145bac80ef768af7f6c22c997e617192d5",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "ninjars-symbolica",
+        "--features",
+        "rust-codegen",
+        "--lib",
+        "--test",
+        "swapped_bubbles",
+        "--test",
+        "bubbles",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "stdout": "build-feature-off-initial.jsonl",
+      "stderr": "build-feature-off-initial.log",
+      "exit_code": 0
+    },
+    {
+      "kind": "build",
+      "source": "597846145bac80ef768af7f6c22c997e617192d5",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "ninjars-symbolica",
+        "--features",
+        "rust-codegen,native-kernels",
+        "--lib",
+        "--test",
+        "swapped_bubbles",
+        "--test",
+        "bubbles",
+        "--test",
+        "native_bubbles",
+        "--test",
+        "workspace_reuse",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "stdout": "build-native-initial.jsonl",
+      "stderr": "build-native-initial.log",
+      "exit_code": 0
+    },
+    {
+      "kind": "clippy",
+      "source": "597846145bac80ef768af7f6c22c997e617192d5",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "-p",
+        "ninjars",
+        "-p",
+        "ninjars-symbolica",
+        "--features",
+        "rust-codegen",
+        "--lib",
+        "--tests",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "combined_log": "clippy-feature-off-initial.log",
+      "exit_code": 101
+    },
+    {
+      "kind": "clippy",
+      "source": "6da695ed244a7c7eb0440b6d0174c7e454c7ecba",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "-p",
+        "ninjars",
+        "-p",
+        "ninjars-symbolica",
+        "--features",
+        "rust-codegen",
+        "--lib",
+        "--tests",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "combined_log": "clippy-feature-off.log",
+      "exit_code": 0
+    },
+    {
+      "kind": "clippy",
+      "source": "6da695ed244a7c7eb0440b6d0174c7e454c7ecba",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "-p",
+        "ninjars",
+        "-p",
+        "ninjars-symbolica",
+        "--features",
+        "rust-codegen,native-kernels",
+        "--lib",
+        "--tests",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "combined_log": "clippy-native-initial.log",
+      "exit_code": 0
+    },
+    {
+      "kind": "format",
+      "source": "6da695ed244a7c7eb0440b6d0174c7e454c7ecba",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "combined_log": "format.log",
+      "exit_code": 0
+    },
+    {
+      "kind": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "combined_log": "diff-check-initial.log",
+      "exit_code": 2,
+      "reason": "Raw Rust test logs contain intentional final empty lines; preserved byte-for-byte."
+    },
+    {
+      "kind": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "combined_log": "diff-check.log",
+      "exit_code": 0,
+      "reason": "Scoped .gitattributes disables only blank-at-eof checking for this evidence directory logs."
+    }
+  ],
+  "evidence_sha256": {
+    "README.md": "b05853f242fcb42bcbfef3121316ba50b05f4a4205e89b04b3a6a53c84618527",
+    "build-feature-off-initial.jsonl": "b118fd0697079da252c0ca4f15ad32a1733891ab9f55e85418d6e9a80cd08605",
+    "build-feature-off-initial.log": "bf04c04d5e6519cda98915895732d80b4470bb1b0027e0606040b960b97187b7",
+    "build-native-initial.jsonl": "0e11cadf116b1e46565dc6cb25c29152a454a1c802dd7fb399729c9b9244e0b6",
+    "build-native-initial.log": "daaeb3d2342a4df47d7ceb84fd87828656b836f749e64ecf2bebd5ce59f23bbe",
+    "clippy-feature-off-initial.log": "1cf77cbacc85b33243b175408bc07d53494a57e0cb5d7ecf6971604b7cbc1343",
+    "clippy-feature-off.log": "314e6130801cf9f027d9dfa2c769955b91ad42fc1540b7012a090ca633bde620",
+    "clippy-native-initial.log": "b0aa905e2031c36355a5026bb7cb93ace35a951830075f5c7105ac41a277eb53",
+    "diff-check-initial.log": "ca9edd6bb8ddb9d52ee96cdbd56707e76d812fedd16ef69d447f517e2496ad47",
+    "diff-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "feature-off-artifacts.json": "53766729c50ca72d6d7dba7378bde4fa14fce0a7c1be78ee5efb60998de719f9",
+    "feature-off-bubbles-initial.log": "60bcb4bd6b04b5e284ea6592c96ace7959b5c153d28e8588b4dba6bb1044229f",
+    "feature-off-denominator-reuse-initial.log": "fef6ebdcb1f1f5871807cc39b0ed9f03f21d807cdd1b0b52640cb804a369a034",
+    "feature-off-initial-runs.json": "92e75eeaad7e395853f280a52b07003d26ba4381a96ac75c178cd1241efd76e2",
+    "feature-off-rank-runs.json": "c88b62171ec11d6b137da7a17e80d96481c7fc6901b950aff280f230001402f2",
+    "feature-off-rank-specialization-initial.log": "a4825d68d9a937f77e50b09e456e6c5f2d9eac2bd473bf3cd732e0ef3b170c36",
+    "feature-off-rank-specialization.log": "6980a283afe1340add45b8442f079b8c33c55959b54edecc68bd3aeb424b6c16",
+    "feature-off-swapped-public-initial.log": "e3af2f8ebd5d192665fbe21a1dc60f247de58136ab9d7a07a56f5aacae98d740",
+    "feature-off-swapped-unit-initial.log": "5f6cf3b5125b76e743485517ce7bd6d9bca53d7e653dcda7fbf5cf6fd9a8a0d7",
+    "feature-off-unit-test-list.txt": "6dbd2a7c1aef600adf9bd639f6698ff5f46b404d2fa27c609d7b4f0d177d0336",
+    "format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "initial-source.json": "8b4c92a557bc13a0d97b68bb98d5e11ed1a00e53e12232fd21ffa8fc2c08595d",
+    "native-artifacts.json": "0b5da4c0cd1b9b70624b83a77ac51e0ba1a2a9969247510bd0fcd48370c40ff3",
+    "native-bubbles-initial.log": "f7d3cb5c68b234379663a967c33c72b1eca3a7a854a64a93449680a888124fce",
+    "native-denominator-reuse-initial.log": "aa585dbb011b6a4af8ec3ca1ffddf3c4a85b4a3444ff8260c3222223978e24fc",
+    "native-initial-runs.json": "67230434e69d505148e0707ca3e92bb3d6d752756e28e54ac996db2d2f125591",
+    "native-native-bubbles-initial.log": "38728116570bff532e3df57ea8c95abd8c5fa69d3f01df44f0e333415223820c",
+    "native-rank-specialization-initial.log": "75874a4bc81b18e900a80130bcda2e1415e03cf6c02fdf60e06ad3a06d4c8990",
+    "native-swapped-public-initial.log": "e3739e9523e7eb40b3c63e731a9d6e298107ff25888423e181f9b5f879bc7cd6",
+    "native-swapped-unit-initial.log": "7c9fd50aae58f9222db2fd936996f011537cf674a5100c3d8226202626804121",
+    "native-unit-test-list.txt": "614c843455a1288b1a6f29ee4854fb7f0fc65199313bada4b452f7aad5dfbce0",
+    "native-workspace-reuse-initial.log": "07790ad87180c035e2132ec7ea7a4916f2bcd390873b7069b7ad26311dbff140",
+    "test-records.json": "6cd088c2b5089079d0ca5b3525c652d490b5e6d2192cf8af749040e07a337910"
+  },
+  "evidence_attributes_sha256": "2d8c00d85cc7a1c6e1d6848225cbf048c26e631a798e94512d3c0ab061a44e16"
+}

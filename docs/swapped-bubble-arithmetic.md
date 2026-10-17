@@ -67,10 +67,17 @@ therefore be measured against additional arithmetic dispatch and copying.
 This is the arithmetic-only control; callback trimming is a separate future
 candidate because it increases homogeneous callback invocations.
 
-At this source checkpoint, the new controls have been written but not built or
-executed. They cover exact complete-residue liveness, independently sampled cut
-reconstruction, raw API preservation, scratch reuse/retry, input and overflow
-status, callback identity, precision and higher/mixed Dual components. No
-performance improvement or acceptance gate is claimed. Later measurements must
-retain separate actual master-computation timing and the shared-master
-reduction-only control.
+The bounded correctness checkpoint passes 87 tests: 31 with `rust-codegen` and
+56 with `rust-codegen,native-kernels`, with no failed or ignored tests. These
+cover exact complete-residue liveness, independently sampled cut reconstruction,
+raw API preservation, scratch reuse/retry, input and overflow status, callback
+identity, precision and higher/mixed Dual components. The actual-master amplitude
+control also verifies accumulation, failed-lane isolation, reset and empty input.
+Strict Clippy for core/adapter libraries and tests passes in both feature
+variants, and workspace formatting passes. The retained failed lint attempt was
+an unused test import; removing it changed no numerical implementation.
+
+See the [validation record](../validation/evidence/swapped-bubble-arithmetic/README.md)
+for exact source snapshots, executable hashes, commands and logs. No performance
+measurement or improvement is claimed. Later measurements must retain separate
+actual master-computation timing and the shared-master reduction-only control.

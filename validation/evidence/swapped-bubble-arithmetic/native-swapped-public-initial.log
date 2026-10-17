@@ -1,0 +1,8 @@
+
+running 3 tests
+test complete_bubble_amplitude_preserves_accumulation_failure_and_reset ... ok
+test full_asymmetric_higher_and_mixed_dual_residues_match ... ok
+test full_residues_callbacks_and_failed_lanes_match_in_three_precisions ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.87s
+

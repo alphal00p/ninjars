@@ -1,0 +1,117 @@
+[
+  {
+    "name": "swapped-unit",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+      "swapped_arithmetic_tests::",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "b15c9f07237fcf0d354f8023b6af2fee47b64aa7efcd1d4d320ab3cd557207e4",
+    "log": "native-swapped-unit-initial.log"
+  },
+  {
+    "name": "swapped-public",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/swapped_bubbles-55921c34c7144055",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "04dc243758074902f2e6c93a16badcea1bd3cb510421f9ed6651c99684f4feb7",
+    "log": "native-swapped-public-initial.log"
+  },
+  {
+    "name": "bubbles",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/bubbles-290d622ec18a6a5c",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "2cb0839fef23e30aa2373e9e4715bbfe0920dcf2175b25cf6fad30da84889a49",
+    "log": "native-bubbles-initial.log"
+  },
+  {
+    "name": "denominator-reuse",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+      "denominator_reuse_tests::",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "b15c9f07237fcf0d354f8023b6af2fee47b64aa7efcd1d4d320ab3cd557207e4",
+    "log": "native-denominator-reuse-initial.log"
+  },
+  {
+    "name": "rank-specialization",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+      "rank_specialization::tests::",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "b15c9f07237fcf0d354f8023b6af2fee47b64aa7efcd1d4d320ab3cd557207e4",
+    "log": "native-rank-specialization-initial.log"
+  },
+  {
+    "name": "native-bubbles",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/native_bubbles-e0f5492c99468a33",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "9ae4f2b3017c8371f72551df8d6fb5d37d03bec2a473021de4e815df6953a991",
+    "log": "native-native-bubbles-initial.log"
+  },
+  {
+    "name": "workspace-reuse",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/workspace_reuse-c5dde0f6700de650",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "c6c826dda8be887d6713b94d1ddbede99bb28b6a8ec828e188872ca719dc838e",
+    "log": "native-workspace-reuse-initial.log"
+  }
+]

@@ -1,0 +1,13 @@
+
+running 8 tests
+test bubble_kernels::swapped_arithmetic_tests::discarded_division_overflow_is_distinct_from_bad_inputs_or_live_overflow ... ok
+test bubble_kernels::swapped_arithmetic_tests::legacy_implementers_keep_the_existing_full_combined_dispatch ... ok
+test bubble_kernels::swapped_arithmetic_tests::opting_in_does_not_activate_tadpole_only_or_rank_inactive_bubbles ... ok
+test bubble_kernels::swapped_arithmetic_tests::projection_pruning_preserves_raw_apis_reuse_and_retry_for_all_degrees ... ok
+test bubble_kernels::swapped_arithmetic_tests::pruned_dual_graphs_keep_explicit_precision_instead_of_carrier_precision ... ok
+test bubble_kernels::swapped_arithmetic_tests::rank_guard_covers_all_dual_components_before_orientation_grouping ... ok
+test bubble_kernels::swapped_arithmetic_tests::selected_group_error_does_not_publish_partial_residues ... ok
+test bubble_kernels::swapped_arithmetic_tests::swapped_head_liveness_preserves_every_exact_residue_component ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 19 filtered out; finished in 0.33s
+

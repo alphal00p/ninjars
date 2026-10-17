@@ -1,0 +1,12 @@
+
+running 7 tests
+test bubble_batches_preserve_parameter_lanes_and_explicit_mu_squared ... ok
+test division_isolates_uncut_dual_shapes_and_rejects_duplicate_indices ... ok
+test doublefloat_and_arbitrary_precision_complex_mass_bubbles_keep_inputs ... ok
+test higher_and_mixed_dual_parent_subtraction_preserves_the_bubble_coefficient ... ok
+test polynomial_residues_reconstruct_with_zero_one_and_two_triangle_parents ... ok
+test pruned_polynomial_residues_reconstruct_with_zero_one_and_two_triangle_parents ... ok
+test unstable_or_misidentified_parent_cannot_be_treated_as_zero ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.07s
+

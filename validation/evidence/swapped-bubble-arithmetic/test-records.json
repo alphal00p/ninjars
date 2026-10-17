@@ -1,0 +1,465 @@
+[
+  {
+    "name": "swapped-unit",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-bfa72ee958dcd1ce",
+      "swapped_arithmetic_tests::",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "6b18ea3d7c6e8673b1f6e1fc846c8ec2b3b4619db3ad26a636ad199233f3f9cd",
+    "log": "feature-off-swapped-unit-initial.log",
+    "status": "ok",
+    "passed": 8,
+    "failed": 0,
+    "ignored": 0,
+    "measured": 0,
+    "filtered_out": 19,
+    "variant": "feature-off",
+    "argv": [
+      "swapped_arithmetic_tests::",
+      "--test-threads=1"
+    ],
+    "identity": {
+      "executable_sha256": "6b18ea3d7c6e8673b1f6e1fc846c8ec2b3b4619db3ad26a636ad199233f3f9cd",
+      "argv": [
+        "swapped_arithmetic_tests::",
+        "--test-threads=1"
+      ]
+    },
+    "counts_toward_validation": true,
+    "log_sha256": "5f6cf3b5125b76e743485517ce7bd6d9bca53d7e653dcda7fbf5cf6fd9a8a0d7"
+  },
+  {
+    "name": "swapped-public",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/swapped_bubbles-9bba0a007c00c19b",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "b0a2ce1c168b61ca96950f85f338967017c3cca08a6a8dea51472eea08723a59",
+    "log": "feature-off-swapped-public-initial.log",
+    "status": "ok",
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0,
+    "measured": 0,
+    "filtered_out": 0,
+    "variant": "feature-off",
+    "argv": [
+      "--test-threads=1"
+    ],
+    "identity": {
+      "executable_sha256": "b0a2ce1c168b61ca96950f85f338967017c3cca08a6a8dea51472eea08723a59",
+      "argv": [
+        "--test-threads=1"
+      ]
+    },
+    "counts_toward_validation": true,
+    "log_sha256": "e3af2f8ebd5d192665fbe21a1dc60f247de58136ab9d7a07a56f5aacae98d740"
+  },
+  {
+    "name": "bubbles",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/bubbles-de6735f46b4e90ec",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "356215751a8a12dfb37274edce8a3d8bb0c2d9fa7a53dd0c18f14f4ddee5cdb6",
+    "log": "feature-off-bubbles-initial.log",
+    "status": "ok",
+    "passed": 7,
+    "failed": 0,
+    "ignored": 0,
+    "measured": 0,
+    "filtered_out": 0,
+    "variant": "feature-off",
+    "argv": [
+      "--test-threads=1"
+    ],
+    "identity": {
+      "executable_sha256": "356215751a8a12dfb37274edce8a3d8bb0c2d9fa7a53dd0c18f14f4ddee5cdb6",
+      "argv": [
+        "--test-threads=1"
+      ]
+    },
+    "counts_toward_validation": true,
+    "log_sha256": "60bcb4bd6b04b5e284ea6592c96ace7959b5c153d28e8588b4dba6bb1044229f"
+  },
+  {
+    "name": "denominator-reuse",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-bfa72ee958dcd1ce",
+      "denominator_reuse_tests::",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "6b18ea3d7c6e8673b1f6e1fc846c8ec2b3b4619db3ad26a636ad199233f3f9cd",
+    "log": "feature-off-denominator-reuse-initial.log",
+    "status": "ok",
+    "passed": 7,
+    "failed": 0,
+    "ignored": 0,
+    "measured": 0,
+    "filtered_out": 20,
+    "variant": "feature-off",
+    "argv": [
+      "denominator_reuse_tests::",
+      "--test-threads=1"
+    ],
+    "identity": {
+      "executable_sha256": "6b18ea3d7c6e8673b1f6e1fc846c8ec2b3b4619db3ad26a636ad199233f3f9cd",
+      "argv": [
+        "denominator_reuse_tests::",
+        "--test-threads=1"
+      ]
+    },
+    "counts_toward_validation": true,
+    "log_sha256": "fef6ebdcb1f1f5871807cc39b0ed9f03f21d807cdd1b0b52640cb804a369a034"
+  },
+  {
+    "name": "rank-specialization",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-bfa72ee958dcd1ce",
+      "rank_specialization_tests::",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "6b18ea3d7c6e8673b1f6e1fc846c8ec2b3b4619db3ad26a636ad199233f3f9cd",
+    "log": "feature-off-rank-specialization-initial.log",
+    "status": "ok",
+    "passed": 0,
+    "failed": 0,
+    "ignored": 0,
+    "measured": 0,
+    "filtered_out": 27,
+    "variant": "feature-off",
+    "argv": [
+      "rank_specialization_tests::",
+      "--test-threads=1"
+    ],
+    "identity": {
+      "executable_sha256": "6b18ea3d7c6e8673b1f6e1fc846c8ec2b3b4619db3ad26a636ad199233f3f9cd",
+      "argv": [
+        "rank_specialization_tests::",
+        "--test-threads=1"
+      ]
+    },
+    "counts_toward_validation": false,
+    "log_sha256": "a4825d68d9a937f77e50b09e456e6c5f2d9eac2bd473bf3cd732e0ef3b170c36"
+  },
+  {
+    "name": "rank-specialization-corrected-filter",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-bfa72ee958dcd1ce",
+      "rank_specialization::tests::",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "6b18ea3d7c6e8673b1f6e1fc846c8ec2b3b4619db3ad26a636ad199233f3f9cd",
+    "log": "feature-off-rank-specialization.log",
+    "status": "ok",
+    "passed": 6,
+    "failed": 0,
+    "ignored": 0,
+    "measured": 0,
+    "filtered_out": 21,
+    "variant": "feature-off",
+    "argv": [
+      "rank_specialization::tests::",
+      "--test-threads=1"
+    ],
+    "identity": {
+      "executable_sha256": "6b18ea3d7c6e8673b1f6e1fc846c8ec2b3b4619db3ad26a636ad199233f3f9cd",
+      "argv": [
+        "rank_specialization::tests::",
+        "--test-threads=1"
+      ]
+    },
+    "counts_toward_validation": true,
+    "log_sha256": "6980a283afe1340add45b8442f079b8c33c55959b54edecc68bd3aeb424b6c16"
+  },
+  {
+    "name": "swapped-unit",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+      "swapped_arithmetic_tests::",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "b15c9f07237fcf0d354f8023b6af2fee47b64aa7efcd1d4d320ab3cd557207e4",
+    "log": "native-swapped-unit-initial.log",
+    "status": "ok",
+    "passed": 10,
+    "failed": 0,
+    "ignored": 0,
+    "measured": 0,
+    "filtered_out": 48,
+    "variant": "native",
+    "argv": [
+      "swapped_arithmetic_tests::",
+      "--test-threads=1"
+    ],
+    "identity": {
+      "executable_sha256": "b15c9f07237fcf0d354f8023b6af2fee47b64aa7efcd1d4d320ab3cd557207e4",
+      "argv": [
+        "swapped_arithmetic_tests::",
+        "--test-threads=1"
+      ]
+    },
+    "counts_toward_validation": true,
+    "log_sha256": "7c9fd50aae58f9222db2fd936996f011537cf674a5100c3d8226202626804121"
+  },
+  {
+    "name": "swapped-public",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/swapped_bubbles-55921c34c7144055",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "04dc243758074902f2e6c93a16badcea1bd3cb510421f9ed6651c99684f4feb7",
+    "log": "native-swapped-public-initial.log",
+    "status": "ok",
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0,
+    "measured": 0,
+    "filtered_out": 0,
+    "variant": "native",
+    "argv": [
+      "--test-threads=1"
+    ],
+    "identity": {
+      "executable_sha256": "04dc243758074902f2e6c93a16badcea1bd3cb510421f9ed6651c99684f4feb7",
+      "argv": [
+        "--test-threads=1"
+      ]
+    },
+    "counts_toward_validation": true,
+    "log_sha256": "e3739e9523e7eb40b3c63e731a9d6e298107ff25888423e181f9b5f879bc7cd6"
+  },
+  {
+    "name": "bubbles",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/bubbles-290d622ec18a6a5c",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "2cb0839fef23e30aa2373e9e4715bbfe0920dcf2175b25cf6fad30da84889a49",
+    "log": "native-bubbles-initial.log",
+    "status": "ok",
+    "passed": 7,
+    "failed": 0,
+    "ignored": 0,
+    "measured": 0,
+    "filtered_out": 0,
+    "variant": "native",
+    "argv": [
+      "--test-threads=1"
+    ],
+    "identity": {
+      "executable_sha256": "2cb0839fef23e30aa2373e9e4715bbfe0920dcf2175b25cf6fad30da84889a49",
+      "argv": [
+        "--test-threads=1"
+      ]
+    },
+    "counts_toward_validation": true,
+    "log_sha256": "f7d3cb5c68b234379663a967c33c72b1eca3a7a854a64a93449680a888124fce"
+  },
+  {
+    "name": "denominator-reuse",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+      "denominator_reuse_tests::",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "b15c9f07237fcf0d354f8023b6af2fee47b64aa7efcd1d4d320ab3cd557207e4",
+    "log": "native-denominator-reuse-initial.log",
+    "status": "ok",
+    "passed": 9,
+    "failed": 0,
+    "ignored": 0,
+    "measured": 0,
+    "filtered_out": 49,
+    "variant": "native",
+    "argv": [
+      "denominator_reuse_tests::",
+      "--test-threads=1"
+    ],
+    "identity": {
+      "executable_sha256": "b15c9f07237fcf0d354f8023b6af2fee47b64aa7efcd1d4d320ab3cd557207e4",
+      "argv": [
+        "denominator_reuse_tests::",
+        "--test-threads=1"
+      ]
+    },
+    "counts_toward_validation": true,
+    "log_sha256": "aa585dbb011b6a4af8ec3ca1ffddf3c4a85b4a3444ff8260c3222223978e24fc"
+  },
+  {
+    "name": "rank-specialization",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+      "rank_specialization::tests::",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "b15c9f07237fcf0d354f8023b6af2fee47b64aa7efcd1d4d320ab3cd557207e4",
+    "log": "native-rank-specialization-initial.log",
+    "status": "ok",
+    "passed": 18,
+    "failed": 0,
+    "ignored": 0,
+    "measured": 0,
+    "filtered_out": 40,
+    "variant": "native",
+    "argv": [
+      "rank_specialization::tests::",
+      "--test-threads=1"
+    ],
+    "identity": {
+      "executable_sha256": "b15c9f07237fcf0d354f8023b6af2fee47b64aa7efcd1d4d320ab3cd557207e4",
+      "argv": [
+        "rank_specialization::tests::",
+        "--test-threads=1"
+      ]
+    },
+    "counts_toward_validation": true,
+    "log_sha256": "75874a4bc81b18e900a80130bcda2e1415e03cf6c02fdf60e06ad3a06d4c8990"
+  },
+  {
+    "name": "native-bubbles",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/native_bubbles-e0f5492c99468a33",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "9ae4f2b3017c8371f72551df8d6fb5d37d03bec2a473021de4e815df6953a991",
+    "log": "native-native-bubbles-initial.log",
+    "status": "ok",
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "measured": 0,
+    "filtered_out": 0,
+    "variant": "native",
+    "argv": [
+      "--test-threads=1"
+    ],
+    "identity": {
+      "executable_sha256": "9ae4f2b3017c8371f72551df8d6fb5d37d03bec2a473021de4e815df6953a991",
+      "argv": [
+        "--test-threads=1"
+      ]
+    },
+    "counts_toward_validation": true,
+    "log_sha256": "38728116570bff532e3df57ea8c95abd8c5fa69d3f01df44f0e333415223820c"
+  },
+  {
+    "name": "workspace-reuse",
+    "command": [
+      "flock",
+      "/tmp/ninjars-symbolica-tests.lock",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "600s",
+      "/common/build-cache/external/20/3495b46d0f541f/debug/deps/workspace_reuse-c5dde0f6700de650",
+      "--test-threads=1"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "c6c826dda8be887d6713b94d1ddbede99bb28b6a8ec828e188872ca719dc838e",
+    "log": "native-workspace-reuse-initial.log",
+    "status": "ok",
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "measured": 0,
+    "filtered_out": 0,
+    "variant": "native",
+    "argv": [
+      "--test-threads=1"
+    ],
+    "identity": {
+      "executable_sha256": "c6c826dda8be887d6713b94d1ddbede99bb28b6a8ec828e188872ca719dc838e",
+      "argv": [
+        "--test-threads=1"
+      ]
+    },
+    "counts_toward_validation": true,
+    "log_sha256": "07790ad87180c035e2132ec7ea7a4916f2bcd390873b7069b7ad26311dbff140"
+  }
+]

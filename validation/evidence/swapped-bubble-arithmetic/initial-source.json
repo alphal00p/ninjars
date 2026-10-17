@@ -1,0 +1,22 @@
+{
+  "source_head": "597846145bac80ef768af7f6c22c997e617192d5",
+  "source_sha256": {
+    "crates/ninjars-symbolica/src/amplitude.rs": "ee5b8da589221ea74e7d3c8cbdc043ab4c2fb779b1feadc1bea0baab9c92953f",
+    "crates/ninjars-symbolica/src/bubble_kernels.rs": "c27bfe4d8209fe05923fe85951858b1391e3cc121a6d0722f0ca5c5f17dae930",
+    "crates/ninjars-symbolica/src/kernel.rs": "7b84852f741c5ad24b9c1cc7cda4295811ec096dbffed66ea87b4bdd5df00252",
+    "crates/ninjars-symbolica/src/lib.rs": "4e6f7c47070ed640a98ffcb39be0fb1fab1982ea3052574bcaa2f7004e98777e",
+    "crates/ninjars-symbolica/src/swapped_arithmetic_tests.rs": "90ee13930728be2b1ba6fed141b50d790a0dd2aca7959253039c65e5f9be6362",
+    "crates/ninjars-symbolica/tests/bubbles.rs": "260dadceb86b321b3f2443fadee944e823506081ef5fcf5dd1887aa635300e81",
+    "crates/ninjars-symbolica/tests/swapped_bubbles.rs": "163589181bd1c0c74a21d1758eaf433ad7dcb43255fb5596c46169bc5ce089e4",
+    "crates/ninjars/src/bubbles.rs": "cd80b2d8127dee942219269f934be234c441db1ce56fc360d87e1379c4a3fb0e"
+  },
+  "dependencies": {
+    "symbolica": "2c06f245835d57535418b5d78f711fe191db49cc",
+    "gammaloop_ninja_shared": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93",
+    "oneloopmaster": "c9dd82fd1a6e3fc638b01df95bd0cf09ceda3460"
+  },
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "target_dir": "/common/build-cache/external/cd/5d62942031e3ee",
+  "build_dir": "/common/build-cache/external/20/3495b46d0f541f",
+  "build_dir_configuration": "~/.cargo/config.toml: [build] build-dir = /common/build-cache/external/{workspace-path-hash}"
+}

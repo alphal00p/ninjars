@@ -1,0 +1,14 @@
+{
+  "bubbles": {
+    "path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/bubbles-de6735f46b4e90ec",
+    "sha256": "356215751a8a12dfb37274edce8a3d8bb0c2d9fa7a53dd0c18f14f4ddee5cdb6"
+  },
+  "swapped_bubbles": {
+    "path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/swapped_bubbles-9bba0a007c00c19b",
+    "sha256": "b0a2ce1c168b61ca96950f85f338967017c3cca08a6a8dea51472eea08723a59"
+  },
+  "ninjars_symbolica": {
+    "path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-bfa72ee958dcd1ce",
+    "sha256": "6b18ea3d7c6e8673b1f6e1fc846c8ec2b3b4619db3ad26a636ad199233f3f9cd"
+  }
+}

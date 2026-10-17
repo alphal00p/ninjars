@@ -1985,3 +1985,30 @@ connects the existing kernels into integrated amplitudes and a standalone
   directory, integrated widths through 1024 and the previously selected bound
   32. Timing awaits these controls. Master execution, preparation and reduction
   remain separately accounted; the existing performance gate remains unmet.
+
+### Projection-only swapped bubble arithmetic correctness (2026-10-17)
+
+- Source draft `97e095e` adds explicit ordinary/Dual factory and stage opt-ins,
+  with a defaulted projection-specific combined method. Existing raw APIs and
+  numerator callbacks remain full. Selected positive-head Symbolica graphs keep
+  the complete original parameter/source ABI and remain interpreted, independent
+  of native coverage or row policy. Numerical bases and the all-component rank
+  guard retain their existing validation rules.
+- Root's `bd01a8e` adds actual-master bubble amplitude agreement, accumulation,
+  failed-lane isolation, recovery, reset and empty-input coverage. The native
+  test-probe cfg fix is main `1d0106b` (candidate cherry-pick `5978461`).
+- Bounded validation passed 87 tests: 31 with rust-codegen and 56 with native
+  kernels also enabled, zero failed/ignored. This includes exact liveness,
+  independent sampled reconstruction through rank n+1, raw APIs, scratch/retry,
+  callback identity, f64/DoubleFloat/Float, static/dynamic higher/mixed Duals,
+  whole-active-kind rank fallback, denominator reuse and workspace regressions.
+- Strict core/adapter library/test Clippy passes both variants; workspace format
+  and diff checks pass. The retained first lint failure was an unused test
+  import, removed in `6da695e`; no numerical implementation fix was needed. The
+  initial empty rank-filter attempt is retained and excluded from totals.
+- Exact numerical source, dependency revisions, executable/argv identities and
+  logs are recorded in `validation/evidence/swapped-bubble-arithmetic`; behavior
+  and intentional discarded-overflow status differences are documented in
+  `docs/swapped-bubble-arithmetic.md`. This is an opt-in correctness candidate,
+  with no performance measurement or speedup claim. Future measurements must
+  keep actual masters separate from reduction and the shared-master control.

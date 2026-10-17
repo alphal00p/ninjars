@@ -1,0 +1,22 @@
+{
+  "native_bubbles": {
+    "path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/native_bubbles-e0f5492c99468a33",
+    "sha256": "9ae4f2b3017c8371f72551df8d6fb5d37d03bec2a473021de4e815df6953a991"
+  },
+  "bubbles": {
+    "path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/bubbles-290d622ec18a6a5c",
+    "sha256": "2cb0839fef23e30aa2373e9e4715bbfe0920dcf2175b25cf6fad30da84889a49"
+  },
+  "workspace_reuse": {
+    "path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/workspace_reuse-c5dde0f6700de650",
+    "sha256": "c6c826dda8be887d6713b94d1ddbede99bb28b6a8ec828e188872ca719dc838e"
+  },
+  "swapped_bubbles": {
+    "path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/swapped_bubbles-55921c34c7144055",
+    "sha256": "04dc243758074902f2e6c93a16badcea1bd3cb510421f9ed6651c99684f4feb7"
+  },
+  "ninjars_symbolica": {
+    "path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+    "sha256": "b15c9f07237fcf0d354f8023b6af2fee47b64aa7efcd1d4d320ab3cd557207e4"
+  }
+}
