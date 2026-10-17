@@ -1,0 +1,48 @@
+warning: patch `clarabel v0.11.1 (/shared/external/ninja/references/ninjars_forward_fusion_audit/references/gammaloop_ninja_shared/vendor/clarabel)` was not used in the crate graph
+warning: patch `typst-library v0.15.1 (/shared/external/ninja/references/ninjars_forward_fusion_audit/references/gammaloop_ninja_shared/vendor/typst-library)` was not used in the crate graph
+warning: patch `typst-svg v0.15.1 (/shared/external/ninja/references/ninjars_forward_fusion_audit/references/gammaloop_ninja_shared/vendor/typst-svg)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+warning: unused import: `ComplexField`
+ --> references/symbolica/lib/numerica/src/domains/float/double.rs:9:21
+  |
+9 | use simba::scalar::{ComplexField, RealField};
+  |                     ^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unnecessary `unsafe` block
+  --> references/symbolica/lib/numerica/src/domains/float/double.rs:48:28
+   |
+48 |             Ok(DoubleFloat(unsafe { Df64::new_full(hi, lo) }))
+   |                            ^^^^^^ unnecessary `unsafe` block
+   |
+   = note: `#[warn(unused_unsafe)]` (part of `#[warn(unused)]`) on by default
+
+warning: unnecessary `unsafe` block
+  --> references/symbolica/lib/numerica/src/domains/float/double.rs:75:35
+   |
+75 |             return Ok(DoubleFloat(unsafe { Df64::new_full(hi, lo) }));
+   |                                   ^^^^^^ unnecessary `unsafe` block
+
+warning: `numerica` (lib) generated 3 warnings
+warning: `numerica` (lib) generated 3 warnings (3 duplicates)
+warning: unused `Result` that must be used
+   --> references/symbolica/src/atom.rs:776:9
+    |
+776 |         self.export(&mut data);
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: this `Result` may be an `Err` variant, which should be handled
+    = note: `#[warn(unused_must_use)]` (part of `#[warn(unused)]`) on by default
+help: use `let _ = ...` to ignore the resulting value
+    |
+776 |         let _ = self.export(&mut data);
+    |         +++++++
+
+warning: `symbolica` (lib) generated 1 warning
+warning: `symbolica` (lib) generated 1 warning (1 duplicate)
+    Checking ninjars-symbolica v0.1.0 (/shared/external/ninja/references/ninjars_forward_fusion_audit/crates/ninjars-symbolica)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 11.68s

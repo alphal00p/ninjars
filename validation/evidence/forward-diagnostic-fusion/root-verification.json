@@ -1,0 +1,14 @@
+{
+  "source_files_verified": 38,
+  "retained_executable_verified": true,
+  "unique_retained_heads": 283,
+  "exact_block_identities": 283,
+  "exact_integrated_identities": 5,
+  "external_inputs": 313,
+  "instructions": {
+    "forward_totals": 1954,
+    "forward_fused_five": 1075,
+    "forward_fused_retained": 3177
+  },
+  "performance_acceptance": false
+}

@@ -1,0 +1,2787 @@
+{
+  "boundaries": {
+    "callback_heads": "Unchanged independent callback inputs; no callback execution or depth change",
+    "geometry": "Unchanged abstract geometry, denominator and source-projection inputs; their construction is excluded",
+    "included": "Existing exact division, parent correction, subtraction, residue projection, symbolic master weights/contractions and amplitude sum",
+    "masters": "Unchanged independent symbolic Laurent components; no master provider or eager master evaluation"
+  },
+  "callback_heads": 60,
+  "composition_byte_budget": 8388608,
+  "count_limitations": [
+    "Instruction and arithmetic counts are not latency or throughput predictions.",
+    "Separate temporary sums are not peak memory; retained-output writes and cross-block packing are unmeasured.",
+    "Generated source sizes are unrolled callsite inventories, not binary sizes."
+  ],
+  "exact_block_identities": [
+    {
+      "category": "division",
+      "exact_identities": 6,
+      "name": "tri012_o0_division",
+      "output_range": [
+        5,
+        11
+      ]
+    },
+    {
+      "category": "division",
+      "exact_identities": 6,
+      "name": "tri012_o1_division",
+      "output_range": [
+        11,
+        17
+      ]
+    },
+    {
+      "category": "projection",
+      "exact_identities": 10,
+      "name": "tri012_projection",
+      "output_range": [
+        17,
+        27
+      ]
+    },
+    {
+      "category": "master_weights",
+      "exact_identities": 2,
+      "name": "tri012_weights",
+      "output_range": [
+        27,
+        29
+      ]
+    },
+    {
+      "category": "master_contraction",
+      "exact_identities": 5,
+      "name": "tri012_contract",
+      "output_range": [
+        29,
+        34
+      ]
+    },
+    {
+      "category": "division",
+      "exact_identities": 7,
+      "name": "bub01_o0_division",
+      "output_range": [
+        34,
+        41
+      ]
+    },
+    {
+      "category": "parent_correction",
+      "exact_identities": 7,
+      "name": "tri012_to_bub01_o0",
+      "output_range": [
+        41,
+        48
+      ]
+    },
+    {
+      "category": "subtraction_sum",
+      "exact_identities": 7,
+      "name": "bub01_o0_sum",
+      "output_range": [
+        48,
+        55
+      ]
+    },
+    {
+      "category": "division",
+      "exact_identities": 7,
+      "name": "bub01_o1_division",
+      "output_range": [
+        55,
+        62
+      ]
+    },
+    {
+      "category": "parent_correction",
+      "exact_identities": 7,
+      "name": "tri012_to_bub01_o1",
+      "output_range": [
+        62,
+        69
+      ]
+    },
+    {
+      "category": "subtraction_sum",
+      "exact_identities": 7,
+      "name": "bub01_o1_sum",
+      "output_range": [
+        69,
+        76
+      ]
+    },
+    {
+      "category": "projection",
+      "exact_identities": 10,
+      "name": "bub01_projection",
+      "output_range": [
+        76,
+        86
+      ]
+    },
+    {
+      "category": "master_weights",
+      "exact_identities": 4,
+      "name": "bub01_weights",
+      "output_range": [
+        86,
+        90
+      ]
+    },
+    {
+      "category": "master_contraction",
+      "exact_identities": 5,
+      "name": "bub01_contract",
+      "output_range": [
+        90,
+        95
+      ]
+    },
+    {
+      "category": "division",
+      "exact_identities": 7,
+      "name": "bub02_o0_division",
+      "output_range": [
+        95,
+        102
+      ]
+    },
+    {
+      "category": "parent_correction",
+      "exact_identities": 7,
+      "name": "tri012_to_bub02_o0",
+      "output_range": [
+        102,
+        109
+      ]
+    },
+    {
+      "category": "subtraction_sum",
+      "exact_identities": 7,
+      "name": "bub02_o0_sum",
+      "output_range": [
+        109,
+        116
+      ]
+    },
+    {
+      "category": "division",
+      "exact_identities": 7,
+      "name": "bub02_o1_division",
+      "output_range": [
+        116,
+        123
+      ]
+    },
+    {
+      "category": "parent_correction",
+      "exact_identities": 7,
+      "name": "tri012_to_bub02_o1",
+      "output_range": [
+        123,
+        130
+      ]
+    },
+    {
+      "category": "subtraction_sum",
+      "exact_identities": 7,
+      "name": "bub02_o1_sum",
+      "output_range": [
+        130,
+        137
+      ]
+    },
+    {
+      "category": "projection",
+      "exact_identities": 10,
+      "name": "bub02_projection",
+      "output_range": [
+        137,
+        147
+      ]
+    },
+    {
+      "category": "master_weights",
+      "exact_identities": 4,
+      "name": "bub02_weights",
+      "output_range": [
+        147,
+        151
+      ]
+    },
+    {
+      "category": "master_contraction",
+      "exact_identities": 5,
+      "name": "bub02_contract",
+      "output_range": [
+        151,
+        156
+      ]
+    },
+    {
+      "category": "division",
+      "exact_identities": 7,
+      "name": "bub12_o0_division",
+      "output_range": [
+        156,
+        163
+      ]
+    },
+    {
+      "category": "parent_correction",
+      "exact_identities": 7,
+      "name": "tri012_to_bub12_o0",
+      "output_range": [
+        163,
+        170
+      ]
+    },
+    {
+      "category": "subtraction_sum",
+      "exact_identities": 7,
+      "name": "bub12_o0_sum",
+      "output_range": [
+        170,
+        177
+      ]
+    },
+    {
+      "category": "division",
+      "exact_identities": 7,
+      "name": "bub12_o1_division",
+      "output_range": [
+        177,
+        184
+      ]
+    },
+    {
+      "category": "parent_correction",
+      "exact_identities": 7,
+      "name": "tri012_to_bub12_o1",
+      "output_range": [
+        184,
+        191
+      ]
+    },
+    {
+      "category": "subtraction_sum",
+      "exact_identities": 7,
+      "name": "bub12_o1_sum",
+      "output_range": [
+        191,
+        198
+      ]
+    },
+    {
+      "category": "projection",
+      "exact_identities": 10,
+      "name": "bub12_projection",
+      "output_range": [
+        198,
+        208
+      ]
+    },
+    {
+      "category": "master_weights",
+      "exact_identities": 4,
+      "name": "bub12_weights",
+      "output_range": [
+        208,
+        212
+      ]
+    },
+    {
+      "category": "master_contraction",
+      "exact_identities": 5,
+      "name": "bub12_contract",
+      "output_range": [
+        212,
+        217
+      ]
+    },
+    {
+      "category": "division",
+      "exact_identities": 2,
+      "name": "tad0_o0_division",
+      "output_range": [
+        217,
+        219
+      ]
+    },
+    {
+      "category": "parent_correction",
+      "exact_identities": 2,
+      "name": "tri012_to_tad0_o0",
+      "output_range": [
+        219,
+        221
+      ]
+    },
+    {
+      "category": "parent_correction",
+      "exact_identities": 2,
+      "name": "bub01_to_tad0_o0",
+      "output_range": [
+        221,
+        223
+      ]
+    },
+    {
+      "category": "parent_correction",
+      "exact_identities": 2,
+      "name": "bub02_to_tad0_o0",
+      "output_range": [
+        223,
+        225
+      ]
+    },
+    {
+      "category": "subtraction_sum",
+      "exact_identities": 2,
+      "name": "tad0_o0_sum",
+      "output_range": [
+        225,
+        227
+      ]
+    },
+    {
+      "category": "projection",
+      "exact_identities": 5,
+      "name": "tad0_o0_projection",
+      "output_range": [
+        227,
+        232
+      ]
+    },
+    {
+      "category": "master_weights",
+      "exact_identities": 2,
+      "name": "tad0_o0_weights",
+      "output_range": [
+        232,
+        234
+      ]
+    },
+    {
+      "category": "master_contraction",
+      "exact_identities": 5,
+      "name": "tad0_o0_contract",
+      "output_range": [
+        234,
+        239
+      ]
+    },
+    {
+      "category": "division",
+      "exact_identities": 2,
+      "name": "tad1_o0_division",
+      "output_range": [
+        239,
+        241
+      ]
+    },
+    {
+      "category": "parent_correction",
+      "exact_identities": 2,
+      "name": "tri012_to_tad1_o0",
+      "output_range": [
+        241,
+        243
+      ]
+    },
+    {
+      "category": "parent_correction",
+      "exact_identities": 2,
+      "name": "bub01_to_tad1_o0",
+      "output_range": [
+        243,
+        245
+      ]
+    },
+    {
+      "category": "parent_correction",
+      "exact_identities": 2,
+      "name": "bub12_to_tad1_o0",
+      "output_range": [
+        245,
+        247
+      ]
+    },
+    {
+      "category": "subtraction_sum",
+      "exact_identities": 2,
+      "name": "tad1_o0_sum",
+      "output_range": [
+        247,
+        249
+      ]
+    },
+    {
+      "category": "projection",
+      "exact_identities": 5,
+      "name": "tad1_o0_projection",
+      "output_range": [
+        249,
+        254
+      ]
+    },
+    {
+      "category": "master_weights",
+      "exact_identities": 2,
+      "name": "tad1_o0_weights",
+      "output_range": [
+        254,
+        256
+      ]
+    },
+    {
+      "category": "master_contraction",
+      "exact_identities": 5,
+      "name": "tad1_o0_contract",
+      "output_range": [
+        256,
+        261
+      ]
+    },
+    {
+      "category": "division",
+      "exact_identities": 2,
+      "name": "tad2_o0_division",
+      "output_range": [
+        261,
+        263
+      ]
+    },
+    {
+      "category": "parent_correction",
+      "exact_identities": 2,
+      "name": "tri012_to_tad2_o0",
+      "output_range": [
+        263,
+        265
+      ]
+    },
+    {
+      "category": "parent_correction",
+      "exact_identities": 2,
+      "name": "bub02_to_tad2_o0",
+      "output_range": [
+        265,
+        267
+      ]
+    },
+    {
+      "category": "parent_correction",
+      "exact_identities": 2,
+      "name": "bub12_to_tad2_o0",
+      "output_range": [
+        267,
+        269
+      ]
+    },
+    {
+      "category": "subtraction_sum",
+      "exact_identities": 2,
+      "name": "tad2_o0_sum",
+      "output_range": [
+        269,
+        271
+      ]
+    },
+    {
+      "category": "projection",
+      "exact_identities": 5,
+      "name": "tad2_o0_projection",
+      "output_range": [
+        271,
+        276
+      ]
+    },
+    {
+      "category": "master_weights",
+      "exact_identities": 2,
+      "name": "tad2_o0_weights",
+      "output_range": [
+        276,
+        278
+      ]
+    },
+    {
+      "category": "master_contraction",
+      "exact_identities": 5,
+      "name": "tad2_o0_contract",
+      "output_range": [
+        278,
+        283
+      ]
+    },
+    {
+      "category": "contribution_sum",
+      "exact_identities": 5,
+      "name": "amplitude_sum",
+      "output_range": [
+        0,
+        5
+      ]
+    }
+  ],
+  "exact_integrated_identities": 5,
+  "external_inputs": [
+    "mass_squared_0",
+    "mass_squared_1",
+    "mass_squared_2",
+    "s01_s02_s12_0",
+    "s01_s02_s12_1",
+    "s01_s02_s12_2",
+    "tri012_o0_division_callback_0",
+    "tri012_o0_division_callback_1",
+    "tri012_o0_division_callback_2",
+    "tri012_o0_division_callback_3",
+    "tri012_o0_division_callback_4",
+    "tri012_o0_division_callback_5",
+    "tri012_o1_division_callback_0",
+    "tri012_o1_division_callback_1",
+    "tri012_o1_division_callback_2",
+    "tri012_o1_division_callback_3",
+    "tri012_o1_division_callback_4",
+    "tri012_o1_division_callback_5",
+    "tri012_g_0",
+    "tri012_masters_0",
+    "tri012_masters_1",
+    "tri012_masters_2",
+    "bub01_beta_0",
+    "bub01_beta_1",
+    "bub01_beta_2",
+    "bub01_o0_line2_denominator_0",
+    "bub01_o0_line2_denominator_1",
+    "bub01_o0_line2_denominator_2",
+    "bub01_o0_line2_denominator_3",
+    "bub01_o0_line2_denominator_4",
+    "bub01_o0_line2_denominator_5",
+    "bub01_o0_line2_denominator_6",
+    "bub01_o0_division_callback_0",
+    "bub01_o0_division_callback_1",
+    "bub01_o0_division_callback_2",
+    "bub01_o0_division_callback_3",
+    "bub01_o0_division_callback_4",
+    "bub01_o0_division_callback_5",
+    "bub01_o0_division_callback_6",
+    "tri012_to_bub01_o0_source_projections_0",
+    "tri012_to_bub01_o0_source_projections_1",
+    "tri012_to_bub01_o0_source_projections_2",
+    "tri012_to_bub01_o0_source_projections_3",
+    "tri012_to_bub01_o0_source_projections_4",
+    "tri012_to_bub01_o0_source_projections_5",
+    "tri012_to_bub01_o0_source_projections_6",
+    "tri012_to_bub01_o0_source_projections_7",
+    "bub01_o1_line2_denominator_0",
+    "bub01_o1_line2_denominator_1",
+    "bub01_o1_line2_denominator_2",
+    "bub01_o1_line2_denominator_3",
+    "bub01_o1_line2_denominator_4",
+    "bub01_o1_line2_denominator_5",
+    "bub01_o1_line2_denominator_6",
+    "bub01_o1_division_callback_0",
+    "bub01_o1_division_callback_1",
+    "bub01_o1_division_callback_2",
+    "bub01_o1_division_callback_3",
+    "bub01_o1_division_callback_4",
+    "bub01_o1_division_callback_5",
+    "bub01_o1_division_callback_6",
+    "tri012_to_bub01_o1_source_projections_0",
+    "tri012_to_bub01_o1_source_projections_1",
+    "tri012_to_bub01_o1_source_projections_2",
+    "tri012_to_bub01_o1_source_projections_3",
+    "tri012_to_bub01_o1_source_projections_4",
+    "tri012_to_bub01_o1_source_projections_5",
+    "tri012_to_bub01_o1_source_projections_6",
+    "tri012_to_bub01_o1_source_projections_7",
+    "bub01_g_0",
+    "bub01_integration_basis_0",
+    "bub01_masters_0",
+    "bub01_masters_1",
+    "bub01_masters_2",
+    "bub01_masters_3",
+    "bub01_masters_4",
+    "bub01_masters_5",
+    "bub01_masters_6",
+    "bub01_masters_7",
+    "bub01_masters_8",
+    "bub02_beta_0",
+    "bub02_beta_1",
+    "bub02_beta_2",
+    "bub02_o0_line1_denominator_0",
+    "bub02_o0_line1_denominator_1",
+    "bub02_o0_line1_denominator_2",
+    "bub02_o0_line1_denominator_3",
+    "bub02_o0_line1_denominator_4",
+    "bub02_o0_line1_denominator_5",
+    "bub02_o0_line1_denominator_6",
+    "bub02_o0_division_callback_0",
+    "bub02_o0_division_callback_1",
+    "bub02_o0_division_callback_2",
+    "bub02_o0_division_callback_3",
+    "bub02_o0_division_callback_4",
+    "bub02_o0_division_callback_5",
+    "bub02_o0_division_callback_6",
+    "tri012_to_bub02_o0_source_projections_0",
+    "tri012_to_bub02_o0_source_projections_1",
+    "tri012_to_bub02_o0_source_projections_2",
+    "tri012_to_bub02_o0_source_projections_3",
+    "tri012_to_bub02_o0_source_projections_4",
+    "tri012_to_bub02_o0_source_projections_5",
+    "tri012_to_bub02_o0_source_projections_6",
+    "tri012_to_bub02_o0_source_projections_7",
+    "bub02_o1_line1_denominator_0",
+    "bub02_o1_line1_denominator_1",
+    "bub02_o1_line1_denominator_2",
+    "bub02_o1_line1_denominator_3",
+    "bub02_o1_line1_denominator_4",
+    "bub02_o1_line1_denominator_5",
+    "bub02_o1_line1_denominator_6",
+    "bub02_o1_division_callback_0",
+    "bub02_o1_division_callback_1",
+    "bub02_o1_division_callback_2",
+    "bub02_o1_division_callback_3",
+    "bub02_o1_division_callback_4",
+    "bub02_o1_division_callback_5",
+    "bub02_o1_division_callback_6",
+    "tri012_to_bub02_o1_source_projections_0",
+    "tri012_to_bub02_o1_source_projections_1",
+    "tri012_to_bub02_o1_source_projections_2",
+    "tri012_to_bub02_o1_source_projections_3",
+    "tri012_to_bub02_o1_source_projections_4",
+    "tri012_to_bub02_o1_source_projections_5",
+    "tri012_to_bub02_o1_source_projections_6",
+    "tri012_to_bub02_o1_source_projections_7",
+    "bub02_g_0",
+    "bub02_integration_basis_0",
+    "bub02_masters_0",
+    "bub02_masters_1",
+    "bub02_masters_2",
+    "bub02_masters_3",
+    "bub02_masters_4",
+    "bub02_masters_5",
+    "bub02_masters_6",
+    "bub02_masters_7",
+    "bub02_masters_8",
+    "bub12_beta_0",
+    "bub12_beta_1",
+    "bub12_beta_2",
+    "bub12_o0_line0_denominator_0",
+    "bub12_o0_line0_denominator_1",
+    "bub12_o0_line0_denominator_2",
+    "bub12_o0_line0_denominator_3",
+    "bub12_o0_line0_denominator_4",
+    "bub12_o0_line0_denominator_5",
+    "bub12_o0_line0_denominator_6",
+    "bub12_o0_division_callback_0",
+    "bub12_o0_division_callback_1",
+    "bub12_o0_division_callback_2",
+    "bub12_o0_division_callback_3",
+    "bub12_o0_division_callback_4",
+    "bub12_o0_division_callback_5",
+    "bub12_o0_division_callback_6",
+    "tri012_to_bub12_o0_source_projections_0",
+    "tri012_to_bub12_o0_source_projections_1",
+    "tri012_to_bub12_o0_source_projections_2",
+    "tri012_to_bub12_o0_source_projections_3",
+    "tri012_to_bub12_o0_source_projections_4",
+    "tri012_to_bub12_o0_source_projections_5",
+    "tri012_to_bub12_o0_source_projections_6",
+    "tri012_to_bub12_o0_source_projections_7",
+    "bub12_o1_line0_denominator_0",
+    "bub12_o1_line0_denominator_1",
+    "bub12_o1_line0_denominator_2",
+    "bub12_o1_line0_denominator_3",
+    "bub12_o1_line0_denominator_4",
+    "bub12_o1_line0_denominator_5",
+    "bub12_o1_line0_denominator_6",
+    "bub12_o1_division_callback_0",
+    "bub12_o1_division_callback_1",
+    "bub12_o1_division_callback_2",
+    "bub12_o1_division_callback_3",
+    "bub12_o1_division_callback_4",
+    "bub12_o1_division_callback_5",
+    "bub12_o1_division_callback_6",
+    "tri012_to_bub12_o1_source_projections_0",
+    "tri012_to_bub12_o1_source_projections_1",
+    "tri012_to_bub12_o1_source_projections_2",
+    "tri012_to_bub12_o1_source_projections_3",
+    "tri012_to_bub12_o1_source_projections_4",
+    "tri012_to_bub12_o1_source_projections_5",
+    "tri012_to_bub12_o1_source_projections_6",
+    "tri012_to_bub12_o1_source_projections_7",
+    "bub12_g_0",
+    "bub12_integration_basis_0",
+    "bub12_masters_0",
+    "bub12_masters_1",
+    "bub12_masters_2",
+    "bub12_masters_3",
+    "bub12_masters_4",
+    "bub12_masters_5",
+    "bub12_masters_6",
+    "bub12_masters_7",
+    "bub12_masters_8",
+    "tad0_o0_line1_denominator_0",
+    "tad0_o0_line1_denominator_1",
+    "tad0_o0_line1_denominator_2",
+    "tad0_o0_line1_denominator_3",
+    "tad0_o0_line2_denominator_0",
+    "tad0_o0_line2_denominator_1",
+    "tad0_o0_line2_denominator_2",
+    "tad0_o0_line2_denominator_3",
+    "tad0_o0_division_callback_0",
+    "tad0_o0_division_callback_1",
+    "tad0_o0_beta_0",
+    "tri012_to_tad0_o0_source_projections_0",
+    "tri012_to_tad0_o0_source_projections_1",
+    "tri012_to_tad0_o0_source_projections_2",
+    "tri012_to_tad0_o0_source_projections_3",
+    "tri012_to_tad0_o0_source_projections_4",
+    "tri012_to_tad0_o0_source_projections_5",
+    "bub01_to_tad0_o0_source_projections_0",
+    "bub01_to_tad0_o0_source_projections_1",
+    "bub01_to_tad0_o0_source_projections_2",
+    "bub01_to_tad0_o0_source_projections_3",
+    "bub01_to_tad0_o0_source_projections_4",
+    "bub01_to_tad0_o0_source_projections_5",
+    "bub01_to_tad0_o0_source_projections_6",
+    "bub01_to_tad0_o0_source_projections_7",
+    "bub01_to_tad0_o0_source_projections_8",
+    "bub02_to_tad0_o0_source_projections_0",
+    "bub02_to_tad0_o0_source_projections_1",
+    "bub02_to_tad0_o0_source_projections_2",
+    "bub02_to_tad0_o0_source_projections_3",
+    "bub02_to_tad0_o0_source_projections_4",
+    "bub02_to_tad0_o0_source_projections_5",
+    "bub02_to_tad0_o0_source_projections_6",
+    "bub02_to_tad0_o0_source_projections_7",
+    "bub02_to_tad0_o0_source_projections_8",
+    "tad0_o0_integration_basis_0",
+    "tad0_o0_masters_0",
+    "tad0_o0_masters_1",
+    "tad0_o0_masters_2",
+    "tad1_o0_line0_denominator_0",
+    "tad1_o0_line0_denominator_1",
+    "tad1_o0_line0_denominator_2",
+    "tad1_o0_line0_denominator_3",
+    "tad1_o0_line2_denominator_0",
+    "tad1_o0_line2_denominator_1",
+    "tad1_o0_line2_denominator_2",
+    "tad1_o0_line2_denominator_3",
+    "tad1_o0_division_callback_0",
+    "tad1_o0_division_callback_1",
+    "tad1_o0_beta_0",
+    "tri012_to_tad1_o0_source_projections_0",
+    "tri012_to_tad1_o0_source_projections_1",
+    "tri012_to_tad1_o0_source_projections_2",
+    "tri012_to_tad1_o0_source_projections_3",
+    "tri012_to_tad1_o0_source_projections_4",
+    "tri012_to_tad1_o0_source_projections_5",
+    "bub01_to_tad1_o0_source_projections_0",
+    "bub01_to_tad1_o0_source_projections_1",
+    "bub01_to_tad1_o0_source_projections_2",
+    "bub01_to_tad1_o0_source_projections_3",
+    "bub01_to_tad1_o0_source_projections_4",
+    "bub01_to_tad1_o0_source_projections_5",
+    "bub01_to_tad1_o0_source_projections_6",
+    "bub01_to_tad1_o0_source_projections_7",
+    "bub01_to_tad1_o0_source_projections_8",
+    "bub12_to_tad1_o0_source_projections_0",
+    "bub12_to_tad1_o0_source_projections_1",
+    "bub12_to_tad1_o0_source_projections_2",
+    "bub12_to_tad1_o0_source_projections_3",
+    "bub12_to_tad1_o0_source_projections_4",
+    "bub12_to_tad1_o0_source_projections_5",
+    "bub12_to_tad1_o0_source_projections_6",
+    "bub12_to_tad1_o0_source_projections_7",
+    "bub12_to_tad1_o0_source_projections_8",
+    "tad1_o0_integration_basis_0",
+    "tad1_o0_masters_0",
+    "tad1_o0_masters_1",
+    "tad1_o0_masters_2",
+    "tad2_o0_line0_denominator_0",
+    "tad2_o0_line0_denominator_1",
+    "tad2_o0_line0_denominator_2",
+    "tad2_o0_line0_denominator_3",
+    "tad2_o0_line1_denominator_0",
+    "tad2_o0_line1_denominator_1",
+    "tad2_o0_line1_denominator_2",
+    "tad2_o0_line1_denominator_3",
+    "tad2_o0_division_callback_0",
+    "tad2_o0_division_callback_1",
+    "tad2_o0_beta_0",
+    "tri012_to_tad2_o0_source_projections_0",
+    "tri012_to_tad2_o0_source_projections_1",
+    "tri012_to_tad2_o0_source_projections_2",
+    "tri012_to_tad2_o0_source_projections_3",
+    "tri012_to_tad2_o0_source_projections_4",
+    "tri012_to_tad2_o0_source_projections_5",
+    "bub02_to_tad2_o0_source_projections_0",
+    "bub02_to_tad2_o0_source_projections_1",
+    "bub02_to_tad2_o0_source_projections_2",
+    "bub02_to_tad2_o0_source_projections_3",
+    "bub02_to_tad2_o0_source_projections_4",
+    "bub02_to_tad2_o0_source_projections_5",
+    "bub02_to_tad2_o0_source_projections_6",
+    "bub02_to_tad2_o0_source_projections_7",
+    "bub02_to_tad2_o0_source_projections_8",
+    "bub12_to_tad2_o0_source_projections_0",
+    "bub12_to_tad2_o0_source_projections_1",
+    "bub12_to_tad2_o0_source_projections_2",
+    "bub12_to_tad2_o0_source_projections_3",
+    "bub12_to_tad2_o0_source_projections_4",
+    "bub12_to_tad2_o0_source_projections_5",
+    "bub12_to_tad2_o0_source_projections_6",
+    "bub12_to_tad2_o0_source_projections_7",
+    "bub12_to_tad2_o0_source_projections_8",
+    "tad2_o0_integration_basis_0",
+    "tad2_o0_masters_0",
+    "tad2_o0_masters_1",
+    "tad2_o0_masters_2"
+  ],
+  "final_output_range": [
+    0,
+    5
+  ],
+  "forward_fused_five": {
+    "category": "integrated_only",
+    "constants_bytes": 693,
+    "expression_bytes": 521445,
+    "inputs": 313,
+    "instructions": 1075,
+    "name": "forward_fused_five",
+    "operations": {
+      "additions": 429,
+      "function_calls": 0,
+      "inversions": 36,
+      "multiplications": 991
+    },
+    "outputs": 5,
+    "source_bytes": 249531,
+    "temporary_slots": 132
+  },
+  "forward_fused_retained": {
+    "category": "diagnostic_superset",
+    "constants_bytes": 742,
+    "expression_bytes": 1716393,
+    "inputs": 313,
+    "instructions": 3177,
+    "name": "forward_fused_retained",
+    "operations": {
+      "additions": 1110,
+      "function_calls": 0,
+      "inversions": 39,
+      "multiplications": 2437
+    },
+    "outputs": 283,
+    "source_bytes": 643684,
+    "temporary_slots": 470
+  },
+  "forward_separated": [
+    {
+      "category": "division",
+      "constants_bytes": 242,
+      "expression_bytes": 174,
+      "inputs": 6,
+      "instructions": 6,
+      "name": "tri012_o0_division",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 6,
+      "source_bytes": 2967,
+      "temporary_slots": 0
+    },
+    {
+      "category": "division",
+      "constants_bytes": 242,
+      "expression_bytes": 174,
+      "inputs": 6,
+      "instructions": 6,
+      "name": "tri012_o1_division",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 6,
+      "source_bytes": 2967,
+      "temporary_slots": 0
+    },
+    {
+      "category": "projection",
+      "constants_bytes": 343,
+      "expression_bytes": 404,
+      "inputs": 13,
+      "instructions": 19,
+      "name": "tri012_projection",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 14
+      },
+      "outputs": 10,
+      "source_bytes": 6897,
+      "temporary_slots": 11
+    },
+    {
+      "category": "master_weights",
+      "constants_bytes": 293,
+      "expression_bytes": 50,
+      "inputs": 2,
+      "instructions": 2,
+      "name": "tri012_weights",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 1
+      },
+      "outputs": 2,
+      "source_bytes": 1966,
+      "temporary_slots": 1
+    },
+    {
+      "category": "master_contraction",
+      "constants_bytes": 242,
+      "expression_bytes": 189,
+      "inputs": 5,
+      "instructions": 5,
+      "name": "tri012_contract",
+      "operations": {
+        "additions": 1,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 3
+      },
+      "outputs": 5,
+      "source_bytes": 3107,
+      "temporary_slots": 4
+    },
+    {
+      "category": "division",
+      "constants_bytes": 341,
+      "expression_bytes": 1591,
+      "inputs": 14,
+      "instructions": 43,
+      "name": "bub01_o0_division",
+      "operations": {
+        "additions": 13,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 36
+      },
+      "outputs": 7,
+      "source_bytes": 11148,
+      "temporary_slots": 12
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 489,
+      "expression_bytes": 8091,
+      "inputs": 26,
+      "instructions": 161,
+      "name": "tri012_to_bub01_o0",
+      "operations": {
+        "additions": 50,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 126
+      },
+      "outputs": 7,
+      "source_bytes": 32848,
+      "temporary_slots": 30
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 336,
+      "inputs": 14,
+      "instructions": 14,
+      "name": "bub01_o0_sum",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 7,
+      "source_bytes": 5895,
+      "temporary_slots": 8
+    },
+    {
+      "category": "division",
+      "constants_bytes": 341,
+      "expression_bytes": 1591,
+      "inputs": 14,
+      "instructions": 43,
+      "name": "bub01_o1_division",
+      "operations": {
+        "additions": 13,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 36
+      },
+      "outputs": 7,
+      "source_bytes": 11148,
+      "temporary_slots": 12
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 489,
+      "expression_bytes": 8091,
+      "inputs": 26,
+      "instructions": 161,
+      "name": "tri012_to_bub01_o1",
+      "operations": {
+        "additions": 50,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 126
+      },
+      "outputs": 7,
+      "source_bytes": 32848,
+      "temporary_slots": 30
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 336,
+      "inputs": 14,
+      "instructions": 14,
+      "name": "bub01_o1_sum",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 7,
+      "source_bytes": 5895,
+      "temporary_slots": 8
+    },
+    {
+      "category": "projection",
+      "constants_bytes": 292,
+      "expression_bytes": 274,
+      "inputs": 11,
+      "instructions": 15,
+      "name": "bub01_projection",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 11
+      },
+      "outputs": 10,
+      "source_bytes": 5823,
+      "temporary_slots": 9
+    },
+    {
+      "category": "master_weights",
+      "constants_bytes": 392,
+      "expression_bytes": 196,
+      "inputs": 8,
+      "instructions": 9,
+      "name": "bub01_weights",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 4,
+      "source_bytes": 4030,
+      "temporary_slots": 5
+    },
+    {
+      "category": "master_contraction",
+      "constants_bytes": 242,
+      "expression_bytes": 467,
+      "inputs": 13,
+      "instructions": 15,
+      "name": "bub01_contract",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 9
+      },
+      "outputs": 5,
+      "source_bytes": 5767,
+      "temporary_slots": 7
+    },
+    {
+      "category": "division",
+      "constants_bytes": 341,
+      "expression_bytes": 1591,
+      "inputs": 14,
+      "instructions": 43,
+      "name": "bub02_o0_division",
+      "operations": {
+        "additions": 13,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 36
+      },
+      "outputs": 7,
+      "source_bytes": 11148,
+      "temporary_slots": 12
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 489,
+      "expression_bytes": 8091,
+      "inputs": 26,
+      "instructions": 161,
+      "name": "tri012_to_bub02_o0",
+      "operations": {
+        "additions": 50,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 126
+      },
+      "outputs": 7,
+      "source_bytes": 32848,
+      "temporary_slots": 30
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 336,
+      "inputs": 14,
+      "instructions": 14,
+      "name": "bub02_o0_sum",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 7,
+      "source_bytes": 5895,
+      "temporary_slots": 8
+    },
+    {
+      "category": "division",
+      "constants_bytes": 341,
+      "expression_bytes": 1591,
+      "inputs": 14,
+      "instructions": 43,
+      "name": "bub02_o1_division",
+      "operations": {
+        "additions": 13,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 36
+      },
+      "outputs": 7,
+      "source_bytes": 11148,
+      "temporary_slots": 12
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 489,
+      "expression_bytes": 8091,
+      "inputs": 26,
+      "instructions": 161,
+      "name": "tri012_to_bub02_o1",
+      "operations": {
+        "additions": 50,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 126
+      },
+      "outputs": 7,
+      "source_bytes": 32848,
+      "temporary_slots": 30
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 336,
+      "inputs": 14,
+      "instructions": 14,
+      "name": "bub02_o1_sum",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 7,
+      "source_bytes": 5895,
+      "temporary_slots": 8
+    },
+    {
+      "category": "projection",
+      "constants_bytes": 292,
+      "expression_bytes": 274,
+      "inputs": 11,
+      "instructions": 15,
+      "name": "bub02_projection",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 11
+      },
+      "outputs": 10,
+      "source_bytes": 5823,
+      "temporary_slots": 9
+    },
+    {
+      "category": "master_weights",
+      "constants_bytes": 392,
+      "expression_bytes": 196,
+      "inputs": 8,
+      "instructions": 9,
+      "name": "bub02_weights",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 4,
+      "source_bytes": 4030,
+      "temporary_slots": 5
+    },
+    {
+      "category": "master_contraction",
+      "constants_bytes": 242,
+      "expression_bytes": 467,
+      "inputs": 13,
+      "instructions": 15,
+      "name": "bub02_contract",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 9
+      },
+      "outputs": 5,
+      "source_bytes": 5767,
+      "temporary_slots": 7
+    },
+    {
+      "category": "division",
+      "constants_bytes": 341,
+      "expression_bytes": 1591,
+      "inputs": 14,
+      "instructions": 43,
+      "name": "bub12_o0_division",
+      "operations": {
+        "additions": 13,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 36
+      },
+      "outputs": 7,
+      "source_bytes": 11148,
+      "temporary_slots": 12
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 489,
+      "expression_bytes": 8091,
+      "inputs": 26,
+      "instructions": 161,
+      "name": "tri012_to_bub12_o0",
+      "operations": {
+        "additions": 50,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 126
+      },
+      "outputs": 7,
+      "source_bytes": 32848,
+      "temporary_slots": 30
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 336,
+      "inputs": 14,
+      "instructions": 14,
+      "name": "bub12_o0_sum",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 7,
+      "source_bytes": 5895,
+      "temporary_slots": 8
+    },
+    {
+      "category": "division",
+      "constants_bytes": 341,
+      "expression_bytes": 1591,
+      "inputs": 14,
+      "instructions": 43,
+      "name": "bub12_o1_division",
+      "operations": {
+        "additions": 13,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 36
+      },
+      "outputs": 7,
+      "source_bytes": 11148,
+      "temporary_slots": 12
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 489,
+      "expression_bytes": 8091,
+      "inputs": 26,
+      "instructions": 161,
+      "name": "tri012_to_bub12_o1",
+      "operations": {
+        "additions": 50,
+        "function_calls": 0,
+        "inversions": 3,
+        "multiplications": 126
+      },
+      "outputs": 7,
+      "source_bytes": 32848,
+      "temporary_slots": 30
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 336,
+      "inputs": 14,
+      "instructions": 14,
+      "name": "bub12_o1_sum",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 7,
+      "source_bytes": 5895,
+      "temporary_slots": 8
+    },
+    {
+      "category": "projection",
+      "constants_bytes": 292,
+      "expression_bytes": 274,
+      "inputs": 11,
+      "instructions": 15,
+      "name": "bub12_projection",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 11
+      },
+      "outputs": 10,
+      "source_bytes": 5823,
+      "temporary_slots": 9
+    },
+    {
+      "category": "master_weights",
+      "constants_bytes": 392,
+      "expression_bytes": 196,
+      "inputs": 8,
+      "instructions": 9,
+      "name": "bub12_weights",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 7
+      },
+      "outputs": 4,
+      "source_bytes": 4030,
+      "temporary_slots": 5
+    },
+    {
+      "category": "master_contraction",
+      "constants_bytes": 242,
+      "expression_bytes": 467,
+      "inputs": 13,
+      "instructions": 15,
+      "name": "bub12_contract",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 9
+      },
+      "outputs": 5,
+      "source_bytes": 5767,
+      "temporary_slots": 7
+    },
+    {
+      "category": "division",
+      "constants_bytes": 292,
+      "expression_bytes": 402,
+      "inputs": 6,
+      "instructions": 14,
+      "name": "tad0_o0_division",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 11
+      },
+      "outputs": 2,
+      "source_bytes": 4571,
+      "temporary_slots": 6
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 1430,
+      "inputs": 12,
+      "instructions": 30,
+      "name": "tri012_to_tad0_o0",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 29
+      },
+      "outputs": 2,
+      "source_bytes": 8340,
+      "temporary_slots": 10
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 2364,
+      "inputs": 16,
+      "instructions": 50,
+      "name": "bub01_to_tad0_o0",
+      "operations": {
+        "additions": 18,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 42
+      },
+      "outputs": 2,
+      "source_bytes": 12229,
+      "temporary_slots": 11
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 2364,
+      "inputs": 16,
+      "instructions": 50,
+      "name": "bub02_to_tad0_o0",
+      "operations": {
+        "additions": 18,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 42
+      },
+      "outputs": 2,
+      "source_bytes": 12228,
+      "temporary_slots": 11
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 184,
+      "inputs": 8,
+      "instructions": 6,
+      "name": "tad0_o0_sum",
+      "operations": {
+        "additions": 6,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 2
+      },
+      "outputs": 2,
+      "source_bytes": 3511,
+      "temporary_slots": 3
+    },
+    {
+      "category": "projection",
+      "constants_bytes": 291,
+      "expression_bytes": 21,
+      "inputs": 1,
+      "instructions": 5,
+      "name": "tad0_o0_projection",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 5,
+      "source_bytes": 2444,
+      "temporary_slots": 0
+    },
+    {
+      "category": "master_weights",
+      "constants_bytes": 291,
+      "expression_bytes": 25,
+      "inputs": 1,
+      "instructions": 2,
+      "name": "tad0_o0_weights",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 2,
+      "source_bytes": 1805,
+      "temporary_slots": 0
+    },
+    {
+      "category": "master_contraction",
+      "constants_bytes": 242,
+      "expression_bytes": 199,
+      "inputs": 5,
+      "instructions": 5,
+      "name": "tad0_o0_contract",
+      "operations": {
+        "additions": 1,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 3
+      },
+      "outputs": 5,
+      "source_bytes": 3107,
+      "temporary_slots": 4
+    },
+    {
+      "category": "division",
+      "constants_bytes": 292,
+      "expression_bytes": 402,
+      "inputs": 6,
+      "instructions": 14,
+      "name": "tad1_o0_division",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 11
+      },
+      "outputs": 2,
+      "source_bytes": 4571,
+      "temporary_slots": 6
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 1430,
+      "inputs": 12,
+      "instructions": 30,
+      "name": "tri012_to_tad1_o0",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 29
+      },
+      "outputs": 2,
+      "source_bytes": 8340,
+      "temporary_slots": 10
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 2364,
+      "inputs": 16,
+      "instructions": 50,
+      "name": "bub01_to_tad1_o0",
+      "operations": {
+        "additions": 18,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 42
+      },
+      "outputs": 2,
+      "source_bytes": 12229,
+      "temporary_slots": 11
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 2364,
+      "inputs": 16,
+      "instructions": 50,
+      "name": "bub12_to_tad1_o0",
+      "operations": {
+        "additions": 18,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 42
+      },
+      "outputs": 2,
+      "source_bytes": 12229,
+      "temporary_slots": 11
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 184,
+      "inputs": 8,
+      "instructions": 6,
+      "name": "tad1_o0_sum",
+      "operations": {
+        "additions": 6,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 2
+      },
+      "outputs": 2,
+      "source_bytes": 3511,
+      "temporary_slots": 3
+    },
+    {
+      "category": "projection",
+      "constants_bytes": 291,
+      "expression_bytes": 21,
+      "inputs": 1,
+      "instructions": 5,
+      "name": "tad1_o0_projection",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 5,
+      "source_bytes": 2444,
+      "temporary_slots": 0
+    },
+    {
+      "category": "master_weights",
+      "constants_bytes": 291,
+      "expression_bytes": 25,
+      "inputs": 1,
+      "instructions": 2,
+      "name": "tad1_o0_weights",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 2,
+      "source_bytes": 1805,
+      "temporary_slots": 0
+    },
+    {
+      "category": "master_contraction",
+      "constants_bytes": 242,
+      "expression_bytes": 199,
+      "inputs": 5,
+      "instructions": 5,
+      "name": "tad1_o0_contract",
+      "operations": {
+        "additions": 1,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 3
+      },
+      "outputs": 5,
+      "source_bytes": 3107,
+      "temporary_slots": 4
+    },
+    {
+      "category": "division",
+      "constants_bytes": 292,
+      "expression_bytes": 402,
+      "inputs": 6,
+      "instructions": 14,
+      "name": "tad2_o0_division",
+      "operations": {
+        "additions": 2,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 11
+      },
+      "outputs": 2,
+      "source_bytes": 4571,
+      "temporary_slots": 6
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 1430,
+      "inputs": 12,
+      "instructions": 30,
+      "name": "tri012_to_tad2_o0",
+      "operations": {
+        "additions": 7,
+        "function_calls": 0,
+        "inversions": 4,
+        "multiplications": 29
+      },
+      "outputs": 2,
+      "source_bytes": 8340,
+      "temporary_slots": 10
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 2364,
+      "inputs": 16,
+      "instructions": 50,
+      "name": "bub02_to_tad2_o0",
+      "operations": {
+        "additions": 18,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 42
+      },
+      "outputs": 2,
+      "source_bytes": 12229,
+      "temporary_slots": 11
+    },
+    {
+      "category": "parent_correction",
+      "constants_bytes": 341,
+      "expression_bytes": 2364,
+      "inputs": 16,
+      "instructions": 50,
+      "name": "bub12_to_tad2_o0",
+      "operations": {
+        "additions": 18,
+        "function_calls": 0,
+        "inversions": 2,
+        "multiplications": 42
+      },
+      "outputs": 2,
+      "source_bytes": 12228,
+      "temporary_slots": 12
+    },
+    {
+      "category": "subtraction_sum",
+      "constants_bytes": 292,
+      "expression_bytes": 186,
+      "inputs": 8,
+      "instructions": 6,
+      "name": "tad2_o0_sum",
+      "operations": {
+        "additions": 6,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 2
+      },
+      "outputs": 2,
+      "source_bytes": 3511,
+      "temporary_slots": 3
+    },
+    {
+      "category": "projection",
+      "constants_bytes": 291,
+      "expression_bytes": 21,
+      "inputs": 1,
+      "instructions": 5,
+      "name": "tad2_o0_projection",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 5,
+      "source_bytes": 2444,
+      "temporary_slots": 0
+    },
+    {
+      "category": "master_weights",
+      "constants_bytes": 291,
+      "expression_bytes": 25,
+      "inputs": 1,
+      "instructions": 2,
+      "name": "tad2_o0_weights",
+      "operations": {
+        "additions": 0,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 2,
+      "source_bytes": 1805,
+      "temporary_slots": 0
+    },
+    {
+      "category": "master_contraction",
+      "constants_bytes": 242,
+      "expression_bytes": 199,
+      "inputs": 5,
+      "instructions": 5,
+      "name": "tad2_o0_contract",
+      "operations": {
+        "additions": 1,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 3
+      },
+      "outputs": 5,
+      "source_bytes": 3107,
+      "temporary_slots": 4
+    },
+    {
+      "category": "contribution_sum",
+      "constants_bytes": 242,
+      "expression_bytes": 765,
+      "inputs": 35,
+      "instructions": 5,
+      "name": "amplitude_sum",
+      "operations": {
+        "additions": 30,
+        "function_calls": 0,
+        "inversions": 0,
+        "multiplications": 0
+      },
+      "outputs": 5,
+      "source_bytes": 8450,
+      "temporary_slots": 5
+    }
+  ],
+  "forward_totals": {
+    "instructions": 1954,
+    "largest_local_temporary_slots": 30,
+    "operations": {
+      "additions": 636,
+      "function_calls": 0,
+      "inversions": 81,
+      "multiplications": 1500
+    },
+    "separate_temporary_slots_sum": 520,
+    "unrolled_callsite_source_bytes": 517266
+  },
+  "instruction_differences": {
+    "retained_minus_five_output": 2102,
+    "separated_minus_five_output": 879,
+    "separated_minus_retained": -1223
+  },
+  "numerical_execution": false,
+  "performance_acceptance": false,
+  "production_dispatch": false,
+  "propagators": 3,
+  "rank": 3,
+  "required_external_timeout_seconds": 180,
+  "retained_head_inventory": {
+    "blocks": [
+      {
+        "category": "division",
+        "heads": [
+          "tri012_o0_division_out_0",
+          "tri012_o0_division_out_1",
+          "tri012_o0_division_out_2",
+          "tri012_o0_division_out_3",
+          "tri012_o0_division_out_4",
+          "tri012_o0_division_out_5"
+        ],
+        "name": "tri012_o0_division",
+        "output_range": [
+          5,
+          11
+        ]
+      },
+      {
+        "category": "division",
+        "heads": [
+          "tri012_o1_division_out_0",
+          "tri012_o1_division_out_1",
+          "tri012_o1_division_out_2",
+          "tri012_o1_division_out_3",
+          "tri012_o1_division_out_4",
+          "tri012_o1_division_out_5"
+        ],
+        "name": "tri012_o1_division",
+        "output_range": [
+          11,
+          17
+        ]
+      },
+      {
+        "category": "projection",
+        "heads": [
+          "tri012_projection_out_0",
+          "tri012_projection_out_1",
+          "tri012_projection_out_2",
+          "tri012_projection_out_3",
+          "tri012_projection_out_4",
+          "tri012_projection_out_5",
+          "tri012_projection_out_6",
+          "tri012_projection_out_7",
+          "tri012_projection_out_8",
+          "tri012_projection_out_9"
+        ],
+        "name": "tri012_projection",
+        "output_range": [
+          17,
+          27
+        ]
+      },
+      {
+        "category": "master_weights",
+        "heads": [
+          "tri012_weights_out_0",
+          "tri012_weights_out_1"
+        ],
+        "name": "tri012_weights",
+        "output_range": [
+          27,
+          29
+        ]
+      },
+      {
+        "category": "master_contraction",
+        "heads": [
+          "tri012_contract_out_0",
+          "tri012_contract_out_1",
+          "tri012_contract_out_2",
+          "tri012_contract_out_3",
+          "tri012_contract_out_4"
+        ],
+        "name": "tri012_contract",
+        "output_range": [
+          29,
+          34
+        ]
+      },
+      {
+        "category": "division",
+        "heads": [
+          "bub01_o0_division_out_0",
+          "bub01_o0_division_out_1",
+          "bub01_o0_division_out_2",
+          "bub01_o0_division_out_3",
+          "bub01_o0_division_out_4",
+          "bub01_o0_division_out_5",
+          "bub01_o0_division_out_6"
+        ],
+        "name": "bub01_o0_division",
+        "output_range": [
+          34,
+          41
+        ]
+      },
+      {
+        "category": "parent_correction",
+        "heads": [
+          "tri012_to_bub01_o0_out_0",
+          "tri012_to_bub01_o0_out_1",
+          "tri012_to_bub01_o0_out_2",
+          "tri012_to_bub01_o0_out_3",
+          "tri012_to_bub01_o0_out_4",
+          "tri012_to_bub01_o0_out_5",
+          "tri012_to_bub01_o0_out_6"
+        ],
+        "name": "tri012_to_bub01_o0",
+        "output_range": [
+          41,
+          48
+        ]
+      },
+      {
+        "category": "subtraction_sum",
+        "heads": [
+          "bub01_o0_sum_out_0",
+          "bub01_o0_sum_out_1",
+          "bub01_o0_sum_out_2",
+          "bub01_o0_sum_out_3",
+          "bub01_o0_sum_out_4",
+          "bub01_o0_sum_out_5",
+          "bub01_o0_sum_out_6"
+        ],
+        "name": "bub01_o0_sum",
+        "output_range": [
+          48,
+          55
+        ]
+      },
+      {
+        "category": "division",
+        "heads": [
+          "bub01_o1_division_out_0",
+          "bub01_o1_division_out_1",
+          "bub01_o1_division_out_2",
+          "bub01_o1_division_out_3",
+          "bub01_o1_division_out_4",
+          "bub01_o1_division_out_5",
+          "bub01_o1_division_out_6"
+        ],
+        "name": "bub01_o1_division",
+        "output_range": [
+          55,
+          62
+        ]
+      },
+      {
+        "category": "parent_correction",
+        "heads": [
+          "tri012_to_bub01_o1_out_0",
+          "tri012_to_bub01_o1_out_1",
+          "tri012_to_bub01_o1_out_2",
+          "tri012_to_bub01_o1_out_3",
+          "tri012_to_bub01_o1_out_4",
+          "tri012_to_bub01_o1_out_5",
+          "tri012_to_bub01_o1_out_6"
+        ],
+        "name": "tri012_to_bub01_o1",
+        "output_range": [
+          62,
+          69
+        ]
+      },
+      {
+        "category": "subtraction_sum",
+        "heads": [
+          "bub01_o1_sum_out_0",
+          "bub01_o1_sum_out_1",
+          "bub01_o1_sum_out_2",
+          "bub01_o1_sum_out_3",
+          "bub01_o1_sum_out_4",
+          "bub01_o1_sum_out_5",
+          "bub01_o1_sum_out_6"
+        ],
+        "name": "bub01_o1_sum",
+        "output_range": [
+          69,
+          76
+        ]
+      },
+      {
+        "category": "projection",
+        "heads": [
+          "bub01_projection_out_0",
+          "bub01_projection_out_1",
+          "bub01_projection_out_2",
+          "bub01_projection_out_3",
+          "bub01_projection_out_4",
+          "bub01_projection_out_5",
+          "bub01_projection_out_6",
+          "bub01_projection_out_7",
+          "bub01_projection_out_8",
+          "bub01_projection_out_9"
+        ],
+        "name": "bub01_projection",
+        "output_range": [
+          76,
+          86
+        ]
+      },
+      {
+        "category": "master_weights",
+        "heads": [
+          "bub01_weights_out_0",
+          "bub01_weights_out_1",
+          "bub01_weights_out_2",
+          "bub01_weights_out_3"
+        ],
+        "name": "bub01_weights",
+        "output_range": [
+          86,
+          90
+        ]
+      },
+      {
+        "category": "master_contraction",
+        "heads": [
+          "bub01_contract_out_0",
+          "bub01_contract_out_1",
+          "bub01_contract_out_2",
+          "bub01_contract_out_3",
+          "bub01_contract_out_4"
+        ],
+        "name": "bub01_contract",
+        "output_range": [
+          90,
+          95
+        ]
+      },
+      {
+        "category": "division",
+        "heads": [
+          "bub02_o0_division_out_0",
+          "bub02_o0_division_out_1",
+          "bub02_o0_division_out_2",
+          "bub02_o0_division_out_3",
+          "bub02_o0_division_out_4",
+          "bub02_o0_division_out_5",
+          "bub02_o0_division_out_6"
+        ],
+        "name": "bub02_o0_division",
+        "output_range": [
+          95,
+          102
+        ]
+      },
+      {
+        "category": "parent_correction",
+        "heads": [
+          "tri012_to_bub02_o0_out_0",
+          "tri012_to_bub02_o0_out_1",
+          "tri012_to_bub02_o0_out_2",
+          "tri012_to_bub02_o0_out_3",
+          "tri012_to_bub02_o0_out_4",
+          "tri012_to_bub02_o0_out_5",
+          "tri012_to_bub02_o0_out_6"
+        ],
+        "name": "tri012_to_bub02_o0",
+        "output_range": [
+          102,
+          109
+        ]
+      },
+      {
+        "category": "subtraction_sum",
+        "heads": [
+          "bub02_o0_sum_out_0",
+          "bub02_o0_sum_out_1",
+          "bub02_o0_sum_out_2",
+          "bub02_o0_sum_out_3",
+          "bub02_o0_sum_out_4",
+          "bub02_o0_sum_out_5",
+          "bub02_o0_sum_out_6"
+        ],
+        "name": "bub02_o0_sum",
+        "output_range": [
+          109,
+          116
+        ]
+      },
+      {
+        "category": "division",
+        "heads": [
+          "bub02_o1_division_out_0",
+          "bub02_o1_division_out_1",
+          "bub02_o1_division_out_2",
+          "bub02_o1_division_out_3",
+          "bub02_o1_division_out_4",
+          "bub02_o1_division_out_5",
+          "bub02_o1_division_out_6"
+        ],
+        "name": "bub02_o1_division",
+        "output_range": [
+          116,
+          123
+        ]
+      },
+      {
+        "category": "parent_correction",
+        "heads": [
+          "tri012_to_bub02_o1_out_0",
+          "tri012_to_bub02_o1_out_1",
+          "tri012_to_bub02_o1_out_2",
+          "tri012_to_bub02_o1_out_3",
+          "tri012_to_bub02_o1_out_4",
+          "tri012_to_bub02_o1_out_5",
+          "tri012_to_bub02_o1_out_6"
+        ],
+        "name": "tri012_to_bub02_o1",
+        "output_range": [
+          123,
+          130
+        ]
+      },
+      {
+        "category": "subtraction_sum",
+        "heads": [
+          "bub02_o1_sum_out_0",
+          "bub02_o1_sum_out_1",
+          "bub02_o1_sum_out_2",
+          "bub02_o1_sum_out_3",
+          "bub02_o1_sum_out_4",
+          "bub02_o1_sum_out_5",
+          "bub02_o1_sum_out_6"
+        ],
+        "name": "bub02_o1_sum",
+        "output_range": [
+          130,
+          137
+        ]
+      },
+      {
+        "category": "projection",
+        "heads": [
+          "bub02_projection_out_0",
+          "bub02_projection_out_1",
+          "bub02_projection_out_2",
+          "bub02_projection_out_3",
+          "bub02_projection_out_4",
+          "bub02_projection_out_5",
+          "bub02_projection_out_6",
+          "bub02_projection_out_7",
+          "bub02_projection_out_8",
+          "bub02_projection_out_9"
+        ],
+        "name": "bub02_projection",
+        "output_range": [
+          137,
+          147
+        ]
+      },
+      {
+        "category": "master_weights",
+        "heads": [
+          "bub02_weights_out_0",
+          "bub02_weights_out_1",
+          "bub02_weights_out_2",
+          "bub02_weights_out_3"
+        ],
+        "name": "bub02_weights",
+        "output_range": [
+          147,
+          151
+        ]
+      },
+      {
+        "category": "master_contraction",
+        "heads": [
+          "bub02_contract_out_0",
+          "bub02_contract_out_1",
+          "bub02_contract_out_2",
+          "bub02_contract_out_3",
+          "bub02_contract_out_4"
+        ],
+        "name": "bub02_contract",
+        "output_range": [
+          151,
+          156
+        ]
+      },
+      {
+        "category": "division",
+        "heads": [
+          "bub12_o0_division_out_0",
+          "bub12_o0_division_out_1",
+          "bub12_o0_division_out_2",
+          "bub12_o0_division_out_3",
+          "bub12_o0_division_out_4",
+          "bub12_o0_division_out_5",
+          "bub12_o0_division_out_6"
+        ],
+        "name": "bub12_o0_division",
+        "output_range": [
+          156,
+          163
+        ]
+      },
+      {
+        "category": "parent_correction",
+        "heads": [
+          "tri012_to_bub12_o0_out_0",
+          "tri012_to_bub12_o0_out_1",
+          "tri012_to_bub12_o0_out_2",
+          "tri012_to_bub12_o0_out_3",
+          "tri012_to_bub12_o0_out_4",
+          "tri012_to_bub12_o0_out_5",
+          "tri012_to_bub12_o0_out_6"
+        ],
+        "name": "tri012_to_bub12_o0",
+        "output_range": [
+          163,
+          170
+        ]
+      },
+      {
+        "category": "subtraction_sum",
+        "heads": [
+          "bub12_o0_sum_out_0",
+          "bub12_o0_sum_out_1",
+          "bub12_o0_sum_out_2",
+          "bub12_o0_sum_out_3",
+          "bub12_o0_sum_out_4",
+          "bub12_o0_sum_out_5",
+          "bub12_o0_sum_out_6"
+        ],
+        "name": "bub12_o0_sum",
+        "output_range": [
+          170,
+          177
+        ]
+      },
+      {
+        "category": "division",
+        "heads": [
+          "bub12_o1_division_out_0",
+          "bub12_o1_division_out_1",
+          "bub12_o1_division_out_2",
+          "bub12_o1_division_out_3",
+          "bub12_o1_division_out_4",
+          "bub12_o1_division_out_5",
+          "bub12_o1_division_out_6"
+        ],
+        "name": "bub12_o1_division",
+        "output_range": [
+          177,
+          184
+        ]
+      },
+      {
+        "category": "parent_correction",
+        "heads": [
+          "tri012_to_bub12_o1_out_0",
+          "tri012_to_bub12_o1_out_1",
+          "tri012_to_bub12_o1_out_2",
+          "tri012_to_bub12_o1_out_3",
+          "tri012_to_bub12_o1_out_4",
+          "tri012_to_bub12_o1_out_5",
+          "tri012_to_bub12_o1_out_6"
+        ],
+        "name": "tri012_to_bub12_o1",
+        "output_range": [
+          184,
+          191
+        ]
+      },
+      {
+        "category": "subtraction_sum",
+        "heads": [
+          "bub12_o1_sum_out_0",
+          "bub12_o1_sum_out_1",
+          "bub12_o1_sum_out_2",
+          "bub12_o1_sum_out_3",
+          "bub12_o1_sum_out_4",
+          "bub12_o1_sum_out_5",
+          "bub12_o1_sum_out_6"
+        ],
+        "name": "bub12_o1_sum",
+        "output_range": [
+          191,
+          198
+        ]
+      },
+      {
+        "category": "projection",
+        "heads": [
+          "bub12_projection_out_0",
+          "bub12_projection_out_1",
+          "bub12_projection_out_2",
+          "bub12_projection_out_3",
+          "bub12_projection_out_4",
+          "bub12_projection_out_5",
+          "bub12_projection_out_6",
+          "bub12_projection_out_7",
+          "bub12_projection_out_8",
+          "bub12_projection_out_9"
+        ],
+        "name": "bub12_projection",
+        "output_range": [
+          198,
+          208
+        ]
+      },
+      {
+        "category": "master_weights",
+        "heads": [
+          "bub12_weights_out_0",
+          "bub12_weights_out_1",
+          "bub12_weights_out_2",
+          "bub12_weights_out_3"
+        ],
+        "name": "bub12_weights",
+        "output_range": [
+          208,
+          212
+        ]
+      },
+      {
+        "category": "master_contraction",
+        "heads": [
+          "bub12_contract_out_0",
+          "bub12_contract_out_1",
+          "bub12_contract_out_2",
+          "bub12_contract_out_3",
+          "bub12_contract_out_4"
+        ],
+        "name": "bub12_contract",
+        "output_range": [
+          212,
+          217
+        ]
+      },
+      {
+        "category": "division",
+        "heads": [
+          "tad0_o0_division_out_0",
+          "tad0_o0_division_out_1"
+        ],
+        "name": "tad0_o0_division",
+        "output_range": [
+          217,
+          219
+        ]
+      },
+      {
+        "category": "parent_correction",
+        "heads": [
+          "tri012_to_tad0_o0_out_0",
+          "tri012_to_tad0_o0_out_1"
+        ],
+        "name": "tri012_to_tad0_o0",
+        "output_range": [
+          219,
+          221
+        ]
+      },
+      {
+        "category": "parent_correction",
+        "heads": [
+          "bub01_to_tad0_o0_out_0",
+          "bub01_to_tad0_o0_out_1"
+        ],
+        "name": "bub01_to_tad0_o0",
+        "output_range": [
+          221,
+          223
+        ]
+      },
+      {
+        "category": "parent_correction",
+        "heads": [
+          "bub02_to_tad0_o0_out_0",
+          "bub02_to_tad0_o0_out_1"
+        ],
+        "name": "bub02_to_tad0_o0",
+        "output_range": [
+          223,
+          225
+        ]
+      },
+      {
+        "category": "subtraction_sum",
+        "heads": [
+          "tad0_o0_sum_out_0",
+          "tad0_o0_sum_out_1"
+        ],
+        "name": "tad0_o0_sum",
+        "output_range": [
+          225,
+          227
+        ]
+      },
+      {
+        "category": "projection",
+        "heads": [
+          "tad0_o0_projection_out_0",
+          "tad0_o0_projection_out_1",
+          "tad0_o0_projection_out_2",
+          "tad0_o0_projection_out_3",
+          "tad0_o0_projection_out_4"
+        ],
+        "name": "tad0_o0_projection",
+        "output_range": [
+          227,
+          232
+        ]
+      },
+      {
+        "category": "master_weights",
+        "heads": [
+          "tad0_o0_weights_out_0",
+          "tad0_o0_weights_out_1"
+        ],
+        "name": "tad0_o0_weights",
+        "output_range": [
+          232,
+          234
+        ]
+      },
+      {
+        "category": "master_contraction",
+        "heads": [
+          "tad0_o0_contract_out_0",
+          "tad0_o0_contract_out_1",
+          "tad0_o0_contract_out_2",
+          "tad0_o0_contract_out_3",
+          "tad0_o0_contract_out_4"
+        ],
+        "name": "tad0_o0_contract",
+        "output_range": [
+          234,
+          239
+        ]
+      },
+      {
+        "category": "division",
+        "heads": [
+          "tad1_o0_division_out_0",
+          "tad1_o0_division_out_1"
+        ],
+        "name": "tad1_o0_division",
+        "output_range": [
+          239,
+          241
+        ]
+      },
+      {
+        "category": "parent_correction",
+        "heads": [
+          "tri012_to_tad1_o0_out_0",
+          "tri012_to_tad1_o0_out_1"
+        ],
+        "name": "tri012_to_tad1_o0",
+        "output_range": [
+          241,
+          243
+        ]
+      },
+      {
+        "category": "parent_correction",
+        "heads": [
+          "bub01_to_tad1_o0_out_0",
+          "bub01_to_tad1_o0_out_1"
+        ],
+        "name": "bub01_to_tad1_o0",
+        "output_range": [
+          243,
+          245
+        ]
+      },
+      {
+        "category": "parent_correction",
+        "heads": [
+          "bub12_to_tad1_o0_out_0",
+          "bub12_to_tad1_o0_out_1"
+        ],
+        "name": "bub12_to_tad1_o0",
+        "output_range": [
+          245,
+          247
+        ]
+      },
+      {
+        "category": "subtraction_sum",
+        "heads": [
+          "tad1_o0_sum_out_0",
+          "tad1_o0_sum_out_1"
+        ],
+        "name": "tad1_o0_sum",
+        "output_range": [
+          247,
+          249
+        ]
+      },
+      {
+        "category": "projection",
+        "heads": [
+          "tad1_o0_projection_out_0",
+          "tad1_o0_projection_out_1",
+          "tad1_o0_projection_out_2",
+          "tad1_o0_projection_out_3",
+          "tad1_o0_projection_out_4"
+        ],
+        "name": "tad1_o0_projection",
+        "output_range": [
+          249,
+          254
+        ]
+      },
+      {
+        "category": "master_weights",
+        "heads": [
+          "tad1_o0_weights_out_0",
+          "tad1_o0_weights_out_1"
+        ],
+        "name": "tad1_o0_weights",
+        "output_range": [
+          254,
+          256
+        ]
+      },
+      {
+        "category": "master_contraction",
+        "heads": [
+          "tad1_o0_contract_out_0",
+          "tad1_o0_contract_out_1",
+          "tad1_o0_contract_out_2",
+          "tad1_o0_contract_out_3",
+          "tad1_o0_contract_out_4"
+        ],
+        "name": "tad1_o0_contract",
+        "output_range": [
+          256,
+          261
+        ]
+      },
+      {
+        "category": "division",
+        "heads": [
+          "tad2_o0_division_out_0",
+          "tad2_o0_division_out_1"
+        ],
+        "name": "tad2_o0_division",
+        "output_range": [
+          261,
+          263
+        ]
+      },
+      {
+        "category": "parent_correction",
+        "heads": [
+          "tri012_to_tad2_o0_out_0",
+          "tri012_to_tad2_o0_out_1"
+        ],
+        "name": "tri012_to_tad2_o0",
+        "output_range": [
+          263,
+          265
+        ]
+      },
+      {
+        "category": "parent_correction",
+        "heads": [
+          "bub02_to_tad2_o0_out_0",
+          "bub02_to_tad2_o0_out_1"
+        ],
+        "name": "bub02_to_tad2_o0",
+        "output_range": [
+          265,
+          267
+        ]
+      },
+      {
+        "category": "parent_correction",
+        "heads": [
+          "bub12_to_tad2_o0_out_0",
+          "bub12_to_tad2_o0_out_1"
+        ],
+        "name": "bub12_to_tad2_o0",
+        "output_range": [
+          267,
+          269
+        ]
+      },
+      {
+        "category": "subtraction_sum",
+        "heads": [
+          "tad2_o0_sum_out_0",
+          "tad2_o0_sum_out_1"
+        ],
+        "name": "tad2_o0_sum",
+        "output_range": [
+          269,
+          271
+        ]
+      },
+      {
+        "category": "projection",
+        "heads": [
+          "tad2_o0_projection_out_0",
+          "tad2_o0_projection_out_1",
+          "tad2_o0_projection_out_2",
+          "tad2_o0_projection_out_3",
+          "tad2_o0_projection_out_4"
+        ],
+        "name": "tad2_o0_projection",
+        "output_range": [
+          271,
+          276
+        ]
+      },
+      {
+        "category": "master_weights",
+        "heads": [
+          "tad2_o0_weights_out_0",
+          "tad2_o0_weights_out_1"
+        ],
+        "name": "tad2_o0_weights",
+        "output_range": [
+          276,
+          278
+        ]
+      },
+      {
+        "category": "master_contraction",
+        "heads": [
+          "tad2_o0_contract_out_0",
+          "tad2_o0_contract_out_1",
+          "tad2_o0_contract_out_2",
+          "tad2_o0_contract_out_3",
+          "tad2_o0_contract_out_4"
+        ],
+        "name": "tad2_o0_contract",
+        "output_range": [
+          278,
+          283
+        ]
+      },
+      {
+        "category": "contribution_sum",
+        "heads": [
+          "amplitude_sum_out_0",
+          "amplitude_sum_out_1",
+          "amplitude_sum_out_2",
+          "amplitude_sum_out_3",
+          "amplitude_sum_out_4"
+        ],
+        "name": "amplitude_sum",
+        "output_range": [
+          0,
+          5
+        ]
+      }
+    ],
+    "categories": [
+      {
+        "blocks": 11,
+        "category": "division",
+        "heads": 60
+      },
+      {
+        "blocks": 15,
+        "category": "parent_correction",
+        "heads": 60
+      },
+      {
+        "blocks": 9,
+        "category": "subtraction_sum",
+        "heads": 48
+      },
+      {
+        "blocks": 7,
+        "category": "projection",
+        "heads": 55
+      },
+      {
+        "blocks": 7,
+        "category": "master_weights",
+        "heads": 20
+      },
+      {
+        "blocks": 7,
+        "category": "master_contraction",
+        "heads": 35
+      },
+      {
+        "blocks": 1,
+        "category": "contribution_sum",
+        "heads": 5
+      }
+    ]
+  },
+  "retained_output_count": 283,
+  "retention_policy": "all existing forward block outputs; conservative diagnostic superset",
+  "schema": "ninjars-forward-diagnostics-v1",
+  "status": "complete_exact_identities",
+  "symbolic_master_components": 39,
+  "unrepresented_checks": [
+    "Input shape, finite/all-component carrier checks and callback API errors must remain before evaluation.",
+    "Denominator/source-projection construction is outside this network; their finite and leading-denominator checks are not arithmetic outputs here.",
+    "Gram/pivot/branch choice, cut topology/provenance/containment and source computed masks require existing control logic.",
+    "Output retention does not preserve numerical failure order, active-lane compaction, failed-parent propagation or lane transactionality.",
+    "Symbolic identities do not preserve overflow/underflow, rounding, signed zero, conditioning or full Dual numerical behavior after reassociation.",
+    "Master weights are retained, but zero-weight lazy master calls, derivative-only weights and nonanalytic-domain errors need independent runtime control.",
+    "Complete current residue coefficient arrays are retained; ordinary tadpole unused slots remain zero with computed-mask semantics external.",
+    "No cut-stop, reconstruction execution, geometry composition, n3/r4 or transpose extension is implemented."
+  ]
+}

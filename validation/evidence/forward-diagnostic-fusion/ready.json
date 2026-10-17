@@ -1,0 +1,71 @@
+{
+  "consumer_revision": "bf6bde16388fb1ab5e9e9b70f3f2eb54fbaff759",
+  "consumer_status": "",
+  "original_executable": "/common/build-cache/external/b4/f0447ab46499fc/debug/deps/ninjars_symbolica-bfa72ee958dcd1ce",
+  "retained_executable": "/tmp/ninjars-forward-diagnostics/ninjars-symbolica-probe-test",
+  "executable_sha256": "cba1002ece8087b85613beed3983410d9852ab9dca1342941716ab7be8cddb8c",
+  "executable_bytes": 478646480,
+  "source_sha256": {
+    "Cargo.lock": "1035b5beee28438bc1e0841e541f8a5d4986f46e50c0ee25820b4326c8b155b0",
+    "Cargo.toml": "74ee51fef490da00d067cec2a526bd2b7272c05802af556b5f249b15d72ccba6",
+    "crates/ninjars-symbolica/Cargo.toml": "5e8d0b56ee10be2329eb2659e5300acc81af96b5f2f092482565bb48df9d2fb8",
+    "crates/ninjars-symbolica/src/algorithm_forward_fusion_probe.rs": "6d3901028b86eb01631e54de2332494d75274b50f479f831a7f78d39bb893468",
+    "crates/ninjars-symbolica/src/algorithm_rank_probe.rs": "cc895453daa93e8cb320fa49c253c9c846c2ab2f3159d3db1dfc54120253802d",
+    "crates/ninjars-symbolica/src/algorithm_transpose_probe.rs": "17e1c25e13670ecb899b5154835af2387eabc77632698ddcd09ddd20ac48d8a7",
+    "crates/ninjars-symbolica/src/amplitude.rs": "9103c9cf381a46a288e725feba43097ec453df2bce98bbfdc9000e6f324550da",
+    "crates/ninjars-symbolica/src/box_kernels.rs": "cf5024db90503f802a312ac3cc4b86e258c2d01f0e9ae421761055aa32cceafb",
+    "crates/ninjars-symbolica/src/bubble_kernels.rs": "c4806f2e659fd7206ad1b22755ff8239950ebd652e3db7db8ea5f0836dc2db7d",
+    "crates/ninjars-symbolica/src/contraction.rs": "0d484501c94c3378121a8bc08fe1b36b5f4b73a9d843e7a3ec06a38843431b5d",
+    "crates/ninjars-symbolica/src/cuts.rs": "af2d23f640f5ce0a6e791e0ef3c7e2648e7dee03debbae79e832e454a6f49d69",
+    "crates/ninjars-symbolica/src/denominator_reuse_tests.rs": "8725ede83f1693435adc1d9327975bb3c3379c6bd6e5e25b4e61a189d8862cbc",
+    "crates/ninjars-symbolica/src/denominators.rs": "f5e358a31b3c24212bcd934c22655887f1b4f588a1a95632a9bb7f03d4378aed",
+    "crates/ninjars-symbolica/src/dual_polynomial.rs": "51547f956ab457b81105b66722bf485596fa09c61a37b27ca6483a3e1a431438",
+    "crates/ninjars-symbolica/src/high_cuts.rs": "e13b2cf089305d0f656ec7d106f2183d89f963c519382444c1674963f7dc93a9",
+    "crates/ninjars-symbolica/src/integration.rs": "0f3e989cd2fdf40c5f2278d38bcf4b6bf7b47e031ce7763e6155af034a802c4d",
+    "crates/ninjars-symbolica/src/kernel.rs": "17947906352792942c5e3247abce430c1bb77ce41b6ca4a9d5d89ce25ee0db5f",
+    "crates/ninjars-symbolica/src/kernel_jit_probe.rs": "523858ecbf15fd566badcb77488cca4cb9d2e5b0c755a3f18a9cb07ce97e4b20",
+    "crates/ninjars-symbolica/src/kinematics.rs": "47abe545ca75252f3f964aa5e6166a66aeca634779dcabb039360abd107c9b2e",
+    "crates/ninjars-symbolica/src/laurent.rs": "e988ed2431f2392c97ae5cbe0284970f6fd3f0c419f3c920d943448abda9b815",
+    "crates/ninjars-symbolica/src/lib.rs": "38c0103a431a6d54a2f3fdbd1b8f0a32fb400c83902d2ba1d8f77ff5c544740b",
+    "crates/ninjars-symbolica/src/masters.rs": "fe12aaa226fd14a8d0743ae41b172a70de59cf8fccc4790c7e1b0dcdee456d92",
+    "crates/ninjars-symbolica/src/native_batch_policy_tests.rs": "dc8b25d87dcf05e053eca7e1c6bec40685c23e57f57d41889500eb08e15be414",
+    "crates/ninjars-symbolica/src/native_blocking_probe.rs": "a778c7c954397eb822e17408a9d1146aa12d7a6377c119fef756d4eab1d8f57c",
+    "crates/ninjars-symbolica/src/native_rank_specialization_tests.rs": "3c9857cececa8571be0c3c75962379c1ab7437c2cda4449eb283d9d2c4d0e2e5",
+    "crates/ninjars-symbolica/src/pentagon_kernels.rs": "a464a5ba87aea74cd6405f8fc215b1d3e6811aef1a1ad0b2099cd31372c07fc0",
+    "crates/ninjars-symbolica/src/polynomial.rs": "c27a0abdf92d24c3e699b71cb8c9c30cb75d28ea4dfcbf931cbadfb9df2a05b4",
+    "crates/ninjars-symbolica/src/polynomial_tests.rs": "4cc93493169754864aa47998e3b5f676b340f6100e1d380b6dd695aaacea4cd0",
+    "crates/ninjars-symbolica/src/projection.rs": "319ae463ee2b7f13ec6ab5d3b195e3f2b96c8ec9c2c4f6762247e2c92c895b53",
+    "crates/ninjars-symbolica/src/rank_specialization.rs": "4e7ee76127eff5a0ddea2fcbedba7c569db48424e435ee50aa40c196665cdab4",
+    "crates/ninjars-symbolica/src/rank_specialization_tests.rs": "1f645ac5aba7b2b4d2f987a8db7ee5de1a7cdd026e913707e3f43705934c56d7",
+    "crates/ninjars-symbolica/src/reference.rs": "ad22c1be87f9dfa17288ae222df4ef6501bb14644d2a50622d4a13a371056d29",
+    "crates/ninjars-symbolica/src/rust_codegen.rs": "3c714f4f3f94871130fa6481968b7227d48c7473368f20484b1665b4336e9c65",
+    "crates/ninjars-symbolica/src/subtraction.rs": "6ba171ce328bd8f2055e0e3e1dd16e2f47ff70eff61b3218cefeede1481f6c0c",
+    "crates/ninjars-symbolica/src/tadpole_kernels.rs": "d70c22c1df695cbd324b472bf11400b2cc3c7b6113f7800a0adf9b1158a47ea6",
+    "crates/ninjars-symbolica/src/tadpole_plans.rs": "c1d921e84ef6d4c20095effcf7a2ec879ff3b0e2b76a141b7f9da9f997c21dde",
+    "crates/ninjars-symbolica/src/triangle_kernels.rs": "7395c67572d7f70eea81f2878766db06a9e60e810f158aeed2414c61675d10bd",
+    "crates/ninjars-symbolica/src/value_checks.rs": "68ae0b3453779c86603633d95ad4917d235c15b6c3f2afcda91b5cf39246518e"
+  },
+  "dependencies": {
+    "symbolica": {
+      "resolved_path": "/shared/external/ninja/references/symbolica",
+      "revision": "2c06f245835d57535418b5d78f711fe191db49cc",
+      "status": ""
+    },
+    "gammaloop_ninja_shared": {
+      "resolved_path": "/shared/external/ninja/references/gammaloop_ninja_shared",
+      "revision": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93",
+      "status": ""
+    },
+    "oneloopmaster": {
+      "resolved_path": "/shared/external/ninja/references/oneloopmaster",
+      "revision": "c9dd82fd1a6e3fc638b01df95bd0cf09ceda3460",
+      "status": ""
+    }
+  },
+  "build_jobs": 4,
+  "build_cache": "/common/build-cache/external/b4/f0447ab46499fc",
+  "composition_byte_cap": 8388608,
+  "external_timeout_seconds": 180,
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+  "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)\n"
+}

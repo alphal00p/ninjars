@@ -1,16 +1,49 @@
 # Forward fusion with retained diagnostic outputs
 
-Status: source-only candidate based on `b2de05e`. No build, symbolic inventory,
-numerical evaluator or timing has run for this follow-up. Source review precedes
-execution. This extends the bounded n3/r3 forward control from the
+Status: the single bounded symbolic inventory passed at source `bf6bde1`, based
+on `b2de05e`. All 283 retained block-head identities and five integrated-output
+identities passed. No numerical evaluator or timing benchmark ran. This extends
+the bounded n3/r3 forward control from the
 [transpose experiment](transpose-probe.md), without running another transpose
 experiment or extending the topology.
 
 The historical five-output graph used 1,075 instructions, compared with 1,954
 summed instructions for separate forward blocks. Those counts omit many outputs
-inspected by the current reducer. The new ignored test asks whether that
+inspected by the current reducer. The new ignored test checks whether that
 instruction-count saving survives a conservative diagnostic superset: **retain
 every output head of every existing forward block**.
+
+## Result
+
+The saving does **not** survive this conservative retention policy with the
+existing composition and evaluator settings. Retained-output fusion requires
+1,223 more instructions than the separate blocks, and 2,102 more than the
+five-output fusion. The historical separate and five-output counts reproduce
+exactly. This is a negative result for the full retained-output candidate, not a
+proof that smaller fusion regions or another constrained optimization cannot
+help. No further selection or fusion experiment was run.
+
+| Graph | Outputs | Instructions | Additions | Multiplications | Inversions | Local temporaries | Generated source bytes |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | ---: |
+| Separate forward blocks | 283 summed heads | 1,954 | 636 | 1,500 | 81 | largest 30; sum 520 | 517,266 summed callsites |
+| Five-output fused forward | 5 | 1,075 | 429 | 991 | 36 | 132 | 249,531 |
+| Retained-output fused forward | 283 | 3,177 | 1,110 | 2,437 | 39 | 470 | 643,684 |
+
+The fused graphs both have 313 external inputs. Their expression text is 521,445
+and 1,716,393 bytes respectively. All master values stay symbolic and all counted
+function-call totals are zero. The 283 retained heads comprise 60 quotient heads,
+60 parent-correction heads, 48 subtraction heads, 55 residue slots, 20 master
+weights, 35 cut-contribution heads, and five final outputs, across 57 blocks.
+
+The one ignored test completed in 1.30 seconds under the 180-second limit, with
+exit status zero; this is symbolic-check elapsed time, not reduction performance.
+The test executable, source identities, full input/head inventories, all 288
+exact checks, raw log and report are retained in
+[`validation/evidence/forward-diagnostic-fusion`](../../validation/evidence/forward-diagnostic-fusion/README.md).
+Strict Clippy with the native feature enabled and formatting are recorded there.
+The first rust-codegen-only strict Clippy attempt encountered an existing unused
+test-only `probe_workspace` method when native kernels are disabled. That log is
+retained; no unrelated source was changed to suppress it.
 
 The comparison uses one unchanged exact network for all three inventories:
 
@@ -87,7 +120,7 @@ log messages locate failures. A byte cap cannot interrupt a single expensive
 Symbolica operation; the ignored executable must therefore run under the same
 **180-second external timeout inside the numerical lock**.
 
-After source review and explicit release, compile the test executable outside
+To reproduce the already completed control after coordination, compile the test executable outside
 the numerical lock, with build jobs at most four:
 
 ```sh
@@ -111,7 +144,7 @@ an incomplete result and stop; do not enlarge bounds or extend to n3/r4. Strict
 focused Clippy and package formatting follow build validation, outside any timing
 window. The prior transpose test is not part of this execution plan.
 
-The result will compare instructions, additions, multiplications, inversions,
+The result compares instructions, additions, multiplications, inversions,
 local temporaries, expression size, and generated source size. Signed instruction
 differences make loss of the original saving visible. Separate temporary sums
 are not peak storage, and output stores/packing are not timed. No production
