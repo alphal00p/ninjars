@@ -198,6 +198,8 @@ impl Mul<C64> for f64 {
 }
 impl Div<C64> for f64 {
     type Output = C64;
+    // A real numerator: one complex reciprocal scaled by `self`.
+    #[allow(clippy::suspicious_arithmetic_impl)]
     #[inline(always)]
     fn div(self, o: C64) -> C64 {
         o.inv() * self

@@ -11,7 +11,10 @@
 //! - `reduction+tensor+masters` (with `--with-masters`): live numerator and
 //!   live native masters.
 //!
-//! Lanes cycle over the case's phase-space points. Each phase reports the
+//! Lanes cycle over the case's phase-space points; when the width is not a
+//! multiple of their number, every timed run evaluates one batch per rotation
+//! of the point order (at width 1: every point in turn, like original Ninja's
+//! `ninja_bench.cc`). Each phase reports the
 //! median (and range) over at least `--blocks` blocks of at least
 //! `--min-block-ms` milliseconds, in nanoseconds per phase-space point, and
 //! the heap allocations counted inside the timed pure-reduction blocks. Pin
@@ -185,7 +188,8 @@ struct Batch {
 }
 
 impl Batch {
-    fn new(case: &Case, lanes: usize) -> Self {
+    /// Lane `i` holds point `(offset + i) % points`.
+    fn new(case: &Case, lanes: usize, offset: usize) -> Self {
         let n = case.n;
         let mut tensor = TensorNumerator::new(case.rank, lanes);
         let mut batch = Self {
@@ -197,7 +201,7 @@ impl Batch {
             tensor: TensorNumerator::new(case.rank, 0),
         };
         for lane in 0..lanes {
-            let point = &case.points[lane % case.points.len()];
+            let point = &case.points[(offset + lane) % case.points.len()];
             batch.shifts.extend_from_slice(&point.shifts);
             batch.masses.extend_from_slice(&point.masses);
             batch.scales.push(point.mu2);
@@ -301,6 +305,21 @@ fn evaluate<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
     Ok(())
 }
 
+/// Identical statuses, and identical results on successful lanes (failed
+/// lanes keep whatever result they held before the call).
+fn same(
+    results: &[FastResult],
+    statuses: &[FastStatus],
+    reference: &(Vec<FastResult>, Vec<FastStatus>),
+) -> bool {
+    statuses == reference.1.as_slice()
+        && results
+            .iter()
+            .zip(&reference.0)
+            .zip(statuses)
+            .all(|((a, b), s)| *s != FastStatus::Success || a == b)
+}
+
 fn c(z: C64) -> Value {
     json!([z.re, z.im])
 }
@@ -378,7 +397,7 @@ fn dump(case: &Case) -> Result<(), Error> {
                 tensor: point.tensor.clone(),
             }],
         };
-        let mut batch = Batch::new(&single, 1);
+        let mut batch = Batch::new(&single, 1, 0);
         let mut results = vec![FastResult::default(); 1];
         let mut statuses = vec![FastStatus::NotEvaluated; 1];
         let mut tensor = std::mem::replace(&mut batch.tensor, TensorNumerator::new(case.rank, 0));
@@ -440,92 +459,126 @@ fn bench(
     fake_masters: bool,
 ) -> Result<(), Error> {
     for &width in widths {
-        let mut batch = Batch::new(case, width);
+        // Like original Ninja's driver, every timed run cycles over all case
+        // points: unless the width is a multiple of their number, one run
+        // evaluates one batch per rotation of the point order.
+        let points = case.points.len();
+        let rotations = if width % points == 0 { 1 } else { points };
+        let mut batches: Vec<Batch> = (0..rotations)
+            .map(|offset| Batch::new(case, width, offset))
+            .collect();
         let mut amplitude = FastAmplitude::new(case.n, case.rank, options)?;
         let mut results = vec![FastResult::default(); width];
         let mut statuses = vec![FastStatus::NotEvaluated; width];
-        let tensor = std::mem::replace(&mut batch.tensor, TensorNumerator::new(case.rank, 0));
-        let mut recorded_numerator = RecordingNumerator::new(tensor);
+        let mut recorded_numerators: Vec<_> = batches
+            .iter_mut()
+            .map(|b| {
+                RecordingNumerator::new(std::mem::replace(
+                    &mut b.tensor,
+                    TensorNumerator::new(case.rank, 0),
+                ))
+            })
+            .collect();
         let mut recorded_masters = RecordingMasters::new(if fake_masters {
             MasterSource::Fake
         } else {
             MasterSource::Native(Box::new(OneLoopNativeMasters::new()?))
         });
-        evaluate(
-            &mut amplitude,
-            &batch,
-            &mut recorded_numerator,
-            &mut recorded_masters,
-            &mut results,
-            &mut statuses,
-        )?;
-        let reference = results.clone();
-        let succeeded = statuses
-            .iter()
-            .filter(|s| **s == FastStatus::Success)
-            .count();
-        let mut replay_numerator = recorded_numerator.replay();
+        let mut reference = Vec::new();
+        let mut succeeded = 0;
+        for (batch, numerator) in batches.iter().zip(&mut recorded_numerators) {
+            evaluate(
+                &mut amplitude,
+                batch,
+                numerator,
+                &mut recorded_masters,
+                &mut results,
+                &mut statuses,
+            )?;
+            reference.push((results.clone(), statuses.clone()));
+            succeeded += statuses
+                .iter()
+                .filter(|s| **s == FastStatus::Success)
+                .count();
+        }
+        let mut replay_numerators: Vec<_> =
+            recorded_numerators.iter().map(|r| r.replay()).collect();
         let mut replay_masters = recorded_masters.replay();
-        let calls = recorded_numerator.calls();
+        let calls: usize = recorded_numerators.iter().map(|r| r.calls()).sum();
         let master_calls = recorded_masters.calls().len();
-        let mut tensor = recorded_numerator.into_inner();
+        let mut tensors: Vec<TensorNumerator> = recorded_numerators
+            .into_iter()
+            .map(RecordingNumerator::into_inner)
+            .collect();
         let mut native = recorded_masters.into_inner();
         // Replays must reproduce the recorded evaluation bitwise.
-        evaluate(
-            &mut amplitude,
-            &batch,
-            &mut replay_numerator,
-            &mut replay_masters,
-            &mut results,
-            &mut statuses,
-        )?;
-        if results != reference {
-            return Err(format!("{}: replay differs from recording", case.name).into());
+        for (j, batch) in batches.iter().enumerate() {
+            evaluate(
+                &mut amplitude,
+                batch,
+                &mut replay_numerators[j],
+                &mut replay_masters,
+                &mut results,
+                &mut statuses,
+            )?;
+            if !same(&results, &statuses, &reference[j]) {
+                return Err(format!("{}: replay differs from recording", case.name).into());
+            }
         }
+        let lanes = width * rotations;
         let mut phases: Vec<(&str, Timing)> = vec![(
             "reduction",
-            time(width, blocks, min_block, || {
-                evaluate(
-                    &mut amplitude,
-                    &batch,
-                    &mut replay_numerator,
-                    &mut replay_masters,
-                    &mut results,
-                    &mut statuses,
-                )
+            time(lanes, blocks, min_block, || {
+                for (j, batch) in batches.iter().enumerate() {
+                    evaluate(
+                        &mut amplitude,
+                        batch,
+                        &mut replay_numerators[j],
+                        &mut replay_masters,
+                        &mut results,
+                        &mut statuses,
+                    )?;
+                }
+                Ok(())
             })?,
         )];
         if !only_reduction {
             phases.push((
                 "reduction+tensor",
-                time(width, blocks, min_block, || {
-                    evaluate(
-                        &mut amplitude,
-                        &batch,
-                        &mut tensor,
-                        &mut replay_masters,
-                        &mut results,
-                        &mut statuses,
-                    )
+                time(lanes, blocks, min_block, || {
+                    for (j, batch) in batches.iter().enumerate() {
+                        evaluate(
+                            &mut amplitude,
+                            batch,
+                            &mut tensors[j],
+                            &mut replay_masters,
+                            &mut results,
+                            &mut statuses,
+                        )?;
+                    }
+                    Ok(())
                 })?,
             ));
         }
         if with_masters {
             phases.push((
                 "reduction+tensor+masters",
-                time(width, blocks, min_block, || {
-                    evaluate(
-                        &mut amplitude,
-                        &batch,
-                        &mut tensor,
-                        &mut native,
-                        &mut results,
-                        &mut statuses,
-                    )
+                time(lanes, blocks, min_block, || {
+                    for (j, batch) in batches.iter().enumerate() {
+                        evaluate(
+                            &mut amplitude,
+                            batch,
+                            &mut tensors[j],
+                            &mut native,
+                            &mut results,
+                            &mut statuses,
+                        )?;
+                    }
+                    Ok(())
                 })?,
             ));
         }
-        if results != reference {
+        if !same(&results, &statuses, &reference[rotations - 1]) {
             return Err(format!("{}: timed results differ from recording", case.name).into());
         }
         for (phase, t) in phases {
@@ -536,6 +589,7 @@ fn bench(
                     "phase": phase, "median_ns_per_point": t.median, "min_ns_per_point": t.min,
                     "max_ns_per_point": t.max, "blocks": t.blocks, "iterations_per_block": t.iterations,
                     "allocations_in_timed_blocks": t.allocations, "successful_lanes": succeeded,
+                    "rotations": rotations,
                     "numerator_calls": calls, "master_calls": master_calls})
             );
         }
