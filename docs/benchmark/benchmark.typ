@@ -26,6 +26,8 @@
 #show heading.where(level: 2): it => block(text(11.5pt, fill: rgb("#1f3b63"), it))
 #show raw: set text(font: "DejaVu Sans Mono", size: 8.5pt)
 #show link: set text(fill: rgb("#1f5fa8"))
+#show figure.where(kind: table): set block(breakable: true)
+#show figure.where(kind: table): set figure.caption(position: top)
 
 // ---------------------------------------------------------------- helpers --
 
@@ -190,6 +192,64 @@
   #h(0.4em)
   #box(width: 9cm)[×1/4 #h(1fr) ×1/2 #h(1fr) ×1 #h(1fr) ×2 #h(1fr) ×4]
 ]
+
+// Composition figure: per diagram, NinjaRS and MadLoop bars normalized to the
+// MadLoop total and stacked by component. Categorical slots 1-3 of the
+// validated default palette (blue, orange, aqua), 2pt surface gaps.
+#let component-colors = (rgb("#2a78d6"), rgb("#eb6834"), rgb("#1baf7a"))
+#let component-names = ("Numerator", "Reduction", "Masters")
+#let stack-bar(parts, reference, width) = {
+  let total = parts.sum()
+  box(width: width, height: 8pt, {
+    let x = 0pt
+    for (i, value) in parts.enumerate() {
+      let w = width * value / reference
+      place(dx: x, rect(
+        width: calc.max(w - 1pt, 0.5pt), height: 8pt, fill: component-colors.at(i),
+        radius: if i == parts.len() - 1 { (right: 2pt) } else { 0pt },
+      ))
+      x += w
+    }
+  })
+}
+#figure(
+  kind: image,
+  caption: [Per-point evaluation time of each diagram, NinjaRS (upper bar,
+    batched) and the MadLoop pipeline (lower bar), stacked by component and
+    normalized to the MadLoop total. The label gives NinjaRS's total as a
+    multiple of MadLoop's; @tab:summary lists the values.],
+  {
+    set text(8pt, font: "DejaVu Sans")
+    let bar-width = 10cm
+    grid(
+      columns: (3.3cm, auto, 2.2cm),
+      column-gutter: 6pt,
+      row-gutter: range(2 * cases.len()).map(i => if calc.even(i) { 2pt } else { 9pt }),
+      align: (right + horizon, left + horizon, left + horizon),
+      ..for c in cases {
+        let a = c.ninjars_us
+        let b = c.madloop_us
+        let mine = (a.numerator, a.reduction, a.masters)
+        let theirs = (b.numerator, b.reduction, b.masters)
+        let reference = theirs.sum()
+        (
+          grid.cell(rowspan: 2, [#c.process \ #text(fill: luma(90), c.diagram)]),
+          stack-bar(mine, reference, bar-width),
+          [NinjaRS #text(weight: "bold")[×#fixed(mine.sum() / reference, 2)]],
+          stack-bar(theirs, reference, bar-width),
+          text(fill: luma(110))[MadLoop],
+        )
+      },
+    )
+    v(4pt)
+    for (i, name) in component-names.enumerate() {
+      box(rect(width: 8pt, height: 8pt, fill: component-colors.at(i), radius: 1pt))
+      h(3pt)
+      name
+      h(12pt)
+    }
+  },
+) <fig:composition>
 
 #let identical-rows(entries, physical: true) = for c in entries {
   let a = c.ninjars_us
