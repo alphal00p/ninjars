@@ -173,12 +173,7 @@ fn compare_lane(actual: &Value, original: &Value) -> Value {
 }
 
 pub fn run(args: Args) -> Result<()> {
-    args.reduction
-        .reduction_kernels
-        .validate(args.reduction.native_block_rows)?;
-    args.reduction
-        .numerator_evaluator
-        .validate(args.reduction.precision)?;
+    args.reduction.validate()?;
     let root = absolute(
         args.reference_root
             .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..")),

@@ -43,6 +43,36 @@ impl CoefficientBatch<f64> for F64Coefficients {
     }
 }
 
+/// Symbolica's interpreted evaluator of every coefficient head, for the fast
+/// engine's tensor numerator under `--numerator-evaluator symbolica`.
+pub(crate) struct InterpretedCoefficients {
+    evaluator: ninjars_graph::CoefficientEvaluator<f64>,
+    columns: usize,
+    values: Vec<Complex<f64>>,
+}
+
+impl InterpretedCoefficients {
+    pub(crate) fn new(plan: &PolynomialCoefficientPlan) -> Result<Self> {
+        Ok(Self {
+            evaluator: plan.compile(0_f64)?,
+            columns: plan.coefficient_expressions().len(),
+            values: Vec::new(),
+        })
+    }
+}
+
+impl CoefficientBatch<f64> for InterpretedCoefficients {
+    fn evaluate_batch(&mut self, input: &[Complex<f64>], rows: usize) -> Result<&[Complex<f64>]> {
+        let entries = rows
+            .checked_mul(self.columns)
+            .ok_or("coefficient batch size overflow")?;
+        self.values.resize(entries, Complex::new(0., 0.));
+        self.evaluator
+            .evaluate_batch(input, &mut self.values, rows)?;
+        Ok(&self.values)
+    }
+}
+
 impl CoefficientScalar for f64 {
     fn compile_symjit_coefficients(
         plan: &PolynomialCoefficientPlan,

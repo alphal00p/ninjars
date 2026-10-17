@@ -36,6 +36,10 @@ nix develop path:. --command cargo run -p ninjars-cli -- reduce examples/graphs/
 nix develop path:. --command cargo run -p ninjars-cli -- reduce examples/graphs/box.json --mu-extraction sampling --mu-sampling-scale 64 --full-box-coefficients
 nix develop path:. --command cargo run -p ninjars-cli --features reference-codegen -- compare examples/graphs/bubble.json --batch-size 2
 nix develop path:. --command cargo run --release -p ninjars-cli -- bench examples/graphs/bubble.json --output bubble-bench.json
+nix develop path:. --command cargo run --release -p ninjars-cli -- reduce examples/graphs/physical/gg-hh/top-box-2-pool.json --engine fast
+nix develop path:. --command cargo run --release -p ninjars-cli -- bench examples/graphs/physical/hgg/top-triangle-0-pool.json --engine fast
+nix develop path:. --command cargo run --profile perf -p ninjars-cli --features numerator-jit -- pipeline-bench examples/graphs/physical/gg-hh/top-box-2-pool.json --points validation/benchmark/points/gg-hh.json --feynman-rules
+nix develop path:. --command cargo run --profile perf -p ninjars-cli -- case-bench validation/benchmark/cases/gg-hh-top-box-2.json --reference-dir validation/benchmark/ninja
 nix develop path:. --command cargo run -p ninjars-cli -- reduce examples/graphs/physical/hgg/top-triangle-0.json --precision double-float --batch-size 2
 nix develop path:. --command cargo run -p ninjars-symbolica --example bubble
 ```
@@ -58,7 +62,7 @@ development and reference-validation tools.
 | `ninjars` | Topology, batched reduction callback contracts, kernels and results |
 | `ninjars-symbolica` | Symbolica polynomial/Dual callbacks, arithmetic kernels and masters |
 | `ninjars-graph` | Independent FeynKit graph, model and numerator preparation |
-| `ninjars-cli` | `prepare`, `reduce`, `bench` and optional `compare` |
+| `ninjars-cli` | `prepare`, `reduce`, `bench`, optional `compare`, and benchmark-case tools (`export-bench`, `numerator-bench`, `pipeline-bench`, `case-bench`) |
 
 Numerical momenta are FeynKit `FourMomentum<T>`, with component order `(E,x,y,z)`
 and the `+---` metric. Laurent results use `[finite, single pole, double pole]`.
@@ -76,6 +80,20 @@ scale and its source. `--mu-sampling-scale EXPR` supplies an exact override,
 independent of the renormalization scale. The default mu-expansion mode obtains
 the integrated rational coefficient directly from the numerator expansion.
 Conditioning diagnostics and precision rescue remain under development.
+
+`reduce --engine fast` (also `bench`) selects `ninjars::fast`, a batched
+binary64 port of original Ninja's reduction with oneloopmaster's native
+masters. It requires `--precision f64` and the default mu-expansion, rejects
+the generic engine's box-sampling and kernel options, and needs real external
+kinematics. Numerators without explicit mu-squared terms use Ninja's dense
+tensor numerator, filled from coefficient heads of the selected
+`--numerator-evaluator`; others use the polynomial numerator through an
+adapter. The JSON schema is unchanged apart from `"engine": "fast"`. On the
+tested fixtures, Laurent coefficients agree with the generic engine within the
+scaled 1e-9 criterion; the cut-constructible/rational split follows original
+Ninja's cut basis. As in original Ninja, points with purely spacelike cut
+planes fail their lanes.
+See the [CLI guide](crates/ninjars-cli/README.md#reduction-engines).
 
 `--cut-stop N` omits cuts smaller than N; values 0/1 retain full reduction.
 As in original Ninja, using a higher stop assumes that omitted cuts contribute
@@ -104,6 +122,14 @@ outside primary timings; callbacks and masters are measured in a separate
 diagnostic pass. Reports retain individual timings and failed-lane counts.
 These are Rust-only measurements, with performance acceptance explicitly
 marked false. See [benchmark controls and timing boundaries](docs/benchmarks.md).
+`bench --engine fast` measures the fast engine with the same report.
+`pipeline-bench` times the binary64 pipeline of one physical graph (numerator
+preparation, pure fast reduction, tensor numerator, native masters and the
+uninstrumented total) over a shared phase-space pool; `case-bench` gives the
+same breakdown for the `ninjars-bench-case-v1` files shared with original
+Ninja. Both can check results against original Ninja; see the
+[CLI guide](crates/ninjars-cli/README.md#end-to-end-and-bench-case-timings)
+and the [benchmark report](docs/benchmark/benchmark.typ).
 The [matched reference timing harness](validation/performance/README.md) uses a
 common parameterized numerator, an uncached original-Ninja/OneLOop build, and
 persistent numerical sessions. It records full Laurent checks, compiler/build

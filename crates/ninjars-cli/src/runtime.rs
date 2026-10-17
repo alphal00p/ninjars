@@ -33,6 +33,11 @@ use crate::{
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 type NumericalAmplitude<T> = Amplitude<Complex<T>, SymbolicaAmplitudeKernels<T>>;
 
+/// The prepared numerator's loop variables `(q0, q1, q2, q3, mu2)`.
+pub(crate) fn loop_variables() -> [Atom; 5] {
+    ["q0", "q1", "q2", "q3", "mu2"].map(|name| Atom::var(symbol!(format!("ninjars::{name}"))))
+}
+
 pub(crate) fn numerical<T: NativeFloat>(
     expression: &Atom,
     prototype: &T,
@@ -54,15 +59,18 @@ where
 }
 
 /// Flat prepared numerical buffers, using shared FeynKit momenta.
+///
+/// Rows follow the prepared sample order; the fast engine repacks them
+/// (`fast_runtime::FastPool`).
 pub(crate) struct NumericalPool<T> {
-    n: usize,
-    parameter_count: usize,
-    lanes: usize,
-    shifts: Vec<FourMomentum<Complex<T>>>,
-    masses: Vec<Complex<T>>,
-    parameters: Vec<Complex<T>>,
-    s_matrix: Option<Vec<Complex<T>>>,
-    scale: Complex<T>,
+    pub(crate) n: usize,
+    pub(crate) parameter_count: usize,
+    pub(crate) lanes: usize,
+    pub(crate) shifts: Vec<FourMomentum<Complex<T>>>,
+    pub(crate) masses: Vec<Complex<T>>,
+    pub(crate) parameters: Vec<Complex<T>>,
+    pub(crate) s_matrix: Option<Vec<Complex<T>>>,
+    pub(crate) scale: Complex<T>,
 }
 
 pub(crate) struct NumericalBatch<T> {
@@ -267,7 +275,7 @@ pub(crate) struct CallTiming {
     pub rows: usize,
 }
 impl CallTiming {
-    fn record(&mut self, start: Instant, rows: usize) {
+    pub(crate) fn record(&mut self, start: Instant, rows: usize) {
         self.elapsed += start.elapsed();
         self.calls += 1;
         self.rows += rows;
@@ -388,8 +396,7 @@ where
 {
     pub(crate) fn new(prepared: &PreparedDocument, args: &Args, prototype: T) -> Result<Self> {
         args.reduction_kernels.validate(args.native_block_rows)?;
-        let variables = ["q0", "q1", "q2", "q3", "mu2"]
-            .map(|name| Atom::var(symbol!(format!("ninjars::{name}"))));
+        let variables = loop_variables();
         let (expression, parameters, coefficients, numerator_info) = match args.numerator_evaluator
         {
             NumeratorEvaluator::Symbolica => (

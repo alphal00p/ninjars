@@ -3,6 +3,7 @@ mod case_bench;
 #[cfg(feature = "reference-codegen")]
 mod compare;
 mod export_bench;
+mod fast_runtime;
 mod numerator_bench;
 mod numerator_coefficients;
 mod pipeline_bench;

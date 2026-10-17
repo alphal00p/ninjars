@@ -1,12 +1,15 @@
 //! Standalone orchestration over graph preparation and the batched reduction API.
 
 use crate::{
+    fast_runtime::{self, FastPool, FastSession},
     numerator_coefficients::CoefficientScalar,
     prepare::{self, PreparedDocument},
     runtime::{EvaluationSession, NumericalPool},
 };
 use clap::{Args as ClapArgs, ValueEnum};
-use ninjars::{Complex, EvaluationStatus, SamplingScaleSource, SamplingScaleStatus};
+use ninjars::{
+    Complex, EvaluationStatus, SamplingScaleSource, SamplingScaleStatus, fast::FastStatus,
+};
 use serde_json::{Value, json};
 use std::{error::Error, fs, num::NonZeroUsize, path::PathBuf};
 use symbolica::{
@@ -16,6 +19,71 @@ use symbolica::{
 };
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
+
+#[derive(Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum Engine {
+    /// Symbolica-generic reduction in every precision, with every box mode.
+    Generic,
+    /// Binary64 port of original Ninja (`ninjars::fast`) with oneloopmaster's native masters.
+    Fast,
+}
+
+impl Engine {
+    pub(crate) fn name(self) -> &'static str {
+        match self {
+            Self::Generic => "generic",
+            Self::Fast => "fast",
+        }
+    }
+}
+
+/// Options shared by `reduce` and `bench` that select the reduction engine.
+pub(crate) struct EngineOptions<'a> {
+    pub engine: Engine,
+    pub precision: Precision,
+    pub bits: Option<u32>,
+    pub reduction_kernels: ReductionKernels,
+    pub native_block_rows: Option<NonZeroUsize>,
+    pub mu_extraction: MuExtraction,
+    pub full_box_coefficients: bool,
+    pub mu_sampling_scale: Option<&'a str>,
+}
+
+impl EngineOptions<'_> {
+    /// Reject generic-engine options under `--engine fast` before any preparation.
+    pub(crate) fn validate(&self) -> Result<()> {
+        if self.engine == Engine::Generic {
+            return Ok(());
+        }
+        let generic_only = |option: String| -> Result<()> {
+            Err(format!("--engine fast does not support {option}; use --engine generic").into())
+        };
+        if !matches!(self.precision, Precision::F64) || self.bits.is_some() {
+            return Err("--engine fast reduces in binary64 and requires --precision f64 (without --bits); use --engine generic for double-float or float".into());
+        }
+        if matches!(self.mu_extraction, MuExtraction::Sampling) {
+            return generic_only(
+                "--mu-extraction sampling (it uses original Ninja's box mu-expansion)".into(),
+            );
+        }
+        if self.full_box_coefficients {
+            return generic_only("--full-box-coefficients".into());
+        }
+        if self.mu_sampling_scale.is_some() {
+            return generic_only("--mu-sampling-scale (it never samples mu^2)".into());
+        }
+        if !matches!(self.reduction_kernels, ReductionKernels::Symbolica) {
+            return generic_only(format!(
+                "--reduction-kernels {} (generic-engine kernels)",
+                self.reduction_kernels.name()
+            ));
+        }
+        if self.native_block_rows.is_some() {
+            return generic_only("--native-block-rows (generic-engine kernels)".into());
+        }
+        Ok(())
+    }
+}
 
 #[derive(Clone, Copy, ValueEnum)]
 pub enum Precision {
@@ -118,6 +186,11 @@ pub struct Args {
     pub model: Option<String>,
     #[arg(long)]
     pub feynman_rules: bool,
+    /// Reduction engine. `fast` requires --precision f64 and the default box
+    /// mu-expansion; it uses Ninja's tensor numerator when the numerator has no
+    /// explicit mu^2 terms and oneloopmaster's native binary64 masters.
+    #[arg(long, value_enum, default_value = "generic")]
+    pub engine: Engine,
     /// Numerical carrier; all input expressions are evaluated directly at this precision.
     #[arg(long, value_enum, default_value = "f64")]
     pub precision: Precision,
@@ -155,6 +228,63 @@ pub struct Args {
     pub mu_sampling_scale: Option<String>,
     #[arg(short, long)]
     pub output: Option<PathBuf>,
+}
+
+impl Args {
+    pub(crate) fn engine_options(&self) -> EngineOptions<'_> {
+        EngineOptions {
+            engine: self.engine,
+            precision: self.precision,
+            bits: self.bits,
+            reduction_kernels: self.reduction_kernels,
+            native_block_rows: self.native_block_rows,
+            mu_extraction: self.mu_extraction,
+            full_box_coefficients: self.full_box_coefficients,
+            mu_sampling_scale: self.mu_sampling_scale.as_deref(),
+        }
+    }
+
+    pub(crate) fn validate(&self) -> Result<()> {
+        self.engine_options().validate()?;
+        self.reduction_kernels.validate(self.native_block_rows)?;
+        self.numerator_evaluator.validate(self.precision)?;
+        if self.bits.is_some() && !matches!(self.precision, Precision::Float) {
+            return Err("--bits applies only to --precision float".into());
+        }
+        if self.bits.is_some_and(|bits| bits < 2) {
+            return Err("--bits must be at least 2".into());
+        }
+        Ok(())
+    }
+}
+
+/// Document fields common to both engines.
+fn finish_document(prepared: &mut PreparedDocument, args: &Args, rows: Vec<Value>, success: bool) {
+    prepared.document["operation"] = "reduce".into();
+    prepared.document["engine"] = args.engine.name().into();
+    prepared.document["batch_size"] = args.batch_size.get().into();
+    prepared.document["requested_cut_stop"] = args.cut_stop.into();
+    prepared.document["success"] = success.into();
+    prepared.document["result_order"] = json!([
+        "finite",
+        "single_pole",
+        "double_pole",
+        "cut_constructible_finite",
+        "rational"
+    ]);
+    prepared.document["number_format"] = "complex_decimal_strings_re_im".into();
+    prepared.document["results"] = rows.into();
+    if args.diagnostics {
+        prepared.document["numerator_template"] =
+            prepared.numerator_template.to_canonical_string().into();
+        prepared.document["numerator_parameters"] = json!(
+            prepared
+                .parameters
+                .iter()
+                .map(AtomCore::to_canonical_string)
+                .collect::<Vec<_>>()
+        );
+    }
 }
 
 fn status_json(status: EvaluationStatus) -> Value {
@@ -265,11 +395,8 @@ where
             rows.push(row);
         }
     }
-    prepared.document["operation"] = "reduce".into();
     prepared.document["precision"] = json!({"carrier":match args.precision {Precision::F64=>"f64",Precision::DoubleFloat=>"double-float",Precision::Float=>"float"},"bits":prototype.get_precision()});
-    prepared.document["batch_size"] = args.batch_size.get().into();
     prepared.document["cut_stop"] = session.amplitude.cut_stop().into();
-    prepared.document["requested_cut_stop"] = args.cut_stop.into();
     prepared.document["rank"] = rank.into();
     prepared.document["numerator_provider"] = session.numerator_provider_info();
     prepared.document["reduction_kernels"] = session.kernel_provider_info();
@@ -281,49 +408,79 @@ where
             "automatic"
         }
         .into();
-    prepared.document["success"] = success.into();
-    prepared.document["result_order"] = json!([
-        "finite",
-        "single_pole",
-        "double_pole",
-        "cut_constructible_finite",
-        "rational"
-    ]);
-    prepared.document["number_format"] = "complex_decimal_strings_re_im".into();
-    prepared.document["results"] = rows.into();
-    if args.diagnostics {
-        prepared.document["numerator_template"] =
-            prepared.numerator_template.to_canonical_string().into();
-        prepared.document["numerator_parameters"] = json!(
-            prepared
-                .parameters
-                .iter()
-                .map(AtomCore::to_canonical_string)
-                .collect::<Vec<_>>()
-        );
+    finish_document(prepared, args, rows, success);
+    Ok(success)
+}
+
+/// `--engine fast`: the same result schema from the binary64 fast engine.
+fn evaluate_fast(prepared: &mut PreparedDocument, args: &Args) -> Result<bool> {
+    let pool = FastPool::new(prepared)?;
+    let batches = (0..prepared.samples.len())
+        .collect::<Vec<_>>()
+        .chunks(args.batch_size.get())
+        .map(|indices| pool.batch(indices))
+        .collect::<Result<Vec<_>>>()?;
+    let mut session = FastSession::new(prepared, args.numerator_evaluator, args.cut_stop)?;
+    let mut rows = Vec::new();
+    let mut success = true;
+    let mut lanes = prepared.samples.iter();
+    for batch in &batches {
+        session.evaluate(batch)?;
+        for local in 0..batch.lanes {
+            let sample = lanes
+                .next()
+                .ok_or("fast batch exceeds the prepared samples")?;
+            let status = session.status(local);
+            let valid = status == FastStatus::Success;
+            success &= valid;
+            let values = valid.then(|| session.components(local).map(fast_runtime::encode));
+            let mut row = json!({"lane":sample.lane,"status":fast_runtime::status_json(status),"values":values});
+            row["s_matrix_source"] = if sample.s_matrix.is_some() {
+                "supplied"
+            } else {
+                "momenta"
+            }
+            .into();
+            row["mu_sampling_scale"] = json!({"mode":"none","value":null,"used":false});
+            row["component_precision_bits"] = if valid {
+                json!(fast_runtime::COMPONENT_BITS)
+            } else {
+                Value::Null
+            };
+            if args.diagnostics {
+                // The fast engine applies Ninja's per-lane skip rules inside each
+                // stage and does not count the cuts it evaluates.
+                row["cut_counts"] = Value::Null;
+            }
+            rows.push(row);
+        }
     }
+    prepared.document["precision"] = json!({"carrier":"f64","bits":f64::MANTISSA_DIGITS});
+    prepared.document["cut_stop"] = session.cut_stop().into();
+    prepared.document["rank"] = session.rank().into();
+    prepared.document["numerator_provider"] = session.numerator_provider_info();
+    prepared.document["reduction_kernels"] = session.kernel_provider_info();
+    prepared.document["box_reduction"] = json!({"mu_extraction":"expansion","coefficient_mode":"integrated","mu_sampling_scale":null,"mu_sampling_scale_mode":"none"});
+    finish_document(prepared, args, rows, success);
     Ok(success)
 }
 
 pub(crate) fn evaluate_prepared(prepared: &mut PreparedDocument, args: &Args) -> Result<bool> {
-    args.reduction_kernels.validate(args.native_block_rows)?;
-    args.numerator_evaluator.validate(args.precision)?;
-    if args.bits.is_some() && !matches!(args.precision, Precision::Float) {
-        return Err("--bits applies only to --precision float".into());
-    }
-    if args.bits.is_some_and(|bits| bits < 2) {
-        return Err("--bits must be at least 2".into());
-    }
-    match args.precision {
-        Precision::F64 => evaluate(prepared, args, 0_f64),
-        Precision::DoubleFloat => evaluate(prepared, args, DoubleFloat::default()),
-        Precision::Float => evaluate(prepared, args, Float::new(args.bits.unwrap_or(256))),
+    args.validate()?;
+    match (args.engine, args.precision) {
+        (Engine::Fast, _) => evaluate_fast(prepared, args),
+        (Engine::Generic, Precision::F64) => evaluate(prepared, args, 0_f64),
+        (Engine::Generic, Precision::DoubleFloat) => {
+            evaluate(prepared, args, DoubleFloat::default())
+        }
+        (Engine::Generic, Precision::Float) => {
+            evaluate(prepared, args, Float::new(args.bits.unwrap_or(256)))
+        }
     }
 }
 
 pub fn run(args: Args) -> Result<()> {
-    args.reduction_kernels.validate(args.native_block_rows)?;
-    args.numerator_evaluator.validate(args.precision)?;
+    args.validate()?;
     let mut prepared = prepare::prepare(&prepare::Args {
         input: args.input.clone(),
         samples: args.samples.clone(),
