@@ -296,7 +296,9 @@
     "native-swapped-unit-initial.log": "7c9fd50aae58f9222db2fd936996f011537cf674a5100c3d8226202626804121",
     "native-unit-test-list.txt": "614c843455a1288b1a6f29ee4854fb7f0fc65199313bada4b452f7aad5dfbce0",
     "native-workspace-reuse-initial.log": "07790ad87180c035e2132ec7ea7a4916f2bcd390873b7069b7ad26311dbff140",
-    "test-records.json": "6cd088c2b5089079d0ca5b3525c652d490b5e6d2192cf8af749040e07a337910"
+    "test-records.json": "6cd088c2b5089079d0ca5b3525c652d490b5e6d2192cf8af749040e07a337910",
+    "preserved-artifacts.json": "8df57d34d0fada3b7f47117f30bec3104baea13ff185295a56a5d13e98d34624"
   },
-  "evidence_attributes_sha256": "2d8c00d85cc7a1c6e1d6848225cbf048c26e631a798e94512d3c0ab061a44e16"
+  "evidence_attributes_sha256": "2d8c00d85cc7a1c6e1d6848225cbf048c26e631a798e94512d3c0ab061a44e16",
+  "preserved_artifacts": "preserved-artifacts.json"
 }

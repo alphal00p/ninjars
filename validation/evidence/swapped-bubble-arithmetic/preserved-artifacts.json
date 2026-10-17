@@ -1,0 +1,77 @@
+{
+  "purpose": "Read-only copies of all eight exact numerical test executables; no rebuild or numerical rerun. Original executable hashes, argv and historical records remain unchanged.",
+  "artifacts": [
+    {
+      "variant": "feature-off",
+      "target": "bubbles",
+      "original_path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/bubbles-de6735f46b4e90ec",
+      "preserved_path": "/tmp/ninjars-swapped-arithmetic-artifacts/feature-off-bubbles-356215751a8a12df",
+      "sha256": "356215751a8a12dfb37274edce8a3d8bb0c2d9fa7a53dd0c18f14f4ddee5cdb6",
+      "bytes": 447387920,
+      "mode": "0555"
+    },
+    {
+      "variant": "feature-off",
+      "target": "swapped_bubbles",
+      "original_path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/swapped_bubbles-9bba0a007c00c19b",
+      "preserved_path": "/tmp/ninjars-swapped-arithmetic-artifacts/feature-off-swapped_bubbles-b0a2ce1c168b61ca",
+      "sha256": "b0a2ce1c168b61ca96950f85f338967017c3cca08a6a8dea51472eea08723a59",
+      "bytes": 462297176,
+      "mode": "0555"
+    },
+    {
+      "variant": "feature-off",
+      "target": "ninjars_symbolica",
+      "original_path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-bfa72ee958dcd1ce",
+      "preserved_path": "/tmp/ninjars-swapped-arithmetic-artifacts/feature-off-ninjars_symbolica-6b18ea3d7c6e8673",
+      "sha256": "6b18ea3d7c6e8673b1f6e1fc846c8ec2b3b4619db3ad26a636ad199233f3f9cd",
+      "bytes": 481691640,
+      "mode": "0555"
+    },
+    {
+      "variant": "native",
+      "target": "native_bubbles",
+      "original_path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/native_bubbles-e0f5492c99468a33",
+      "preserved_path": "/tmp/ninjars-swapped-arithmetic-artifacts/native-native_bubbles-9ae4f2b3017c8371",
+      "sha256": "9ae4f2b3017c8371f72551df8d6fb5d37d03bec2a473021de4e815df6953a991",
+      "bytes": 437380096,
+      "mode": "0555"
+    },
+    {
+      "variant": "native",
+      "target": "bubbles",
+      "original_path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/bubbles-290d622ec18a6a5c",
+      "preserved_path": "/tmp/ninjars-swapped-arithmetic-artifacts/native-bubbles-2cb0839fef23e30a",
+      "sha256": "2cb0839fef23e30aa2373e9e4715bbfe0920dcf2175b25cf6fad30da84889a49",
+      "bytes": 447507488,
+      "mode": "0555"
+    },
+    {
+      "variant": "native",
+      "target": "workspace_reuse",
+      "original_path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/workspace_reuse-c5dde0f6700de650",
+      "preserved_path": "/tmp/ninjars-swapped-arithmetic-artifacts/native-workspace_reuse-c6c826dda8be887d",
+      "sha256": "c6c826dda8be887d6713b94d1ddbede99bb28b6a8ec828e188872ca719dc838e",
+      "bytes": 460339872,
+      "mode": "0555"
+    },
+    {
+      "variant": "native",
+      "target": "swapped_bubbles",
+      "original_path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/swapped_bubbles-55921c34c7144055",
+      "preserved_path": "/tmp/ninjars-swapped-arithmetic-artifacts/native-swapped_bubbles-04dc243758074902",
+      "sha256": "04dc243758074902f2e6c93a16badcea1bd3cb510421f9ed6651c99684f4feb7",
+      "bytes": 462540456,
+      "mode": "0555"
+    },
+    {
+      "variant": "native",
+      "target": "ninjars_symbolica",
+      "original_path": "/common/build-cache/external/20/3495b46d0f541f/debug/deps/ninjars_symbolica-52abd48e56d8c3c7",
+      "preserved_path": "/tmp/ninjars-swapped-arithmetic-artifacts/native-ninjars_symbolica-b15c9f07237fcf0d",
+      "sha256": "b15c9f07237fcf0d354f8023b6af2fee47b64aa7efcd1d4d320ab3cd557207e4",
+      "bytes": 540219952,
+      "mode": "0555"
+    }
+  ]
+}
