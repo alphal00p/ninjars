@@ -1,12 +1,15 @@
-//! Binary64 masters from oneloopmaster's ahead-of-time generated Rust
-//! (`NativeEvaluator<f64>`, feature `generated-evaluators`): no Symbolica
-//! expression is interpreted or JIT-compiled at evaluation time.
+//! Binary64 masters for the fast path: oneloopmaster's ahead-of-time
+//! generated Rust (`NativeEvaluator<f64>`, feature `generated-evaluators`) for
+//! A0, C0, D0 (and dB0), and a port of OneLOop's bubble routines for B0, B1,
+//! B11, B111. No Symbolica expression is interpreted or JIT-compiled at
+//! evaluation time.
 //!
-//! A0, B0, C0, D0 (and dB0) are the generated native functions. The bubble
-//! tensor coefficients B1, B11, B111 (with B00, B001) are built numerically
-//! from native A0/B0 with exactly the Passarino-Veltman relations and
-//! zero-momentum limits that `oneloop::{b1, b11, b111}` encode symbolically
-//! (exact-zero dispatch on `p²` and the masses, lower-lip logarithms).
+//! The bubbles follow OneLOop's `bub0`/`bub1`/`bub11`/`bub111` (avh_olo 3.6):
+//! every coefficient is computed directly from the roots of the Feynman-
+//! parameter quadratic through `bnlog`, never through Passarino-Veltman
+//! relations, whose divisions by `p²` lose about `(m²/p²)^rank` relative
+//! accuracy (B11 off by 3e3, B111 by 9e9 at `p² = 1e-2`, `m² = 173²`).
+//! OneLOop's on-shell threshold is the one original Ninja sets (`1e-9`).
 
 use ninjars::fast::{C64, FastMaster, FastMasters};
 use ninjars::{
@@ -26,7 +29,7 @@ fn is_zero(z: C64) -> bool {
 }
 
 /// Principal logarithm continued to the lower lip of the negative real axis
-/// (oneloopmaster's `physical_log`).
+/// (oneloopmaster's `physical_log`, OneLOop's `logc(qonv(z, -1))`).
 fn physical_log(z: C64) -> C64 {
     if z.im != 0. {
         C64::new(z.abs().ln(), z.im.atan2(z.re))
@@ -37,152 +40,153 @@ fn physical_log(z: C64) -> C64 {
     }
 }
 
-/// `x log(x/mu²)`, zero at `x = 0`.
-fn x_log_ratio(x: C64, mu2: f64) -> C64 {
-    if is_zero(x) {
-        C64::ZERO
+/// OneLOop's `EPSN` (binary64 machine epsilon) and infinitesimal `IEPS = EPSN²`
+/// (the imaginary part carrying the `i0` prescription of real masses).
+const EPSN: f64 = f64::EPSILON;
+const IEPS: f64 = EPSN * EPSN;
+/// OneLOop's on-shell threshold as configured by original Ninja (`INFRARED_EPS`):
+/// smaller `|p²|` and squared-mass taxicab norms count as zero.
+const ONSHELL: f64 = 1e-9;
+/// Beyond this modulus `bnlog` is summed as a series in `1/x`.
+const BNLOG_SERIES: f64 = 3.;
+
+/// OneLOop's `bnlog(r, x) = (1 - x^(r+1)) log(1 - 1/x) - sum_{p=0}^{r}
+/// x^p/(r+1-p)` for `r = 0..=3` (`bnlog_c`/`bnlog_r`). A real `x`
+/// (`|Im x| <= EPSN |Re x|`) carries the sign of its infinitesimal imaginary
+/// part onto the logarithm's branch. For `|x| >= 3` the cancellation between
+/// the logarithm and the polynomial is resolved analytically:
+/// `bnlog(r, x) = -(r+1) sum_{j>=1} x^(-j) / (j (j+r+1))`.
+fn bnlogs(x: C64) -> [C64; 4] {
+    let real = x.im.abs() <= EPSN * x.re.abs();
+    let xr = if real { C64::real(x.re) } else { x };
+    if real && x.re == 0. {
+        return [C64::ZERO; 4];
+    }
+    if (xr - C64::ONE).abs() <= EPSN * 10. {
+        // -(1 + 1/2 + ... + 1/(r+1))
+        return [-1., -1.5, -11. / 6., -25. / 12.].map(C64::real);
+    }
+    let mut out = [C64::ZERO; 4];
+    if xr.abs() >= BNLOG_SERIES {
+        let inverse = xr.inv();
+        let mut power = inverse;
+        for j in 1..=64 {
+            let jf = j as f64;
+            let mut largest = 0f64;
+            for (r, sum) in out.iter_mut().enumerate() {
+                let term = power * (1. / (jf * (jf + (r + 1) as f64)));
+                *sum += term;
+                largest = largest.max(term.abs() / sum.abs());
+            }
+            if largest <= 1e-18 {
+                break;
+            }
+            power *= inverse;
+        }
+        for (r, sum) in out.iter_mut().enumerate() {
+            *sum *= -((r + 1) as f64);
+        }
+        return out;
+    }
+    let log = if real {
+        let y = 1. - 1. / x.re;
+        if y < 0. {
+            let sign = if x.im < 0. { -1. } else { 1. };
+            C64::new((-y).ln(), sign * std::f64::consts::PI)
+        } else {
+            C64::real(y.ln())
+        }
     } else {
-        x * physical_log(x / mu2)
+        let y = C64::ONE - xr.inv();
+        C64::new(y.abs().ln(), y.im.atan2(y.re))
+    };
+    // 1 + x + ... + x^r and sum_p x^p/(r+1-p), by Horner in r.
+    let mut geometric = C64::ONE;
+    let mut polynomial = C64::ONE;
+    for (r, value) in out.iter_mut().enumerate() {
+        if r > 0 {
+            geometric = C64::ONE + xr * geometric;
+            polynomial = polynomial * xr + C64::real(1. / (r + 1) as f64);
+        }
+        *value = (C64::ONE - xr) * geometric * log - polynomial;
     }
+    out
 }
 
-/// oneloopmaster's `bnlog(rank, root)`.
-fn bnlog(rank: usize, root: C64) -> C64 {
-    if is_zero(root) {
-        return C64::ZERO;
-    }
-    if root == C64::ONE {
-        return C64::real(-(1..=rank + 1).map(|k| 1. / k as f64).sum::<f64>());
-    }
-    let mut power = C64::ONE;
-    let mut polynomial = C64::ZERO;
-    for p in 0..=rank {
-        polynomial += power / (rank + 1 - p) as f64;
-        power *= root;
-    }
-    (C64::ONE - power) * physical_log(C64::ONE - C64::ONE / root) - polynomial
-}
-
-fn b0_at_zero_momentum(m0: C64, m1: C64, mu2: f64) -> C64 {
-    let difference = m0 - m1;
-    if !is_zero(difference) {
-        C64::ONE - (x_log_ratio(m0, mu2) - x_log_ratio(m1, mu2)) / difference
-    } else if is_zero(m0) {
-        C64::ZERO
+/// Roots of `a x² + b x + c = 0` (OneLOop's `solabc`, `imode = 0`), `a, c != 0`.
+fn solabc(a: C64, b: C64, c: C64) -> (C64, C64) {
+    let d = (b * b - a * c * 4.).sqrt();
+    let q = -b + d;
+    let h = -b - d;
+    if q.abs() >= h.abs() {
+        (q / (a * 2.), c * 2. / q)
     } else {
-        -physical_log(m0 / mu2)
+        (c * 2. / h, h / (a * 2.))
     }
 }
 
-/// Shared zero-momentum anchors `(log(m1/mu²) ± bnlog(rank, m1/(m1-m0)))/(rank+1)`.
-fn anchor(rank: usize, sign: f64, m0: C64, m1: C64, mu2: f64) -> C64 {
-    let logarithm = physical_log(m1 / mu2);
-    let difference = m1 - m0;
-    let scale = sign / (rank + 1) as f64;
-    if is_zero(difference) {
-        logarithm * scale
-    } else {
-        (logarithm + bnlog(rank, m1 / difference)) * scale
-    }
-}
-
-fn anchor1(m0: C64, m1: C64, mu2: f64) -> C64 {
-    anchor(1, 1., m0, m1, mu2)
-}
-fn anchor11(m0: C64, m1: C64, mu2: f64) -> C64 {
-    anchor(2, -1., m0, m1, mu2)
-}
-fn anchor111(m0: C64, m1: C64, mu2: f64) -> C64 {
-    anchor(3, 1., m0, m1, mu2)
-}
-
-fn b1_zero(m0: C64, m1: C64, mu2: f64) -> C64 {
-    if !is_zero(m1) {
-        -b0_at_zero_momentum(m0, m1, mu2) - anchor1(m0, m1, mu2)
-    } else if !is_zero(m0) {
-        anchor1(m1, m0, mu2)
-    } else {
-        C64::ZERO
-    }
-}
-
-fn b11_zero(m0: C64, m1: C64, mu2: f64) -> C64 {
-    if !is_zero(m1) {
-        anchor11(m0, m1, mu2) + anchor1(m0, m1, mu2) * 2. + b0_at_zero_momentum(m0, m1, mu2)
-    } else if !is_zero(m0) {
-        anchor11(m1, m0, mu2)
-    } else {
-        C64::ZERO
-    }
-}
-
-fn b111_zero(m0: C64, m1: C64, mu2: f64) -> C64 {
-    if !is_zero(m1) {
-        -anchor111(m0, m1, mu2)
-            - anchor11(m0, m1, mu2) * 3.
-            - anchor1(m0, m1, mu2) * 3.
-            - b0_at_zero_momentum(m0, m1, mu2)
-    } else if !is_zero(m0) {
-        anchor111(m1, m0, mu2)
-    } else {
-        C64::ZERO
-    }
-}
-
-/// Bubble coefficients `[B0, B1, B11, B111]` from native `B0` and `A0`.
-fn bubble_tensors(p: f64, m0: C64, m1: C64, mu2: f64, b0: L3, a0_m0: L3, a0_m1: L3) -> [L3; 4] {
-    if p == 0. && is_zero(m0) && is_zero(m1) {
+/// `[B0, B1, B11, B111]` (finite part, 1/eps, 1/eps²) at `(p², m0², m1², mu²)`:
+/// OneLOop's `bub111` (OneLOop/Ninja tensor-bubble conventions).
+fn bubble_tensors(p: f64, m0i: C64, m1i: C64, mu2: f64) -> [L3; 4] {
+    let taxicab = |m: C64| {
+        let a = m.re.abs() + m.im.abs();
+        if a < ONSHELL { 0. } else { a }
+    };
+    let app = if p.abs() < ONSHELL { 0. } else { p.abs() };
+    let (am0i, am1i) = (taxicab(m0i), taxicab(m1i));
+    let maxm = am0i.max(am1i);
+    if maxm == 0. && app == 0. {
         return [zero3(); 4];
     }
-    let massive = !is_zero(m0) || !is_zero(m1);
-    let pole_or = |value: f64| if p != 0. || massive { value } else { 0. };
-    let kinematic = m1 - m0 - p;
-    let b1 = if p != 0. {
-        [
-            (a0_m0[0] - a0_m1[0] + (m1 - m0 - p) * b0[0]) / (2. * p),
-            C64::real(-0.5),
-            C64::ZERO,
-        ]
+    // Order the masses so that |m1| is the larger one.
+    let (m0, am0, m1, am1, switch) = if am1i >= maxm {
+        (m0i, am0i, m1i, am1i, false)
     } else {
-        [b1_zero(m0, m1, mu2), C64::real(pole_or(-0.5)), C64::ZERO]
+        (m1i, am1i, m0i, am0i, true)
     };
-    // B00 = [nf/6 + np/9, np/6]
-    let b00_num = [
-        a0_m1[0] + m0 * b0[0] * 2. - kinematic * b1[0],
-        a0_m1[1] + m0 * b0[1] * 2. - kinematic * b1[1],
-    ];
-    let b00 = [b00_num[0] / 6. + b00_num[1] / 9., b00_num[1] / 6.];
-    let b11 = if p != 0. {
-        let d = 2. * p;
+    let pp = C64::real(p);
+    // b1 -> -b0 - b1 etc.: the coefficients with the masses exchanged.
+    let reflect = |b: [C64; 4]| {
         [
-            (a0_m1[0] + kinematic * b1[0] - b00[0] * 2.) / d,
-            (a0_m1[1] + kinematic * b1[1] - b00[1] * 2.) / d,
-            C64::ZERO,
-        ]
-    } else {
-        [
-            b11_zero(m0, m1, mu2),
-            C64::real(pole_or(1. / 3.)),
-            C64::ZERO,
+            b[0],
+            -b[0] - b[1],
+            b[2] + b[1] * 2. + b[0],
+            -b[3] - b[2] * 3. - b[1] * 3. - b[0],
         ]
     };
-    // B001 = [nf/8 + np/16, np/8]
-    let b001_num = [
-        m0 * b1[0] * 2. - a0_m1[0] - kinematic * b11[0],
-        m0 * b1[1] * 2. - a0_m1[1] - kinematic * b11[1],
-    ];
-    let b001 = [b001_num[0] / 8. + b001_num[1] / 16., b001_num[1] / 8.];
-    let b111 = if p != 0. {
-        let d = 2. * p;
-        [
-            (-a0_m1[0] + kinematic * b11[0] - b001[0] * 4.) / d,
-            (-a0_m1[1] + kinematic * b11[1] - b001[1] * 4.) / d,
-            C64::ZERO,
-        ]
+    let ranks = |f: &dyn Fn(usize) -> C64| [f(0), -f(1), f(2), -f(3)];
+    let b = if app == 0. {
+        let lna = -physical_log(m1 / mu2);
+        let b = if (m0 - m1).abs() <= am1 * EPSN * 10. {
+            ranks(&|r| lna / (r + 1) as f64)
+        } else {
+            let l1 = bnlogs((m1 - C64::new(0., am1 * IEPS)) / (m1 - m0));
+            ranks(&|r| (lna - l1[r]) / (r + 1) as f64)
+        };
+        if switch { b } else { reflect(b) }
+    } else if am0 == 0. {
+        let b = if (pp - m1).abs() <= am1 * EPSN * 10. {
+            let lna = -physical_log(m1 / mu2);
+            ranks(&|r| (lna * (r + 1) as f64 + 2.) / ((r + 1) * (r + 1)) as f64)
+        } else {
+            let lna = -physical_log((m1 - pp) / mu2);
+            let l1 = bnlogs((pp - m1 + C64::new(0., am1 * IEPS)) / pp);
+            ranks(&|r| ((lna - l1[r]) * (r + 1) as f64 + 1.) / ((r + 1) * (r + 1)) as f64)
+        };
+        if switch { reflect(b) } else { b }
     } else {
-        [b111_zero(m0, m1, mu2), C64::real(pole_or(-0.25)), C64::ZERO]
+        let lna = -physical_log(m0 / mu2);
+        let (x1, x2) = solabc(pp, m1 - m0 - pp, m0 - C64::new(0., am0 * IEPS));
+        let (l1, l2) = (bnlogs(x1), bnlogs(x2));
+        let b = ranks(&|r| (lna - l1[r] - l2[r]) / (r + 1) as f64);
+        if switch { reflect(b) } else { b }
     };
-    [b0, b1, b11, b111]
+    [
+        [b[0], C64::ONE, C64::ZERO],
+        [b[1], C64::real(-0.5), C64::ZERO],
+        [b[2], C64::real(1. / 3.), C64::ZERO],
+        [b[3], C64::real(-0.25), C64::ZERO],
+    ]
 }
 
 /// One-loop masters in binary64 through oneloopmaster's generated native Rust.
@@ -240,17 +244,21 @@ impl OneLoopNativeMasters {
         out.iter().all(|z| z.is_finite()).then_some(out)
     }
 
-    /// `[B0, B1, B11, B111]` at `(p², m0², m1², mu²)`.
+    /// `[B0, B1, B11, B111]` at `(p², m0², m1², mu²)` (OneLOop's `bub111`).
+    /// Fails for non-finite inputs, a complex `p²`, masses with positive
+    /// imaginary parts or a non-positive scale.
     pub fn bubble(&mut self, p: C64, m0: C64, m1: C64, mu2: C64) -> Option<[L3; 4]> {
-        let b0 = self.scalar(ScalarIntegral::B0, &[p, m0, m1, mu2])?;
-        let a0_m0 = self.a0_or_zero(m0, mu2)?;
-        let a0_m1 = self.a0_or_zero(m1, mu2)?;
-        let out = bubble_tensors(p.re, m0, m1, mu2.re, b0, a0_m0, a0_m1);
+        let valid = [p, m0, m1, mu2].iter().all(|z| z.is_finite())
+            && p.im == 0.
+            && m0.im <= 0.
+            && m1.im <= 0.
+            && mu2.im == 0.
+            && mu2.re > 0.;
+        if !valid {
+            return None;
+        }
+        let out = bubble_tensors(p.re, m0, m1, mu2.re);
         out.iter().flatten().all(|z| z.is_finite()).then_some(out)
-    }
-
-    fn a0_or_zero(&mut self, m: C64, mu2: C64) -> Option<L3> {
-        self.scalar(ScalarIntegral::A0, &[m, mu2])
     }
 
     /// Tadpole tensor coefficient returned last by OneLOop `an(rank)`.
@@ -302,12 +310,15 @@ impl OneLoopNativeMasters {
         let args = &args[..count];
         let value = match integral {
             MasterIntegral::A0 => self.scalar(ScalarIntegral::A0, args),
-            MasterIntegral::B0 => self.scalar(ScalarIntegral::B0, args),
             MasterIntegral::DB0 => self.scalar(ScalarIntegral::DB0, args),
             MasterIntegral::C0 => self.scalar(ScalarIntegral::C0, args),
             MasterIntegral::D0 => self.scalar(ScalarIntegral::D0, args),
-            MasterIntegral::B1 | MasterIntegral::B11 | MasterIntegral::B111 => {
+            MasterIntegral::B0
+            | MasterIntegral::B1
+            | MasterIntegral::B11
+            | MasterIntegral::B111 => {
                 let slot = match integral {
+                    MasterIntegral::B0 => 0,
                     MasterIntegral::B1 => 1,
                     MasterIntegral::B11 => 2,
                     _ => 3,
