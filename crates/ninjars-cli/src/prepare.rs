@@ -23,6 +23,8 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 pub(crate) struct PreparedSample {
     pub lane: usize,
+    /// Optional fixture label of the phase-space point.
+    pub id: Option<String>,
     pub numerator: Atom,
     pub overall_factor: Atom,
     pub shifts: Vec<FourMomentum<Atom>>,
@@ -88,6 +90,9 @@ struct Fixture {
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 struct Sample {
+    /// Optional label, e.g. the id of a shared phase-space pool point.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    id: Option<String>,
     external_momenta: BTreeMap<usize, [String; 4]>,
     /// Exact polarization components, keyed by the graph's physical leg index.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
@@ -420,6 +425,7 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
             }).transpose()?;
             let exact = PreparedSample {
                 lane,
+                id: sample.id.clone(),
                 numerator,
                 overall_factor,
                 shifts,

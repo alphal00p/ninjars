@@ -1,0 +1,285 @@
+{
+  "construction": "Photon beams along +-z with energy sqrt(s)/2; outgoing photons back to back along rational unit directions with all components nonzero. sqrt(s)=200 lies below the top-pair threshold 2*MT=346, the other two above.",
+  "exact_model_inputs": [
+    "173",
+    "132507/1000"
+  ],
+  "fixed_parameters": {
+    "WT": "0"
+  },
+  "format": "ninjars-phase-space-pool-v1",
+  "generator": "cargo run --profile perf -p ninjars-cli --example benchmark_pools -- .",
+  "graphs": [
+    {
+      "bench_case": "validation/benchmark/cases/four-photon-top-box-0.json",
+      "bench_case_command": "ninjars export-bench examples/graphs/physical/four-photon/top-box-0-pool.json --name four-photon-top-box-0 --output validation/benchmark/cases/four-photon-top-box-0.json",
+      "fixture": "examples/graphs/physical/four-photon/top-box-0-pool.json",
+      "graph": "top-box-0",
+      "integrated_laurent_factor": "-48*pi^2",
+      "loop_momentum": "q_FeynKit = -q of the MadLoop LOOPNUM/CutTools numerator (recorded momentum rule K(0) -> -K(0))",
+      "madloop_denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "madloop_evidence": "validation/evidence/four-photon-raw.json",
+      "madloop_loop_filter_id": 182,
+      "raw_numerator_factor": "-3"
+    }
+  ],
+  "helicities": [
+    1,
+    1,
+    1,
+    1
+  ],
+  "helicity_convention": {
+    "feynkit": "FourMomentum::wavefunction(Epsilon, +1) for incoming and (EpsilonBar, +1) for outgoing vectors; ninjars_graph::vector_wavefunction reproduces it without allocation. Scalars have helicity 0 and wavefunction 1.",
+    "fixtures": "external_polarizations hold these vectors exactly; external_momenta keys are FeynKit external-basis positions.",
+    "label": "pp (all vector bosons helicity +1)",
+    "madloop": "HELAS VXXXXX(P,0,NHEL,-1) for incoming and VXXXXX(P,0,NHEL,+1) for outgoing vectors (IC=1); NHEL is the physical helicity of each leg in MadGraph leg order. The row equals one line of MadLoop5_resources/ML5_0_HelConfigs.dat; in the generated reference exports (+1,+1,...) is helicity configuration 4 of 4 for h>gg, gg>hh and gg>hhh and 16 of 16 for aa>aa (1-based)."
+  },
+  "legs": [
+    {
+      "index": 0,
+      "mass": "0",
+      "pdg": 22,
+      "state": "incoming"
+    },
+    {
+      "index": 1,
+      "mass": "0",
+      "pdg": 22,
+      "state": "incoming"
+    },
+    {
+      "index": 2,
+      "mass": "0",
+      "pdg": 22,
+      "state": "outgoing"
+    },
+    {
+      "index": 3,
+      "mass": "0",
+      "pdg": 22,
+      "state": "outgoing"
+    }
+  ],
+  "madgraph_process": "a a > a a [virt=QED]",
+  "model": "sm",
+  "model_parameters": [
+    "MT",
+    "aEWM1"
+  ],
+  "momentum_convention": "MadGraph leg order, incoming then outgoing, physical positive-energy four-momenta (E,px,py,pz); binary64 values are 256-bit evaluations of exact_momenta rounded once.",
+  "points": [
+    {
+      "exact_momenta": [
+        [
+          "100",
+          "0",
+          "0",
+          "100"
+        ],
+        [
+          "100",
+          "0",
+          "0",
+          "-100"
+        ],
+        [
+          "100",
+          "200/3",
+          "100/3",
+          "200/3"
+        ],
+        [
+          "100",
+          "-200/3",
+          "-100/3",
+          "-200/3"
+        ]
+      ],
+      "helicities": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "id": "sqrt_s_200",
+      "model": [
+        173.0,
+        132.507
+      ],
+      "momenta": [
+        [
+          100.0,
+          0.0,
+          0.0,
+          100.0
+        ],
+        [
+          100.0,
+          0.0,
+          0.0,
+          -100.0
+        ],
+        [
+          100.0,
+          66.66666666666667,
+          33.333333333333336,
+          66.66666666666667
+        ],
+        [
+          100.0,
+          -66.66666666666667,
+          -33.333333333333336,
+          -66.66666666666667
+        ]
+      ],
+      "mu": 100.0,
+      "scale_squared": 10000.0,
+      "sqrt_s": 200.0
+    },
+    {
+      "exact_momenta": [
+        [
+          "250",
+          "0",
+          "0",
+          "250"
+        ],
+        [
+          "250",
+          "0",
+          "0",
+          "-250"
+        ],
+        [
+          "250",
+          "500/7",
+          "-750/7",
+          "1500/7"
+        ],
+        [
+          "250",
+          "-500/7",
+          "750/7",
+          "-1500/7"
+        ]
+      ],
+      "helicities": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "id": "sqrt_s_500",
+      "model": [
+        173.0,
+        132.507
+      ],
+      "momenta": [
+        [
+          250.0,
+          0.0,
+          0.0,
+          250.0
+        ],
+        [
+          250.0,
+          0.0,
+          0.0,
+          -250.0
+        ],
+        [
+          250.0,
+          71.42857142857143,
+          -107.14285714285714,
+          214.28571428571428
+        ],
+        [
+          250.0,
+          -71.42857142857143,
+          107.14285714285714,
+          -214.28571428571428
+        ]
+      ],
+      "mu": 100.0,
+      "scale_squared": 10000.0,
+      "sqrt_s": 500.0
+    },
+    {
+      "exact_momenta": [
+        [
+          "400",
+          "0",
+          "0",
+          "400"
+        ],
+        [
+          "400",
+          "0",
+          "0",
+          "-400"
+        ],
+        [
+          "400",
+          "-1600/9",
+          "1600/9",
+          "2800/9"
+        ],
+        [
+          "400",
+          "1600/9",
+          "-1600/9",
+          "-2800/9"
+        ]
+      ],
+      "helicities": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "id": "sqrt_s_800",
+      "model": [
+        173.0,
+        132.507
+      ],
+      "momenta": [
+        [
+          400.0,
+          0.0,
+          0.0,
+          400.0
+        ],
+        [
+          400.0,
+          0.0,
+          0.0,
+          -400.0
+        ],
+        [
+          400.0,
+          -177.77777777777777,
+          177.77777777777777,
+          311.1111111111111
+        ],
+        [
+          400.0,
+          177.77777777777777,
+          -177.77777777777777,
+          -311.1111111111111
+        ]
+      ],
+      "mu": 100.0,
+      "scale_squared": 10000.0,
+      "sqrt_s": 800.0
+    }
+  ],
+  "process": "four-photon",
+  "scale_squared": "10000",
+  "widths": "WT=0"
+}

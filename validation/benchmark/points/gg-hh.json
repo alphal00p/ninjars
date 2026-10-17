@@ -1,0 +1,327 @@
+{
+  "construction": "Gluon beams along +-z with energy E=sqrt(s)/2; Higgs bosons back to back along rational unit directions with momentum k, (E,k)=125*(5/4,3/4), 125*(5/3,4/3), 125*(13/5,12/5). The first point lies between the HH threshold 250 and the top-pair threshold 346, the other two above both.",
+  "exact_model_inputs": [
+    "173",
+    "173",
+    "125",
+    "116639/10000000000",
+    "59/500",
+    "132507/1000",
+    "22797/250"
+  ],
+  "fixed_parameters": {
+    "WH": "0",
+    "WT": "0"
+  },
+  "format": "ninjars-phase-space-pool-v1",
+  "generator": "cargo run --profile perf -p ninjars-cli --example benchmark_pools -- .",
+  "graphs": [
+    {
+      "bench_case": "validation/benchmark/cases/gg-hh-top-triangle-0.json",
+      "bench_case_command": "ninjars export-bench examples/graphs/physical/gg-hh/top-triangle-0-pool.json --name gg-hh-top-triangle-0 --output validation/benchmark/cases/gg-hh-top-triangle-0.json",
+      "fixture": "examples/graphs/physical/gg-hh/top-triangle-0-pool.json",
+      "graph": "top-triangle-0",
+      "integrated_laurent_factor": "-8*pi^2",
+      "loop_momentum": "q_FeynKit = -q of the MadLoop LOOPNUM/CutTools numerator (recorded momentum rule K(0) -> -K(0))",
+      "madloop_denominator_map": [
+        2,
+        0,
+        1
+      ],
+      "madloop_evidence": "validation/evidence/gg-hh-raw.json",
+      "madloop_loop_filter_id": 11,
+      "raw_numerator_factor": "-1/2"
+    },
+    {
+      "bench_case": "validation/benchmark/cases/gg-hh-top-box-2.json",
+      "bench_case_command": "ninjars export-bench examples/graphs/physical/gg-hh/top-box-2-pool.json --name gg-hh-top-box-2 --output validation/benchmark/cases/gg-hh-top-box-2.json",
+      "fixture": "examples/graphs/physical/gg-hh/top-box-2-pool.json",
+      "graph": "top-box-2",
+      "integrated_laurent_factor": "-8*pi^2",
+      "loop_momentum": "q_FeynKit = -q of the MadLoop LOOPNUM/CutTools numerator (recorded momentum rule K(0) -> -K(0))",
+      "madloop_denominator_map": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "madloop_evidence": "validation/evidence/gg-hh-raw.json",
+      "madloop_loop_filter_id": 10,
+      "raw_numerator_factor": "-1/2"
+    }
+  ],
+  "helicities": [
+    1,
+    1,
+    0,
+    0
+  ],
+  "helicity_convention": {
+    "feynkit": "FourMomentum::wavefunction(Epsilon, +1) for incoming and (EpsilonBar, +1) for outgoing vectors; ninjars_graph::vector_wavefunction reproduces it without allocation. Scalars have helicity 0 and wavefunction 1.",
+    "fixtures": "external_polarizations hold these vectors exactly; external_momenta keys are FeynKit external-basis positions.",
+    "label": "pp (all vector bosons helicity +1)",
+    "madloop": "HELAS VXXXXX(P,0,NHEL,-1) for incoming and VXXXXX(P,0,NHEL,+1) for outgoing vectors (IC=1); NHEL is the physical helicity of each leg in MadGraph leg order. The row equals one line of MadLoop5_resources/ML5_0_HelConfigs.dat; in the generated reference exports (+1,+1,...) is helicity configuration 4 of 4 for h>gg, gg>hh and gg>hhh and 16 of 16 for aa>aa (1-based)."
+  },
+  "legs": [
+    {
+      "index": 0,
+      "mass": "0",
+      "pdg": 21,
+      "state": "incoming"
+    },
+    {
+      "index": 1,
+      "mass": "0",
+      "pdg": 21,
+      "state": "incoming"
+    },
+    {
+      "index": 2,
+      "mass": "125",
+      "pdg": 25,
+      "state": "outgoing"
+    },
+    {
+      "index": 3,
+      "mass": "125",
+      "pdg": 25,
+      "state": "outgoing"
+    }
+  ],
+  "madgraph_process": "g g > h h QCD=2 QED=2 [virt=QCD]",
+  "model": "sm",
+  "model_parameters": [
+    "MT",
+    "ymt",
+    "MH",
+    "Gf",
+    "aS",
+    "aEWM1",
+    "MZ"
+  ],
+  "momentum_convention": "MadGraph leg order, incoming then outgoing, physical positive-energy four-momenta (E,px,py,pz); binary64 values are 256-bit evaluations of exact_momenta rounded once.",
+  "points": [
+    {
+      "exact_momenta": [
+        [
+          "625/4",
+          "0",
+          "0",
+          "625/4"
+        ],
+        [
+          "625/4",
+          "0",
+          "0",
+          "-625/4"
+        ],
+        [
+          "625/4",
+          "125/2",
+          "125/4",
+          "125/2"
+        ],
+        [
+          "625/4",
+          "-125/2",
+          "-125/4",
+          "-125/2"
+        ]
+      ],
+      "helicities": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "id": "sqrt_s_312.5",
+      "model": [
+        173.0,
+        173.0,
+        125.0,
+        0.0000116639,
+        0.118,
+        132.507,
+        91.188
+      ],
+      "momenta": [
+        [
+          156.25,
+          0.0,
+          0.0,
+          156.25
+        ],
+        [
+          156.25,
+          0.0,
+          0.0,
+          -156.25
+        ],
+        [
+          156.25,
+          62.5,
+          31.25,
+          62.5
+        ],
+        [
+          156.25,
+          -62.5,
+          -31.25,
+          -62.5
+        ]
+      ],
+      "mu": 100.0,
+      "scale_squared": 10000.0,
+      "sqrt_s": 312.5
+    },
+    {
+      "exact_momenta": [
+        [
+          "625/3",
+          "0",
+          "0",
+          "625/3"
+        ],
+        [
+          "625/3",
+          "0",
+          "0",
+          "-625/3"
+        ],
+        [
+          "625/3",
+          "1000/21",
+          "-500/7",
+          "1000/7"
+        ],
+        [
+          "625/3",
+          "-1000/21",
+          "500/7",
+          "-1000/7"
+        ]
+      ],
+      "helicities": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "id": "sqrt_s_416.7",
+      "model": [
+        173.0,
+        173.0,
+        125.0,
+        0.0000116639,
+        0.118,
+        132.507,
+        91.188
+      ],
+      "momenta": [
+        [
+          208.33333333333334,
+          0.0,
+          0.0,
+          208.33333333333334
+        ],
+        [
+          208.33333333333334,
+          0.0,
+          0.0,
+          -208.33333333333334
+        ],
+        [
+          208.33333333333334,
+          47.61904761904762,
+          -71.42857142857143,
+          142.85714285714286
+        ],
+        [
+          208.33333333333334,
+          -47.61904761904762,
+          71.42857142857143,
+          -142.85714285714286
+        ]
+      ],
+      "mu": 100.0,
+      "scale_squared": 10000.0,
+      "sqrt_s": 416.6666666666667
+    },
+    {
+      "exact_momenta": [
+        [
+          "325",
+          "0",
+          "0",
+          "325"
+        ],
+        [
+          "325",
+          "0",
+          "0",
+          "-325"
+        ],
+        [
+          "325",
+          "-400/3",
+          "400/3",
+          "700/3"
+        ],
+        [
+          "325",
+          "400/3",
+          "-400/3",
+          "-700/3"
+        ]
+      ],
+      "helicities": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "id": "sqrt_s_650",
+      "model": [
+        173.0,
+        173.0,
+        125.0,
+        0.0000116639,
+        0.118,
+        132.507,
+        91.188
+      ],
+      "momenta": [
+        [
+          325.0,
+          0.0,
+          0.0,
+          325.0
+        ],
+        [
+          325.0,
+          0.0,
+          0.0,
+          -325.0
+        ],
+        [
+          325.0,
+          -133.33333333333334,
+          133.33333333333334,
+          233.33333333333334
+        ],
+        [
+          325.0,
+          133.33333333333334,
+          -133.33333333333334,
+          -233.33333333333334
+        ]
+      ],
+      "mu": 100.0,
+      "scale_squared": 10000.0,
+      "sqrt_s": 650.0
+    }
+  ],
+  "process": "gg-hh",
+  "scale_squared": "10000",
+  "widths": "WT=0,WH=0"
+}
