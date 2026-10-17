@@ -1,4 +1,5 @@
 mod bench;
+mod case_bench;
 #[cfg(feature = "reference-codegen")]
 mod compare;
 mod export_bench;
@@ -41,6 +42,8 @@ enum Command {
     /// End-to-end binary64 pipeline benchmark (physical numerator, fast
     /// reduction, native masters) with a per-component breakdown.
     PipelineBench(pipeline_bench::Args),
+    /// Binary64 fast-engine benchmark of shared bench cases (ninjars-bench-case-v1).
+    CaseBench(case_bench::Args),
 }
 
 fn main() {
@@ -80,6 +83,13 @@ fn main() {
             .expect("cannot start numerator benchmark worker")
             .join()
             .unwrap_or_else(|_| Err("numerator benchmark worker panicked".into())),
+        Command::CaseBench(args) => std::thread::Builder::new()
+            .name("ninjars-case-bench".into())
+            .stack_size(128 * 1024 * 1024)
+            .spawn(move || case_bench::run(args).map_err(|error| error.to_string()))
+            .expect("cannot start case benchmark worker")
+            .join()
+            .unwrap_or_else(|_| Err("case benchmark worker panicked".into())),
         Command::PipelineBench(args) => std::thread::Builder::new()
             .name("ninjars-pipeline-bench".into())
             .stack_size(128 * 1024 * 1024)
