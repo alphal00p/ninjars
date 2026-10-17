@@ -2193,3 +2193,57 @@ connects the existing kernels into integrated amplitudes and a standalone
   manifest `0760a4215aa46f83431e78e24585522e3f93e86f582c313e1fee3a373ec5539b`.
   Its preparation/shared/live/production execution checks have started, using
   a separate copied instrumented artifact and preserving the primary timings.
+
+### Performance gates and fast-path strategy (2026-10-17, Claude takeover)
+
+User priorities, in order: (a) pure reduction time in NinjaRS on par with or
+better than original Ninja; (b) one-loop masters through oneloopmaster's
+*native* direct-Rust backend (not interpreted Symbolica expressions) at most
+1.3× OneLOop's time; (c) end-to-end time (SymJIT O2 numerator coefficients +
+reduction + masters) for a complicated physical diagram (gg→HHH top pentagon,
+graph 26) on par with or better than MadLoop (MadLoop numerator + Ninja +
+OneLOop) in double precision. Deliverable: `docs/benchmark/benchmark.typ` and
+the compiled PDF with a coloured summary table (generation time and
+per-point numerator/reduction/master breakdown with multipliers versus
+MadLoop/Ninja/OneLOop) and sections on NinjaRS's innovations.
+
+Survey findings that set the strategy:
+
+- Instrumented single-call evidence shows the reduction remainder (excluding
+  numerator callbacks and master lookup) is ~4–5× slower than original Ninja
+  for n5/r4 (≈240 µs vs ≈55 µs at width one); the headline 2–2.5× ratio was
+  compressed by a large, common, interpreted numerator. A scratch benchmark of
+  the reference `libninja.a` with a null numerator and frozen masters gives
+  ≈23 µs/point (≈18 µs with `-fcx-fortran-rules`, MadLoop's flag).
+- Completing generated-kernel coverage would not close the gap: per-kernel
+  packing, validation and dispatch overheads alone exceed Ninja's arithmetic.
+- NinjaRS never enabled oneloopmaster's `generated-evaluators`; its masters
+  ran through Symbolica's interpreter (~50 ms/point). The native backend's f64
+  dilogarithm itself routed through Symbolica's MPFR polylog (32–250 µs per
+  Li2), making native C0/D0 150–600× slower than Fortran at oneloopmaster
+  c9dd82f. With a plain f64 Li2, C0 ≈1.0× and D0 ≈1.4× Fortran. Native
+  B1/B11/B111/An did not exist.
+- MadLoop declares rank 5 for the pentagon (Ninja's higher-rank path) and
+  uses Ninja's compiled `TensorNumerator`.
+
+Strategy (parallel worktree streams, merged by the coordinator):
+
+1. `ninjars::fast`: a monomorphic, batched binary64 port of Ninja's
+   reduction (all cut levels, rank ≤ n+1) with precomputed topology,
+   allocation-free workspaces, one batched numerator call per cut/orientation
+   and one batched master call per family; plus a batched port of Ninja's
+   tensor numerator, generic adapters and replay providers for pure-reduction
+   timing. The generic Symbolica engine remains the path for DoubleFloat,
+   arbitrary precision and Dual numbers.
+2. Numerator: map SymJIT O2 coefficient heads onto Ninja's tensor layout
+   (`fast::tensor_layout`), shared phase-space pools and bench-case export.
+3. oneloopmaster: fast f64 dilogarithm (Symbolica PR), native tensor bubbles
+   and An, then C0/D0 generation/hand optimization to ≤1.3× Fortran.
+4. Reference harness: original Ninja builds (`-O3`, `-O3 -fcx-fortran-rules`,
+   cache disabled), a replay-based C++ driver measuring full/pure
+   reduction/numerator/masters on identical bench cases, and optimized
+   single-diagram MadLoop outputs with generation/compilation/per-point
+   timings.
+
+Commits so far: `7b57642` (fast-path complex type and provider traits),
+`df776c3` (`perf` cargo profile), `29b8ff8` (tensor layout).

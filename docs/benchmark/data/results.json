@@ -1,0 +1,22 @@
+{
+  "status": "placeholder",
+  "date": "2026-10-17",
+  "host": "AMD EPYC 9754 (shared), single pinned core",
+  "batch_width": 32,
+  "cases": [
+    {
+      "id": "hgg-tri0", "label": "gg → H, top triangle", "kind": "physical",
+      "n": 3, "rank": 2, "madloop_rank": 3,
+      "generation_s": {"ninjars": null, "madloop": null},
+      "ninjars_us": {"numerator": null, "reduction": null, "masters": null, "total": null},
+      "madloop_us": {"numerator": null, "reduction": null, "masters": null, "total": null}
+    },
+    {
+      "id": "gghhh-pent26", "label": "gg → HHH, top pentagon (graph 26)", "kind": "physical",
+      "n": 5, "rank": 4, "madloop_rank": 5,
+      "generation_s": {"ninjars": null, "madloop": null},
+      "ninjars_us": {"numerator": null, "reduction": null, "masters": null, "total": null},
+      "madloop_us": {"numerator": null, "reduction": null, "masters": null, "total": null}
+    }
+  ]
+}
