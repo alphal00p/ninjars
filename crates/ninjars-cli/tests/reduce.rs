@@ -249,6 +249,56 @@ fn exact_numerator_coefficients_retain_more_than_binary64_accuracy() {
 }
 
 #[test]
+fn arbitrary_precision_light_like_invariants_are_exact_at_every_working_precision() {
+    use symbolica::domains::float::{Float, Real};
+    // The outgoing photons have non-dyadic momentum components. Differencing
+    // their rounded momenta left p^2 = +2^-114 (2 tracked bits) at 128 bits and
+    // similar noise at 140 bits, which oneloopmaster's four-mass D0 evaluated as
+    // an O(1) wrong value with 8 claimed bits (finite -4.91 instead of -8.26e-4).
+    // Expected finite and cut-constructible parts from a 400-bit evaluation.
+    let expected = [
+        [
+            "-8.26343963451607199327232131951182815e-4",
+            "0",
+            "2.29373690232880160538221151266970926e-2",
+            "0",
+        ],
+        [
+            "-9.91094989096783794136374014407567277e-3",
+            "4.97389490220958867010833792423716985e-4",
+            "-4.29270331561046487337059330930346585e-3",
+            "4.97389490220958867010833792423716985e-4",
+        ],
+        [
+            "-1.27555267800816381919520138064847241e-2",
+            "-4.72886849400088475610167227847162747e-3",
+            "-1.25747183247289297700359623790057446e-2",
+            "-4.72886849400088475610167227847162747e-3",
+        ],
+    ];
+    let fixture = "examples/graphs/physical/four-photon/top-box-0-pool.json";
+    let parse = |text: &str| Float::parse(text, Some(320)).unwrap();
+    for bits in ["128", "140"] {
+        let actual = value(run(&[fixture, "--precision", "float", "--bits", bits]));
+        for (lane, expected) in expected.iter().enumerate() {
+            let row = &actual["results"][lane];
+            assert_eq!(row["status"]["kind"], "success");
+            assert_eq!(row["s_matrix_source"], "momenta");
+            for (index, (coefficient, part)) in
+                [(0, 0), (0, 1), (3, 0), (3, 1)].into_iter().enumerate()
+            {
+                let value = parse(row["values"][coefficient][part].as_str().unwrap());
+                let error = (value - parse(expected[index])).norm();
+                assert!(
+                    error < parse("1e-30"),
+                    "bits={bits} lane={lane} coefficient={coefficient} part={part} error={error}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
 fn precision_validation_empty_input_and_unsupported_rank_are_explicit() {
     let invalid = run(&["examples/graphs/bubble.json", "--bits", "128"]);
     assert!(!invalid.status.success());

@@ -73,9 +73,13 @@ Entries represent `(V_i-V_j)^2`. The matrix must be symmetric with a zero diagon
 Expressions can use the fixture's model parameter bindings. Supplied values
 control master-integral invariants and rational weights; the cut geometry still
 uses the supplied momenta. This permits exact invariants to accompany rounded
-momentum components. Omitted matrices are derived from momenta, including in
-batches mixing supplied and omitted matrices. Per-lane `s_matrix_source` reports
-`supplied` or `momenta`. An invalid numerical matrix fails its lane without
+momentum components. Omitted matrices are derived from momenta: exactly, from
+the exact momentum expressions, under `--precision float` or when any sample in
+the batch supplies a matrix; otherwise the fixed-precision carriers difference
+the rounded momentum components and apply OneLOop's on-shell threshold to the
+master arguments. Float has no such threshold, so roundoff in an exactly
+light-like invariant would otherwise reach the master integrals. Per-lane
+`s_matrix_source` reports `supplied` or `momenta`. An invalid numerical matrix fails its lane without
 discarding valid neighboring results; malformed dimensions reject the fixture.
 
 The automatic auxiliary mu sampling scale continues to use masses and momentum

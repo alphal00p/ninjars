@@ -112,6 +112,17 @@ where
         if !scale.im.is_zero() || scale.re <= prototype.zero() {
             return Err("scale_squared must be positive and real".into());
         }
+        // Arbitrary-precision Float applies no on-shell threshold to master
+        // arguments, so invariants differenced from rounded momentum components
+        // would turn exactly light-like or on-shell legs into tracked roundoff
+        // (e.g. +2^-114 carrying 2 bits at 128 bits). The exact branch selection
+        // of the master integrals then evaluates a different, nearly singular
+        // configuration whose loss is not reflected in the tracked precision.
+        // Derive every omitted matrix exactly from the prepared momenta instead.
+        // Fixed-precision carriers keep Ninja's momentum differences and OneLOop
+        // threshold unless some sample supplies a matrix.
+        let exact_invariants =
+            T::FIXED_BITS.is_none() || prepared.samples.iter().any(|s| s.s_matrix.is_some());
         let mut pool = Self {
             n,
             parameter_count: prepared.parameters.len(),
@@ -119,11 +130,7 @@ where
             shifts: Vec::new(),
             masses: Vec::new(),
             parameters: Vec::new(),
-            s_matrix: prepared
-                .samples
-                .iter()
-                .any(|s| s.s_matrix.is_some())
-                .then(Vec::new),
+            s_matrix: exact_invariants.then(Vec::new),
             scale,
         };
         for sample in &prepared.samples {

@@ -79,6 +79,10 @@ fn strict_status(statuses: &[MasterStatus]) -> Result<()> {
 /// exact branch selection of oneloopmaster evaluates literally with severe
 /// cancellation. The default threshold is Ninja's `1e-9` in binary64 and
 /// `1e15` ulp in DoubleFloat; see [`Self::with_onshell_threshold`].
+/// Arbitrary-precision `Float` has no threshold: supply exact invariants (an
+/// S-matrix) for such configurations. A light-like invariant differenced from
+/// rounded momenta (e.g. `+2^-114` with 2 tracked bits at 128 bits) can make
+/// the four-mass D0 wrong by orders of magnitude while it reports 8 bits.
 pub struct SymbolicaMasters<T: NativeFloat> {
     representative: T,
     onshell_threshold: Option<T>,
