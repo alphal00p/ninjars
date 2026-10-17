@@ -48,6 +48,8 @@ type DualStageFactory<T, D, K> = fn(usize, usize, T, &D) -> Result<K>;
 /// Construct once, then call `into_amplitude(lanes)` to allocate the coordinator.
 pub struct SymbolicaAmplitudeKernels<T> {
     #[cfg(feature = "native-kernels")]
+    native_batch_execution: crate::BatchExecutionPolicy,
+    #[cfg(feature = "native-kernels")]
     native_rank_bubble: Option<StageSpecializer<SymbolicaBubbleKernels<T>>>,
     #[cfg(feature = "native-kernels")]
     native_rank_tadpole: Option<StageSpecializer<SymbolicaTadpoleKernels<T>>>,
@@ -76,6 +78,8 @@ where
     pub fn new(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
         let accumulation = accumulation(propagators, rank)?.compile(&prototype)?;
         Ok(Self {
+            #[cfg(feature = "native-kernels")]
+            native_batch_execution: crate::BatchExecutionPolicy::Whole,
             #[cfg(feature = "native-kernels")]
             native_rank_bubble: None,
             #[cfg(feature = "native-kernels")]
@@ -157,7 +161,8 @@ where
     fn triangle_kernels(&self) -> Result<Self::Triangles> {
         #[cfg(feature = "native-kernels")]
         if let Some(factory) = self.native_triangle {
-            return factory(self.n, self.rank, self.prototype.clone());
+            return factory(self.n, self.rank, self.prototype.clone())
+                .map(|kernels| kernels.with_native_batch_execution(self.native_batch_execution));
         }
         SymbolicaTriangleKernels::new(self.n, self.rank, self.prototype.clone())
     }
@@ -172,13 +177,17 @@ where
         let kernels = SymbolicaBubbleKernels::new(self.n, self.rank, self.prototype.clone())?;
         #[cfg(feature = "native-kernels")]
         if let Some(specialize) = self.native_rank_bubble {
-            return specialize(kernels);
+            return specialize(kernels)
+                .map(|kernels| kernels.with_native_batch_execution(self.native_batch_execution));
         }
-        if self.rank_specialized_corrections {
-            kernels.with_rank_specialized_corrections()
+        let kernels = if self.rank_specialized_corrections {
+            kernels.with_rank_specialized_corrections()?
         } else {
-            Ok(kernels)
-        }
+            kernels
+        };
+        #[cfg(feature = "native-kernels")]
+        let kernels = kernels.with_native_batch_execution(self.native_batch_execution);
+        Ok(kernels)
     }
     fn tadpole_kernels(&self) -> Result<Self::Tadpoles> {
         #[cfg(feature = "native-kernels")]
@@ -191,13 +200,17 @@ where
         let kernels = SymbolicaTadpoleKernels::new(self.n, self.rank, self.prototype.clone())?;
         #[cfg(feature = "native-kernels")]
         if let Some(specialize) = self.native_rank_tadpole {
-            return specialize(kernels);
+            return specialize(kernels)
+                .map(|kernels| kernels.with_native_batch_execution(self.native_batch_execution));
         }
-        if self.rank_specialized_corrections {
-            kernels.with_rank_specialized_corrections()
+        let kernels = if self.rank_specialized_corrections {
+            kernels.with_rank_specialized_corrections()?
         } else {
-            Ok(kernels)
-        }
+            kernels
+        };
+        #[cfg(feature = "native-kernels")]
+        let kernels = kernels.with_native_batch_execution(self.native_batch_execution);
+        Ok(kernels)
     }
     fn integration_kernels(&self, cut_size: usize) -> Result<Self::Integration> {
         SymbolicaIntegrationKernels::new(cut_size, self.rank > self.n, self.prototype.clone())
@@ -220,6 +233,8 @@ where
 
 /// The same kernels transformed by Symbolica for a static or dynamic Dual shape.
 pub struct SymbolicaDualAmplitudeKernels<T, D> {
+    #[cfg(feature = "native-kernels")]
+    native_batch_execution: crate::BatchExecutionPolicy,
     #[cfg(feature = "native-kernels")]
     native_rank_bubble: Option<StageSpecializer<SymbolicaDualBubbleKernels<T, D>>>,
     #[cfg(feature = "native-kernels")]
@@ -248,6 +263,8 @@ where
     pub fn new(propagators: usize, rank: usize, prototype: T, dual: &D) -> Result<Self> {
         let accumulation = accumulation(propagators, rank)?.compile_dual(&prototype, dual)?;
         Ok(Self {
+            #[cfg(feature = "native-kernels")]
+            native_batch_execution: crate::BatchExecutionPolicy::Whole,
             #[cfg(feature = "native-kernels")]
             native_rank_bubble: None,
             #[cfg(feature = "native-kernels")]
@@ -333,7 +350,8 @@ where
     fn triangle_kernels(&self) -> Result<Self::Triangles> {
         #[cfg(feature = "native-kernels")]
         if let Some(factory) = self.native_triangle {
-            return factory(self.n, self.rank, self.prototype.clone(), &self.dual);
+            return factory(self.n, self.rank, self.prototype.clone(), &self.dual)
+                .map(|kernels| kernels.with_native_batch_execution(self.native_batch_execution));
         }
         SymbolicaDualTriangleKernels::new(self.n, self.rank, self.prototype.clone(), &self.dual)
     }
@@ -349,13 +367,17 @@ where
             SymbolicaDualBubbleKernels::new(self.n, self.rank, self.prototype.clone(), &self.dual)?;
         #[cfg(feature = "native-kernels")]
         if let Some(specialize) = self.native_rank_bubble {
-            return specialize(kernels);
+            return specialize(kernels)
+                .map(|kernels| kernels.with_native_batch_execution(self.native_batch_execution));
         }
-        if self.rank_specialized_corrections {
-            kernels.with_rank_specialized_corrections()
+        let kernels = if self.rank_specialized_corrections {
+            kernels.with_rank_specialized_corrections()?
         } else {
-            Ok(kernels)
-        }
+            kernels
+        };
+        #[cfg(feature = "native-kernels")]
+        let kernels = kernels.with_native_batch_execution(self.native_batch_execution);
+        Ok(kernels)
     }
     fn tadpole_kernels(&self) -> Result<Self::Tadpoles> {
         #[cfg(feature = "native-kernels")]
@@ -373,13 +395,17 @@ where
         )?;
         #[cfg(feature = "native-kernels")]
         if let Some(specialize) = self.native_rank_tadpole {
-            return specialize(kernels);
+            return specialize(kernels)
+                .map(|kernels| kernels.with_native_batch_execution(self.native_batch_execution));
         }
-        if self.rank_specialized_corrections {
-            kernels.with_rank_specialized_corrections()
+        let kernels = if self.rank_specialized_corrections {
+            kernels.with_rank_specialized_corrections()?
         } else {
-            Ok(kernels)
-        }
+            kernels
+        };
+        #[cfg(feature = "native-kernels")]
+        let kernels = kernels.with_native_batch_execution(self.native_batch_execution);
+        Ok(kernels)
     }
     fn integration_kernels(&self, cut_size: usize) -> Result<Self::Integration> {
         SymbolicaDualIntegrationKernels::new(
@@ -454,6 +480,22 @@ impl<T: Real + SingleFloat> SymbolicaAmplitudeKernels<T>
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    /// Select an explicit execution policy for native reduction kernels.
+    /// The default is `Whole`; a fixed bound is an experimental opt-in, not an
+    /// automatic tuning decision. Interpreter kernels, callbacks and masters
+    /// retain their own execution. Apply in either order with native backend
+    /// and rank-specialization builders; the final stage construction receives
+    /// this policy, including each native alternate and generic fallback.
+    pub fn with_native_batch_execution(mut self, policy: crate::BatchExecutionPolicy) -> Self {
+        self.native_batch_execution = policy;
+        self
+    }
+
+    /// Requested native policy; consult backend reports for native coverage.
+    pub fn native_batch_execution(&self) -> crate::BatchExecutionPolicy {
+        self.native_batch_execution
+    }
+
     /// Generic/fallback per-family selection, not the conditional alternate.
     /// When specialization is enabled, also consult
     /// [`Self::rank_specialized_correction_backend`].
@@ -525,6 +567,22 @@ impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualAmpli
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    /// Select an explicit execution policy for native reduction kernels.
+    /// The default is `Whole`; a fixed bound is an experimental opt-in, not an
+    /// automatic tuning decision. Interpreter kernels, callbacks and masters
+    /// retain their own execution. Apply in either order with native backend
+    /// and rank-specialization builders; the final stage construction receives
+    /// this policy, including each native alternate and generic fallback.
+    pub fn with_native_batch_execution(mut self, policy: crate::BatchExecutionPolicy) -> Self {
+        self.native_batch_execution = policy;
+        self
+    }
+
+    /// Requested native policy; consult backend reports for native coverage.
+    pub fn native_batch_execution(&self) -> crate::BatchExecutionPolicy {
+        self.native_batch_execution
+    }
+
     /// Generic/fallback per-family selection, not the conditional alternate.
     /// When specialization is enabled, also consult
     /// [`Self::rank_specialized_correction_backend`].

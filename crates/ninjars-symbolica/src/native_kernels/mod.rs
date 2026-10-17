@@ -11,6 +11,7 @@ use oneloop::rust_codegen::runtime::{
 };
 use symbolica::{domains::dual::DualNumber, evaluate::EvaluationDomain};
 
+use crate::BatchExecutionPolicy;
 use crate::kernel::{CompiledDualKernel, CompiledKernel, KernelExecutor};
 
 // Preserve the upstream emitter output byte-for-byte, including neutral
@@ -117,10 +118,15 @@ pub(crate) fn supported_shape(shape: &[&[usize]]) -> bool {
 struct DenominatorExecutor<T: NativeFloat> {
     plan: DenominatorPlan,
     dual: bool,
+    execution: BatchExecutionPolicy,
     context: Context<T>,
     workspace: BatchWorkspace<T>,
 }
 impl<T: NativeFloat> KernelExecutor<Complex<T>> for DenominatorExecutor<T> {
+    fn set_native_batch_execution(&mut self, policy: BatchExecutionPolicy) {
+        self.execution = policy;
+    }
+
     #[cfg(test)]
     fn probe_workspace(&self) -> Option<(usize, usize)> {
         Some((self.workspace.capacity(), self.workspace.storage_len()))
@@ -133,7 +139,24 @@ impl<T: NativeFloat> KernelExecutor<Complex<T>> for DenominatorExecutor<T> {
             (DenominatorPlan::T2, true) => t2_dual::evaluate_batch,
             (DenominatorPlan::T3, true) => t3_dual::evaluate_batch,
         };
-        evaluate(input, output, rows, &self.context, &mut self.workspace).map_err(Error::Symbolic)
+        if self.execution == BatchExecutionPolicy::Whole {
+            return evaluate(input, output, rows, &self.context, &mut self.workspace)
+                .map_err(Error::Symbolic);
+        }
+        let (inputs, outputs) = self.plan.dimensions();
+        let components = if self.dual { DUAL_SHAPE.len() } else { 1 };
+        self.execution
+            .evaluate(
+                input,
+                output,
+                rows,
+                (inputs * components, outputs * components),
+                &mut self.workspace,
+                |input, output, rows, workspace| {
+                    evaluate(input, output, rows, &self.context, workspace)
+                },
+            )
+            .map_err(Error::Symbolic)
     }
 }
 
@@ -155,6 +178,7 @@ where
         Box::new(DenominatorExecutor {
             plan,
             dual,
+            execution: BatchExecutionPolicy::Whole,
             context,
             workspace: BatchWorkspace::new(prototype.clone()),
         }),

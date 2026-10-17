@@ -353,6 +353,102 @@ fn native_amplitude_builder_orders_and_explicit_interpreted_override() {
 }
 
 #[test]
+fn explicit_batch_policy_reaches_dual_factory_generic_and_rank_workspaces() {
+    use crate::BatchExecutionPolicy;
+    use std::num::NonZeroUsize;
+    let zero = HyperDual::from_values(shape(), vec![Complex::new(0., 0.); 5]);
+    let policy = BatchExecutionPolicy::FixedRows(NonZeroUsize::new(32).unwrap());
+    for before in [false, true] {
+        let make = |policy| {
+            let mut kernels = SymbolicaDualAmplitudeKernels::new(5, 4, 0., &zero).unwrap();
+            if before {
+                kernels = kernels.with_native_batch_execution(policy);
+            }
+            kernels = kernels
+                .with_native_kernels()
+                .with_native_rank_specialized_corrections()
+                .unwrap();
+            if !before {
+                kernels = kernels.with_native_batch_execution(policy);
+            }
+            (
+                kernels.bubble_kernels().unwrap(),
+                kernels.tadpole_kernels().unwrap(),
+            )
+        };
+        let (mut bubble, mut tadpole) = make(policy);
+        let (mut whole_bubble, mut whole_tadpole) = make(BatchExecutionPolicy::Whole);
+        let fixtures: Vec<_> = (0..33)
+            .map(|lane| {
+                let mut value = fixture(|r, i| {
+                    let mut value = zero.clone();
+                    value.values[0] = Complex::new(r as f64, i as f64);
+                    value
+                });
+                // Reuse the independent axes of the mixed-Dual guard fixture;
+                // every structural-zero coefficient stays zero in all components.
+                for component in 1..5 {
+                    let c = component as f64;
+                    let l = lane as f64 + 1.;
+                    value.masses[0].values[component] = Complex::new(2. * c + l, c * c - 2. * l);
+                    value.shifts[0].temporal.value.values[component] =
+                        Complex::new(3. * c - 2. * l, -c - 3. * l);
+                    value.triangle.coefficients[2].values[component] =
+                        Complex::new(c * c + 2. * l, 2. * c - l);
+                    value.bubble.coefficients[1].values[component] =
+                        Complex::new(-2. * c - l, c * c + 3. * l);
+                }
+                value
+            })
+            .collect();
+        compare(
+            &fixtures,
+            &mut bubble,
+            &mut whole_bubble,
+            &mut tadpole,
+            &mut whole_tadpole,
+            &zero,
+            |actual, expected| {
+                assert_eq!(actual.get_shape(), expected.get_shape());
+                for (actual, expected) in actual.values.iter().zip(&expected.values) {
+                    assert_eq!(actual.re.to_bits(), expected.re.to_bits());
+                    assert_eq!(actual.im.to_bits(), expected.im.to_bits());
+                }
+            },
+        );
+        let bounded: Vec<_> = bubble
+            .native_workspace_rows()
+            .into_iter()
+            .chain(tadpole.native_workspace_rows())
+            .collect();
+        let whole: Vec<_> = whole_bubble
+            .native_workspace_rows()
+            .into_iter()
+            .chain(whole_tadpole.native_workspace_rows())
+            .collect();
+        assert_eq!(bounded.len(), whole.len());
+        let mut reached_generic = false;
+        let mut reached_alternate = false;
+        for ((name, rows), (whole_name, whole_rows)) in bounded.iter().zip(&whole) {
+            assert_eq!(name, whole_name);
+            assert!(*rows <= 32);
+            if *whole_rows > 32 {
+                assert_eq!(*rows, 32, "factory did not apply bound to {name}");
+                if *name == "rank_alternate" {
+                    reached_alternate = true;
+                } else {
+                    reached_generic = true;
+                }
+            }
+        }
+        assert!(
+            reached_generic && reached_alternate,
+            "must execute both generic native kernels and rank alternates: {bounded:?} / {whole:?}"
+        );
+    }
+}
+
+#[test]
 fn native_constants_preserve_float256_scalar_with_float128_dual_carrier() {
     let p = Float::new(256);
     let dual = HyperDual::from_values(

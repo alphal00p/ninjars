@@ -50,6 +50,29 @@ fn vars(n: usize, scope: &str) -> Vec<Atom> {
         .collect()
 }
 impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V, K, Checks> {
+    #[cfg(feature = "native-kernels")]
+    fn set_native_batch_execution(&mut self, policy: crate::BatchExecutionPolicy) {
+        for kernel in [
+            &mut self.denominator,
+            &mut self.division,
+            &mut self.projection,
+            &mut self.sum,
+        ] {
+            kernel.set_native_batch_execution(policy);
+        }
+        for kernel in self
+            .source_projection
+            .iter_mut()
+            .chain(&mut self.subtraction)
+            .flatten()
+        {
+            kernel.set_native_batch_execution(policy);
+        }
+        for plan in self.specialized_subtraction.iter_mut().flatten() {
+            plan.kernel.set_native_batch_execution(policy);
+        }
+    }
+
     fn new(
         n: usize,
         rank: usize,
@@ -726,6 +749,15 @@ impl<T: Real + SingleFloat> SymbolicaTadpoleKernels<T>
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    #[cfg(feature = "native-kernels")]
+    pub(crate) fn with_native_batch_execution(
+        mut self,
+        policy: crate::BatchExecutionPolicy,
+    ) -> Self {
+        self.engine.set_native_batch_execution(policy);
+        self
+    }
+
     pub fn new(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
         let zero = Complex::new(prototype.zero(), prototype.zero());
         Ok(Self {
@@ -768,6 +800,34 @@ impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualTadpo
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    #[cfg(all(test, feature = "native-kernels"))]
+    pub(crate) fn native_workspace_rows(&self) -> Vec<(&'static str, usize)> {
+        let mut result = Vec::new();
+        if let Some((rows, _)) = self.engine.denominator.probe_workspace() {
+            result.push(("denominator", rows));
+        }
+        for kernel in self.engine.source_projection.iter().flatten() {
+            if let Some((rows, _)) = kernel.probe_workspace() {
+                result.push(("source_projection", rows));
+            }
+        }
+        for plan in self.engine.specialized_subtraction.iter().flatten() {
+            if let Some((rows, _)) = plan.kernel.probe_workspace() {
+                result.push(("rank_alternate", rows));
+            }
+        }
+        result
+    }
+
+    #[cfg(feature = "native-kernels")]
+    pub(crate) fn with_native_batch_execution(
+        mut self,
+        policy: crate::BatchExecutionPolicy,
+    ) -> Self {
+        self.engine.set_native_batch_execution(policy);
+        self
+    }
+
     pub fn new(propagators: usize, rank: usize, prototype: T, dual: &D) -> Result<Self> {
         Ok(Self {
             engine: Engine::new(propagators, rank, dual, |exact| {

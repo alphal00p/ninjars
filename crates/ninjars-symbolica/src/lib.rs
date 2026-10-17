@@ -20,6 +20,8 @@ mod masters;
 mod native_kernels;
 #[cfg(feature = "native-kernels")]
 pub use native_kernels::{KernelBackend, KernelBackendSelection, KernelFamily};
+#[cfg(feature = "native-kernels")]
+pub use oneloop::rust_codegen::runtime::BatchExecutionPolicy;
 mod pentagon_kernels;
 mod polynomial;
 mod projection;

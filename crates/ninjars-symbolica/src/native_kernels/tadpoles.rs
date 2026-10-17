@@ -1,6 +1,9 @@
 //! Named tadpole source-axis projections; geometry selection is independent.
 use super::{BatchWorkspace, C, ConstantSpec, Context, DUAL_SHAPE, NativeFloat, batch, primitives};
-use crate::kernel::{CompiledDualKernel, CompiledKernel, KernelExecutor};
+use crate::{
+    BatchExecutionPolicy,
+    kernel::{CompiledDualKernel, CompiledKernel, KernelExecutor},
+};
 use ninjars::{Complex, Error, Real, Result};
 use symbolica::{domains::dual::DualNumber, evaluate::EvaluationDomain};
 
@@ -53,11 +56,16 @@ impl TadpoleSourcePlan {
 struct ProjectionExecutor<T: NativeFloat> {
     plan: TadpoleSourcePlan,
     dual: bool,
+    execution: BatchExecutionPolicy,
     context: Context<T>,
     workspace: BatchWorkspace<T>,
 }
 
 impl<T: NativeFloat> KernelExecutor<Complex<T>> for ProjectionExecutor<T> {
+    fn set_native_batch_execution(&mut self, policy: BatchExecutionPolicy) {
+        self.execution = policy;
+    }
+
     #[cfg(test)]
     fn probe_workspace(&self) -> Option<(usize, usize)> {
         Some((self.workspace.capacity(), self.workspace.storage_len()))
@@ -70,7 +78,24 @@ impl<T: NativeFloat> KernelExecutor<Complex<T>> for ProjectionExecutor<T> {
             (TadpoleSourcePlan::Bubble, false) => bubble::evaluate_batch,
             (TadpoleSourcePlan::Bubble, true) => bubble_dual::evaluate_batch,
         };
-        evaluate(input, output, rows, &self.context, &mut self.workspace).map_err(Error::Symbolic)
+        if self.execution == BatchExecutionPolicy::Whole {
+            return evaluate(input, output, rows, &self.context, &mut self.workspace)
+                .map_err(Error::Symbolic);
+        }
+        let (inputs, outputs) = self.plan.dimensions();
+        let components = if self.dual { DUAL_SHAPE.len() } else { 1 };
+        self.execution
+            .evaluate(
+                input,
+                output,
+                rows,
+                (inputs * components, outputs * components),
+                &mut self.workspace,
+                |input, output, rows, workspace| {
+                    evaluate(input, output, rows, &self.context, workspace)
+                },
+            )
+            .map_err(Error::Symbolic)
     }
 }
 
@@ -91,6 +116,7 @@ where
         Box::new(ProjectionExecutor {
             plan,
             dual,
+            execution: BatchExecutionPolicy::Whole,
             context,
             workspace: BatchWorkspace::new(prototype.clone()),
         }),

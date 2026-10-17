@@ -21,27 +21,55 @@ mod constants;
 #[rustfmt::skip]
 mod body;
 struct Executor<T: NativeFloat> {
+    policy: crate::BatchExecutionPolicy,
     context: Context<T>,
     workspace: BatchWorkspace<T>,
 }
 impl<T: NativeFloat> KernelExecutor<C<T>> for Executor<T> {
     fn evaluate(&mut self, input: &[C<T>], output: &mut [C<T>], rows: usize) -> Result<()> {
+        if self.policy != crate::BatchExecutionPolicy::Whole {
+            return self
+                .policy
+                .evaluate(
+                    input,
+                    output,
+                    rows,
+                    (3, 2),
+                    &mut self.workspace,
+                    |input, output, rows, workspace| {
+                        body::evaluate_batch(input, output, rows, &self.context, workspace)
+                    },
+                )
+                .map_err(Error::Symbolic);
+        }
         body::evaluate_batch(input, output, rows, &self.context, &mut self.workspace)
             .map_err(Error::Symbolic)
     }
 }
 pub(super) fn check<T: ExactProbe>(p: T) {
+    check_policy(p, false);
+}
+pub(super) fn check_policy<T: ExactProbe>(p: T, supported: bool) {
     let make = || Executor {
+        policy: crate::BatchExecutionPolicy::Whole,
         context: Context::new(constants::CONSTANTS, p.get_precision()).unwrap(),
         workspace: BatchWorkspace::new(p.clone()),
     };
     for block in [8, 16, 32, 64] {
         let mut whole = make();
-        let mut chunked = Blocked {
-            inner: Box::new(make()),
-            inputs: 3,
-            outputs: 2,
-            block,
+        let mut chunked: Box<dyn KernelExecutor<C<T>>> = if supported {
+            let mut executor = make();
+            executor.workspace.prepare_controlled(129, 99, 13).unwrap();
+            executor.policy =
+                crate::BatchExecutionPolicy::FixedRows(std::num::NonZeroUsize::new(block).unwrap());
+            Box::new(executor)
+        } else {
+            Box::new(Blocked {
+                inner: Box::new(make()),
+                inputs: 3,
+                outputs: 2,
+                block,
+            })
         };
         for rows in [0, 1, 3, 8, 9, 17, 33, 65, 3, 1] {
             let input: Vec<_> = (0..rows)

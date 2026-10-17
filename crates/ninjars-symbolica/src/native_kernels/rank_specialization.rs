@@ -1,6 +1,7 @@
 //! Explicit native dispatch for the same guarded n5/r4 exact correction plans.
 use super::{BatchWorkspace, C, ConstantSpec, Context, DUAL_SHAPE, NativeFloat, batch, primitives};
 use crate::{
+    BatchExecutionPolicy,
     kernel::{CompiledDualKernel, CompiledKernel, KernelExecutor},
     rank_specialization::RankSpecializedCorrectionPlan,
 };
@@ -53,11 +54,21 @@ fn dimensions(plan: RankSpecializedCorrectionPlan) -> (usize, usize) {
 struct CorrectionExecutor<T: NativeFloat> {
     plan: RankSpecializedCorrectionPlan,
     dual: bool,
+    execution: BatchExecutionPolicy,
     context: Context<T>,
     workspace: BatchWorkspace<T>,
 }
 
 impl<T: NativeFloat> KernelExecutor<Complex<T>> for CorrectionExecutor<T> {
+    fn set_native_batch_execution(&mut self, policy: BatchExecutionPolicy) {
+        self.execution = policy;
+    }
+
+    #[cfg(test)]
+    fn probe_workspace(&self) -> Option<(usize, usize)> {
+        Some((self.workspace.capacity(), self.workspace.storage_len()))
+    }
+
     fn evaluate(&mut self, input: &[C<T>], output: &mut [C<T>], rows: usize) -> Result<()> {
         use RankSpecializedCorrectionPlan::*;
         #[cfg(test)]
@@ -79,7 +90,24 @@ impl<T: NativeFloat> KernelExecutor<Complex<T>> for CorrectionExecutor<T> {
             (BubbleToTadpoleN5R4, false) => bubble_tadpole::evaluate_batch,
             (BubbleToTadpoleN5R4, true) => bubble_tadpole_dual::evaluate_batch,
         };
-        evaluate(input, output, rows, &self.context, &mut self.workspace).map_err(Error::Symbolic)
+        if self.execution == BatchExecutionPolicy::Whole {
+            return evaluate(input, output, rows, &self.context, &mut self.workspace)
+                .map_err(Error::Symbolic);
+        }
+        let (inputs, outputs) = dimensions(self.plan);
+        let components = if self.dual { DUAL_SHAPE.len() } else { 1 };
+        self.execution
+            .evaluate(
+                input,
+                output,
+                rows,
+                (inputs * components, outputs * components),
+                &mut self.workspace,
+                |input, output, rows, workspace| {
+                    evaluate(input, output, rows, &self.context, workspace)
+                },
+            )
+            .map_err(Error::Symbolic)
     }
 }
 
@@ -111,6 +139,7 @@ where
         Box::new(CorrectionExecutor {
             plan,
             dual,
+            execution: BatchExecutionPolicy::Whole,
             context,
             workspace: BatchWorkspace::new(prototype.clone()),
         }),

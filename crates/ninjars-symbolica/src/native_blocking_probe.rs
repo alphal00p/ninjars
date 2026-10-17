@@ -38,6 +38,10 @@ struct Blocked<V> {
     block: usize,
 }
 impl<V> KernelExecutor<V> for Blocked<V> {
+    fn set_native_batch_execution(&mut self, policy: crate::BatchExecutionPolicy) {
+        self.inner.set_native_batch_execution(policy);
+    }
+
     fn evaluate(&mut self, input: &[V], output: &mut [V], rows: usize) -> Result<()> {
         // Validate the entire public call before the first chunk writes anything.
         BatchShape {
@@ -284,7 +288,29 @@ fn same<T: ExactProbe>(a: &[Complex<T>], b: &[Complex<T>]) {
         T::same(&a.im, &b.im);
     }
 }
-fn exercise<T: ExactProbe>(p: T)
+fn selected_kernel<T: NativeFloat>(
+    case: Case,
+    p: &T,
+    dual: bool,
+    block: Option<usize>,
+    supported: bool,
+) -> CompiledKernel<T>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    let mut kernel = case.kernel(p, dual, if supported { None } else { block });
+    if supported {
+        kernel.set_native_batch_execution(block.map_or(
+            crate::BatchExecutionPolicy::Whole,
+            |rows| {
+                crate::BatchExecutionPolicy::FixedRows(std::num::NonZeroUsize::new(rows).unwrap())
+            },
+        ));
+    }
+    kernel
+}
+
+fn exercise<T: ExactProbe>(p: T, supported: bool)
 where
     Complex<T>: Real + EvaluationDomain,
 {
@@ -298,7 +324,10 @@ where
             let (columns, outputs) = case.dimensions();
             let (columns, outputs) = (columns * multiplier, outputs * multiplier);
             // Dedicated, fresh workspaces; reuse across growing/shrinking/tail calls.
-            let mut variants: Vec<_> = BLOCKS.iter().map(|&b| case.kernel(&p, dual, b)).collect();
+            let mut variants: Vec<_> = BLOCKS
+                .iter()
+                .map(|&b| selected_kernel(case, &p, dual, b, supported))
+                .collect();
             for rows in [
                 0, 1, 3, 8, 9, 16, 17, 20, 30, 31, 32, 33, 40, 60, 64, 65, 128, 3, 0, 1,
             ] {
@@ -338,13 +367,16 @@ where
 }
 #[test]
 fn native_blocking_preserves_all_components_and_precision() {
-    exercise(0f64);
-    exercise(DoubleFloat::default());
-    exercise(Float::new(192));
+    exercise(0f64, false);
+    exercise(DoubleFloat::default(), false);
+    exercise(Float::new(192), false);
 }
 
 #[test]
 fn native_blocking_natural_scalar_tails_preserve_exceptional_values() {
+    exceptional_control(false);
+}
+fn exceptional_control(supported: bool) {
     for case in cases() {
         for dual in [false, true] {
             if dual && !case.has_dual() {
@@ -388,7 +420,7 @@ fn native_blocking_natural_scalar_tails_preserve_exceptional_values() {
                     .unwrap();
                 for block in BLOCKS.into_iter().skip(1) {
                     let mut actual = expected.clone();
-                    case.kernel(&0., dual, block)
+                    selected_kernel(case, &0., dual, block, supported)
                         .evaluate_batch(&input, &mut actual, rows)
                         .unwrap();
                     same(&actual, &expected);
@@ -400,6 +432,9 @@ fn native_blocking_natural_scalar_tails_preserve_exceptional_values() {
 
 #[test]
 fn native_blocking_retains_mixed_input_significant_bits() {
+    mixed_precision_control(false);
+}
+fn mixed_precision_control(supported: bool) {
     let p = Float::new(256);
     for case in cases() {
         let (columns, outputs) = case.dimensions();
@@ -420,7 +455,7 @@ fn native_blocking_retains_mixed_input_significant_bits() {
             .unwrap();
         for block in BLOCKS.into_iter().skip(1) {
             let mut actual = expected.clone();
-            case.kernel(&p, false, block)
+            selected_kernel(case, &p, false, block, supported)
                 .evaluate_batch(&input, &mut actual, rows)
                 .unwrap();
             same(&actual, &expected);
@@ -531,6 +566,9 @@ fn native_blocking_microbenchmark() {
 
 #[test]
 fn native_blocking_finite_heads_match_symbolica_oracle() {
+    oracle_control(false);
+}
+fn oracle_control(supported: bool) {
     let p = Float::new(192);
     for case in cases() {
         let exact = case.exact();
@@ -565,7 +603,7 @@ fn native_blocking_finite_heads_match_symbolica_oracle() {
             }
             for block in BLOCKS {
                 let mut actual = vec![zero.clone(); expected.len()];
-                case.kernel(&p, dual, block)
+                selected_kernel(case, &p, dual, block, supported)
                     .evaluate_batch(&input, &mut actual, rows)
                     .unwrap();
                 for (actual, expected) in actual.iter().zip(&expected) {
@@ -685,6 +723,9 @@ where
 }
 #[test]
 fn native_blocking_preserves_reducer_statuses_residues_and_retry() {
+    ordinary_reducer_control(false);
+}
+fn ordinary_reducer_control(supported: bool) {
     use crate::{PolynomialNumerator, SymbolicaAmplitudeKernels, SymbolicaCuts, SymbolicaHighCuts};
     use symbolica::parse;
     for (n, rank, expression) in [
@@ -698,12 +739,35 @@ fn native_blocking_preserves_reducer_statuses_residues_and_retry() {
         let mut variants: Vec<_> = BLOCKS
             .iter()
             .map(|&block| {
-                with_block(block, || {
-                    SymbolicaAmplitudeKernels::new(n, rank, 0.)
+                with_block(if supported { None } else { block }, || {
+                    let kernels = SymbolicaAmplitudeKernels::new(n, rank, 0.)
                         .unwrap()
-                        .with_native_kernels()
-                        .into_amplitude(0)
-                        .unwrap()
+                        .with_native_kernels();
+                    let kernels = if supported {
+                        let policy = block.map_or(crate::BatchExecutionPolicy::Whole, |rows| {
+                            crate::BatchExecutionPolicy::FixedRows(
+                                std::num::NonZeroUsize::new(rows).unwrap(),
+                            )
+                        });
+                        if n == 5 {
+                            if matches!(block, Some(8 | 32)) {
+                                kernels
+                                    .with_native_batch_execution(policy)
+                                    .with_native_rank_specialized_corrections()
+                                    .unwrap()
+                            } else {
+                                kernels
+                                    .with_native_rank_specialized_corrections()
+                                    .unwrap()
+                                    .with_native_batch_execution(policy)
+                            }
+                        } else {
+                            kernels.with_native_batch_execution(policy)
+                        }
+                    } else {
+                        kernels
+                    };
+                    kernels.into_amplitude(0).unwrap()
                 })
             })
             .collect();
@@ -756,12 +820,18 @@ fn native_blocking_preserves_reducer_statuses_residues_and_retry() {
 
 #[test]
 fn native_blocking_full_dual_reducer_and_failed_mixed_component() {
+    dual_reducer_control(false);
+}
+fn dual_reducer_control(supported: bool) {
+    dual_reducer_shape_control(supported, shape());
+}
+fn dual_reducer_shape_control(supported: bool, dual_shape: Vec<Vec<usize>>) {
     use crate::{
         DualPolynomialNumerator, PolynomialNumerator, SymbolicaDualAmplitudeKernels,
         SymbolicaDualCuts,
     };
     use symbolica::parse;
-    let zero = HyperDual::from_values(shape(), vec![Complex::new(0., 0.); 5]);
+    let zero = HyperDual::from_values(dual_shape, vec![Complex::new(0., 0.); 5]);
     let source = PolynomialNumerator::new(
         parse!("a*(q0^4+q1*mu2+3*mu2^2+q2*q3+2)"),
         variables(),
@@ -775,12 +845,23 @@ fn native_blocking_full_dual_reducer_and_failed_mixed_component() {
     let mut variants: Vec<_> = BLOCKS
         .iter()
         .map(|&block| {
-            with_block(block, || {
-                SymbolicaDualAmplitudeKernels::new(3, 4, 0., &zero)
+            with_block(if supported { None } else { block }, || {
+                let kernels = SymbolicaDualAmplitudeKernels::new(3, 4, 0., &zero)
                     .unwrap()
-                    .with_native_kernels()
-                    .into_amplitude(0)
-                    .unwrap()
+                    .with_native_kernels();
+                let kernels = if supported {
+                    kernels.with_native_batch_execution(block.map_or(
+                        crate::BatchExecutionPolicy::Whole,
+                        |rows| {
+                            crate::BatchExecutionPolicy::FixedRows(
+                                std::num::NonZeroUsize::new(rows).unwrap(),
+                            )
+                        },
+                    ))
+                } else {
+                    kernels
+                };
+                kernels.into_amplitude(0).unwrap()
             })
         })
         .collect();
@@ -835,6 +916,8 @@ fn native_blocking_full_dual_reducer_and_failed_mixed_component() {
 
 #[path = "native_blocking_fixture/mod.rs"]
 mod lazy_fixture;
+#[path = "native_batch_policy_tests.rs"]
+mod supported_policy_tests;
 #[test]
 fn native_blocking_preserves_lazy_branches_and_shared_helper_calls() {
     lazy_fixture::check(0f64);
@@ -933,4 +1016,35 @@ fn native_blocking_archive_metadata_and_jsonl_are_readable() {
     assert_eq!(records[0]["value"], metadata);
     assert_eq!(records[1]["timing"], false);
     std::fs::remove_file(path).unwrap();
+}
+
+#[test]
+fn supported_batch_policy_matches_native_values_and_oracle() {
+    exercise(0f64, true);
+    exercise(DoubleFloat::default(), true);
+    exercise(Float::new(192), true);
+    oracle_control(true);
+}
+
+#[test]
+fn supported_batch_policy_preserves_exceptional_and_mixed_precision_values() {
+    exceptional_control(true);
+    mixed_precision_control(true);
+}
+
+#[test]
+fn supported_batch_policy_preserves_ordinary_and_dual_reducer_controls() {
+    ordinary_reducer_control(true);
+    dual_reducer_control(true);
+    dual_reducer_shape_control(
+        true,
+        vec![vec![0, 0], vec![0, 1], vec![1, 0], vec![2, 0], vec![1, 1]],
+    );
+}
+
+#[test]
+fn supported_batch_policy_preserves_lazy_shared_helpers() {
+    lazy_fixture::check_policy(0f64, true);
+    lazy_fixture::check_policy(DoubleFloat::default(), true);
+    lazy_fixture::check_policy(Float::new(192), true);
 }

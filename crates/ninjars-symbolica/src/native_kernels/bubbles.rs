@@ -1,6 +1,9 @@
 //! Named ordinary bubble-correction kernels; Dual bodies remain interpreted.
 use super::{BatchWorkspace, C, ConstantSpec, Context, NativeFloat, batch, primitives};
-use crate::kernel::{CompiledKernel, KernelExecutor};
+use crate::{
+    BatchExecutionPolicy,
+    kernel::{CompiledKernel, KernelExecutor},
+};
 use ninjars::{Complex, Error, ExpansionKind, Real, Result};
 use symbolica::evaluate::EvaluationDomain;
 
@@ -72,10 +75,15 @@ impl BubblePlan {
 }
 struct BubbleExecutor<T: NativeFloat> {
     plan: BubblePlan,
+    execution: BatchExecutionPolicy,
     context: Context<T>,
     workspace: BatchWorkspace<T>,
 }
 impl<T: NativeFloat> KernelExecutor<Complex<T>> for BubbleExecutor<T> {
+    fn set_native_batch_execution(&mut self, policy: BatchExecutionPolicy) {
+        self.execution = policy;
+    }
+
     #[cfg(test)]
     fn probe_workspace(&self) -> Option<(usize, usize)> {
         Some((self.workspace.capacity(), self.workspace.storage_len()))
@@ -89,7 +97,22 @@ impl<T: NativeFloat> KernelExecutor<Complex<T>> for BubbleExecutor<T> {
             BubblePlan::OrdinaryDegree2 => degree2::evaluate_batch,
             BubblePlan::HigherDegree3 => higher::evaluate_batch,
         };
-        evaluate(input, output, rows, &self.context, &mut self.workspace).map_err(Error::Symbolic)
+        if self.execution == BatchExecutionPolicy::Whole {
+            return evaluate(input, output, rows, &self.context, &mut self.workspace)
+                .map_err(Error::Symbolic);
+        }
+        self.execution
+            .evaluate(
+                input,
+                output,
+                rows,
+                self.plan.dimensions(),
+                &mut self.workspace,
+                |input, output, rows, workspace| {
+                    evaluate(input, output, rows, &self.context, workspace)
+                },
+            )
+            .map_err(Error::Symbolic)
     }
 }
 pub(crate) fn install<T: NativeFloat>(
@@ -106,6 +129,7 @@ where
     kernel.install_native(
         Box::new(BubbleExecutor {
             plan,
+            execution: BatchExecutionPolicy::Whole,
             context,
             workspace: BatchWorkspace::new(prototype.clone()),
         }),

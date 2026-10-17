@@ -30,6 +30,18 @@ struct Engine<V, K, Checks> {
 }
 
 impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Checks> {
+    #[cfg(feature = "native-kernels")]
+    fn set_native_batch_execution(&mut self, policy: crate::BatchExecutionPolicy) {
+        for kernel in [
+            &mut self.denominator,
+            &mut self.division,
+            &mut self.projection,
+            &mut self.swap,
+        ] {
+            kernel.set_native_batch_execution(policy);
+        }
+    }
+
     fn values_are_finite(&self, values: &[V]) -> bool {
         values.iter().all(Checks::finite)
     }
@@ -234,6 +246,15 @@ impl<T: Real + SingleFloat> SymbolicaTriangleKernels<T>
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    #[cfg(feature = "native-kernels")]
+    pub(crate) fn with_native_batch_execution(
+        mut self,
+        policy: crate::BatchExecutionPolicy,
+    ) -> Self {
+        self.engine.set_native_batch_execution(policy);
+        self
+    }
+
     pub fn new(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
         let zero = Complex::new(prototype.zero(), prototype.zero());
         Ok(Self {
@@ -250,6 +271,15 @@ impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualTrian
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    #[cfg(feature = "native-kernels")]
+    pub(crate) fn with_native_batch_execution(
+        mut self,
+        policy: crate::BatchExecutionPolicy,
+    ) -> Self {
+        self.engine.set_native_batch_execution(policy);
+        self
+    }
+
     pub fn new(propagators: usize, rank: usize, prototype: T, dual: &D) -> Result<Self> {
         Ok(Self {
             engine: Engine::new(propagators, rank, dual, |exact| {
