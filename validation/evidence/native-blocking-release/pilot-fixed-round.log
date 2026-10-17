@@ -1,0 +1,7 @@
+
+running 1 test
+test kernel::blocking_probe::native_blocking_microbenchmark ... NATIVE_BLOCKING_BENCHMARK /tmp/ninjars-native-blocking-release-ready/pilot-fixed-round.jsonl
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 19 filtered out; finished in 85.09s
+

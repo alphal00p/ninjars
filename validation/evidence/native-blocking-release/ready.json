@@ -1,0 +1,161 @@
+{
+  "created_utc": "2026-10-16T23:34:45.316280+00:00",
+  "head": "b3c69aebea0e261f45245d7634e0284066bafe7f",
+  "status": "",
+  "dependencies": [
+    {
+      "path": "references/symbolica",
+      "resolved": "/shared/external/ninja/references/symbolica_conditional_cache",
+      "revision": "2c06f245835d57535418b5d78f711fe191db49cc",
+      "status": ""
+    },
+    {
+      "path": "references/oneloopmaster",
+      "resolved": "/shared/external/ninja/references/oneloopmaster_native_inverse",
+      "revision": "53106429b849e5bcf843f111429be76227b4e0ce",
+      "status": ""
+    },
+    {
+      "path": "references/gammaloop_ninja_shared",
+      "resolved": "/shared/external/ninja/references/gammaloop_ninja_shared",
+      "revision": "474478a7a80bc9f9f21bead0e1cde6acbcffbe93",
+      "status": ""
+    }
+  ],
+  "source_hashes": [
+    {
+      "path": "crates/ninjars-symbolica/Cargo.toml",
+      "sha256": "8a96e690d3cbb549139f35626b2aa04457970616d94458cdc9a6ccc22db647b6"
+    },
+    {
+      "path": "crates/ninjars-symbolica/examples/generate_blocking_fixture.rs",
+      "sha256": "91c66907c35f8d66e3652d2d68cf36727da53bd8dea98e32297003dc25712a1c"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/kernel.rs",
+      "sha256": "4c4544f31dd88b0c4ef6211b8014aeaba71e8ca3ad0b0d9fa54fa04a2246b7aa"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_blocking_fixture/body.rs",
+      "sha256": "b849905063e275023cf6dfb6904709f8863ae0494a72a71b66454021e2cb7d89"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_blocking_fixture/constants.rs",
+      "sha256": "de0bd94a3fba2b72ff91a43643f740278f84fea0303ddebef15f606612cec6e0"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_blocking_fixture/mod.rs",
+      "sha256": "9715a73838a3e94c8e3571aec1fbda5c3c3c5af9f4ef0b5c19375f154b2c934c"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_blocking_probe.rs",
+      "sha256": "5228f06034dca70b492038b0b8b806d2a205ca82fd1bf49dfc0e3b26ef03604f"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/bubbles.rs",
+      "sha256": "0b59466d90b2e55007bea5658111a50a9949f46b1949e79e9b4f164992020dd5"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/mod.rs",
+      "sha256": "3bb88b25408ecac263dcc5ee5dcd44eb3f38fcb6572a3a48ac000f5e0eba471b"
+    },
+    {
+      "path": "crates/ninjars-symbolica/src/native_kernels/tadpoles.rs",
+      "sha256": "a6d9e0ad1a98b18a93bdb6d6d345f38ee405246d11c67f4202d7cf54b931a92c"
+    },
+    {
+      "path": "docs/native-blocking-probe.md",
+      "sha256": "3a1018e1aff26b673a622d9c69d5ada7bc0605a2ae11f67a8bae9c98fe16b45d"
+    }
+  ],
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8",
+  "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+  "profile": "release: opt-level=3, lto=thin, codegen-units=1",
+  "build_command": "cargo test --release -p ninjars-symbolica --features native-kernels --lib --no-run --message-format=json",
+  "build_jobs": 4,
+  "numerical_lock": "/tmp/ninjars-symbolica-tests.lock",
+  "performance_measurements_run": false,
+  "ready_utc": "2026-10-17T00:00:08.139787+00:00",
+  "artifact": {
+    "original": "/common/build-cache/external/f8/1c519ec9193fe0/release/deps/ninjars_symbolica-5ce9346c7835a5b2",
+    "preserved": "/tmp/ninjars-native-blocking-release-ready/ninjars-symbolica-release-test",
+    "sha256": "94436f1565bb0b7248a5d615c7ed186fcddf61058abccb4ca951e0e50b036723",
+    "bytes": 39452608,
+    "artifact": {
+      "reason": "compiler-artifact",
+      "package_id": "path+file:///shared/external/ninja/references/ninjars_native_kernels/crates/ninjars-symbolica#0.1.0",
+      "manifest_path": "/shared/external/ninja/references/ninjars_native_kernels/crates/ninjars-symbolica/Cargo.toml",
+      "target": {
+        "kind": [
+          "lib"
+        ],
+        "crate_types": [
+          "lib"
+        ],
+        "name": "ninjars_symbolica",
+        "src_path": "/shared/external/ninja/references/ninjars_native_kernels/crates/ninjars-symbolica/src/lib.rs",
+        "edition": "2024",
+        "doc": true,
+        "doctest": true,
+        "test": true
+      },
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "test": true
+      },
+      "features": [
+        "native-kernels",
+        "rust-codegen"
+      ],
+      "filenames": [
+        "/common/build-cache/external/f8/1c519ec9193fe0/release/deps/ninjars_symbolica-5ce9346c7835a5b2"
+      ],
+      "executable": "/common/build-cache/external/f8/1c519ec9193fe0/release/deps/ninjars_symbolica-5ce9346c7835a5b2",
+      "fresh": false
+    }
+  },
+  "logs": [
+    {
+      "path": "/tmp/ninjars-native-blocking-release-ready/build.log",
+      "sha256": "c1950b58d00593174e8298fbff74b8a1980c75036d19dd084154713b0af2ebf4",
+      "bytes": 9866
+    },
+    {
+      "path": "/tmp/ninjars-native-blocking-release-ready/build.jsonl",
+      "sha256": "260706e11fca536a48116219dbede9b5db822fb376ae4aab6f8c69696e726810",
+      "bytes": 412434
+    },
+    {
+      "path": "/tmp/ninjars-native-blocking-release-ready/controls.log",
+      "sha256": "af9767eccef240f40750d727efd3a5a8f4305982c518630364703078b2babf8a",
+      "bytes": 1561
+    }
+  ],
+  "build_elapsed": "24m 43s",
+  "correctness": {
+    "passed": 8,
+    "failed": 0,
+    "ignored": 1,
+    "elapsed_seconds": 6.86,
+    "complex_components_per_domain": 421872
+  },
+  "timing_command": "flock /tmp/ninjars-symbolica-tests.lock taskset -c 75 /tmp/ninjars-native-blocking-release-ready/ninjars-symbolica-release-test kernel::blocking_probe::native_blocking_microbenchmark --exact --ignored --test-threads=1 --nocapture",
+  "timing_env": {
+    "NINJARS_BLOCKING_QUIET_WINDOW": "approved",
+    "NINJARS_BLOCKING_OUTPUT": "/tmp/ninjars-native-blocking-release-ready/pilot-fixed-round.jsonl",
+    "RUST_MIN_STACK": "134217728"
+  },
+  "cpu_affinity": 75,
+  "unreserved_smt_sibling": 331,
+  "thread_siblings_list": "75,331",
+  "planned_raw_timing_records": 2100,
+  "planned_complete_jsonl_records": 2102,
+  "planned_timed_row_evaluations": 561508500,
+  "sampling": "unchanged fixed rounds; sub-20ms blocks only flagged, never extended, rejected or omitted",
+  "timing_duration": "unmeasured; reserve approximately 10 minutes for scheduling, not a measured estimate",
+  "scope": "shared-host diagnostic; native packing/arithmetic/unpacking only; no production speedup or acceptance claim",
+  "current_source_and_dependencies_match_before": true
+}
