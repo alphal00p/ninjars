@@ -28,7 +28,12 @@ fn reference_export_checks_topology_and_maps_coefficients_at_the_reference_bound
     let numerator =
         PolynomialNumerator::new(parse!("q0^2/3+mu2^2"), variables(), vec![], 0.).unwrap();
     assert!(numerator.export_ninja_cpp(0).is_err());
-    assert!(numerator.export_ninja_cpp(2).is_err());
+    // Rank 4 with 2 propagators is n+2: NinjaRS reduces it, original Ninja cannot.
+    let rank_n2 = numerator.export_ninja_cpp(2).unwrap_err().to_string();
+    assert!(
+        rank_n2.contains("original Ninja") && rank_n2.contains("propagators + 1 = 3"),
+        "{rank_n2}"
+    );
     assert!(numerator.export_ninja_cpp(256).is_err());
     let source = numerator.export_ninja_cpp(3).unwrap();
     assert!(source.contains("constexpr unsigned rank = 4;"));

@@ -183,3 +183,26 @@ fn reference_export_rejects_numerator_coefficient_underflow() {
     assert!(String::from_utf8_lossy(&result.stderr).contains("underflows binary64"));
     assert!(!dir.0.join("export").exists());
 }
+
+#[test]
+fn reference_export_rejects_rank_n_plus_two_specifically() {
+    // NinjaRS reduces rank n+2, but original Ninja stops at n+1, so a rank-4
+    // bubble cannot become a Ninja reference.
+    let dir = FixtureDirectory::new("rank-n2");
+    let graph = include_str!("../../../examples/graphs/bubble.dot")
+        .replace("2*ninjars::q1^2", "2*ninjars::q1^4");
+    let result = dir.prepare(
+        &graph,
+        serde_json::json!({"UFO::mass": "1"}),
+        bubble_sample("2"),
+    );
+    assert!(!result.status.success());
+    let message = String::from_utf8_lossy(&result.stderr);
+    assert!(
+        message.contains("original Ninja")
+            && message.contains("propagators + 1 = 3")
+            && message.contains("rank 4"),
+        "{message}"
+    );
+    assert!(!dir.0.join("export").exists());
+}

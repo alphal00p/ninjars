@@ -91,7 +91,9 @@ pub(crate) fn export(
             )?;
         }
         let rank = numerator.rank();
-        let header = numerator.export_ninja_cpp(n)?;
+        let header = numerator
+            .export_ninja_cpp(n)
+            .map_err(|error| format!("sample {}: {error}", sample.lane))?;
         let mut input = format!("{n} {rank} 1 {:.17e}\n", scale.re);
         let mut numeric_shifts = Vec::new();
         let mut numeric_masses = Vec::new();

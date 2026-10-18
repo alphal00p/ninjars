@@ -440,10 +440,10 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
             }
         }
         if numerator.rank() > rank {
-            return Err(Error::Rank {
-                rank: numerator.rank(),
-                propagators: n,
-            });
+            return Err(Error::Unsupported(format!(
+                "numerator rank {} exceeds configured rank {rank}",
+                numerator.rank()
+            )));
         }
         // These are old outputs from a completed prior swap, never the live output.
         for outcome in self.staged.drain(..) {

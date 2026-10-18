@@ -74,7 +74,11 @@ pub enum Error {
     },
     #[error("a topology must have at least one propagator")]
     NoPropagators,
-    #[error("rank {rank} exceeds {propagators} propagators + 2")]
+    /// The numerator rank exceeds what both engines reduce: rank <= n + 2 for
+    /// n propagators.
+    #[error(
+        "numerator rank {rank} exceeds {propagators} propagators + 2, the highest rank NinjaRS reduces"
+    )]
     Rank { rank: usize, propagators: usize },
     #[error("invalid phase-space lane {lane}; batch has {lanes} lanes")]
     Lane { lane: usize, lanes: usize },

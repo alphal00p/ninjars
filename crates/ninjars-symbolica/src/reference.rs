@@ -42,11 +42,13 @@ where
             ));
         }
         let rank = self.rank();
+        // NinjaRS reduces rank n+2, but original Ninja stops at n+1.
         if rank > propagator_count + 1 {
-            return Err(Error::Rank {
-                rank,
-                propagators: propagator_count,
-            });
+            return Err(Error::Unsupported(format!(
+                "original Ninja reduces numerator rank at most propagators + 1 = {}; rank {rank} \
+                 with {propagator_count} propagators cannot be exported as a Ninja reference",
+                propagator_count + 1
+            )));
         }
         let signed_rank = i32::try_from(rank)
             .map_err(|_| Error::Unsupported("rank exceeds signed Laurent exponent range".into()))?;
