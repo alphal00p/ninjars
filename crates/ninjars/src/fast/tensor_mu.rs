@@ -16,10 +16,17 @@
 //! (`q = t v0 + v1`, `mu² = t² v0²`) it contributes `(v0²)^k` times its own
 //! leading coefficients. Original Ninja's `TensorNumerator` has no `mu²`
 //! slots; [`super::TensorNumerator`] remains the path for `mu²`-free numerators.
+//!
+//! Rank n+2 (triangle `mindeg` 5, bubble `mindeg` 4, and the box expansion on
+//! the exact d-dimensional cut `q = t v0 + v1`, `mu² = t² v0² - beta`) runs
+//! through separate never-inlined methods with the `JetX2` jets.
 
 use super::complex::{C64, CMom, mp_cc};
 use super::numerator::{FastNumerator, t2_len, t3_len};
-use super::tensor::{horner_jet, horner_scalar, t2_offset, t2_output, t3_len_const, t3_output};
+use super::tensor::{
+    horner_jet, horner_jet_x2, horner_scalar, t2_offset, t2_output, t2_output_k4, t3_len_const,
+    t3_output, work_len_x2,
+};
 use super::tensor_jets::{self as jets, Jet};
 use super::tensor_layout::{mu_block_offset, ncoeff, ncoeff_homogeneous, ncoeff_mu};
 use crate::{Error, Result};
@@ -223,6 +230,28 @@ fn t2_dispatch(
     }
 }
 
+/// Index of `t^(r-i) x^a mu^(2j)` in Ninja's t2 layout (level `i` lists
+/// `(a, j)` with `a + 2j <= i`, ordered by `a` then `j`).
+const fn t2_slot(i: usize, a: usize, j: usize) -> usize {
+    let mut index = if i == 0 { 0 } else { t2_len(i - 1) };
+    let mut b = 0;
+    while b < a {
+        index += (i - b) / 2 + 1;
+        b += 1;
+    }
+    index + j
+}
+
+impl MuTensorNumerator {
+    /// Grow the jet workspace for the rank n+2 jets (once, on first use).
+    fn reserve_x2(&mut self, l: usize) {
+        let needed = work_len_x2(self.rank, l);
+        if self.work.len() < needed {
+            self.work.resize(needed, C64::ZERO);
+        }
+    }
+}
+
 impl FastNumerator for MuTensorNumerator {
     fn rank(&self) -> usize {
         self.rank
@@ -293,6 +322,150 @@ impl FastNumerator for MuTensorNumerator {
                         value = [value[0] * v02 + jet[0], value[1] * v02 + jet[1]];
                     }
                     out[2 * row..2 * row + 2].copy_from_slice(&value);
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// The rank n+2 box expansion on the exact d-dimensional cut,
+    /// `q = t v0 + v1`, `mu² = t² v0² - beta`: Horner in `mu²` over the
+    /// blocks, each block's three leading coefficients from the `Mu3` jet.
+    #[inline(never)]
+    fn mu_expansion_x2(
+        &mut self,
+        _cut: &[usize],
+        lanes: &[usize],
+        v0: &[CMom],
+        v1: &[CMom],
+        beta: &[C64],
+        out: &mut [C64],
+    ) -> Result<()> {
+        Self::check_rows(lanes.len(), out.len(), 3)?;
+        self.reserve_x2(3);
+        let (rank, ncoeff) = (self.rank, self.ncoeff);
+        for (row, &lane) in lanes.iter().enumerate() {
+            self.check_lane(lane)?;
+            let c = &self.coefficients[lane * ncoeff..(lane + 1) * ncoeff];
+            let v02 = mp_cc(&v0[row], &v0[row]);
+            let b = beta[row];
+            let xv = [v0[row], v1[row], [C64::ZERO; 4], [C64::ZERO; 4]];
+            let mut value = [C64::ZERO; 3];
+            for k in (0..=self.mu_powers).rev() {
+                let (block, block_rank) = Self::block(c, rank, k);
+                let jet = horner_jet_x2::<jets::Mu3, 3>(block, block_rank, &xv, &mut self.work);
+                // (v0² t² - beta) times the running value (leading power t^(R-2k-2)).
+                value = [
+                    value[0] * v02 + jet[0],
+                    value[1] * v02 + jet[1],
+                    value[2] * v02 - value[0] * b + jet[2],
+                ];
+            }
+            out[3 * row..3 * row + 3].copy_from_slice(&value);
+        }
+        Ok(())
+    }
+
+    /// The rank n+2 triangle depth (`mindeg` 5); `t3_expansion` keeps Ninja's
+    /// limit of 4.
+    #[inline(never)]
+    fn t3_expansion_x2(
+        &mut self,
+        _cut: &[usize],
+        lanes: &[usize],
+        a: &[CMom],
+        e3: &[CMom],
+        e4: &[CMom],
+        param: &[C64],
+        out: &mut [C64],
+    ) -> Result<()> {
+        let width = t3_len(5);
+        Self::check_rows(lanes.len(), out.len(), width)?;
+        self.reserve_x2(12);
+        let (rank, ncoeff) = (self.rank, self.ncoeff);
+        let top = self.mu_powers.min(2);
+        let mut scratch: Scratch = [C64::ZERO; 13];
+        for (row, &lane) in lanes.iter().enumerate() {
+            self.check_lane(lane)?;
+            let c = &self.coefficients[lane * ncoeff..(lane + 1) * ncoeff];
+            let xv = [e3[row], a[row], e4[row], [C64::ZERO; 4]];
+            let target = &mut out[row * width..(row + 1) * width];
+            let (block, block_rank) = Self::block(c, rank, 0);
+            let jet = horner_jet_x2::<jets::T3K5, 12>(block, block_rank, &xv, &mut self.work);
+            t3_output(&jet, 5, param[row], target);
+            for k in 1..=top {
+                let reduced = 5 - 2 * k;
+                let (block, block_rank) = Self::block(c, rank, k);
+                let converted = &mut scratch[..t3_len(reduced)];
+                t3_dispatch(
+                    reduced,
+                    block,
+                    block_rank,
+                    &xv,
+                    param[row],
+                    &mut self.work,
+                    converted,
+                );
+                // Order i, mu^(2j) of block k is order i + 2k, mu^(2(j + k)).
+                for i in 0..=reduced {
+                    let (from, to) = (t3_len_const(i), t3_len_const(i + 2 * k) + k);
+                    for j in 0..=i / 2 {
+                        target[to + j] += converted[from + j];
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// The rank n+2 bubble depth (`mindeg` 4); `t2_expansion` keeps Ninja's
+    /// limit of 3.
+    #[inline(never)]
+    fn t2_expansion_x2(
+        &mut self,
+        _cut: &[usize],
+        lanes: &[usize],
+        a0: &[CMom],
+        a1: &[CMom],
+        e3: &[CMom],
+        e4: &[CMom],
+        param: &[[C64; 3]],
+        out: &mut [C64],
+    ) -> Result<()> {
+        let width = t2_len(4);
+        Self::check_rows(lanes.len(), out.len(), width)?;
+        self.reserve_x2(22);
+        let (rank, ncoeff) = (self.rank, self.ncoeff);
+        let top = self.mu_powers.min(2);
+        let mut scratch: Scratch = [C64::ZERO; 13];
+        for (row, &lane) in lanes.iter().enumerate() {
+            self.check_lane(lane)?;
+            let c = &self.coefficients[lane * ncoeff..(lane + 1) * ncoeff];
+            let xv = [e3[row], a0[row], a1[row], e4[row]];
+            let target = &mut out[row * width..(row + 1) * width];
+            let (block, block_rank) = Self::block(c, rank, 0);
+            let jet = horner_jet_x2::<jets::T2K4, 22>(block, block_rank, &xv, &mut self.work);
+            t2_output_k4(&jet, &param[row], target);
+            for k in 1..=top {
+                // Block k (mu^(2k) T_k) enters 2k orders later, k mu² powers higher.
+                let reduced = 4 - 2 * k;
+                let (block, block_rank) = Self::block(c, rank, k);
+                let converted = &mut scratch[..t2_len(reduced)];
+                t2_dispatch(
+                    reduced,
+                    block,
+                    block_rank,
+                    &xv,
+                    &param[row],
+                    &mut self.work,
+                    converted,
+                );
+                for i in 0..=reduced {
+                    for a in 0..=i {
+                        for j in 0..=(i - a) / 2 {
+                            target[t2_slot(i + 2 * k, a, j + k)] += converted[t2_slot(i, a, j)];
+                        }
+                    }
                 }
             }
         }

@@ -7,12 +7,18 @@ whose coefficients are polynomials in the remaining cut variables:
 
 * T3 (triple and single cuts): order i carries s^j, j <= i/2, with
   s = param + mu^2; cut-vector slots e3 (u^0), a (u^1), e4 (u^2 s).
-* T2 (double cuts): order i carries x^k S^j (j <= 1 for K <= 3, k <= i - 2j)
-  with S = p0 + p1 x + p2 x^2 + mu^2; slots e3 (u^0), a0 (u^1), a1 (u^1 x),
-  e4 (u^2 S).
+* T2 (double cuts): order i carries x^k S^j (j <= i/2, k <= i - 2j, ordered
+  by j then k) with S = p0 + p1 x + p2 x^2 + mu^2; slots e3 (u^0), a0 (u^1),
+  a1 (u^1 x), e4 (u^2 S).
 * Mu (box mu-expansion with v1): orders u^0, u^1; slots v0 (u^0), v1 (u^1).
 
 Every component ordering matches tensor.rs (and, for T3, Ninja's t3 layout).
+
+Rank n+2 (appended after the rank <= n+1 jets, which stay byte-identical):
+T3K5 (triangles, 12 components), T2K4 (bubbles, 22 components; order 4 holds
+x^k for k <= 4, x^k S for k <= 2 and S^2) and Mu3 (the box expansion
+q = t v0 + v1 to order u^2). They also implement `JetX2`, whose pure-power
+table has six entries (T3K5 keeps u^5).
 
 Usage: generate_jets.py <output .rs>
 """
@@ -26,14 +32,12 @@ def t3_components(K):
 
 
 def t2_components(K):
-    out = []
-    for i in range(K + 1):
-        out += [(i, k, 0) for k in range(i + 1)]
-        out += [(i, k, 1) for k in range(i - 1)] if i >= 2 else []
-    return out
+    # Order i: x^k S^j for j <= i/2 and k <= i - 2j, ordered by j then k
+    # (for K <= 3: [1, x, .., x^i] then [S, x S, .., x^(i-2) S]).
+    return [(i, k, j) for i in range(K + 1) for j in range(i // 2 + 1) for k in range(i - 2 * j + 1)]
 
 
-def plan(components, steps, K):
+def plan(components, steps, K, npure=5):
     index = {c: n for n, c in enumerate(components)}
     products = []
     for n, (i, k, j) in enumerate(components):
@@ -41,17 +45,27 @@ def plan(components, steps, K):
             target = (i + di, k + dk, j + dj)
             if i + di <= K:
                 products.append((index[target], n, s))
-    pure = [index.get((p, 0, 0), None) for p in range(5)]
+    pure = [index.get((p, 0, 0), None) for p in range(npure)]
     return len(components), products, pure
 
 
+T3_STEPS = [(0, 0, 0), (1, 0, 0), (2, 0, 1)]
+T2_STEPS = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (2, 0, 1)]
+MU_STEPS = [(0, 0, 0), (1, 0, 0)]
+
 PLANS = []
 for K in range(5):
-    PLANS.append((f"T3K{K}", *plan(t3_components(K), [(0, 0, 0), (1, 0, 0), (2, 0, 1)], K)))
+    PLANS.append((f"T3K{K}", *plan(t3_components(K), T3_STEPS, K)))
 for K in range(4):
-    PLANS.append((f"T2K{K}", *plan(t2_components(K),
-                                   [(0, 0, 0), (1, 0, 0), (1, 1, 0), (2, 0, 1)], K)))
+    PLANS.append((f"T2K{K}", *plan(t2_components(K), T2_STEPS, K)))
 PLANS.append(("Mu", 2, [(0, 0, 0), (1, 0, 1), (1, 1, 0)], [0, 1, None, None, None]))
+
+# Rank n+2 jets: (name, L, products, six-entry pure table).
+PLANS_X2 = [
+    ("T3K5", *plan(t3_components(5), T3_STEPS, 5, 6)),
+    ("T2K4", *plan(t2_components(4), T2_STEPS, 4, 6)),
+    ("Mu3", *plan([(i, 0, 0) for i in range(3)], MU_STEPS, 2, 6)),
+]
 
 
 def body(L, products, scalar, accumulate):
@@ -72,6 +86,28 @@ def body(L, products, scalar, accumulate):
             if o not in assigned:
                 lines.append(f"    out[{o}] = C64::ZERO;")
     return lines
+
+
+def jet_impl(name, L, products, pure):
+    pure_text = ", ".join("None" if p is None else f"Some({p})" for p in pure)
+    out = [
+        f"pub(super) struct {name};",
+        "",
+        f"impl Jet<{L}> for {name} {{",
+        f"    const PURE: [Option<usize>; 5] = [{pure_text}];",
+        "",
+    ]
+    for fname, scalar, accumulate in [("first_set", True, False), ("first_acc", True, True),
+                                       ("mul_set", False, False), ("mul_acc", False, True)]:
+        arg = "c: C64" if scalar else f"g: &[C64; {L}]"
+        out.append("    #[inline(always)]")
+        out.append(f"    fn {fname}(out: &mut [C64; {L}], {arg}, x: &[C64; 4]) {{")
+        out += ["    " + line for line in body(L, products, scalar, accumulate)]
+        out.append("    }")
+        out.append("")
+    out[-1] = "}"
+    out.append("")
+    return out
 
 
 def main():
@@ -99,24 +135,27 @@ def main():
         "",
     ]
     for name, L, products, pure in PLANS:
+        out += jet_impl(name, L, products, pure)
+    # Rank n+2 jets (tensor.rs `horner_jet_x2`): the same algebra with a
+    # six-entry pure-power table, appended so the jets above stay unchanged.
+    out += [
+        "/// Jets of the rank n+2 expansions (`tensor.rs` `horner_jet_x2`): the",
+        "/// pure-power table also keeps `u^5`.",
+        "pub(super) trait JetX2<const L: usize>: Jet<L> {",
+        "    /// Component of the pure power `u^k`, `k <= 5`, if kept.",
+        "    const PURE_X2: [Option<usize>; 6];",
+        "}",
+        "",
+    ]
+    for name, L, products, pure in PLANS_X2:
+        out += jet_impl(name, L, products, pure[:5])
         pure_text = ", ".join("None" if p is None else f"Some({p})" for p in pure)
         out += [
-            f"pub(super) struct {name};",
-            "",
-            f"impl Jet<{L}> for {name} {{",
-            f"    const PURE: [Option<usize>; 5] = [{pure_text}];",
+            f"impl JetX2<{L}> for {name} {{",
+            f"    const PURE_X2: [Option<usize>; 6] = [{pure_text}];",
+            "}",
             "",
         ]
-        for fname, scalar, accumulate in [("first_set", True, False), ("first_acc", True, True),
-                                           ("mul_set", False, False), ("mul_acc", False, True)]:
-            arg = "c: C64" if scalar else f"g: &[C64; {L}]"
-            out.append("    #[inline(always)]")
-            out.append(f"    fn {fname}(out: &mut [C64; {L}], {arg}, x: &[C64; 4]) {{")
-            out += ["    " + line for line in body(L, products, scalar, accumulate)]
-            out.append("    }")
-            out.append("")
-        out[-1] = "}"
-        out.append("")
     pathlib.Path(sys.argv[1]).write_text("\n".join(out))
 
 

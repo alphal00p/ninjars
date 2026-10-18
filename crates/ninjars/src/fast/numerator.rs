@@ -125,6 +125,44 @@ pub trait FastNumerator {
         mindeg: usize,
         out: &mut [C64],
     ) -> Result<()>;
+
+    /// The rank n+2 triangle expansion: [`Self::t3_expansion`] at `mindeg`
+    /// 5, `t3_len(5)` outputs per row.
+    ///
+    /// The default forwards to `t3_expansion`. Numerators whose
+    /// `t3_expansion` stops at Ninja's rank n+1 depth (`mindeg` 4) override
+    /// this instead of extending it, so their rank <= n+1 code stays as it
+    /// was; the rank n+2 engine calls only this method for `mindeg` 5.
+    #[allow(clippy::too_many_arguments)]
+    fn t3_expansion_x2(
+        &mut self,
+        cut: &[usize],
+        lanes: &[usize],
+        a: &[CMom],
+        e3: &[CMom],
+        e4: &[CMom],
+        param: &[C64],
+        out: &mut [C64],
+    ) -> Result<()> {
+        self.t3_expansion(cut, lanes, a, e3, e4, param, 5, out)
+    }
+
+    /// The rank n+2 bubble expansion: [`Self::t2_expansion`] at `mindeg` 4,
+    /// `t2_len(4)` outputs per row (see [`Self::t3_expansion_x2`]).
+    #[allow(clippy::too_many_arguments)]
+    fn t2_expansion_x2(
+        &mut self,
+        cut: &[usize],
+        lanes: &[usize],
+        a0: &[CMom],
+        a1: &[CMom],
+        e3: &[CMom],
+        e4: &[CMom],
+        param: &[[C64; 3]],
+        out: &mut [C64],
+    ) -> Result<()> {
+        self.t2_expansion(cut, lanes, a0, a1, e3, e4, param, 4, out)
+    }
 }
 
 #[cfg(test)]

@@ -16,6 +16,10 @@
 //!   `rank <= n + 1` (`Xninja.cc`), including its skip rules and stability
 //!   checks. Coefficient-level subtractions are translated mechanically from
 //!   Ninja (`tools/fast/translate_subtractions.py` → `subtractions.rs`).
+//!   Rank `n + 2`, beyond original Ninja, is reduced by a separate engine
+//!   (`engine_x2.rs`, chosen once at construction) with generated
+//!   subtractions (`tools/fast/generate_subtractions_x2.py` →
+//!   `subtractions_x2.rs`); the rank <= n+1 code is unaffected by it.
 //! - [`TensorNumerator`] is Ninja's/MadLoop's tensor numerator;
 //!   [`MuTensorNumerator`] extends it with explicit `mu²` powers
 //!   (`sum_k mu^(2k) T_k(q)`, e.g. FDH numerators carrying R2).
@@ -26,17 +30,21 @@
 pub mod adapters;
 pub mod complex;
 mod engine;
+mod engine_x2;
 mod geometry;
 pub mod masters;
 pub mod numerator;
 pub mod replay;
 mod subtractions;
+mod subtractions_x2;
 pub mod tensor;
 mod tensor_jets;
 pub mod tensor_layout;
 pub mod tensor_mu;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod tests_x2;
 
 pub use adapters::{GenericMasters, GenericNumerator};
 pub use complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr, to_complex};

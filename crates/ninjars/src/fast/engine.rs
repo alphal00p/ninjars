@@ -1,6 +1,8 @@
 //! Batched binary64 port of original Ninja's `Amplitude::evaluate` with its
 //! default options (no tests, mu-expansion for the box rational term,
-//! `ComplexMasses`), including the rank n+1 path of `Xninja.cc`.
+//! `ComplexMasses`), including the rank n+1 path of `Xninja.cc`. Rank n+2
+//! (beyond original Ninja) is a separate engine, [`super::engine_x2`],
+//! selected once in [`FastAmplitude::new`]; nothing below depends on it.
 //!
 //! Every stage processes one cut for all active lanes: geometry for each lane,
 //! one numerator callback per cut (both orientations of a triangle or of a
@@ -13,6 +15,7 @@
 #![allow(clippy::needless_range_loop)]
 
 use super::complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr};
+use super::engine_x2::{DynMasters, DynNumerator, RankN2Engine, evaluate_x2};
 use super::geometry::{
     Basis, box_solutions, bubble_solution, cmom_from_real, combine_real2, gram_det, mp2,
     reference_vectors_ok, scale, sub, tadpole_candidates, triangle_solution,
@@ -67,29 +70,29 @@ struct BubbleData {
 }
 
 #[derive(Clone, Copy, Debug, Default)]
-struct TadpoleData {
-    c0: C64,
-    c14: C64,
-    c15: C64,
-    e34: f64,
+pub(super) struct TadpoleData {
+    pub(super) c0: C64,
+    pub(super) c14: C64,
+    pub(super) c15: C64,
+    pub(super) e34: f64,
 }
 
 /// Scalar products of one uncut propagator `j` with the expansion vectors of
 /// the current cut, shared by the Laurent division and the subtractions.
 #[derive(Clone, Copy, Debug, Default)]
-struct Uncut {
+pub(super) struct Uncut {
     /// `e3.(V_j - V_0)` and its reciprocal (`2 e3k` is the division's `d0`).
-    e3k: C64,
-    ie3k: C64,
+    pub(super) e3k: C64,
+    pub(super) ie3k: C64,
     /// `e4.(V_j - V_0)` (unscaled `e4`; `e4eff` products follow by scaling).
-    e4k: C64,
+    pub(super) e4k: C64,
     /// Bubble `a0 = e1effl` and `a1 = e2eff` products.
-    e1k: C64,
-    e2k: f64,
+    pub(super) e1k: C64,
+    pub(super) e2k: f64,
     /// Constant part of the division's `d1`.
-    d1: C64,
+    pub(super) d1: C64,
     /// `(V_j - V_0)² + m0² - m_j²`.
-    f: C64,
+    pub(super) f: C64,
 }
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -159,14 +162,18 @@ impl Calls {
 
 /// One master family's batched request.
 #[derive(Default)]
-struct MasterBatch {
-    args: Vec<C64>,
-    out: Vec<[C64; 3]>,
-    ok: Vec<bool>,
+pub(super) struct MasterBatch {
+    pub(super) args: Vec<C64>,
+    pub(super) out: Vec<[C64; 3]>,
+    pub(super) ok: Vec<bool>,
 }
 
 impl MasterBatch {
-    fn run<M: FastMasters + ?Sized>(&mut self, family: FastMaster, masters: &mut M) -> Result<()> {
+    pub(super) fn run<M: FastMasters + ?Sized>(
+        &mut self,
+        family: FastMaster,
+        masters: &mut M,
+    ) -> Result<()> {
         let rows = self.args.len() / family.arity();
         self.out.clear();
         self.out.resize(rows * family.outputs(), [C64::ZERO; 3]);
@@ -180,22 +187,22 @@ impl MasterBatch {
 }
 
 /// Precomputed cut topology in original Ninja's (lexicographic) cut order.
-struct Topology {
-    n: usize,
-    rank: usize,
-    boxes: Vec<[usize; 4]>,
-    triangles: Vec<[usize; 3]>,
-    bubbles: Vec<[usize; 2]>,
-    box_complements: Vec<usize>,
-    triangle_complements: Vec<usize>,
-    bubble_complements: Vec<usize>,
-    tadpole_complements: Vec<usize>,
+pub(super) struct Topology {
+    pub(super) n: usize,
+    pub(super) rank: usize,
+    pub(super) boxes: Vec<[usize; 4]>,
+    pub(super) triangles: Vec<[usize; 3]>,
+    pub(super) bubbles: Vec<[usize; 2]>,
+    pub(super) box_complements: Vec<usize>,
+    pub(super) triangle_complements: Vec<usize>,
+    pub(super) bubble_complements: Vec<usize>,
+    pub(super) tadpole_complements: Vec<usize>,
     /// `(triangle, uncut)` parents of each bubble (`isSubPartition2of3`).
-    bubble_parents: Vec<Vec<(usize, usize)>>,
+    pub(super) bubble_parents: Vec<Vec<(usize, usize)>>,
     /// `(triangle, [uncut0, uncut1])` parents of each tadpole.
-    tadpole_triangle_parents: Vec<Vec<(usize, [usize; 2])>>,
+    pub(super) tadpole_triangle_parents: Vec<Vec<(usize, [usize; 2])>>,
     /// `(bubble, uncut)` parents of each tadpole.
-    tadpole_bubble_parents: Vec<Vec<(usize, usize)>>,
+    pub(super) tadpole_bubble_parents: Vec<Vec<(usize, usize)>>,
 }
 
 fn complement(part: &[usize], n: usize, out: &mut Vec<usize>) {
@@ -318,29 +325,29 @@ impl Topology {
 }
 
 #[inline(always)]
-fn sub_cr(a: &CMom, b: &RMom) -> CMom {
+pub(super) fn sub_cr(a: &CMom, b: &RMom) -> CMom {
     [a[0] - b[0], a[1] - b[1], a[2] - b[2], a[3] - b[3]]
 }
 
 #[inline(always)]
-fn scale_c(a: &CMom, s: f64) -> CMom {
+pub(super) fn scale_c(a: &CMom, s: f64) -> CMom {
     [a[0] * s, a[1] * s, a[2] * s, a[3] * s]
 }
 
 /// `D = (q+V)² - m²` (Ninja's `Den` at `mu² = 0`).
 #[inline(always)]
-fn den(q: &CMom, v: &RMom, m2: C64) -> C64 {
+pub(super) fn den(q: &CMom, v: &RMom, m2: C64) -> C64 {
     let s = [q[0] + v[0], q[1] + v[1], q[2] + v[2], q[3] + v[3]];
     mp_cc(&s, &s) - m2
 }
 
 #[inline(always)]
-fn is_zero(z: C64) -> bool {
+pub(super) fn is_zero(z: C64) -> bool {
     z.re == 0. && z.im == 0.
 }
 
 /// Mark a lane unstable; its later cuts and its results are skipped.
-fn fail(alive: &mut [bool], status: &mut [FastStatus], lane: usize) {
+pub(super) fn fail(alive: &mut [bool], status: &mut [FastStatus], lane: usize) {
     if alive[lane] {
         alive[lane] = false;
         status[lane] = FastStatus::Unstable;
@@ -505,6 +512,9 @@ pub struct FastAmplitude {
     pairs: Vec<[C64; 4]>,
     masters: [MasterBatch; 5],
     staged: Vec<FastResult>,
+    /// The rank n+2 engine, present iff `rank == n + 2`; it then performs
+    /// every evaluation and the fields above stay unused.
+    pub(super) x2: Option<Box<RankN2Engine>>,
 }
 
 /// Master batches: D0, C0, rank-2 bubbles, rank-3 bubbles, A0.
@@ -517,12 +527,14 @@ const FAMILIES: [FastMaster; 5] = [
 ];
 
 impl FastAmplitude {
-    /// A reduction engine for `n >= 1` propagators and `rank <= n + 1`.
+    /// A reduction engine for `n >= 1` propagators and `rank <= n + 2`.
+    /// Rank n+2 (beyond original Ninja) is reduced by the separate
+    /// [`RankN2Engine`], chosen here once.
     pub fn new(n: usize, rank: usize, options: FastOptions) -> Result<Self> {
         if n == 0 {
             return Err(Error::NoPropagators);
         }
-        if rank > n + 1 {
+        if rank > n + 2 {
             return Err(Error::Rank {
                 rank,
                 propagators: n,
@@ -552,6 +564,7 @@ impl FastAmplitude {
             pairs: Vec::new(),
             masters: Default::default(),
             staged: Vec::new(),
+            x2: (rank == n + 2).then(|| Box::new(RankN2Engine::new(n, options))),
         })
     }
 
@@ -589,6 +602,32 @@ impl FastAmplitude {
     /// previous result and receive a failure status. Structural errors (bad
     /// shapes, provider errors) return `Err` and leave results unchanged.
     pub fn evaluate<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
+        &mut self,
+        input: &FastInput,
+        numerator: &mut N,
+        masters: &mut M,
+        results: &mut [FastResult],
+        statuses: &mut [FastStatus],
+    ) -> Result<()> {
+        if let Some(x2) = self.x2.as_deref_mut() {
+            return evaluate_x2(
+                x2,
+                &self.topo,
+                input,
+                &mut DynNumerator(numerator),
+                &mut DynMasters(masters),
+                results,
+                statuses,
+            );
+        }
+        self.evaluate_up_to_n1(input, numerator, masters, results, statuses)
+    }
+
+    /// [`Self::evaluate`] for rank <= n+1. Kept as its own (never-inlined)
+    /// function so that the rank n+2 dispatch above leaves its code as it
+    /// was before rank n+2 existed.
+    #[inline(never)]
+    fn evaluate_up_to_n1<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
         &mut self,
         input: &FastInput,
         numerator: &mut N,

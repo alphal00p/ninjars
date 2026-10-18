@@ -773,7 +773,9 @@ fn rank_n_plus_two_is_still_rejected_by_both_engines() {
         assert_eq!(RankClass::of(n, n + 2), Some(RankClass::NPlus2));
         assert!(Topology::new(n, n + 1).is_ok());
         assert!(matches!(Topology::new(n, n + 2), Err(Error::Rank { .. })));
-        assert!(FastAmplitude::new(n, n + 2, FastOptions::default()).is_err());
+        // The fast engine reduces rank n+2 (`fast/engine_x2.rs`); beyond, no.
+        assert!(FastAmplitude::new(n, n + 2, FastOptions::default()).is_ok());
+        assert!(FastAmplitude::new(n, n + 3, FastOptions::default()).is_err());
         assert!(SymbolicaAmplitudeKernels::new(n, n + 2, 0f64).is_err());
         for cut in 1..=n.min(3) {
             assert!(LaurentDivision::new(n, n + 2, cut).is_err());
