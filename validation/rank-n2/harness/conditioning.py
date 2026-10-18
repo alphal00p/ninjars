@@ -29,9 +29,10 @@ def gram_min(shifts, kmax=4):
             g = abs(float(det(G) / norm)) if norm else 0.0
             if g < worst[0]: worst = (g, sub)
     return worst
-def cayley_min(shifts, m2):
+def cayley_min(shifts, m2, kmax=6):
+    # k <= 6: the modified Cayley matrix has rank <= 6 in four dimensions (n >= 7 is singular)
     n = len(shifts); worst = (1.0, None)
-    for k in range(3, n + 1):
+    for k in range(3, min(n, kmax) + 1):
         for sub in itertools.combinations(range(n), k):
             Y = [[complex(*m2[i]) + complex(*m2[j]) - mdot([a-b for a, b in zip(shifts[i], shifts[j])], [a-b for a, b in zip(shifts[i], shifts[j])]) for j in sub] for i in sub]
             sc = max(abs(x) for r in Y for x in r) ** k

@@ -3,14 +3,16 @@
 # scan/reference} and the synthetic rank n+2 references.
 #
 #   harness/run_suite.sh SET [JOBS]   SET = suite | controls | identity | scan | synthetic |
-#                                           synthetic-twins (syn-n{2..6}-r{n,n+1}, ambiguity calibration)
+#                                           synthetic-twins (syn-n{2..6}-r{n,n+1}, ambiguity calibration) |
+#                                           n7 | n7-controls (the n = 7 suite cases and their twins only;
+#                                           finalize them with finalize_n7.sh)
 #
 # Steps (env STEPS, default "collier hp"; all output in $WORK/<set>/, default WORK =
 # <repo>/target/rank-n2-work):
 #  collier:  coli-quad         COLLIER COLI, quad build, exact inputs            (all cases)
-#            dd-quad           COLLIER DD, quad (N <= 6; pentagon rank <= 5, hexagon rank <= 6)
+#            dd-quad           COLLIER DD, quad (N <= 6; pentagon rank <= 5, hexagon rank <= 6; none at n = 7)
 #            coli-quad-shifts  COLI quad with MomInv from the exact shifts instead of the s_matrix
-#            id-dd-quad        exact rank reduction to rank <= N pieces, DD quad, shift invariants (n >= 5)
+#            id-dd-quad        exact rank reduction to rank <= N pieces, DD quad, shift invariants (n = 5, 6)
 #            id-coli-quad      the same pieces with COLI quad                                 (n >= 5)
 #            mp                independent mpmath tadpoles/bubbles (n <= 2)
 #            coli-double, dd-double   binary64 COLLIER (diagnostics only)
@@ -39,6 +41,8 @@ case $SET in
   scan)      CASES=("$RN2"/scan/cases/*.json) ;;
   synthetic) CASES=(); for n in 1 2 3 4 5 6; do CASES+=("$REPO/validation/benchmark/synthetic-rank-n2/syn-n$n-r$((n + 2)).json"); done ;;
   synthetic-twins) CASES=(); for n in 2 3 4 5 6; do for r in $n $((n + 1)); do CASES+=("$REPO/validation/benchmark/synthetic/syn-n$n-r$r.json"); done; done ;;
+  n7)        CASES=("$RN2"/cases/*-n7-r*.json) ;;
+  n7-controls) CASES=("$RN2"/controls/cases/*-n7-r*.json) ;;
   *) echo "unknown set $SET" >&2; exit 2 ;;
 esac
 OUT="$WORK/$SET"; mkdir -p "$OUT"
@@ -51,14 +55,15 @@ sel() {  # cases whose n is in the given list
   done
 }
 run() { local tag=$1; shift; "$PY" "$HERE/collier_reference.py" --jobs "$JOBS" --tag "$tag" --out-dir "$OUT/$tag" "$@" > "$OUT/$tag.log"; }
-mapfile -t HIGH < <(sel 5 6)
+mapfile -t HIGH < <(sel 5 6 7)
+mapfile -t HIGH_DD < <(sel 5 6)
 mapfile -t LOW < <(sel 1 2)
 STEPS=${STEPS:-collier hp ambiguity}
 if [[ " $STEPS " == *" collier "* ]]; then
   run coli-quad "${CASES[@]}"
   run dd-quad --mode 2 "${CASES[@]}"
   run coli-quad-shifts --invariants shifts "${CASES[@]}"
-  [ ${#HIGH[@]} -gt 0 ] && run id-dd-quad --mode 2 --reduce 0 --invariants shifts "${HIGH[@]}"
+  [ ${#HIGH_DD[@]} -gt 0 ] && run id-dd-quad --mode 2 --reduce 0 --invariants shifts "${HIGH_DD[@]}"
   [ ${#HIGH[@]} -gt 0 ] && run id-coli-quad --reduce 0 --invariants shifts "${HIGH[@]}"
   [ ${#LOW[@]} -gt 0 ] && run mp --build mp "${LOW[@]}"
   run coli-double --build precise "${CASES[@]}"

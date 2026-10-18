@@ -1,0 +1,86 @@
+{
+ "format": "ninjars-reference-ninja-bench-v1",
+ "case": "rn2-shifted-mixed-n7-r7",
+ "build": "o3",
+ "oneloop_warnings": false,
+ "n": 7,
+ "rank": 7,
+ "amplitude": "ninja::Amplitude<ninja::ComplexMasses>(n, rank, V, m2); setRenormalizationScale(mu_squared) (Ninja passes mu_R^2 to IntegralLibrary::init, AvHOneLoop uses mu_R=sqrt); setSMatrix if s_matrix given",
+ "all_replays_bitwise_identical": true,
+ "case_file": "controls/cases/rn2-shifted-mixed-n7-r7.json",
+ "provenance": "original Ninja @05fb0d3 + OneLOop 3.6, o3 build, validation/benchmark/ninja_bench.cc driver (sha256 69fa60af770227ff...), harness/ninja_controls.py, trimmed to the Laurent coefficients",
+ "lanes": [
+  {
+   "id": "rn2-shifted-mixed-n7-r7-lane0",
+   "return_status": 0,
+   "eps0": [
+    1.6379672752420088e-22,
+    -9.36596794164505e-22
+   ],
+   "eps_m1": [
+    1.6627808402762815e-33,
+    -3.796931241812454e-34
+   ],
+   "eps_m2": [
+    0,
+    0
+   ],
+   "cut_constructible": [
+    -3.746370129319231e-22,
+    -1.0785304337313254e-21
+   ],
+   "rational": [
+    5.38433740456124e-22,
+    1.4193363956682054e-22
+   ]
+  },
+  {
+   "id": "rn2-shifted-mixed-n7-r7-lane1",
+   "return_status": 0,
+   "eps0": [
+    2.50510300957893e-19,
+    -1.6448226595277875e-19
+   ],
+   "eps_m1": [
+    2.9057515055716454e-33,
+    -1.364621987914787e-32
+   ],
+   "eps_m2": [
+    0,
+    0
+   ],
+   "cut_constructible": [
+    2.512610912772814e-19,
+    -1.6418027473267272e-19
+   ],
+   "rational": [
+    -7.5079031938840015e-22,
+    -3.0199122010602726e-22
+   ]
+  },
+  {
+   "id": "rn2-shifted-mixed-n7-r7-lane2",
+   "return_status": 0,
+   "eps0": [
+    -1.468485613956544e-20,
+    -1.7864292488948875e-20
+   ],
+   "eps_m1": [
+    3.870432699517464e-34,
+    -2.438445481345753e-34
+   ],
+   "eps_m2": [
+    0,
+    0
+   ],
+   "cut_constructible": [
+    -1.4307675077335905e-20,
+    -1.8928578977593416e-20
+   ],
+   "rational": [
+    -3.7718106222953617e-22,
+    1.0642864886445404e-21
+   ]
+  }
+ ]
+}

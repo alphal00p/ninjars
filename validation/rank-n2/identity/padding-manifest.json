@@ -731,6 +731,30 @@
    "lanes": 3
   },
   {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n7-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n7-r6.json",
+   "n": 7,
+   "rank": 6,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n7-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n7-r7.json",
+   "n": 7,
+   "rank": 7,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n7-r8.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n7-r8.json",
+   "n": 7,
+   "rank": 8,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
    "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n1-r0.json",
    "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n1-r0.json",
    "n": 1,
@@ -875,6 +899,30 @@
    "lanes": 3
   },
   {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n7-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n7-r6.json",
+   "n": 7,
+   "rank": 6,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n7-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n7-r7.json",
+   "n": 7,
+   "rank": 7,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n7-r8.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n7-r8.json",
+   "n": 7,
+   "rank": 8,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
    "case": "validation/rank-n2/controls/cases/rn2-int-real-n1-r0.json",
    "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n1-r0.json",
    "n": 1,
@@ -1016,6 +1064,30 @@
    "n": 6,
    "rank": 7,
    "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n7-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n7-r6.json",
+   "n": 7,
+   "rank": 6,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n7-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n7-r7.json",
+   "n": 7,
+   "rank": 7,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n7-r8.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n7-r8.json",
+   "n": 7,
+   "rank": 8,
+   "declared_rank": 9,
    "lanes": 3
   },
   {
@@ -1808,6 +1880,30 @@
    "n": 6,
    "rank": 7,
    "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n7-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n7-r6.json",
+   "n": 7,
+   "rank": 6,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n7-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n7-r7.json",
+   "n": 7,
+   "rank": 7,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n7-r8.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n7-r8.json",
+   "n": 7,
+   "rank": 8,
+   "declared_rank": 9,
    "lanes": 3
   }
  ]

@@ -1,20 +1,22 @@
 # Rank n+2 high-precision validation suite
 
 This directory holds reference values, control cases and exact identity data for numerator
-rank r = n+2. It is stream S5a of the rank n+2 design. Nothing here is Rust: the tests that
-consume it belong to S5b (`case-check`, `crates/ninjars-symbolica/tests/rank_n2_*.rs`).
+rank r = n+2. It is stream S5a of the rank n+2 design, extended by S5b with n = 7 cases
+(section "n = 7"). Nothing here is Rust: the consumers are `ninjars case-check` and
+`crates/ninjars-symbolica/tests/rank_n2_*.rs` (section "Checking the engines").
 
 | directory | content |
 |---|---|
-| `cases/` | 97 rank n+2 bench cases (291 lanes, n = 1..6), `ninjars-bench-case-v1` or `-v2` (integrand mu^2) |
+| `cases/` | 105 rank n+2 bench cases (315 lanes, n = 1..7), `ninjars-bench-case-v1` or `-v2` (integrand mu^2) |
 | `reference/` | one reference file per suite case, plus `syn-n{1..6}-r{n+2}` (cases in `validation/benchmark/synthetic-rank-n2/`) |
-| `controls/` | `cases/`: 180 rank <= n+1 twins on the suite kinematics. `reference/`: their references, plus references for `syn-n{2..6}-r{n,n+1}` of `validation/benchmark/synthetic/`. `ninja/`: original-Ninja results for 162 twins |
+| `controls/` | `cases/`: 195 rank <= n+1 twins on the suite kinematics. `reference/`: their references, plus references for `syn-n{2..6}-r{n,n+1}` of `validation/benchmark/synthetic/`. `ninja/`: original-Ninja results for 174 twins |
 | `identity/` | `cases/`, `reference/`: 63 exact identity and invariance cases. `manifest.json`: which lanes must agree. `padding-manifest.json`: the V5 cases. `residuals.json`: the identities on the references |
 | `scan/` | 6 conditioning-scan cases (V9): a bubble p^2 ladder, and triangle and box Gram-determinant ladders |
 | `scalars/` | exact scalar C0/D0 of every 3- and 4-propagator subset of every lane (inputs of the reduction, see below); `shift-invariants/` holds the same with the invariants taken from the shifts |
 | `summary/` | one row per lane and set: source, tier, uncertainty and every cross-check |
 | `provenance/` | the review's `hpref` values and the comparison with them |
 | `harness/` | every script that produced the above, and the COLLIER driver |
+| `known-failures.json` | lanes expected to fail until oneloopmaster's D0 is fixed (findings 3 and 5), read by `case-check --known-failures` and the tests |
 
 ## Conventions
 
@@ -59,15 +61,29 @@ consume it belong to S5b (`case-check`, `crates/ninjars-symbolica/tests/rank_n2_
 | `reduction` | `new_terms_over_scale` and `parts_over_scale`: the size of the new rank n+2 integrated terms relative to the lane (box mu^6, B1111, bubble mu^2 (q.e2)^2 and mu^4) |
 | `ninja` (controls) | original Ninja's scaled error against the reference |
 
-**Tolerances for S5b.**
-- **Generic Float(256) with exact masters (V4).** Use `max(3 uncertainty, 1e-30)` on tier A
-  and B lanes, and treat tier C as report only.
+**Tolerances** (as implemented by `case-check` and the tests; section "Checking the engines").
+- **Generic Float(256) with exact masters (V4).** `max(3 uncertainty, 1e-30)` on tier A and
+  B lanes; tier C is report only.
   - This tolerance assumes that oneloopmaster's exact C0/D0, which NinjaRS and the reduction
     share, are correct. `verified_to` is the statement that does not depend on those masters.
-  - The lanes listed under finding 3 must be expected to fail until that bug is fixed.
-- **Binary64 (V4f).** Use `1e-14 max(1, condition) + 3 uncertainty`, calibrated on the
-  controls. The fast engine on main (`case-bench`, native masters) is within 3.2e-9 of the
-  control references on all 531 checked lanes, apart from the finding-3 lanes (0.1-0.3).
+  - The lanes of `known-failures.json` (findings 3 and 5) fail until that bug is fixed.
+  - Tier-B lanes whose uncertainty comes from `generic_engine_extrapolated` or
+    `generic_engine_on_twins` (32 suite lanes: `phys` and `syn`) are report only: that
+    uncertainty estimates the input ambiguity from the generic engine's own rank twins and is
+    not a conservative bound.
+- **Binary64 (V4f).** The design's `1e-14 max(1, condition) + 3 uncertainty` does not hold:
+  COLLIER's contraction condition does not predict the reduction's binary64 loss (on the
+  controls the fast engine needs up to 1e5 times that at n = 6, e.g. 2.6e-6 on
+  `rn2-phys-real-n6-r7` lane 1, condition 1.7). Original Ninja's own error does: the fast
+  engine is within 12 times Ninja's error (plus 3 uncertainty) on all 505 control lanes that
+  have one, the generic engine in f64 within 575 times. The binary64 tolerance is therefore
+  `3 unc + max(1e-14 max(1, cond), A e_ninja)`, `A` = 30 (fast) or 1000 (generic f64), where
+  `e_ninja` is Ninja's error on the lane (`ninja` field), or for lanes without one (rank n+2,
+  mu^2 twins) on the rank twins of the same kinematics (`summary/{controls,
+  synthetic-twins,n7-controls}.json`), extrapolated geometrically by one rank from the two
+  highest twin ranks. The Ninja term is capped at 1e-4 and not used on the kinematics of a
+  known failure (Ninja shares the D0 bug). Generic-engine-derived uncertainties count 100
+  times; `condition > 1e6` and tier C are report only.
 
 ## How the values are obtained
 
@@ -148,6 +164,21 @@ makes 5 `phys` n = 6 suite lanes and 2 `syn` lanes tier C.
    - At on-shell thresholds (`irsoft` lanes, `Delta = x^2 M^2`) that shift costs 1e-21.
    - `e2e_reduction.py` uses the exact `-i0` prescription instead and now agrees with the
      generic engine to 4e-40.
+5. **The oneloopmaster D0 bug of finding 3 is not isolated (S5b, n = 7).** Four more
+   real-mass boxes of the n = 7 kinematics give an exact (and native, and OneLOop) D0 that
+   differs from COLLIER's COLI and DD, which agree with each other to 1e-16..1e-19, by
+   factors 3 to 51:
+
+   | lanes | box (p1^2..p4^2; s12, s23; m0^2..m3^2) |
+   |---|---|
+   | `rn2-int-real-n7-*` lane 0 | (126627, 117904, 4340, -33109; -38553, 200750; 6464.16, 15625, 100, 29929) |
+   | `rn2-int-real-n7-*` lane 0 | (200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) |
+   | `rn2-int-real-n7-*` lane 1 | (127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) |
+   | `rn2-shifted-mixed-n7-*` lane 1 | (103359, 84842, 9291, -10106; -31393, -31173; 100, 100, 0, 6464.16) |
+
+   These lanes (all ranks, all mu^2 variants: 20 lanes) fail `scalar_check`, so their source
+   is COLLIER's COLI; without DD at n = 7 they have no cross-branch uncertainty and are
+   tier C. They are listed in `known-failures.json`.
 
 ## Validation
 
@@ -164,7 +195,7 @@ makes 5 `phys` n = 6 suite lanes and 2 `syn` lanes tier C.
 | analytic 1/eps pole of the rank 2N-4 integrals (`uv_check.py`, IR-finite lanes), suite / controls | 45 / 72 | max 2.6e-31 (the COLLIER-sourced lane), otherwise <= 2e-42 / max 8e-41 |
 | `test_mu2.py`: `int mu^(2b) / prod D` against the dimension-shift closed form for k = 1..6 propagators and b = 1..4, plus `mu^2 q^mu / D^3` | 56 | quad COLLIER <= 6.3e-20 (the mu^8 hexagon); mp <= 1.6e-40 |
 | identities on the published references (`identity/residuals.json`): V6a / V6b / V7a / V7b | 20 / 10 / 24 / 68 | max 0 / 2.9e-40 / 0 / 0 (COLLIER quad: 2.4e-14 / 1.7e-14 / 1.2e-14 / 5.2e-12) |
-| NinjaRS fast engine on main (binary64, native masters, `case-bench`) vs control references, including the mu^2 twins | 531 | <= 3.2e-9, apart from the finding-3 lanes |
+| NinjaRS fast engine on main (binary64, native masters, `case-bench`) vs control references, including the mu^2 twins | 531 | <= 3.2e-9, apart from the finding-3 lanes. S5b correction: `case-check` on every lane of the n <= 6 controls finds up to 2.6e-6 (`rn2-phys-real-n6-r7` lane 1, where original Ninja is off by 3.6e-6); see "Checking the engines" |
 
 ### Against the review's `hpref` (`provenance/hpref-comparison.json`)
 
@@ -237,7 +268,7 @@ refuses otherwise), and a Float(256) test can demand 1e-60.
 | V7b | `...-perm` | lane k is base lane 0 with propagator i -> sigma_k(i): all 2n dihedral orders for n <= 4, the identity plus 7 random permutations for n = 5, 6 (`V7b`) |
 | V6a | `rn2-id-pinch-n{n}` (lane j: `D_j M_j`, v2) and `-sub` (lane j: `M_j` on the other n-1 propagators), n = 2..6 | `I_n[D_j M_j] = I_(n-1)[M_j]` for every j (`V6a`) |
 | V6b | `rn2-id-decomp-n{n}` with `N = R + sum_i D_i B_i + sum_(i<j) D_i D_j C_ij` (v2; the double pinches bring mu^4), with pieces `-R` (rank n+1), `-B` (rank n on n-1 propagators) and `-C` (rank n-2 on n-2), n = 2..6, 2 lanes | `I[N] = I[R] + sum I[B_i] + sum I[C_ij]`; every piece runs through the rank <= n+1 engine (`V6b`) |
-| V5 | `padding-manifest.json`: 226 rank <= n+1 cases (717 lanes) with Ninja results | run declared as rank n+2 |
+| V5 | `padding-manifest.json`: 238 rank <= n+1 cases (753 lanes, the n = 7 twins included) with Ninja results | run declared as rank n+2 |
 
 **The integrand mu^2 in V6.** `D_i = (q + V_i)^2 - m_i^2 - mu^2` includes the integrand
 mu^2, so the V6 numerators are v2 cases.
@@ -274,6 +305,86 @@ The reduction itself is run here as `id-*`.
   complex-top tadpole with V_0 zero, timelike or spacelike.
 - **References.** In `reference/syn-*.json`.
 
+## n = 7 (S5b)
+
+The user's practical range is n <= 7, so S5b extends the suite by one multiplicity with the
+same generators and pipeline.
+
+- **Kinematics.** `gen_suite.py` appends the specs `int` (real, complex, mixed masses) and
+  `shifted` (mixed) at n = 7, after every earlier spec, so every existing case is regenerated
+  byte for byte. No `phys` family: its snapped S-matrices tie the uncertainty to the generic
+  engine's own twins. `conditioning.cayley_min` now stops at 6-point subsets: in four
+  dimensions the modified Cayley matrix of 7 or more points is singular (identical for
+  n <= 6). The Gram screening at n = 7 needs up to a few hundred trial points per lane.
+- **Cases.** Suite (`cases/`): `rn2-int-{real,complex,mixed}-n7-r9`,
+  `rn2-shifted-mixed-n7-r9`, `rn2-int-{real,complex}-n7-r9-mu2`,
+  `rn2-shifted-mixed-n7-r9-mu2` (blocks mu^0, mu^2, mu^4) and `rn2-int-real-n7-r9-muall`
+  (up to mu^8): 8 cases, 24 lanes. Controls (`controls/cases/`): ranks 6, 7, 8 of the four
+  kinematics and three mu^2 twins at rank 8: 15 cases, 45 lanes. Original Ninja's results
+  for the 12 mu-free twins: `controls/ninja/` (`harness/ninja_controls.py`).
+- **Pipeline.** `run_suite.sh n7-controls` and `run_suite.sh n7` (COLLIER COLI quad and
+  `id-coli-quad`; no DD at n = 7), with `GENERIC_RUNNER="ninjars case-check"` for the exact
+  scalars and `generic-f256`, then `finalize_n7.sh` (references, `summary/n7*.json`,
+  `scalars/n7*.json`; no other file is rewritten).
+- **Results.**
+
+  | case | tiers | source | max unc. (A/B) | verified_to |
+  |---|---|---|---|---|
+  | `rn2-int-complex-n7-r9` | AAA | reduction-exact | 7e-38 | 4e-15..5e-13 |
+  | `rn2-int-complex-n7-r9-mu2` | AAA | reduction-exact | 6e-30 | 2e-14..6e-12 |
+  | `rn2-int-mixed-n7-r9` | AAA | reduction-exact | 1e-37 | 6e-16..4e-13 |
+  | `rn2-int-real-n7-r9` | CCA | coli-quad (lanes 0, 1), reduction-exact | 2e-33 | 8e-11 |
+  | `rn2-int-real-n7-r9-mu2` | CCB | coli-quad, reduction-exact | 4e-25 | 3e-11 |
+  | `rn2-int-real-n7-r9-muall` | CCB | coli-quad, reduction-exact | 1e-17 | 4e-9 |
+  | `rn2-shifted-mixed-n7-r9` | ACA | coli-quad (lane 1), reduction-exact | 2e-38 | 6e-15..3e-14 |
+  | `rn2-shifted-mixed-n7-r9-mu2` | ACC | coli-quad, reduction-exact | 2e-30 | 2e-14..5e-7 |
+
+  Suite: 13 A, 2 B, 9 C. Controls: 33 A, 12 C; on the 33 tier-A control lanes the generic
+  engine in Float(256) agrees with `reduction-exact` to <= 7e-37 (`d_generic-f256`).
+  - 8 of the 9 suite C lanes (and the 12 control C lanes) are finding 5. The ninth,
+    `rn2-shifted-mixed-n7-r9-mu2` lane 2, is a correct reduction value (60 vs 80 digits:
+    2e-32) that COLLIER reproduces only to 5e-7, so it lacks independent verification.
+  - The B lanes of `rn2-int-real-n7-r9-{mu2,muall}` are reductions whose 60- and 80-digit
+    runs differ by 4e-25 and 1e-17 (the integrand mu^2 blocks cancel strongly at n = 7, rank 9).
+    Their tolerance is 3 times that.
+
+## Checking the engines (S5b)
+
+`ninjars case-check` reduces bench cases and judges every lane against a reference file:
+
+```sh
+ninjars case-check validation/rank-n2/cases/*.json --engines fast,generic \
+  --precision f64,float:256 --reference-dir validation/rank-n2/reference \
+  --known-failures validation/rank-n2/known-failures.json \
+  --twins validation/rank-n2/summary/controls.json --twins validation/rank-n2/summary/n7-controls.json \
+  [--declare-rank n+2] [-o report.json]
+```
+
+- Engines: the fast engine (`TensorNumerator`, `MuTensorNumerator` for v2 cases, native
+  masters, lanes batched as `case-bench` does) and the generic engine at `f64` (native
+  masters), `double` or `float:<bits>` (oneloopmaster's exact expressions). The generic
+  engine expands the dense tensor numerically, so a dense rank-9 numerator costs no
+  Symbolica preparation: all 205 control cases (615 lanes, n = 1..7) take 6 minutes in Float(256).
+- Verdicts per lane: `pass`, `fail`, `report-only`, `known-failure`, `unchecked` (no
+  reference lane), `error` (the engine rejects the case, e.g. rank n+2 before integration).
+  The exit status is non-zero if any lane fails.
+- On rank <= n+1 cases the fast run carries `case_bench_reference_check`, which is
+  `case-bench`'s own reference check of the same batch (tested to be equal).
+- `--bits B --out-dir DIR` writes `DIR/<case>.json` with 45-digit `lanes[].laurent_decimal`:
+  the `GENERIC_RUNNER` of `run_suite.sh` (used for the n = 7 scalars).
+- Tests (`crates/ninjars-symbolica/tests/`): `rank_n2_reference.rs` (V4, V4f, V9),
+  `rank_n2_identity.rs` (V6), `rank_n2_invariance.rs` (V7), `rank_n2_padding.rs` (V5),
+  `fast_parity.rs` (V8), `crates/ninjars-cli/tests/case_check.rs`. The parts that need the
+  rank n+2 engines are `#[ignore = "enable at integration"]`; the rank <= n+1 parts run now.
+
+Results on the controls (rank <= n+1, n = 1..7, 615 lanes, main + S0 interfaces):
+
+| run | pass | report-only | known-failure | fail | largest checked difference |
+|---|---|---|---|---|---|
+| generic Float(256), exact masters | 598 | 2 | 15 | 0 | 3.2e-10 (tier-B `phys` lanes; tier A <= 1e-36) |
+| fast, native masters | 597 | 3 | 15 | 0 | 2.6e-6 (`rn2-phys-real-n6-r7` lane 1, where original Ninja's error is 3.6e-6) |
+| generic f64, native masters | 597 | 3 | 15 | 0 | 4.3e-7 |
+
 ## Regenerating
 
 ```sh
@@ -287,9 +398,14 @@ $H/python.sh $H/gen_scan.py --out validation/rank-n2/scan
 $H/python.sh $H/padding_manifest.py --out validation/rank-n2/identity/padding-manifest.json
 python3 validation/benchmark/make_synthetic_cases.py
 for s in controls synthetic-twins suite synthetic identity scan; do
-  GENERIC_RUNNER=... $H/run_suite.sh $s 32
+  GENERIC_RUNNER="ninjars case-check" $H/run_suite.sh $s 32
 done
 $H/finalize.sh                       # references, summaries, scalars, hpref comparison, identity residuals
+# n = 7 (S5b)
+$H/python.sh $H/ninja_controls.py --driver <ninja-runs/bin/ninja_bench-o3> \
+  validation/rank-n2/controls/cases/*-n7-r*.json --out validation/rank-n2/controls/ninja
+for s in n7-controls n7; do GENERIC_RUNNER="ninjars case-check" $H/run_suite.sh $s 48; done
+$H/finalize_n7.sh
 $H/python.sh $H/test_mu2.py --build quad; $H/python.sh $H/test_mu2.py --build mp
 ```
 
@@ -311,10 +427,10 @@ $H/python.sh $H/test_mu2.py --build quad; $H/python.sh $H/test_mu2.py --build mp
   - They were evaluated with the NinjaRS generic engine at Float(256) with `SymbolicaMasters`
     (main b5b93be, oneloopmaster 264a6ce). A rank-0 numerator makes the result the scalar
     integral itself.
-  - That driver was a scratch program, because this stream adds no Rust. `GENERIC_RUNNER` can
+  - That driver was a scratch program, because S5a added no Rust. `GENERIC_RUNNER` can
     be any command `RUNNER --bits 256 --out-dir DIR CASE.json...` that writes `DIR/<case>.json`
-    with `lanes[].laurent_decimal`. S5b's `case-check` (generic engine, `Float:256`) provides
-    one.
+    with `lanes[].laurent_decimal`; `ninjars case-check` is one (it produced the n = 7
+    scalars and `generic-f256` runs).
   - The values are committed in `scalars/`, so the following reruns the reduction without the
     runner:
     `E2E_SCALARS=validation/rank-n2/scalars harness/review_reduction/run_reduction.py CASE.json... --out-dir DIR`.

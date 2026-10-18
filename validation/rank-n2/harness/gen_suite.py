@@ -22,7 +22,9 @@ power k <= rank/2) are "ninjars-bench-case-v2" (crates/ninjars-cli/src/export_be
 tensor = T_0 ++ T_1 ++ ... ++ T_K, N = sum_k (mu^2)^k T_k(q), T_k dense of rank rank - 2k.
 Every random stream is that of the phase-1 generator (scratchpad gen_suite.py): the 66
 phase-1 cases and their 162 twins are reproduced number for number (only the "-mu2" lanes
-move from the phase-1 "mu2_tensors" extension field to the v2 layout).
+move from the phase-1 "mu2_tensors" extension field to the v2 layout).  The n = 7 specs
+(int real/complex/mixed, shifted mixed; S5b) come after every earlier spec, so they leave
+every earlier seed and file unchanged.
 
   gen_suite.py --out DIR            rank n+2 suite (validation/rank-n2/cases)
   gen_suite.py --out DIR --controls rank <= n+1 twins (validation/rank-n2/controls/cases)
@@ -410,6 +412,11 @@ def specs():
     out.append(("int", 2, "zero"))
     for masses in ("real", "complex", "mixed"):
         out.append(("bub0", 2, masses))
+    # n = 7 (S5b), appended so that every earlier seed is unchanged. No phys family: its
+    # snapped S-matrices tie the reference uncertainty to the generic engine's own twins.
+    for masses in ("real", "complex", "mixed"):
+        out.append(("int", 7, masses))
+    out.append(("shifted", 7, "mixed"))
     return {spec: 20261018 + i for i, spec in enumerate(out)}
 
 
@@ -425,12 +432,12 @@ def suite_plan():
     for (family, n, masses), seed in seeds.items():
         out.append(make_case(family, n, n + 2, masses, seed))
     # (2) phase-1 "-mu2" cases: int kinematics, blocks mu^2 x rank n, mu^4 x rank n-2
-    for n in range(1, 7):
+    for n in range(1, 8):
         for masses in ("real", "complex"):
             out.append(make_case("int", n, n + 2, masses, seeds[("int", n, masses)],
                                  mu2_ext=mu_blocks(n + 2, 2), tag="-mu2"))
     # (3) new "-mu2" cases on the other families
-    extra = [("phys", n, "complex") for n in range(1, 7)] + [("shifted", n, "mixed") for n in range(1, 7)] \
+    extra = [("phys", n, "complex") for n in range(1, 7)] + [("shifted", n, "mixed") for n in range(1, 8)] \
         + [("bub0", 2, m) for m in ("real", "complex", "mixed")] + [("irml", n, "zero") for n in range(3, 7)]
     for family, n, masses in extra:
         out.append(make_case(family, n, n + 2, masses, seeds[(family, n, masses)],
@@ -440,6 +447,7 @@ def suite_plan():
         for family, masses in (("int", "complex"), ("int", "real"), ("shifted", "mixed"), ("phys", "complex")):
             out.append(make_case(family, n, n + 2, masses, seeds[(family, n, masses)],
                                  mu2_ext=mu_blocks(n + 2, (n + 2) // 2), tag="-muall"))
+    out.append(make_case("int", 7, 9, "real", seeds[("int", 7, "real")], mu2_ext=mu_blocks(9, 4), tag="-muall"))
     return out
 
 
@@ -453,7 +461,7 @@ def control_plan():
             if n + off >= 0:
                 out.append(make_case(family, n, n + off, masses, seed))
     # mu^2 twins at rank n+1: mu^2 x rank n-1 (rank counts mu^2 twice)
-    for n in range(1, 7):
+    for n in range(1, 8):
         for family, masses in (("int", "real"), ("int", "complex"), ("shifted", "mixed")):
             out.append(make_case(family, n, n + 1, masses, seeds[(family, n, masses)],
                                  mu2_ext=mu_blocks(n + 1, 1), tag="-mu2"))
