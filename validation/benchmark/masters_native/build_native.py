@@ -63,9 +63,11 @@ def main():
     build = OUT / args.label
     build.mkdir(parents=True, exist_ok=True)
     manifest = (HERE / "Cargo.toml").read_text()
-    manifest = re.sub(r'oneloop = \{ path = "[^"]*"', f'oneloop = {{ path = "{oneloop_dir}"', manifest)
-    manifest = manifest.replace('"../../../references/symbolica"', f'"{symbolica_dir}"')
-    manifest = manifest.replace('"../../../references/symbolica/lib/', f'"{symbolica_dir}/lib/')
+    # The committed manifest pins git revisions; point it at the exported snapshots.
+    manifest = re.sub(r'oneloop = \{ git = "[^"]*", rev = "[^"]*"', f'oneloop = {{ path = "{oneloop_dir}"', manifest)
+    for crate, sub in (("symbolica", ""), ("numerica", "/lib/numerica"), ("graphica", "/lib/graphica")):
+        manifest = re.sub(rf'{crate} = \{{ git = "https://github.com/alphal00p/symbolica.git", rev = "[^"]*" \}}',
+                          f'{crate} = {{ path = "{symbolica_dir}{sub}" }}', manifest)
     assert str(oneloop_dir) in manifest and str(symbolica_dir) in manifest
     (build / "Cargo.toml").write_text(manifest)
     shutil.copy(HERE / "Cargo.lock", build / "Cargo.lock")

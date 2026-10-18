@@ -2,8 +2,8 @@
 # (feature generated-evaluators, NativeEvaluator<f64>) on exactly the OneLOop
 # calls original Ninja makes (validation/benchmark/ninja/<case>.masters.json).
 #
-# This manifest builds against the checkouts under references/ (oneloopmaster
-# main and the Symbolica pin of the NinjaRS workspace). build_native.py builds
+# This manifest builds against the pinned git revisions of the NinjaRS
+# workspace (oneloopmaster and the patched Symbolica). build_native.py builds
 # the same sources against exact git snapshots of other revisions (e.g. the
 # binary64-dilogarithm Symbolica integration) by generating a manifest copy.
 [package]
@@ -20,14 +20,14 @@ publish = false
 tensor = []
 
 [dependencies]
-oneloop = { path = "../../../references/oneloopmaster", default-features = false, features = ["generated-evaluators"] }
+oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "264a6ced74e3c7a5de000b93dddf1330826cd3e9", default-features = false, features = ["generated-evaluators"] }
 symbolica = { version = "3.0.1", default-features = false, features = ["integer-gmp", "float-mpfr", "bincode", "serde", "tracing_max_level_info"] }
 serde_json = "1"
 
 [patch.crates-io]
-symbolica = { path = "../../../references/symbolica" }
-numerica = { path = "../../../references/symbolica/lib/numerica" }
-graphica = { path = "../../../references/symbolica/lib/graphica" }
+symbolica = { git = "https://github.com/alphal00p/symbolica.git", rev = "e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8" }
+numerica = { git = "https://github.com/alphal00p/symbolica.git", rev = "e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8" }
+graphica = { git = "https://github.com/alphal00p/symbolica.git", rev = "e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8" }
 
 # Same as NinjaRS's release profile.
 [profile.release]

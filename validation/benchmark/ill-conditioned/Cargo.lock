@@ -739,6 +739,7 @@ dependencies = [
 [[package]]
 name = "dot-parser"
 version = "0.5.1"
+source = "git+https://github.com/alphal00p/gammaloop.git?rev=474478a7a80bc9f9f21bead0e1cde6acbcffbe93#474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
 dependencies = [
  "either",
  "pest",
@@ -864,6 +865,7 @@ dependencies = [
 [[package]]
 name = "feynkit-kinematics"
 version = "0.1.0"
+source = "git+https://github.com/alphal00p/gammaloop.git?rev=474478a7a80bc9f9f21bead0e1cde6acbcffbe93#474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
 dependencies = [
  "linnet",
  "numerica",
@@ -936,6 +938,7 @@ dependencies = [
 [[package]]
 name = "gammaloop-workspace-hack"
 version = "0.1.0"
+source = "git+https://github.com/alphal00p/gammaloop.git?rev=474478a7a80bc9f9f21bead0e1cde6acbcffbe93#474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
 dependencies = [
  "ahash",
  "arrayvec",
@@ -1041,6 +1044,7 @@ dependencies = [
 [[package]]
 name = "graphica"
 version = "3.0.1"
+source = "git+https://github.com/alphal00p/symbolica.git?rev=e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8#e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8"
 dependencies = [
  "ahash",
  "dyn-clone",
@@ -1132,6 +1136,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f31827a206f56af32e590ba56d5d2d085f558508192593743f16b2306495269f"
 dependencies = [
  "cc",
+]
+
+[[package]]
+name = "ill-conditioned-lanes"
+version = "0.1.0"
+dependencies = [
+ "ninjars",
+ "ninjars-symbolica",
+ "oneloop",
+ "serde_json",
+ "symbolica",
 ]
 
 [[package]]
@@ -1279,6 +1294,7 @@ dependencies = [
 [[package]]
 name = "linnet"
 version = "0.17.0"
+source = "git+https://github.com/alphal00p/gammaloop.git?rev=474478a7a80bc9f9f21bead0e1cde6acbcffbe93#474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
 dependencies = [
  "ahash",
  "bincode",
@@ -1524,6 +1540,7 @@ dependencies = [
 [[package]]
 name = "numerica"
 version = "3.0.1"
+source = "git+https://github.com/alphal00p/symbolica.git?rev=e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8#e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8"
 dependencies = [
  "ahash",
  "astro-float",
@@ -1562,6 +1579,7 @@ checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
 [[package]]
 name = "oneloop"
 version = "0.1.0"
+source = "git+https://github.com/alphal00p/oneloopmaster.git?rev=264a6ced74e3c7a5de000b93dddf1330826cd3e9#264a6ced74e3c7a5de000b93dddf1330826cd3e9"
 dependencies = [
  "bincode",
  "symbolica",
@@ -1930,17 +1948,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ill-conditioned-lanes"
-version = "0.1.0"
-dependencies = [
- "ninjars",
- "ninjars-symbolica",
- "oneloop",
- "serde_json",
- "symbolica",
-]
-
-[[package]]
 name = "rug"
 version = "1.30.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2221,6 +2228,7 @@ checksum = "02ef091d4e8b981dbaa4cc17789d00b53d5d2c001ae689f14e6093f30c529036"
 [[package]]
 name = "spenso"
 version = "0.6.0"
+source = "git+https://github.com/alphal00p/gammaloop.git?rev=474478a7a80bc9f9f21bead0e1cde6acbcffbe93#474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
 dependencies = [
  "ahash",
  "append-only-vec",
@@ -2263,6 +2271,7 @@ dependencies = [
 [[package]]
 name = "spenso-macros"
 version = "0.3.2"
+source = "git+https://github.com/alphal00p/gammaloop.git?rev=474478a7a80bc9f9f21bead0e1cde6acbcffbe93#474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2297,6 +2306,7 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 [[package]]
 name = "symbolica"
 version = "3.0.1"
+source = "git+https://github.com/alphal00p/symbolica.git?rev=e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8#e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8"
 dependencies = [
  "ahash",
  "append-only-vec",
@@ -2341,6 +2351,7 @@ dependencies = [
 [[package]]
 name = "symbolica-utils"
 version = "0.1.0"
+source = "git+https://github.com/alphal00p/gammaloop.git?rev=474478a7a80bc9f9f21bead0e1cde6acbcffbe93#474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
 dependencies = [
  "bincode",
  "bincode-trait-derive",
@@ -3084,15 +3095,3 @@ name = "zmij"
 version = "1.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "29666d0abbfad1e3dc4dcf6144730dd3a3ab225bbbdac83319345b1b44ccfc1b"
-
-[[patch.unused]]
-name = "clarabel"
-version = "0.11.1"
-
-[[patch.unused]]
-name = "typst-library"
-version = "0.15.1"
-
-[[patch.unused]]
-name = "typst-svg"
-version = "0.15.1"
