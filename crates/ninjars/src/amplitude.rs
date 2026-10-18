@@ -40,6 +40,11 @@ pub trait AmplitudeKernels<T> {
     fn values_are_finite(&self, values: &[T]) -> bool;
     /// Compare complete carriers, including every derivative component.
     fn values_equal(&self, left: &T, right: &T) -> bool;
+    /// `|Re v| + |Im v|` of the primal value of `value`, as a carrier without
+    /// imaginary part or derivative components. The amplitude sums these over
+    /// cut contributions to measure their cancellation
+    /// ([`Amplitude::contribution_moduli`]).
+    fn modulus(&self, value: &T) -> T;
     /// Whether one lane's cut contributions can be summed without losing the
     /// result to cancellation (see [`EvaluationStatus::Unstable`]). The default
     /// accepts every lane.
@@ -124,6 +129,7 @@ pub struct Amplitude<T, K: AmplitudeKernels<T>> {
     bubbles: Vec<CutOutcome<BubbleResidue<T>>>,
     tadpoles: Vec<CutOutcome<IntegratedTadpoleResidue<T>>>,
     results: Vec<IntegratedContribution<T>>,
+    moduli: Vec<crate::Laurent<T>>,
     statuses: Vec<EvaluationStatus>,
     contributions: Vec<IntegratedContribution<T>>,
     input: Vec<T>,
@@ -218,6 +224,7 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
             bubbles: Vec::new(),
             tadpoles: Vec::new(),
             results: vec![std::array::from_fn(|_| zero.clone()); lanes],
+            moduli: vec![std::array::from_fn(|_| zero.clone()); lanes],
             statuses: vec![EvaluationStatus::NotEvaluated; lanes],
             contributions: Vec::new(),
             input: Vec::new(),
@@ -252,6 +259,22 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
     /// Laurent coefficients in original Ninja order: finite, single, double pole.
     pub fn laurent(&self, lane: usize) -> Option<&crate::Laurent<T>> {
         self.results.get(lane)?.first_chunk::<3>()
+    }
+    /// For each Laurent coefficient, the sum of the moduli
+    /// ([`AmplitudeKernels::modulus`]) of the cut contributions accumulated
+    /// into [`Self::results`], updated and reset with them, whether or not
+    /// the kernels test cancellation ([`EvaluationStatus::Unstable`]). Their
+    /// ratio to [`Self::result_moduli`] measures how strongly the cuts
+    /// cancel: summing them alone leaves a rounding error of order `2^-p`
+    /// times these sums (`p` mantissa bits).
+    pub fn contribution_moduli(&self) -> &[crate::Laurent<T>] {
+        &self.moduli
+    }
+    /// The moduli ([`AmplitudeKernels::modulus`]) of one lane's Laurent
+    /// coefficients.
+    pub fn result_moduli(&self, lane: usize) -> Option<crate::Laurent<T>> {
+        let laurent = self.laurent(lane)?;
+        Some(std::array::from_fn(|k| self.kernels.modulus(&laurent[k])))
     }
     pub fn rational_part(&self, lane: usize) -> Option<&T> {
         self.results.get(lane).map(|value| &value[4])
@@ -292,6 +315,9 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
             .resize_with(lanes, || std::array::from_fn(|_| self.zero.clone()));
         self.results
             .fill(std::array::from_fn(|_| self.zero.clone()));
+        self.moduli
+            .resize_with(lanes, || std::array::from_fn(|_| self.zero.clone()));
+        self.moduli.fill(std::array::from_fn(|_| self.zero.clone()));
         self.statuses.resize(lanes, EvaluationStatus::NotEvaluated);
         self.statuses.fill(EvaluationStatus::NotEvaluated);
         if let Some(stage) = &mut self.triangle {
@@ -751,6 +777,12 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
             let row = &self.output[index * 5..(index + 1) * 5];
             if self.kernels.values_are_finite(row) {
                 self.results[lane].clone_from_slice(row);
+                for cut in 0..cuts {
+                    let contribution = &self.contributions[cut * lanes + lane];
+                    for (modulus, value) in self.moduli[lane].iter_mut().zip(contribution) {
+                        *modulus += &self.kernels.modulus(value);
+                    }
+                }
             } else {
                 statuses[lane] = EvaluationStatus::NonFiniteResult;
             }
@@ -842,7 +874,7 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
             .map(|matrix| substitute(matrix, n * n, donor, repeated));
         let saved = repeated
             .iter()
-            .map(|(lane, _)| self.results[*lane].clone())
+            .map(|(lane, _)| (self.results[*lane].clone(), self.moduli[*lane].clone()))
             .collect::<Vec<_>>();
         self.evaluate_batch_with_inputs(
             AmplitudeInput {
@@ -857,8 +889,9 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
             high_geometry,
             masters,
         )?;
-        for ((lane, pair), saved) in repeated.iter().zip(saved) {
-            self.results[*lane] = saved;
+        for ((lane, pair), (results, moduli)) in repeated.iter().zip(saved) {
+            self.results[*lane] = results;
+            self.moduli[*lane] = moduli;
             self.statuses[*lane] = status(pair);
         }
         Ok(())

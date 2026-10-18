@@ -690,4 +690,26 @@ fn stability_test_is_opt_in_and_flags_exact_cancellations() {
         statuses(&tested),
         [json!("success"), json!("success"), json!("unstable")]
     );
+    // The cancellation measurement is reported without the flag and agrees
+    // with its verdict: only the vanishing lane exceeds 2^(53/2).
+    let rows = default["results"].as_array().unwrap();
+    for (lane, row) in rows.iter().enumerate() {
+        let cancellation = &row["cancellation"];
+        let moduli = cancellation["contribution_moduli"].as_array().unwrap();
+        for (modulus, estimate) in moduli
+            .iter()
+            .zip(cancellation["rounding_estimate"].as_array().unwrap())
+        {
+            let modulus = modulus.as_f64().unwrap();
+            assert_eq!(estimate.as_f64().unwrap(), modulus * 2_f64.powi(-53));
+        }
+        let unstable = cancellation["ratio"]
+            .as_f64()
+            .is_none_or(|ratio| ratio > 2_f64.powf(26.5));
+        assert_eq!(unstable, lane == 2, "lane {lane}: {cancellation}");
+        if lane < 2 {
+            assert_eq!(*cancellation, tested["results"][lane]["cancellation"]);
+        }
+    }
+    assert_eq!(tested["results"][2]["cancellation"], Value::Null);
 }

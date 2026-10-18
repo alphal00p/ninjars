@@ -186,6 +186,18 @@ It is opt-in like Ninja's accuracy tests: an exactly vanishing amplitude (a
 Ward identity, a zero helicity amplitude) is rounding noise of its cut
 contributions and fails it in every precision.
 
+Whether or not the flag is set, every successful generic `reduce` lane reports
+`cancellation` (binary64 numbers):
+- `contribution_moduli`: the moduli `|Re| + |Im|` of the cut contributions,
+  summed per Laurent coefficient (finite, single pole, double pole);
+- `ratio`: their largest over the result's largest modulus (null when the
+  result vanishes), the factor by which cancellation amplifies rounding;
+- `rounding_estimate`: `2^-p` times the moduli (`p` mantissa bits), the
+  rounding error of summing the contributions alone; errors inside each
+  contribution come on top.
+
+The fast engine does not report it.
+
 `--engine fast` runs `ninjars::fast`, a batched binary64 port of original
 Ninja's `Amplitude::evaluate` (complex masses, box mu-expansion, Ninja's skip
 rules and stability checks), with oneloopmaster's native binary64 masters
