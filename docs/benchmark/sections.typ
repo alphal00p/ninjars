@@ -78,28 +78,91 @@ benchmark were checked as follows.
   a single constant normalization over all phase-space points ($2$ for the
   QCD diagrams, $1/3$ for $gamma gamma -> gamma gamma$, spread
   $lt.eq 10^(-14)$), which fixes diagram identity, routing and helicity.
-- *Masters.* oneloopmaster's native $C_0$/$D_0$ agree with OneLOop 3.6 on
-  all 783 distinct calls of the benchmark streams (median $2 times
-  10^(-15)$); the native bubble tensors were validated against 595 direct
-  Feynman-parameter integrations, including thresholds and massless limits.
+- *Masters.* On all 1,998 master calls that original Ninja makes in the
+  benchmark (34 call streams: the physical diagrams as exported by NinjaRS
+  and by MadLoop, and the synthetic topologies), oneloopmaster's native code
+  agrees with OneLOop 3.6 to $8 times 10^(-14)$ on the physical diagrams
+  and to $1.4 times 10^(-12)$ on the synthetic ones, except for one rank-3
+  tensor bubble ($2.5 times 10^(-9)$). The native bubble tensors were
+  validated against 595 direct Feynman-parameter integrations, including
+  thresholds and massless limits.
 
-*Defects found on the way.* The comparison exposed and fixed: an MPFR detour
-in oneloopmaster's binary64 dilogarithm (performance), inexact unit roots in
-massless bubble tensors, rounded light-like invariants entering the masters
-without OneLOop's on-shell threshold (a $10^(-7)$ error in
-$gamma gamma -> gamma gamma$ below threshold), a degenerate rational bubble
-reference vector in the generic NinjaRS engine (an $O(10^13)$ blow-up at
-exactly coplanar rational kinematics), and inaccurate Passarino–Veltman
-bubble tensors in an intermediate provider. It also exposed defects in
-oneloopmaster's exact expressions for $B_0$ with a massless second line,
-$C_0$ with one massless internal line and some real-mass $D_0$ sectors,
-none of which occur in the physical benchmark diagrams — and two wrong
-$D_0$ values in reference copies of OneLOop itself (versions 3.4 and a 2024
-snapshot; OneLOop 3.6 and COLLIER agree with each other there).
+*Ill-conditioned lanes.* Two synthetic cases differ from Ninja by more than
+$10^(-6)$ (marked † in @tab:identical). In each, one lane's finite part is a
+tiny remainder of cancelling master-integral contributions. The exact values
+were computed with the generic NinjaRS engine at 256–512 bits, where the
+evaluations agree to 40 digits. Against them, neither binary64 code is
+accurate on these lanes:
+
+- `syn-gghhh-ggHHH-n5-r5`, lane 1, borders a box with normalized Gram
+  determinant $8 times 10^(-8)$. Ninja is off by $3.0 times 10^(-4)$ and
+  NinjaRS by $3.4 times 10^(-4)$; with exact masters rounded to binary64
+  NinjaRS is off by $3.1 times 10^(-4)$, so the loss is in the binary64
+  reduction itself, in both codes.
+- `syn-n6-r6`, lane 0, cancels by a factor of about $10^(12)$. Ninja is off
+  by 2.3 % and NinjaRS by 24 %. With Ninja's own master values NinjaRS's
+  reduction is off by 1.2 %, so the excess comes from the masters: almost
+  all of it from a single triangle with nearly coincident roots,
+  $C_0(-237088.3, -236743.3, 0; 29929 - 259.5 i, 0, 6464.16 - 168.84 i)$,
+  which oneloopmaster's binary64 code evaluates to $2.4 times 10^(-13)$
+  against OneLOop's $3.3 times 10^(-15)$. OneLOop uses a dedicated
+  divided-difference dilogarithm for such roots.
+
+Neither code's stability checks flag these lanes. All other lanes of these
+cases agree with the exact values to $10^(-9)$ or better.
+
+*Defects found on the way.* The comparison exposed and fixed the following
+defects.
+
+- *oneloopmaster* (fixed in the exact expressions, so every route — native,
+  hand-written, SymJIT, interpreter, arbitrary precision and Dual numbers —
+  carries the fix):
+  - an MPFR detour in the binary64 dilogarithm (performance);
+  - $B_0$/$B_0'$ returning NaN with a massless line;
+  - inexact unit roots in massless bubble tensors, and wrong lips at $p^2 = 0$
+    with masses of opposite sign;
+  - a sign error in OneLOop's own $B_(1111)$ at $p^2 = 0$, inherited by the
+    port;
+  - wrong lips in two- and three-mass and 't Hooft–Veltman triangles;
+  - errors in infrared boxes and in four-mass boxes with
+    $s_(12) s_(23) < 0$;
+  - in real-mass contour boxes, analytically real logarithms whose lip was
+    set by rounding (off by multiples of $2 pi i$ on about a quarter of such
+    points). OneLOop 3.6 itself departs from its own vanishing-width limit on
+    113 of 491 such points;
+  - a box near a vanishing Gram determinant (accuracy $7 times 10^(-10)$, now
+    $4 times 10^(-12)$);
+  - exact-zero branch tests decided by rounding noise in arbitrary precision
+    ($C_0$ wrong at 256, 512 and 1024 bits for some arguments);
+  - an expression-construction blow-up (82 s and 16 GB, now 0.35 s and
+    10 MB).
+- *NinjaRS:*
+  - rounded light-like invariants entering the masters without OneLOop's
+    on-shell threshold (a $10^(-7)$ error in $gamma gamma -> gamma gamma$
+    below threshold);
+  - in arbitrary precision, invariants differenced from rounded momenta (the
+    four-mass $D_0$ was wrong by orders of magnitude at 128 bits while
+    reporting 8 correct bits); they are now derived exactly from the prepared
+    momenta;
+  - a degenerate rational bubble reference vector (an $O(10^13)$ blow-up at
+    exactly coplanar rational kinematics);
+  - bubble reference vectors tied in score, chosen by rounding: at some
+    precisions this moved $plus.minus 1375$ between the cut-constructible and
+    rational parts while their sum stayed exact;
+  - inaccurate Passarino–Veltman bubble tensors in an intermediate provider.
+- *OneLOop reference copies:* two wrong $D_0$ values, in versions 3.4 and a
+  2024 snapshot. OneLOop 3.6 and COLLIER agree with each other there.
+
+Apart from the on-shell threshold, none of these defects affected the
+physical benchmark diagrams in binary64.
 
 = Arbitrary precision end to end <arbprec>
 
 #let arb = json("data/arbitrary_precision.json")
+#let one-decimal(x) = {
+  let s = str(calc.round(x, digits: 1))
+  if s.contains(".") { s } else { s + ".0" }
+}
 
 The same CLI evaluates a physical diagram at any working precision, from the
 DOT graph to the integrated result, without a separate quadruple-precision
@@ -112,11 +175,16 @@ prepares the numerator exactly (FeynKit, exact radical momenta and
 polarization vectors), runs the generic reduction engine on Symbolica's
 arbitrary-precision `Float` (cut solutions, Laurent divisions and
 subtractions at 700 bits) and evaluates oneloopmaster's exact master
-expressions at the same precision. All three points take about seven
+expressions at the same precision. All three points take about eight
 seconds in total, including the one-time preparation. The 700-bit results
-agree with a 1000-bit run to 208 digits; the poles and the rational part
-vanish to $10^(-300)$, as they must for this finite pentagon. The table
-compares the finite part across precisions.
+agree with a 1000-bit run to
+#calc.floor(calc.min(..arb.points.map(p => p.digits_700_vs_1000))) digits;
+the poles and the rational part vanish to $10^(-300)$, as they must for
+this finite pentagon. The table compares the finite part across precisions.
+Accuracy is always measured this way, by comparison with a higher
+precision: the significant precision that Symbolica's `Float` tracks counts
+cancellations but not accumulated rounding, and overstates the accuracy by
+a few bits (up to 13 bits in our scans).
 
 #figure(
   kind: table,
@@ -133,7 +201,12 @@ compares the finite part across precisions.
       stroke: none,
       table.header([$sqrt(s)$], [binary64 (fast engine)], [double-double], [700 bits]),
       ..for (point, energy) in arb.points.zip(("450 GeV", "525 GeV", "600 GeV")) {
-        (energy, [14–15], [29], [#calc.round(point.digits_700_vs_1000)])
+        (
+          energy,
+          [#one-decimal(point.digits_binary64_fast)],
+          [#one-decimal(point.digits_double_float)],
+          [#one-decimal(point.digits_700_vs_1000)],
+        )
       },
     )
   },
@@ -288,7 +361,12 @@ expressions, including analytic-continuation repairs, and generates direct
 Rust implementations from them. One source therefore serves binary64,
 double-double and arbitrary precision (and Dual numbers through the
 interpreter), with lazy conditional branches preserved. The bubble and
-tadpole tensor coefficients are native ports of OneLOop's routines.
+tadpole tensor coefficients are native ports of OneLOop's routines. Every
+correction found while benchmarking (@correctness) was made in the exact
+expressions, so all of these routes, and the hand-written binary64 kernels
+transcribed from them, carry it. Replayed call by call on the master calls
+original Ninja makes in the benchmark, the native masters take 0.24–0.87× the
+time of OneLOop.
 
 = Algorithmic improvements <algorithms>
 
@@ -338,8 +416,9 @@ $10^(-12)$ or better on well-conditioned points.
   binary64 dilogarithm now uses a dedicated series kernel (12–79 ns per call
   instead of an MPFR detour; contributed to Symbolica as PR \#89), and the
   bubble tensor coefficients $B_0, B_1, B_(11), B_(111)$ come from one
-  native evaluation sharing the roots and logarithms, 3–5× faster than
-  OneLOop's `olo_b11`.
+  native evaluation sharing the roots and logarithms (binary64 kernels
+  transcribed from the expressions), 4–13× faster than OneLOop's `olo_b11`
+  on the physical call streams.
 - *On-shell thresholds in one place.* Exact-zero dispatch in oneloopmaster
   is combined with OneLOop's on-shell threshold as Ninja configures it,
   applied once to every master request, and MadLoop's on-shell treatment of

@@ -1,6 +1,6 @@
 {
  "status": "measured",
- "date": "2026-10-17",
+ "date": "2026-10-18",
  "host": "AMD EPYC 9754 (shared host), one pinned core",
  "batch_width": 32,
  "cases": [
@@ -14,11 +14,11 @@
    "madloop_rank": 3,
    "coefficient_heads": 15,
    "generation_s": {
-    "ninjars": 0.142594595,
+    "ninjars": 0.132600523,
     "ninjars_detail": {
-     "prepare_total": 0.109798074,
-     "planning_total": 0.008122782,
-     "compilation_total": 0.024402988
+     "prepare_total": 0.100802624,
+     "planning_total": 0.008059418,
+     "compilation_total": 0.02350064
     },
     "madloop": 4.261603572027525,
     "madloop_detail": {
@@ -28,18 +28,18 @@
     }
    },
    "ninjars_us": {
-    "numerator": 0.941876724243164,
-    "numerator_preparation": 0.5318480987548828,
-    "tensor_numerator": 0.41002862548828123,
-    "reduction": 1.2813792724609374,
-    "masters": 1.9741008911132814,
-    "total": 4.245625732421875
+    "numerator": 0.941480697631836,
+    "numerator_preparation": 0.5255002899169922,
+    "tensor_numerator": 0.41598040771484374,
+    "reduction": 1.28902294921875,
+    "masters": 1.8224927978515626,
+    "total": 4.082169677734375
    },
    "ninjars_width1_us": {
-    "numerator": 1.3369039154052735,
-    "reduction": 1.7574591064453124,
-    "masters": 1.9269084472656248,
-    "total": 5.31227294921875
+    "numerator": 1.3910008239746094,
+    "reduction": 1.7063126220703124,
+    "masters": 1.8787326049804687,
+    "total": 5.222747314453125
    },
    "madloop_us": {
     "numerator": 14.257019194594424,
@@ -56,12 +56,12 @@
     "total": 10.088544093851134
    },
    "ninjars_identical_us": {
-    "numerator": 0.43485772705078124,
-    "reduction": 1.270756103515625,
-    "masters": 1.883305419921875,
-    "total": 3.5931617431640626
+    "numerator": 0.4420308837890625,
+    "reduction": 1.2711646118164062,
+    "masters": 1.7152359008789062,
+    "total": 3.4381195068359376
    },
-   "max_scaled_difference_vs_ninja": 1.1339642471097192e-14
+   "max_scaled_difference_vs_ninja": 3.494030958336396e-14
   },
   {
    "id": "four-photon-top-box-0",
@@ -73,11 +73,11 @@
    "madloop_rank": 4,
    "coefficient_heads": 70,
    "generation_s": {
-    "ninjars": 5.162449275,
+    "ninjars": 5.258650459,
     "ninjars_detail": {
-     "prepare_total": 0.589855161,
-     "planning_total": 2.647299016,
-     "compilation_total": 1.925038078
+     "prepare_total": 0.585785697,
+     "planning_total": 2.733029143,
+     "compilation_total": 1.939582728
     },
     "madloop": 5.1854330575151835,
     "madloop_detail": {
@@ -87,18 +87,18 @@
     }
    },
    "ninjars_us": {
-    "numerator": 19.774134521484374,
-    "numerator_preparation": 10.34628369140625,
-    "tensor_numerator": 9.427850830078125,
-    "reduction": 5.241418212890625,
-    "masters": 5.66543310546875,
-    "total": 31.114685546875
+    "numerator": 19.507488037109376,
+    "numerator_preparation": 10.09140625,
+    "tensor_numerator": 9.416081787109375,
+    "reduction": 5.310262451171875,
+    "masters": 5.293287109375,
+    "total": 31.0188359375
    },
    "ninjars_width1_us": {
-    "numerator": 21.184753173828124,
-    "reduction": 6.239829345703125,
-    "masters": 7.18168505859375,
-    "total": 36.8971240234375
+    "numerator": 21.439192138671874,
+    "reduction": 6.214305908203125,
+    "masters": 7.144643310546875,
+    "total": 35.577533203125
    },
    "madloop_us": {
     "numerator": 41.21514514517866,
@@ -115,10 +115,10 @@
     "total": 42.7004268707483
    },
    "ninjars_identical_us": {
-    "numerator": 9.545917724609374,
-    "reduction": 5.306902099609375,
-    "masters": 5.799613037109375,
-    "total": 20.7584169921875
+    "numerator": 9.40967822265625,
+    "reduction": 5.24089892578125,
+    "masters": 5.279788330078125,
+    "total": 20.008212890625
    },
    "max_scaled_difference_vs_ninja": 1.7330177143630906e-12
   },
@@ -132,11 +132,11 @@
    "madloop_rank": 3,
    "coefficient_heads": 15,
    "generation_s": {
-    "ninjars": 0.142765358,
+    "ninjars": 0.1441251,
     "ninjars_detail": {
-     "prepare_total": 0.094276653,
-     "planning_total": 0.009969498,
-     "compilation_total": 0.038357616
+     "prepare_total": 0.095353255,
+     "planning_total": 0.009786972,
+     "compilation_total": 0.038775983
     },
     "madloop": 4.574061767023522,
     "madloop_detail": {
@@ -146,18 +146,18 @@
     }
    },
    "ninjars_us": {
-    "numerator": 0.9128733062744141,
-    "numerator_preparation": 0.4859239044189453,
-    "tensor_numerator": 0.42694940185546876,
-    "reduction": 1.2956768188476562,
-    "masters": 0.9846044921874999,
-    "total": 3.207644287109375
+    "numerator": 0.9952313385009766,
+    "numerator_preparation": 0.487992691040039,
+    "tensor_numerator": 0.5072386474609375,
+    "reduction": 1.2954993896484375,
+    "masters": 0.8173318786621093,
+    "total": 3.0677802734375
    },
    "ninjars_width1_us": {
-    "numerator": 1.278466110229492,
-    "reduction": 1.775152587890625,
-    "masters": 1.1094833374023438,
-    "total": 4.451937377929688
+    "numerator": 1.3505076751708984,
+    "reduction": 1.71365576171875,
+    "masters": 1.0348085327148437,
+    "total": 4.415744995117188
    },
    "madloop_us": {
     "numerator": 12.569549452750913,
@@ -174,10 +174,10 @@
     "total": 5.376472707659115
    },
    "ninjars_identical_us": {
-    "numerator": 0.4257958984375,
-    "reduction": 1.2820445556640625,
-    "masters": 0.9826406860351562,
-    "total": 2.6899415283203125
+    "numerator": 0.43858673095703127,
+    "reduction": 1.2815442504882812,
+    "masters": 0.8159912109375,
+    "total": 2.5517738037109376
    },
    "max_scaled_difference_vs_ninja": 2.687629252435699e-15
   },
@@ -191,11 +191,11 @@
    "madloop_rank": 4,
    "coefficient_heads": 57,
    "generation_s": {
-    "ninjars": 0.698313333,
+    "ninjars": 0.682850022,
     "ninjars_detail": {
-     "prepare_total": 0.172655088,
-     "planning_total": 0.23485465,
-     "compilation_total": 0.290581694
+     "prepare_total": 0.162307041,
+     "planning_total": 0.228792879,
+     "compilation_total": 0.291530842
     },
     "madloop": 4.947575731523102,
     "madloop_detail": {
@@ -205,18 +205,18 @@
     }
    },
    "ninjars_us": {
-    "numerator": 11.197549865722657,
-    "numerator_preparation": 1.7481780395507813,
-    "tensor_numerator": 9.449371826171875,
-    "reduction": 5.382973876953125,
-    "masters": 13.8163564453125,
-    "total": 30.626139648437505
+    "numerator": 11.223466796875,
+    "numerator_preparation": 1.747738525390625,
+    "tensor_numerator": 9.475728271484375,
+    "reduction": 5.386539306640625,
+    "masters": 12.9022705078125,
+    "total": 29.827279296875
    },
    "ninjars_width1_us": {
-    "numerator": 12.638062683105469,
-    "reduction": 6.360818359375,
-    "masters": 15.1221123046875,
-    "total": 34.567224609375
+    "numerator": 12.605056823730468,
+    "reduction": 6.48667236328125,
+    "masters": 14.31786572265625,
+    "total": 34.037166015625
    },
    "madloop_us": {
     "numerator": 34.75187555359506,
@@ -233,10 +233,10 @@
     "total": 60.37475059952038
    },
    "ninjars_identical_us": {
-    "numerator": 9.584397216796875,
-    "reduction": 5.424433837890625,
-    "masters": 13.6409169921875,
-    "total": 28.5141318359375
+    "numerator": 9.469099609375,
+    "reduction": 5.34778662109375,
+    "masters": 12.89166015625,
+    "total": 27.807515625
    },
    "max_scaled_difference_vs_ninja": 5.828334974481715e-13
   },
@@ -250,11 +250,11 @@
    "madloop_rank": 3,
    "coefficient_heads": 15,
    "generation_s": {
-    "ninjars": 0.143641998,
+    "ninjars": 0.145439194,
     "ninjars_detail": {
-     "prepare_total": 0.09403328,
-     "planning_total": 0.01081714,
-     "compilation_total": 0.038620217
+     "prepare_total": 0.09430578,
+     "planning_total": 0.010774527,
+     "compilation_total": 0.040134396
     },
     "madloop": 5.656509145628661,
     "madloop_detail": {
@@ -264,18 +264,18 @@
     }
    },
    "ninjars_us": {
-    "numerator": 1.0373373260498047,
-    "numerator_preparation": 0.6013534393310547,
-    "tensor_numerator": 0.43598388671875,
-    "reduction": 1.2892290649414062,
-    "masters": 0.8722561340332031,
-    "total": 3.2230777587890627
+    "numerator": 1.0428695373535157,
+    "numerator_preparation": 0.6145624694824219,
+    "tensor_numerator": 0.42830706787109374,
+    "reduction": 1.288279541015625,
+    "masters": 0.7281820983886719,
+    "total": 3.0646148681640626
    },
    "ninjars_width1_us": {
-    "numerator": 1.4080599670410157,
-    "reduction": 1.766951904296875,
-    "masters": 0.919578369140625,
-    "total": 4.43065673828125
+    "numerator": 1.4703826904296875,
+    "reduction": 1.6897097778320314,
+    "masters": 0.8759844055175782,
+    "total": 4.379197021484375
    },
    "madloop_us": {
     "numerator": 12.560286038484417,
@@ -292,12 +292,12 @@
     "total": 4.776668589004229
    },
    "ninjars_identical_us": {
-    "numerator": 0.42785028076171877,
-    "reduction": 1.2902861938476562,
-    "masters": 0.8968445434570312,
-    "total": 2.6142027587890624
+    "numerator": 0.4326204833984375,
+    "reduction": 1.2718109741210937,
+    "masters": 0.72846044921875,
+    "total": 2.4436209716796875
    },
-   "max_scaled_difference_vs_ninja": 1.9890473068029743e-15
+   "max_scaled_difference_vs_ninja": 1.8251564005683137e-15
   },
   {
    "id": "gg-hhh-top-box-8",
@@ -309,11 +309,11 @@
    "madloop_rank": 4,
    "coefficient_heads": 57,
    "generation_s": {
-    "ninjars": 1.486982538,
+    "ninjars": 1.494002348,
     "ninjars_detail": {
-     "prepare_total": 0.159275791,
-     "planning_total": 0.533393647,
-     "compilation_total": 0.794068059
+     "prepare_total": 0.16144387,
+     "planning_total": 0.528207665,
+     "compilation_total": 0.804026022
     },
     "madloop": 6.035218046978116,
     "madloop_detail": {
@@ -323,18 +323,18 @@
     }
    },
    "ninjars_us": {
-    "numerator": 11.081291381835937,
-    "numerator_preparation": 1.6306185302734375,
-    "tensor_numerator": 9.4506728515625,
-    "reduction": 5.38783984375,
-    "masters": 12.902423828125,
-    "total": 29.665404296875
+    "numerator": 11.074990478515625,
+    "numerator_preparation": 1.62948486328125,
+    "tensor_numerator": 9.445505615234374,
+    "reduction": 5.383514404296875,
+    "masters": 12.18476318359375,
+    "total": 28.79048828125
    },
    "ninjars_width1_us": {
-    "numerator": 12.40064306640625,
-    "reduction": 6.51818701171875,
-    "masters": 13.392751953125,
-    "total": 32.7537041015625
+    "numerator": 12.418323303222657,
+    "reduction": 6.47544921875,
+    "masters": 12.9427880859375,
+    "total": 32.463840820312505
    },
    "madloop_us": {
     "numerator": 34.71774326543295,
@@ -351,10 +351,10 @@
     "total": 54.83728289473684
    },
    "ninjars_identical_us": {
-    "numerator": 9.473168701171875,
-    "reduction": 5.387072998046875,
-    "masters": 12.88339013671875,
-    "total": 27.7633974609375
+    "numerator": 9.379069580078125,
+    "reduction": 5.377889404296875,
+    "masters": 12.27915283203125,
+    "total": 27.2361376953125
    },
    "max_scaled_difference_vs_ninja": 1.4896544830297044e-14
   },
@@ -368,11 +368,11 @@
    "madloop_rank": 5,
    "coefficient_heads": 57,
    "generation_s": {
-    "ninjars": 2.801314689,
+    "ninjars": 2.840039921,
     "ninjars_detail": {
-     "prepare_total": 0.633535325,
-     "planning_total": 1.0254682,
-     "compilation_total": 1.142048073
+     "prepare_total": 0.65680204,
+     "planning_total": 1.039348818,
+     "compilation_total": 1.143609132
     },
     "madloop": 6.8256536810076796,
     "madloop_detail": {
@@ -382,18 +382,18 @@
     }
    },
    "ninjars_us": {
-    "numerator": 15.294766967773437,
-    "numerator_preparation": 3.5895228271484374,
-    "tensor_numerator": 11.705244140625,
-    "reduction": 9.043494140625,
-    "masters": 55.237771484375,
-    "total": 80.82369921875
+    "numerator": 15.073727905273438,
+    "numerator_preparation": 3.5920604248046875,
+    "tensor_numerator": 11.48166748046875,
+    "reduction": 8.93814794921875,
+    "masters": 52.1704296875,
+    "total": 78.06475390625
    },
    "ninjars_width1_us": {
-    "numerator": 15.458202758789062,
-    "reduction": 10.1996572265625,
-    "masters": 55.9473046875,
-    "total": 84.12483984375
+    "numerator": 15.470635864257812,
+    "reduction": 10.1243603515625,
+    "masters": 54.199970703125,
+    "total": 80.757109375
    },
    "madloop_us": {
     "numerator": 104.52954599315669,
@@ -410,12 +410,12 @@
     "total": 134.02887634408603
    },
    "ninjars_identical_us": {
-    "numerator": 11.447329345703125,
-    "reduction": 8.865481201171875,
-    "masters": 54.202181640625,
-    "total": 75.232240234375
+    "numerator": 11.375072998046875,
+    "reduction": 8.961890869140625,
+    "masters": 52.626818359375,
+    "total": 73.18804296875
    },
-   "max_scaled_difference_vs_ninja": 1.1190786799900934e-14
+   "max_scaled_difference_vs_ninja": 9.688662813417033e-15
   }
  ],
  "synthetic": [
@@ -424,10 +424,10 @@
    "n": 5,
    "rank": 4,
    "ninjars_us": {
-    "numerator": 11.335794921875,
-    "reduction": 8.9379423828125,
-    "masters": 29.076037109375,
-    "total": 50.71840234375
+    "numerator": 11.457519775390624,
+    "reduction": 8.887979248046875,
+    "masters": 27.2939794921875,
+    "total": 48.180708984375
    },
    "ninja_us": {
     "numerator": 22.504133764938793,
@@ -436,17 +436,17 @@
     "total": 103.53679166666667
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 1.2185000659240004e-12
+   "max_scaled_difference_vs_ninja": 1.2647175866066907e-12
   },
   {
    "id": "syn-gghhh-gHgHH-n5-r5",
    "n": 5,
    "rank": 5,
    "ninjars_us": {
-    "numerator": 36.2405703125,
-    "reduction": 13.257576171875,
-    "masters": 28.413173828125,
-    "total": 78.310296875
+    "numerator": 36.2650703125,
+    "reduction": 13.08310546875,
+    "masters": 27.077103515625,
+    "total": 76.757681640625
    },
    "ninja_us": {
     "numerator": 80.95858597417839,
@@ -462,10 +462,10 @@
    "n": 5,
    "rank": 4,
    "ninjars_us": {
-    "numerator": 11.4327685546875,
-    "reduction": 8.679220703125,
-    "masters": 59.869873046875,
-    "total": 80.60213671875
+    "numerator": 11.44124755859375,
+    "reduction": 8.95572607421875,
+    "masters": 58.437560546875,
+    "total": 79.40784765625
    },
    "ninja_us": {
     "numerator": 22.36459463630477,
@@ -481,10 +481,10 @@
    "n": 5,
    "rank": 5,
    "ninjars_us": {
-    "numerator": 36.1266484375,
-    "reduction": 13.03516796875,
-    "masters": 60.276611328125,
-    "total": 109.5706953125
+    "numerator": 36.5579072265625,
+    "reduction": 12.9015576171875,
+    "masters": 59.13723046875,
+    "total": 110.04232421875
    },
    "ninja_us": {
     "numerator": 81.71820493450768,
@@ -493,17 +493,17 @@
     "total": 217.5351452991453
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 0.009000431021228042
+   "max_scaled_difference_vs_ninja": 4.25810547573552e-05
   },
   {
    "id": "syn-gghhh-nosmat-n5-r4",
    "n": 5,
    "rank": 4,
    "ninjars_us": {
-    "numerator": 11.476695068359374,
-    "reduction": 8.775715087890624,
-    "masters": 60.731849609375,
-    "total": 81.3247578125
+    "numerator": 11.369787353515624,
+    "reduction": 9.017635498046875,
+    "masters": 58.43906640625,
+    "total": 79.10620703125
    },
    "ninja_us": {
     "numerator": 22.535518652504106,
@@ -519,10 +519,10 @@
    "n": 2,
    "rank": 1,
    "ninjars_us": {
-    "numerator": 0.028683319091796874,
-    "reduction": 0.2602433395385742,
-    "masters": 0.2528321990966797,
-    "total": 0.5422655944824218
+    "numerator": 0.037222640991210934,
+    "reduction": 0.25641986083984375,
+    "masters": 0.14716514968872071,
+    "total": 0.4466448974609375
    },
    "ninja_us": {
     "numerator": 0.06171955017341122,
@@ -538,10 +538,10 @@
    "n": 2,
    "rank": 2,
    "ninjars_us": {
-    "numerator": 0.2027000732421875,
-    "reduction": 0.2819968566894531,
-    "masters": 0.26367337036132815,
-    "total": 0.7433037414550782
+    "numerator": 0.20479981231689454,
+    "reduction": 0.28709180450439453,
+    "masters": 0.15491805267333986,
+    "total": 0.6527695617675782
    },
    "ninja_us": {
     "numerator": 0.4351354621430444,
@@ -557,10 +557,10 @@
    "n": 2,
    "rank": 3,
    "ninjars_us": {
-    "numerator": 1.0363537139892578,
-    "reduction": 0.5113470916748046,
-    "masters": 0.26093699645996093,
-    "total": 1.801824462890625
+    "numerator": 1.0295042572021484,
+    "reduction": 0.5111272125244141,
+    "masters": 0.15567008209228517,
+    "total": 1.7081990966796874
    },
    "ninja_us": {
     "numerator": 2.706283354676286,
@@ -576,10 +576,10 @@
    "n": 3,
    "rank": 2,
    "ninjars_us": {
-    "numerator": 0.445181884765625,
-    "reduction": 1.2974334106445313,
-    "masters": 2.536423095703125,
-    "total": 4.275050903320312
+    "numerator": 0.4365902099609375,
+    "reduction": 1.2664166870117188,
+    "masters": 1.7571616821289062,
+    "total": 3.471624267578125
    },
    "ninja_us": {
     "numerator": 0.9329791240746813,
@@ -588,17 +588,17 @@
     "total": 7.719802960222017
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 7.277604594426484e-14
+   "max_scaled_difference_vs_ninja": 8.313544066372516e-14
   },
   {
    "id": "syn-n3-r3",
    "n": 3,
    "rank": 3,
    "ninjars_us": {
-    "numerator": 1.8215992431640624,
-    "reduction": 1.7139500732421875,
-    "masters": 2.540331787109375,
-    "total": 6.081000732421875
+    "numerator": 1.8484808959960937,
+    "reduction": 1.7125137329101563,
+    "masters": 2.045615478515625,
+    "total": 5.6649970703125
    },
    "ninja_us": {
     "numerator": 4.66857738596988,
@@ -607,17 +607,17 @@
     "total": 11.632202431042543
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 4.7538511386698646e-14
+   "max_scaled_difference_vs_ninja": 5.52816987137098e-14
   },
   {
    "id": "syn-n3-r4",
    "n": 3,
    "rank": 4,
    "ninjars_us": {
-    "numerator": 7.770930786132812,
-    "reduction": 4.055498413085938,
-    "masters": 2.54656103515625,
-    "total": 14.3938828125
+    "numerator": 8.039354370117188,
+    "reduction": 4.011843383789063,
+    "masters": 1.521966796875,
+    "total": 13.58102734375
    },
    "ninja_us": {
     "numerator": 20.329967274577697,
@@ -626,17 +626,17 @@
     "total": 32.78164041994751
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 6.215225168829904e-14
+   "max_scaled_difference_vs_ninja": 7.172375599926447e-14
   },
   {
    "id": "syn-n4-r3",
    "n": 4,
    "rank": 3,
    "ninjars_us": {
-    "numerator": 2.5451668701171877,
-    "reduction": 3.4135067138671875,
-    "masters": 12.45354541015625,
-    "total": 18.48976806640625
+    "numerator": 2.5715028076171875,
+    "reduction": 3.4356585693359376,
+    "masters": 12.01593896484375,
+    "total": 18.1316923828125
    },
    "ninja_us": {
     "numerator": 5.35557013608004,
@@ -644,18 +644,18 @@
     "masters": 16.697167333333336,
     "total": 29.50126266195524
    },
-   "failed_lanes": 22,
-   "max_scaled_difference_vs_ninja": 0.13498055070932458
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 2.357370875572468e-12
   },
   {
    "id": "syn-n4-r4",
    "n": 4,
    "rank": 4,
    "ninjars_us": {
-    "numerator": 9.292565185546875,
-    "reduction": 5.072582275390625,
-    "masters": 14.133427734375,
-    "total": 28.677453125
+    "numerator": 9.27075634765625,
+    "reduction": 5.060126953125,
+    "masters": 13.6884736328125,
+    "total": 28.367791015625
    },
    "ninja_us": {
     "numerator": 22.454644827166064,
@@ -663,18 +663,18 @@
     "masters": 15.780201886792453,
     "total": 47.62871401515151
    },
-   "failed_lanes": 21,
-   "max_scaled_difference_vs_ninja": 2.000591051801868
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 2.660937497370631e-13
   },
   {
    "id": "syn-n4-r5",
    "n": 4,
    "rank": 5,
    "ninjars_us": {
-    "numerator": 31.9782529296875,
-    "reduction": 10.9345615234375,
-    "masters": 11.01439599609375,
-    "total": 54.183607421875
+    "numerator": 32.92087109375,
+    "reduction": 10.978474609375,
+    "masters": 10.64878125,
+    "total": 54.857783203125
    },
    "ninja_us": {
     "numerator": 79.7967015873016,
@@ -682,18 +682,18 @@
     "masters": 12.035081896551725,
     "total": 113.46883783783784
    },
-   "failed_lanes": 22,
-   "max_scaled_difference_vs_ninja": 1.3941896900206548e-13
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 4.024485562570993e-12
   },
   {
    "id": "syn-n5-r4",
    "n": 5,
    "rank": 4,
    "ninjars_us": {
-    "numerator": 11.417907470703126,
-    "reduction": 8.667997802734375,
-    "masters": 36.3450322265625,
-    "total": 56.977384765625
+    "numerator": 11.435102783203124,
+    "reduction": 9.185182373046874,
+    "masters": 35.631537109375,
+    "total": 56.54790625
    },
    "ninja_us": {
     "numerator": 22.178615501115186,
@@ -702,17 +702,17 @@
     "total": 107.75304273504274
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 1.4145775188082835e-13
+   "max_scaled_difference_vs_ninja": 1.9077762354608898e-13
   },
   {
    "id": "syn-n5-r5",
    "n": 5,
    "rank": 5,
    "ninjars_us": {
-    "numerator": 36.10856591796875,
-    "reduction": 12.91627587890625,
-    "masters": 37.416373046875,
-    "total": 87.14402734375
+    "numerator": 36.2522919921875,
+    "reduction": 13.0855126953125,
+    "masters": 36.0025146484375,
+    "total": 85.8810703125
    },
    "ninja_us": {
     "numerator": 81.18769366656629,
@@ -721,17 +721,17 @@
     "total": 179.2705035460993
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 5.9631192300788515e-12
+   "max_scaled_difference_vs_ninja": 5.899339777133679e-12
   },
   {
    "id": "syn-n5-r6",
    "n": 5,
    "rank": 6,
    "ninjars_us": {
-    "numerator": 110.397935546875,
-    "reduction": 28.155341796875,
-    "masters": 47.165755859375,
-    "total": 187.6636484375
+    "numerator": 111.467515625,
+    "reduction": 28.16725390625,
+    "masters": 45.3346640625,
+    "total": 189.090171875
    },
    "ninja_us": {
     "numerator": 259.2620282828283,
@@ -747,10 +747,10 @@
    "n": 6,
    "rank": 5,
    "ninjars_us": {
-    "numerator": 40.579244140625,
-    "reduction": 18.308927734375,
-    "masters": 310.353203125,
-    "total": 371.44196875
+    "numerator": 40.0054873046875,
+    "reduction": 18.3134990234375,
+    "masters": 303.146421875,
+    "total": 368.944375
    },
    "ninja_us": {
     "numerator": 74.2610757947185,
@@ -759,17 +759,17 @@
     "total": 607.1365
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 3.2419221835251184e-08
+   "max_scaled_difference_vs_ninja": 3.605241547546524e-08
   },
   {
    "id": "syn-n6-r6",
    "n": 6,
    "rank": 6,
    "ninjars_us": {
-    "numerator": 112.863173828125,
-    "reduction": 26.731392578125,
-    "masters": 268.6757421875,
-    "total": 411.105515625
+    "numerator": 113.6787451171875,
+    "reduction": 27.1843876953125,
+    "masters": 260.884390625,
+    "total": 403.010109375
    },
    "ninja_us": {
     "numerator": 238.37562081031305,
@@ -777,18 +777,18 @@
     "masters": 419.9987,
     "total": 725.3270833333333
    },
-   "failed_lanes": 21,
-   "max_scaled_difference_vs_ninja": 9.508362703758892e-10
+   "failed_lanes": 0,
+   "max_scaled_difference_vs_ninja": 0.2633441697135343
   },
   {
    "id": "syn-n6-r7",
    "n": 6,
    "rank": 7,
    "ninjars_us": {
-    "numerator": 307.5703984375,
-    "reduction": 53.5357734375,
-    "masters": 323.4360625,
-    "total": 699.170375
+    "numerator": 309.797673828125,
+    "reduction": 53.756998046875,
+    "masters": 317.1095,
+    "total": 686.9335625
    },
    "ninja_us": {
     "numerator": 689.8418615221987,

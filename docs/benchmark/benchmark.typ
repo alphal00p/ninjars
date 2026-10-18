@@ -291,7 +291,12 @@
     cmp-cell(a.reduction, b.reduction, ref: "N"),
     cmp-cell(a.masters, b.masters, ref: "O"),
     cmp-cell(a.total, b.total, ref: "N+O"),
-    table.cell(text(size: 7.5pt, sci(c.max_scaled_difference_vs_ninja))),
+    table.cell(text(size: 7.5pt, {
+      let d = c.max_scaled_difference_vs_ninja
+      sci(d)
+      // Ill-conditioned lanes, discussed in the correctness section.
+      if is-num(d) and d > 1e-6 { super[†] }
+    })),
   )
 }
 
@@ -307,7 +312,9 @@
     with live numerator and masters. Original Ninja is built with
     `g++ -O3 -fcx-fortran-rules` (MadLoop's flag; 20 % faster than plain
     `-O3`). The last column is the maximal difference of the three Laurent
-    coefficients relative to the largest, NinjaRS versus Ninja.],
+    coefficients relative to the largest, NinjaRS versus Ninja; † marks
+    single ill-conditioned lanes where neither code is accurate in binary64
+    (see @correctness).],
   header-style(table(
     columns: (1fr, auto, auto, auto, auto, auto, auto),
     align: (x, y) => if x == 0 { left + horizon } else { center + horizon },
