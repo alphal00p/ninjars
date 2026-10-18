@@ -184,8 +184,8 @@ where
                 let mut value = az.clone() * &a0[0][k];
                 let mut tensor = a0[0][k].clone();
                 if k == 0 {
-                    value = value + bz.clone() * &m * &m * &half;
-                    tensor = tensor + m.clone() * &half;
+                    value += bz.clone() * &m * &m * &half;
+                    tensor += m.clone() * &half;
                 }
                 value + cz.clone() * &p2 * &m * &tensor * &quarter
             })

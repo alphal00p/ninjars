@@ -255,9 +255,9 @@ where
     let first = real((h.clone() * &two.re).inv());
     let second = real((h.clone() * &h).inv());
     let mut worst = 0_f64;
-    for lane in 0..lanes.len() {
+    for (lane, dual) in dual.iter().enumerate() {
         let f = |k: usize, c: usize| values[lane * offsets.len() + k][c].clone();
-        for c in 0..3 {
+        for (c, component) in dual.iter().take(3).enumerate() {
             let center = f(0, c);
             let dx = (f(1, c) - &f(2, c)) * &first;
             let dy = (f(3, c) - &f(4, c)) * &first;
@@ -270,7 +270,7 @@ where
                 .map(|z| to_c64(z).abs())
                 .fold(f64::MIN_POSITIVE, f64::max);
             for (slot, e) in expected.iter().enumerate() {
-                let error = distance(&dual[lane][c].values[slot], e) / scale;
+                let error = distance(&component.values[slot], e) / scale;
                 worst = worst.max(error);
             }
             // The derivative variables move the finite part.

@@ -203,10 +203,10 @@ where
             let residue = &residues[&(parent, lane)];
             let mut term = residue.value(q, mu);
             for &line in &topology.cuts()[parent].complement {
-                term = term * &denominator(q, &shift(lane, line), &mass(lane, line), mu);
+                term *= &denominator(q, &shift(lane, line), &mass(lane, line), mu);
             }
             largest = largest.max(modulus(&term));
-            sum = sum + &term;
+            sum += &term;
         }
         (sum, largest)
     };
@@ -267,23 +267,23 @@ where
                             let (sum, parent_largest) = parents(index, lane, &q, &mu);
                             let mut uncut = complex(p, C64::real(1.));
                             for &line in &cut.complement {
-                                uncut = uncut
-                                    * &denominator(&q, &shift(lane, line), &mass(lane, line), &mu);
+                                uncut *=
+                                    &denominator(&q, &shift(lane, line), &mass(lane, line), &mu);
                             }
                             let delta = (value.clone() - &sum) / &uncut;
                             largest = largest
                                 .max(modulus(&value) / modulus(&uncut))
                                 .max(parent_largest / modulus(&uncut))
                                 .max(modulus(&delta));
-                            remainder = remainder + &delta;
+                            remainder += &delta;
                             let r = q.clone() + origin.clone();
-                            monomial = monomial + &(r.dot(&g.basis.e3) * &r.dot(&g.basis.e4));
+                            monomial += &(r.dot(&g.basis.e3) * &r.dot(&g.basis.e4));
                         }
                         let four = complex(p, C64::real(4.));
                         let remainder = remainder / &four;
                         let mut expected = c0.clone() + c14.clone() * &mu;
                         if transverse {
-                            expected = expected + c15.clone() * &(monomial / &four);
+                            expected += c15.clone() * &(monomial / &four);
                         }
                         worst[0] = worst[0].max(distance(&remainder, &expected) / largest);
                     }
@@ -351,7 +351,7 @@ where
                 let (sum, mut largest) = parents(index, lane, &q, &mu);
                 let mut term = own.value(&q, &mu);
                 for &line in &cut.complement {
-                    term = term * &denominator(&q, &shift(lane, line), &mass(lane, line), &mu);
+                    term *= &denominator(&q, &shift(lane, line), &mass(lane, line), &mu);
                 }
                 largest = largest.max(modulus(&term)).max(modulus(&value));
                 let total = sum + &term;

@@ -497,7 +497,7 @@ where
 pub fn power<T: Real>(z: &Complex<T>, k: u32) -> Complex<T> {
     let mut result = z.one();
     for _ in 0..k {
-        result = result * z;
+        result *= z;
     }
     result
 }
@@ -600,11 +600,11 @@ pub fn bubble_value<T: Real>(
 pub fn box_value<T: Real>(c: &[Complex<T>], x: &Complex<T>, mu: &Complex<T>) -> Complex<T> {
     let mut even = c[0].clone() + c[2].clone() * mu + c[4].clone() * &power(mu, 2);
     if c.len() > 6 {
-        even = even + c[6].clone() * &power(mu, 3);
+        even += c[6].clone() * &power(mu, 3);
     }
     let mut odd = c[1].clone() + c[3].clone() * mu;
     if c.len() > 5 {
-        odd = odd + c[5].clone() * &power(mu, 2);
+        odd += c[5].clone() * &power(mu, 2);
     }
     even + odd * x
 }
