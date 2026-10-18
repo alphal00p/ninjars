@@ -1566,6 +1566,7 @@ dependencies = [
  "feynkit-model",
  "ninjars",
  "ninjars-graph",
+ "ninjars-positional",
  "ninjars-symbolica",
  "oneloop",
  "serde",
