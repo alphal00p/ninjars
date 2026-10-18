@@ -9,6 +9,7 @@ use super::complex::{C64, CMom, RMom, mp_cc};
 use super::engine_x2::{divide_t2_5, divide_t3_6};
 use super::numerator::{FastNumerator, t2_len, t3_len};
 use super::replay::{RecordingMasters, RecordingNumerator};
+use super::subtractions_series_x2 as series;
 use super::subtractions_x2 as subs;
 use super::tensor::TensorNumerator;
 use super::tensor_layout::{monomial_index, monomials, ncoeff, ncoeff_mu};
@@ -510,10 +511,20 @@ impl Json {
 
 const FIXTURES: &str = include_str!("../../../../validation/rank-n2/subtraction_fixtures.json");
 
+/// The two implementations of the rank n+2 subtractions.
+#[derive(Clone, Copy, Debug)]
+enum Implementation {
+    /// `subtractions_series_x2` (used by the engine).
+    Series,
+    /// `subtractions_x2`, generated from Ninja's FORM output and the CSE.
+    Generated,
+}
+
 /// Run one fixture case with (possibly perturbed) parent coefficients; the
 /// scaled difference to the series values and whether every other slot is
 /// untouched.
-fn run_fixture(case: &Json, c: &[C64]) -> (f64, bool) {
+fn run_fixture(case: &Json, c: &[C64], implementation: Implementation) -> (f64, bool) {
+    let generated = matches!(implementation, Implementation::Generated);
     let kind = case.field("kind").text();
     let width = match kind {
         "tri_to_bub_all" => 22,
@@ -534,9 +545,15 @@ fn run_fixture(case: &Json, c: &[C64]) -> (f64, bool) {
             let eb1t: [C64; 4] = case.field("eb1t").cs().try_into().unwrap();
             let c: &[C64; 21] = c.try_into().unwrap();
             let f = if kind == "tri_to_bub_all" {
-                subs::bubble_from_triangle_x2_all
-            } else {
+                if generated {
+                    subs::bubble_from_triangle_x2_all
+                } else {
+                    series::bubble_from_triangle_all
+                }
+            } else if generated {
                 subs::bubble_from_triangle_x2_spurious
+            } else {
+                series::bubble_from_triangle_spurious
             };
             f(
                 &mut divnum,
@@ -557,7 +574,12 @@ fn run_fixture(case: &Json, c: &[C64]) -> (f64, bool) {
         }
         "tri_to_tad" => {
             let (e3k0, e3k1) = (case.field("e3k0").c(), case.field("e3k1").c());
-            subs::tadpole_from_triangle_x2(
+            let f = if generated {
+                subs::tadpole_from_triangle_x2
+            } else {
+                series::tadpole_from_triangle
+            };
+            f(
                 &mut divnum,
                 &case.field("et3").cmom(),
                 &case.field("et4").cmom(),
@@ -577,7 +599,12 @@ fn run_fixture(case: &Json, c: &[C64]) -> (f64, bool) {
         }
         "bub_to_tad" => {
             let e3k = case.field("e3k").c();
-            subs::tadpole_from_bubble_x2(
+            let f = if generated {
+                subs::tadpole_from_bubble_x2
+            } else {
+                series::tadpole_from_bubble
+            };
+            f(
                 &mut divnum,
                 &case.field("eb2").rmom(),
                 &case.field("eb3").cmom(),
@@ -638,41 +665,49 @@ fn rank_n2_subtractions_match_series_fixtures() {
     );
     let cases = fixtures.field("cases").list();
     assert!(cases.len() >= 24);
-    let mut worst = 0f64;
-    let mut controls = 0;
-    for case in cases {
-        let kind = case.field("kind").text();
-        let c = case.field("c").cs();
-        let (error, untouched) = run_fixture(case, &c);
-        assert!(
-            untouched,
-            "{kind}: a slot outside the routine's layout was written"
-        );
-        assert!(error <= 1e-13, "{kind}: scaled error {error:e}");
-        worst = worst.max(error);
-        // Control: perturbing a coefficient that feeds the routine must be
-        // detected; one that does not feed it must not change anything.
-        for index in 0..c.len() {
-            let mut perturbed = c.clone();
-            perturbed[index] += C64::new(1e-4, -1e-4) * (1. + c[index].abs());
-            let (error, untouched) = run_fixture(case, &perturbed);
-            assert!(untouched);
-            if feeds(kind, index) {
-                assert!(
-                    error > 1e-9,
-                    "{kind}: perturbed c{index} not detected ({error:e})"
-                );
-                controls += 1;
-            } else {
-                assert!(error <= 1e-13, "{kind}: c{index} must not feed ({error:e})");
+    for implementation in [Implementation::Series, Implementation::Generated] {
+        let mut worst = 0f64;
+        let mut controls = 0;
+        for case in cases {
+            let kind = case.field("kind").text();
+            let c = case.field("c").cs();
+            let (error, untouched) = run_fixture(case, &c, implementation);
+            assert!(
+                untouched,
+                "{implementation:?} {kind}: a slot outside the routine's layout was written"
+            );
+            assert!(
+                error <= 1e-13,
+                "{implementation:?} {kind}: scaled error {error:e}"
+            );
+            worst = worst.max(error);
+            // Control: perturbing a coefficient that feeds the routine must
+            // be detected; one that does not feed it must change nothing.
+            for index in 0..c.len() {
+                let mut perturbed = c.clone();
+                perturbed[index] += C64::new(1e-4, -1e-4) * (1. + c[index].abs());
+                let (error, untouched) = run_fixture(case, &perturbed, implementation);
+                assert!(untouched);
+                if feeds(kind, index) {
+                    assert!(
+                        error > 1e-9,
+                        "{implementation:?} {kind}: perturbed c{index} not detected ({error:e})"
+                    );
+                    controls += 1;
+                } else {
+                    assert!(
+                        error <= 1e-13,
+                        "{implementation:?} {kind}: c{index} must not feed ({error:e})"
+                    );
+                }
             }
         }
+        assert!(controls > 300);
+        eprintln!(
+            "SUBTRACTIONS_X2 {implementation:?} cases={} worst={worst:e} controls={controls}",
+            cases.len()
+        );
     }
-    assert!(controls > 300);
-    eprintln!(
-        "SUBTRACTIONS_X2 cases={} worst={worst:e} controls={controls}",
-        cases.len()
-    );
 }
 
 // ------------------------------------------------------------------ engine

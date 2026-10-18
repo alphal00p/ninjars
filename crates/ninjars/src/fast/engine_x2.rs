@@ -19,8 +19,9 @@
 //! - **bubble**: `t2` at `mindeg` 4 (22 slots, levels of 1, 2, 4, 6, 9;
 //!   [`FastNumerator::t2_expansion_x2`]) and,
 //!   for massive lines, the swapped orientation at `mindeg` 3; the parent
-//!   triangles are subtracted by the generated `subtractions_x2` routines;
-//!   35 coefficients in the canonical layout of `tools/rank_n2`.
+//!   triangles are subtracted by series division
+//!   (`subtractions_series_x2.rs`); 35 coefficients in the canonical layout
+//!   of `tools/rank_n2`.
 //! - **tadpole**: two `t3` orientations at `mindeg` 3 (6 slots); triangle and
 //!   bubble parents subtracted on slots 4 and 5; integrated layout as at
 //!   rank n+1 (`c0`, `c14`, `c15`).
@@ -42,7 +43,7 @@ use super::geometry::{
 };
 use super::masters::{FastMaster, FastMasters};
 use super::numerator::{FastNumerator, t2_len, t3_len};
-use super::subtractions_x2 as subs;
+use super::subtractions_series_x2 as subs;
 use super::{FastInput, FastResult, FastStatus};
 use crate::{Error, Result};
 
@@ -936,7 +937,7 @@ impl RankN2Engine {
                             mp_cr(&tri.e4, &e.e1) + e2t4 * row.b1,
                         ];
                         self.pairs[r * np + pi] = pair;
-                        subs::bubble_from_triangle_x2_all(
+                        subs::bubble_from_triangle_all(
                             numexp,
                             &tri.e3,
                             &tri.e4,
@@ -1090,7 +1091,7 @@ impl RankN2Engine {
                     for (pi, &(t, unc)) in parents.iter().enumerate() {
                         let tri = &self.tri[t * lanes + lane];
                         let u = &uncut[unc];
-                        subs::bubble_from_triangle_x2_spurious(
+                        subs::bubble_from_triangle_spurious(
                             numexp,
                             &tri.e3,
                             &tri.e4,
@@ -1270,7 +1271,7 @@ impl RankN2Engine {
                         for &(t, [u0, u1]) in tri_parents {
                             let tri = &self.tri[t * lanes + lane];
                             let (k0, k1) = (&uncut[u0], &uncut[u1]);
-                            subs::tadpole_from_triangle_x2(
+                            subs::tadpole_from_triangle(
                                 numexp, &tri.e3, &tri.e4, &tri.c, &ev3, &ev4, param, k0.e3k,
                                 k0.ie3k, k0.e4k, k0.f, k1.e3k, k1.ie3k, k1.e4k, k1.f,
                             );
@@ -1281,7 +1282,7 @@ impl RankN2Engine {
                             let bub = &self.bub[bb * lanes + lane];
                             let kbol = sub(&v[topo.bubbles[bb][0]], &v[a]);
                             let u = &uncut[unc];
-                            subs::tadpole_from_bubble_x2(
+                            subs::tadpole_from_bubble(
                                 numexp, &bub.e2, &bub.e3, &bub.e4, &kbol, &bub.c, &ev3, &ev4,
                                 param, u.e3k, u.ie3k, u.e4k, u.f,
                             );
