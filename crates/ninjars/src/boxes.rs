@@ -23,11 +23,14 @@ pub struct BoxReductionOptions {
     pub mu_extraction: BoxMuMode,
 }
 impl BoxReductionOptions {
+    /// mu² levels sampled per box: 0, +s, -s and, at rank n+2 in sampling
+    /// mode, 2s (the mu⁶ coefficient couples to mu² in the even part).
     pub fn sample_count(self, n: usize, rank: usize) -> usize {
+        let sampled = if rank > n.saturating_add(1) { 4 } else { 3 };
         match (self.coefficients, self.mu_extraction) {
-            (BoxCoefficientMode::Full, BoxMuMode::Sampling) => 3,
+            (BoxCoefficientMode::Full, BoxMuMode::Sampling) => sampled,
             (BoxCoefficientMode::Full, BoxMuMode::Expansion) => 2,
-            (BoxCoefficientMode::Integrated, BoxMuMode::Sampling) if rank >= n => 3,
+            (BoxCoefficientMode::Integrated, BoxMuMode::Sampling) if rank >= n => sampled,
             _ => 1,
         }
     }
@@ -57,12 +60,13 @@ pub struct BoxMuDivisionRequest<'a, T> {
 pub struct BoxProjectionRequest<'a, T> {
     pub geometry: &'a BoxCut<T>,
     pub shift: &'a FourMomentum<T>,
-    /// Pairs ordered mu²=0,+s,-s, truncated to the selected mode's count.
+    /// Pairs ordered mu²=0,+s,-s,+2s, truncated to the selected mode's count.
     pub momenta: &'a [[FourMomentum<T>; 2]],
     pub quotients: &'a [[T; 2]],
     pub sampling_scale: &'a T,
-    /// c4,c5 from the mu expansion, or zero when sampling is selected.
-    pub mu_coefficients: &'a [T; 2],
+    /// c4,c5,c6 from the mu expansion, or zero when sampling is selected.
+    /// c6 (mu⁶) is nonzero only at rank n+2.
+    pub mu_coefficients: &'a [T; 3],
 }
 
 pub trait BoxReductionKernels<T> {
@@ -83,7 +87,7 @@ pub trait BoxReductionKernels<T> {
         &mut self,
         requests: &[BoxMuDivisionRequest<'_, T>],
         numerator: &[T],
-        output: &mut [[T; 2]],
+        output: &mut [[T; 3]],
         stable: &mut [bool],
     ) -> Result<()>;
     fn project_batch(
@@ -100,9 +104,11 @@ pub struct BoxResidue<T> {
     pub cut_index: usize,
     pub id: SampleId,
     pub geometry: BoxCut<T>,
-    /// Original Ninja order: c0+c2*mu²+c4*mu⁴+(c1+c3*mu²+c5*mu⁴)*u.
+    /// Original Ninja order: c0+c2*mu²+c4*mu⁴+(c1+c3*mu²+c5*mu⁴)*u, plus
+    /// c6*mu⁶ at rank n+2.
     pub coefficients: Vec<T>,
-    /// Integrated mode computes c0/c4; other slots are explicitly uncomputed.
+    /// Integrated mode computes c0/c4 (and c6 at rank n+2); other slots are
+    /// explicitly uncomputed.
     pub computed: Vec<bool>,
 }
 
@@ -132,7 +138,7 @@ pub struct BoxReducer<T, K> {
     parents_flat: Vec<T>,
     division_stable: Vec<bool>,
     final_rows: Vec<(usize, usize)>,
-    mu_coefficients: Vec<[T; 2]>,
+    mu_coefficients: Vec<[T; 3]>,
     mu_stable: Vec<bool>,
     vectors: Vec<[FourMomentum<T>; 2]>,
     mu_values: Vec<T>,
@@ -512,12 +518,16 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
             }
         }
         let mu_coefficients = &mut self.mu_coefficients;
-        mu_coefficients.resize(final_rows.len(), [self.zero.clone(), self.zero.clone()]);
-        mu_coefficients.fill([self.zero.clone(), self.zero.clone()]);
+        let zeros = [self.zero.clone(), self.zero.clone(), self.zero.clone()];
+        mu_coefficients.resize(final_rows.len(), zeros.clone());
+        mu_coefficients.fill(zeros);
         let mu_stable = &mut self.mu_stable;
         mu_stable.resize(final_rows.len(), true);
         mu_stable.fill(true);
         if let Some(kind) = self.kernels.numerator_mu_expansion() {
+            // Rank n+2 expands on the exact d-dimensional cut,
+            // mu² = t² v_orth² - beta (`ExpansionKind::MuShifted`).
+            let shifted = matches!(kind, ExpansionKind::MuShifted { .. });
             let vectors = &mut self.vectors;
             vectors.clear();
             vectors.extend(
@@ -539,7 +549,11 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
                     },
                     partition: &cut.partition,
                     vectors: &vectors[j],
-                    parameters: &[],
+                    parameters: if shifted {
+                        std::slice::from_ref(&cuts[i].beta)
+                    } else {
+                        &[]
+                    },
                 });
                 divisions.push(BoxMuDivisionRequest {
                     partition: &cut.partition,
@@ -598,10 +612,10 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
             .project_batch(&projection_requests, &mut self.coefficients, stable)?;
         let computed = &mut self.computed;
         computed.clear();
-        computed.extend(
-            (0..width)
-                .map(|i| options.coefficients == BoxCoefficientMode::Full || i == 0 || i == 4),
-        );
+        // c6 (mu⁶) exists only in the rank n+2 width of seven.
+        computed.extend((0..width).map(|i| {
+            options.coefficients == BoxCoefficientMode::Full || i == 0 || i == 4 || i == 6
+        }));
         for (j, &i) in projection_rows.iter().enumerate() {
             let row = active[i];
             let coefficients = &self.coefficients[j * width..(j + 1) * width];

@@ -1,0 +1,27 @@
+# Rank n+2 smoke data (`tests/rank_n2_integration.rs`)
+
+Inputs and references for the V4 smoke test of the generic engine at numerator
+rank n+2: the complex-mass `int` lanes of the phase-1 COLLIER reference suite
+for n = 1 (with explicit mu² tensors) and n = 2, 3, 4 (with and without).
+
+| file | content |
+|---|---|
+| `rn2-int-complex-*.json` | The case inputs (`ninjars-bench-case-v1`, optional `mu2_tensors`), copied unchanged from the phase-1 suite (`scratchpad/rank-n2/reference/suite/cases`, generator `gen_suite.py`, seed 20261028). |
+| `hpref-rn2-int-complex-n{2-r4,3-r5,4-r6}.json` | COLLIER references for the mu²-free cases, made exactly like `tools/rank_n2/review/hpref` (`tools/rank_n2/review/collier_hp.py`: COLLIER quad, COLI branch, reqacc 1e-20, 60-digit preprocessing). Rerunning the same procedure reproduces the three `-mu2` files of `hpref` byte for byte. |
+| `scalar-masters.json` | Exact C0 and D0 (oneloopmaster expressions in 256-bit `SymbolicaMasters`) of every three- and four-line subset of every lane; written by the ignored test `rank_n2_dump_scalar_masters`. |
+| `red-rn2-int-complex-*.json` | Independent 60-digit references: the review's reduction (`tools/rank_n2/review/red.py`, sharing no code with NinjaRS; every residue checked against its independent fit, worst recipe-vs-fit 4e-26) assembled as in `tools/rank_n2/review/e2e.py` (A0 closed form, B0..B1111 by Feynman-parameter quadrature) with the exact C0/D0 of `scalar-masters.json`. Produced by `red_reference.py`. |
+| `red_reference.py` | `PYTHONPATH=tools/rank_n2/review tools/rank_n2/review/py.sh red_reference.py CASE.json scalar-masters.json OUT.json` |
+
+## Why two references
+
+COLLIER's quad-precision tensor integrals limit the `hpref` values to about
+1e-17..1e-14 relative on several lanes (its tadpole coefficients in
+particular, review §6.4; a second COLLIER branch, DD, moves the same lanes by
+similar amounts). The engine agrees with them exactly as well as the
+independent reduction does (n2-r4-mu2: 4.4e-33, 4.3e-24, 7.1e-17 for both),
+so the test requires
+
+- <= 1e-25 (scaled by the lane's largest Laurent coefficient) against the
+  `red-*` references, and
+- a COLLIER difference no larger than the independent reduction's own, plus
+  1e-25.

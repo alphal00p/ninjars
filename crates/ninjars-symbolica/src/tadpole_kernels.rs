@@ -135,7 +135,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
             if source_size > n {
                 continue;
             }
-            let plan = TadpoleSubtraction::new(source_size, higher)?;
+            let plan = TadpoleSubtraction::new_class(source_size, layout.rank_class())?;
             if correction_columns == 0 {
                 correction_columns = plan.output_expansion().len();
                 let ExpansionKind::T3 { powers: full } = plan.output_expansion() else {
@@ -371,6 +371,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
     ) -> Result<()> {
         let n = self.topology.propagators();
         let higher = self.topology.rank() > n;
+        let class = self.topology.rank_class();
         let width = self.layout.quotient_expansion().len();
         let rows = requests.len();
         BatchShape {
@@ -398,11 +399,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
                 TadpoleSource::Triangle(r) => (r.cut_index, r.id, 3, r.coefficients.len()),
                 TadpoleSource::Bubble(r) => (r.cut_index, r.id, 2, r.coefficients.len()),
             };
-            let expected_count = match (size, higher) {
-                (3, true) => 15,
-                (2, true) => 20,
-                _ => 10,
-            };
+            let expected_count = ninjars::residue_coefficient_count(size, class);
             if request.id.sample >= self.topology.cuts().len()
                 || index >= self.topology.cuts().len()
                 || self.topology.cuts()[request.id.sample].partition.len() != 1

@@ -7,7 +7,7 @@ use crate::{
 };
 use ninjars::{
     BatchShape, Complex, FloatLike, FourMomentum, IntegratedContribution, IntegrationKernels,
-    Laurent, MasterIntegral, Real, ResidueIntegrationRequest, Result, SingleFloat,
+    Laurent, MasterIntegral, RankClass, Real, ResidueIntegrationRequest, Result, SingleFloat,
 };
 use std::marker::PhantomData;
 use symbolica::{atom::Atom, domains::dual::DualNumber, evaluate::EvaluationDomain, symbol};
@@ -29,11 +29,11 @@ struct Engine<V, K, Checks> {
 impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V, K, Checks> {
     fn new(
         size: usize,
-        higher: bool,
+        class: RankClass,
         prototype: &V,
         mut compile: impl FnMut(&ExactKernel) -> Result<K>,
     ) -> Result<Self> {
-        let plan = MasterContraction::new(size, higher)?;
+        let plan = MasterContraction::new_class(size, class)?;
         let parameters: Vec<_> = (0..4 * size + if size == 2 { 4 } else { 0 })
             .map(|i| Atom::var(symbol!(format!("ninjars_integration_momentum::p{i}"))))
             .collect();
@@ -237,6 +237,15 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
     }
 }
 
+/// The rank class of the `bool` constructors: rank n+1 when `higher_rank`.
+fn higher_class(higher_rank: bool) -> RankClass {
+    if higher_rank {
+        RankClass::NPlus1
+    } else {
+        RankClass::UpToN
+    }
+}
+
 /// Batched integration kernels for complex scalar numerical carriers.
 pub struct SymbolicaIntegrationKernels<T> {
     engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks>,
@@ -247,9 +256,14 @@ where
     Complex<T>: Real + EvaluationDomain,
 {
     pub fn new(cut_size: usize, higher_rank: bool, prototype: T) -> Result<Self> {
+        Self::new_class(cut_size, higher_class(higher_rank), prototype)
+    }
+
+    /// Kernels for residues of the given rank class.
+    pub fn new_class(cut_size: usize, class: RankClass, prototype: T) -> Result<Self> {
         let zero = Complex::new(prototype.zero(), prototype.zero());
         Ok(Self {
-            engine: Engine::new(cut_size, higher_rank, &zero, |k| k.compile(&prototype))?,
+            engine: Engine::new(cut_size, class, &zero, |k| k.compile(&prototype))?,
         })
     }
 }
@@ -264,10 +278,13 @@ where
     Complex<T>: Real + EvaluationDomain,
 {
     pub fn new(cut_size: usize, higher_rank: bool, prototype: T, dual: &D) -> Result<Self> {
+        Self::new_class(cut_size, higher_class(higher_rank), prototype, dual)
+    }
+
+    /// Kernels for residues of the given rank class.
+    pub fn new_class(cut_size: usize, class: RankClass, prototype: T, dual: &D) -> Result<Self> {
         Ok(Self {
-            engine: Engine::new(cut_size, higher_rank, dual, |k| {
-                k.compile_dual(&prototype, dual)
-            })?,
+            engine: Engine::new(cut_size, class, dual, |k| k.compile_dual(&prototype, dual))?,
         })
     }
 }

@@ -78,7 +78,8 @@ pub struct AmplitudeInput<'a, T> {
 
 /// Ninja-style accumulation over a fixed phase-space batch.
 ///
-/// This implementation accepts any number of propagators n >= 1 and rank n+1.
+/// This implementation accepts any number of propagators n >= 1 and ranks up
+/// to n+2 (the kernels decide the supported classes; see `RankClass`).
 /// Calls add successful lanes to existing results. Every field of a failed lane
 /// remains unchanged; its last-attempt status is recorded separately. Structural
 /// errors leave results and last-attempt statuses unchanged; a lane with

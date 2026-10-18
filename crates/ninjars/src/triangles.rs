@@ -48,7 +48,8 @@ pub struct TriangleResidue<T> {
     pub cut_index: usize,
     pub id: SampleId,
     pub geometry: TriangleCut<T>,
-    /// Original Ninja coefficient order (10 ordinary or 15 higher-rank entries).
+    /// Original Ninja coefficient order: 10 (rank <= n), 15 (n+1) or 21 (n+2)
+    /// entries.
     pub coefficients: Vec<T>,
 }
 

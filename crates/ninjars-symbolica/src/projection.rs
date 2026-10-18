@@ -1,6 +1,9 @@
 //! Original Ninja residue ordering, projected from corrected Laurent quotients.
 
-use ninjars::{Complex, Error, ExpansionKind, FourMomentum, Real, Result, SingleFloat};
+use ninjars::{
+    Complex, Error, ExpansionKind, FourMomentum, RankClass, Real, Result, SingleFloat,
+    residue_coefficient_count,
+};
 use symbolica::{
     atom::{Atom, AtomCore},
     domains::dual::DualNumber,
@@ -123,6 +126,12 @@ where
 /// `(a+V0).dot(e3/e4)=0`; for bubbles, `(a0+V0).dot(e2/e3/e4)=0`
 /// and `a1.dot(e2)=g`. `SymbolicaCuts` supplies these conventions. Arbitrary
 /// null vectors alone do not define a compatible projection.
+///
+/// At rank n+2 the new coefficients follow the canonical order of
+/// `tools/rank_n2/theory/formulas_rank_n2.json`, with u = q·e3, v = q·e4 and
+/// w = q·e2: triangle c15..c20 = u⁵, v⁵, mu²u³, mu²v³, mu⁴u, mu⁴v; bubble
+/// c20..c34 = w⁴, mu²w², mu⁴, u⁴, v⁴, wu³, wv³, w²u², w²v², w³u, w³v, mu²u²,
+/// mu²v², mu²wu, mu²wv.
 pub struct ResidueProjection {
     quotient: ExpansionKind,
     pub(crate) exact: ExactKernel,
@@ -159,14 +168,8 @@ impl ResidueProjection {
                 parameters[usize::from(swapped) * width + i].clone()
             })
         };
-        let mut expressions = vec![
-            Atom::Zero;
-            if division.higher_rank() {
-                if cut == 3 { 15 } else { 20 }
-            } else {
-                10
-            }
-        ];
+        let class = division.rank_class();
+        let mut expressions = vec![Atom::Zero; residue_coefficient_count(cut, class)];
         if cut == 3 {
             expressions[0] = (coefficient(false, 0, 0, 0) + coefficient(true, 0, 0, 0)) / 2;
             expressions[7] = (coefficient(false, 0, 0, 1) + coefficient(true, 0, 0, 1)) / 2;
@@ -204,6 +207,34 @@ impl ResidueProjection {
                         coefficient(swapped, 1, 2, 0) / (&transverse * g.pow(2));
                     expressions[indices[3]] =
                         coefficient(swapped, 2, 1, 0) / (transverse.pow(2) * g);
+                }
+            }
+        }
+        if class == RankClass::NPlus2 {
+            // Every new coefficient is Q[t^b x^a mu^(2j)] / (g^a T^b), read from
+            // the orientation whose growing vector gives its transverse power.
+            let read = |swapped: bool, t: i32, x: u16, mu: u16| {
+                coefficient(swapped, t, x, mu) / (g.pow(i32::from(x)) * transverse.pow(t))
+            };
+            if cut == 3 {
+                for (swapped, [fifth, mu_cubic, mu2_linear]) in
+                    [(true, [15, 17, 19]), (false, [16, 18, 20])]
+                {
+                    expressions[fifth] = read(swapped, 5, 0, 0);
+                    expressions[mu_cubic] = read(swapped, 3, 0, 1);
+                    expressions[mu2_linear] = read(swapped, 1, 0, 2);
+                }
+            } else {
+                expressions[20] = read(false, 0, 4, 0);
+                expressions[21] = read(false, 0, 2, 1);
+                expressions[22] = read(false, 0, 0, 2);
+                for (swapped, offset) in [(true, 0), (false, 1)] {
+                    expressions[23 + offset] = read(swapped, 4, 0, 0);
+                    expressions[25 + offset] = read(swapped, 3, 1, 0);
+                    expressions[27 + offset] = read(swapped, 2, 2, 0);
+                    expressions[29 + offset] = read(swapped, 1, 3, 0);
+                    expressions[31 + offset] = read(swapped, 2, 0, 1);
+                    expressions[33 + offset] = read(swapped, 1, 1, 1);
                 }
             }
         }

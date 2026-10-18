@@ -8,8 +8,8 @@ use crate::{
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel},
 };
 use ninjars::{
-    Amplitude, AmplitudeKernels, BoxCoefficientMode, BoxMuMode, BoxReductionOptions, Complex, Real,
-    Result, SingleFloat, Topology,
+    Amplitude, AmplitudeKernels, BoxCoefficientMode, BoxMuMode, BoxReductionOptions, Complex,
+    Error, RankClass, Real, Result, SingleFloat, Topology,
 };
 use symbolica::{atom::Atom, domains::dual::DualNumber, evaluate::EvaluationDomain, symbol};
 
@@ -100,6 +100,12 @@ where
                 mu_extraction: BoxMuMode::Expansion,
             },
             accumulation,
+        })
+    }
+    fn rank_class(&self) -> Result<RankClass> {
+        RankClass::of(self.n, self.rank).ok_or(Error::Rank {
+            rank: self.rank,
+            propagators: self.n,
         })
     }
     pub fn into_amplitude(self, lanes: usize) -> Result<Amplitude<Complex<T>, Self>> {
@@ -240,7 +246,7 @@ where
         Ok(kernels)
     }
     fn integration_kernels(&self, cut_size: usize) -> Result<Self::Integration> {
-        SymbolicaIntegrationKernels::new(cut_size, self.rank > self.n, self.prototype.clone())
+        SymbolicaIntegrationKernels::new_class(cut_size, self.rank_class()?, self.prototype.clone())
     }
     fn accumulate_batch(
         &mut self,
@@ -316,6 +322,12 @@ where
                 mu_extraction: BoxMuMode::Expansion,
             },
             accumulation,
+        })
+    }
+    fn rank_class(&self) -> Result<RankClass> {
+        RankClass::of(self.n, self.rank).ok_or(Error::Rank {
+            rank: self.rank,
+            propagators: self.n,
         })
     }
     pub fn into_amplitude(self, lanes: usize) -> Result<Amplitude<D, Self>> {
@@ -462,9 +474,9 @@ where
         Ok(kernels)
     }
     fn integration_kernels(&self, cut_size: usize) -> Result<Self::Integration> {
-        SymbolicaDualIntegrationKernels::new(
+        SymbolicaDualIntegrationKernels::new_class(
             cut_size,
-            self.rank > self.n,
+            self.rank_class()?,
             self.prototype.clone(),
             &self.dual,
         )
@@ -554,11 +566,21 @@ where
     /// When specialization is enabled, also consult
     /// [`Self::rank_specialized_correction_backend`].
     pub fn kernel_backends(&self) -> [crate::KernelBackendSelection; 8] {
-        crate::native_kernels::coverage(
+        let mut selection = crate::native_kernels::coverage(
             self.native_triangle.is_some(),
             self.native_bubble_corrections,
             self.native_tadpole_projections,
-        )
+        );
+        // Rank n+2 has no catalogued triangle-to-bubble correction body; its
+        // bubble stage keeps the interpreter for it (`BubblePlan::correction`).
+        if RankClass::of(self.n, self.rank) == Some(RankClass::NPlus2) {
+            for entry in &mut selection {
+                if entry.family == crate::KernelFamily::TriangleBubbleCorrection {
+                    entry.backend = crate::KernelBackend::SymbolicaInterpreter;
+                }
+            }
+        }
+        selection
     }
 
     /// Backend of guarded correction alternates; generic fallback selections

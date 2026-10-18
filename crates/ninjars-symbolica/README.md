@@ -14,7 +14,7 @@ phase-space order.
 
 The adapter rejects negative powers and non-polynomial functions of the loop
 variables. It counts `mu_squared` with rank weight two. The reducer is responsible
-for the separate topology constraint `rank <= propagator_count + 1`.
+for the separate topology constraint `rank <= propagator_count + 2`.
 Expansion requests contain explicit **raw numerator** powers of `t`, `x`, and
 `mu_squared`; original Ninja's `mindeg` convention denotes subleading depth.
 All substitutions, finite Laurent polynomial extraction and numerical evaluator
@@ -53,7 +53,8 @@ while evaluating all eligible rows through one batched instruction graph.
 
 `SymbolicaAmplitudeKernels::new(n, rank, prototype)?.into_amplitude(lanes)`
 constructs a core `Amplitude` for any number n >= 1 of propagators and rank at
-most n+1. Five-cuts are the highest cuts; seven or more propagators only add
+most n+2 (rank n+2: box mu⁶, 21 triangle, 35 bubble coefficients and the B1111
+master; see `tools/rank_n2/README.md`). Five-cuts are the highest cuts; seven or more propagators only add
 uncut denominators, divided out by Laurent kernels generated for each n. Supply
 shared lane-major shifts/masses, one squared scale per lane, a numerator, `SymbolicaCuts` and a master provider to `evaluate_batch`. Successful
 lanes accumulate into `[finite, single pole, double pole, cut-constructible finite,

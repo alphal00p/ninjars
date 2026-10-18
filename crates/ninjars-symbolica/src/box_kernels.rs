@@ -7,7 +7,7 @@ use crate::{
 use ninjars::{
     BatchShape, BoxCoefficientMode, BoxDivisionRequest, BoxMuDivisionRequest, BoxMuMode,
     BoxProjectionRequest, BoxReductionKernels, BoxReductionOptions, Complex, Error, ExpansionKind,
-    FloatLike, FourMomentum, Real, Result, SingleFloat, Topology,
+    FloatLike, FourMomentum, RankClass, Real, Result, SingleFloat, Topology,
 };
 use std::marker::PhantomData;
 use symbolica::{
@@ -34,6 +34,113 @@ fn append_vector<V: Clone>(out: &mut Vec<V>, v: &FourMomentum<V>) {
     out.extend(v.components().into_iter().cloned());
 }
 
+/// Projections `(u+, u-, u+ - u-)` of both roots of every sampled mu² level
+/// on `v_orth`. Row: `[V_first, v_orth, (q+, q-) per level]`.
+fn projections(levels: usize) -> ExactKernel {
+    let p = parameters("ninjars_box_root_projections", 8 + 8 * levels);
+    let origin = vector(&p, 0);
+    let v = vector(&p, 4);
+    let mut expressions = Vec::new();
+    for level in 0..levels {
+        let up = (vector(&p, 8 + level * 8) + origin.clone()).dot(&v);
+        let um = (vector(&p, 12 + level * 8) + origin.clone()).dot(&v);
+        expressions.extend([up.clone(), um.clone(), up - um]);
+    }
+    ExactKernel {
+        expressions,
+        parameters: p,
+    }
+}
+
+/// Rank n+2 mu-expansion division on the exact d-dimensional quadruple cut.
+///
+/// Row: `[n0, n1, n2, v², (d0, d1) per uncut line, beta]`. Here n0, n1, n2 are
+/// the coefficients of t^r, t^(r-1), t^(r-2) of N(q, mu²) along
+/// `q = t v_orth + a`, `mu² = t² v² - beta` (`ExpansionKind::MuShifted`), on
+/// which `D_first = 0` exactly and each uncut `D_l = d0 t + d1`. The residue
+/// `c0 + c2 mu² + c4 mu⁴ + c6 mu⁶ + (c1 + c3 mu² + c5 mu⁴) q·v` then gives
+/// `c6 = n0/(v²)³`, `c5 = n1/(v²)³` and `c4 = n2/(v²)² + 3 beta c6`
+/// (`tools/rank_n2/README.md`). Pentagons only reach t¹ and need no
+/// subtraction. Output `[c4, c5, c6]`.
+fn mu_division_n2(uncut: usize) -> Result<ExactKernel> {
+    let p = parameters("ninjars_box_mu_division_n2", 5 + 2 * uncut);
+    let z_symbol = symbol!("ninjars_box_mu_division_n2::z");
+    let z = Atom::var(z_symbol);
+    let mut normalized = &p[0] + &p[1] * &z + &p[2] * z.pow(2);
+    for line in 0..uncut {
+        normalized /= &p[4 + 2 * line] + &p[5 + 2 * line] * &z;
+    }
+    let series = normalized
+        .series(z_symbol, 0, 2)
+        .map_err(|e| Error::Symbolic(e.to_string()))?
+        .to_atom()
+        .expand();
+    let field = AtomField {
+        statistical_zero_test: false,
+        ..AtomField::new()
+    };
+    let polynomial = series.to_polynomial_in_vars_with_field::<i32>(&[z], &field);
+    let coefficient = |power: i32| polynomial.coefficient(&[power]).unwrap_or(Atom::Zero);
+    let v2 = &p[3];
+    let beta = &p[4 + 2 * uncut];
+    let c6 = coefficient(0) / v2.pow(3);
+    let c5 = coefficient(1) / v2.pow(3);
+    let c4 = coefficient(2) / v2.pow(2) + beta * &c6 * 3;
+    Ok(ExactKernel {
+        expressions: vec![c4, c5, c6],
+        parameters: p,
+    })
+}
+
+/// Rank n+2 interpolation. Row: `[s, c4, c5, c6, (F+, F-, u+, u-) per mu²
+/// level]` with the levels `0, s, -s, 2s` truncated to the mode's count, F the
+/// pentagon-subtracted quotients at both roots and `c4, c5, c6` from
+/// [`mu_division_n2`] (zero in sampling mode). Output c0..c6. With E and O the
+/// even and odd parts at a level:
+/// - expansion: `c2 = (E(s) - c0)/s - c4 s - c6 s²`, `c3 = (O(s) - c1)/s - c5 s`;
+/// - sampling: `c4 = (E(s) + E(-s) - 2c0)/(2s²)`,
+///   `c6 = (E(2s) - c0 - (E(s) - E(-s)) - 4 c4 s²)/(6 s³)`,
+///   `c2 = (E(s) - E(-s))/(2s) - c6 s²`, `c5 = (O(s) + O(-s) - 2c1)/(2s²)`,
+///   `c3 = (O(s) - O(-s))/(2s)`.
+fn interpolation_n2(options: BoxReductionOptions, levels: usize) -> ExactKernel {
+    let p = parameters("ninjars_box_interpolation_n2", 4 + 4 * levels);
+    let s = &p[0];
+    let even = |level: usize| (&p[4 + 4 * level] + &p[5 + 4 * level]) / 2;
+    let odd = |level: usize| {
+        (&p[4 + 4 * level] - &p[5 + 4 * level]) / (&p[6 + 4 * level] - &p[7 + 4 * level])
+    };
+    let full = options.coefficients == BoxCoefficientMode::Full;
+    let sampling = options.mu_extraction == BoxMuMode::Sampling;
+    let c0 = even(0);
+    let c1 = if full { odd(0) } else { Atom::Zero };
+    let (c4, c6) = if sampling {
+        let c4 = (even(1) + even(2) - &c0 * 2) / (s.pow(2) * 2);
+        let c6 = (even(3) - &c0 - (even(1) - even(2)) - &c4 * s.pow(2) * 4) / (s.pow(3) * 6);
+        (c4, c6)
+    } else {
+        (p[1].clone(), p[3].clone())
+    };
+    let (c2, c3, c5) = if !full {
+        (Atom::Zero, Atom::Zero, Atom::Zero)
+    } else if sampling {
+        (
+            (even(1) - even(2)) / (s * 2) - &c6 * s.pow(2),
+            (odd(1) - odd(2)) / (s * 2),
+            (odd(1) + odd(2) - &c1 * 2) / (s.pow(2) * 2),
+        )
+    } else {
+        (
+            (even(1) - &c0) / s - &c4 * s - &c6 * s.pow(2),
+            (odd(1) - &c1) / s - &p[2] * s,
+            p[2].clone(),
+        )
+    };
+    ExactKernel {
+        expressions: vec![c0, c1, c2, c3, c4, c5, c6],
+        parameters: p,
+    }
+}
+
 pub(crate) struct Plans {
     pub(crate) samples: ExactKernel,
     pub(crate) denominators: ExactKernel,
@@ -45,7 +152,7 @@ pub(crate) struct Plans {
 }
 impl Plans {
     pub(crate) fn new(n: usize, rank: usize, options: BoxReductionOptions) -> Result<Self> {
-        Topology::new(n, rank)?;
+        let class = Topology::new(n, rank)?.rank_class();
         if n < 4 {
             return Err(Error::Unsupported(
                 "box kernels require at least four propagators".into(),
@@ -56,7 +163,7 @@ impl Plans {
         let levels = options.sample_count(n, rank);
         let p = parameters("ninjars_box_mu_samples", 1);
         let samples = ExactKernel {
-            expressions: [Atom::Zero, p[0].clone(), -&p[0]][..levels].to_vec(),
+            expressions: [Atom::Zero, p[0].clone(), -&p[0], &p[0] * 2][..levels].to_vec(),
             parameters: p,
         };
         let p = parameters("ninjars_box_denominators", 5 + 5 * uncut);
@@ -107,6 +214,17 @@ impl Plans {
             expressions,
             parameters: p,
         };
+        if class == RankClass::NPlus2 {
+            return Ok(Self {
+                samples,
+                denominators,
+                division,
+                mu_denominators,
+                mu_division: mu_division_n2(uncut)?,
+                projections: projections(levels),
+                interpolation: interpolation_n2(options, levels),
+            });
+        }
         let width = if higher { 2 } else { 1 };
         let p = parameters("ninjars_box_mu_division", width + 1 + 2 * uncut);
         let z_symbol = symbol!("ninjars_box_mu_division::z");
@@ -147,19 +265,7 @@ impl Plans {
             ],
             parameters: p,
         };
-        let p = parameters("ninjars_box_root_projections", 8 + 8 * levels);
-        let origin = vector(&p, 0);
-        let v = vector(&p, 4);
-        let mut expressions = Vec::new();
-        for level in 0..levels {
-            let up = (vector(&p, 8 + level * 8) + origin.clone()).dot(&v);
-            let um = (vector(&p, 12 + level * 8) + origin.clone()).dot(&v);
-            expressions.extend([up.clone(), um.clone(), up - um]);
-        }
-        let projections = ExactKernel {
-            expressions,
-            parameters: p,
-        };
+        let projections = projections(levels);
         // [scale,c4_mu,c5_mu, then (Fplus,Fminus,uplus,uminus) per mu level].
         let p = parameters("ninjars_box_interpolation", 3 + 4 * levels);
         let even = |level: usize| (&p[3 + 4 * level] + &p[4 + 4 * level]) / 2;
@@ -228,6 +334,9 @@ impl Plans {
 struct Engine<V, K, Checks> {
     n: usize,
     rank: usize,
+    /// Rank n+2: three mu-expansion terms on the exact d-dimensional cut and
+    /// the seven-coefficient residue.
+    rank_n2: bool,
     options: BoxReductionOptions,
     expansion: Option<ExpansionKind>,
     samples: K,
@@ -255,7 +364,13 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         mut compile: impl FnMut(&ExactKernel) -> Result<K>,
     ) -> Result<Self> {
         let plans = Plans::new(n, rank, options)?;
-        let expansion = if rank >= n && options.mu_extraction == BoxMuMode::Expansion {
+        let rank_n2 = RankClass::of(n, rank) == Some(RankClass::NPlus2);
+        let expansion = if rank_n2 && options.mu_extraction == BoxMuMode::Expansion {
+            let r = rank as i32;
+            Some(ExpansionKind::MuShifted {
+                powers: vec![r, r - 1, r - 2],
+            })
+        } else if rank >= n && options.mu_extraction == BoxMuMode::Expansion {
             Some(ExpansionKind::Mu {
                 powers: if rank > n {
                     vec![rank as i32, rank as i32 - 1]
@@ -269,6 +384,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         Ok(Self {
             n,
             rank,
+            rank_n2,
             options,
             expansion,
             samples: compile(&plans.samples)?,
@@ -289,7 +405,24 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         })
     }
     fn width(&self) -> usize {
-        if self.rank > self.n { 6 } else { 5 }
+        if self.rank_n2 {
+            7
+        } else if self.rank > self.n {
+            6
+        } else {
+            5
+        }
+    }
+    /// Mu-expansion numerator coefficients per row: t^r (rank n), plus t^(r-1)
+    /// (n+1), plus t^(r-2) (n+2).
+    fn mu_width(&self) -> usize {
+        if self.rank_n2 {
+            3
+        } else if self.rank > self.n {
+            2
+        } else {
+            1
+        }
     }
     fn valid(&self, v: &V) -> bool {
         Checks::shape_matches(v, &self.zero) && Checks::finite(v)
@@ -409,12 +542,12 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         &mut self,
         requests: &[BoxMuDivisionRequest<'_, V>],
         numerator: &[V],
-        output: &mut [[V; 2]],
+        output: &mut [[V; 3]],
         stable: &mut [bool],
     ) -> Result<()> {
         let rows = requests.len();
         let uncut = self.n - 4;
-        let width = if self.rank > self.n { 2 } else { 1 };
+        let width = self.mu_width();
         BatchShape {
             rows,
             columns: width,
@@ -483,14 +616,23 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             self.packed
                 .extend_from_slice(&numerator[row * width..(row + 1) * width]);
             self.packed.extend_from_slice(probe);
+            if self.rank_n2 {
+                self.packed.push(requests[row].geometry.beta.clone());
+            }
         }
-        self.values.resize(self.active.len() * 2, self.zero.clone());
+        let outputs = if self.rank_n2 { 3 } else { 2 };
+        self.values
+            .resize(self.active.len() * outputs, self.zero.clone());
         self.mu_division
             .evaluate(&self.packed, &mut self.values, self.active.len())?;
         for (index, &row) in self.active.iter().enumerate() {
-            let pair = &self.values[index * 2..index * 2 + 2];
-            if pair.iter().all(|v| self.valid(v)) {
-                output[row] = [pair[0].clone(), pair[1].clone()];
+            let values = &self.values[index * outputs..(index + 1) * outputs];
+            if values.iter().all(|v| self.valid(v)) {
+                output[row] = [
+                    values[0].clone(),
+                    values[1].clone(),
+                    values.get(2).unwrap_or(&self.zero).clone(),
+                ];
                 stable[row] = true;
             }
         }
@@ -559,7 +701,8 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             }
             self.active.push(row);
             self.packed.push(r.sampling_scale.clone());
-            self.packed.extend_from_slice(r.mu_coefficients);
+            self.packed
+                .extend_from_slice(&r.mu_coefficients[..if self.rank_n2 { 3 } else { 2 }]);
             for level in 0..levels {
                 self.packed.extend_from_slice(&r.quotients[level]);
                 self.packed
@@ -633,7 +776,7 @@ macro_rules! implementation{
             fn coefficient_count(&self)->usize{self.engine.width()}
             fn sampling_mu_batch(&mut self,scales:&[$value],output:&mut[$value])->Result<()>{self.engine.sample_mu(scales,output)}
             fn divide_samples_batch(&mut self,requests:&[BoxDivisionRequest<'_,$value>],numerator:&[$value],output:&mut[$value],stable:&mut[bool])->Result<()>{self.engine.divide_samples(requests,numerator,output,stable)}
-            fn divide_mu_batch(&mut self,requests:&[BoxMuDivisionRequest<'_,$value>],numerator:&[$value],output:&mut[[$value;2]],stable:&mut[bool])->Result<()>{self.engine.divide_mu(requests,numerator,output,stable)}
+            fn divide_mu_batch(&mut self,requests:&[BoxMuDivisionRequest<'_,$value>],numerator:&[$value],output:&mut[[$value;3]],stable:&mut[bool])->Result<()>{self.engine.divide_mu(requests,numerator,output,stable)}
             fn project_batch(&mut self,requests:&[BoxProjectionRequest<'_,$value>],output:&mut[$value],stable:&mut[bool])->Result<()>{self.engine.project(requests,output,stable)}
             fn values_are_finite(&self,values:&[$value])->bool{values.iter().all(|v|self.engine.valid(v))}
         }

@@ -184,7 +184,8 @@ pub struct BubbleResidue<T> {
     pub cut_index: usize,
     pub id: SampleId,
     pub geometry: BubbleCut<T>,
-    /// Complete original Ninja coefficient order (10 ordinary / 20 higher rank).
+    /// Complete original Ninja coefficient order: 10 (rank <= n), 20 (n+1) or
+    /// 35 (n+2, `tools/rank_n2/theory/formulas_rank_n2.json` order).
     pub coefficients: Vec<T>,
 }
 
@@ -352,7 +353,7 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
                 "numerator rank exceeds configured bubble rank".into(),
             ));
         }
-        let parent_coefficients = if self.topology.rank() > n { 15 } else { 10 };
+        let parent_coefficients = crate::residue_coefficient_count(3, self.topology.rank_class());
         for (cut_row, &cut_index) in self.triangles.iter().enumerate() {
             for lane in 0..lanes {
                 if let CutOutcome::Stable(parent) = &triangles[cut_row * lanes + lane]
