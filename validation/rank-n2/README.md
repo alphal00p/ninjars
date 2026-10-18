@@ -1,0 +1,339 @@
+# Rank n+2 high-precision validation suite
+
+This directory holds reference values, control cases and exact identity data for numerator
+rank r = n+2. It is stream S5a of the rank n+2 design. Nothing here is Rust: the tests that
+consume it belong to S5b (`case-check`, `crates/ninjars-symbolica/tests/rank_n2_*.rs`).
+
+| directory | content |
+|---|---|
+| `cases/` | 97 rank n+2 bench cases (291 lanes, n = 1..6), `ninjars-bench-case-v1` or `-v2` (integrand mu^2) |
+| `reference/` | one reference file per suite case, plus `syn-n{1..6}-r{n+2}` (cases in `validation/benchmark/synthetic-rank-n2/`) |
+| `controls/` | `cases/`: 180 rank <= n+1 twins on the suite kinematics. `reference/`: their references, plus references for `syn-n{2..6}-r{n,n+1}` of `validation/benchmark/synthetic/`. `ninja/`: original-Ninja results for 162 twins |
+| `identity/` | `cases/`, `reference/`: 63 exact identity and invariance cases. `manifest.json`: which lanes must agree. `padding-manifest.json`: the V5 cases. `residuals.json`: the identities on the references |
+| `scan/` | 6 conditioning-scan cases (V9): a bubble p^2 ladder, and triangle and box Gram-determinant ladders |
+| `scalars/` | exact scalar C0/D0 of every 3- and 4-propagator subset of every lane (inputs of the reduction, see below); `shift-invariants/` holds the same with the invariants taken from the shifts |
+| `summary/` | one row per lane and set: source, tier, uncertainty and every cross-check |
+| `provenance/` | the review's `hpref` values and the comparison with them |
+| `harness/` | every script that produced the above, and the COLLIER driver |
+
+## Conventions
+
+- **Integral.** Each lane holds the Laurent coefficients `eps0`, `eps_m1` and `eps_m2` of
+  `I = mu_R^(2 eps) / (i pi^(D/2) r_Gamma) int d^D qbar N(q, mu^2) / prod_k D_k`, where
+  `D_k = (qbar + V_k)^2 - m_k^2` and `qbar^2 = q^2 - mu^2`. The normalisation is Ninja's
+  (OneLOop's), with `mu_R^2` = the lane's `mu_squared` and `eps_UV = eps_IR`.
+- **Numerator.** `N(q, mu^2) = sum_k (mu^2)^k T_k(q)`. Each `T_k` is a dense tensor of rank
+  `rank - 2k` in the four contravariant components of `q`, in Ninja's TensorNumerator order
+  (`crates/ninjars/src/fast/tensor_layout.rs`).
+  - Cases without mu^2 use `ninjars-bench-case-v1`.
+  - Cases with mu^2 use `ninjars-bench-case-v2`, the layout of `export-bench --r2 fdh`
+    (`crates/ninjars-cli/src/export_bench.rs`): a `mu_powers` field K and
+    `tensor = T_0 ++ ... ++ T_K`. Their `r2` field is `"synthetic"`, because the numerators
+    are random and come from no scheme.
+  - Rank counts mu^2 twice, so a rank n+2 case has every block at its full rank n+2-2k.
+  - `ninjars case-bench` (main) reads these v2 files with `MuTensorNumerator`.
+- **Exact inputs.** Every input is taken exactly as the binary64 number its JSON value
+  denotes.
+- **Scaled differences.** These follow `tests/fast_ninja_reference.rs`: the largest `|x - ref|`
+  over the three Laurent coefficients, divided by the lane scale `max_k |ref_k|` (the `scale`
+  field). The scale is 1 for the one lane whose value vanishes exactly, a massless tadpole.
+
+## Reference files
+
+`reference/<case>.json` keeps the phase-1 format string `ninjars-reference-collier-v1`.
+`case-bench --reference-dir` reads its `lanes[].eps0/eps_m1/eps_m2`. Each lane carries:
+
+| field | meaning |
+|---|---|
+| `eps0`, `eps_m1`, `eps_m2` | binary64 values. `laurent_decimal` holds the 40-digit decimals; use those at high precision |
+| `source` | the published evaluation: `mp`, `reduction-exact`, `coli-quad` or `dd-quad` (below) |
+| `uncertainty` | scaled uncertainty of the published value (definition below) |
+| `verified_to` | scaled difference to the closest valid COLLIER evaluation, i.e. agreement with a fully independent code |
+| `uncertainty_independent` | `max(uncertainty, verified_to)` |
+| `input_ambiguity`, `input_ambiguity_parts` | only for lanes whose `s_matrix` differs from the invariants of the shifts (snapped MadLoop-style S-matrices: `phys`, `syn`); see below. Included in `uncertainty` |
+| `tier` | **A**: `verified_to <= 1e-8`, scalar masters verified, `uncertainty <= 1e-25`. **B**: `verified_to <= 1e-8`, `uncertainty <= 1e-9`. **C**: anything else (report only) |
+| `checks` | scaled difference of every other evaluation to the published value |
+| `scalar_check` | the worst relative difference between the lane's exact scalar C0/D0 and the closer of COLLIER's COLI and DD quad values |
+| `collier_coli_quad_decimal` | the COLLIER COLI quad value |
+| `condition`, `absum_over_scale` | cancellation in the COLLIER contraction: the sum of absolute terms over the result |
+| `reduction` | `new_terms_over_scale` and `parts_over_scale`: the size of the new rank n+2 integrated terms relative to the lane (box mu^6, B1111, bubble mu^2 (q.e2)^2 and mu^4) |
+| `ninja` (controls) | original Ninja's scaled error against the reference |
+
+**Tolerances for S5b.**
+- **Generic Float(256) with exact masters (V4).** Use `max(3 uncertainty, 1e-30)` on tier A
+  and B lanes, and treat tier C as report only.
+  - This tolerance assumes that oneloopmaster's exact C0/D0, which NinjaRS and the reduction
+    share, are correct. `verified_to` is the statement that does not depend on those masters.
+  - The lanes listed under finding 3 must be expected to fail until that bug is fixed.
+- **Binary64 (V4f).** Use `1e-14 max(1, condition) + 3 uncertainty`, calibrated on the
+  controls. The fast engine on main (`case-bench`, native masters) is within 3.2e-9 of the
+  control references on all 531 checked lanes, apart from the finding-3 lanes (0.1-0.3).
+
+## How the values are obtained
+
+All preprocessing is exact rational arithmetic (`gmpy2.mpq`):
+- mu^2 is removed with `mu^2 = q^2 + 2 q.V_a + V_a^2 - m_a^2 - D_a`, and scaleless pieces
+  vanish;
+- every piece is shifted to its reference propagator;
+- the optional rank reduction is exact.
+
+| evaluation | what it is | used for |
+|---|---|---|
+| `coli-quad`, `dd-quad` | COLLIER 1.2.9 built with `-freal-8-real-16`, COLI and DD branch, `SetReqAcc_cll(1e-20)`. The tensor components are contracted with the exact coefficients in 90-digit decimals, and the driver reads every input as its **exact** decimal expansion | cross-check (`verified_to`); fallback source |
+| `id-dd-quad`, `id-coli-quad` (n >= 5) | exact rank reduction `l.p_j = (D_j - D_0 + f_j)/2` over four momenta down to rank <= N pieces, evaluated with DD (resp. COLI) quad and shift invariants | cross-check (DD cannot evaluate rank n+2 at n = 5, 6) |
+| `coli-quad-shifts` | COLI quad with the invariants taken from the exact shifts | input ambiguity |
+| `mp` (n <= 2) | `harness/mp_lowpoint.py`, with no COLLIER code. Tadpoles in closed form. Bubbles through a Feynman parameter, with exact polynomial algebra and mpmath quadrature of `int x^b log(Delta(x) - i0)` at 50 and 70 digits | **source** for n <= 2 |
+| `reduction-exact` (n >= 3) | the review's from-scratch 60-digit Ninja-style reduction (`harness/review_reduction/red.py`, copied verbatim), assembled with the theory's integrated values, mpmath A0/B_n, and oneloopmaster's exact scalar C0/D0 at 256 bits (`scalars/`). `reduction-exact80` is the same at 80 digits | **source** for n >= 3 |
+| `reduction-exact-shifts` | the same reduction with every invariant taken from the shifts (inconsistent lanes only) | input ambiguity |
+| `generic-f256` (rank <= n+1) | NinjaRS generic engine (`SymbolicaAmplitudeKernels`) in Float(256) with `SymbolicaMasters` | validates `mp` and `reduction-exact`; input ambiguity |
+| `coli-double`, `dd-double` | binary64 COLLIER | diagnostic: what a binary64 code reaches |
+
+**`uncertainty`** is computed as follows:
+- for `mp`, its quadrature error estimate (|50 - 70 digits|);
+- for `reduction-exact`, the difference between 60 and 80 digits;
+- for a COLLIER source, its largest difference to another valid COLLIER evaluation;
+- in all cases, a floor of 1e-38 (the precision of the 40-digit decimals);
+- where an input ambiguity exists, it is raised to that ambiguity.
+
+COLLIER runs with `errflag < 0` are discarded and listed in `checks_invalid`.
+
+**Input ambiguity.** On a lane whose `s_matrix` is not exactly the invariants of its shifts,
+the integral is defined only up to how a code combines the two. Correct codes then differ, and
+the difference grows with the cancellations, so with n and with the rank.
+`input_ambiguity` is the largest of the following:
+- COLI quad with the s_matrix against COLI quad with the shift invariants;
+- `reduction-exact` against `reduction-exact-shifts`;
+- the generic engine against the published value, where the generic engine runs (rank <= n+1);
+- the generic engine on the lane's rank <= n+1 twins (same kinematics);
+- that twin deviation extrapolated one rank further, geometrically from the two highest twin
+  ranks.
+
+On the controls the generic engine shows by far the largest of these deviations: up to 3e-10 on
+`phys` n = 6 rank 7, and 8e-5 on `syn-n6-r6` lane 0, which cancels by 1e12. The extrapolation
+makes 5 `phys` n = 6 suite lanes and 2 `syn` lanes tier C.
+
+### Findings that affect the design's V4 numbers
+
+1. **COLLIER in quad precision is not a quad-precision reference.**
+   - **Scalars.** Against oneloopmaster's exact values on 3012 suite scalars, COLI's C0/D0 are
+     accurate to about 1e-16 (median 8e-17, max 4e-15) and DD's to about 1e-18 (median 1e-18,
+     max 4e-17).
+   - **Tensor results.** They are off by up to 5e-10 (COLI) and 2e-10 (DD) on the suite lanes,
+     by 1.6e-3 on `syn-n6-r8` lane 1, and by 1e-4 on the box Gram scan.
+   - **Self-reporting.** COLLIER's own error estimates and flags miss all of this: they give
+     1e-22 for 5e-10 errors. DD fails silently on several identity pieces of `phys` hexagons
+     (errflag -7, O(1) errors).
+   - **Accuracy setting.** `SetReqAcc_cll` below 1e-20 breaks COLI: at 1e-32 its result is off
+     by 0.8 relative.
+   - **Consequence.** COLLIER serves as the independent cross-check here, not as the published
+     value.
+2. **The phase-1 harness passed `repr(float)` to the driver.** This is the shortest round-trip
+   decimal, which the quad build reads as a different number: up to 1.1e-16 relative per input.
+   - The error comes on top of the binary64 preprocessing that the review corrected.
+   - It is also present in the review's `hpref` values: `--input-rounding repr` reproduces them
+     to 3e-40.
+3. **oneloopmaster's exact D0 has the wrong real part for one real-mass box.**
+   - This is phase-1 finding 1, seen there in OneLOop and in the native path. The exact
+     `SymbolicaMasters` path has it too.
+   - The box: `D0(p^2 = 20602, 6775, 113296, -106553; s12 = 80235, s23 = -4769;
+     m^2 = 8315.178393760001, 100, 8315.178393760001, 0; mu_R^2 = 8315.178393760001)`.
+     oneloopmaster gives `+1.714058e-8 - 8.341413e-9 i`. COLLIER's COLI and DD agree with each
+     other to 6e-27 on `-9.718748e-9 - 8.341413e-9 i`.
+   - It enters `rn2-int-mixed-n6-r8` lane 1 and the twins `rn2-int-mixed-n6-r{5,6,7}` lane 1,
+     at 3 % of the rank n+2 lane and 10-30 % of the twins. On those lanes the published value is
+     COLLIER's (tier B).
+   - NinjaRS disagrees there by 0.1-0.3, both the generic engine in Float with exact masters
+     and the fast engine with native masters, and will until oneloopmaster is fixed.
+4. **The review's B_n quadrature shifted `Delta` by `-1e-45 i |scale|`.**
+   - At on-shell thresholds (`irsoft` lanes, `Delta = x^2 M^2`) that shift costs 1e-21.
+   - `e2e_reduction.py` uses the exact `-i0` prescription instead and now agrees with the
+     generic engine to 4e-40.
+
+## Validation
+
+### Independent methods against each other
+
+| comparison | lanes | result |
+|---|---|---|
+| `reduction-exact` vs NinjaRS generic Float(256), controls, consistent kinematics (`int`, `shifted`, `bub0`, `irml`, `irsoft`; with and without mu^2) | 246 | max 1.7e-38 |
+| `mp` vs NinjaRS generic Float(256), controls, consistent kinematics | 126 | max 3.9e-40 |
+| the same on inconsistent (snapped) lanes | 132 | max 7.9e-5 (`syn-n6-r6` lane 0); within `uncertainty` on every lane |
+| NinjaRS generic Float(256) vs the 400-bit values in `validation/benchmark/ill-conditioned/n6r6.jsonl` (`syn-n6-r6`) | 3 | max 1.1e-40 |
+| `reduction-exact` at 60 vs 80 digits, suite | 201 | 171 identical in all 40 digits; max 2.3e-26 |
+| suite: published vs closest COLLIER (`verified_to`) | 291 | median 4e-20, max 4.8e-10 |
+| analytic 1/eps pole of the rank 2N-4 integrals (`uv_check.py`, IR-finite lanes), suite / controls | 45 / 72 | max 2.6e-31 (the COLLIER-sourced lane), otherwise <= 2e-42 / max 8e-41 |
+| `test_mu2.py`: `int mu^(2b) / prod D` against the dimension-shift closed form for k = 1..6 propagators and b = 1..4, plus `mu^2 q^mu / D^3` | 56 | quad COLLIER <= 6.3e-20 (the mu^8 hexagon); mp <= 1.6e-40 |
+| identities on the published references (`identity/residuals.json`): V6a / V6b / V7a / V7b | 20 / 10 / 24 / 68 | max 0 / 2.9e-40 / 0 / 0 (COLLIER quad: 2.4e-14 / 1.7e-14 / 1.2e-14 / 5.2e-12) |
+| NinjaRS fast engine on main (binary64, native masters, `case-bench`) vs control references, including the mu^2 twins | 531 | <= 3.2e-9, apart from the finding-3 lanes |
+
+### Against the review's `hpref` (`provenance/hpref-comparison.json`)
+
+`compare_hpref.py` covers 36 lanes of 12 cases:
+- **Port check.** `--input-rounding repr`, the review's driver input, reproduces `hpref` to at
+  most 3.3e-40 on every lane, so the port of `collier_hp.py` is exact.
+- **Differences.** The new references differ from `hpref` by at most 1.4e-11 (median 1e-16).
+- **Accounting.** Two measured errors explain the difference on every lane, so that
+  `new_vs_hpref <= input_rounding + collier_error + uncertainty` holds on all 36:
+  - `input_rounding`: hpref's decimal input, up to 3.7e-16;
+  - `collier_error`: COLLIER quad's own error against the new reference, up to 1.4e-11.
+- **Conclusion.** `hpref` agrees with the new references within its own uncertainty, which is
+  now measured. It is not good to quad precision, and neither were the phase-1 stated
+  uncertainties: on `rn2-int-complex-n5-r7` lane 0 the stated uncertainty is 8.2e-14 and the
+  actual error 1.9e-12.
+
+### Uncertainty table (suite, by n; `harness/tables.py summary/suite.json --by family` for families)
+
+| n | rank - n | lanes | A/B/C | source | max unc. | max verified_to | max input amb. | COLI quad err | DD quad err | COLI binary64 err |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | 2 | 33 | 33/0/0 | mp33 | 1e-38 | 1e-33 | - | 1e-33 | 1e-33 | 1e-15 |
+| 2 | 2 | 54 | 42/12/0 | mp54 | 1e-16 | 1e-31 | 1e-16 | 1e-31 | 3e-18 | 4e-13 |
+| 3 | 2 | 42 | 40/2/0 | coli2,red40 | 4e-17 | 3e-16 | - | 2e-14 | 3e-16 | 2e-10 |
+| 4 | 2 | 54 | 39/15/0 | red54 | 4e-14 | 1e-10 | 4e-14 | 1e-10 | 2e-10 | 1e-08 |
+| 5 | 2 | 54 | 39/15/0 | red54 | 3e-12 | 2e-12 | 3e-12 | 3e-11 | - | 2e-01 |
+| 6 | 2 | 54 | 38/11/5 | coli1,red53 | 2e-07 | 5e-10 | 2e-07 | 5e-10 | - | 5e-04 |
+
+The 291 lanes split into tier A 231, B 55 and C 5.
+- Tier A has `uncertainty <= 1.3e-36` on every lane, with `verified_to` up to 1e-10.
+- Tier B consists of the `phys` lanes at n = 2, 4, 5, 6 (input ambiguity up to 8.4e-10) and three
+  COLLIER-sourced lanes: `rn2-int-mixed-n6-r8` lane 1 (finding 3) and `rn2-irml-zero-n3-r5[-mu2]`
+  lane 0, where `red.py` has no tadpole basis for the massless on-shell kinematics.
+- Tier C consists of `rn2-phys-complex-n6-r8{,-mu2,-muall}` lane 1, `rn2-phys-mixed-n6-r8` lane 0
+  and `rn2-phys-real-n6-r8` lane 1 (extrapolated input ambiguity 5e-9 to 1.8e-7).
+
+The synthetic rank n+2 cases have 18 lanes: tier A 6 (n = 1, 3, whose S-matrices are
+consistent), B 10 and C 2 (`syn-n6-r8` lanes 0 and 1, ambiguity up to 8e-5).
+
+## Controls (rank <= n+1)
+
+- **Twins.** The 162 phase-1 twins (ranks n-1, n and n+1 on each of the 54 mu-free
+  kinematics), reproduced number for number.
+- **mu^2 twins.** 18 mu^2 twins at rank n+1, with `mu^2 x rank n-1`, on `int` (real and
+  complex) and `shifted`.
+- **`controls/ninja`.** Results of original Ninja @05fb0d3 + OneLOop 3.6 for the 162 twins
+  (`ninja_bench-o3`, phase-1 run, trimmed to the Laurent coefficients).
+- **Synthetic twins.** `controls/reference/syn-n{2..6}-r{n,n+1}.json` give high-precision
+  references for existing synthetic benchmark cases, with Ninja's errors from
+  `validation/benchmark/ninja`.
+
+| n | rank - n | lanes | A/B/C | source | max unc. | max verified_to | COLI quad err | DD quad err | Ninja err |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | -1..1 | 72 | 72/0/0 | mp | 1e-38 | 1e-33 | 1e-33 | 1e-33 | 4e-15 |
+| 2 | -1..1 | 108 | 81/27/0 | mp | 5e-17 | 3e-32 | 3e-32 | 2e-18 | 1e-12 |
+| 3 | -1..1 | 90 | 87/3/0 | red, coli 3 | 6e-17 | 2e-16 | 1e-14 | 2e-16 | 6e-9 |
+| 4 | -1..1 | 90 | 63/27/0 | red | 3e-14 | 6e-12 | 2e-11 | 6e-12 | 2e-6 |
+| 5 | -1..1 | 90 | 63/27/0 | red | 1e-12 | 1e-12 | 1e-11 | 3e-13 | 9e-10 |
+| 6 | -1..1 | 90 | 60/30/0 | red, coli 3 | 3e-10 | 6e-12 | 3e-11 | 2e-13 | 0.3 (finding 3) |
+
+## Identity and invariance data (`identity/`)
+
+All inputs are small dyadic rationals: integer momenta, dyadic masses and coefficients
+`k 2^(-2d)` with |k| < 128. Every derived case is therefore exact in binary64 (the generator
+refuses otherwise), and a Float(256) test can demand 1e-60.
+
+| design item | cases | identity (manifest key) |
+|---|---|---|
+| V2 | `rn2-exact-q-n{n}-r{n+2}` (q only) and `rn2-exact-mu-n{n}-r{n+2}` (every mu^2 power), n = 1..6, 2 lanes each | numerators of full rank for the polynomial identities (Laurent division, on-cut reconstruction, full vs sampling box) |
+| V7a | `...-shift` | `V_i -> V_i - P` with `N'(q) = N(q - P)`: equals the base lane (`V7a`; P recorded) |
+| V7b | `...-perm` | lane k is base lane 0 with propagator i -> sigma_k(i): all 2n dihedral orders for n <= 4, the identity plus 7 random permutations for n = 5, 6 (`V7b`) |
+| V6a | `rn2-id-pinch-n{n}` (lane j: `D_j M_j`, v2) and `-sub` (lane j: `M_j` on the other n-1 propagators), n = 2..6 | `I_n[D_j M_j] = I_(n-1)[M_j]` for every j (`V6a`) |
+| V6b | `rn2-id-decomp-n{n}` with `N = R + sum_i D_i B_i + sum_(i<j) D_i D_j C_ij` (v2; the double pinches bring mu^4), with pieces `-R` (rank n+1), `-B` (rank n on n-1 propagators) and `-C` (rank n-2 on n-2), n = 2..6, 2 lanes | `I[N] = I[R] + sum I[B_i] + sum I[C_ij]`; every piece runs through the rank <= n+1 engine (`V6b`) |
+| V5 | `padding-manifest.json`: 226 rank <= n+1 cases (717 lanes) with Ninja results | run declared as rank n+2 |
+
+**The integrand mu^2 in V6.** `D_i = (q + V_i)^2 - m_i^2 - mu^2` includes the integrand
+mu^2, so the V6 numerators are v2 cases.
+
+**V6b is constructive.** The design's q-only V6b variant, the exact rank reduction of
+`identity_check`, is replaced by the constructive decomposition above because:
+- it cannot be exact in binary64, since its pieces carry the Gram determinant of four momenta
+  in the denominator;
+- it leaves rank-6 boxes, which are themselves excess 2.
+
+The reduction itself is run here as `id-*`.
+
+**References.** All 284 lanes are tier A, with sources `mp` (63) and `reduction-exact` (221).
+
+## Conditioning scan (`scan/`, V9, report only)
+
+- **`rn2-scan-bubp2-{real,complex}-n2-r4[-mu2]`.** p = (5a, 0, 0, 3a) with p^2 = m0 2^-k for
+  k = 0, 4, ..., 24, then p = 0. That gives 8 lanes, all with exact `mp` references.
+  COLI loses up to 2e-13 on this ladder.
+- **`rn2-scan-gram-n3-r5`, `rn2-scan-gram-n4-r6`.** Normalised Gram determinants go down to
+  9e-11 and 2e-12 (lane order k = 0, 2, ..., 12; values in the `scan` field). COLLIER loses up
+  to 1e-4 (COLI, box k = 6) and 5e-6 (DD, box k = 4) here, while the 60/80-digit reduction stays
+  within 4e-24. The box k = 12 lane is tier B.
+
+## Synthetic rank n+2 cases
+
+`validation/benchmark/make_synthetic_cases.py` now also writes `syn-n{1..6}-r{n+2}`.
+- **Location.** They go into `validation/benchmark/synthetic-rank-n2/`, not `synthetic/`. Every
+  tool that loops over `synthetic/*.json` with original Ninja or a rank <= n+1 build is
+  therefore unaffected.
+- **Existing files.** The 20 existing files are regenerated byte for byte.
+- **Inputs.** For n >= 2, the kinematics, masses and S-matrices are those of `syn-n{n}-r{n+1}`
+  (same seed and stream), and the tensors come from `random.Random(4000 + n)`. `syn-n1-r3` is a
+  complex-top tadpole with V_0 zero, timelike or spacelike.
+- **References.** In `reference/syn-*.json`.
+
+## Regenerating
+
+```sh
+source <devenv>                      # gfortran 15 (dev shell), SYMBOLICA_LICENSE
+H=validation/rank-n2/harness
+$H/build.sh                          # COLLIER 1.2.9 -> target/rank-n2-collier (quad, precise, stock)
+$H/python.sh $H/gen_suite.py --out validation/rank-n2/cases
+$H/python.sh $H/gen_suite.py --out validation/rank-n2/controls/cases --controls
+$H/python.sh $H/gen_identity.py --out validation/rank-n2/identity
+$H/python.sh $H/gen_scan.py --out validation/rank-n2/scan
+$H/python.sh $H/padding_manifest.py --out validation/rank-n2/identity/padding-manifest.json
+python3 validation/benchmark/make_synthetic_cases.py
+for s in controls synthetic-twins suite synthetic identity scan; do
+  GENERIC_RUNNER=... $H/run_suite.sh $s 32
+done
+$H/finalize.sh                       # references, summaries, scalars, hpref comparison, identity residuals
+$H/python.sh $H/test_mu2.py --build quad; $H/python.sh $H/test_mu2.py --build mp
+```
+
+- **COLLIER 1.2.9.**
+  - `build.sh` copies the source tree. The default is
+    `/common/dev/MG5_aMC_v3_7_0/HEPTools/collier/COLLIER-1.2.9`; set `COLLIER_SRC` to
+    override. The upstream tarball `collier-1.2.9.tar.gz` from collier.hepforge.org has the
+    same `src/`.
+  - It edits only the Release flags in `CMakeLists.txt`, then builds static libraries with
+    cmake (from `nix shell nixpkgs#cmake` when cmake is not on the PATH).
+  - Variants: `quad` (no `-ffast-math`, plus `-freal-8-real-16`), `precise` (no `-ffast-math`)
+    and `stock` (the shipped flags).
+  - The driver `collier_tensor_driver.f90` prints 35 digits in the quad build.
+- **Python.** `harness/python.sh` runs python3 with mpmath and gmpy2 from nixpkgs. Any
+  python3 >= 3.10 with mpmath also works; gmpy2 only speeds up the rationals.
+- **Scalar masters and the generic engine.**
+  - `reduction-exact` needs the exact C0/D0 of every 3- and 4-subset; `scalar_cases.py` writes
+    them as rank-0 bench cases.
+  - They were evaluated with the NinjaRS generic engine at Float(256) with `SymbolicaMasters`
+    (main b5b93be, oneloopmaster 264a6ce). A rank-0 numerator makes the result the scalar
+    integral itself.
+  - That driver was a scratch program, because this stream adds no Rust. `GENERIC_RUNNER` can
+    be any command `RUNNER --bits 256 --out-dir DIR CASE.json...` that writes `DIR/<case>.json`
+    with `lanes[].laurent_decimal`. S5b's `case-check` (generic engine, `Float:256`) provides
+    one.
+  - The values are committed in `scalars/`, so the following reruns the reduction without the
+    runner:
+    `E2E_SCALARS=validation/rank-n2/scalars harness/review_reduction/run_reduction.py CASE.json... --out-dir DIR`.
+    Use `scalars/shift-invariants` for `reduction-exact-shifts`.
+  - The same runner provides `generic-f256` on the controls. Its first lane per case at
+    n = 6, rank 7 takes about 10 minutes.
+- **Run times.** On 32 cores, each set takes about 10 minutes for the COLLIER runs. The
+  80-digit reduction of the suite takes about 40 minutes.
+
+## Provenance
+
+- `harness/collier_reference.py` descends from the phase-1 harness
+  (`scratchpad/rank-n2/reference/harness/collier_reference.py`, sha256 f11bd42113a93da0...).
+  The review's 60-digit preprocessing (`review/collier_hp.py`, 35de49664bcd293c...) is
+  replaced by exact rationals. Added: exact driver inputs, v2 cases and the `mp` backend.
+- `harness/gen_suite.py` is the phase-1 generator (4a3eda4057276292...) with v2 output and the
+  new families; `conditioning.py` is unchanged.
+- `harness/review_reduction/red.py` is the review's `red.py` verbatim (a03275f3659320db...).
+  `e2e_reduction.py` is the review's `e2e.py` (3abfebd35eca0aef...) with the patches listed in
+  its docstring.
+- `provenance/review-hpref/` holds the review's COLLIER values with 60-digit preprocessing,
+  unchanged.

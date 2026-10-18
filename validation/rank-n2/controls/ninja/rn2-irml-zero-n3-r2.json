@@ -1,0 +1,86 @@
+{
+ "format": "ninjars-reference-ninja-bench-v1",
+ "case": "rn2-irml-zero-n3-r2",
+ "build": "o3",
+ "oneloop_warnings": false,
+ "n": 3,
+ "rank": 2,
+ "amplitude": "ninja::Amplitude<ninja::ComplexMasses>(n, rank, V, m2); setRenormalizationScale(mu_squared) (Ninja passes mu_R^2 to IntegralLibrary::init, AvHOneLoop uses mu_R=sqrt); setSMatrix if s_matrix given",
+ "all_replays_bitwise_identical": true,
+ "case_file": "controls/cases/rn2-irml-zero-n3-r2.json",
+ "provenance": "original Ninja @05fb0d3 + OneLOop 3.6, o3 build, validation/benchmark/ninja_bench.cc driver (phase-1 run, trimmed to the Laurent coefficients)",
+ "lanes": [
+  {
+   "id": "rn2-irml-zero-n3-r2-lane0",
+   "return_status": 0,
+   "eps0": [
+    -0.02547269610145467,
+    -0.029682066909277348
+   ],
+   "eps_m1": [
+    -0.016691268097101867,
+    -0.0015694959135231575
+   ],
+   "eps_m2": [
+    -0.002782908547588174,
+    0.0024493345506250257
+   ],
+   "cut_constructible": [
+    -0.025282621652786202,
+    -0.029455755652165627
+   ],
+   "rational": [
+    -0.00019007444866846884,
+    -0.00022631125711172068
+   ]
+  },
+  {
+   "id": "rn2-irml-zero-n3-r2-lane1",
+   "return_status": 0,
+   "eps0": [
+    0.002722174615629127,
+    -0.0019263514882105752
+   ],
+   "eps_m1": [
+    -0.00039937388614271006,
+    -0.002009286522700694
+   ],
+   "eps_m2": [
+    -0.0006050571984950609,
+    -0.00011234811519407763
+   ],
+   "cut_constructible": [
+    0.0026292801690531026,
+    -0.0018434334770825104
+   ],
+   "rational": [
+    9.289444657602447e-05,
+    -8.29180111280648e-05
+   ]
+  },
+  {
+   "id": "rn2-irml-zero-n3-r2-lane2",
+   "return_status": 0,
+   "eps0": [
+    -0.0017293946104495407,
+    0.005777622632521479
+   ],
+   "eps_m1": [
+    0.001564613214938274,
+    0.002276667862910575
+   ],
+   "eps_m2": [
+    0.000642639105571995,
+    6.146643621708411e-05
+   ],
+   "cut_constructible": [
+    -0.0017129376394694443,
+    0.005869314110219268
+   ],
+   "rational": [
+    -1.6456970980096436e-05,
+    -9.169147769778896e-05
+   ]
+  }
+ ]
+}

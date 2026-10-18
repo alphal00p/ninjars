@@ -13,7 +13,17 @@ Numerators: dense random complex tensors in Ninja's TensorNumerator order
 (rank blocks 0..R, see crates/ninjars/src/fast/tensor_layout.rs), the
 degree-k block scaled by scale^-k so all ranks contribute comparably.
 
-  python3 validation/benchmark/make_synthetic_cases.py [--output-dir DIR]
+Rank n+2 cases syn-n{1..6}-r{n+2} go to a separate directory (default
+synthetic-rank-n2/), so that tools iterating over synthetic/*.json with original Ninja
+or a rank <= n+1 build are unaffected; they have no original-Ninja reference (Ninja
+stops at rank n+1), high-precision references are in validation/rank-n2/reference/.
+For n >= 2 the kinematics, masses and
+S-matrices are exactly those of syn-n{n}-r{n+1} (same seed, same random stream) and the
+tensors come from the fresh stream random.Random(4000 + n); syn-n1-r3 is a tadpole with
+a complex top mass and V_0 = 0 (lane 0), timelike (lane 1) and spacelike (lane 2).
+Appending them changes no existing case.
+
+  python3 validation/benchmark/make_synthetic_cases.py [--output-dir DIR] [--rank-n2-dir DIR]
 """
 import argparse
 import json
@@ -197,18 +207,65 @@ def cases():
                          out_masses=[125.0] * 3, order=[0, 1, 2, 3, 4], with_s_matrix=False,
                          note="as syn-gghhh-ggHHH-n5-r4 kinematics family but s_matrix null "
                               "(Ninja computes the invariants from the shifts)"))
+    return out, rank_n2_cases(mass_patterns, kinds)
+
+
+def rank_n2_cases(mass_patterns, kinds):
+    """syn-n{1..6}-r{n+2}: kinematics of syn-n{n}-r{n+1}, fresh tensor stream 4000 + n."""
+    mt2 = 173.0 ** 2
+    mt2c = [mt2, -173.0 * 1.5]
+    out = []
+    for n in range(1, 7):
+        rank = n + 2
+        trng = random.Random(4000 + n)
+        if n == 1:
+            krng = random.Random(4000)
+            lanes = []
+            for lane in range(LANES):
+                if lane == 0:
+                    v0 = [0.0, 0.0, 0.0, 0.0]
+                else:
+                    k = [krng.uniform(-60.0, 60.0) for _ in range(3)]
+                    e = krng.uniform(1.1, 2.0) * math.sqrt(sum(x * x for x in k))
+                    v0 = [e if lane == 1 else 0.3 * e, *k]
+                lanes.append({"id": f"syn-n1-r3-lane{lane}", "shifts": [v0], "masses_squared": [list(mt2c)],
+                              "mu_squared": 1.0e4, "s_matrix": [[0.0]],
+                              "tensor": random_tensor(trng, rank, 100.0)})
+            out.append({"format": "ninjars-bench-case-v1", "name": "syn-n1-r3", "n": 1, "rank": rank,
+                        "description": "rank n+2 tadpole, complex top (Gamma=1.5), V_0 zero/timelike/spacelike, "
+                                       "dense random tensor",
+                        "generator": "validation/benchmark/make_synthetic_cases.py", "seed": 4000,
+                        "tensor_seed": 4001, "lanes": lanes})
+            continue
+        # the syn-n{n}-r{n+1} seed: 1000 + 3 (n - 2) + 3
+        seed = 1000 + 3 * (n - 2) + 3
+        base = make_case(f"syn-n{n}-r{n + 1}", n, n + 1, seed, mass_patterns[n])
+        name = f"syn-n{n}-r{rank}"
+        lanes = []
+        for i, lane in enumerate(base["lanes"]):
+            lane = dict(lane)
+            lane["id"] = f"{name}-lane{i}"
+            lane["tensor"] = random_tensor(trng, rank, 100.0)
+            lanes.append(lane)
+        out.append({"format": "ninjars-bench-case-v1", "name": name, "n": n, "rank": rank,
+                    "description": f"rank n+2: kinematics of syn-n{n}-r{n + 1} ({kinds[n]}), fresh dense random tensor",
+                    "generator": "validation/benchmark/make_synthetic_cases.py", "seed": seed,
+                    "tensor_seed": 4000 + n, "lanes": lanes})
     return out
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--output-dir", type=pathlib.Path, default=HERE / "synthetic")
+    parser.add_argument("--rank-n2-dir", type=pathlib.Path, default=HERE / "synthetic-rank-n2")
     args = parser.parse_args()
-    args.output_dir.mkdir(parents=True, exist_ok=True)
-    for case in cases():
-        path = args.output_dir / f"{case['name']}.json"
-        path.write_text(json.dumps(case, indent=1) + "\n")
-        print(path)
+    existing, rank_n2 = cases()
+    for directory, group in ((args.output_dir, existing), (args.rank_n2_dir, rank_n2)):
+        directory.mkdir(parents=True, exist_ok=True)
+        for case in group:
+            path = directory / f"{case['name']}.json"
+            path.write_text(json.dumps(case, indent=1) + "\n")
+            print(path)
 
 
 if __name__ == "__main__":

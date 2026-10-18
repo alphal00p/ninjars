@@ -1,0 +1,108 @@
+{
+ "format": "ninjars-bench-case-v1",
+ "name": "rn2-phys-complex-n1-r0",
+ "n": 1,
+ "rank": 0,
+ "family": "phys",
+ "masses": "complex",
+ "description": "rank-n+2 reference suite: family phys, masses complex",
+ "generator": "validation/rank-n2/harness/gen_suite.py",
+ "seed": 20261020,
+ "screening": {
+  "lorentzian_planes": true,
+  "gram_min": 0.0001,
+  "cayley_min": 1e-05
+ },
+ "lanes": [
+  {
+   "id": "rn2-phys-complex-n1-r0-lane0",
+   "shifts": [
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "masses_squared": [
+    [
+     29929.0,
+     -259.5
+    ]
+   ],
+   "mu_squared": 10000.0,
+   "s_matrix": [
+    [
+     0.0
+    ]
+   ],
+   "tensor": [
+    [
+     0.08142708394497214,
+     -0.8714736276124951
+    ]
+   ],
+   "generator_attempts": 1
+  },
+  {
+   "id": "rn2-phys-complex-n1-r0-lane1",
+   "shifts": [
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "masses_squared": [
+    [
+     6464.160000000001,
+     -168.84000000000003
+    ]
+   ],
+   "mu_squared": 8315.178393760001,
+   "s_matrix": [
+    [
+     0.0
+    ]
+   ],
+   "tensor": [
+    [
+     0.20472277308420933,
+     -1.0163226543094577
+    ]
+   ],
+   "generator_attempts": 1
+  },
+  {
+   "id": "rn2-phys-complex-n1-r0-lane2",
+   "shifts": [
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "masses_squared": [
+    [
+     15625.0,
+     -0.5
+    ]
+   ],
+   "mu_squared": 29929.0,
+   "s_matrix": [
+    [
+     0.0
+    ]
+   ],
+   "tensor": [
+    [
+     0.2227714106551526,
+     0.13392299374979622
+    ]
+   ],
+   "generator_attempts": 1
+  }
+ ]
+}

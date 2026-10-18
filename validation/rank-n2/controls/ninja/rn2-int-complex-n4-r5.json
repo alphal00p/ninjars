@@ -1,0 +1,86 @@
+{
+ "format": "ninjars-reference-ninja-bench-v1",
+ "case": "rn2-int-complex-n4-r5",
+ "build": "o3",
+ "oneloop_warnings": false,
+ "n": 4,
+ "rank": 5,
+ "amplitude": "ninja::Amplitude<ninja::ComplexMasses>(n, rank, V, m2); setRenormalizationScale(mu_squared) (Ninja passes mu_R^2 to IntegralLibrary::init, AvHOneLoop uses mu_R=sqrt); setSMatrix if s_matrix given",
+ "all_replays_bitwise_identical": true,
+ "case_file": "controls/cases/rn2-int-complex-n4-r5.json",
+ "provenance": "original Ninja @05fb0d3 + OneLOop 3.6, o3 build, validation/benchmark/ninja_bench.cc driver (phase-1 run, trimmed to the Laurent coefficients)",
+ "lanes": [
+  {
+   "id": "rn2-int-complex-n4-r5-lane0",
+   "return_status": 0,
+   "eps0": [
+    3.027253475340773e-07,
+    -2.9892784827483844e-07
+   ],
+   "eps_m1": [
+    5.060747058178304e-09,
+    4.494739454209924e-09
+   ],
+   "eps_m2": [
+    0,
+    0
+   ],
+   "cut_constructible": [
+    2.903795597676022e-07,
+    -2.83893111685637e-07
+   ],
+   "rational": [
+    1.234578776647513e-08,
+    -1.5034736589201436e-08
+   ]
+  },
+  {
+   "id": "rn2-int-complex-n4-r5-lane1",
+   "return_status": 0,
+   "eps0": [
+    -4.0242958224517877e-07,
+    1.7965369414014766e-06
+   ],
+   "eps_m1": [
+    3.106313217123897e-08,
+    -2.098227837177309e-08
+   ],
+   "eps_m2": [
+    0,
+    0
+   ],
+   "cut_constructible": [
+    -3.603103146656781e-07,
+    1.7030040749717429e-06
+   ],
+   "rational": [
+    -4.211926757950066e-08,
+    9.353286642973373e-08
+   ]
+  },
+  {
+   "id": "rn2-int-complex-n4-r5-lane2",
+   "return_status": 0,
+   "eps0": [
+    -1.0818333689401222e-08,
+    -2.9354182666512962e-08
+   ],
+   "eps_m1": [
+    -6.127179483556803e-09,
+    -1.1608008668172327e-09
+   ],
+   "eps_m2": [
+    0,
+    0
+   ],
+   "cut_constructible": [
+    3.360640063384431e-08,
+    -4.328591580900578e-08
+   ],
+   "rational": [
+    -4.442473432324553e-08,
+    1.3931733142492815e-08
+   ]
+  }
+ ]
+}

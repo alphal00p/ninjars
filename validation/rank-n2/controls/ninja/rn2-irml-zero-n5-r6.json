@@ -1,0 +1,86 @@
+{
+ "format": "ninjars-reference-ninja-bench-v1",
+ "case": "rn2-irml-zero-n5-r6",
+ "build": "o3",
+ "oneloop_warnings": false,
+ "n": 5,
+ "rank": 6,
+ "amplitude": "ninja::Amplitude<ninja::ComplexMasses>(n, rank, V, m2); setRenormalizationScale(mu_squared) (Ninja passes mu_R^2 to IntegralLibrary::init, AvHOneLoop uses mu_R=sqrt); setSMatrix if s_matrix given",
+ "all_replays_bitwise_identical": true,
+ "case_file": "controls/cases/rn2-irml-zero-n5-r6.json",
+ "provenance": "original Ninja @05fb0d3 + OneLOop 3.6, o3 build, validation/benchmark/ninja_bench.cc driver (phase-1 run, trimmed to the Laurent coefficients)",
+ "lanes": [
+  {
+   "id": "rn2-irml-zero-n5-r6-lane0",
+   "return_status": 0,
+   "eps0": [
+    4.8495643293819955e-08,
+    2.3433362842674387e-09
+   ],
+   "eps_m1": [
+    1.3836944080875285e-08,
+    -6.63494660842514e-09
+   ],
+   "eps_m2": [
+    9.560275782564923e-10,
+    -2.584707143870115e-09
+   ],
+   "cut_constructible": [
+    4.850036374874349e-08,
+    2.40785889630454e-09
+   ],
+   "rational": [
+    -4.720454923537927e-12,
+    -6.452261203710136e-11
+   ]
+  },
+  {
+   "id": "rn2-irml-zero-n5-r6-lane1",
+   "return_status": 0,
+   "eps0": [
+    -1.636030226890746e-07,
+    -1.368061501869069e-08
+   ],
+   "eps_m1": [
+    -5.12145560274324e-08,
+    3.045344173473651e-08
+   ],
+   "eps_m2": [
+    -3.2450785927687806e-09,
+    1.0455961118049055e-08
+   ],
+   "cut_constructible": [
+    -1.168688235163504e-05,
+    -2.457861900455731e-06
+   ],
+   "rational": [
+    1.1523279328945966e-05,
+    2.4441812854370402e-06
+   ]
+  },
+  {
+   "id": "rn2-irml-zero-n5-r6-lane2",
+   "return_status": 0,
+   "eps0": [
+    1.7397702159631314e-09,
+    -4.031059086946054e-07
+   ],
+   "eps_m1": [
+    -5.076801074391696e-08,
+    -9.496869651790301e-08
+   ],
+   "eps_m2": [
+    -1.4033710485467795e-08,
+    -6.762319837653672e-09
+   ],
+   "cut_constructible": [
+    1.758392281004341e-09,
+    -4.0313919292172884e-07
+   ],
+   "rational": [
+    -1.86220650412096e-11,
+    3.328422712344978e-11
+   ]
+  }
+ ]
+}
