@@ -1,0 +1,9 @@
+digraph gg_gloop {
+    overall_factor="1/2";
+    projector="1/8*gammalooprs::{spenso::rank1,spenso::tensor}::ϵ(0,spenso::{spenso::representation,spenso::self_dual}::mink(4,gammalooprs::{spenso::index}::hedge(0,1)))*gammalooprs::{spenso::rank1,spenso::tensor}::ϵbar(1,spenso::{spenso::representation,spenso::self_dual}::mink(4,gammalooprs::{spenso::index}::hedge(1,1)))*spenso::{symmetric,linear,real,spenso::tensor}::g(spenso::{spenso::representation,spenso::self_dual}::coad(8,gammalooprs::{spenso::index}::hedge(0,1)),spenso::{spenso::representation,spenso::self_dual}::coad(8,gammalooprs::{spenso::index}::hedge(1,1)))";
+    ext [style=invis];
+    ext -> v0:0 [id=0, particle="g"];
+    v1:1 -> ext [id=1, particle="g"];
+    v0:2 -> v1:3 [id=2, particle="g", lmb_id=0];
+    v1:4 -> v0:5 [id=3, particle="g"];
+}

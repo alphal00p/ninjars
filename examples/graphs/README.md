@@ -16,9 +16,12 @@ Symbolica parameter names to exact expressions. `samples` is the phase-space
 batch, and each `external_momenta` maps FeynKit's external momentum index to
 four components ordered `[E,x,y,z]`. Indices and signs follow FeynKit's canonical
 edge routing, exposed in the preparation output's `momentum_basis`; do not
-infer their order from DOT statements. Only independent momenta are required.
-Supplied dependent momenta are checked against that routing (for this triangle,
-`P(2)=P(0)-P(1)`).
+infer their order from DOT statements. The preparation output's `external_legs`
+lists every leg's physical index, momentum key, edge and half-edge; see the
+[CLI guide](../../crates/ninjars-cli/README.md#hand-written-dot-graphs) for
+hand-written graphs, polarizations, spinors and model options. Only independent
+momenta are required. Supplied dependent momenta are checked against that
+routing (for this triangle, `P(2)=P(0)-P(1)`).
 
 The examples are synthetic off-shell configurations for deterministic reduction
 checks. They are not physical scattering events. Bubble rank is two, triangle

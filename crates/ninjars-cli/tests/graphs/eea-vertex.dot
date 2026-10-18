@@ -1,0 +1,9 @@
+digraph eea_vertex {
+    ext [style=invis];
+    ext -> v0 [particle="e-"];
+    ext -> v1 [particle="e+"];
+    v2 -> ext [particle="a"];
+    v0 -> v2 [particle="e-", lmb_id=0];
+    v2 -> v1 [particle="e-"];
+    v1 -> v0 [particle="a"];
+}

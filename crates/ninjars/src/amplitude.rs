@@ -55,6 +55,13 @@ pub enum EvaluationStatus {
         status: IntegrationStatus,
     },
     NonFiniteResult,
+    /// Two propagators of this lane coincide numerically (equal shifts and
+    /// masses), e.g. at a vanishing external momentum. Raised propagators are
+    /// unsupported; other lanes of the batch are unaffected.
+    RepeatedPropagator {
+        first: usize,
+        second: usize,
+    },
 }
 
 /// Borrowed lane-major numerical inputs, including an optional exact S-matrix.
@@ -73,7 +80,8 @@ pub struct AmplitudeInput<'a, T> {
 /// This implementation accepts any number of propagators n >= 1 and rank n+1.
 /// Calls add successful lanes to existing results. Every field of a failed lane
 /// remains unchanged; its last-attempt status is recorded separately. Structural
-/// errors leave results and last-attempt statuses unchanged. Shifts and masses
+/// errors leave results and last-attempt statuses unchanged; a lane with
+/// numerically coincident propagators fails alone. Shifts and masses
 /// are lane-major; one positive real squared scale is supplied per lane.
 /// Tadpole diagnostics contain only the coefficients needed for integration.
 pub struct Amplitude<T, K: AmplitudeKernels<T>> {
@@ -429,26 +437,27 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                 self.topology.rank()
             )));
         }
-        for lane in 0..lanes {
-            for first in 0..n {
-                for second in first + 1..n {
-                    let a = lane * n + first;
-                    let b = lane * n + second;
-                    if self
-                        .kernels
-                        .values_equal(&masses_squared[a], &masses_squared[b])
-                        && shifts[a]
-                            .components()
-                            .into_iter()
-                            .zip(shifts[b].components())
-                            .all(|(x, y)| self.kernels.values_equal(x, y))
-                    {
-                        return Err(Error::Unsupported(
-                            "raised or repeated loop propagators are not supported".into(),
-                        ));
-                    }
-                }
-            }
+        let repeated = (0..lanes)
+            .filter_map(|lane| {
+                self.repeated_propagators(lane, shifts, masses_squared)
+                    .map(|pair| (lane, pair))
+            })
+            .collect::<Vec<_>>();
+        if !repeated.is_empty() {
+            return self.evaluate_without_repeated(
+                &repeated,
+                AmplitudeInput {
+                    shifts,
+                    masses_squared,
+                    scales_squared,
+                    sampling_scales,
+                    s_matrix,
+                },
+                numerator,
+                geometry,
+                high_geometry,
+                masters,
+            );
         }
         if self.minimum_cut > 5 {
             self.pentagons.clear();
@@ -712,6 +721,109 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
             }
         }
         std::mem::swap(&mut self.statuses, statuses);
+        Ok(())
+    }
+
+    /// The first pair of numerically coincident propagators of one lane.
+    fn repeated_propagators(
+        &self,
+        lane: usize,
+        shifts: &[FourMomentum<T>],
+        masses_squared: &[T],
+    ) -> Option<(usize, usize)> {
+        let n = self.topology.propagators();
+        (0..n)
+            .flat_map(|first| (first + 1..n).map(move |second| (first, second)))
+            .find(|&(first, second)| {
+                let (a, b) = (lane * n + first, lane * n + second);
+                self.kernels
+                    .values_equal(&masses_squared[a], &masses_squared[b])
+                    && shifts[a]
+                        .components()
+                        .into_iter()
+                        .zip(shifts[b].components())
+                        .all(|(x, y)| self.kernels.values_equal(x, y))
+            })
+    }
+
+    /// Raised or repeated propagators are unsupported, but they fail only their
+    /// own lanes. Those lanes are evaluated with a valid lane's inputs, so no
+    /// stage sees the degenerate configuration; their results stay unchanged.
+    #[allow(clippy::too_many_arguments)]
+    fn evaluate_without_repeated<
+        N: Numerator<T>,
+        C: CutProvider<T>,
+        H: HighCutProvider<T>,
+        M: MasterProvider<T>,
+    >(
+        &mut self,
+        repeated: &[(usize, (usize, usize))],
+        input: AmplitudeInput<'_, T>,
+        numerator: &mut N,
+        geometry: &mut C,
+        high_geometry: &mut H,
+        masters: &mut M,
+    ) -> Result<()> {
+        let lanes = self.lanes;
+        let status = |&(first, second): &(usize, usize)| EvaluationStatus::RepeatedPropagator {
+            first,
+            second,
+        };
+        let Some(donor) = (0..lanes).find(|lane| repeated.iter().all(|(failed, _)| failed != lane))
+        else {
+            for (lane, pair) in repeated {
+                self.statuses[*lane] = status(pair);
+            }
+            return Ok(());
+        };
+        let n = self.topology.propagators();
+        fn substitute<V: Clone>(
+            values: &[V],
+            width: usize,
+            donor: usize,
+            repeated: &[(usize, (usize, usize))],
+        ) -> Vec<V> {
+            let mut values = values.to_vec();
+            for (lane, _) in repeated {
+                for column in 0..width {
+                    values[lane * width + column] = values[donor * width + column].clone();
+                }
+            }
+            values
+        }
+        let shifts = substitute(input.shifts, n, donor, repeated);
+        let masses_squared = substitute(input.masses_squared, n, donor, repeated);
+        let scales_squared = substitute(input.scales_squared, 1, donor, repeated);
+        let sampling_scales = substitute(
+            input.sampling_scales,
+            usize::from(input.sampling_scales.len() == lanes),
+            donor,
+            repeated,
+        );
+        let s_matrix = input
+            .s_matrix
+            .map(|matrix| substitute(matrix, n * n, donor, repeated));
+        let saved = repeated
+            .iter()
+            .map(|(lane, _)| self.results[*lane].clone())
+            .collect::<Vec<_>>();
+        self.evaluate_batch_with_inputs(
+            AmplitudeInput {
+                shifts: &shifts,
+                masses_squared: &masses_squared,
+                scales_squared: &scales_squared,
+                sampling_scales: &sampling_scales,
+                s_matrix: s_matrix.as_deref(),
+            },
+            numerator,
+            geometry,
+            high_geometry,
+            masters,
+        )?;
+        for ((lane, pair), saved) in repeated.iter().zip(saved) {
+            self.results[*lane] = saved;
+            self.statuses[*lane] = status(pair);
+        }
         Ok(())
     }
 }

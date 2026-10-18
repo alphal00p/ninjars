@@ -182,14 +182,8 @@ pub struct Args {
     pub input: PathBuf,
     #[arg(long)]
     pub samples: Option<PathBuf>,
-    #[arg(long)]
-    pub model: Option<String>,
-    #[arg(long)]
-    pub feynman_rules: bool,
-    /// R2 from the numerator: `off` (four-dimensional loop momentum, R1 only)
-    /// or `fdh` (K.K -> q.q - mu^2 in FDH; the mu^2 terms give R2).
-    #[arg(long, value_enum, default_value = "off")]
-    pub r2: prepare::R2,
+    #[command(flatten)]
+    pub graph: prepare::GraphOptions,
     /// Reduction engine. `fast` requires --precision f64 and the default box
     /// mu-expansion; it uses Ninja's tensor numerator (with explicit mu^2
     /// blocks when the numerator has mu^2 terms, e.g. --r2 fdh) and
@@ -303,6 +297,9 @@ fn status_json(status: EvaluationStatus) -> Value {
             json!({"kind":"integration_failed","cut_index":cut_index,"reason":format!("{status:?}")})
         }
         EvaluationStatus::NonFiniteResult => json!({"kind":"nonfinite_result"}),
+        EvaluationStatus::RepeatedPropagator { first, second } => {
+            json!({"kind":"repeated_propagator","propagators":[first,second],"reason":"raised or repeated loop propagators are not supported"})
+        }
     }
 }
 
@@ -472,6 +469,13 @@ fn evaluate_fast(prepared: &mut PreparedDocument, args: &Args) -> Result<bool> {
 
 pub(crate) fn evaluate_prepared(prepared: &mut PreparedDocument, args: &Args) -> Result<bool> {
     args.validate()?;
+    if prepared.samples.is_empty() {
+        return Err(
+            "reduction needs at least one phase-space sample; pass a JSON fixture \
+                    with samples, or a DOT graph with --samples <fixture>"
+                .into(),
+        );
+    }
     match (args.engine, args.precision) {
         (Engine::Fast, _) => evaluate_fast(prepared, args),
         (Engine::Generic, Precision::F64) => evaluate(prepared, args, 0_f64),
@@ -486,18 +490,11 @@ pub(crate) fn evaluate_prepared(prepared: &mut PreparedDocument, args: &Args) ->
 
 pub fn run(args: Args) -> Result<()> {
     args.validate()?;
-    let mut prepared = prepare::prepare(&prepare::Args {
-        input: args.input.clone(),
-        samples: args.samples.clone(),
-        model: args.model.clone(),
-        feynman_rules: args.feynman_rules,
-        r2: args.r2,
-        output: None,
-        #[cfg(feature = "reference-codegen")]
-        reference_dir: None,
-        #[cfg(feature = "reference-codegen")]
-        reference_bench_dir: None,
-    })?;
+    let mut prepared = prepare::prepare(&prepare::Args::for_input(
+        args.input.clone(),
+        args.samples.clone(),
+        args.graph.clone(),
+    ))?;
     let success = evaluate_prepared(&mut prepared, &args)?;
     let output = serde_json::to_string_pretty(&prepared.document)? + "\n";
     if let Some(path) = args.output {
@@ -506,10 +503,35 @@ pub fn run(args: Args) -> Result<()> {
         print!("{output}");
     }
     if !success {
-        return Err(
-            "one or more samples failed reduction; inspect per-lane statuses in the JSON output"
-                .into(),
-        );
+        let failures = prepared.document["results"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter(|row| row["status"]["kind"] != "success")
+            .map(|row| match row["status"]["reason"].as_str() {
+                Some(reason) => format!(
+                    "lane {}: {} ({reason})",
+                    row["lane"],
+                    row["status"]["kind"].as_str().unwrap_or("failed")
+                ),
+                None => format!(
+                    "lane {}: {}",
+                    row["lane"],
+                    row["status"]["kind"].as_str().unwrap_or("failed")
+                ),
+            })
+            .collect::<Vec<_>>();
+        let shown = failures.len().min(3);
+        let more = if failures.len() > shown {
+            format!(" and {} more", failures.len() - shown)
+        } else {
+            String::new()
+        };
+        return Err(format!(
+            "one or more samples failed reduction ({}{more}); inspect per-lane statuses in the JSON output",
+            failures[..shown].join("; ")
+        )
+        .into());
     }
     Ok(())
 }

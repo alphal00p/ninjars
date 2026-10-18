@@ -58,14 +58,8 @@ pub struct Args {
     pub input: PathBuf,
     #[arg(long)]
     pub samples: Option<PathBuf>,
-    #[arg(long)]
-    pub model: Option<String>,
-    #[arg(long)]
-    pub feynman_rules: bool,
-    /// R2 from the numerator: `off` (four-dimensional loop momentum, R1 only)
-    /// or `fdh` (K.K -> q.q - mu^2 in FDH; the mu^2 terms give R2).
-    #[arg(long, value_enum, default_value = "off")]
-    pub r2: prepare::R2,
+    #[command(flatten)]
+    pub graph: prepare::GraphOptions,
     /// Bench-case JSON to write.
     #[arg(short, long)]
     pub output: PathBuf,
@@ -192,18 +186,8 @@ where
 
 pub fn run(args: Args) -> Result<()> {
     let start = Instant::now();
-    let prepare_args = prepare::Args {
-        input: args.input.clone(),
-        samples: args.samples.clone(),
-        model: args.model.clone(),
-        feynman_rules: args.feynman_rules,
-        r2: args.r2,
-        output: None,
-        #[cfg(feature = "reference-codegen")]
-        reference_dir: None,
-        #[cfg(feature = "reference-codegen")]
-        reference_bench_dir: None,
-    };
+    let prepare_args =
+        prepare::Args::for_input(args.input.clone(), args.samples.clone(), args.graph.clone());
     let prepared: PreparedDocument = prepare::prepare(&prepare_args)?;
     let prepare_time = start.elapsed();
     let selection: Vec<usize> = if args.select.is_empty() {
@@ -381,8 +365,8 @@ pub fn run(args: Args) -> Result<()> {
             "rank": tensor_plan.rank(),
             "lanes": case_lanes,
         });
-        if args.r2 != prepare::R2::Off {
-            case["r2"] = args.r2.name().into();
+        if args.graph.r2 != prepare::R2::Off {
+            case["r2"] = args.graph.r2.name().into();
         }
         case
     } else {
@@ -392,7 +376,7 @@ pub fn run(args: Args) -> Result<()> {
             "n": n,
             "rank": tensor_plan.rank(),
             "mu_powers": mu_powers,
-            "r2": args.r2.name(),
+            "r2": args.graph.r2.name(),
             "tensor_layout": "blocks k = 0..=mu_powers of mu^(2k) T_k(q), T_k a rank-(rank-2k) tensor in ninjars::fast::tensor_layout order",
             "lanes": case_lanes,
         })
@@ -539,7 +523,7 @@ pub fn run(args: Args) -> Result<()> {
         "schema_version": 1,
         "operation": "export-bench",
         "format": case["format"],
-        "r2": args.r2.name(),
+        "r2": args.graph.r2.name(),
         "input": args.input,
         "output": args.output,
         "graph": prepared.document["graph"],

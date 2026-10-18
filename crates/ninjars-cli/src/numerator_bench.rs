@@ -125,12 +125,7 @@ pub(crate) fn generation_json(t: &GenerationTimings) -> Value {
 }
 
 pub(crate) fn model(name: &str, base: &Path) -> Result<Model> {
-    Ok(match name {
-        "phi3" => Model::phi3(),
-        "phi4" => Model::phi4(),
-        "sm" => Model::standard_model(),
-        path => Model::from_json(&fs::read_to_string(base.join(path))?)?,
-    })
+    crate::prepare::resolve_model(name, base)
 }
 
 fn median(values: &mut [f64]) -> f64 {

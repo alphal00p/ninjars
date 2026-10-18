@@ -1,0 +1,9 @@
+digraph phi3_legbubble {
+    ext [style=invis];
+    ext -> a [particle="phi"];
+    a -> b [particle="phi", lmb_id=0];
+    a -> b [particle="phi"];
+    b -> c [particle="phi"];
+    ext -> c [particle="phi"];
+    c -> ext [particle="phi"];
+}

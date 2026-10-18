@@ -205,9 +205,18 @@ fn numerator_external_parameters_are_batched_and_failed_lanes_remain_identified(
     let mut invalid = bubble();
     invalid["samples"][1]["external_momenta"] =
         json!({"0":["0","0","0","0"],"1":["0","0","0","0"]});
+    // Coincident propagators fail only their own lane.
     let output = modified("repeated", "1", invalid, &[]);
     assert!(!output.status.success());
-    assert!(String::from_utf8_lossy(&output.stderr).contains("repeated loop propagators"));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("lane 1: repeated_propagator"));
+    let result: Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(result["results"][0]["status"]["kind"], "success");
+    assert_eq!(
+        result["results"][1]["status"]["kind"],
+        "repeated_propagator"
+    );
+    assert!(result["results"][1]["values"].is_null());
+    assert_eq!(result["results"][2]["status"]["kind"], "success");
     let mut mixed = bubble();
     mixed["samples"][1]["external_momenta"] =
         json!({"0":["0","1+𝑖","0","0"],"1":["0","1+𝑖","0","0"]});
@@ -374,9 +383,9 @@ fn precision_validation_empty_input_and_unsupported_rank_are_explicit() {
     assert!(String::from_utf8_lossy(&invalid.stderr).contains("rank"));
     let mut empty = bubble();
     empty["samples"] = json!([]);
-    let empty = value(modified("empty", "1", empty, &[]));
-    assert_eq!(empty["results"], json!([]));
-    assert_eq!(empty["success"], true);
+    let empty = modified("empty", "1", empty, &[]);
+    assert!(!empty.status.success());
+    assert!(String::from_utf8_lossy(&empty.stderr).contains("at least one phase-space sample"));
 }
 
 #[test]

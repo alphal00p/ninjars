@@ -18,6 +18,7 @@ feynkit-amplitude = { path = "references/gammaloop_ninja_shared/crates/feynkit-a
 spenso = { path = "references/gammaloop_ninja_shared/crates/spenso" }
 idenso = { path = "references/gammaloop_ninja_shared/crates/idenso" }
 symbolica-utils = { path = "references/gammaloop_ninja_shared/crates/symbolica-utils" }
+linnet = { path = "references/gammaloop_ninja_shared/crates/linnet" }
 
 [patch."https://github.com/alphal00p/oneloopmaster.git"]
 oneloop = { path = "references/oneloopmaster" }

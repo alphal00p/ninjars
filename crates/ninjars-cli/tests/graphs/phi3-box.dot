@@ -1,0 +1,11 @@
+digraph phi3_box {
+    ext [style=invis];
+    ext -> a [particle="phi"];
+    ext -> b [particle="phi"];
+    c -> ext [particle="phi"];
+    d -> ext [particle="phi"];
+    a -> b [particle="phi", lmb_id=0];
+    b -> c [particle="phi"];
+    c -> d [particle="phi"];
+    d -> a [particle="phi"];
+}

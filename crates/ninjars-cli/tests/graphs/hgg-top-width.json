@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "graph": "hgg-top.dot",
+  "model": "sm",
+  "scale_squared": "125^2",
+  "color_dimension_invariants": true,
+  "parameter_overrides": {
+    "MT": "173",
+    "ymt": "173",
+    "MH": "125",
+    "WT": "3/2",
+    "WH": "0",
+    "Gf": "116639/10^10",
+    "aS": "59/500",
+    "aEWM1": "132507/1000",
+    "MZ": "22797/250"
+  },
+  "samples": [
+    {
+      "external_momenta": {
+        "0": [
+          "125",
+          "0",
+          "0",
+          "0"
+        ],
+        "1": [
+          "125/2",
+          "0",
+          "0",
+          "125/2"
+        ],
+        "2": [
+          "125/2",
+          "0",
+          "0",
+          "-125/2"
+        ]
+      },
+      "external_polarizations": {
+        "1": [
+          "0",
+          "-1/sqrt(2)",
+          "1𝑖/sqrt(2)",
+          "0"
+        ],
+        "2": [
+          "0",
+          "-1/sqrt(2)",
+          "-1𝑖/sqrt(2)",
+          "0"
+        ]
+      }
+    }
+  ]
+}

@@ -391,21 +391,26 @@ fn repeated_propagators_and_late_api_errors_preserve_accumulation_and_status() {
         .unwrap();
     assert_eq!(amplitude.statuses(), &[EvaluationStatus::Success]);
     let before = amplitude.results().to_vec();
-    let statuses = amplitude.statuses().to_vec();
-    assert!(
-        amplitude
-            .evaluate_batch(
-                &[shifts[0]; 2],
-                &masses,
-                &scales,
-                &mut numerator,
-                &mut geometry,
-                &mut masters
-            )
-            .is_err()
-    );
+    // Coincident propagators fail their lane and leave its accumulation intact.
+    amplitude
+        .evaluate_batch(
+            &[shifts[0]; 2],
+            &masses,
+            &scales,
+            &mut numerator,
+            &mut geometry,
+            &mut masters,
+        )
+        .unwrap();
     assert_eq!(amplitude.results(), before);
-    assert_eq!(amplitude.statuses(), statuses);
+    assert_eq!(
+        amplitude.statuses(),
+        &[EvaluationStatus::RepeatedPropagator {
+            first: 0,
+            second: 1
+        }]
+    );
+    let statuses = amplitude.statuses().to_vec();
     assert!(
         amplitude
             .evaluate_batch(

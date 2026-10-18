@@ -1,0 +1,9 @@
+digraph hgg_top {
+    ext [style=invis];
+    ext -> v2 [particle="H"];
+    v1 -> ext [particle="g"];
+    v0 -> ext [particle="g"];
+    v0 -> v1 [particle="t"];
+    v2 -> v0 [particle="t", lmb_id=0];
+    v1 -> v2 [particle="t"];
+}

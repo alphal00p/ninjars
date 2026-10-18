@@ -1564,6 +1564,7 @@ dependencies = [
  "clap",
  "feynkit-graph",
  "feynkit-model",
+ "linnet",
  "ninjars",
  "ninjars-graph",
  "ninjars-symbolica",
@@ -1571,6 +1572,7 @@ dependencies = [
  "serde",
  "serde_json",
  "symbolica",
+ "tracing-subscriber",
 ]
 
 [[package]]

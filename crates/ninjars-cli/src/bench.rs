@@ -40,14 +40,8 @@ pub struct Args {
     pub input: PathBuf,
     #[arg(long)]
     pub samples: Option<PathBuf>,
-    #[arg(long)]
-    pub model: Option<String>,
-    #[arg(long)]
-    pub feynman_rules: bool,
-    /// R2 from the numerator: `off` (four-dimensional loop momentum, R1 only)
-    /// or `fdh` (K.K -> q.q - mu^2 in FDH; the mu^2 terms give R2).
-    #[arg(long, value_enum, default_value = "off")]
-    pub r2: prepare::R2,
+    #[command(flatten)]
+    pub graph: prepare::GraphOptions,
     /// Reduction engine; `fast` requires --precision f64 and the default box mode.
     #[arg(long, value_enum, default_value = "generic")]
     pub engine: Engine,
@@ -98,9 +92,7 @@ impl Args {
         reduce::Args {
             input: self.input.clone(),
             samples: self.samples.clone(),
-            model: self.model.clone(),
-            feynman_rules: self.feynman_rules,
-            r2: self.r2,
+            graph: self.graph.clone(),
             engine: self.engine,
             precision: self.precision,
             numerator_evaluator: self.numerator_evaluator,
@@ -539,18 +531,11 @@ pub(crate) fn run(args: Args) -> Result<()> {
         }
     }
     let start = Instant::now();
-    let prepared = prepare::prepare(&prepare::Args {
-        input: args.input.clone(),
-        samples: args.samples.clone(),
-        model: args.model.clone(),
-        feynman_rules: args.feynman_rules,
-        r2: args.r2,
-        output: None,
-        #[cfg(feature = "reference-codegen")]
-        reference_dir: None,
-        #[cfg(feature = "reference-codegen")]
-        reference_bench_dir: None,
-    })?;
+    let prepared = prepare::prepare(&prepare::Args::for_input(
+        args.input.clone(),
+        args.samples.clone(),
+        args.graph.clone(),
+    ))?;
     let preparation_ns = start.elapsed().as_secs_f64() * 1e9;
     let report = match (args.engine, args.precision) {
         (Engine::Fast, _) => evaluate_fast(&prepared, &args, preparation_ns)?,

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "graph": "phi3-leg-bubble.dot",
+  "model": "phi3",
+  "scale_squared": "1",
+  "samples": [
+    {
+      "external_momenta": {
+        "0": [
+          "3",
+          "0",
+          "0",
+          "1"
+        ],
+        "1": [
+          "5",
+          "0",
+          "0",
+          "2"
+        ]
+      }
+    },
+    {
+      "external_momenta": {
+        "0": [
+          "3",
+          "0",
+          "0",
+          "1"
+        ],
+        "1": [
+          "1",
+          "0",
+          "0",
+          "0"
+        ]
+      }
+    }
+  ]
+}

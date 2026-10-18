@@ -1,0 +1,10 @@
+digraph hgg_top_proj {
+    projector="1/8*gammalooprs::{spenso::rank1,spenso::tensor}::ϵbar(1,spenso::{spenso::representation,spenso::self_dual}::mink(4,gammalooprs::{spenso::index}::hedge(1,1)))*gammalooprs::{spenso::rank1,spenso::tensor}::ϵbar(2,spenso::{spenso::representation,spenso::self_dual}::mink(4,gammalooprs::{spenso::index}::hedge(2,1)))*spenso::{symmetric,linear,real,spenso::tensor}::g(spenso::{spenso::representation,spenso::self_dual}::coad(8,gammalooprs::{spenso::index}::hedge(1,1)),spenso::{spenso::representation,spenso::self_dual}::coad(8,gammalooprs::{spenso::index}::hedge(2,1)))";
+    ext [style=invis];
+    ext -> v2:0 [id=0, particle="H"];
+    v1:1 -> ext [id=1, particle="g"];
+    v0:2 -> ext [id=2, particle="g"];
+    v0:3 -> v1:4 [id=3, particle="t"];
+    v2:5 -> v0:6 [id=4, particle="t", lmb_id=0];
+    v1:7 -> v2:8 [id=5, particle="t"];
+}

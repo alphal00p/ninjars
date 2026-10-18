@@ -88,6 +88,78 @@ nix develop --command cargo run --release -p ninjars-cli -- reduce \
   examples/graphs/physical/hgg/top-triangle-0.json --r2 fdh --engine fast
 ```
 
+## Hand-written DOT graphs
+
+`prepare`, `reduce`, `bench`, `export-bench` and `compare` accept any connected
+one-loop graph in FeynKit's compact DOT dialect or its stable export. Every
+choice that changes the integrand is recorded in the preparation JSON. Test
+fixtures for each case are in `tests/graphs`.
+
+**Models.** `--model` selects `phi3`, `phi4`, `sm`, or one of the Standard Model
+sectors `qcd`, `qed`, `qcd_qed`, `yang_mills` and `electroweak`. Any other value
+is a FeynKit model JSON path, relative to the working directory (or, in a
+fixture's `model`, to the fixture). An unknown name reports the path it tried.
+
+**Numerators.** Without `--feynman-rules`, local `num` attributes are the
+complete integrand. A compact DOT without any `num` attribute is rejected rather
+than silently given the numerator one; write `num="1"` for a scalar integral.
+With `--feynman-rules`, FeynKit's model rules and default external states
+(`u`, `ubar`, `v`, `vbar`, `epsilon`, `epsilonbar`) are used unless the DOT
+supplies a `projector`.
+
+**Graph factors.** FeynKit's generator folds `1/AutG` and a `-1` per closed
+fermion or ghost loop into a generated diagram's `overall_factor`. For a compact
+DOT without `overall_factor`, `--feynman-rules` derives and applies the same
+factors. A stated `overall_factor`, or the stable export, is used as written.
+`graph_factors` reports the automorphism order, closed fermion/ghost loops,
+the factor, and whether it was applied; explicit mode warns when it differs from
+one. External-fermion ordering signs are a convention of the whole process and
+are not derived.
+
+**Color.** When the contracted numerator leaves exactly one joinable pair of
+open color indices (two gluons, or a quark and an antiquark), the coefficient
+of their invariant is extracted with `delta/N` (`delta_ab/8`, `delta_ij/3`), as
+in the shipped physical examples; `color_projector` records it. Other open
+indices are an error naming each slot and its external leg. A custom DOT
+`projector` refers to external states by edge and to open indices by half-edge:
+`external_legs` lists both for every leg. `--color-dimension-invariants` (or the
+fixture's `color_dimension_invariants`) evaluates invariants such as
+`cas(2,coad(8))` and `idx(2,cof(3))`.
+
+**External legs and samples.** `external_momenta` keys are momentum-basis
+positions `i` of `P(i)`; `external_polarizations` and `external_spinors` keys are
+physical leg indices. FeynKit lists external edges in leg order, so both
+numberings coincide; `external_legs` reports `leg` and `momentum_key` for each
+leg, and preparation warns if a graph ever differs. Each sample may bind:
+
+- `external_polarizations`: contravariant components of `epsilon` or
+  `epsilonbar`, for vector legs;
+- `external_spinors`: four components of the spin-1/2 leg's carrier as it enters
+  the amplitude, columns for `u` and `v`, rows for `ubar` and `vbar` (no
+  conjugation is applied). Spinor chains are expanded in the chiral (HELAS)
+  basis: `gamma^0 = [[0,1],[1,0]]`, `gamma^k = [[0,sigma^k],[-sigma^k,0]]`,
+  `gamma^5 = diag(-1,-1,1,1)`. Unit spinors give the amputated Dirac matrix of
+  the amplitude element by element. Explicit spinors need `--r2 off` (see
+  above); alternatively, close each fermion line with a spin-trace `projector`.
+
+`spinor_basis` and `polarization_basis` list the bound carriers. Anything the
+numerator still needs (spinors, polarizations, color invariants, Levi-Civita
+tensors from gamma5 traces) is reported by `prepare`: an error when samples are
+given, a warning and the `unbound` list otherwise.
+
+**Widths.** Propagator widths are ignored by default, with a warning naming
+every nonzero width. `--complex-mass-propagators` uses `m^2 - i*m*width` in every
+propagator denominator, loop and tree alike; numerators and couplings keep
+their real masses, so this is not the complete complex-mass scheme.
+`propagator_widths` records the mode and the widths.
+
+**Rejected inputs.** `reduce` requires at least one sample, and disconnected
+graphs are rejected. A sample whose propagators coincide numerically (for
+example a vanishing external momentum) fails only its lane: the generic
+engine reports `repeated_propagator`, the fast engine the failed master integral.
+Symbolica's warnings are written to standard error, so standard output stays
+valid JSON.
+
 ## Reduction engines
 
 `reduce` and `bench` accept `--engine generic|fast`. The default `generic`
