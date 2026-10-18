@@ -1,5 +1,10 @@
 # Reference timings: original Ninja + OneLOop, and the MadLoop pipeline
 
+> **Re-timed on 2026-10-18.** The committed timing JSONs were re-measured with the same executables
+> on CPU 250, the core of the NinjaRS runs (`--cpu 250`); the CPU 29 tables below are the original
+> runs. Both agree within about 1 % except OneLOop masters on the n = 5 cases (5–8 % slower on
+> CPU 250); see [cpu-crosscheck.md](cpu-crosscheck.md).
+
 This directory holds the *reference side* of the NinjaRS performance comparison:
 original C++ Ninja (`references/ninja` @ 05fb0d3) with Fortran OneLOop, driven
 either directly (Parts 1–2) or through MadLoop (Part 3, `madloop/README.md`).

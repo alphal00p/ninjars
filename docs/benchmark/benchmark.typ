@@ -97,14 +97,21 @@
 
 #block(fill: pale, inset: 10pt, radius: 4pt, width: 100%)[
   #set text(9.5pt)
-  *Reading guide.* Every multiplier is _NinjaRS time ÷ reference time_ for
-  the same work on the same inputs: generation is compared with MadLoop
-  output plus compilation; the numerator with MadLoop's loop-coefficient
-  computation (including Ninja's tensor-numerator expansions); the pure
-  reduction with original Ninja; the master integrals with OneLOop; the total
-  with the complete MadLoop pipeline. Green cells mean NinjaRS is faster, red
-  slower; white is parity. NinjaRS evaluates batches of
-  #data.batch_width phase-space points; times are per point.
+  *Reading guide.* Every multiplier is _NinjaRS time ÷ reference time_, and
+  each cell names its reference. In @tab:summary both codes evaluate the same
+  diagram, helicity configuration and phase-space points, but MadLoop runs
+  its own pipeline on its own inputs: its own loop numerator and propagator
+  order, and the rank it declares (3 instead of 2 for the triangles, 5
+  instead of 4 for the pentagon). Generation is compared with MadLoop output
+  plus compilation, the numerator with MadLoop's loop-coefficient computation
+  and Ninja interface (including Ninja's tensor-numerator expansions), the
+  reduction with original Ninja inside MadLoop, the master integrals with
+  OneLOop and the total with the complete MadLoop pipeline. In
+  @tab:identical both codes receive identical inputs at the same rank and are
+  compared with original Ninja and OneLOop component by component. Green
+  cells mean NinjaRS is faster, red slower; white is parity. NinjaRS
+  evaluates batches of #data.batch_width phase-space points; times are per
+  point.
 ]
 
 #let range-of(values) = {
@@ -181,9 +188,13 @@
     NinjaRS ÷ reference. Generation: NinjaRS CLI graph preparation,
     coefficient planning and SymJIT O2 compilation versus MadLoop process
     output plus compilation (ML). Numerator: SymJIT O2 coefficient heads and
-    tensor-numerator expansions versus MadLoop's loop-coefficient
-    construction and Ninja's tensor-numerator expansions (ML). Reduction:
-    pure reduction versus original Ninja inside MadLoop (N). Masters:
+    tensor-numerator expansions (with propagator and S-matrix preparation)
+    versus MadLoop's loop-coefficient construction, its Ninja interface
+    (tensor copy, momentum inversion, S-matrix) and Ninja's tensor-numerator
+    expansions (ML). Reduction: pure reduction versus original Ninja's
+    reduction inside MadLoop, i.e. Ninja's time minus its tensor-numerator
+    callbacks and master integrals, which includes its per-call setup (N).
+    Masters:
     oneloopmaster's native code versus OneLOop (O). Total: complete
     evaluation versus the complete MadLoop pipeline (ML). The rank column
     gives NinjaRS's rank and, in brackets, the rank MadLoop passes to Ninja.],
@@ -232,7 +243,8 @@
   box(width: width, height: 8pt, {
     let x = 0pt
     for (i, value) in parts.enumerate() {
-      let w = width * value / reference
+      // Clip the few-per-cent overshoot of separately timed components.
+      let w = calc.min(width * value / reference, width - x)
       place(dx: x, rect(
         width: calc.max(w - 1pt, 0.5pt), height: 8pt, fill: component-colors.at(i),
         radius: if i == parts.len() - 1 { (right: 2pt) } else { 0pt },
@@ -245,8 +257,10 @@
   kind: image,
   caption: [Per-point evaluation time of each diagram, NinjaRS (upper bar,
     batched) and the MadLoop pipeline (lower bar), stacked by component and
-    normalized to the MadLoop total. The label gives NinjaRS's total as a
-    multiple of MadLoop's; @tab:summary lists the values.],
+    drawn to the scale of the measured MadLoop total. Components are timed
+    separately, so a stack can differ from its measured total by a few per
+    cent. The label gives NinjaRS's measured total as a multiple of
+    MadLoop's; @tab:summary lists the values.],
   {
     set text(8pt, font: "DejaVu Sans")
     let bar-width = 10cm
@@ -260,11 +274,11 @@
         let b = c.madloop_us
         let mine = (a.numerator, a.reduction, a.masters)
         let theirs = (b.numerator, b.reduction, b.masters)
-        let reference = theirs.sum()
+        let reference = b.total
         (
           grid.cell(rowspan: 2, [#c.process \ #text(fill: luma(90), c.diagram)]),
           stack-bar(mine, reference, bar-width),
-          [NinjaRS #text(weight: "bold")[×#fixed(mine.sum() / reference, 2)]],
+          [NinjaRS #text(weight: "bold")[×#fixed(a.total / b.total, 2)]],
           stack-bar(theirs, reference, bar-width),
           text(fill: luma(110))[MadLoop],
         )
@@ -312,9 +326,9 @@
     with live numerator and masters. Original Ninja is built with
     `g++ -O3 -fcx-fortran-rules` (MadLoop's flag; 20 % faster than plain
     `-O3`). The last column is the maximal difference of the three Laurent
-    coefficients relative to the largest, NinjaRS versus Ninja; † marks
-    single ill-conditioned lanes where neither code is accurate in binary64
-    (see @correctness).],
+    coefficients relative to the largest, NinjaRS versus Ninja on these
+    identical inputs, over the three points; † marks single ill-conditioned
+    points where neither code is accurate in binary64 (see @correctness).],
   header-style(table(
     columns: (1fr, auto, auto, auto, auto, auto, auto),
     align: (x, y) => if x == 0 { left + horizon } else { center + horizon },

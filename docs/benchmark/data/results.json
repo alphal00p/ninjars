@@ -1,7 +1,7 @@
 {
  "status": "measured",
  "date": "2026-10-18",
- "host": "AMD EPYC 9754 (shared host), one pinned core",
+ "host": "AMD EPYC 9754 (shared host), all timings pinned to one core",
  "batch_width": 32,
  "cases": [
   {
@@ -42,18 +42,19 @@
     "total": 5.222747314453125
    },
    "madloop_us": {
-    "numerator": 14.257019194594424,
-    "numerator_coefficients": 9.48677799,
-    "tensor_numerator": 4.7702412045944245,
-    "reduction": 4.083816591853504,
-    "masters": 3.2640621635520697,
-    "total": 21.405384200000004
+    "numerator": 15.19791435682933,
+    "numerator_coefficients": 9.528935440000001,
+    "ninja_interface": 0.8192818396816222,
+    "tensor_numerator": 4.849697077147707,
+    "reduction": 3.415293850411076,
+    "masters": 3.3295585927595948,
+    "total": 21.71597475
    },
    "ninja_identical_us": {
-    "numerator": 0.9019260552072106,
-    "reduction": 2.6095649752475247,
-    "masters": 6.536345872518286,
-    "total": 10.088544093851134
+    "numerator": 0.9343597565983982,
+    "reduction": 2.600641641025641,
+    "masters": 6.525215640426085,
+    "total": 10.048895808383232
    },
    "ninjars_identical_us": {
     "numerator": 0.4420308837890625,
@@ -61,7 +62,8 @@
     "masters": 1.7152359008789062,
     "total": 3.4381195068359376
    },
-   "max_scaled_difference_vs_ninja": 3.494030958336396e-14
+   "max_scaled_difference_vs_ninja": 1.2940475971023792e-14,
+   "max_scaled_difference_end_to_end": 3.494030958336396e-14
   },
   {
    "id": "four-photon-top-box-0",
@@ -101,18 +103,19 @@
     "total": 35.577533203125
    },
    "madloop_us": {
-    "numerator": 41.21514514517866,
-    "numerator_coefficients": 18.64101155,
-    "tensor_numerator": 22.574133595178658,
-    "reduction": 10.546218705893628,
-    "masters": 9.084521484455736,
-    "total": 59.86166575
+    "numerator": 41.49758265665012,
+    "numerator_coefficients": 18.8171896,
+    "ninja_interface": 0.0,
+    "tensor_numerator": 22.680393056650118,
+    "reduction": 10.634373215657485,
+    "masters": 9.267575567990802,
+    "total": 60.54579055
    },
    "ninja_identical_us": {
-    "numerator": 22.650565710535027,
-    "reduction": 9.096761285662694,
-    "masters": 10.134715555555557,
-    "total": 42.7004268707483
+    "numerator": 22.848528103385057,
+    "reduction": 9.186202420242024,
+    "masters": 10.128302588996762,
+    "total": 42.99744845360824
    },
    "ninjars_identical_us": {
     "numerator": 9.40967822265625,
@@ -120,7 +123,8 @@
     "masters": 5.279788330078125,
     "total": 20.008212890625
    },
-   "max_scaled_difference_vs_ninja": 1.7330177143630906e-12
+   "max_scaled_difference_vs_ninja": 9.725323887876545e-13,
+   "max_scaled_difference_end_to_end": 1.7330177143630906e-12
   },
   {
    "id": "gg-hh-top-triangle-0",
@@ -160,18 +164,19 @@
     "total": 4.415744995117188
    },
    "madloop_us": {
-    "numerator": 12.569549452750913,
-    "numerator_coefficients": 7.8153830399999995,
-    "tensor_numerator": 4.754166412750914,
-    "reduction": 3.8831424273642368,
-    "masters": 1.9742713198848485,
-    "total": 18.25091805
+    "numerator": 13.433519388875391,
+    "numerator_coefficients": 7.89527312,
+    "ninja_interface": 0.5919671454646203,
+    "tensor_numerator": 4.946279123410771,
+    "reduction": 3.3613996166599356,
+    "masters": 1.9626995444646744,
+    "total": 18.39393205
    },
    "ninja_identical_us": {
-    "numerator": 0.8829570317644102,
-    "reduction": 2.5533895520865215,
-    "masters": 1.8786228386708765,
-    "total": 5.376472707659115
+    "numerator": 0.931438593454468,
+    "reduction": 2.5380845816773667,
+    "masters": 1.901240476729275,
+    "total": 5.408759851948617
    },
    "ninjars_identical_us": {
     "numerator": 0.43858673095703127,
@@ -179,7 +184,8 @@
     "masters": 0.8159912109375,
     "total": 2.5517738037109376
    },
-   "max_scaled_difference_vs_ninja": 2.687629252435699e-15
+   "max_scaled_difference_vs_ninja": 3.371910225887861e-15,
+   "max_scaled_difference_end_to_end": 2.687629252435699e-15
   },
   {
    "id": "gg-hh-top-box-2",
@@ -219,18 +225,19 @@
     "total": 34.037166015625
    },
    "madloop_us": {
-    "numerator": 34.75187555359506,
-    "numerator_coefficients": 12.16641995,
-    "tensor_numerator": 22.585455603595065,
-    "reduction": 11.539717326651925,
-    "masters": 32.124893069753,
-    "total": 78.21400155
+    "numerator": 36.32685656954703,
+    "numerator_coefficients": 12.3122597,
+    "ninja_interface": 1.360882792750644,
+    "tensor_numerator": 22.653714076796387,
+    "reduction": 10.83829726392328,
+    "masters": 33.942260766529685,
+    "total": 80.7757639
    },
    "ninja_identical_us": {
-    "numerator": 22.76218166569678,
-    "reduction": 9.251356502242151,
-    "masters": 27.06454261057174,
-    "total": 60.37475059952038
+    "numerator": 22.97162383326385,
+    "reduction": 9.284722470238096,
+    "masters": 27.75663626126126,
+    "total": 61.285598039215685
    },
    "ninjars_identical_us": {
     "numerator": 9.469099609375,
@@ -238,7 +245,8 @@
     "masters": 12.89166015625,
     "total": 27.807515625
    },
-   "max_scaled_difference_vs_ninja": 5.828334974481715e-13
+   "max_scaled_difference_vs_ninja": 6.945601237026325e-13,
+   "max_scaled_difference_end_to_end": 5.828334974481715e-13
   },
   {
    "id": "gg-hhh-top-triangle-0",
@@ -278,18 +286,19 @@
     "total": 4.379197021484375
    },
    "madloop_us": {
-    "numerator": 12.560286038484417,
-    "numerator_coefficients": 7.82916839,
-    "tensor_numerator": 4.731117648484416,
-    "reduction": 3.856862058548014,
-    "masters": 1.2519000529675728,
-    "total": 17.5312407
+    "numerator": 13.222167222702991,
+    "numerator_coefficients": 7.884925525000001,
+    "ninja_interface": 0.5490182865635571,
+    "tensor_numerator": 4.788223411139432,
+    "reduction": 3.3164297190991343,
+    "masters": 1.2531343581978784,
+    "total": 17.687302199999998
    },
    "ninja_identical_us": {
-    "numerator": 0.9010744751539969,
-    "reduction": 2.541642916150351,
-    "masters": 1.2561733172714953,
-    "total": 4.776668589004229
+    "numerator": 0.9209261599715715,
+    "reduction": 2.542363302752294,
+    "masters": 1.267816382460414,
+    "total": 4.745139255014326
    },
    "ninjars_identical_us": {
     "numerator": 0.4326204833984375,
@@ -297,7 +306,8 @@
     "masters": 0.72846044921875,
     "total": 2.4436209716796875
    },
-   "max_scaled_difference_vs_ninja": 1.8251564005683137e-15
+   "max_scaled_difference_vs_ninja": 9.080639242729261e-16,
+   "max_scaled_difference_end_to_end": 1.8251564005683137e-15
   },
   {
    "id": "gg-hhh-top-box-8",
@@ -337,18 +347,19 @@
     "total": 32.463840820312505
    },
    "madloop_us": {
-    "numerator": 34.71774326543295,
-    "numerator_coefficients": 12.215290950000002,
-    "tensor_numerator": 22.502452315432947,
-    "reduction": 11.705143138563564,
-    "masters": 27.22901204600349,
-    "total": 73.35015925
+    "numerator": 36.21371279261578,
+    "numerator_coefficients": 12.294169649999999,
+    "ninja_interface": 1.2882089788691502,
+    "tensor_numerator": 22.63133416374663,
+    "reduction": 10.587356881097033,
+    "masters": 28.212310826287197,
+    "total": 74.4222712
    },
    "ninja_identical_us": {
-    "numerator": 22.646273348988586,
-    "reduction": 9.296882461994809,
-    "masters": 22.01630789473684,
-    "total": 54.83728289473684
+    "numerator": 22.734832647564247,
+    "reduction": 9.450178935447338,
+    "masters": 22.49084677419355,
+    "total": 55.84870045045045
    },
    "ninjars_identical_us": {
     "numerator": 9.379069580078125,
@@ -356,7 +367,8 @@
     "masters": 12.27915283203125,
     "total": 27.2361376953125
    },
-   "max_scaled_difference_vs_ninja": 1.4896544830297044e-14
+   "max_scaled_difference_vs_ninja": 1.3003206435548253e-14,
+   "max_scaled_difference_end_to_end": 1.4896544830297044e-14
   },
   {
    "id": "gg-hhh-top-pentagon-26",
@@ -396,18 +408,19 @@
     "total": 80.757109375
    },
    "madloop_us": {
-    "numerator": 104.52954599315669,
-    "numerator_coefficients": 23.98330895,
-    "tensor_numerator": 80.54623704315668,
-    "reduction": 26.022486901680708,
-    "masters": 105.10346735086372,
-    "total": 234.9374775
+    "numerator": 105.39446126200386,
+    "numerator_coefficients": 23.7803419,
+    "ninja_interface": 0.9398393066015842,
+    "tensor_numerator": 80.67428005540228,
+    "reduction": 26.51198987368595,
+    "masters": 110.4637608643102,
+    "total": 241.364248
    },
    "ninja_identical_us": {
-    "numerator": 22.044588814616752,
-    "reduction": 18.954955303030303,
-    "masters": 91.3788115942029,
-    "total": 134.02887634408603
+    "numerator": 22.608645353755573,
+    "reduction": 18.643134082397,
+    "masters": 98.21718992248063,
+    "total": 141.06906214689266
    },
    "ninjars_identical_us": {
     "numerator": 11.375072998046875,
@@ -415,7 +428,8 @@
     "masters": 52.626818359375,
     "total": 73.18804296875
    },
-   "max_scaled_difference_vs_ninja": 9.688662813417033e-15
+   "max_scaled_difference_vs_ninja": 1.1880545452702352e-14,
+   "max_scaled_difference_end_to_end": 9.688662813417033e-15
   }
  ],
  "synthetic": [
@@ -430,10 +444,10 @@
     "total": 48.180708984375
    },
    "ninja_us": {
-    "numerator": 22.504133764938793,
-    "reduction": 18.455835189309575,
-    "masters": 60.75036496350365,
-    "total": 103.53679166666667
+    "numerator": 22.639439446766342,
+    "reduction": 18.609030850263355,
+    "masters": 64.23503589743589,
+    "total": 108.10403896103895
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 1.2647175866066907e-12
@@ -449,10 +463,10 @@
     "total": 76.757681640625
    },
    "ninja_us": {
-    "numerator": 80.95858597417839,
-    "reduction": 23.426376525821595,
-    "masters": 59.09030751173709,
-    "total": 166.39113333333333
+    "numerator": 81.4115527410547,
+    "reduction": 22.721056312443235,
+    "masters": 62.26934320987654,
+    "total": 169.3809
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 1.4206601095646777e-11
@@ -468,10 +482,10 @@
     "total": 79.40784765625
    },
    "ninja_us": {
-    "numerator": 22.36459463630477,
-    "reduction": 18.43778097345133,
-    "masters": 109.97434649122808,
-    "total": 152.70279393939396
+    "numerator": 22.663352778819082,
+    "reduction": 18.514226429101708,
+    "masters": 117.18622222222221,
+    "total": 162.04629411764705
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 2.852754288267999e-12
@@ -487,10 +501,10 @@
     "total": 110.04232421875
    },
    "ninja_us": {
-    "numerator": 81.71820493450768,
-    "reduction": 22.549549232158988,
-    "masters": 109.71912719298246,
-    "total": 217.5351452991453
+    "numerator": 81.58466944444444,
+    "reduction": 23.79988888888889,
+    "masters": 118.35710952380953,
+    "total": 227.96156756756758
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 4.25810547573552e-05
@@ -506,10 +520,10 @@
     "total": 79.10620703125
    },
    "ninja_us": {
-    "numerator": 22.535518652504106,
-    "reduction": 18.590640625,
-    "masters": 109.60883982683983,
-    "total": 153.88758787878788
+    "numerator": 22.656619966256716,
+    "reduction": 18.594987294469355,
+    "masters": 117.55799530516433,
+    "total": 161.32323076923078
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 3.654423408837042e-12
@@ -525,10 +539,10 @@
     "total": 0.4466448974609375
    },
    "ninja_us": {
-    "numerator": 0.06171955017341122,
-    "reduction": 0.4222156699889258,
-    "masters": 0.21166000064640195,
-    "total": 0.6651528954237921
+    "numerator": 0.05920931225625458,
+    "reduction": 0.42991391401740325,
+    "masters": 0.20668698966599305,
+    "total": 0.6726478291203779
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 4.0092002255153444e-15
@@ -544,10 +558,10 @@
     "total": 0.6527695617675782
    },
    "ninja_us": {
-    "numerator": 0.4351354621430444,
-    "reduction": 0.46179899821372666,
-    "masters": 0.19492543532917403,
-    "total": 1.0832057372793353
+    "numerator": 0.42827891113644717,
+    "reduction": 0.48302373772519913,
+    "masters": 0.19859774600077726,
+    "total": 1.0958640971858067
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 1.9445906782406196e-13
@@ -563,10 +577,10 @@
     "total": 1.7081990966796874
    },
    "ninja_us": {
-    "numerator": 2.706283354676286,
-    "reduction": 0.9775238493390667,
-    "masters": 0.306819154687308,
-    "total": 4.043194607843137
+    "numerator": 2.733413611950178,
+    "reduction": 0.983725808985234,
+    "masters": 0.2952674049334974,
+    "total": 4.082393445322793
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 3.482322837484838e-11
@@ -582,10 +596,10 @@
     "total": 3.471624267578125
    },
    "ninja_us": {
-    "numerator": 0.9329791240746813,
-    "reduction": 2.5091976060052747,
-    "masters": 4.284243220048061,
-    "total": 7.719802960222017
+    "numerator": 0.9314243190299153,
+    "reduction": 2.541197038839874,
+    "masters": 4.271465020576132,
+    "total": 7.7451082170542636
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 8.313544066372516e-14
@@ -601,10 +615,10 @@
     "total": 5.6649970703125
    },
    "ninja_us": {
-    "numerator": 4.66857738596988,
-    "reduction": 2.957007097317455,
-    "masters": 3.854339784946237,
-    "total": 11.632202431042543
+    "numerator": 4.683573544239805,
+    "reduction": 2.9747591723806086,
+    "masters": 3.869419879238272,
+    "total": 11.652654460093895
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 5.52816987137098e-14
@@ -620,10 +634,10 @@
     "total": 13.58102734375
    },
    "ninja_us": {
-    "numerator": 20.329967274577697,
-    "reduction": 7.212491197183099,
-    "masters": 4.9763295634920635,
-    "total": 32.78164041994751
+    "numerator": 20.421550559247667,
+    "reduction": 7.202956063268893,
+    "masters": 5.080640356203197,
+    "total": 32.91623066666667
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 7.172375599926447e-14
@@ -639,10 +653,10 @@
     "total": 18.1316923828125
    },
    "ninja_us": {
-    "numerator": 5.35557013608004,
-    "reduction": 7.079378045285183,
-    "masters": 16.697167333333336,
-    "total": 29.50126266195524
+    "numerator": 5.366871025565499,
+    "reduction": 7.191499568593615,
+    "masters": 16.90965650406504,
+    "total": 29.89423095238095
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 2.357370875572468e-12
@@ -658,10 +672,10 @@
     "total": 28.367791015625
    },
    "ninja_us": {
-    "numerator": 22.454644827166064,
-    "reduction": 8.682915271966527,
-    "masters": 15.780201886792453,
-    "total": 47.62871401515151
+    "numerator": 22.61440562925639,
+    "reduction": 8.754860034904013,
+    "masters": 15.861609108159394,
+    "total": 48.11093063583815
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 2.660937497370631e-13
@@ -677,10 +691,10 @@
     "total": 54.857783203125
    },
    "ninja_us": {
-    "numerator": 79.7967015873016,
-    "reduction": 19.82092142857143,
-    "masters": 12.035081896551725,
-    "total": 113.46883783783784
+    "numerator": 80.36681360517287,
+    "reduction": 19.87804750593824,
+    "masters": 12.193821897810219,
+    "total": 114.26179908675799
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 4.024485562570993e-12
@@ -696,10 +710,10 @@
     "total": 56.54790625
    },
    "ninja_us": {
-    "numerator": 22.178615501115186,
-    "reduction": 18.617191002949856,
-    "masters": 65.07447916666666,
-    "total": 107.75304273504274
+    "numerator": 22.67650405023387,
+    "reduction": 18.576573125463995,
+    "masters": 68.6828825136612,
+    "total": 112.91606666666667
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 1.9077762354608898e-13
@@ -715,10 +729,10 @@
     "total": 85.8810703125
    },
    "ninja_us": {
-    "numerator": 81.18769366656629,
-    "reduction": 22.670705510388437,
-    "masters": 71.1382824858757,
-    "total": 179.2705035460993
+    "numerator": 81.3820964964965,
+    "reduction": 22.60294054054054,
+    "masters": 75.40659159159159,
+    "total": 183.64974637681158
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 5.899339777133679e-12
@@ -734,10 +748,10 @@
     "total": 189.090171875
    },
    "ninja_us": {
-    "numerator": 259.2620282828283,
-    "reduction": 50.854527272727275,
-    "masters": 85.40462925170068,
-    "total": 406.82734920634925
+    "numerator": 259.6190791930141,
+    "reduction": 50.86874796747968,
+    "masters": 91.87913553113553,
+    "total": 411.21138333333334
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 2.58610073318317e-09
@@ -753,10 +767,10 @@
     "total": 368.944375
    },
    "ninja_us": {
-    "numerator": 74.2610757947185,
-    "reduction": 37.470973094170404,
-    "masters": 483.90764705882356,
-    "total": 607.1365
+    "numerator": 74.93042024377318,
+    "reduction": 37.62937254901961,
+    "masters": 494.6851960784314,
+    "total": 613.9999047619048
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 3.605241547546524e-08
@@ -772,10 +786,10 @@
     "total": 403.010109375
    },
    "ninja_us": {
-    "numerator": 238.37562081031305,
-    "reduction": 46.25941252302025,
-    "masters": 419.9987,
-    "total": 725.3270833333333
+    "numerator": 240.0467716475096,
+    "reduction": 46.41637777777778,
+    "masters": 428.0481,
+    "total": 731.2241111111111
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 0.2633441697135343
@@ -791,10 +805,10 @@
     "total": 686.9335625
    },
    "ninja_us": {
-    "numerator": 689.8418615221987,
-    "reduction": 96.81492635658914,
-    "masters": 535.3050625,
-    "total": 1353.119619047619
+    "numerator": 694.506725863284,
+    "reduction": 97.18772868217054,
+    "masters": 540.8011875,
+    "total": 1360.1664285714287
    },
    "failed_lanes": 0,
    "max_scaled_difference_vs_ninja": 1.7138699455226035e-07

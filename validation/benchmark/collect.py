@@ -66,6 +66,14 @@ def ninja_identical(case, build="o3-fortranrules"):
     }
 
 
+def case_difference(cases, name, width):
+    """Largest scaled Laurent difference to original Ninja on identical inputs."""
+    if name not in cases:
+        return None
+    check = width_entry(cases[name], width).get("reference_check") or {}
+    return check.get("max_scaled_laurent_difference")
+
+
 def case_summary(cases, name, width):
     """NinjaRS on the shared bench case (identical inputs to original Ninja)."""
     if name not in cases:
@@ -140,17 +148,27 @@ def main():
                     "masters": us(single["masters"]),
                     "total": us(single["total"]),
                 },
+                # MadLoop's NINJA_LOOP interface (tensor copy, momentum
+                # inversion, S-matrix, bookkeeping; slightly negative values
+                # are timing noise) is counted with the numerator, where
+                # NinjaRS counts its own propagator and S-matrix preparation.
                 "madloop_us": {
-                    "numerator": o3["numerator_coefficients"] + o3["tensor_numerator"],
+                    "numerator": o3["numerator_coefficients"]
+                    + o3["tensor_numerator"]
+                    + max(0.0, o3["madloop_glue"]),
                     "numerator_coefficients": o3["numerator_coefficients"],
+                    "ninja_interface": max(0.0, o3["madloop_glue"]),
                     "tensor_numerator": o3["tensor_numerator"],
-                    "reduction": o3["ninja_reduction"] + max(0.0, o3["madloop_glue"]),
+                    "reduction": o3["ninja_reduction"],
                     "masters": o3["masters"],
                     "total": o3["full"],
                 },
                 "ninja_identical_us": ninja_identical(graph),
                 "ninjars_identical_us": case_summary(cases, graph, args.width),
-                "max_scaled_difference_vs_ninja": check["max_scaled_laurent_difference"]
+                # Identical inputs (case-bench) for the table; the end-to-end
+                # pipeline with NinjaRS's own numerator separately.
+                "max_scaled_difference_vs_ninja": case_difference(cases, graph, args.width),
+                "max_scaled_difference_end_to_end": check["max_scaled_laurent_difference"]
                 if check
                 else None,
             }

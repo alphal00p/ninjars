@@ -2307,12 +2307,20 @@ Commits so far: `7b57642` (fast-path complex type and provider traits),
   (pipeline-bench, case-bench), `validation/benchmark/masters_native/`
   (olm-264a6ce), `validation/benchmark/arbitrary-precision/` (summarize.py),
   report data `docs/benchmark/data/*.json`.
-- Gates on the seven physical diagrams (identical inputs, width 32): (a)
-  pure reduction 0.47–0.58× Ninja; (b) native masters 0.26–0.58× OneLOop;
-  (c) end to end 0.17–0.52× MadLoop (graph26: 78 vs 235 µs per point). Over
-  all 27 bench cases: reduction 0.47–0.63×, masters 0.26–0.88× (width 1:
-  at most 1.23×, syn-n2-r2), every lane succeeds. Call by call on the 1,998
-  master calls Ninja makes, native masters take 0.24–0.87× OneLOop's time and
+- Gates on the seven physical diagrams (identical inputs, width 32; every
+  timing, references included, pinned to CPU 250): (a) pure reduction
+  0.48–0.58× Ninja; (b) native masters 0.26–0.57× OneLOop; (c) end to end
+  0.17–0.51× MadLoop (graph26: 78 vs 241 µs per point). Over all 27 bench
+  cases: reduction 0.48–0.60×, masters 0.26–0.87× (width 1: at most 1.21×,
+  syn-n2-r2), every lane succeeds. References re-timed on CPU 250 agree with
+  the CPU 29 runs within ~1 % except OneLOop on n = 5 (5–8 % slower on CPU
+  250); `validation/benchmark/cpu-crosscheck.md`.
+- Report review: a claim-by-claim check of the report against data and code
+  (34 agents, adversarially confirmed) found 24 issues, all fixed; notably
+  MadLoop's Ninja-interface glue is now counted with its numerator (as
+  NinjaRS's propagator/S-matrix preparation is), and Table 2's Δ column
+  uses the identical-input comparison. Call by call on the 1,998
+  master calls Ninja makes, native masters take 0.24–0.85× OneLOop's time and
   agree to ≤8e-14 (physical) / ≤1.4e-12 (synthetic; one rank-3 tensor bubble
   2.5e-9).
 - NinjaRS fixes: Float S-matrices are derived exactly from the prepared

@@ -1,0 +1,3 @@
+# Wall time of run.sh on oneloopmaster 264a6ce (AMD EPYC 9754, pinned with taskset -c 251, 2026-10-18)
+700 bits, three points incl. preparation: real 7.504 s, user 6.956 s, sys 0.472 s
+1000 bits, three points incl. preparation: real 8.761 s, user 8.206 s, sys 0.468 s
