@@ -510,7 +510,7 @@ fn four_line_amplitude_preserves_accumulation_after_late_errors_and_lane_failure
             ..
         }
     ));
-    // Different masses avoid the repeated-propagator API rejection; the box
+    // Different masses avoid the repeated-propagator lane failure; the box
     // geometry itself is rank deficient and its lane never reaches the provider.
     shifts[1] = shifts[0];
     provider.calls.clear();

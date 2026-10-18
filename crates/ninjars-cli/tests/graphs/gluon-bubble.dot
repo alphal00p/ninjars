@@ -1,0 +1,7 @@
+digraph gluon_bubble {
+    ext [style=invis];
+    ext -> v0 [particle="g"];
+    v1 -> ext [particle="g"];
+    v0 -> v1 [particle="g", lmb_id=0];
+    v1 -> v0 [particle="g"];
+}

@@ -27,8 +27,8 @@ nix develop --command cargo run --locked -p ninjars-cli -- prepare examples/grap
 nix develop --command cargo run --locked -p ninjars-cli -- prepare examples/graphs/triangle.dot --samples examples/graphs/triangle.json
 ```
 
-Add `--output prepared.json` to save the result, `--model path/to/model.json`
-to select a FeynKit model, or `--feynman-rules` to derive local factors. JSON
+Add `--output prepared.json` to save the result, `--model` to select a built-in
+model or a FeynKit model JSON, or `--feynman-rules` to derive local factors. JSON
 contains canonical Symbolica expressions, original inputs, graph/model metadata,
 propagator edge order, and exact per-sample shifts, squared masses and numerators.
 
@@ -43,7 +43,19 @@ decompositions, numerator `Atom`, original edge identities, and the overall
 factor. Apply the overall factor once after reduction. Graph numerator
 prefactors and projectors are already included in the numerator. Auxiliary
 denominators are never appended. Loop-independent propagators are moved to
-the overall factor; repeated loop propagators are rejected.
+the overall factor; repeated loop propagators are rejected, and so are
+disconnected graphs.
+
+`prepare_dot` also takes `PreparationOptions`, whose
+`complex_mass_propagators` replaces `m^2` by `m^2 - i*m*width` in every
+propagator with a model width (`edge_width` names both symbols). When
+contraction leaves exactly one joinable pair of open color indices, the numerator
+is projected onto `delta/N` and `color_projector` records it; other open indices
+are an error naming their external legs. `graph_factors` derives the generator's
+automorphism order and closed fermion/ghost-loop sign for graphs written without
+an `overall_factor`; `expand_spinor_chains` replaces open spinor chains by their
+chiral-basis components given explicit spinors (see the CLI guide's
+[hand-written DOT graphs](../ninjars-cli/README.md#hand-written-dot-graphs)).
 
 `component_numerator`, `component_kinematics`, `shifts`, and `squared_masses`
 prepare exact component expressions from a map keyed by the literal atoms in

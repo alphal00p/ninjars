@@ -15,6 +15,7 @@ feynkit-graph.workspace = true
 feynkit-kinematics.workspace = true
 feynkit-model.workspace = true
 idenso.workspace = true
+linnet.workspace = true
 ninjars.workspace = true
 spenso.workspace = true
 symbolica.workspace = true

@@ -1,0 +1,12 @@
+digraph disconnected {
+    ext [style=invis];
+    ext -> a [particle="phi"];
+    ext -> b [particle="phi"];
+    c -> ext [particle="phi"];
+    a -> b [particle="phi", lmb_id=0];
+    b -> c [particle="phi"];
+    c -> a [particle="phi"];
+    ext -> d [particle="phi"];
+    d -> ext [particle="phi"];
+    d -> ext [particle="phi"];
+}

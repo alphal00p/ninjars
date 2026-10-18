@@ -56,6 +56,18 @@ fn main() {
     // SAFETY: the standalone binary has not initialized Symbolica or started any
     // worker threads, and no other environment access runs concurrently here.
     unsafe { std::env::set_var("SYMBOLICA_HIDE_BANNER", "1") };
+    // Symbolica installs a stdout tracing subscriber on its first warning
+    // unless one exists. Install the same filter on stderr first, so warnings
+    // such as "Created infinity" never interleave with JSON on stdout.
+    let _ = tracing_subscriber::fmt()
+        .with_writer(std::io::stderr)
+        .with_ansi(std::io::IsTerminal::is_terminal(&std::io::stderr()))
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::builder()
+                .with_default_directive(tracing_subscriber::filter::LevelFilter::INFO.into())
+                .from_env_lossy(),
+        )
+        .try_init();
     let result = match Cli::parse().command {
         Command::Prepare(args) => prepare::run(args).map_err(|error| error.to_string()),
         Command::Reduce(args) => std::thread::Builder::new()

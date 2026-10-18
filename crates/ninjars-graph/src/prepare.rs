@@ -6,14 +6,22 @@ use std::{
 use feynkit_generator::{FeynmanDiagramRulesExt, GenerationError};
 use feynkit_graph::{
     DiagramError, EdgeId, FeynmanDiagram, IntegralFamily, IntegralFamilyError, QuadraticMomentum,
+    symbols,
 };
 use feynkit_kinematics::{Kinematics, SymbolicKinematicsError};
-use feynkit_model::Model;
+use feynkit_model::{Model, ModelError};
 use idenso::tensor::inference::TensorInferenceError;
-use symbolica::atom::{Atom, AtomCore};
+use spenso::structure::StructureError;
+use symbolica::{
+    atom::{Atom, AtomCore},
+    symbol,
+};
 use thiserror::Error;
 
-use crate::{NumeratorMode, contract_numerator};
+use crate::{
+    GraphFactors, NumeratorMode, connected_components, contract_numerator_with_color,
+    dot_attributes, graph_factors,
+};
 
 #[derive(Debug, Error)]
 pub enum PreparationError {
@@ -27,10 +35,20 @@ pub enum PreparationError {
     Kinematics(#[from] SymbolicKinematicsError),
     #[error(transparent)]
     Tensor(#[from] TensorInferenceError),
+    #[error(transparent)]
+    Structure(#[from] StructureError),
+    #[error(transparent)]
+    Model(#[from] ModelError),
     #[error("one-loop reduction needs exactly one loop; graph contains {0}")]
     LoopCount(usize),
-    #[error("numerator retains open indices; supply an external-state/color projector")]
-    OpenNumeratorIndices,
+    #[error("graph is disconnected: it has {0} connected components; reduce each one separately")]
+    Disconnected(usize),
+    #[error(
+        "numerator retains open indices {0}; supply an external-state or color projector \
+         (the DOT `projector` attribute, written in the half-edge indices listed here), \
+         or use --feynman-rules for the model's default external states"
+    )]
+    OpenNumeratorIndices(String),
     #[error("loop propagator at edge {0:?} is not a single quadratic momentum")]
     NonQuadratic(EdgeId),
     #[error("loop propagators at edges {0:?} and {1:?} are repeated")]
@@ -41,6 +59,32 @@ pub enum PreparationError {
     MissingMomentum(Atom),
     #[error("the FDH (R2) loop-momentum binding is not exact for this numerator: it contains {0}")]
     UnsupportedFdh(&'static str),
+    #[error("complex-mass propagator at edge {0:?} has no mass-squared term to shift")]
+    ComplexMass(EdgeId),
+    #[error("invalid graph topology: {0}")]
+    Topology(String),
+    #[error("spinor chain: {0}")]
+    SpinorChain(String),
+}
+
+/// Choices made while preparing an integrand, beyond the numerator source.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub struct PreparationOptions {
+    pub numerator: NumeratorMode,
+    /// Replace `m²` by `m² − i·m·Γ` in every propagator denominator whose
+    /// particle has a model width, loop and tree alike. Numerators and
+    /// couplings keep their real masses: this is not the full complex-mass
+    /// scheme, only its propagators.
+    pub complex_mass_propagators: bool,
+}
+
+impl From<NumeratorMode> for PreparationOptions {
+    fn from(numerator: NumeratorMode) -> Self {
+        Self {
+            numerator,
+            ..Self::default()
+        }
+    }
 }
 
 /// Prepared scalar numerator and ordered propagators in their shared types.
@@ -50,6 +94,10 @@ pub enum PreparationError {
 /// it includes graph weights, loop-independent inverse propagators, and the
 /// normalization of each quadratic denominator. `family` retains the original
 /// denominator normalization; `quadratics` are its exact decompositions.
+/// `color_projector` is the automatic projector included in `numerator`, if
+/// one open color pair had to be closed. `graph_factors` are the topology's
+/// generator factors; `graph_factors_applied` says whether `overall_factor`
+/// includes them (see [`prepare_dot`]).
 #[derive(Clone, Debug)]
 pub struct PreparedIntegrand {
     pub diagram: FeynmanDiagram,
@@ -58,16 +106,26 @@ pub struct PreparedIntegrand {
     pub overall_factor: Atom,
     pub propagator_edges: Vec<EdgeId>,
     pub quadratics: Vec<QuadraticMomentum>,
+    pub color_projector: Option<Atom>,
+    pub graph_factors: GraphFactors,
+    pub graph_factors_applied: bool,
 }
 
 /// Import either FeynKit's compact or stable DOT dialect without a second parser.
+///
+/// FeynKit's generator records `1/AutG` and closed fermion/ghost-loop signs in
+/// a generated diagram's overall factor; a hand-written DOT has only what it
+/// states. With [`NumeratorMode::FeynmanRules`], a compact DOT without an
+/// `overall_factor` attribute therefore receives the [`graph_factors`] of its
+/// topology. A stated `overall_factor`, the stable export and explicit
+/// numerators are used as written.
 pub fn prepare_dot(
     model: impl Into<Arc<Model>>,
     dot: &str,
     kinematics: &Kinematics,
-    mode: NumeratorMode,
+    options: impl Into<PreparationOptions>,
 ) -> Result<PreparedIntegrand, PreparationError> {
-    prepare_diagram(FeynmanDiagram::from_dot(model, dot)?, kinematics, mode)
+    prepare_dot_timed(model, dot, kinematics, options).map(|(prepared, _)| prepared)
 }
 
 /// Wall-clock durations of the setup stages of one graph preparation.
@@ -89,12 +147,17 @@ pub fn prepare_dot_timed(
     model: impl Into<Arc<Model>>,
     dot: &str,
     kinematics: &Kinematics,
-    mode: NumeratorMode,
+    options: impl Into<PreparationOptions>,
 ) -> Result<(PreparedIntegrand, PreparationTimings), PreparationError> {
+    let options = options.into();
     let start = Instant::now();
     let diagram = FeynmanDiagram::from_dot(model, dot)?;
+    let attributes = dot_attributes(dot)?;
     let import = start.elapsed();
-    let (prepared, mut timings) = prepare_diagram_timed(diagram, kinematics, mode)?;
+    let derive = options.numerator == NumeratorMode::FeynmanRules
+        && attributes.compact
+        && !attributes.overall_factor;
+    let (prepared, mut timings) = prepare(diagram, kinematics, options, derive)?;
     timings.import = import;
     Ok((prepared, timings))
 }
@@ -102,23 +165,44 @@ pub fn prepare_dot_timed(
 pub fn prepare_diagram(
     diagram: FeynmanDiagram,
     kinematics: &Kinematics,
-    mode: NumeratorMode,
+    options: impl Into<PreparationOptions>,
 ) -> Result<PreparedIntegrand, PreparationError> {
-    prepare_diagram_timed(diagram, kinematics, mode).map(|(prepared, _)| prepared)
+    prepare_diagram_timed(diagram, kinematics, options).map(|(prepared, _)| prepared)
 }
 
 /// [`prepare_diagram`] with per-stage wall-clock timings (`import` is zero).
+///
+/// The diagram's overall factor is used as it is; its [`graph_factors`] are
+/// only reported.
 pub fn prepare_diagram_timed(
+    diagram: FeynmanDiagram,
+    kinematics: &Kinematics,
+    options: impl Into<PreparationOptions>,
+) -> Result<(PreparedIntegrand, PreparationTimings), PreparationError> {
+    prepare(diagram, kinematics, options.into(), false)
+}
+
+fn prepare(
     mut diagram: FeynmanDiagram,
     kinematics: &Kinematics,
-    mode: NumeratorMode,
+    options: PreparationOptions,
+    derive_graph_factors: bool,
 ) -> Result<(PreparedIntegrand, PreparationTimings), PreparationError> {
     let mut timings = PreparationTimings::default();
+    let components = connected_components(&diagram);
+    if components > 1 {
+        return Err(PreparationError::Disconnected(components));
+    }
     if diagram.loop_count() != 1 {
         return Err(PreparationError::LoopCount(diagram.loop_count()));
     }
+    let graph_factors = graph_factors(&diagram)?;
+    if derive_graph_factors {
+        let factor = diagram.overall_factor() * graph_factors.factor();
+        diagram = diagram.with_overall_factor(factor);
+    }
     let start = Instant::now();
-    if mode == NumeratorMode::FeynmanRules {
+    if options.numerator == NumeratorMode::FeynmanRules {
         diagram = diagram.apply_feynman_rules()?;
         if diagram.projector().is_one() {
             let projector = diagram.external_state_projector()?;
@@ -127,8 +211,32 @@ pub fn prepare_diagram_timed(
     }
     timings.feynman_rules = start.elapsed();
     let start = Instant::now();
-    let full_family = diagram.propagator_family(kinematics)?;
-    let ordered = diagram.ordered_propagators(kinematics)?;
+    let mut ordered = diagram.ordered_propagators(kinematics)?;
+    if options.complex_mass_propagators {
+        for (edge, denominator) in &mut ordered {
+            *denominator = complex_mass_denominator(&diagram, *edge, denominator)?;
+        }
+    }
+    // The same family as `FeynmanDiagram::propagator_family`, from the
+    // propagators above rather than a second extraction.
+    let basis = diagram.loop_momentum_basis();
+    let full_family = IntegralFamily::new(
+        (0..basis.loop_edges.len())
+            .map(|i| symbols::loop_momentum().call(i))
+            .collect(),
+        basis
+            .external_edges
+            .iter()
+            .enumerate()
+            .filter(|(_, edge)| !basis.dependent_externals.contains(edge))
+            .map(|(i, _)| symbols::external_momentum().call(i))
+            .collect(),
+        ordered
+            .iter()
+            .map(|(_, denominator)| denominator.clone())
+            .collect(),
+        kinematics,
+    )?;
     let mut overall_factor =
         feynkit_graph::expressions::evaluate_overall_factor(diagram.overall_factor().as_view());
     let mut propagator_edges = Vec::new();
@@ -174,7 +282,8 @@ pub fn prepare_diagram_timed(
     )?;
     timings.propagators = start.elapsed();
     let start = Instant::now();
-    let numerator = contract_numerator(&diagram, family.kinematics())?;
+    let (numerator, color_projector) =
+        contract_numerator_with_color(&diagram, family.kinematics())?;
     timings.contraction = start.elapsed();
     Ok((
         PreparedIntegrand {
@@ -184,7 +293,49 @@ pub fn prepare_diagram_timed(
             overall_factor: overall_factor.together(),
             propagator_edges,
             quadratics,
+            color_projector,
+            graph_factors,
+            graph_factors_applied: derive_graph_factors,
         },
         timings,
     ))
+}
+
+/// Mass and width symbols of an edge's particle, `None` without a width.
+pub fn edge_width(
+    diagram: &FeynmanDiagram,
+    edge: EdgeId,
+) -> Result<Option<(Atom, Atom)>, PreparationError> {
+    let model = diagram.model();
+    let (_, _, data) = diagram
+        .edges()
+        .find(|(candidate, _, _)| *candidate == edge)
+        .ok_or_else(|| PreparationError::Topology(format!("edge {} does not exist", edge.0)))?;
+    let particle = model.particle_by_id(data.particle)?;
+    let width = model.parameter_by_id(particle.width)?;
+    if width.name == "ZERO" || particle.is_massless(model) {
+        return Ok(None);
+    }
+    Ok(Some((
+        particle.symbolic_mass(model),
+        Atom::var(symbol!(&format!("UFO::{}", width.name))),
+    )))
+}
+
+fn complex_mass_denominator(
+    diagram: &FeynmanDiagram,
+    edge: EdgeId,
+    denominator: &Atom,
+) -> Result<Atom, PreparationError> {
+    let Some((mass, width)) = edge_width(diagram, edge)? else {
+        return Ok(denominator.clone());
+    };
+    let squared = mass.pow(2);
+    let shifted = denominator
+        .replace(squared.to_pattern())
+        .with((&squared - Atom::i() * &mass * &width).to_pattern());
+    if shifted == *denominator {
+        return Err(PreparationError::ComplexMass(edge));
+    }
+    Ok(shifted)
 }

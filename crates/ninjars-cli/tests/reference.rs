@@ -140,7 +140,12 @@ fn reference_export_rejects_unresolved_numerator_parameters() {
         bubble_sample("2"),
     );
     assert!(!result.status.success());
-    assert!(String::from_utf8_lossy(&result.stderr).contains("not fully bound"));
+    // Preparation rejects the unbound parameter before any export.
+    let message = String::from_utf8_lossy(&result.stderr);
+    assert!(
+        message.contains("cannot be evaluated") && message.contains("ninjars::unbound"),
+        "{message}"
+    );
     assert!(!dir.0.join("export").exists());
 }
 

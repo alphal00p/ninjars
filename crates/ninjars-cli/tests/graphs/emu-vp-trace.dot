@@ -1,0 +1,12 @@
+digraph emu_vacuum_polarization_trace {
+    projector="spenso::{linear,spenso::tensor}::gamma(spenso::{spenso::representation,spenso::self_dual}::bis(4,gammalooprs::{spenso::index}::hedge(0,1)),spenso::{spenso::representation,spenso::self_dual}::bis(4,gammalooprs::{spenso::index}::hedge(2,1)),spenso::{spenso::representation,spenso::self_dual}::mink(4,gammalooprs::{spenso::index}::hedge(101,1)))*gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:q}::Q(0,spenso::{spenso::representation,spenso::self_dual}::mink(4,gammalooprs::{spenso::index}::hedge(101,1)))*spenso::{linear,spenso::tensor}::gamma(spenso::{spenso::representation,spenso::self_dual}::bis(4,gammalooprs::{spenso::index}::hedge(1,1)),spenso::{spenso::representation,spenso::self_dual}::bis(4,gammalooprs::{spenso::index}::hedge(3,1)),spenso::{spenso::representation,spenso::self_dual}::mink(4,gammalooprs::{spenso::index}::hedge(102,1)))*gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:q}::Q(1,spenso::{spenso::representation,spenso::self_dual}::mink(4,gammalooprs::{spenso::index}::hedge(102,1)))";
+    ext [style=invis];
+    ext -> v0:0 [id=0, particle="e-"];
+    ext -> v3:1 [id=1, particle="mu-"];
+    v0:2 -> ext [id=2, particle="e-"];
+    v3:3 -> ext [id=3, particle="mu-"];
+    v0:4 -> v1:5 [id=4, particle="a"];
+    v1:6 -> v2:7 [id=5, particle="e-", lmb_id=0];
+    v2:8 -> v1:9 [id=6, particle="e-"];
+    v2:10 -> v3:11 [id=7, particle="a"];
+}

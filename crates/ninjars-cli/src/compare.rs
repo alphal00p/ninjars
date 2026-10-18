@@ -188,16 +188,11 @@ pub fn run(args: Args) -> Result<()> {
     };
     let _artifact_lock =
         DirectoryLock::acquire(&directory, ".ninjars-compare.lock", "comparison artifact")?;
-    let mut prepared = prepare::prepare(&prepare::Args {
-        input: args.reduction.input.clone(),
-        samples: args.reduction.samples.clone(),
-        model: args.reduction.model.clone(),
-        feynman_rules: args.reduction.feynman_rules,
-        r2: args.reduction.r2,
-        output: None,
-        reference_dir: None,
-        reference_bench_dir: None,
-    })?;
+    let mut prepared = prepare::prepare(&prepare::Args::for_input(
+        args.reduction.input.clone(),
+        args.reduction.samples.clone(),
+        args.reduction.graph.clone(),
+    ))?;
     let manifest = reference::export(&directory, &prepared.samples, &prepared.scale_squared)?;
     let reduction_ok = reduce::evaluate_prepared(&mut prepared, &args.reduction)?;
     fs::write(

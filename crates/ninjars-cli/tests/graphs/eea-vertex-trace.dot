@@ -1,0 +1,10 @@
+digraph eea_vertex_trace {
+    projector="spenso::{linear,spenso::tensor}::gamma(spenso::{spenso::representation,spenso::self_dual}::bis(4,gammalooprs::{spenso::index}::hedge(0,1)),spenso::{spenso::representation,spenso::self_dual}::bis(4,gammalooprs::{spenso::index}::hedge(100,1)),spenso::{spenso::representation,spenso::self_dual}::mink(4,gammalooprs::{spenso::index}::hedge(101,1)))*gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:q}::Q(0,spenso::{spenso::representation,spenso::self_dual}::mink(4,gammalooprs::{spenso::index}::hedge(101,1)))*spenso::{linear,spenso::tensor}::gamma(spenso::{spenso::representation,spenso::self_dual}::bis(4,gammalooprs::{spenso::index}::hedge(100,1)),spenso::{spenso::representation,spenso::self_dual}::bis(4,gammalooprs::{spenso::index}::hedge(1,1)),spenso::{spenso::representation,spenso::self_dual}::mink(4,gammalooprs::{spenso::index}::hedge(102,1)))*gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:q}::Q(1,spenso::{spenso::representation,spenso::self_dual}::mink(4,gammalooprs::{spenso::index}::hedge(102,1)))*gammalooprs::{spenso::rank1,spenso::tensor}::ϵbar(2,spenso::{spenso::representation,spenso::self_dual}::mink(4,gammalooprs::{spenso::index}::hedge(2,1)))";
+    ext [style=invis];
+    ext -> v0:0 [id=0, particle="e-"];
+    ext -> v1:1 [id=1, particle="e+"];
+    v2:2 -> ext [id=2, particle="a"];
+    v0:3 -> v2:4 [id=3, particle="e-", lmb_id=0];
+    v2:5 -> v1:6 [id=4, particle="e-"];
+    v1:7 -> v0:8 [id=5, particle="a"];
+}

@@ -1571,6 +1571,7 @@ dependencies = [
  "serde",
  "serde_json",
  "symbolica",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -1583,6 +1584,7 @@ dependencies = [
  "feynkit-kinematics",
  "feynkit-model",
  "idenso",
+ "linnet",
  "ninjars",
  "serde_json",
  "spenso",

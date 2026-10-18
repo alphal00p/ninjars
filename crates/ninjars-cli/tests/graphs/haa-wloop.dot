@@ -1,0 +1,9 @@
+digraph haa_wloop {
+    ext [style=invis];
+    ext -> v2 [id=0, particle="H"];
+    v0 -> ext [id=1, particle="a"];
+    v1 -> ext [id=2, particle="a"];
+    v0 -> v1 [id=3, particle="W+", lmb_id=0];
+    v1 -> v2 [id=4, particle="W+"];
+    v2 -> v0 [id=5, particle="W+"];
+}

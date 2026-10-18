@@ -24,10 +24,12 @@ spenso = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a8
 idenso = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a80bc9f9f21bead0e1cde6acbcffbe93", default-features = false, features = ["native"] }
 symbolica-utils = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a80bc9f9f21bead0e1cde6acbcffbe93", default-features = false, features = ["native"] }
 oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "264a6ced74e3c7a5de000b93dddf1330826cd3e9", default-features = false }
+linnet = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a80bc9f9f21bead0e1cde6acbcffbe93", default-features = false, features = ["serde"] }
 thiserror = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 clap = { version = "4", features = ["derive"] }
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 
 [patch.crates-io]
 symbolica = { git = "https://github.com/alphal00p/symbolica.git", rev = "e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8" }
