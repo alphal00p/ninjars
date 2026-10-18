@@ -57,7 +57,8 @@ pub enum EvaluationStatus {
     NonFiniteResult,
     /// Two propagators of this lane coincide numerically (equal shifts and
     /// masses), e.g. at a vanishing external momentum. Raised propagators are
-    /// unsupported; other lanes of the batch are unaffected.
+    /// unsupported; other lanes of the batch are unaffected. The lane's rows
+    /// of the cut outcomes are not meaningful.
     RepeatedPropagator {
         first: usize,
         second: usize,
@@ -747,8 +748,10 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
     }
 
     /// Raised or repeated propagators are unsupported, but they fail only their
-    /// own lanes. Those lanes are evaluated with a valid lane's inputs, so no
-    /// stage sees the degenerate configuration; their results stay unchanged.
+    /// own lanes. Those lanes are evaluated with a valid donor lane's kinematic
+    /// inputs, so no stage sees the degenerate configuration; the numerator
+    /// still receives the failed lane's own parameters. Their results stay
+    /// unchanged, while their rows of the cut outcomes hold that evaluation.
     #[allow(clippy::too_many_arguments)]
     fn evaluate_without_repeated<
         N: Numerator<T>,

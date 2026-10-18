@@ -1,0 +1,9 @@
+digraph dangling_color_indices {
+    num="spenso::{antisymmetric,real,spenso::tensor}::f(spenso::{spenso::representation,spenso::self_dual}::coad(8,gammalooprs::{spenso::index}::hedge(50,1)),spenso::{spenso::representation,spenso::self_dual}::coad(8,gammalooprs::{spenso::index}::hedge(52,1)),spenso::{spenso::representation,spenso::self_dual}::coad(8,gammalooprs::{spenso::index}::hedge(53,1)))*spenso::{antisymmetric,real,spenso::tensor}::f(spenso::{spenso::representation,spenso::self_dual}::coad(8,gammalooprs::{spenso::index}::hedge(51,1)),spenso::{spenso::representation,spenso::self_dual}::coad(8,gammalooprs::{spenso::index}::hedge(52,1)),spenso::{spenso::representation,spenso::self_dual}::coad(8,gammalooprs::{spenso::index}::hedge(53,1)))";
+    overall_factor="1/2";
+    ext [style=invis];
+    ext -> a [particle="phi"];
+    b -> ext [particle="phi"];
+    a -> b [particle="phi", lmb_id=0];
+    b -> a [particle="phi"];
+}

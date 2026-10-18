@@ -117,3 +117,43 @@ fn loop_independent_bridge_moves_into_overall_factor() {
             .is_zero()
     );
 }
+
+#[test]
+fn dot_preparation_applies_generator_graph_factors_to_hand_written_graphs() {
+    // A gluon bubble: 1/AutG = 1/2. Every DOT
+    // preparation path, including the physical tensor numerators of
+    // numerator-bench and pipeline-bench, goes through `prepare_dot_timed`.
+    let dot = include_str!("../../ninjars-cli/tests/graphs/gluon-bubble.dot");
+    let rules = prepare_dot(
+        Model::yang_mills(),
+        dot,
+        &Kinematics::new(),
+        NumeratorMode::FeynmanRules,
+    )
+    .unwrap();
+    assert_eq!(rules.graph_factors.automorphisms, 2);
+    assert!(rules.graph_factors_applied);
+    assert_eq!(rules.overall_factor, parse!("1/2"));
+    // A stated overall_factor is kept as written.
+    let stated = dot.replace(
+        "ext [style=invis];",
+        "overall_factor=\"3\"; ext [style=invis];",
+    );
+    let stated = prepare_dot(
+        Model::yang_mills(),
+        &stated,
+        &Kinematics::new(),
+        NumeratorMode::FeynmanRules,
+    )
+    .unwrap();
+    assert!(!stated.graph_factors_applied);
+    assert_eq!(stated.overall_factor, parse!("3"));
+    // A diagram prepared directly only reports its factors.
+    let diagram = ninjars_graph::FeynmanDiagram::from_dot(Model::yang_mills(), dot).unwrap();
+    let direct =
+        ninjars_graph::prepare_diagram(diagram, &Kinematics::new(), NumeratorMode::FeynmanRules)
+            .unwrap();
+    assert_eq!(direct.graph_factors, rules.graph_factors);
+    assert!(!direct.graph_factors_applied);
+    assert_eq!(direct.overall_factor, parse!("1"));
+}

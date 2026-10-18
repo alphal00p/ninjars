@@ -18,7 +18,10 @@ use symbolica::{
 };
 use thiserror::Error;
 
-use crate::{NumeratorMode, connected_components, contract_numerator_with_color};
+use crate::{
+    GraphFactors, NumeratorMode, connected_components, contract_numerator_with_color,
+    dot_attributes, graph_factors,
+};
 
 #[derive(Debug, Error)]
 pub enum PreparationError {
@@ -92,7 +95,9 @@ impl From<NumeratorMode> for PreparationOptions {
 /// normalization of each quadratic denominator. `family` retains the original
 /// denominator normalization; `quadratics` are its exact decompositions.
 /// `color_projector` is the automatic projector included in `numerator`, if
-/// one open color pair had to be closed.
+/// one open color pair had to be closed. `graph_factors` are the topology's
+/// generator factors; `graph_factors_applied` says whether `overall_factor`
+/// includes them (see [`prepare_dot`]).
 #[derive(Clone, Debug)]
 pub struct PreparedIntegrand {
     pub diagram: FeynmanDiagram,
@@ -102,16 +107,25 @@ pub struct PreparedIntegrand {
     pub propagator_edges: Vec<EdgeId>,
     pub quadratics: Vec<QuadraticMomentum>,
     pub color_projector: Option<Atom>,
+    pub graph_factors: GraphFactors,
+    pub graph_factors_applied: bool,
 }
 
 /// Import either FeynKit's compact or stable DOT dialect without a second parser.
+///
+/// FeynKit's generator records `1/AutG` and closed fermion/ghost-loop signs in
+/// a generated diagram's overall factor; a hand-written DOT has only what it
+/// states. With [`NumeratorMode::FeynmanRules`], a compact DOT without an
+/// `overall_factor` attribute therefore receives the [`graph_factors`] of its
+/// topology. A stated `overall_factor`, the stable export and explicit
+/// numerators are used as written.
 pub fn prepare_dot(
     model: impl Into<Arc<Model>>,
     dot: &str,
     kinematics: &Kinematics,
     options: impl Into<PreparationOptions>,
 ) -> Result<PreparedIntegrand, PreparationError> {
-    prepare_diagram(FeynmanDiagram::from_dot(model, dot)?, kinematics, options)
+    prepare_dot_timed(model, dot, kinematics, options).map(|(prepared, _)| prepared)
 }
 
 /// Wall-clock durations of the setup stages of one graph preparation.
@@ -135,10 +149,15 @@ pub fn prepare_dot_timed(
     kinematics: &Kinematics,
     options: impl Into<PreparationOptions>,
 ) -> Result<(PreparedIntegrand, PreparationTimings), PreparationError> {
+    let options = options.into();
     let start = Instant::now();
     let diagram = FeynmanDiagram::from_dot(model, dot)?;
+    let attributes = dot_attributes(dot)?;
     let import = start.elapsed();
-    let (prepared, mut timings) = prepare_diagram_timed(diagram, kinematics, options)?;
+    let derive = options.numerator == NumeratorMode::FeynmanRules
+        && attributes.compact
+        && !attributes.overall_factor;
+    let (prepared, mut timings) = prepare(diagram, kinematics, options, derive)?;
     timings.import = import;
     Ok((prepared, timings))
 }
@@ -152,12 +171,23 @@ pub fn prepare_diagram(
 }
 
 /// [`prepare_diagram`] with per-stage wall-clock timings (`import` is zero).
+///
+/// The diagram's overall factor is used as it is; its [`graph_factors`] are
+/// only reported.
 pub fn prepare_diagram_timed(
-    mut diagram: FeynmanDiagram,
+    diagram: FeynmanDiagram,
     kinematics: &Kinematics,
     options: impl Into<PreparationOptions>,
 ) -> Result<(PreparedIntegrand, PreparationTimings), PreparationError> {
-    let options = options.into();
+    prepare(diagram, kinematics, options.into(), false)
+}
+
+fn prepare(
+    mut diagram: FeynmanDiagram,
+    kinematics: &Kinematics,
+    options: PreparationOptions,
+    derive_graph_factors: bool,
+) -> Result<(PreparedIntegrand, PreparationTimings), PreparationError> {
     let mut timings = PreparationTimings::default();
     let components = connected_components(&diagram);
     if components > 1 {
@@ -165,6 +195,11 @@ pub fn prepare_diagram_timed(
     }
     if diagram.loop_count() != 1 {
         return Err(PreparationError::LoopCount(diagram.loop_count()));
+    }
+    let graph_factors = graph_factors(&diagram)?;
+    if derive_graph_factors {
+        let factor = diagram.overall_factor() * graph_factors.factor();
+        diagram = diagram.with_overall_factor(factor);
     }
     let start = Instant::now();
     if options.numerator == NumeratorMode::FeynmanRules {
@@ -259,6 +294,8 @@ pub fn prepare_diagram_timed(
             propagator_edges,
             quadratics,
             color_projector,
+            graph_factors,
+            graph_factors_applied: derive_graph_factors,
         },
         timings,
     ))

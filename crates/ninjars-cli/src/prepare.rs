@@ -10,8 +10,8 @@ use clap::{Args as ClapArgs, ValueEnum};
 use feynkit_graph::{DiagramEndpoint, DiagramHalfEdge};
 use ninjars_graph::{
     ExternalState, FeynmanDiagram, FourMomentum, Kinematics, Model, NumeratorMode,
-    PreparationOptions, PreparedIntegrand, R2Scheme, edge_width, expand_spinor_chains,
-    graph_factors, has_spinor_chains, prepare_diagram, symbols,
+    PreparationOptions, PreparedIntegrand, R2Scheme, dot_attributes, edge_width,
+    expand_spinor_chains, has_spinor_chains, prepare_dot, symbols,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -254,48 +254,6 @@ fn components(values: &[String; 4], bindings: &[Replacement]) -> Result<[Atom; 4
         .each_ref()
         .map(|text| parse(text).map(|atom| substitute(&atom, bindings)));
     Ok([e?, x?, y?, z?])
-}
-
-/// What a DOT source states about itself, beyond FeynKit's import.
-struct DotAttributes {
-    /// FeynKit's compact, hand-writable dialect rather than its stable export.
-    compact: bool,
-    /// Any graph, vertex or edge numerator attribute.
-    numerator: bool,
-    overall_factor: bool,
-}
-
-fn dot_attributes(dot: &str) -> Result<DotAttributes> {
-    let parsed: linnet::parser::DotGraph = linnet::parser::DotGraph::from_string(dot)
-        .map_err(|error| format!("invalid DOT: {error}"))?;
-    let global = &parsed.global_data.statements;
-    // The dialect test of `FeynmanDiagram::from_dot`.
-    let compact = ![
-        "model_fingerprint",
-        "feynkit_name",
-        "half_edge_order",
-        "loop_momentum_basis",
-        "cuts",
-        "topology_threshold_candidates",
-    ]
-    .iter()
-    .any(|key| global.contains_key(*key))
-        && !parsed
-            .iter_edges()
-            .any(|(_, _, edge)| edge.data.statements.contains_key("particle_id"));
-    let key = if compact { "num" } else { "numerator" };
-    let numerator = global.contains_key(key)
-        || parsed
-            .iter_nodes()
-            .any(|(_, _, node)| node.statements.contains_key(key))
-        || parsed
-            .iter_edges()
-            .any(|(_, _, edge)| edge.data.statements.contains_key(key));
-    Ok(DotAttributes {
-        compact,
-        numerator,
-        overall_factor: global.contains_key("overall_factor"),
-    })
 }
 
 /// One external leg in both of the numberings used by sample fixtures.
@@ -569,12 +527,36 @@ fn unbound_symbols(
             .join(", ")
     };
     let mut messages = Vec::new();
-    if named(&[symbols::u(), symbols::ubar(), symbols::v(), symbols::vbar()]) {
-        messages.push(format!(
-            "external fermion spinors are unbound: give every sample `external_spinors` for legs {} \
-             (four chiral-basis components of each carrier), or close the fermion lines with a spin-trace `projector`",
-            unlisted(2, spinors)
-        ));
+    let spinor_heads = [symbols::u(), symbols::ubar(), symbols::v(), symbols::vbar()];
+    if named(&spinor_heads) {
+        let fermions = unlisted(2, spinors);
+        messages.push(if fermions.is_empty() {
+            // Every leg is bound: name the structure the expansion left.
+            let mut leftover = None;
+            template.visitor(&mut |part| {
+                if leftover.is_none()
+                    && let AtomView::Fun(function) = part
+                    && function.iter().any(|argument| {
+                        matches!(argument, AtomView::Fun(carrier) if spinor_heads.contains(&carrier.get_symbol()))
+                    })
+                {
+                    leftover = Some(part.to_canonical_string());
+                }
+                leftover.is_none()
+            });
+            let mut leftover = leftover.unwrap_or_default();
+            if leftover.len() > 300 {
+                let end = (0..=300).rev().find(|end| leftover.is_char_boundary(*end)).unwrap_or(0);
+                leftover.truncate(end);
+                leftover.push_str("...");
+            }
+            format!("explicit spinors cannot expand the spinor structure {leftover}")
+        } else {
+            format!(
+                "external fermion spinors are unbound: give every sample `external_spinors` for legs {fermions} \
+                 (four chiral-basis components of each carrier), or close the fermion lines with a spin-trace `projector`"
+            )
+        });
     }
     let vectors = unlisted(3, polarizations);
     if named(&[symbols::epsilon(), symbols::epsilonbar()]) && !vectors.is_empty() {
@@ -734,9 +716,11 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
     } else {
         NumeratorMode::Explicit
     };
-    let diagram = FeynmanDiagram::from_dot(model.clone(), &dot)?;
-    let attributes = dot_attributes(&dot)?;
-    if mode == NumeratorMode::Explicit && attributes.compact && !attributes.numerator {
+    // FeynKit reports malformed DOT itself, during preparation.
+    let attributes = dot_attributes(&dot).ok();
+    if mode == NumeratorMode::Explicit
+        && attributes.is_some_and(|attributes| attributes.compact && !attributes.numerator)
+    {
         return Err(format!(
             "{} has no `num` attribute, so explicit mode would use the numerator 1; pass \
              --feynman-rules for the model's Feynman rules, or state the numerator with `num` \
@@ -745,42 +729,44 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
         )
         .into());
     }
-    // FeynKit's generator records 1/AutG and closed-loop signs in a generated
-    // diagram's overall factor; a hand-written DOT has only what it states.
-    let factors = graph_factors(&diagram)?;
-    let derive_factors =
-        mode == NumeratorMode::FeynmanRules && attributes.compact && !attributes.overall_factor;
-    let trivial_factors = factors.automorphisms == 1 && factors.closed_grassmann_loops % 2 == 0;
-    let diagram = if derive_factors {
-        let factor = diagram.overall_factor() * factors.factor();
-        diagram.with_overall_factor(factor)
-    } else {
-        if attributes.compact && !attributes.overall_factor && !trivial_factors {
-            eprintln!(
-                "ninjars: warning: {} states no overall_factor and explicit mode does not derive \
-                 one; its topology has automorphism order {} and {} closed fermion/ghost loops \
-                 (factor {}). Set overall_factor, or use --feynman-rules to apply it.",
-                graph_path.display(),
-                factors.automorphisms,
-                factors.closed_grassmann_loops,
-                canonical(&factors.factor())
-            );
-        }
-        diagram
-    };
-    let mut prepared = prepare_diagram(
-        diagram,
+    // `prepare_dot` applies the generator's graph factors to a compact DOT
+    // prepared with Feynman rules and without an overall_factor.
+    let mut prepared = prepare_dot(
+        model.clone(),
+        &dot,
         &Kinematics::new(),
         PreparationOptions {
             numerator: mode,
             complex_mass_propagators: options.complex_mass_propagators,
         },
     )?;
-    if options.color_dimension_invariants
+    let factors = prepared.graph_factors;
+    let compact_without_factor =
+        attributes.is_some_and(|attributes| attributes.compact && !attributes.overall_factor);
+    if compact_without_factor && !prepared.graph_factors_applied && !factors.factor().is_one() {
+        eprintln!(
+            "ninjars: note: {} states no overall_factor; its topology has automorphism order {} \
+             and {} closed fermion/ghost loops (factor {}). Explicit mode applies only stated \
+             factors: set overall_factor if the numerator does not already include them.",
+            graph_path.display(),
+            factors.automorphisms,
+            factors.closed_grassmann_loops,
+            canonical(&factors.factor())
+        );
+    }
+    if compact_without_factor && factors.open_fermion_lines > 1 {
+        eprintln!(
+            "ninjars: warning: {} has {} open fermion lines; the external-fermion ordering sign \
+             relative to other diagrams of the process is not derived: set overall_factor",
+            graph_path.display(),
+            factors.open_fermion_lines
+        );
+    }
+    let color_dimension_invariants = options.color_dimension_invariants
         || fixture
             .as_ref()
-            .is_some_and(|f| f.color_dimension_invariants)
-    {
+            .is_some_and(|f| f.color_dimension_invariants);
+    if color_dimension_invariants {
         prepared = prepared.with_color_dimension_invariants()?;
     }
     let mut widths = Vec::new();
@@ -1047,9 +1033,11 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
         "graph_factors": {
             "automorphisms": factors.automorphisms,
             "closed_fermion_loops": factors.closed_grassmann_loops,
+            "open_fermion_lines": factors.open_fermion_lines,
             "factor": canonical(&factors.factor()),
-            "applied": derive_factors,
+            "applied": prepared.graph_factors_applied,
         },
+        "color_dimension_invariants": color_dimension_invariants,
         "color_projector": prepared.color_projector.as_ref().map(canonical),
         "numerator": canonical(&substitute(&prepared.numerator, &replacements)),
         "overall_factor": canonical(&substitute(&prepared.overall_factor, &replacements)),

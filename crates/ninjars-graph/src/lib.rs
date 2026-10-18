@@ -20,7 +20,9 @@ pub use feynkit_graph::symbols;
 pub use feynkit_graph::{EdgeId, ExternalState, FeynmanDiagram, IntegralFamily, QuadraticMomentum};
 pub use feynkit_kinematics::{FourMomentum, Kinematics};
 pub use feynkit_model::Model;
-pub use graph_factors::{GraphFactors, connected_components, graph_factors};
+pub use graph_factors::{
+    DotAttributes, GraphFactors, connected_components, dot_attributes, graph_factors,
+};
 pub use numerator::{NumeratorMode, contract_numerator, contract_numerator_with_color};
 pub use physical::{
     PhysicalPreparationError, prepare_gluon_self_energy, prepare_top_four_photons,

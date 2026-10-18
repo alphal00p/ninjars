@@ -1,9 +1,13 @@
-//! Explicit components for open spinor chains.
+//! Explicit components for open spinor lines.
 //!
-//! Contraction leaves each open fermion line as `chain(x, y, M1, ..., Mk)`,
-//! the index contraction `x_a (M1 ⋯ Mk)_ab y_b` of the two external spinor
-//! carriers `x`, `y` (`u`, `ubar`, `v` or `vbar`). Given explicit spinor
-//! components, the chain becomes an ordinary polynomial in vector components.
+//! Contraction leaves each open fermion line as the index contraction
+//! `x_a (M1 ⋯ Mk)_ab y_b` of its two external spinor carriers `x`, `y` (`u`,
+//! `ubar`, `v` or `vbar`): `chain(x, y, M1, ..., Mk)` for several Dirac
+//! matrices, a bare `gamma(x, y, X)` (or `gamma5`, `projm`, `projp`,
+//! `gamma0`) for one, and `dot(x, y)` for none. Lorentz indices left open on a
+//! line are contracted with another line or with a vector `V(n, mink(4, i))`.
+//! Given explicit spinor components, every line becomes an ordinary polynomial
+//! in vector components.
 //!
 //! Matrices use the chiral (Weyl) basis of HELAS/MadGraph and of
 //! `spenso-hep-lib`'s Weyl data: `γ⁰ = [[0, 1], [1, 0]]`,
@@ -16,7 +20,7 @@ use std::collections::BTreeMap;
 use feynkit_kinematics::FourMomentum;
 use idenso::dirac::AGS;
 use spenso::network::tags::SPENSO_TAG;
-use symbolica::atom::{Atom, AtomCore, AtomView, FunctionBuilder};
+use symbolica::atom::{Atom, AtomCore, AtomView, FunctionBuilder, Symbol};
 
 use crate::{PreparationError, symbols};
 
@@ -36,33 +40,256 @@ fn is_spinor(argument: AtomView<'_>) -> bool {
         && [symbols::u(), symbols::ubar(), symbols::v(), symbols::vbar()].contains(&symbol)
 }
 
-/// Whether a chain ends on an external spinor carrier `u`, `ubar`, `v` or
-/// `vbar`; color chains end on color slots and are left to color algebra. A
-/// bilinear without Dirac matrices is contracted as `dot(x, y)` instead.
-fn is_spinor_chain(part: AtomView<'_>) -> bool {
+fn is_dirac(symbol: Symbol) -> bool {
+    [AGS.gamma, AGS.gamma5, AGS.projm, AGS.projp, AGS.gamma0].contains(&symbol)
+}
+
+/// Whether a factor is an open fermion line between two spinor carriers.
+/// Color chains end on color slots and are left to color algebra.
+fn is_spinor_line(part: AtomView<'_>) -> bool {
     let AtomView::Fun(function) = part else {
         return false;
     };
     let symbol = function.get_symbol();
-    (symbol == SPENSO_TAG.chain && function.iter().next().is_some_and(is_spinor))
-        || (symbol == SPENSO_TAG.dot && function.get_nargs() == 2 && function.iter().all(is_spinor))
+    let mut arguments = function.iter();
+    if symbol == SPENSO_TAG.chain {
+        return arguments.next().is_some_and(is_spinor);
+    }
+    (symbol == SPENSO_TAG.dot || is_dirac(symbol))
+        && arguments.next().is_some_and(is_spinor)
+        && arguments.next().is_some_and(is_spinor)
 }
 
-/// Whether the expression contains an open spinor chain.
+/// Whether the expression contains an open spinor line.
 pub fn has_spinor_chains(expression: &Atom) -> bool {
     let mut found = false;
     expression.visitor(&mut |part| {
-        found |= is_spinor_chain(part);
+        found |= is_spinor_line(part);
         !found
     });
     found
 }
 
-/// Replace every spinor chain by its explicit components.
+/// One Dirac matrix of a line: its head, its Lorentz or vector argument, and
+/// whether its `(in, out)` markers are reversed.
+struct Factor<'a> {
+    head: Symbol,
+    argument: Option<AtomView<'a>>,
+    transposed: bool,
+}
+
+/// An open fermion line `x_a (M1 ⋯ Mk)_ab y_b`.
+struct Line<'a> {
+    source: AtomView<'a>,
+    left: AtomView<'a>,
+    right: AtomView<'a>,
+    factors: Vec<Factor<'a>>,
+}
+
+fn unsupported(part: AtomView<'_>, message: &str) -> PreparationError {
+    PreparationError::SpinorChain(format!("{message} in {}", part.to_canonical_string()))
+}
+
+impl<'a> Line<'a> {
+    /// Read a factor accepted by [`is_spinor_line`].
+    fn parse(part: AtomView<'a>) -> Result<Self, PreparationError> {
+        let AtomView::Fun(function) = part else {
+            unreachable!("Line::parse takes a spinor line");
+        };
+        let symbol = function.get_symbol();
+        let arguments = function.iter().collect::<Vec<_>>();
+        let (left, right) = match arguments.as_slice() {
+            [left, right, ..] if is_spinor(*left) && is_spinor(*right) => (*left, *right),
+            _ => return Err(unsupported(part, "a line endpoint is not a spinor carrier")),
+        };
+        let factors = if symbol == SPENSO_TAG.chain {
+            arguments[2..]
+                .iter()
+                .map(|factor| Self::chain_factor(part, *factor))
+                .collect::<Result<_, _>>()?
+        } else if symbol == SPENSO_TAG.dot {
+            Vec::new()
+        } else {
+            if arguments.len() > 3 {
+                return Err(unsupported(part, "unsupported Dirac matrix"));
+            }
+            vec![Factor {
+                head: symbol,
+                argument: arguments.get(2).copied(),
+                transposed: false,
+            }]
+        };
+        Ok(Self {
+            source: part,
+            left,
+            right,
+            factors,
+        })
+    }
+
+    /// A chain factor `M(in, out, ...)`, or its transpose `M(out, in, ...)`.
+    fn chain_factor(
+        part: AtomView<'a>,
+        factor: AtomView<'a>,
+    ) -> Result<Factor<'a>, PreparationError> {
+        let AtomView::Fun(function) = factor else {
+            return Err(unsupported(part, "unsupported Dirac factor"));
+        };
+        let marker = |argument: Option<AtomView<'_>>, symbol: Symbol| matches!(argument, Some(AtomView::Var(variable)) if variable.get_symbol() == symbol);
+        let arguments = function.iter().collect::<Vec<_>>();
+        let (first, second) = (arguments.first().copied(), arguments.get(1).copied());
+        let transposed =
+            if marker(first, SPENSO_TAG.chain_in) && marker(second, SPENSO_TAG.chain_out) {
+                false
+            } else if marker(first, SPENSO_TAG.chain_out) && marker(second, SPENSO_TAG.chain_in) {
+                true
+            } else {
+                return Err(unsupported(
+                    part,
+                    "a chain factor without (in, out) markers",
+                ));
+            };
+        if !is_dirac(function.get_symbol()) || arguments.len() > 3 {
+            return Err(unsupported(part, "unsupported Dirac factor"));
+        }
+        Ok(Factor {
+            head: function.get_symbol(),
+            argument: arguments.get(2).copied(),
+            transposed,
+        })
+    }
+
+    /// Lorentz indices `mink(4, i)` left open on the line's gamma matrices.
+    fn indices(&self) -> Vec<Atom> {
+        self.factors
+            .iter()
+            .filter(|factor| factor.head == AGS.gamma)
+            .filter_map(|factor| factor.argument.and_then(lorentz_index))
+            .collect()
+    }
+
+    fn evaluate(
+        &self,
+        indices: &BTreeMap<Atom, usize>,
+        vectors: &BTreeMap<Atom, FourMomentum<Atom>>,
+        spinors: &BTreeMap<Atom, [Atom; 4]>,
+    ) -> Result<Atom, PreparationError> {
+        let spinor = |argument: AtomView<'_>| -> Result<[Atom; 4], PreparationError> {
+            let key = carrier(argument).ok_or_else(|| {
+                unsupported(self.source, "a line endpoint is not a spinor carrier")
+            })?;
+            spinors.get(&key).cloned().ok_or_else(|| {
+                PreparationError::SpinorChain(format!(
+                    "no components for external spinor {}",
+                    key.to_canonical_string()
+                ))
+            })
+        };
+        let mut row = spinor(self.left)?;
+        let right = spinor(self.right)?;
+        for factor in &self.factors {
+            let matrix = self.matrix(factor, indices, vectors)?;
+            row = std::array::from_fn(|column| {
+                let mut entry = Atom::Zero;
+                for (k, value) in row.iter().enumerate() {
+                    let element = if factor.transposed {
+                        &matrix[column][k]
+                    } else {
+                        &matrix[k][column]
+                    };
+                    if !element.is_zero() && !value.is_zero() {
+                        entry += value * element;
+                    }
+                }
+                entry
+            });
+        }
+        Ok(row
+            .iter()
+            .zip(&right)
+            .fold(Atom::Zero, |sum, (a, b)| sum + a * b))
+    }
+
+    fn matrix(
+        &self,
+        factor: &Factor<'_>,
+        indices: &BTreeMap<Atom, usize>,
+        vectors: &BTreeMap<Atom, FourMomentum<Atom>>,
+    ) -> Result<Matrix, PreparationError> {
+        let symbol = factor.head;
+        let no_argument = |matrix: Matrix| match factor.argument {
+            None => Ok(matrix),
+            Some(_) => Err(unsupported(
+                self.source,
+                "unsupported Dirac matrix argument",
+            )),
+        };
+        if symbol == AGS.gamma5 {
+            return no_argument(diagonal([-1, -1, 1, 1]));
+        }
+        if symbol == AGS.projm {
+            return no_argument(diagonal([1, 1, 0, 0]));
+        }
+        if symbol == AGS.projp {
+            return no_argument(diagonal([0, 0, 1, 1]));
+        }
+        if symbol == AGS.gamma0 {
+            return no_argument(gamma(0));
+        }
+        let argument = factor
+            .argument
+            .ok_or_else(|| unsupported(self.source, "gamma matrix without a Lorentz argument"))?;
+        if let Some(index) = lorentz_index(argument) {
+            return Ok(gamma(indices[&index]));
+        }
+        let vector = vector(argument, vectors)?;
+        let mut slashed: Matrix = std::array::from_fn(|_| std::array::from_fn(|_| Atom::Zero));
+        for (mu, component) in vector.components().into_iter().enumerate() {
+            let gamma = gamma(mu);
+            for (row, entries) in slashed.iter_mut().enumerate() {
+                for (column, entry) in entries.iter_mut().enumerate() {
+                    if !gamma[row][column].is_zero() {
+                        *entry += metric(mu) * &gamma[row][column] * component;
+                    }
+                }
+            }
+        }
+        Ok(slashed)
+    }
+}
+
+/// The components of a rank-one carrier `V(n, ...)`.
+fn vector<'v>(
+    argument: AtomView<'_>,
+    vectors: &'v BTreeMap<Atom, FourMomentum<Atom>>,
+) -> Result<&'v FourMomentum<Atom>, PreparationError> {
+    let key =
+        carrier(argument).ok_or_else(|| unsupported(argument, "unsupported slashed vector"))?;
+    vectors.get(&key).ok_or_else(|| {
+        PreparationError::SpinorChain(format!(
+            "no components for vector {} in a spinor line",
+            key.to_canonical_string()
+        ))
+    })
+}
+
+/// The open Lorentz index of a vector factor `V(n, mink(4, i))`.
+fn vector_index(part: AtomView<'_>) -> Option<Atom> {
+    let AtomView::Fun(function) = part else {
+        return None;
+    };
+    let mut arguments = function.iter();
+    let _label = arguments.next()?;
+    let index = lorentz_index(arguments.next()?)?;
+    arguments.next().is_none().then_some(index)
+}
+
+/// Replace every spinor line by its explicit components.
 ///
 /// `vectors` and `spinors` are keyed by their carrier without its
 /// representation argument, e.g. `K(0)`, `P(1)`, `ϵ(2)` and `u(0)`.
-/// Lorentz indices shared between chains are summed with the metric.
+/// Lorentz indices shared between lines, or between a line and a vector, are
+/// summed with the metric.
 pub fn expand_spinor_chains(
     expression: &Atom,
     vectors: &BTreeMap<Atom, FourMomentum<Atom>>,
@@ -72,22 +299,21 @@ pub fn expand_spinor_chains(
         return Ok(expression.clone());
     }
     let mut failure = None;
-    // Chains without open Lorentz indices are replaced in place.
+    // Lines without open Lorentz indices are replaced in place.
     let local = expression.replace_map(|part, _, output| {
-        if failure.is_some() {
+        if failure.is_some() || !is_spinor_line(part) {
             return;
         }
-        if !is_spinor_chain(part) {
-            return;
-        }
-        match chain_indices(part) {
-            Ok(indices) if indices.is_empty() => {
-                match evaluate_chain(part, &BTreeMap::new(), vectors, spinors) {
-                    Ok(value) => **output = value,
-                    Err(error) => failure = Some(error),
-                }
+        let value = Line::parse(part).and_then(|line| {
+            if line.indices().is_empty() {
+                line.evaluate(&BTreeMap::new(), vectors, spinors).map(Some)
+            } else {
+                Ok(None)
             }
-            Ok(_) => {}
+        });
+        match value {
+            Ok(Some(value)) => **output = value,
+            Ok(None) => {}
             Err(error) => failure = Some(error),
         }
     });
@@ -97,7 +323,7 @@ pub fn expand_spinor_chains(
     if !has_spinor_chains(&local) {
         return Ok(local);
     }
-    // Lorentz indices joining several chains: sum each term over components.
+    // Contracted Lorentz indices: sum each term over components.
     let expanded = local.expand();
     let terms = match expanded.as_view() {
         AtomView::Add(sum) => sum.iter().map(|part| part.to_owned()).collect(),
@@ -119,7 +345,8 @@ fn expand_term(
         AtomView::Mul(product) => product.iter().map(|part| part.to_owned()).collect(),
         _ => vec![term.clone()],
     };
-    let mut chains = Vec::new();
+    let mut lines = Vec::new();
+    let mut open_vectors = Vec::new();
     let mut rest = Atom::num(1);
     for factor in factors {
         let (base, power) = match factor.as_view() {
@@ -132,20 +359,39 @@ fn expand_term(
             }
             _ => (factor.clone(), 1),
         };
-        if is_spinor_chain(base.as_view()) {
-            chains.extend(std::iter::repeat_n(base, power));
+        if is_spinor_line(base.as_view()) {
+            lines.extend(std::iter::repeat_n(base, power));
+        } else if let Some(index) = vector_index(base.as_view()) {
+            open_vectors.extend(std::iter::repeat_n((base, index), power));
         } else {
             rest *= &factor;
         }
     }
-    let mut indices = Vec::<Atom>::new();
-    for chain in &chains {
-        for index in chain_indices(chain.as_view())? {
-            if !indices.contains(&index) {
-                indices.push(index);
-            }
-        }
+    let lines = lines
+        .iter()
+        .map(|line| Line::parse(line.as_view()))
+        .collect::<Result<Vec<_>, _>>()?;
+    // Every index occurs on exactly two objects: lines or vectors.
+    let mut occurrences = BTreeMap::<Atom, usize>::new();
+    for index in lines
+        .iter()
+        .flat_map(Line::indices)
+        .chain(open_vectors.iter().map(|(_, index)| index.clone()))
+    {
+        *occurrences.entry(index).or_default() += 1;
     }
+    if let Some((index, _)) = occurrences.iter().find(|(_, count)| **count != 2) {
+        return Err(PreparationError::SpinorChain(format!(
+            "Lorentz index {} is not contracted between two factors of {}",
+            index.to_canonical_string(),
+            term.to_canonical_string()
+        )));
+    }
+    let indices = occurrences.into_keys().collect::<Vec<_>>();
+    let open_vectors = open_vectors
+        .iter()
+        .map(|(factor, index)| Ok((vector(factor.as_view(), vectors)?, index)))
+        .collect::<Result<Vec<_>, PreparationError>>()?;
     let mut sum = Atom::Zero;
     for assignment in 0..4usize.pow(indices.len() as u32) {
         let values = indices
@@ -156,8 +402,11 @@ fn expand_term(
         let mut value = values
             .values()
             .fold(Atom::num(1), |product, mu| product * metric(*mu));
-        for chain in &chains {
-            value *= evaluate_chain(chain.as_view(), &values, vectors, spinors)?;
+        for (vector, index) in &open_vectors {
+            value *= vector.components()[values[*index]];
+        }
+        for line in &lines {
+            value *= line.evaluate(&values, vectors, spinors)?;
         }
         sum += value;
     }
@@ -168,24 +417,6 @@ fn metric(mu: usize) -> Atom {
     Atom::num(if mu == 0 { 1 } else { -1 })
 }
 
-/// Lorentz index arguments `mink(4, i)` of the chain's gamma matrices.
-fn chain_indices(chain: AtomView<'_>) -> Result<Vec<Atom>, PreparationError> {
-    let AtomView::Fun(function) = chain else {
-        unreachable!("chain_indices takes a chain function");
-    };
-    let mut indices = Vec::new();
-    for factor in function.iter().skip(2) {
-        if let AtomView::Fun(matrix) = factor
-            && matrix.get_symbol() == AGS.gamma
-            && let Some(argument) = matrix.iter().nth(2)
-            && let Some(index) = lorentz_index(argument)
-        {
-            indices.push(index);
-        }
-    }
-    Ok(indices)
-}
-
 /// The index of a bare Lorentz slot `mink(d, i)`, as opposed to a vector `V(n, mink(d))`.
 fn lorentz_index(argument: AtomView<'_>) -> Option<Atom> {
     let AtomView::Fun(slot) = argument else {
@@ -194,10 +425,6 @@ fn lorentz_index(argument: AtomView<'_>) -> Option<Atom> {
     (slot.get_nargs() == 2 && slot.get_symbol().get_name().ends_with("mink"))
         .then(|| slot.iter().nth(1).map(|part| part.to_owned()))
         .flatten()
-}
-
-fn unsupported(chain: AtomView<'_>, message: &str) -> PreparationError {
-    PreparationError::SpinorChain(format!("{message} in {}", chain.to_canonical_string()))
 }
 
 /// The carrier key `head(first argument)` of a vector or spinor.
@@ -211,101 +438,6 @@ fn carrier(atom: AtomView<'_>) -> Option<Atom> {
             .add_arg(first)
             .finish(),
     )
-}
-
-fn evaluate_chain(
-    chain: AtomView<'_>,
-    indices: &BTreeMap<Atom, usize>,
-    vectors: &BTreeMap<Atom, FourMomentum<Atom>>,
-    spinors: &BTreeMap<Atom, [Atom; 4]>,
-) -> Result<Atom, PreparationError> {
-    let AtomView::Fun(function) = chain else {
-        unreachable!("evaluate_chain takes a chain function");
-    };
-    let mut arguments = function.iter();
-    let spinor = |argument: Option<AtomView<'_>>| -> Result<[Atom; 4], PreparationError> {
-        let key = argument
-            .and_then(carrier)
-            .ok_or_else(|| unsupported(chain, "a chain endpoint is not a spinor carrier"))?;
-        spinors.get(&key).cloned().ok_or_else(|| {
-            PreparationError::SpinorChain(format!(
-                "no components for external spinor {}",
-                key.to_canonical_string()
-            ))
-        })
-    };
-    let left = spinor(arguments.next())?;
-    let right = spinor(arguments.next())?;
-    let mut row = left;
-    for factor in arguments {
-        let matrix = dirac_matrix(chain, factor, indices, vectors)?;
-        row = std::array::from_fn(|column| {
-            let mut entry = Atom::Zero;
-            for (k, value) in row.iter().enumerate() {
-                if !matrix[k][column].is_zero() && !value.is_zero() {
-                    entry += value * &matrix[k][column];
-                }
-            }
-            entry
-        });
-    }
-    Ok(row
-        .iter()
-        .zip(&right)
-        .fold(Atom::Zero, |sum, (a, b)| sum + a * b))
-}
-
-fn dirac_matrix(
-    chain: AtomView<'_>,
-    factor: AtomView<'_>,
-    indices: &BTreeMap<Atom, usize>,
-    vectors: &BTreeMap<Atom, FourMomentum<Atom>>,
-) -> Result<Matrix, PreparationError> {
-    let AtomView::Fun(function) = factor else {
-        return Err(unsupported(chain, "unsupported Dirac factor"));
-    };
-    let symbol = function.get_symbol();
-    if symbol == AGS.gamma5 {
-        return Ok(diagonal([-1, -1, 1, 1]));
-    }
-    if symbol == AGS.projm {
-        return Ok(diagonal([1, 1, 0, 0]));
-    }
-    if symbol == AGS.projp {
-        return Ok(diagonal([0, 0, 1, 1]));
-    }
-    if symbol == AGS.gamma0 {
-        return Ok(gamma(0));
-    }
-    if symbol != AGS.gamma {
-        return Err(unsupported(chain, "unsupported Dirac factor"));
-    }
-    let argument = function
-        .iter()
-        .nth(2)
-        .ok_or_else(|| unsupported(chain, "gamma matrix without a Lorentz argument"))?;
-    if let Some(index) = lorentz_index(argument) {
-        return Ok(gamma(indices[&index]));
-    }
-    let key = carrier(argument).ok_or_else(|| unsupported(chain, "unsupported slashed vector"))?;
-    let vector = vectors.get(&key).ok_or_else(|| {
-        PreparationError::SpinorChain(format!(
-            "no components for vector {} in a spinor chain",
-            key.to_canonical_string()
-        ))
-    })?;
-    let mut slashed: Matrix = std::array::from_fn(|_| std::array::from_fn(|_| Atom::Zero));
-    for (mu, component) in vector.components().into_iter().enumerate() {
-        let gamma = gamma(mu);
-        for (row, entries) in slashed.iter_mut().enumerate() {
-            for (column, entry) in entries.iter_mut().enumerate() {
-                if !gamma[row][column].is_zero() {
-                    *entry += metric(mu) * &gamma[row][column] * component;
-                }
-            }
-        }
-    }
-    Ok(slashed)
 }
 
 fn diagonal(values: [i64; 4]) -> Matrix {

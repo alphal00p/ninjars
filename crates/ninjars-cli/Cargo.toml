@@ -23,7 +23,6 @@ ninjars-graph.workspace = true
 symbolica.workspace = true
 feynkit-model.workspace = true
 feynkit-graph.workspace = true
-linnet.workspace = true
 clap.workspace = true
 serde.workspace = true
 serde_json.workspace = true

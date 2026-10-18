@@ -3,7 +3,7 @@
 use crate::{
     fast_runtime::{self, FastPool, FastSession},
     numerator_coefficients::CoefficientScalar,
-    prepare::{self, PreparedDocument},
+    prepare::{self, PreparedDocument, PreparedSample},
     runtime::{EvaluationSession, NumericalPool},
 };
 use clap::{Args as ClapArgs, ValueEnum};
@@ -432,11 +432,20 @@ fn evaluate_fast(prepared: &mut PreparedDocument, args: &Args) -> Result<bool> {
             let sample = lanes
                 .next()
                 .ok_or("fast batch exceeds the prepared samples")?;
+            // The fast engine has no repeated-propagator check; report such lanes
+            // exactly as the generic engine does.
+            let repeated = repeated_propagators(sample);
             let status = session.status(local);
-            let valid = status == FastStatus::Success;
+            let valid = status == FastStatus::Success && repeated.is_none();
             success &= valid;
             let values = valid.then(|| session.components(local).map(fast_runtime::encode));
-            let mut row = json!({"lane":sample.lane,"status":fast_runtime::status_json(status),"values":values});
+            let status = match repeated {
+                Some((first, second)) => {
+                    status_json(EvaluationStatus::RepeatedPropagator { first, second })
+                }
+                None => fast_runtime::status_json(status),
+            };
+            let mut row = json!({"lane":sample.lane,"status":status,"values":values});
             row["s_matrix_source"] = if sample.s_matrix.is_some() {
                 "supplied"
             } else {
@@ -534,4 +543,21 @@ pub fn run(args: Args) -> Result<()> {
         .into());
     }
     Ok(())
+}
+
+/// The first pair of exactly coincident propagators (equal shifts and squared
+/// masses) of a prepared sample.
+fn repeated_propagators(sample: &PreparedSample) -> Option<(usize, usize)> {
+    let n = sample.shifts.len();
+    let equal = |a: &symbolica::atom::Atom, b: &symbolica::atom::Atom| (a - b).together().is_zero();
+    (0..n)
+        .flat_map(|first| (first + 1..n).map(move |second| (first, second)))
+        .find(|&(first, second)| {
+            equal(&sample.mass_squared[first], &sample.mass_squared[second])
+                && sample.shifts[first]
+                    .components()
+                    .into_iter()
+                    .zip(sample.shifts[second].components())
+                    .all(|(a, b)| equal(a, b))
+        })
 }

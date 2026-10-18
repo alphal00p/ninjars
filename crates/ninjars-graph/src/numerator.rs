@@ -42,11 +42,13 @@ pub fn contract_numerator(
 /// [`contract_numerator`], also returning any automatic color projector.
 ///
 /// When the contracted numerator leaves exactly two open color slots that can
-/// be joined, typically two external gluons or a quark–antiquark pair, it is
-/// projected onto the coefficient of their invariant δ, i.e. multiplied by
-/// δ/N with N the representation dimension (δab/8, δij/3). This is the
-/// projector of the shipped physical examples. Any other open slot is an
-/// error that names the slots and their external legs.
+/// be joined and that belong to two distinct colored external legs, i.e. two
+/// external gluons or a quark–antiquark pair, it is projected onto the
+/// coefficient of their invariant δ, i.e. multiplied by δ/N with N the
+/// representation dimension (δab/8, δij/3). This is the projector of the
+/// shipped physical examples. Any other open slot, including a dangling index
+/// of a hand-written numerator, is an error that names the slots and their
+/// external legs.
 pub fn contract_numerator_with_color(
     diagram: &FeynmanDiagram,
     kinematics: &Kinematics,
@@ -59,7 +61,11 @@ pub fn contract_numerator_with_color(
         return Ok((kinematics.apply(contracted.expression()), None));
     }
     let projector = match slots.as_slice() {
-        [first, second] if is_color(first.rep_name()) && first.dual().rep() == second.rep() => {
+        [first, second]
+            if is_color(first.rep_name())
+                && first.dual().rep() == second.rep()
+                && external_color_pair(diagram, &first.to_atom(), &second.to_atom()) =>
+        {
             let delta = FunctionBuilder::new(ETS.metric)
                 .add_arg(first.dual().to_atom())
                 .add_arg(second.dual().to_atom())
@@ -106,8 +112,16 @@ fn is_color(rep: LibraryRep) -> bool {
     .contains(&rep)
 }
 
-/// Name an open slot together with the external leg owning its half-edge.
-fn describe_slot(diagram: &FeynmanDiagram, slot: &Atom) -> String {
+/// An external leg owning the half-edge of an open slot.
+struct SlotLeg {
+    index: usize,
+    hedge: usize,
+    particle: String,
+    colored: bool,
+}
+
+/// The external legs whose vertex half-edge an open slot refers to.
+fn slot_legs(diagram: &FeynmanDiagram, slot: &Atom) -> Vec<SlotLeg> {
     let mut hedges = Vec::new();
     slot.visitor(&mut |part| {
         if let AtomView::Fun(function) = part
@@ -121,7 +135,7 @@ fn describe_slot(diagram: &FeynmanDiagram, slot: &Atom) -> String {
         }
         true
     });
-    let legs = diagram
+    diagram
         .edges()
         .filter_map(|(edge, endpoints, data)| {
             let external = data.external.as_ref()?;
@@ -131,16 +145,40 @@ fn describe_slot(diagram: &FeynmanDiagram, slot: &Atom) -> String {
                 DiagramEndpoint::Target
             };
             let hedge = diagram.half_edge_id(DiagramHalfEdge { edge, endpoint })?.0;
-            hedges.contains(&hedge).then(|| {
-                let particle = diagram
-                    .model()
-                    .particle_by_id(data.particle)
-                    .map_or("?".into(), |particle| particle.name.clone());
-                format!(
-                    "external leg {} ({particle}, half-edge {hedge})",
-                    external.index
-                )
+            if !hedges.contains(&hedge) {
+                return None;
+            }
+            let particle = diagram.model().particle_by_id(data.particle).ok();
+            Some(SlotLeg {
+                index: external.index,
+                hedge,
+                particle: particle.map_or("?".into(), |particle| particle.name.clone()),
+                colored: particle.is_some_and(|particle| particle.is_qcd_charged()),
             })
+        })
+        .collect()
+}
+
+/// Whether two open color slots belong to two distinct colored external legs.
+fn external_color_pair(diagram: &FeynmanDiagram, first: &Atom, second: &Atom) -> bool {
+    match (
+        slot_legs(diagram, first).as_slice(),
+        slot_legs(diagram, second).as_slice(),
+    ) {
+        ([a], [b]) => a.index != b.index && a.colored && b.colored,
+        _ => false,
+    }
+}
+
+/// Name an open slot together with the external leg owning its half-edge.
+fn describe_slot(diagram: &FeynmanDiagram, slot: &Atom) -> String {
+    let legs = slot_legs(diagram, slot)
+        .into_iter()
+        .map(|leg| {
+            format!(
+                "external leg {} ({}, half-edge {})",
+                leg.index, leg.particle, leg.hedge
+            )
         })
         .collect::<Vec<_>>();
     let slot = slot.to_canonical_string();

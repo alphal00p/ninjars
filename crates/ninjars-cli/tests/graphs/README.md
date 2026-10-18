@@ -12,6 +12,8 @@ Most come from a survey of the CLI on arbitrary one-loop graphs.
 | `gg-gluon-loop.*`, `gg-color-only-projector.dot` | Color invariants; open Lorentz indices named by leg |
 | `eea-vertex.dot`, `eea-vertex-spinors.json` | Explicit unit spinors for the QED vertex with a massive electron |
 | `eea-vertex-trace.*` | The same vertex closed by a hand-written spin-trace projector |
+| `emu-vertex.*`, `emu-vp.*` | Single-vertex fermion lines and loop vectors with open Lorentz indices (e- mu- vertex correction and vacuum polarization), against slashed-momentum trace projectors |
+| `dangling-color-indices.dot` | Dangling color indices in a hand-written numerator are not joined |
 | `phi3-box.dot`, `phi3-box-zero-momentum.json` | A vanishing momentum making two propagators coincide |
 | `phi3-leg-bubble.*` | An on-shell tree propagator: Symbolica's warning on stderr |
 | `disconnected.dot` | A disconnected graph |

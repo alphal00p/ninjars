@@ -154,7 +154,7 @@ fn coincident_propagators_fail_only_their_lane() {
     let fast = run(&["reduce", &fixture, "--feynman-rules", "--engine", "fast"]);
     let fast: Value = serde_json::from_slice(&fast.stdout).unwrap();
     assert_eq!(fast["results"][0]["status"]["kind"], "success");
-    assert_ne!(fast["results"][1]["status"]["kind"], "success");
+    assert_eq!(fast["results"][1]["status"], result["results"][1]["status"]);
 }
 
 #[test]
@@ -208,7 +208,8 @@ fn hand_written_graphs_receive_the_generators_graph_factors() {
     assert_eq!(
         gluon,
         (
-            serde_json::json!({"automorphisms": 2, "closed_fermion_loops": 0, "factor": "1/2", "applied": true}),
+            serde_json::json!({"automorphisms": 2, "closed_fermion_loops": 0, "open_fermion_lines": 0,
+                "factor": "1/2", "applied": true}),
             "1/2".into()
         )
     );
@@ -310,6 +311,13 @@ fn one_open_color_pair_receives_the_delta_projector() {
     ]);
     assert!(
         message.contains("open indices") && message.contains("at external leg 0 (g, half-edge 0)"),
+        "{message}"
+    );
+    // Dangling color indices of a hand-written numerator are not external
+    // legs: they are not joined.
+    let message = failure(&["prepare", &graph("dangling-color-indices.dot")]);
+    assert!(
+        message.contains("open indices") && message.contains("hedge(50,1)"),
         "{message}"
     );
 }
@@ -525,5 +533,73 @@ fn explicit_spinors_reproduce_a_spin_trace_projection() {
             (sum.0 - reference.0).hypot(sum.1 - reference.1) < 1e-9 * scale,
             "component {component}: {sum:?} vs {reference:?}"
         );
+    }
+}
+
+#[test]
+fn explicit_spinors_cover_single_vertex_lines_and_open_vectors() {
+    // e- mu- -> e- mu-: a vertex correction (an electron chain and a
+    // single-vertex muon line sharing a Lorentz index) and the vacuum
+    // polarization (two single-vertex lines contracted with loop vectors).
+    // Unit spinors give the amputated amplitude elements. Closing each line by
+    // the slashed momentum of its incoming leg must match the trace projector;
+    // with momenta along z only four elements contribute.
+    let (electron, muon) = (slash([5., 0., 0., 5.]), slash([6., 0., 0., -6.]));
+    for name in ["emu-vertex", "emu-vp"] {
+        let (explicit, _) = success(&[
+            "reduce",
+            &graph(&format!("{name}-spinors.json")),
+            "--feynman-rules",
+        ]);
+        let (trace, _) = success(&[
+            "reduce",
+            &graph(&format!("{name}-trace.json")),
+            "--feynman-rules",
+        ]);
+        let fixture: Value = serde_json::from_str(
+            &std::fs::read_to_string(root().join(graph(&format!("{name}-spinors.json")))).unwrap(),
+        )
+        .unwrap();
+        let mut sum = [(0.0, 0.0); 5];
+        for (row, sample) in explicit["results"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .zip(fixture["samples"].as_array().unwrap())
+        {
+            assert_eq!(row["status"]["kind"], "success");
+            // "ubar2-e{a}-u0-e{b}-ubar3-e{c}-u1-e{d}"
+            let unit = |position: usize| -> usize {
+                sample["id"]
+                    .as_str()
+                    .unwrap()
+                    .split('-')
+                    .nth(position)
+                    .unwrap()[1..]
+                    .parse()
+                    .unwrap()
+            };
+            let weight = multiply(electron[unit(3)][unit(1)], muon[unit(7)][unit(5)]);
+            for (component, total) in sum.iter_mut().enumerate() {
+                let term = multiply(complex(&row["values"][component]), weight);
+                total.0 += term.0;
+                total.1 += term.1;
+            }
+        }
+        let expected = &trace["results"][0]["values"];
+        let scale = (0..5)
+            .map(|component| {
+                let (re, im) = complex(&expected[component]);
+                re.hypot(im)
+            })
+            .fold(1e-300_f64, f64::max);
+        for (component, total) in sum.iter().enumerate() {
+            let reference = complex(&expected[component]);
+            assert!(
+                (total.0 - reference.0).hypot(total.1 - reference.1) < 1e-9 * scale,
+                "{name} component {component}: {total:?} vs {reference:?}"
+            );
+        }
+        assert_ne!(sum[0], (0.0, 0.0), "{name}: the projection must not vanish");
     }
 }

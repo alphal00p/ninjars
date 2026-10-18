@@ -109,12 +109,17 @@ supplies a `projector`.
 
 **Graph factors.** FeynKit's generator folds `1/AutG` and a `-1` per closed
 fermion or ghost loop into a generated diagram's `overall_factor`. For a compact
-DOT without `overall_factor`, `--feynman-rules` derives and applies the same
+DOT without `overall_factor`, every command preparing it with `--feynman-rules`
+(including `numerator-bench` and `pipeline-bench`) derives and applies the same
 factors. A stated `overall_factor`, or the stable export, is used as written.
 `graph_factors` reports the automorphism order, closed fermion/ghost loops,
-the factor, and whether it was applied; explicit mode warns when it differs from
-one. External-fermion ordering signs are a convention of the whole process and
-are not derived.
+open fermion lines, the factor, and whether it was applied; explicit mode notes
+a factor different from one. The generator also derives a sign per diagram
+from the order of the external fermions on its open lines. Only a process's
+global sign is a convention: relative signs between diagrams with two or more
+open fermion lines are physical (e.g. the s- and t-channel diagrams of Bhabha
+scattering). That sign is not derived, so preparation warns for such graphs:
+state it with `overall_factor`.
 
 **Color.** When the contracted numerator leaves exactly one joinable pair of
 open color indices (two gluons, or a quark and an antiquark), the coefficient
@@ -136,11 +141,13 @@ leg, and preparation warns if a graph ever differs. Each sample may bind:
   `epsilonbar`, for vector legs;
 - `external_spinors`: four components of the spin-1/2 leg's carrier as it enters
   the amplitude, columns for `u` and `v`, rows for `ubar` and `vbar` (no
-  conjugation is applied). Spinor chains are expanded in the chiral (HELAS)
-  basis: `gamma^0 = [[0,1],[1,0]]`, `gamma^k = [[0,sigma^k],[-sigma^k,0]]`,
-  `gamma^5 = diag(-1,-1,1,1)`. Unit spinors give the amputated Dirac matrix of
-  the amplitude element by element. Explicit spinors need `--r2 off` (see
-  above); alternatively, close each fermion line with a spin-trace `projector`.
+  conjugation is applied). Open fermion lines, with any number of Dirac
+  matrices and Lorentz indices shared with other lines or vectors, are
+  expanded in the chiral (HELAS) basis: `gamma^0 = [[0,1],[1,0]]`,
+  `gamma^k = [[0,sigma^k],[-sigma^k,0]]`, `gamma^5 = diag(-1,-1,1,1)`. Unit
+  spinors give the amputated Dirac matrix of the amplitude element by element.
+  Explicit spinors need `--r2 off` (see above); alternatively, close each
+  fermion line with a spin-trace `projector`.
 
 `spinor_basis` and `polarization_basis` list the bound carriers. Anything the
 numerator still needs (spinors, polarizations, color invariants, Levi-Civita
@@ -155,8 +162,8 @@ their real masses, so this is not the complete complex-mass scheme.
 
 **Rejected inputs.** `reduce` requires at least one sample, and disconnected
 graphs are rejected. A sample whose propagators coincide numerically (for
-example a vanishing external momentum) fails only its lane: the generic
-engine reports `repeated_propagator`, the fast engine the failed master integral.
+example a vanishing external momentum) fails only its lane, with status
+`repeated_propagator` in both engines.
 Symbolica's warnings are written to standard error, so standard output stays
 valid JSON.
 

@@ -1,12 +1,13 @@
 //! Independent boundary and numerical-domain controls for complete amplitudes.
 
 use ninjars::{
-    Complex, DoubleFloat, Error, EvaluationStatus, Float, FourMomentum, Laurent, MasterProvider,
-    MasterRequest, MasterStatus, Real, Result, SingleFloat,
+    Amplitude, AmplitudeInput, Complex, DoubleFloat, Error, EvaluationStatus, Float, FourMomentum,
+    Laurent, MasterProvider, MasterRequest, MasterStatus, Real, Result, SingleFloat,
 };
 use ninjars_symbolica::{
     DualPolynomialNumerator, PolynomialNumerator, SymbolicaAmplitudeKernels, SymbolicaCuts,
-    SymbolicaDualAmplitudeKernels, SymbolicaDualCuts, SymbolicaDualMasters, SymbolicaMasters,
+    SymbolicaDualAmplitudeKernels, SymbolicaDualCuts, SymbolicaDualMasters, SymbolicaHighCuts,
+    SymbolicaMasters,
 };
 use oneloop::NativeFloat;
 use symbolica::{
@@ -425,4 +426,235 @@ fn repeated_propagators_and_late_api_errors_preserve_accumulation_and_status() {
     );
     assert_eq!(amplitude.results(), before);
     assert_eq!(amplitude.statuses(), statuses);
+}
+
+/// Integer shifts and squared masses of one lane, with `n` distinct propagators.
+fn repeated_lane_kinematics(n: usize, lane: usize) -> (Vec<[i64; 4]>, Vec<i64>) {
+    let base: [[i64; 4]; 6] = [
+        [0, 0, 0, 0],
+        [7, 1, 2, 0],
+        [9, 0, 3, 1],
+        [11, 2, 0, 4],
+        [13, 1, 5, 2],
+        [15, 3, 1, 6],
+    ];
+    let shifts = (0..n)
+        .map(|i| {
+            let mut v = base[i];
+            if i > 0 {
+                v[0] += lane as i64;
+                v[(lane % 3) + 1] += 1;
+            }
+            v
+        })
+        .collect();
+    let masses = (0..n).map(|i| (i + lane + 1) as i64).collect();
+    (shifts, masses)
+}
+
+/// Shifts, squared masses, scale and the numerator parameter of one lane
+/// (`None` is a NaN parameter).
+type RepeatedLane = (Vec<[i64; 4]>, Vec<i64>, i64, Option<i64>);
+
+/// One set of kernels and providers: separately constructed Symbolica
+/// evaluators may differ in the last ulp, so comparisons reuse this instance.
+struct RepeatedLanes<T: NativeFloat + Real + SingleFloat>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    prototype: T,
+    n: usize,
+    numerator: PolynomialNumerator<T>,
+    geometry: SymbolicaCuts<T>,
+    high: SymbolicaHighCuts<T>,
+    masters: SymbolicaMasters<T>,
+    amplitude: Amplitude<Complex<T>, SymbolicaAmplitudeKernels<T>>,
+}
+
+impl<T: NativeFloat + Real + SingleFloat> RepeatedLanes<T>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    fn new(prototype: T, n: usize, rank: usize) -> Self {
+        Self {
+            numerator: PolynomialNumerator::new(
+                parse!("a*q0^2 + q1*q2 + 3*mu2 + q3 + 1"),
+                vars(),
+                vec![parse!("a")],
+                prototype.clone(),
+            )
+            .unwrap(),
+            geometry: SymbolicaCuts::new(prototype.clone()).unwrap(),
+            high: SymbolicaHighCuts::new(prototype.clone()).unwrap(),
+            masters: SymbolicaMasters::new(prototype.clone()),
+            amplitude: SymbolicaAmplitudeKernels::new(n, rank, prototype.clone())
+                .unwrap()
+                .into_amplitude(1)
+                .unwrap(),
+            prototype,
+            n,
+        }
+    }
+
+    /// Accumulate the calls from a reset batch; optionally supply the exact
+    /// S-matrix of each lane.
+    fn run(
+        &mut self,
+        calls: &[Vec<RepeatedLane>],
+        s_matrix: bool,
+    ) -> (Vec<String>, Vec<EvaluationStatus>) {
+        let lanes = calls[0].len();
+        let n = self.n;
+        self.amplitude.reset_batch(lanes);
+        let p = self.prototype.clone();
+        let r = |v: i64| Complex::new(p.from_rational(&Rational::from(v)), p.zero());
+        for call in calls {
+            let shifts: Vec<FourMomentum<Complex<T>>> = call
+                .iter()
+                .flat_map(|(s, _, _, _)| s.iter().map(|v| FourMomentum::from(v.map(r))))
+                .collect();
+            let masses: Vec<_> = call
+                .iter()
+                .flat_map(|(_, m, _, _)| m.iter().map(|&v| r(v)))
+                .collect();
+            let scales: Vec<_> = call.iter().map(|(_, _, s, _)| r(*s)).collect();
+            let params: Vec<_> = call
+                .iter()
+                .map(|(_, _, _, a)| match a {
+                    Some(a) => r(*a),
+                    None => Complex::new(p.zero() / p.zero(), p.zero()),
+                })
+                .collect();
+            self.numerator.set_parameter_batch(&params, lanes).unwrap();
+            let sampling: Vec<_> = call.iter().map(|_| r(5)).collect();
+            let matrix: Vec<_> = call
+                .iter()
+                .flat_map(|(s, _, _, _)| {
+                    (0..n).flat_map(move |i| {
+                        (0..n).map(move |j| {
+                            let d: [i64; 4] = std::array::from_fn(|k| s[i][k] - s[j][k]);
+                            d[0] * d[0] - d[1] * d[1] - d[2] * d[2] - d[3] * d[3]
+                        })
+                    })
+                })
+                .map(r)
+                .collect();
+            self.amplitude
+                .evaluate_batch_with_inputs(
+                    AmplitudeInput {
+                        shifts: &shifts,
+                        masses_squared: &masses,
+                        scales_squared: &scales,
+                        sampling_scales: &sampling,
+                        s_matrix: s_matrix.then_some(matrix.as_slice()),
+                    },
+                    &mut self.numerator,
+                    &mut self.geometry,
+                    &mut self.high,
+                    &mut self.masters,
+                )
+                .unwrap();
+        }
+        (
+            self.amplitude
+                .results()
+                .iter()
+                .map(|row| format!("{row:?}"))
+                .collect(),
+            self.amplitude.statuses().to_vec(),
+        )
+    }
+}
+
+fn repeated_lanes_fail_alone<T: NativeFloat>(prototype: T, name: &str)
+where
+    Complex<T>: Real + EvaluationDomain,
+    T: Real + SingleFloat,
+{
+    for n in 2..=5 {
+        for s_matrix in [false, true] {
+            let name = format!("{name} n={n} s_matrix={s_matrix}");
+            let mut state = RepeatedLanes::new(prototype.clone(), n, n.min(3));
+            let mut run = |calls: &[Vec<RepeatedLane>]| state.run(calls, s_matrix);
+            let lane = |l: usize, scale: i64, a: Option<i64>| -> RepeatedLane {
+                let (s, m) = repeated_lane_kinematics(n, l);
+                (s, m, scale, a)
+            };
+            let repeated = |l: usize, a: Option<i64>| -> RepeatedLane {
+                let (mut s, mut m) = repeated_lane_kinematics(n, l);
+                s[n - 1] = s[n - 2];
+                m[n - 1] = m[n - 2];
+                (s, m, 2, a)
+            };
+            let first = vec![
+                lane(0, 1, Some(2)),
+                lane(1, 3, Some(5)),
+                lane(2, 4, Some(7)),
+            ];
+            // The failed lane also carries a NaN numerator parameter.
+            let second = vec![lane(0, 1, Some(3)), repeated(1, None), lane(2, 4, Some(1))];
+            let (after_first, statuses) = run(&[first.clone()]);
+            assert_eq!(statuses, vec![EvaluationStatus::Success; 3], "{name}");
+            let (results, statuses) = run(&[first.clone(), second.clone()]);
+            assert_eq!(
+                statuses,
+                vec![
+                    EvaluationStatus::Success,
+                    EvaluationStatus::RepeatedPropagator {
+                        first: n - 2,
+                        second: n - 1
+                    },
+                    EvaluationStatus::Success
+                ],
+                "{name}"
+            );
+            // The failed lane keeps its previous results.
+            assert_eq!(results[1], after_first[1], "{name}");
+            // The other lanes are bitwise those of the same calls without the
+            // failed lane, alone or with a valid neighbor.
+            let control = vec![second[0].clone(), lane(1, 2, Some(4)), second[2].clone()];
+            let (control, statuses) = run(&[first.clone(), control]);
+            assert_eq!(statuses, vec![EvaluationStatus::Success; 3], "{name}");
+            for l in [0, 2] {
+                let (alone, _) = run(&[vec![first[l].clone()], vec![second[l].clone()]]);
+                assert_eq!(control[l], results[l], "{name}: lane {l} vs control");
+                assert_eq!(alone[0], results[l], "{name}: lane {l} vs alone");
+            }
+            // A failed first lane takes the next lane's inputs.
+            let leading = vec![
+                repeated(0, Some(3)),
+                lane(1, 3, Some(5)),
+                lane(2, 4, Some(1)),
+            ];
+            let (results, statuses) = run(&[first.clone(), leading.clone()]);
+            assert!(matches!(
+                statuses[0],
+                EvaluationStatus::RepeatedPropagator { .. }
+            ));
+            assert_eq!(results[0], after_first[0], "{name}");
+            let (alone, _) = run(&[vec![first[1].clone()], vec![leading[1].clone()]]);
+            assert_eq!(alone[0], results[1], "{name}: donor lane vs alone");
+            // Every lane failed: nothing changes.
+            let all = vec![
+                repeated(0, Some(3)),
+                repeated(1, Some(5)),
+                repeated(2, Some(1)),
+            ];
+            let (results, statuses) = run(&[first.clone(), all]);
+            assert!(
+                statuses
+                    .iter()
+                    .all(|status| matches!(status, EvaluationStatus::RepeatedPropagator { .. })),
+                "{name}"
+            );
+            assert_eq!(results, after_first, "{name}");
+        }
+    }
+}
+
+#[test]
+fn repeated_propagators_fail_only_their_lane_in_every_precision() {
+    repeated_lanes_fail_alone(0.0_f64, "f64");
+    repeated_lanes_fail_alone(DoubleFloat::default(), "double-float");
+    repeated_lanes_fail_alone(Float::new(192), "float");
 }
