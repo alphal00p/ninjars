@@ -11,6 +11,12 @@
 //! coefficient evaluator and scatters the heads into `lanes x ncoeff`
 //! tensor coefficients. Warmed calls do not allocate.
 //!
+//! With [`R2Scheme::Fdh`] the loop momentum is bound d-dimensionally
+//! (`K.K -> q.q - mu^2`), so the tensor carries explicit `mu^2` powers in the
+//! block layout of `ninjars::fast::MuTensorNumerator`
+//! ([`TensorCoefficientPlan::with_mu_squared`], [`PhysicalTensorNumerator::mu_powers`]);
+//! [`R2Scheme::Off`] keeps Ninja's plain tensor unchanged.
+//!
 //! External vector wavefunctions are FeynKit's (GammaLoop's HELAS/MadGraph
 //! convention): an incoming vector of helicity `h` is `vxxxxx(p, m, h, -1)`,
 //! an outgoing one `vxxxxx(p, m, h, +1)`, i.e. the conjugate polarization
@@ -39,7 +45,7 @@ use thiserror::Error;
 
 use crate::{
     CoefficientError, CoefficientEvaluator, NumeratorMode, PolynomialCoefficientPlan,
-    PreparationError, PreparationTimings, PreparedIntegrand, TensorCoefficientPlan,
+    PreparationError, PreparationTimings, PreparedIntegrand, R2Scheme, TensorCoefficientPlan,
     prepare_dot_timed, symbols,
 };
 
@@ -112,6 +118,8 @@ pub struct PhysicalNumeratorSpec {
     /// Tensor rank; defaults to the numerator degree.
     pub tensor_rank: Option<usize>,
     pub backend: CoefficientBackend,
+    /// Loop-momentum dimension of the binding: `Fdh` adds the `mu^2` terms (R2).
+    pub r2: R2Scheme,
 }
 
 /// External-state treatment of one physical leg.
@@ -209,6 +217,7 @@ pub struct PhysicalTensorNumerator {
     tensor: TensorCoefficientPlan,
     coefficients: Coefficients,
     backend: CoefficientBackend,
+    r2: R2Scheme,
     propagators: usize,
     /// Row-major `propagators x sources`: `V_i = sum_j c_ij p_{sources[j]}`.
     shift_coefficients: Vec<f64>,
@@ -391,7 +400,11 @@ impl PhysicalTensorNumerator {
             variables[2].clone(),
             variables[3].clone(),
         );
-        let kinematics = prepared.component_kinematics(&loop_components, &symbolic_external)?;
+        let kinematics = prepared.dimensional_kinematics(
+            &loop_components,
+            spec.r2.mu_squared(&variables[4]),
+            &symbolic_external,
+        )?;
         let expression = kinematics
             .apply(&(&prepared.numerator * &prepared.overall_factor))
             .replace_multiple(&replacements)
@@ -411,10 +424,8 @@ impl PhysicalTensorNumerator {
             plan
         };
         let start = Instant::now();
-        let tensor = match spec.tensor_rank {
-            Some(rank) => TensorCoefficientPlan::with_rank(&plan, rank)?,
-            None => TensorCoefficientPlan::new(&plan)?,
-        };
+        // Identical to `TensorCoefficientPlan::with_rank` without mu^2 terms.
+        let tensor = TensorCoefficientPlan::with_mu_squared(&plan, spec.tensor_rank)?;
         timings.tensor_plan = start.elapsed();
 
         let start = Instant::now();
@@ -491,6 +502,7 @@ impl PhysicalTensorNumerator {
             tensor,
             coefficients,
             backend: spec.backend,
+            r2: spec.r2,
             propagators: prepared.quadratics.len(),
             shift_coefficients,
             masses,
@@ -603,8 +615,16 @@ impl PhysicalTensorNumerator {
     pub fn rank(&self) -> usize {
         self.tensor.rank()
     }
+    /// Highest explicit `mu^2` power; zero for Ninja's plain tensor layout.
+    pub fn mu_powers(&self) -> usize {
+        self.tensor.mu_powers()
+    }
+    /// Coefficients per lane, including any `mu^2` blocks.
     pub fn ncoeff(&self) -> usize {
         self.tensor.ncoeff()
+    }
+    pub fn r2(&self) -> R2Scheme {
+        self.r2
     }
     pub fn head_count(&self) -> usize {
         self.tensor.head_count()

@@ -11,7 +11,8 @@ use super::geometry::{
 use super::numerator::{FastNumerator, t2_len, t3_len};
 use super::replay::{RecordingMasters, RecordingNumerator};
 use super::tensor::TensorNumerator;
-use super::tensor_layout::{monomials, ncoeff};
+use super::tensor_layout::{monomials, ncoeff, ncoeff_mu};
+use super::tensor_mu::MuTensorNumerator;
 use super::{
     FastAmplitude, FastInput, FastMaster, FastMasters, FastOptions, FastResult, FastStatus,
 };
@@ -245,6 +246,210 @@ fn tensor_numerator_matches_direct_polynomial_expansions() {
                 assert_close(&out, &expected, &format!("t2 rank {rank} mindeg {mindeg}"));
             }
         }
+    }
+}
+
+/// `sum_k mu^(2k) T_k(q)` with every block expanded by [`reference_numerator`].
+fn reference_mu_numerator(
+    numerator: &MuTensorNumerator,
+    lane: usize,
+    q: &[Poly; 4],
+    mu_squared: &Poly,
+) -> Poly {
+    let coefficients = numerator.lane_coefficients(lane);
+    let one: Poly = [((0, 0, 0), C64::ONE)].into_iter().collect();
+    let mut power = one;
+    let mut total = Poly::new();
+    for k in 0..=numerator.mu_powers() {
+        let block = &coefficients[numerator.block_range(k)];
+        let term = poly_mul(
+            &reference_numerator(block, numerator.rank() - 2 * k, q),
+            &power,
+        );
+        poly_add_scaled(&mut total, &term, C64::ONE);
+        power = poly_mul(&power, mu_squared);
+    }
+    total
+}
+
+#[test]
+fn mu_tensor_numerator_matches_direct_polynomial_expansions() {
+    let mut rng = Rng(19);
+    for rank in 0..=7 {
+        for mu_powers in 0..=rank / 2 {
+            let lanes = 2;
+            let mut numerator = MuTensorNumerator::new(rank, mu_powers, lanes).unwrap();
+            assert_eq!(numerator.ncoeff(), ncoeff_mu(rank, mu_powers));
+            for c in numerator.coefficients_mut() {
+                *c = rng.c();
+            }
+            let r = rank as i32;
+            let context = |what: &str| format!("{what}: rank {rank} mu powers {mu_powers}");
+            for lane in 0..lanes {
+                let cut = [0usize];
+                // Direct evaluation at an independent mu².
+                let (q, mu2) = (rng.cmom(), rng.c());
+                let mut out = [C64::ZERO];
+                numerator
+                    .evaluate(&cut, &[lane], &[q], &[mu2], &mut out)
+                    .unwrap();
+                let expected = reference_mu_numerator(
+                    &numerator,
+                    lane,
+                    &q.map(|v| linear(&[((0, 0, 0), v)])),
+                    &linear(&[((0, 0, 0), mu2)]),
+                );
+                assert_close(&out, &[get(&expected, (0, 0, 0))], &context("evaluate"));
+
+                // Box mu expansion: q = t v0 + v1, mu² = t² v0².
+                let (v0, v1) = (rng.cmom(), rng.cmom());
+                let poly = reference_mu_numerator(
+                    &numerator,
+                    lane,
+                    &std::array::from_fn(|mu| linear(&[((1, 0, 0), v0[mu]), ((0, 0, 0), v1[mu])])),
+                    &linear(&[((2, 0, 0), mp_cc(&v0, &v0))]),
+                );
+                let mut out2 = [C64::ZERO; 2];
+                numerator
+                    .mu_expansion(&cut, &[lane], &[v0], Some(&[v1]), &mut out2)
+                    .unwrap();
+                assert_close(
+                    &out2,
+                    &[get(&poly, (r, 0, 0)), get(&poly, (r - 1, 0, 0))],
+                    &context("mu expansion with v1"),
+                );
+                let mut out1 = [C64::ZERO];
+                numerator
+                    .mu_expansion(&cut, &[lane], &[v0], None, &mut out1)
+                    .unwrap();
+                assert_close(&out1, &[get(&poly, (r, 0, 0))], &context("mu expansion"));
+
+                // t3 expansions: the numerator's own mu² is the cut's mu².
+                let mu2_poly = linear(&[((0, 0, 1), C64::ONE)]);
+                let (a, e3, e4, param) = (rng.cmom(), rng.cmom(), rng.cmom(), rng.c());
+                let poly = reference_mu_numerator(
+                    &numerator,
+                    lane,
+                    &std::array::from_fn(|mu| {
+                        linear(&[
+                            ((0, 0, 0), a[mu]),
+                            ((1, 0, 0), e3[mu]),
+                            ((-1, 0, 0), param * e4[mu]),
+                            ((-1, 0, 1), e4[mu]),
+                        ])
+                    }),
+                    &mu2_poly,
+                );
+                for mindeg in 0..=4 {
+                    let mut out = vec![C64::ZERO; t3_len(mindeg)];
+                    numerator
+                        .t3_expansion(
+                            &cut,
+                            &[lane],
+                            &[a],
+                            &[e3],
+                            &[e4],
+                            &[param],
+                            mindeg,
+                            &mut out,
+                        )
+                        .unwrap();
+                    let mut expected = Vec::new();
+                    for i in 0..=mindeg {
+                        for j in 0..=i / 2 {
+                            expected.push(get(&poly, (r - i as i32, 0, j as u16)));
+                        }
+                    }
+                    // Nothing beyond the layout's mu² powers.
+                    for (&(t, x, m), value) in &poly {
+                        if x == 0 && t > r - 5 && (r - t) >= 0 && m as i32 > (r - t) / 2 {
+                            assert!(value.abs() < 1e-12, "{}", context("t3 excess mu²"));
+                        }
+                    }
+                    assert_close(&out, &expected, &context(&format!("t3 mindeg {mindeg}")));
+                }
+
+                // t2 expansions.
+                let (a0, a1, e3, e4) = (rng.cmom(), rng.cmom(), rng.cmom(), rng.cmom());
+                let p = [rng.c(), rng.c(), rng.c()];
+                let poly = reference_mu_numerator(
+                    &numerator,
+                    lane,
+                    &std::array::from_fn(|mu| {
+                        linear(&[
+                            ((0, 0, 0), a0[mu]),
+                            ((0, 1, 0), a1[mu]),
+                            ((1, 0, 0), e3[mu]),
+                            ((-1, 0, 0), p[0] * e4[mu]),
+                            ((-1, 1, 0), p[1] * e4[mu]),
+                            ((-1, 2, 0), p[2] * e4[mu]),
+                            ((-1, 0, 1), e4[mu]),
+                        ])
+                    }),
+                    &mu2_poly,
+                );
+                const LAYOUT: [&[(u16, u16)]; 4] = [
+                    &[(0, 0)],
+                    &[(0, 0), (1, 0)],
+                    &[(0, 0), (0, 1), (1, 0), (2, 0)],
+                    &[(0, 0), (0, 1), (1, 0), (1, 1), (2, 0), (3, 0)],
+                ];
+                for mindeg in 0..=3 {
+                    let mut out = vec![C64::ZERO; t2_len(mindeg)];
+                    numerator
+                        .t2_expansion(
+                            &cut,
+                            &[lane],
+                            &[a0],
+                            &[a1],
+                            &[e3],
+                            &[e4],
+                            &[p],
+                            mindeg,
+                            &mut out,
+                        )
+                        .unwrap();
+                    let mut expected = Vec::new();
+                    for (i, order) in LAYOUT.iter().enumerate().take(mindeg + 1) {
+                        for &(x, m) in order.iter() {
+                            expected.push(get(&poly, (r - i as i32, x, m)));
+                        }
+                    }
+                    assert_close(&out, &expected, &context(&format!("t2 mindeg {mindeg}")));
+                }
+            }
+        }
+    }
+    assert!(MuTensorNumerator::new(3, 2, 1).is_err());
+}
+
+#[test]
+fn mu_free_tensor_numerators_agree_bitwise() {
+    // With no mu² powers the block sweep is the plain tensor sweep.
+    let mut rng = Rng(23);
+    let rank = 5;
+    let mut plain = TensorNumerator::new(rank, 2);
+    for c in plain.coefficients_mut() {
+        *c = rng.c();
+    }
+    let mut mu = MuTensorNumerator::new(rank, 0, 2).unwrap();
+    mu.coefficients_mut().copy_from_slice(plain.coefficients());
+    let lanes = [1, 0];
+    let (a, e3, e4): (Vec<CMom>, Vec<CMom>, Vec<CMom>) = (
+        (0..2).map(|_| rng.cmom()).collect(),
+        (0..2).map(|_| rng.cmom()).collect(),
+        (0..2).map(|_| rng.cmom()).collect(),
+    );
+    let param: Vec<C64> = (0..2).map(|_| rng.c()).collect();
+    for mindeg in 0..=4 {
+        let mut x = vec![C64::ZERO; 2 * t3_len(mindeg)];
+        let mut y = x.clone();
+        plain
+            .t3_expansion(&[0], &lanes, &a, &e3, &e4, &param, mindeg, &mut x)
+            .unwrap();
+        mu.t3_expansion(&[0], &lanes, &a, &e3, &e4, &param, mindeg, &mut y)
+            .unwrap();
+        assert_eq!(x, y);
     }
 }
 

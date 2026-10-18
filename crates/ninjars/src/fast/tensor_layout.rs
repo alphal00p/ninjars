@@ -27,6 +27,25 @@ pub const fn block_offset(rank: usize) -> usize {
     if rank == 0 { 0 } else { ncoeff(rank - 1) }
 }
 
+/// Coefficients of a rank-`rank` numerator with explicit `mu²` powers
+/// `0..=mu_powers` (see [`super::MuTensorNumerator`]): block `k` is a dense
+/// rank-`(rank - 2k)` tensor multiplying `mu^(2k)`, so the total is
+/// `sum_k binomial(rank - 2k + 4, 4)`. Requires `2 * mu_powers <= rank`.
+pub const fn ncoeff_mu(rank: usize, mu_powers: usize) -> usize {
+    mu_block_offset(rank, mu_powers + 1)
+}
+
+/// Offset of the `mu^(2k)` block of a [`ncoeff_mu`] layout.
+pub const fn mu_block_offset(rank: usize, k: usize) -> usize {
+    let mut total = 0;
+    let mut j = 0;
+    while j < k {
+        total += ncoeff(rank - 2 * j);
+        j += 1;
+    }
+    total
+}
+
 /// Index of `q0^e0 q1^e1 q2^e2 q3^e3` inside its homogeneous block.
 pub fn homogeneous_index(exponents: [u32; 4]) -> usize {
     let [e0, e1, e2, e3] = exponents;

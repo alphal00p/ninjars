@@ -39,6 +39,10 @@ pub enum PhysicalPreparationError {
     PhotonBoxes(usize),
     #[error("generated Higgs-to-gluon graph has incompatible external states")]
     ExternalStates,
+    #[error(
+        "expected a gluon loop, a ghost loop and one loop per quark flavor ({expected} graphs); found {found}"
+    )]
+    SelfEnergies { expected: usize, found: usize },
 }
 
 /// Prepare the six oriented top-quark boxes for `gamma gamma -> gamma gamma`.
@@ -186,6 +190,106 @@ pub fn prepare_top_higgs_gluons(
         .map(|diagram| {
             // Reuse FeynKit's physical-leg port identification. Its complete
             // amplitude expression is not used as a reduction numerator.
+            let amplitude = Amplitude::from_diagram(diagram.clone())?;
+            let gluons: Vec<_> = amplitude
+                .legs()
+                .iter()
+                .filter(|leg| leg.particle == gluon)
+                .collect();
+            if gluons.len() != 2 {
+                return Err(PhysicalPreparationError::ExternalStates);
+            }
+            let projector = diagram.projector()
+                * color.expression([gluons[0].index_atom(), gluons[1].index_atom()]);
+            prepare_diagram(
+                diagram.with_projector(projector),
+                kinematics,
+                NumeratorMode::Explicit,
+            )
+            .and_then(PreparedIntegrand::with_color_dimension_invariants)
+            .map_err(Box::new)
+            .map_err(PhysicalPreparationError::from)
+        })
+        .collect()
+}
+
+/// Generate and prepare the one-loop QCD gluon self-energy `g -> g`.
+///
+/// Admits the model's ghost-ghost-gluon, three- and four-gluon vertices and
+/// the quark-gluon vertex of every flavor in `quark_pdgs` (positive PDG codes).
+/// FeynKit supplies the gluon-loop symmetry factor `1/2`, the ghost- and
+/// quark-loop signs `-1`, Feynman-gauge rules and routing; the massless
+/// four-gluon tadpole (a self-loop, zero in dimensional regularization) is not
+/// generated. As for `H -> g g`, the external color tensor is projected with
+/// `delta_ab / 8` (the coefficient of `delta_ab`), there is no spin sum, and
+/// incoming `epsilon(edge)` / outgoing `epsilonbar(edge)` carriers remain
+/// symbolic. The sum of all graphs is transverse, `p_mu Pi^{mu nu} = 0`, for
+/// a d-dimensional loop momentum (FDH: [`crate::R2Scheme::Fdh`]); with a
+/// four-dimensional numerator the missing `mu^2` terms (R2) break it.
+pub fn prepare_gluon_self_energy(
+    model: impl Into<Arc<Model>>,
+    kinematics: &Kinematics,
+    quark_pdgs: &[i64],
+) -> Result<Vec<PreparedIntegrand>, PhysicalPreparationError> {
+    if kinematics.dimension() != Dimension::Concrete(4) {
+        return Err(PhysicalPreparationError::Dimension);
+    }
+    let model = model.into();
+    let gluon = model.particle_id_by_pdg(21)?;
+    let name = model.particle_by_id(gluon)?.name.clone();
+    let ghost = model.particle_id_by_pdg(9000005)?;
+    let antighost = model.particle_id_by_pdg(-9000005)?;
+    let mut allowed: Vec<Vec<_>> = vec![
+        vec![ghost, antighost, gluon],
+        vec![gluon; 3],
+        vec![gluon; 4],
+    ];
+    for &pdg in quark_pdgs {
+        allowed.push(vec![
+            model.particle_id_by_pdg(pdg)?,
+            model.particle_id_by_pdg(-pdg)?,
+            gluon,
+        ]);
+    }
+    let mut vertices = Vec::new();
+    for required in &mut allowed {
+        required.sort();
+        let selected: Vec<_> = model
+            .vertex_rules()
+            .iter()
+            .filter(|vertex| {
+                let mut particles = vertex.particles.clone();
+                particles.sort();
+                particles == *required
+            })
+            .map(|vertex| vertex.name.clone().into())
+            .collect();
+        if selected.len() != 1 {
+            return Err(PhysicalPreparationError::Vertex("QCD", selected.len()));
+        }
+        vertices.extend(selected);
+    }
+    let options = GenerationOptions::default()
+        .with_loop_count(1, 1)
+        .expect("the fixed one-loop range is valid")
+        .threads(1)
+        .numerator_grouping(NumeratorGrouping::None)
+        .with_graph_filter(GenerationFilter::MaxNumberOfBridges(0))
+        .with_graph_filter(GenerationFilter::VertexAllow(vertices));
+    let process = Process::new([name.clone()], [name]);
+    let generated = process.generate_diagrams(model.clone(), &options)?;
+    let expected = 2 + quark_pdgs.len();
+    if generated.diagrams.len() != expected {
+        return Err(PhysicalPreparationError::SelfEnergies {
+            expected,
+            found: generated.diagrams.len(),
+        });
+    }
+    let color = ColorSum::new(model.particle_by_id(gluon)?)?.averaged(true);
+    generated
+        .diagrams
+        .into_iter()
+        .map(|diagram| {
             let amplitude = Amplitude::from_diagram(diagram.clone())?;
             let gluons: Vec<_> = amplitude
                 .legs()

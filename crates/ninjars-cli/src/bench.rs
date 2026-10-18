@@ -44,6 +44,10 @@ pub struct Args {
     pub model: Option<String>,
     #[arg(long)]
     pub feynman_rules: bool,
+    /// R2 from the numerator: `off` (four-dimensional loop momentum, R1 only)
+    /// or `fdh` (K.K -> q.q - mu^2 in FDH; the mu^2 terms give R2).
+    #[arg(long, value_enum, default_value = "off")]
+    pub r2: prepare::R2,
     /// Reduction engine; `fast` requires --precision f64 and the default box mode.
     #[arg(long, value_enum, default_value = "generic")]
     pub engine: Engine,
@@ -96,6 +100,7 @@ impl Args {
             samples: self.samples.clone(),
             model: self.model.clone(),
             feynman_rules: self.feynman_rules,
+            r2: self.r2,
             engine: self.engine,
             precision: self.precision,
             numerator_evaluator: self.numerator_evaluator,
@@ -539,6 +544,7 @@ pub(crate) fn run(args: Args) -> Result<()> {
         samples: args.samples.clone(),
         model: args.model.clone(),
         feynman_rules: args.feynman_rules,
+        r2: args.r2,
         output: None,
         #[cfg(feature = "reference-codegen")]
         reference_dir: None,

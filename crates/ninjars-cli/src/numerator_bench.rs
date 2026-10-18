@@ -48,6 +48,10 @@ pub struct Args {
     /// Re-apply the model's Feynman rules instead of the DOT's local factors.
     #[arg(long)]
     pub feynman_rules: bool,
+    /// R2 from the numerator: `off` (four-dimensional loop momentum, R1 only)
+    /// or `fdh` (K.K -> q.q - mu^2 in FDH; the tensor gains mu^2 blocks).
+    #[arg(long, value_enum, default_value = "off")]
+    pub r2: crate::prepare::R2,
     #[arg(long, value_enum, default_value = "symjit-o2")]
     pub backend: Backend,
     /// Factor coefficient heads exactly before compilation.
@@ -204,8 +208,13 @@ fn check_case(
     threshold: f64,
 ) -> Result<Value> {
     let case: Value = serde_json::from_str(&fs::read_to_string(case)?)?;
-    if case["format"] != "ninjars-bench-case-v1" {
-        return Err("--check-case expects a ninjars-bench-case-v1 file".into());
+    let mu_powers = match case["format"].as_str() {
+        Some("ninjars-bench-case-v1") => 0,
+        Some("ninjars-bench-case-v2") => case["mu_powers"].as_u64().unwrap_or(0) as usize,
+        _ => return Err("--check-case expects a ninjars-bench-case-v1/v2 file".into()),
+    };
+    if mu_powers != numerator.mu_powers() {
+        return Err("bench case mu^2 powers differ from the physical numerator".into());
     }
     let lanes = case["lanes"].as_array().ok_or("bench case has no lanes")?;
     if lanes.len() != pool.points.len() {
@@ -344,6 +353,7 @@ pub fn run(args: Args) -> Result<()> {
             Backend::SymjitO2 => CoefficientBackend::SymJitO2,
             Backend::Interpreter => CoefficientBackend::Interpreter,
         },
+        r2: args.r2.scheme(),
     };
     let start = Instant::now();
     let mut numerator = PhysicalTensorNumerator::new(&spec)?;
@@ -454,6 +464,8 @@ pub fn run(args: Args) -> Result<()> {
         "propagators": numerator.propagators(),
         "rank": numerator.rank(),
         "numerator_degree": plan.rank(),
+        "r2": args.r2.name(),
+        "mu_powers": numerator.mu_powers(),
         "ncoeff": numerator.ncoeff(),
         "nonzero_tensor_slots": numerator.tensor_plan().entries().len(),
         "coefficient_heads": numerator.head_count(),

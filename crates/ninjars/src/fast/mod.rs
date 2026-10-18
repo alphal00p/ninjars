@@ -16,7 +16,9 @@
 //!   `rank <= n + 1` (`Xninja.cc`), including its skip rules and stability
 //!   checks. Coefficient-level subtractions are translated mechanically from
 //!   Ninja (`tools/fast/translate_subtractions.py` → `subtractions.rs`).
-//! - [`TensorNumerator`] is Ninja's/MadLoop's tensor numerator.
+//! - [`TensorNumerator`] is Ninja's/MadLoop's tensor numerator;
+//!   [`MuTensorNumerator`] extends it with explicit `mu²` powers
+//!   (`sum_k mu^(2k) T_k(q)`, e.g. FDH numerators carrying R2).
 //! - [`GenericNumerator`] / [`GenericMasters`] adapt the generic NinjaRS
 //!   provider traits; [`replay`] records providers and replays them in O(1)
 //!   to time the pure reduction.
@@ -32,6 +34,7 @@ mod subtractions;
 pub mod tensor;
 mod tensor_jets;
 pub mod tensor_layout;
+pub mod tensor_mu;
 #[cfg(test)]
 mod tests;
 
@@ -42,6 +45,7 @@ pub use masters::{FastMaster, FastMasters};
 pub use numerator::{FastNumerator, t2_len, t3_len};
 pub use replay::{RecordingMasters, RecordingNumerator, ReplayMasters, ReplayNumerator};
 pub use tensor::TensorNumerator;
+pub use tensor_mu::MuTensorNumerator;
 
 /// Lane-major numerical inputs of a fast-path evaluation.
 ///

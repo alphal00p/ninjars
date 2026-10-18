@@ -239,7 +239,7 @@ impl Drop for TemporaryFixture {
 #[test]
 fn fast_engine_matches_generic_and_original_ninja_on_synthetic_fixtures() {
     // Every synthetic numerator has explicit mu^2 terms, so the fast engine
-    // runs the polynomial numerator behind its generic adapter.
+    // runs the tensor numerator with mu^2 blocks (MuTensorNumerator).
     let mut checked = 0;
     for fixture in [
         "examples/graphs/bubble.json",
@@ -247,9 +247,12 @@ fn fast_engine_matches_generic_and_original_ninja_on_synthetic_fixtures() {
         "examples/graphs/triangle-reference.json",
     ] {
         let fast = compare_engines(fixture, &["--batch-size", "2"]);
-        assert_eq!(
-            fast["numerator_provider"]["interface"],
-            "generic-polynomial"
+        assert_eq!(fast["numerator_provider"]["interface"], "mu-tensor");
+        assert!(
+            fast["numerator_provider"]["tensor"]["mu_powers"]
+                .as_u64()
+                .unwrap()
+                >= 1
         );
         assert_eq!(fast["numerator_provider"]["evaluator"], "symbolica");
         checked += prepared_graph_checks(fixture, &fast);
@@ -620,10 +623,7 @@ fn fast_engine_rejects_complex_external_kinematics() {
 #[test]
 fn bench_fast_engine_runs_and_matches_reduce() {
     for (fixture, interface) in [
-        (
-            "examples/graphs/bubble.json".to_string(),
-            "generic-polynomial",
-        ),
+        ("examples/graphs/bubble.json".to_string(), "mu-tensor"),
         (pool("hgg/top-triangle-0"), "tensor"),
     ] {
         let reduced = reduce(&fixture, &["--engine", "fast"]);
@@ -665,12 +665,13 @@ fn bench_fast_engine_runs_and_matches_reduce() {
             assert_eq!(case["warmup_final_pass_failed_lanes"], 0);
             assert!(diagnostic["masters"]["rows"].as_u64().unwrap() > 0);
             assert!(diagnostic["numerator_expansion"]["rows"].as_u64().unwrap() > 0);
-            assert_eq!(
+            // Both tensor interfaces evaluate their coefficient heads per batch.
+            assert!(
                 diagnostic["numerator_coefficients"]["calls"]
                     .as_u64()
                     .unwrap()
                     > 0,
-                interface == "tensor"
+                "{interface}"
             );
             let stages = &diagnostic["same_pass_nanoseconds"];
             let ns = |name: &str| stages[name].as_u64().unwrap();

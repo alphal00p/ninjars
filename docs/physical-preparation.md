@@ -60,9 +60,118 @@ The probe runs fixed CutTools mode 1 (double) and fixed mode 4 (quadruple), alwa
 
 The on-shell triangle exposed a bubble-cut Weyl-chart singularity for a lightlike external separation with equal nonzero internal masses. The shared-basis fix now evaluates all samples successfully. Reproduce the integrated matrix with `python3 validation/madloop/compare_hgg.py`; `validation/evidence/physical-hgg-cli.json` records both orientations, f64/DoubleFloat/Float256, and batch sizes one/two, including incomplete tails.
 
-The historical baseline passes 32 of 36 rows at the scaled `1e-9` gate; four f64 double-longitudinal rows miss only the expected-zero single pole, at `1.066920211437358e-9`. That failed record is retained. The later combined coefficient-alias repair and dependency update passes **all 36 rows**, with maximum error `5.062690174549114e-10`, recorded in `validation/evidence/physical-hgg-cli-coefficient-aliases.json`. The tolerance is unchanged; the combined rerun does not isolate which change reduced cancellation. The double-longitudinal samples are independent numerator-contraction diagnostics; the no-R2 integrated contribution is nonzero, and no complete Ward-identity claim is made. Physical performance acceptance and automatic generic helicity preparation remain outstanding.
+The historical baseline passes 32 of 36 rows at the scaled `1e-9` gate; four f64 double-longitudinal rows miss only the expected-zero single pole, at `1.066920211437358e-9`. That failed record is retained. The later combined coefficient-alias repair and dependency update passes **all 36 rows**, with maximum error `5.062690174549114e-10`, recorded in `validation/evidence/physical-hgg-cli-coefficient-aliases.json`. The tolerance is unchanged; the combined rerun does not isolate which change reduced cancellation. The double-longitudinal samples are independent numerator-contraction diagnostics; the no-R2 integrated contribution is nonzero. With `--r2 fdh` it vanishes (see [R2 rational terms in FDH](#r2-rational-terms-in-fdh)). Physical performance acceptance and automatic generic helicity preparation remain outstanding.
 
 FeynKit PR [#144](https://github.com/alphal00p/gammaloop/pull/144) makes explicit one-thread generation stay on the calling thread, including numerator/color preparation. It is stacked on shared-type PR #143; the full generator unit suite passes (104 tests), including the caller-thread and two/four-worker regressions, with strict crate Clippy and formatting checks.
+
+# R2 rational terms in FDH
+
+`--r2 off|fdh` (all CLI commands that build a physical numerator) and
+`ninjars_graph::R2Scheme` select how the contracted numerator's scalar
+products of the loop momentum `K` are bound to components
+(`PreparedIntegrand::dimensional_kinematics`):
+
+| `--r2` | `K.K` | `K.P`, `K.eps` | numerator | reduction result |
+|---|---|---|---|---|
+| `off` (default) | `q0^2-q1^2-q2^2-q3^2` | four-dimensional | `N(q)`, no `mu^2` | cut-constructible + R1 |
+| `fdh` | `q0^2-q1^2-q2^2-q3^2-mu2` | four-dimensional | `N(q, mu^2)` | cut-constructible + R1 + R2 (FDH) |
+
+In the four-dimensional-helicity scheme the internal Lorentz/Dirac algebra is
+`d_s = 4` dimensional while the loop momentum `Kbar` is d-dimensional,
+`Kbar^2 = q^2 - mu^2` and `Kbar.p = q.p` for four-dimensional external momenta
+and polarizations. FeynKit's rules and Idenso's `AlgebraSettings::hep()`
+contract all indices with `d_s = 4` identities on abstract vectors and return
+a polynomial in scalar products, so binding `K.K -> q.q - mu^2` yields exactly
+the FDH numerator, whose explicit `mu^2` terms give all of R2 (the
+d-dimensional denominators give R1). `mu^2` has rank weight two, so the
+rank is unchanged. `--r2 off` results are bit-for-bit those of earlier releases.
+
+**Assumption check.** Idenso evaluates closed traces without `gamma5` by the
+dimension-generic trace recursion (`TRACE_GAMMA_RECURSION`) with `Tr 1 = 4`,
+and adjacent contractions by the Clifford relation with `g^mu_mu = 4`; neither
+expands `K` into components. Its four-dimensional-only rules are the
+`gamma5` trace recursion with Levi-Civita tensors (and the epsilon-pair
+determinant pass), the optional three-gamma Chisholm expansion (off in
+`hep()`), and the "Chisholm" contraction of a repeated Lorentz index around a
+Dirac chain, whose odd/even reversal formulas are four-dimensional for five or
+more interior gammas. At one loop the latter needs an internal vector attached
+twice to an open fermion line. A metric between external indices in the
+projector (a polarization sum) is a four-dimensional regular metric that the
+scalar-product binding cannot distinguish from internal ones. `--r2 fdh`
+therefore rejects (`PreparedIntegrand::check_fdh`, `PreparationError::UnsupportedFdh`)
+numerators containing `gamma5` or chiral projectors, Levi-Civita tensors,
+external spinors, or Minkowski metrics in the projector. The H→gg,
+gg→HH(H), four-photon and gluon self-energy graphs contain none of these:
+their Dirac structures are closed top-quark traces whose Lorentz indices are
+contracted with external polarization vectors.
+
+**HV/CDR are not implemented.** With internal gluons, HV/CDR also contract
+`(d_s - 4)`-dimensional internal indices (`g^mu_mu = 4 - 2 eps`,
+`gamma^mu a-slash gamma_mu = (2 - d) a-slash`), adding `N0 + eps N1 + eps^2 N2`
+pieces that multiply UV poles and are not encoded in `mu^2`; these are the
+`lambda_HV` parts of the R2 vertices (MadGraph's `loop_sm` sets `lhv = 1`).
+FDH results convert to HV/CDR with the universal scheme shifts after
+renormalization, or the `eps N1` pieces can be reduced separately. Closed
+fermion, scalar or ghost loops with only external bosons have no such terms:
+their R2 is scheme independent (`R2_GGHt`, `R2_GGHHt`, `R2_GGt`, γγ→γγ).
+
+**Fast path.** `ninjars::fast::MuTensorNumerator` stores
+`N = sum_k mu^(2k) T_k(q)` with `T_k` a dense rank-`(R-2k)` tensor in Ninja's
+layout and reuses the truncated-jet Horner sweep block by block: `t^-R
+mu^(2k) T_k(q) = mu^(2k) u^(2k) J_k(u)` shifts block `k` by `2k` Laurent
+orders and `k` powers of `mu^2` in Ninja's `t3`/`t2` layouts, and contributes
+`(v0^2)^k` times its own leading coefficients in the box `mu`-expansion.
+`TensorCoefficientPlan::with_mu_squared` lays out the coefficient heads (it
+is identical to `with_rank` without `mu^2` terms), `reduce --engine fast`,
+`pipeline-bench` and `case-bench` dispatch to it only for numerators with
+`mu^2` terms, and the `mu^2`-free path is unchanged.
+
+**Validation** (`crates/ninjars-cli/tests/r2.rs`, `crates/ninjars-graph/tests/r2.rs`):
+
+- The FDH binding equals the four-dimensional binding after `K.K -> K.K - mu^2`
+  for both H→gg orientations, all six four-photon boxes and the four gluon
+  self-energy graphs, with unchanged rank.
+- H→gg: `--r2 fdh` changes only the rational part. The sum of both
+  orientations equals MadGraph5 `loop_sm`'s `V_GGH` R2 vertex,
+  `R2_GGHt = 4 (-i yt/sqrt 2)(1/2) G^2/(8 pi^2) MT` with color `Tr(Ta Tb)`
+  and Lorentz `g^{mu nu}`, to `8e-16` relative: in NinjaRS normalization
+  `16 pi^2 M = 16 pi^2 (-i) R2_GGHt (1/2) eps1bar.eps2bar` (MadLoop amplitudes
+  are `NinjaRS/(16 pi^2)` by the matched conversion above; ALOHA amplitudes
+  carry `-i`), i.e. `+360.490...` for (++) at the committed parameters. The
+  double-longitudinal sample, `1.41e6` without R2, vanishes (`7e-10`) with it.
+  `pipeline-bench` reproduces the same R2 per orientation from raw momenta and
+  FeynKit wavefunctions.
+- SU(3) gluon self-energy (`examples/graphs/physical/gluon-self-energy`:
+  gluon loop with symmetry factor 1/2, ghost loop with sign -1, massless down
+  and massive top loops): with one or both polarizations replaced by `p`,
+  `p_mu Pi^{mu nu}` vanishes to `1e-12` relative with `--r2 fdh`, separately
+  for the gauge part and each quark, while `--r2 off` leaves up to `2e6`.
+- Four photons through a top loop: replacing one polarization by its momentum,
+  the sum of the six boxes vanishes (`1e-10` against boxes of `5e4`) with
+  `--r2 fdh` and not without (`37`).
+- Fast and generic engines agree to the 1e-9 criterion; generic f64,
+  DoubleFloat and Float(200) agree to `1e-9` and `1e-20` of the largest value.
+
+**Cost on the fast path** (`pipeline-bench`, one core, widths 1/32/128,
+[`validation/benchmark/ninjars/r2-fdh-pipeline.json`](../validation/benchmark/ninjars/r2-fdh-pipeline.json)).
+`--r2 off` reproduces the main-branch pipeline bit for bit (identical
+original-Ninja comparisons on all seven graphs; timings within noise). With
+`--r2 fdh` the triangles gain one `mu^2` coefficient (16 instead of 15) and the
+boxes and the pentagon two blocks (86 instead of 70); every graph stays on the
+tensor path:
+
+| graph | total fdh/off (w=1, 32, 128) | tensor numerator fdh/off (w=1, 32, 128) |
+|---|---|---|
+| H→gg triangle | 1.08, 1.02, 1.03 | 1.53, 1.21, 1.20 |
+| γγ→γγ box | 1.07, 1.04, 1.06 | 1.18, 1.08, 1.08 |
+| gg→HH triangle | 1.11, 1.02, 1.02 | 1.61, 1.18, 1.18 |
+| gg→HH box | 1.07, 1.04, 1.06 | 1.17, 1.11, 1.09 |
+| gg→HHH triangle | 1.10, 1.04, 1.03 | 1.60, 1.20, 1.18 |
+| gg→HHH box | 1.07, 1.04, 1.05 | 1.19, 1.12, 1.15 |
+| gg→HHH pentagon | 1.03, 1.01, 1.00 | 1.22, 1.16, 1.17 |
+
+The pentagon's R2 vanishes (rational parts unchanged to `1e-18`), the gg→HH
+box's is the same `0.976` at all three points.
 
 # Larger physical graphs
 

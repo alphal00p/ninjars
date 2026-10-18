@@ -16,6 +16,10 @@
 //!   masters; the difference to `reduction` is the tensor-numerator time;
 //! - `masters`: the recorded master calls replayed through the live native
 //!   provider, family by family, without any reduction.
+//!
+//! `--r2 fdh` binds the loop momentum d-dimensionally (FDH), so the tensor
+//! carries explicit `mu^2` blocks and the reduction runs with
+//! `MuTensorNumerator`; `--r2 off` (default) keeps Ninja's `TensorNumerator`.
 
 use std::{
     error::Error,
@@ -29,7 +33,7 @@ use std::{
 use clap::Args as ClapArgs;
 use ninjars::fast::{
     C64, FastAmplitude, FastInput, FastMaster, FastMasters, FastOptions, FastResult, FastStatus,
-    RMom, RecordingMasters, RecordingNumerator, TensorNumerator,
+    MuTensorNumerator, RMom, RecordingMasters, RecordingNumerator, TensorNumerator,
 };
 use ninjars_graph::{
     CoefficientBackend, NumeratorMode, PhysicalNumeratorSpec, PhysicalTensorNumerator,
@@ -38,7 +42,11 @@ use ninjars_symbolica::OneLoopNativeMasters;
 use serde_json::{Value, json};
 use symbolica::{atom::Atom, domains::float::Complex, parser::ParseSettings};
 
-use crate::numerator_bench::{Pool, affinity, generation_json, measure, model, ns};
+use crate::{
+    fast_runtime::DenseNumerator,
+    numerator_bench::{Pool, affinity, generation_json, measure, model, ns},
+    prepare::R2,
+};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
@@ -52,6 +60,10 @@ pub struct Args {
     /// Re-apply the model's Feynman rules instead of the DOT's local factors.
     #[arg(long)]
     pub feynman_rules: bool,
+    /// R2 from the numerator: `off` (four-dimensional loop momentum, R1 only)
+    /// or `fdh` (K.K -> q.q - mu^2 in FDH; the mu^2 tensor blocks give R2).
+    #[arg(long, value_enum, default_value = "off")]
+    pub r2: R2,
     /// Factor coefficient heads exactly before compilation.
     #[arg(long)]
     pub factor: bool,
@@ -134,29 +146,29 @@ impl Batch {
 }
 
 /// Reusable per-width buffers of the whole pipeline.
-struct Pipeline {
+struct Pipeline<N> {
     tensor_raw: Vec<Complex<f64>>,
     masses_raw: Vec<Complex<f64>>,
     shifts: Vec<RMom>,
     masses: Vec<C64>,
     s_matrix: Vec<f64>,
-    tensor: TensorNumerator,
+    tensor: N,
     results: Vec<FastResult>,
     statuses: Vec<FastStatus>,
 }
 
-impl Pipeline {
-    fn new(n: usize, rank: usize, ncoeff: usize, width: usize) -> Self {
-        Self {
+impl<N: DenseNumerator> Pipeline<N> {
+    fn new(n: usize, rank: usize, mu_powers: usize, ncoeff: usize, width: usize) -> Result<Self> {
+        Ok(Self {
             tensor_raw: vec![Complex::new(0., 0.); width * ncoeff],
             masses_raw: vec![Complex::new(0., 0.); width * n],
             shifts: vec![[0.; 4]; width * n],
             masses: vec![C64::ZERO; width * n],
             s_matrix: vec![0.; width * n * n],
-            tensor: TensorNumerator::new(rank, width),
+            tensor: N::with_lanes(rank, mu_powers, width)?,
             results: vec![FastResult::default(); width],
             statuses: vec![FastStatus::NotEvaluated; width],
-        }
+        })
     }
 
     /// Numerator preparation: tensor coefficients and propagator data.
@@ -243,68 +255,36 @@ fn compare_reference(path: &Path, batch: &Batch, results: &[FastResult]) -> Resu
     }))
 }
 
-pub fn run(args: Args) -> Result<()> {
-    let fixture: Value = serde_json::from_str(&fs::read_to_string(&args.input)?)?;
-    let base = args.input.parent().unwrap_or_else(|| Path::new("."));
-    let graph = base.join(fixture["graph"].as_str().ok_or("fixture has no graph")?);
-    let model_name = fixture["model"].as_str().unwrap_or("phi3");
-    let pool: Pool = serde_json::from_str(&fs::read_to_string(&args.points)?)?;
-    if pool.format != "ninjars-phase-space-pool-v1" {
-        return Err("--points expects a ninjars-phase-space-pool-v1 file".into());
-    }
-    let fixed_parameters = pool
-        .fixed_parameters
-        .iter()
-        .map(|(name, value)| {
-            Ok((
-                name.clone(),
-                Atom::parse(value, "ninjars", ParseSettings::default())
-                    .map_err(|e| format!("fixed parameter {name}: {e}"))?,
-            ))
-        })
-        .collect::<Result<_>>()?;
-    let spec = PhysicalNumeratorSpec {
-        model: Arc::new(model(model_name, base)?),
-        dot: fs::read_to_string(&graph)?,
-        numerator_mode: if args.feynman_rules {
-            NumeratorMode::FeynmanRules
-        } else {
-            NumeratorMode::Explicit
-        },
-        color_dimension_invariants: fixture["color_dimension_invariants"]
-            .as_bool()
-            .unwrap_or(false),
-        runtime_parameters: pool.model_parameters.clone(),
-        fixed_parameters,
-        factor_coefficients: args.factor,
-        tensor_rank: args.rank,
-        backend: CoefficientBackend::SymJitO2,
-    };
-    let start = Instant::now();
-    let mut numerator = PhysicalTensorNumerator::new(&spec)?;
-    let construction = start.elapsed();
-    let (n, rank, ncoeff) = (
+/// Time every width with the dense numerator type `N` (monomorphized, so the
+/// `--r2 off` path is exactly Ninja's `TensorNumerator` pipeline).
+fn time_widths<N: DenseNumerator>(
+    args: &Args,
+    pool: &Pool,
+    numerator: &mut PhysicalTensorNumerator,
+    amplitude: &mut FastAmplitude,
+    masters: &mut OneLoopNativeMasters,
+) -> Result<Vec<Value>> {
+    let (n, rank, mu_powers, ncoeff) = (
         numerator.propagators(),
         numerator.rank(),
+        numerator.mu_powers(),
         numerator.ncoeff(),
     );
-    let mut amplitude = FastAmplitude::new(n, rank, FastOptions::default())?;
-    let mut masters = OneLoopNativeMasters::new()?;
     let min_block = Duration::from_secs_f64(args.min_block_ms * 1e-3);
     let threshold = args.on_shell_threshold;
-
     let mut timings = Vec::new();
     for &width in &args.widths {
         if width == 0 {
             return Err("timing widths must be positive".into());
         }
-        let batch = Batch::new(&pool, width);
-        let mut pipe = Pipeline::new(n, rank, ncoeff, width);
+        let batch = Batch::new(pool, width);
+        let mut pipe = Pipeline::<N>::new(n, rank, mu_powers, ncoeff, width)?;
 
         // Record one full evaluation: numerator outputs, master arguments
         // and values.
-        pipe.prepare(&mut numerator, &batch, threshold)?;
-        let mut recording_numerator = RecordingNumerator::new(TensorNumerator::new(rank, width));
+        pipe.prepare(numerator, &batch, threshold)?;
+        let mut recording_numerator =
+            RecordingNumerator::new(N::with_lanes(rank, mu_powers, width)?);
         recording_numerator
             .inner_mut()
             .coefficients_mut()
@@ -333,6 +313,22 @@ pub fn run(args: Args) -> Result<()> {
             .as_ref()
             .map(|path| compare_reference(path, &batch, &pipe.results))
             .transpose()?;
+        // Integrated results of the recorded evaluation, one per distinct pool point.
+        let lane_results: Vec<Value> = pipe
+            .results
+            .iter()
+            .zip(&batch.ids)
+            .take(pool.points.len())
+            .map(|(result, id)| {
+                let pair = |z: C64| [z.re, z.im];
+                json!({
+                    "id": id,
+                    "laurent": result.laurent.map(pair),
+                    "cut_constructible": pair(result.cut_constructible),
+                    "rational": pair(result.rational),
+                })
+            })
+            .collect();
         let mut replay_numerator = recording_numerator.replay();
         let mut replay_masters = recorder.inner.replay();
         let master_calls = recorder.calls;
@@ -382,12 +378,12 @@ pub fn run(args: Args) -> Result<()> {
             Ok(())
         })?;
         let preparation = measure(args.blocks, min_block, width, || {
-            pipe.prepare(&mut numerator, &batch, threshold)?;
+            pipe.prepare(numerator, &batch, threshold)?;
             black_box(&pipe.s_matrix);
             Ok(())
         })?;
         let total = measure(args.blocks, min_block, width, || {
-            pipe.prepare(&mut numerator, &batch, threshold)?;
+            pipe.prepare(numerator, &batch, threshold)?;
             let input = FastInput {
                 lanes: width,
                 shifts: &pipe.shifts,
@@ -398,7 +394,7 @@ pub fn run(args: Args) -> Result<()> {
             amplitude.evaluate(
                 &input,
                 &mut pipe.tensor,
-                &mut masters,
+                masters,
                 &mut pipe.results,
                 &mut pipe.statuses,
             )?;
@@ -434,8 +430,72 @@ pub fn run(args: Args) -> Result<()> {
             },
             "master_rows_per_batch": families,
             "reference_check": check,
+            "lane_results": lane_results,
         }));
     }
+    Ok(timings)
+}
+
+pub fn run(args: Args) -> Result<()> {
+    let fixture: Value = serde_json::from_str(&fs::read_to_string(&args.input)?)?;
+    let base = args.input.parent().unwrap_or_else(|| Path::new("."));
+    let graph = base.join(fixture["graph"].as_str().ok_or("fixture has no graph")?);
+    let model_name = fixture["model"].as_str().unwrap_or("phi3");
+    let pool: Pool = serde_json::from_str(&fs::read_to_string(&args.points)?)?;
+    if pool.format != "ninjars-phase-space-pool-v1" {
+        return Err("--points expects a ninjars-phase-space-pool-v1 file".into());
+    }
+    let fixed_parameters = pool
+        .fixed_parameters
+        .iter()
+        .map(|(name, value)| {
+            Ok((
+                name.clone(),
+                Atom::parse(value, "ninjars", ParseSettings::default())
+                    .map_err(|e| format!("fixed parameter {name}: {e}"))?,
+            ))
+        })
+        .collect::<Result<_>>()?;
+    let spec = PhysicalNumeratorSpec {
+        model: Arc::new(model(model_name, base)?),
+        dot: fs::read_to_string(&graph)?,
+        numerator_mode: if args.feynman_rules {
+            NumeratorMode::FeynmanRules
+        } else {
+            NumeratorMode::Explicit
+        },
+        color_dimension_invariants: fixture["color_dimension_invariants"]
+            .as_bool()
+            .unwrap_or(false),
+        runtime_parameters: pool.model_parameters.clone(),
+        fixed_parameters,
+        factor_coefficients: args.factor,
+        tensor_rank: args.rank,
+        backend: CoefficientBackend::SymJitO2,
+        r2: args.r2.scheme(),
+    };
+    let start = Instant::now();
+    let mut numerator = PhysicalTensorNumerator::new(&spec)?;
+    let construction = start.elapsed();
+    let (n, rank, ncoeff) = (
+        numerator.propagators(),
+        numerator.rank(),
+        numerator.ncoeff(),
+    );
+    let mut amplitude = FastAmplitude::new(n, rank, FastOptions::default())?;
+    let mut masters = OneLoopNativeMasters::new()?;
+
+    let timings = if numerator.mu_powers() == 0 {
+        time_widths::<TensorNumerator>(&args, &pool, &mut numerator, &mut amplitude, &mut masters)?
+    } else {
+        time_widths::<MuTensorNumerator>(
+            &args,
+            &pool,
+            &mut numerator,
+            &mut amplitude,
+            &mut masters,
+        )?
+    };
     let report = json!({
         "schema_version": 1,
         "operation": "pipeline-bench",
@@ -447,6 +507,8 @@ pub fn run(args: Args) -> Result<()> {
         "propagators": n,
         "rank": rank,
         "ncoeff": ncoeff,
+        "r2": args.r2.name(),
+        "mu_powers": numerator.mu_powers(),
         "coefficient_heads": numerator.head_count(),
         "coefficients_factored": args.factor,
         "numerator_mode": if args.feynman_rules { "feynman_rules" } else { "explicit" },
@@ -454,7 +516,7 @@ pub fn run(args: Args) -> Result<()> {
         "construction_wall_ns": ns(construction),
         "per_point_timing": timings,
         "cpu_affinity": affinity(),
-        "boundary": "per point: raw binary64 momenta, helicities and model row -> wavefunctions -> SymJIT O2 coefficient heads -> dense Ninja tensor + propagator data (numerator_preparation) -> ninjars::fast reduction with the batched TensorNumerator (tensor_numerator = reduction_and_tensor_numerator - reduction) -> oneloopmaster native masters; total is uninstrumented; setup excluded",
+        "boundary": "per point: raw binary64 momenta, helicities and model row -> wavefunctions -> SymJIT O2 coefficient heads -> dense Ninja tensor + propagator data (numerator_preparation) -> ninjars::fast reduction with the batched TensorNumerator (MuTensorNumerator with explicit mu^2 blocks under --r2 fdh) (tensor_numerator = reduction_and_tensor_numerator - reduction) -> oneloopmaster native masters; total is uninstrumented; setup excluded",
     });
     let report = serde_json::to_string_pretty(&report)? + "\n";
     if let Some(path) = args.output {

@@ -10,6 +10,13 @@
 //! `PolynomialNumerator` (binary64 and high precision) at random complex loop
 //! momenta; the report goes to stdout (or `--report`), the case file holds only
 //! the shared format.
+//!
+//! A numerator with explicit `mu^2` terms (`--r2 fdh`) cannot be written in
+//! original Ninja's tensor layout. It is exported as "ninjars-bench-case-v2":
+//! the same fields plus `mu_powers` `K` and `r2`, with each lane's `tensor`
+//! holding the blocks `T_0, ..., T_K` of `N = sum_k mu^(2k) T_k(q)` (`T_k` of
+//! rank `rank - 2k`, `ninjars::fast::MuTensorNumerator`). The C++ reference
+//! driver accepts only v1; `case-bench` reads both. Mu-free numerators keep v1.
 
 use std::{
     error::Error,
@@ -55,6 +62,10 @@ pub struct Args {
     pub model: Option<String>,
     #[arg(long)]
     pub feynman_rules: bool,
+    /// R2 from the numerator: `off` (four-dimensional loop momentum, R1 only)
+    /// or `fdh` (K.K -> q.q - mu^2 in FDH; the mu^2 terms give R2).
+    #[arg(long, value_enum, default_value = "off")]
+    pub r2: prepare::R2,
     /// Bench-case JSON to write.
     #[arg(short, long)]
     pub output: PathBuf,
@@ -114,11 +125,13 @@ impl Stream {
     }
 }
 
-/// `N(q) = sum_k tensor[k] q^a(k)`, plus the absolute sum of the terms.
+/// `N(q, mu^2) = sum_k tensor[k] q^a(k) (mu^2)^b(k)`, plus the absolute sum
+/// of the terms.
 fn tensor_value(
     plan: &TensorCoefficientPlan,
     tensor: &[Complex<f64>],
     q: &[Complex<f64>; 4],
+    mu_squared: Complex<f64>,
 ) -> (Complex<f64>, f64) {
     let mut value = Complex::new(0., 0.);
     let mut scale = 0.;
@@ -128,6 +141,9 @@ fn tensor_value(
             for _ in 0..power {
                 term *= *component;
             }
+        }
+        for _ in 0..entry.mu_power {
+            term *= mu_squared;
         }
         scale += term.norm().re;
         value += term;
@@ -140,6 +156,7 @@ fn polynomial_values<T>(
     parameters: &[Complex<T>],
     lanes: usize,
     points: &[(usize, [Complex<T>; 4])],
+    mu_squared: &[Complex<T>],
     zero: Complex<T>,
 ) -> Result<Vec<Complex<T>>>
 where
@@ -156,14 +173,15 @@ where
     let requests: Vec<_> = points
         .iter()
         .zip(&momenta)
+        .zip(mu_squared)
         .enumerate()
-        .map(|(sample, ((lane, _), q))| NumeratorRequest {
+        .map(|(sample, (((lane, _), q), mu_squared))| NumeratorRequest {
             id: SampleId {
                 lane: *lane,
                 sample,
             },
             q,
-            mu_squared: &zero,
+            mu_squared,
             partition: &[],
         })
         .collect();
@@ -179,6 +197,7 @@ pub fn run(args: Args) -> Result<()> {
         samples: args.samples.clone(),
         model: args.model.clone(),
         feynman_rules: args.feynman_rules,
+        r2: args.r2,
         output: None,
         #[cfg(feature = "reference-codegen")]
         reference_dir: None,
@@ -222,10 +241,9 @@ pub fn run(args: Args) -> Result<()> {
     };
     let factoring_time = start.elapsed();
     let start = Instant::now();
-    let tensor_plan = match args.rank {
-        Some(rank) => TensorCoefficientPlan::with_rank(&plan, rank)?,
-        None => TensorCoefficientPlan::new(&plan)?,
-    };
+    // Ninja's plain tensor layout unless the numerator has mu^2 terms.
+    let tensor_plan = TensorCoefficientPlan::with_mu_squared(&plan, args.rank)?;
+    let mu_powers = tensor_plan.mu_powers();
     let tensor_plan_time = start.elapsed();
     let ncoeff = tensor_plan.ncoeff();
     let heads = tensor_plan.head_count();
@@ -355,13 +373,30 @@ pub fn run(args: Args) -> Result<()> {
             .map(|s| s.to_string_lossy().into_owned())
             .unwrap_or_else(|| "case".into())
     });
-    let case = json!({
-        "format": "ninjars-bench-case-v1",
-        "name": name,
-        "n": n,
-        "rank": tensor_plan.rank(),
-        "lanes": case_lanes,
-    });
+    let case = if mu_powers == 0 {
+        let mut case = json!({
+            "format": "ninjars-bench-case-v1",
+            "name": name,
+            "n": n,
+            "rank": tensor_plan.rank(),
+            "lanes": case_lanes,
+        });
+        if args.r2 != prepare::R2::Off {
+            case["r2"] = args.r2.name().into();
+        }
+        case
+    } else {
+        json!({
+            "format": "ninjars-bench-case-v2",
+            "name": name,
+            "n": n,
+            "rank": tensor_plan.rank(),
+            "mu_powers": mu_powers,
+            "r2": args.r2.name(),
+            "tensor_layout": "blocks k = 0..=mu_powers of mu^(2k) T_k(q), T_k a rank-(rank-2k) tensor in ninjars::fast::tensor_layout order",
+            "lanes": case_lanes,
+        })
+    };
 
     // Tensor reconstruction versus the existing polynomial numerator.
     let verification = if args.check_points > 0 {
@@ -378,6 +413,17 @@ pub fn run(args: Args) -> Result<()> {
                 )
             })
             .collect();
+        // mu^2 stays zero for mu-free numerators, keeping their checks unchanged.
+        let mu_points: Vec<Complex<f64>> = points
+            .iter()
+            .map(|_| {
+                if mu_powers == 0 {
+                    Complex::new(0., 0.)
+                } else {
+                    Complex::new(scale * scale * stream.next(), scale * scale * stream.next())
+                }
+            })
+            .collect();
         let f64_parameters: Vec<_> = high_parameters.iter().map(to_f64).collect();
         let mut direct = PolynomialNumerator::new(
             prepared.numerator_template.clone(),
@@ -390,6 +436,7 @@ pub fn run(args: Args) -> Result<()> {
             &f64_parameters,
             lanes,
             &points,
+            &mu_points,
             Complex::new(0., 0.),
         )?;
         let mut high = PolynomialNumerator::new(
@@ -412,17 +459,36 @@ pub fn run(args: Args) -> Result<()> {
                 )
             })
             .collect();
+        let high_mu: Vec<_> = mu_points
+            .iter()
+            .map(|c| {
+                Complex::new(
+                    Float::with_val(args.bits, c.re),
+                    Float::with_val(args.bits, c.im),
+                )
+            })
+            .collect();
         let high_values = polynomial_values(
             &mut high,
             &high_parameters,
             lanes,
             &high_points,
+            &high_mu,
             Complex::new(proto.zero(), proto.zero()),
         )?;
         let mut worst = [0_f64; 3];
-        for (((lane, q), direct), high) in points.iter().zip(&f64_values).zip(&high_values) {
-            let (value, terms) =
-                tensor_value(&tensor_plan, &tensor[lane * ncoeff..(lane + 1) * ncoeff], q);
+        for ((((lane, q), direct), high), mu_squared) in points
+            .iter()
+            .zip(&f64_values)
+            .zip(&high_values)
+            .zip(&mu_points)
+        {
+            let (value, terms) = tensor_value(
+                &tensor_plan,
+                &tensor[lane * ncoeff..(lane + 1) * ncoeff],
+                q,
+                *mu_squared,
+            );
             let high = to_f64(high);
             let norm = high.norm().re;
             if !value.re.is_finite() || !value.im.is_finite() || norm == 0. {
@@ -472,7 +538,8 @@ pub fn run(args: Args) -> Result<()> {
     let report = json!({
         "schema_version": 1,
         "operation": "export-bench",
-        "format": "ninjars-bench-case-v1",
+        "format": case["format"],
+        "r2": args.r2.name(),
         "input": args.input,
         "output": args.output,
         "graph": prepared.document["graph"],
@@ -482,6 +549,7 @@ pub fn run(args: Args) -> Result<()> {
         "tensor": {
             "rank": tensor_plan.rank(),
             "numerator_degree": plan.rank(),
+            "mu_powers": mu_powers,
             "ncoeff": ncoeff,
             "nonzero_slots": tensor_plan.entries().len(),
             "coefficient_heads": heads,

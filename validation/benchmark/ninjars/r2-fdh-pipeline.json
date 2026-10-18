@@ -1,0 +1,1383 @@
+{
+ "schema_version": 1,
+ "operation": "pipeline-bench --r2 off|fdh overhead",
+ "main_commit": "5f35b07",
+ "cpu": 250,
+ "cpu_affinity": "250",
+ "command": "taskset -c 250 ninjars pipeline-bench examples/graphs/physical/<process>/<graph>-pool.json --points validation/benchmark/points/<process>.json --feynman-rules --widths 1,8,32,128 --blocks 9 --min-block-ms 20 --reference validation/benchmark/ninja/<process>-<graph>.json [--r2 off|fdh]; main = the 5f35b07 binary, off/fdh = this branch, interleaved per graph",
+ "note": "reference_check compares with original Ninja (no R2): identical for main and --r2 off; for --r2 fdh it measures R2. Timings share one core of a loaded host; differences below a few percent are noise.",
+ "graphs": [
+  {
+   "graph": "hgg-top-triangle-0",
+   "propagators": 3,
+   "rank": 2,
+   "ncoeff": {
+    "off": 15,
+    "fdh": 16
+   },
+   "mu_powers_fdh": 1,
+   "coefficient_heads": {
+    "off": 15,
+    "fdh": 16
+   },
+   "off_reference_check_bitwise_equal_to_main": true,
+   "widths": [
+    {
+     "width": 1,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 600.5,
+       "tensor_numerator": 860.6,
+       "reduction": 1692.5,
+       "masters": 1886.2,
+       "total": 5401.3
+      },
+      "off": {
+       "numerator_preparation": 599.0,
+       "tensor_numerator": 811.0,
+       "reduction": 1723.0,
+       "masters": 1893.6,
+       "total": 5264.3
+      },
+      "fdh": {
+       "numerator_preparation": 593.3,
+       "tensor_numerator": 1236.4,
+       "reduction": 1732.6,
+       "masters": 1885.7,
+       "total": 5695.0
+      }
+     },
+     "total_fdh_over_off": 1.0818,
+     "total_off_over_main": 0.9746,
+     "reference_max_scaled_laurent_difference": {
+      "main": 7.765158178342296e-15,
+      "off": 7.765158178342296e-15,
+      "fdh": 1.2189559126011205
+     }
+    },
+    {
+     "width": 8,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 528.9,
+       "tensor_numerator": 463.3,
+       "reduction": 1305.4,
+       "masters": 1846.5,
+       "total": 4182.8
+      },
+      "off": {
+       "numerator_preparation": 526.0,
+       "tensor_numerator": 444.7,
+       "reduction": 1304.2,
+       "masters": 1840.9,
+       "total": 4169.9
+      },
+      "fdh": {
+       "numerator_preparation": 533.3,
+       "tensor_numerator": 592.7,
+       "reduction": 1288.3,
+       "masters": 1858.2,
+       "total": 4350.2
+      }
+     },
+     "total_fdh_over_off": 1.0432,
+     "total_off_over_main": 0.9969,
+     "reference_max_scaled_laurent_difference": {
+      "main": 3.494030958336396e-14,
+      "off": 3.494030958336396e-14,
+      "fdh": 1.3177686663467159
+     }
+    },
+    {
+     "width": 32,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 521.8,
+       "tensor_numerator": 433.1,
+       "reduction": 1269.7,
+       "masters": 1821.7,
+       "total": 4069.3
+      },
+      "off": {
+       "numerator_preparation": 522.8,
+       "tensor_numerator": 423.4,
+       "reduction": 1283.3,
+       "masters": 1817.3,
+       "total": 4080.9
+      },
+      "fdh": {
+       "numerator_preparation": 528.3,
+       "tensor_numerator": 510.2,
+       "reduction": 1289.5,
+       "masters": 1821.6,
+       "total": 4165.6
+      }
+     },
+     "total_fdh_over_off": 1.0208,
+     "total_off_over_main": 1.0028,
+     "reference_max_scaled_laurent_difference": {
+      "main": 3.494030958336396e-14,
+      "off": 3.494030958336396e-14,
+      "fdh": 1.3177686663467159
+     }
+    },
+    {
+     "width": 128,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 522.6,
+       "tensor_numerator": 428.7,
+       "reduction": 1266.4,
+       "masters": 1819.3,
+       "total": 4044.4
+      },
+      "off": {
+       "numerator_preparation": 523.4,
+       "tensor_numerator": 419.4,
+       "reduction": 1270.9,
+       "masters": 1812.1,
+       "total": 4042.9
+      },
+      "fdh": {
+       "numerator_preparation": 526.0,
+       "tensor_numerator": 502.8,
+       "reduction": 1267.8,
+       "masters": 1812.6,
+       "total": 4146.7
+      }
+     },
+     "total_fdh_over_off": 1.0257,
+     "total_off_over_main": 0.9996,
+     "reference_max_scaled_laurent_difference": {
+      "main": 3.494030958336396e-14,
+      "off": 3.494030958336396e-14,
+      "fdh": 1.3177686663467159
+     }
+    }
+   ],
+   "r2_per_point": [
+    {
+     "id": "rest_frame",
+     "r2": [
+      180.24510129728975,
+      0.0
+     ],
+     "off_finite": [
+      -147.8684334962257,
+      3.720211671228226e-14
+     ],
+     "fdh_finite": [
+      32.37666780106406,
+      3.720211671228226e-14
+     ]
+    },
+    {
+     "id": "boosted_a",
+     "r2": [
+      74.36466807855882,
+      111.78896958447126
+     ],
+     "off_finite": [
+      -56.43226309571028,
+      -84.83201372087927
+     ],
+     "fdh_finite": [
+      17.93240498284854,
+      26.956955863591986
+     ]
+    },
+    {
+     "id": "boosted_b",
+     "r2": [
+      85.49775857808086,
+      123.49676239056129
+     ],
+     "off_finite": [
+      -67.06863618444157,
+      -96.87691893308158
+     ],
+     "fdh_finite": [
+      18.42912239363929,
+      26.619843457479703
+     ]
+    }
+   ]
+  },
+  {
+   "graph": "four-photon-top-box-0",
+   "propagators": 4,
+   "rank": 4,
+   "ncoeff": {
+    "off": 70,
+    "fdh": 86
+   },
+   "mu_powers_fdh": 2,
+   "coefficient_heads": {
+    "off": 70,
+    "fdh": 86
+   },
+   "off_reference_check_bitwise_equal_to_main": true,
+   "widths": [
+    {
+     "width": 1,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 10346.2,
+       "tensor_numerator": 10823.8,
+       "reduction": 6253.8,
+       "masters": 7180.9,
+       "total": 35530.4
+      },
+      "off": {
+       "numerator_preparation": 10138.4,
+       "tensor_numerator": 10955.9,
+       "reduction": 6496.4,
+       "masters": 7165.0,
+       "total": 35966.9
+      },
+      "fdh": {
+       "numerator_preparation": 10696.6,
+       "tensor_numerator": 12932.6,
+       "reduction": 6182.3,
+       "masters": 7173.5,
+       "total": 38419.9
+      }
+     },
+     "total_fdh_over_off": 1.0682,
+     "total_off_over_main": 1.0123,
+     "reference_max_scaled_laurent_difference": {
+      "main": 1.7330177143630906e-12,
+      "off": 1.7330177143630906e-12,
+      "fdh": 0.5384615384621655
+     }
+    },
+    {
+     "width": 8,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 10185.2,
+       "tensor_numerator": 9554.7,
+       "reduction": 5349.0,
+       "masters": 5423.6,
+       "total": 30993.2
+      },
+      "off": {
+       "numerator_preparation": 10023.2,
+       "tensor_numerator": 9810.5,
+       "reduction": 5415.4,
+       "masters": 5412.4,
+       "total": 31382.4
+      },
+      "fdh": {
+       "numerator_preparation": 10547.1,
+       "tensor_numerator": 10700.6,
+       "reduction": 5323.6,
+       "masters": 5443.2,
+       "total": 32690.7
+      }
+     },
+     "total_fdh_over_off": 1.0417,
+     "total_off_over_main": 1.0126,
+     "reference_max_scaled_laurent_difference": {
+      "main": 1.7330177143630906e-12,
+      "off": 1.7330177143630906e-12,
+      "fdh": 0.5384615384621655
+     }
+    },
+    {
+     "width": 32,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 10208.1,
+       "tensor_numerator": 9459.9,
+       "reduction": 5216.4,
+       "masters": 5301.4,
+       "total": 30852.3
+      },
+      "off": {
+       "numerator_preparation": 10044.3,
+       "tensor_numerator": 9665.3,
+       "reduction": 5326.2,
+       "masters": 5288.0,
+       "total": 30590.3
+      },
+      "fdh": {
+       "numerator_preparation": 10612.2,
+       "tensor_numerator": 10417.3,
+       "reduction": 5231.3,
+       "masters": 5292.9,
+       "total": 31892.9
+      }
+     },
+     "total_fdh_over_off": 1.0426,
+     "total_off_over_main": 0.9915,
+     "reference_max_scaled_laurent_difference": {
+      "main": 1.7330177143630906e-12,
+      "off": 1.7330177143630906e-12,
+      "fdh": 0.5384615384621655
+     }
+    },
+    {
+     "width": 128,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 10171.0,
+       "tensor_numerator": 9393.3,
+       "reduction": 5342.5,
+       "masters": 5251.8,
+       "total": 31257.6
+      },
+      "off": {
+       "numerator_preparation": 10130.0,
+       "tensor_numerator": 9708.5,
+       "reduction": 5383.0,
+       "masters": 5237.6,
+       "total": 31399.1
+      },
+      "fdh": {
+       "numerator_preparation": 10739.9,
+       "tensor_numerator": 10470.8,
+       "reduction": 5267.0,
+       "masters": 5253.3,
+       "total": 33128.8
+      }
+     },
+     "total_fdh_over_off": 1.0551,
+     "total_off_over_main": 1.0045,
+     "reference_max_scaled_laurent_difference": {
+      "main": 1.7330177143630906e-12,
+      "off": 1.7330177143630906e-12,
+      "fdh": 0.5384615384621655
+     }
+    }
+   ],
+   "r2_per_point": [
+    {
+     "id": "sqrt_s_200",
+     "r2": [
+      -0.0013817598823623943,
+      1.4390471814505518e-16
+     ],
+     "off_finite": [
+      -0.0008263439634519595,
+      -1.168570088004301e-16
+     ],
+     "fdh_finite": [
+      -0.0022081038458144162,
+      -7.871555217918791e-18
+     ]
+    },
+    {
+     "id": "sqrt_s_500",
+     "r2": [
+      -0.004604523456385448,
+      1.4671188255638717e-17
+     ],
+     "off_finite": [
+      -0.00991094989096757,
+      0.0004973894902212138
+     ],
+     "fdh_finite": [
+      -0.014515473347353014,
+      0.0004973894902212475
+     ]
+    },
+    {
+     "id": "sqrt_s_800",
+     "r2": [
+      -0.003246039088724325,
+      1.2855710929744597e-18
+     ],
+     "off_finite": [
+      -0.012755526780081565,
+      -0.004728868494000807
+     ],
+     "fdh_finite": [
+      -0.016001565868806182,
+      -0.004728868494000885
+     ]
+    }
+   ]
+  },
+  {
+   "graph": "gg-hh-top-triangle-0",
+   "propagators": 3,
+   "rank": 2,
+   "ncoeff": {
+    "off": 15,
+    "fdh": 16
+   },
+   "mu_powers_fdh": 1,
+   "coefficient_heads": {
+    "off": 15,
+    "fdh": 16
+   },
+   "off_reference_check_bitwise_equal_to_main": true,
+   "widths": [
+    {
+     "width": 1,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 567.2,
+       "tensor_numerator": 814.9,
+       "reduction": 1674.4,
+       "masters": 1058.4,
+       "total": 4392.1
+      },
+      "off": {
+       "numerator_preparation": 547.6,
+       "tensor_numerator": 769.1,
+       "reduction": 1727.0,
+       "masters": 1049.9,
+       "total": 4386.5
+      },
+      "fdh": {
+       "numerator_preparation": 553.4,
+       "tensor_numerator": 1240.1,
+       "reduction": 1803.2,
+       "masters": 1050.9,
+       "total": 4864.7
+      }
+     },
+     "total_fdh_over_off": 1.109,
+     "total_off_over_main": 0.9987,
+     "reference_max_scaled_laurent_difference": {
+      "main": 2.687629252435699e-15,
+      "off": 2.687629252435699e-15,
+      "fdh": 2.3471128546910824
+     }
+    },
+    {
+     "width": 8,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 488.7,
+       "tensor_numerator": 456.9,
+       "reduction": 1308.2,
+       "masters": 835.3,
+       "total": 3131.8
+      },
+      "off": {
+       "numerator_preparation": 488.8,
+       "tensor_numerator": 451.6,
+       "reduction": 1317.6,
+       "masters": 849.5,
+       "total": 3131.6
+      },
+      "fdh": {
+       "numerator_preparation": 496.7,
+       "tensor_numerator": 566.7,
+       "reduction": 1323.8,
+       "masters": 837.6,
+       "total": 3281.7
+      }
+     },
+     "total_fdh_over_off": 1.0479,
+     "total_off_over_main": 1.0,
+     "reference_max_scaled_laurent_difference": {
+      "main": 2.687629252435699e-15,
+      "off": 2.687629252435699e-15,
+      "fdh": 2.3471128546910824
+     }
+    },
+    {
+     "width": 32,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 490.8,
+       "tensor_numerator": 431.5,
+       "reduction": 1303.1,
+       "masters": 818.1,
+       "total": 3053.1
+      },
+      "off": {
+       "numerator_preparation": 493.9,
+       "tensor_numerator": 428.5,
+       "reduction": 1303.0,
+       "masters": 817.0,
+       "total": 3046.2
+      },
+      "fdh": {
+       "numerator_preparation": 490.7,
+       "tensor_numerator": 506.2,
+       "reduction": 1274.5,
+       "masters": 816.9,
+       "total": 3112.9
+      }
+     },
+     "total_fdh_over_off": 1.0219,
+     "total_off_over_main": 0.9978,
+     "reference_max_scaled_laurent_difference": {
+      "main": 2.687629252435699e-15,
+      "off": 2.687629252435699e-15,
+      "fdh": 2.3471128546910824
+     }
+    },
+    {
+     "width": 128,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 485.3,
+       "tensor_numerator": 422.7,
+       "reduction": 1274.2,
+       "masters": 811.9,
+       "total": 3013.7
+      },
+      "off": {
+       "numerator_preparation": 485.6,
+       "tensor_numerator": 420.7,
+       "reduction": 1287.3,
+       "masters": 810.1,
+       "total": 3031.8
+      },
+      "fdh": {
+       "numerator_preparation": 490.2,
+       "tensor_numerator": 497.6,
+       "reduction": 1267.3,
+       "masters": 812.8,
+       "total": 3077.5
+      }
+     },
+     "total_fdh_over_off": 1.0151,
+     "total_off_over_main": 1.006,
+     "reference_max_scaled_laurent_difference": {
+      "main": 2.687629252435699e-15,
+      "off": 2.687629252435699e-15,
+      "fdh": 2.3471128546910824
+     }
+    }
+   ],
+   "r2_per_point": [
+    {
+     "id": "sqrt_s_312.5",
+     "r2": [
+      0.41831632581630823,
+      0.0
+     ],
+     "off_finite": [
+      0.17822591060341886,
+      1.4053064595516907e-16
+     ],
+     "fdh_finite": [
+      0.596542236419727,
+      1.4053064595516907e-16
+     ]
+    },
+    {
+     "id": "sqrt_s_416.7",
+     "r2": [
+      0.21720270763539076,
+      0.0
+     ],
+     "off_finite": [
+      0.496638045102881,
+      0.2663616630518525
+     ],
+     "fdh_finite": [
+      0.7138407527382717,
+      0.2663616630518525
+     ]
+    },
+    {
+     "id": "sqrt_s_650",
+     "r2": [
+      0.08433796891457825,
+      0.0
+     ],
+     "off_finite": [
+      0.19557668083615526,
+      0.47236566381247136
+     ],
+     "fdh_finite": [
+      0.27991464975073355,
+      0.47236566381247136
+     ]
+    }
+   ]
+  },
+  {
+   "graph": "gg-hh-top-box-2",
+   "propagators": 4,
+   "rank": 4,
+   "ncoeff": {
+    "off": 70,
+    "fdh": 86
+   },
+   "mu_powers_fdh": 2,
+   "coefficient_heads": {
+    "off": 57,
+    "fdh": 67
+   },
+   "off_reference_check_bitwise_equal_to_main": true,
+   "widths": [
+    {
+     "width": 1,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 1829.3,
+       "tensor_numerator": 10652.9,
+       "reduction": 6472.5,
+       "masters": 14305.2,
+       "total": 33754.8
+      },
+      "off": {
+       "numerator_preparation": 1846.3,
+       "tensor_numerator": 11072.4,
+       "reduction": 6292.6,
+       "masters": 14314.8,
+       "total": 34026.6
+      },
+      "fdh": {
+       "numerator_preparation": 1895.1,
+       "tensor_numerator": 12894.9,
+       "reduction": 6260.1,
+       "masters": 14321.4,
+       "total": 36443.2
+      }
+     },
+     "total_fdh_over_off": 1.071,
+     "total_off_over_main": 1.0081,
+     "reference_max_scaled_laurent_difference": {
+      "main": 5.828334974481715e-13,
+      "off": 5.828334974481715e-13,
+      "fdh": 1.333333333332885
+     }
+    },
+    {
+     "width": 8,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 1741.8,
+       "tensor_numerator": 9574.2,
+       "reduction": 5485.3,
+       "masters": 13036.7,
+       "total": 30283.7
+      },
+      "off": {
+       "numerator_preparation": 1741.9,
+       "tensor_numerator": 9616.2,
+       "reduction": 5515.6,
+       "masters": 13084.0,
+       "total": 30379.5
+      },
+      "fdh": {
+       "numerator_preparation": 1830.3,
+       "tensor_numerator": 10739.0,
+       "reduction": 5459.9,
+       "masters": 13067.8,
+       "total": 31458.7
+      }
+     },
+     "total_fdh_over_off": 1.0355,
+     "total_off_over_main": 1.0032,
+     "reference_max_scaled_laurent_difference": {
+      "main": 5.828334974481715e-13,
+      "off": 5.828334974481715e-13,
+      "fdh": 1.333333333332885
+     }
+    },
+    {
+     "width": 32,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 1743.1,
+       "tensor_numerator": 9505.4,
+       "reduction": 5370.5,
+       "masters": 12907.0,
+       "total": 29777.0
+      },
+      "off": {
+       "numerator_preparation": 1747.5,
+       "tensor_numerator": 9429.8,
+       "reduction": 5375.8,
+       "masters": 12957.6,
+       "total": 29813.5
+      },
+      "fdh": {
+       "numerator_preparation": 1822.7,
+       "tensor_numerator": 10476.4,
+       "reduction": 5356.3,
+       "masters": 12966.9,
+       "total": 30859.5
+      }
+     },
+     "total_fdh_over_off": 1.0351,
+     "total_off_over_main": 1.0012,
+     "reference_max_scaled_laurent_difference": {
+      "main": 5.828334974481715e-13,
+      "off": 5.828334974481715e-13,
+      "fdh": 1.333333333332885
+     }
+    },
+    {
+     "width": 128,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 1741.0,
+       "tensor_numerator": 9489.4,
+       "reduction": 5423.9,
+       "masters": 12851.9,
+       "total": 29581.8
+      },
+      "off": {
+       "numerator_preparation": 1743.2,
+       "tensor_numerator": 9551.1,
+       "reduction": 5513.4,
+       "masters": 12903.2,
+       "total": 29590.0
+      },
+      "fdh": {
+       "numerator_preparation": 1826.8,
+       "tensor_numerator": 10382.8,
+       "reduction": 5422.8,
+       "masters": 12922.8,
+       "total": 31391.0
+      }
+     },
+     "total_fdh_over_off": 1.0609,
+     "total_off_over_main": 1.0003,
+     "reference_max_scaled_laurent_difference": {
+      "main": 5.828334974481715e-13,
+      "off": 5.828334974481715e-13,
+      "fdh": 1.333333333332885
+     }
+    }
+   ],
+   "r2_per_point": [
+    {
+     "id": "sqrt_s_312.5",
+     "r2": [
+      0.9760714269047196,
+      5.682539708943895e-16
+     ],
+     "off_finite": [
+      -0.43178328482075085,
+      -9.479888183135257e-15
+     ],
+     "fdh_finite": [
+      0.5442881420839693,
+      -8.911634212240869e-15
+     ]
+    },
+    {
+     "id": "sqrt_s_416.7",
+     "r2": [
+      0.9760714269047197,
+      -1.0455194827569557e-16
+     ],
+     "off_finite": [
+      -1.046933627229151,
+      -1.5884584238264803
+     ],
+     "fdh_finite": [
+      -0.07086220032443269,
+      -1.588458423826482
+     ]
+    },
+    {
+     "id": "sqrt_s_650",
+     "r2": [
+      0.9760714269047184,
+      -1.5980061498285808e-17
+     ],
+     "off_finite": [
+      0.6064174143023415,
+      -2.355491112343161
+     ],
+     "fdh_finite": [
+      1.5824888412070606,
+      -2.355491112343163
+     ]
+    }
+   ]
+  },
+  {
+   "graph": "gg-hhh-top-triangle-0",
+   "propagators": 3,
+   "rank": 2,
+   "ncoeff": {
+    "off": 15,
+    "fdh": 16
+   },
+   "mu_powers_fdh": 1,
+   "coefficient_heads": {
+    "off": 15,
+    "fdh": 16
+   },
+   "off_reference_check_bitwise_equal_to_main": true,
+   "widths": [
+    {
+     "width": 1,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 671.3,
+       "tensor_numerator": 813.7,
+       "reduction": 1681.3,
+       "masters": 875.0,
+       "total": 4343.9
+      },
+      "off": {
+       "numerator_preparation": 654.7,
+       "tensor_numerator": 788.9,
+       "reduction": 1716.2,
+       "masters": 889.4,
+       "total": 4389.9
+      },
+      "fdh": {
+       "numerator_preparation": 663.1,
+       "tensor_numerator": 1258.3,
+       "reduction": 1711.4,
+       "masters": 885.1,
+       "total": 4839.6
+      }
+     },
+     "total_fdh_over_off": 1.1024,
+     "total_off_over_main": 1.0106,
+     "reference_max_scaled_laurent_difference": {
+      "main": 1.8251564005683137e-15,
+      "off": 1.8251564005683137e-15,
+      "fdh": 0.3119210155177488
+     }
+    },
+    {
+     "width": 8,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 605.7,
+       "tensor_numerator": 488.2,
+       "reduction": 1310.7,
+       "masters": 743.1,
+       "total": 3193.7
+      },
+      "off": {
+       "numerator_preparation": 602.7,
+       "tensor_numerator": 437.8,
+       "reduction": 1329.2,
+       "masters": 746.4,
+       "total": 3159.8
+      },
+      "fdh": {
+       "numerator_preparation": 603.8,
+       "tensor_numerator": 622.1,
+       "reduction": 1357.2,
+       "masters": 746.4,
+       "total": 3402.9
+      }
+     },
+     "total_fdh_over_off": 1.0769,
+     "total_off_over_main": 0.9894,
+     "reference_max_scaled_laurent_difference": {
+      "main": 1.8251564005683137e-15,
+      "off": 1.8251564005683137e-15,
+      "fdh": 0.3119210155177488
+     }
+    },
+    {
+     "width": 32,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 598.1,
+       "tensor_numerator": 430.9,
+       "reduction": 1275.9,
+       "masters": 728.2,
+       "total": 3041.8
+      },
+      "off": {
+       "numerator_preparation": 596.1,
+       "tensor_numerator": 434.4,
+       "reduction": 1283.7,
+       "masters": 729.3,
+       "total": 3035.5
+      },
+      "fdh": {
+       "numerator_preparation": 598.9,
+       "tensor_numerator": 521.7,
+       "reduction": 1280.8,
+       "masters": 730.4,
+       "total": 3156.6
+      }
+     },
+     "total_fdh_over_off": 1.0399,
+     "total_off_over_main": 0.9979,
+     "reference_max_scaled_laurent_difference": {
+      "main": 1.8251564005683137e-15,
+      "off": 1.8251564005683137e-15,
+      "fdh": 0.3119210155177488
+     }
+    },
+    {
+     "width": 128,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 598.0,
+       "tensor_numerator": 430.3,
+       "reduction": 1268.9,
+       "masters": 728.1,
+       "total": 3034.3
+      },
+      "off": {
+       "numerator_preparation": 594.3,
+       "tensor_numerator": 426.0,
+       "reduction": 1273.8,
+       "masters": 723.3,
+       "total": 3026.6
+      },
+      "fdh": {
+       "numerator_preparation": 595.0,
+       "tensor_numerator": 500.5,
+       "reduction": 1278.3,
+       "masters": 722.6,
+       "total": 3104.8
+      }
+     },
+     "total_fdh_over_off": 1.0258,
+     "total_off_over_main": 0.9975,
+     "reference_max_scaled_laurent_difference": {
+      "main": 1.8251564005683137e-15,
+      "off": 1.8251564005683137e-15,
+      "fdh": 0.3119210155177488
+     }
+    }
+   ],
+   "r2_per_point": [
+    {
+     "id": "sqrt_s_450",
+     "r2": [
+      0.0007457827446616554,
+      0.0
+     ],
+     "off_finite": [
+      0.0019007770290157824,
+      0.001450384393559999
+     ],
+     "fdh_finite": [
+      0.002646559773677438,
+      0.001450384393559999
+     ]
+    },
+    {
+     "id": "sqrt_s_525",
+     "r2": [
+      0.0005360313477255649,
+      0.0
+     ],
+     "off_finite": [
+      0.0014525466667211686,
+      0.0018627804676179115
+     ],
+     "fdh_finite": [
+      0.0019885780144467333,
+      0.0018627804676179115
+     ]
+    },
+    {
+     "id": "sqrt_s_600",
+     "r2": [
+      0.0004046988033644919,
+      0.0
+     ],
+     "off_finite": [
+      0.0010261133131180514,
+      0.0019478244353263229
+     ],
+     "fdh_finite": [
+      0.0014308121164825433,
+      0.0019478244353263229
+     ]
+    }
+   ]
+  },
+  {
+   "graph": "gg-hhh-top-box-8",
+   "propagators": 4,
+   "rank": 4,
+   "ncoeff": {
+    "off": 70,
+    "fdh": 86
+   },
+   "mu_powers_fdh": 2,
+   "coefficient_heads": {
+    "off": 57,
+    "fdh": 67
+   },
+   "off_reference_check_bitwise_equal_to_main": true,
+   "widths": [
+    {
+     "width": 1,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 1738.1,
+       "tensor_numerator": 11160.2,
+       "reduction": 6719.7,
+       "masters": 13526.5,
+       "total": 33210.1
+      },
+      "off": {
+       "numerator_preparation": 1702.5,
+       "tensor_numerator": 10880.0,
+       "reduction": 6428.8,
+       "masters": 13018.6,
+       "total": 32754.9
+      },
+      "fdh": {
+       "numerator_preparation": 1777.6,
+       "tensor_numerator": 12895.8,
+       "reduction": 6359.4,
+       "masters": 13028.2,
+       "total": 34976.3
+      }
+     },
+     "total_fdh_over_off": 1.0678,
+     "total_off_over_main": 0.9863,
+     "reference_max_scaled_laurent_difference": {
+      "main": 9.403385863283846e-15,
+      "off": 9.403385863283846e-15,
+      "fdh": 0.5173367432661561
+     }
+    },
+    {
+     "width": 8,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 1647.4,
+       "tensor_numerator": 9720.9,
+       "reduction": 5533.1,
+       "masters": 12723.4,
+       "total": 29633.7
+      },
+      "off": {
+       "numerator_preparation": 1625.6,
+       "tensor_numerator": 9569.8,
+       "reduction": 5692.7,
+       "masters": 12372.5,
+       "total": 29624.8
+      },
+      "fdh": {
+       "numerator_preparation": 1703.3,
+       "tensor_numerator": 10640.8,
+       "reduction": 5541.2,
+       "masters": 12351.8,
+       "total": 30637.0
+      }
+     },
+     "total_fdh_over_off": 1.0342,
+     "total_off_over_main": 0.9997,
+     "reference_max_scaled_laurent_difference": {
+      "main": 1.4896544830297044e-14,
+      "off": 1.4896544830297044e-14,
+      "fdh": 0.5173367432661561
+     }
+    },
+    {
+     "width": 32,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 1648.2,
+       "tensor_numerator": 9500.5,
+       "reduction": 5465.5,
+       "masters": 12340.2,
+       "total": 29098.2
+      },
+      "off": {
+       "numerator_preparation": 1634.5,
+       "tensor_numerator": 9366.0,
+       "reduction": 5421.7,
+       "masters": 12252.0,
+       "total": 29091.6
+      },
+      "fdh": {
+       "numerator_preparation": 1698.9,
+       "tensor_numerator": 10459.8,
+       "reduction": 5393.5,
+       "masters": 12214.5,
+       "total": 30170.6
+      }
+     },
+     "total_fdh_over_off": 1.0371,
+     "total_off_over_main": 0.9998,
+     "reference_max_scaled_laurent_difference": {
+      "main": 1.4896544830297044e-14,
+      "off": 1.4896544830297044e-14,
+      "fdh": 0.5173367432661561
+     }
+    },
+    {
+     "width": 128,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 1633.6,
+       "tensor_numerator": 9508.2,
+       "reduction": 5490.8,
+       "masters": 12210.3,
+       "total": 29380.2
+      },
+      "off": {
+       "numerator_preparation": 1632.6,
+       "tensor_numerator": 9226.9,
+       "reduction": 5611.4,
+       "masters": 12179.8,
+       "total": 29498.6
+      },
+      "fdh": {
+       "numerator_preparation": 1710.2,
+       "tensor_numerator": 10599.2,
+       "reduction": 5423.8,
+       "masters": 12140.5,
+       "total": 31057.7
+      }
+     },
+     "total_fdh_over_off": 1.0529,
+     "total_off_over_main": 1.004,
+     "reference_max_scaled_laurent_difference": {
+      "main": 1.4896544830297044e-14,
+      "off": 1.4896544830297044e-14,
+      "fdh": 0.5173367432661561
+     }
+    }
+   ],
+   "r2_per_point": [
+    {
+     "id": "sqrt_s_450",
+     "r2": [
+      0.0027529511191831417,
+      1.6815112922715542e-18
+     ],
+     "off_finite": [
+      -0.002372701907230815,
+      -0.004763138507663637
+     ],
+     "fdh_finite": [
+      0.0003802492119523266,
+      -0.004763138507663635
+     ]
+    },
+    {
+     "id": "sqrt_s_525",
+     "r2": [
+      0.0020225763324610863,
+      2.597313742098387e-19
+     ],
+     "off_finite": [
+      -0.00022884069935729653,
+      -0.004471757516537165
+     ],
+     "fdh_finite": [
+      0.0017937356331037887,
+      -0.004471757516537162
+     ]
+    },
+    {
+     "id": "sqrt_s_600",
+     "r2": [
+      0.0015485350045405218,
+      -7.461079250131037e-20
+     ],
+     "off_finite": [
+      0.0009334843588687917,
+      -0.0035278733965606124
+     ],
+     "fdh_finite": [
+      0.0024820193634093107,
+      -0.0035278733965606146
+     ]
+    }
+   ]
+  },
+  {
+   "graph": "gg-hhh-top-pentagon-26",
+   "propagators": 5,
+   "rank": 4,
+   "ncoeff": {
+    "off": 70,
+    "fdh": 86
+   },
+   "mu_powers_fdh": 2,
+   "coefficient_heads": {
+    "off": 57,
+    "fdh": 67
+   },
+   "off_reference_check_bitwise_equal_to_main": true,
+   "widths": [
+    {
+     "width": 1,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 3638.2,
+       "tensor_numerator": 11974.3,
+       "reduction": 10231.6,
+       "masters": 54392.1,
+       "total": 81074.6
+      },
+      "off": {
+       "numerator_preparation": 3635.4,
+       "tensor_numerator": 11854.2,
+       "reduction": 10309.6,
+       "masters": 54461.7,
+       "total": 81293.1
+      },
+      "fdh": {
+       "numerator_preparation": 3703.1,
+       "tensor_numerator": 14477.6,
+       "reduction": 10067.2,
+       "masters": 54356.9,
+       "total": 84008.4
+      }
+     },
+     "total_fdh_over_off": 1.0334,
+     "total_off_over_main": 1.0027,
+     "reference_max_scaled_laurent_difference": {
+      "main": 9.688662813417033e-15,
+      "off": 9.688662813417033e-15,
+      "fdh": 1.0488294399212617e-14
+     }
+    },
+    {
+     "width": 8,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 3558.8,
+       "tensor_numerator": 11577.6,
+       "reduction": 9090.3,
+       "masters": 52756.8,
+       "total": 78512.5
+      },
+      "off": {
+       "numerator_preparation": 3540.5,
+       "tensor_numerator": 11264.6,
+       "reduction": 9133.5,
+       "masters": 52782.4,
+       "total": 77627.7
+      },
+      "fdh": {
+       "numerator_preparation": 3633.6,
+       "tensor_numerator": 13227.5,
+       "reduction": 9042.9,
+       "masters": 53290.1,
+       "total": 80426.6
+      }
+     },
+     "total_fdh_over_off": 1.0361,
+     "total_off_over_main": 0.9887,
+     "reference_max_scaled_laurent_difference": {
+      "main": 9.688662813417033e-15,
+      "off": 9.688662813417033e-15,
+      "fdh": 1.0920988322368056e-14
+     }
+    },
+    {
+     "width": 32,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 3537.5,
+       "tensor_numerator": 11569.4,
+       "reduction": 9028.1,
+       "masters": 52158.9,
+       "total": 77713.6
+      },
+      "off": {
+       "numerator_preparation": 3557.3,
+       "tensor_numerator": 11446.2,
+       "reduction": 9029.2,
+       "masters": 52122.4,
+       "total": 77449.5
+      },
+      "fdh": {
+       "numerator_preparation": 3617.7,
+       "tensor_numerator": 13218.2,
+       "reduction": 8995.3,
+       "masters": 52407.2,
+       "total": 78397.3
+      }
+     },
+     "total_fdh_over_off": 1.0122,
+     "total_off_over_main": 0.9966,
+     "reference_max_scaled_laurent_difference": {
+      "main": 9.688662813417033e-15,
+      "off": 9.688662813417033e-15,
+      "fdh": 1.0920988322368056e-14
+     }
+    },
+    {
+     "width": 128,
+     "median_ns_per_point": {
+      "main": {
+       "numerator_preparation": 3542.1,
+       "tensor_numerator": 11797.1,
+       "reduction": 9247.1,
+       "masters": 51523.1,
+       "total": 76542.0
+      },
+      "off": {
+       "numerator_preparation": 3557.1,
+       "tensor_numerator": 11382.6,
+       "reduction": 9129.3,
+       "masters": 51902.7,
+       "total": 78372.5
+      },
+      "fdh": {
+       "numerator_preparation": 3641.2,
+       "tensor_numerator": 13328.8,
+       "reduction": 9311.8,
+       "masters": 52519.6,
+       "total": 78072.4
+      }
+     },
+     "total_fdh_over_off": 0.9962,
+     "total_off_over_main": 1.0239,
+     "reference_max_scaled_laurent_difference": {
+      "main": 9.688662813417033e-15,
+      "off": 9.688662813417033e-15,
+      "fdh": 1.0920988322368056e-14
+     }
+    }
+   ],
+   "r2_per_point": [
+    {
+     "id": "sqrt_s_450",
+     "r2": [
+      -2.9128516651026162e-18,
+      0.0
+     ],
+     "off_finite": [
+      0.0038093488998429182,
+      0.006791027269619889
+     ],
+     "fdh_finite": [
+      0.0038093488998429082,
+      0.006791027269619886
+     ]
+    },
+    {
+     "id": "sqrt_s_525",
+     "r2": [
+      -1.8242670949428573e-18,
+      0.0
+     ],
+     "off_finite": [
+      0.0006995016869654257,
+      0.006277728792047845
+     ],
+     "fdh_finite": [
+      0.0006995016869654368,
+      0.006277728792047835
+     ]
+    },
+    {
+     "id": "sqrt_s_600",
+     "r2": [
+      2.966160545103183e-19,
+      0.0
+     ],
+     "off_finite": [
+      -0.0019070575220222668,
+      0.004810513910374044
+     ],
+     "fdh_finite": [
+      -0.0019070575220222737,
+      0.004810513910374044
+     ]
+    }
+   ]
+  }
+ ]
+}

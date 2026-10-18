@@ -52,6 +52,42 @@ analytic extra-dimensional rational contributions. They currently cover three
 bubble samples and one triangle. This verifies preparation/reference agreement;
 it does not claim parity for the unfinished Rust reduction engine.
 
+## R2 rational terms (`--r2`)
+
+Every command that builds a physical numerator (`prepare`, `reduce`, `bench`,
+`compare`, `export-bench`, `numerator-bench`, `pipeline-bench`) accepts
+`--r2 off|fdh`:
+
+- `off` (default, unchanged results): FeynKit's Feynman rules and Idenso's
+  `d_s = 4` tensor algebra give a polynomial in scalar products of the loop
+  momentum `K`; every product is bound with the four-dimensional metric,
+  `K.K -> q0^2-q1^2-q2^2-q3^2`. The numerator has no `mu^2` terms, so the
+  reduction's d-dimensional denominators supply R1 but no R2.
+- `fdh`: four-dimensional-helicity scheme. The internal algebra stays
+  `d_s = 4` while the loop momentum is d-dimensional: `K.K -> q.q - mu^2`
+  (`K.P`, `K.eps` unchanged). The explicit `mu^2` terms then give all of R2
+  in FDH; `mu^2` has rank weight two, so the rank does not change. Closed
+  fermion, scalar or ghost loops with only external bosons (H→gg, gg→HH(H),
+  γγ→γγ) have scheme-independent R2 and match MadLoop's (HV) R2 vertices;
+  with internal gluons FDH differs from HV/CDR by the universal
+  `lambda_HV` terms, whose `(d_s-4)`-dimensional algebra (`N0 + eps N1 +
+  eps^2 N2`) is not implemented.
+
+The FDH binding is exact only if no four-dimensional-only identity reached the
+loop momentum before binding. `--r2 fdh` therefore rejects numerators with
+`gamma5`/chiral projectors or Levi-Civita tensors (FDH needs a `gamma5`
+prescription; Idenso uses four-dimensional axial-trace identities), external
+spinors (open fermion lines admit Idenso's four-dimensional Chisholm
+contraction) and Minkowski metrics in the external projector (four-dimensional
+polarization sums); see `ninjars_graph::R2Scheme` and
+[`docs/physical-preparation.md`](../../docs/physical-preparation.md#r2-rational-terms-in-fdh).
+The prepared document records the scheme under `r2`.
+
+```console
+nix develop --command cargo run --release -p ninjars-cli -- reduce \
+  examples/graphs/physical/hgg/top-triangle-0.json --r2 fdh --engine fast
+```
+
 ## Reduction engines
 
 `reduce` and `bench` accept `--engine generic|fast`. The default `generic`
@@ -77,9 +113,12 @@ nix develop --command cargo run --release -p ninjars-cli --features numerator-ji
 - A numerator without explicit `mu^2` terms becomes original Ninja's dense
   tensor numerator, filled per batch through `TensorCoefficientPlan` from
   coefficient heads evaluated by `--numerator-evaluator` (Symbolica's
-  interpreter, `symjit-o2` or `symjit-o2-factored`). Otherwise the existing
-  `PolynomialNumerator<f64>` runs behind the fast engine's generic adapter.
-  `numerator_provider.interface` records `tensor` or `generic-polynomial`.
+  interpreter, `symjit-o2` or `symjit-o2-factored`). A numerator with explicit
+  `mu^2` terms (`--r2 fdh`, or a fixture's own `ninjars::mu2`) uses the same
+  heads in `ninjars::fast::MuTensorNumerator`, `N = sum_k mu^(2k) T_k(q)`
+  with `T_k` a rank-`(R-2k)` tensor, so it stays on the tensor path.
+  `numerator_provider.interface` records `tensor` or `mu-tensor` (with
+  `tensor.mu_powers`).
 - `--cut-stop` is honoured. `--precision` other than `f64`, `--bits`,
   `--mu-extraction sampling`, `--full-box-coefficients`,
   `--mu-sampling-scale`, `--reduction-kernels` other than `symbolica` and
@@ -109,9 +148,15 @@ original Ninja's `TensorNumerator`/MadLoop ordering
 (`ninjars::fast::tensor_layout`). The complete numerator (graph factor included
 once) is laid out by `ninjars_graph::TensorCoefficientPlan`; values are
 evaluated from the exact fixture inputs at `--bits` (default 256) and rounded
-once. Numerators with explicit `mu^2` dependence are rejected. Every lane is
+once. A numerator with explicit `mu^2` dependence (`--r2 fdh`) has no
+original-Ninja layout: it is written as `ninjars-bench-case-v2`, with
+`mu_powers` `K`, `r2`, and per lane the blocks `T_0, ..., T_K` of
+`N = sum_k mu^(2k) T_k(q)` concatenated in `tensor` (`T_0` is exactly the
+four-dimensional v1 tensor). The C++ harnesses accept only v1; `case-bench`
+and `numerator-bench --check-case` read both. Every lane is
 checked against the existing `PolynomialNumerator` at random complex loop
-momenta (report on standard output or `--report`):
+momenta (and random `mu^2` for v2 cases; report on standard output or
+`--report`):
 
 ```console
 nix develop --command cargo run --profile perf -p ninjars-cli --features numerator-jit -- \
@@ -155,8 +200,13 @@ couplings, SymJIT O2 coefficient heads, Ninja tensor and propagator data), the
 pure `ninjars::fast` reduction (numerator outputs and master values replayed
 at O(1) cost), the tensor-numerator expansions, oneloopmaster's native masters
 (recorded calls replayed) and the uninstrumented total, at each `--widths`
-batch width (build with `--features numerator-jit`). `--reference` checks the
-integrated results against original-Ninja results for the same pool points:
+batch width (build with `--features numerator-jit`). Each width also records
+`lane_results` (Laurent, cut-constructible and rational parts) of the distinct
+pool points. With `--r2 fdh` the tensor carries `mu^2` blocks and the
+reduction runs `MuTensorNumerator` on the same fast path; `--r2 off` is
+Ninja's `TensorNumerator` pipeline, bit for bit. `--reference` checks the
+integrated results against original-Ninja results for the same pool points
+(which have no R2):
 
 ```console
 taskset -c 201 ./target/perf/ninjars pipeline-bench \
@@ -167,7 +217,8 @@ taskset -c 201 ./target/perf/ninjars pipeline-bench \
 
 `case-bench` performs the same reduction, tensor-numerator and master
 breakdown on `ninjars-bench-case-v1` files, i.e. exactly the propagators and
-tensor coefficients given to original Ninja; `--reference-dir
+tensor coefficients given to original Ninja (and on `-v2` cases with `mu^2`
+blocks through `MuTensorNumerator`); `--reference-dir
 validation/benchmark/ninja` checks each case's results:
 
 ```console

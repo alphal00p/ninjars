@@ -12,24 +12,31 @@
 //! - `masters`: the recorded master calls replayed through oneloopmaster's
 //!   native backend, without reduction;
 //! - `total`: tensor numerator, reduction and native masters together.
+//!
+//! "ninjars-bench-case-v2" files (`export-bench --r2 fdh`) carry explicit
+//! `mu^2` blocks (`mu_powers`) and run with `MuTensorNumerator`.
 
 use std::{error::Error, fs, hint::black_box, path::PathBuf, time::Duration};
 
 use clap::Args as ClapArgs;
 use ninjars::fast::{
     C64, FastAmplitude, FastInput, FastMaster, FastMasters, FastOptions, FastResult, FastStatus,
-    RMom, RecordingMasters, RecordingNumerator, TensorNumerator, tensor_layout::ncoeff,
+    MuTensorNumerator, RMom, RecordingMasters, RecordingNumerator, TensorNumerator,
+    tensor_layout::ncoeff_mu,
 };
 use ninjars_symbolica::OneLoopNativeMasters;
 use serde_json::{Value, json};
 
-use crate::numerator_bench::{affinity, measure};
+use crate::{
+    fast_runtime::DenseNumerator,
+    numerator_bench::{affinity, measure},
+};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 #[derive(ClapArgs)]
 pub struct Args {
-    /// One or more "ninjars-bench-case-v1" files.
+    /// One or more "ninjars-bench-case-v1" (or mu^2-block "-v2") files.
     pub cases: Vec<PathBuf>,
     #[arg(long, value_delimiter = ',', default_value = "1,32")]
     pub widths: Vec<usize>,
@@ -59,6 +66,7 @@ struct Case {
     name: String,
     n: usize,
     rank: usize,
+    mu_powers: usize,
     lanes: Vec<Lane>,
 }
 
@@ -72,11 +80,18 @@ fn complex(value: &Value) -> Result<C64> {
 
 fn load(path: &PathBuf) -> Result<Case> {
     let value: Value = serde_json::from_str(&fs::read_to_string(path)?)?;
-    if value["format"] != "ninjars-bench-case-v1" {
-        return Err(format!("{}: not a ninjars-bench-case-v1 file", path.display()).into());
-    }
+    let mu_powers = match value["format"].as_str() {
+        Some("ninjars-bench-case-v1") => 0,
+        Some("ninjars-bench-case-v2") => value["mu_powers"].as_u64().ok_or("mu_powers")? as usize,
+        _ => {
+            return Err(format!("{}: not a ninjars-bench-case-v1/v2 file", path.display()).into());
+        }
+    };
     let n = value["n"].as_u64().ok_or("n")? as usize;
     let rank = value["rank"].as_u64().ok_or("rank")? as usize;
+    if 2 * mu_powers > rank {
+        return Err(format!("{}: mu_powers exceeds the rank", path.display()).into());
+    }
     let mut lanes = Vec::new();
     for lane in value["lanes"].as_array().ok_or("lanes")? {
         let shifts = lane["shifts"]
@@ -115,7 +130,7 @@ fn load(path: &PathBuf) -> Result<Case> {
             .iter()
             .map(complex)
             .collect::<Result<Vec<_>>>()?;
-        if shifts.len() != n || masses.len() != n || tensor.len() != ncoeff(rank) {
+        if shifts.len() != n || masses.len() != n || tensor.len() != ncoeff_mu(rank, mu_powers) {
             return Err(format!("{}: malformed lane", path.display()).into());
         }
         lanes.push(Lane {
@@ -134,6 +149,7 @@ fn load(path: &PathBuf) -> Result<Case> {
         name: value["name"].as_str().unwrap_or("").to_string(),
         n,
         rank,
+        mu_powers,
         lanes,
     })
 }
@@ -204,6 +220,162 @@ fn reference_check(
     }))
 }
 
+/// Time every width of one case with the dense numerator type `N`.
+fn time_case<N: DenseNumerator>(
+    args: &Args,
+    case: &Case,
+    amplitude: &mut FastAmplitude,
+    masters: &mut OneLoopNativeMasters,
+    min_block: Duration,
+) -> Result<Vec<Value>> {
+    let rank = case.rank;
+    let mut widths = Vec::new();
+    for &width in &args.widths {
+        if width == 0 {
+            return Err("timing widths must be positive".into());
+        }
+        let lanes: Vec<&Lane> = (0..width)
+            .map(|i| &case.lanes[i % case.lanes.len()])
+            .collect();
+        let shifts: Vec<RMom> = lanes
+            .iter()
+            .flat_map(|l| l.shifts.iter().copied())
+            .collect();
+        let masses: Vec<C64> = lanes
+            .iter()
+            .flat_map(|l| l.masses.iter().copied())
+            .collect();
+        let scales: Vec<f64> = lanes.iter().map(|l| l.mu2).collect();
+        let s_matrix: Option<Vec<f64>> = lanes
+            .iter()
+            .map(|l| l.s_matrix.clone())
+            .collect::<Option<Vec<_>>>()
+            .map(|rows| rows.concat());
+        let ids: Vec<String> = lanes.iter().map(|l| l.id.clone()).collect();
+        let mut tensor = N::with_lanes(rank, case.mu_powers, width)?;
+        for (lane, data) in lanes.iter().enumerate() {
+            let size = data.tensor.len();
+            tensor.coefficients_mut()[lane * size..(lane + 1) * size].copy_from_slice(&data.tensor);
+        }
+        let input = FastInput {
+            lanes: width,
+            shifts: &shifts,
+            masses_squared: &masses,
+            scales_squared: &scales,
+            s_matrix: s_matrix.as_deref(),
+        };
+        let mut results = vec![FastResult::default(); width];
+        let mut statuses = vec![FastStatus::NotEvaluated; width];
+
+        let mut recording_numerator =
+            RecordingNumerator::new(N::with_lanes(rank, case.mu_powers, width)?);
+        recording_numerator
+            .inner_mut()
+            .coefficients_mut()
+            .copy_from_slice(tensor.coefficients());
+        let mut recorder = ArgumentRecorder {
+            inner: RecordingMasters::new(OneLoopNativeMasters::new()?),
+            calls: Vec::new(),
+        };
+        amplitude.evaluate(
+            &input,
+            &mut recording_numerator,
+            &mut recorder,
+            &mut results,
+            &mut statuses,
+        )?;
+        let failed = statuses
+            .iter()
+            .filter(|s| **s != FastStatus::Success)
+            .count();
+        let mut failure_kinds = std::collections::BTreeMap::<String, usize>::new();
+        for status in statuses.iter().filter(|s| **s != FastStatus::Success) {
+            *failure_kinds.entry(format!("{status:?}")).or_default() += 1;
+        }
+        let check = reference_check(&args.reference_dir, case, &ids, &results, &statuses)?;
+        let mut replay_numerator = recording_numerator.replay();
+        let mut replay_masters = recorder.inner.replay();
+        let master_calls = recorder.calls;
+
+        let reduction = measure(args.blocks, min_block, width, || {
+            replay_numerator.rewind();
+            replay_masters.rewind();
+            amplitude.evaluate(
+                &input,
+                &mut replay_numerator,
+                &mut replay_masters,
+                &mut results,
+                &mut statuses,
+            )?;
+            black_box(&results);
+            Ok(())
+        })?;
+        let reduction_and_tensor = measure(args.blocks, min_block, width, || {
+            replay_masters.rewind();
+            amplitude.evaluate(
+                &input,
+                &mut tensor,
+                &mut replay_masters,
+                &mut results,
+                &mut statuses,
+            )?;
+            black_box(&results);
+            Ok(())
+        })?;
+        let mut master_out: Vec<Vec<[C64; 3]>> = master_calls
+            .iter()
+            .map(|(family, _, rows)| vec![[C64::ZERO; 3]; rows * family.outputs()])
+            .collect();
+        let mut master_ok: Vec<Vec<bool>> = master_calls
+            .iter()
+            .map(|(_, _, rows)| vec![false; *rows])
+            .collect();
+        let masters_only = measure(args.blocks, min_block, width, || {
+            for ((call, out), ok) in master_calls
+                .iter()
+                .zip(master_out.iter_mut())
+                .zip(master_ok.iter_mut())
+            {
+                masters.evaluate(call.0, &call.1, out, ok)?;
+            }
+            black_box(&master_out);
+            Ok(())
+        })?;
+        let total = measure(args.blocks, min_block, width, || {
+            amplitude.evaluate(&input, &mut tensor, masters, &mut results, &mut statuses)?;
+            black_box(&results);
+            Ok(())
+        })?;
+        let median = |v: &Value| v["median_ns_per_point"].as_f64().unwrap_or(f64::NAN);
+        let tensor_ns = median(&reduction_and_tensor) - median(&reduction);
+        let sum = tensor_ns + median(&reduction) + median(&masters_only);
+        let mut families = std::collections::BTreeMap::<String, usize>::new();
+        for (family, _, rows) in &master_calls {
+            *families.entry(format!("{family:?}")).or_default() += rows;
+        }
+        widths.push(json!({
+            "width": width,
+            "failed_lanes": failed,
+            "failure_kinds": failure_kinds,
+            "reduction": reduction,
+            "reduction_and_tensor_numerator": reduction_and_tensor,
+            "masters": masters_only,
+            "total": total,
+            "summary_ns_per_point": {
+                "tensor_numerator": tensor_ns,
+                "reduction": median(&reduction),
+                "masters": median(&masters_only),
+                "total": median(&total),
+                "sum_of_components": sum,
+                "sum_over_total": sum / median(&total),
+            },
+            "master_rows_per_batch": families,
+            "reference_check": check,
+        }));
+    }
+    Ok(widths)
+}
+
 pub fn run(args: Args) -> Result<()> {
     let min_block = Duration::from_secs_f64(args.min_block_ms * 1e-3);
     let mut masters = OneLoopNativeMasters::new()?;
@@ -212,162 +384,17 @@ pub fn run(args: Args) -> Result<()> {
         let case = load(path)?;
         let (n, rank) = (case.n, case.rank);
         let mut amplitude = FastAmplitude::new(n, rank, FastOptions::default())?;
-        let mut widths = Vec::new();
-        for &width in &args.widths {
-            if width == 0 {
-                return Err("timing widths must be positive".into());
-            }
-            let lanes: Vec<&Lane> = (0..width)
-                .map(|i| &case.lanes[i % case.lanes.len()])
-                .collect();
-            let shifts: Vec<RMom> = lanes
-                .iter()
-                .flat_map(|l| l.shifts.iter().copied())
-                .collect();
-            let masses: Vec<C64> = lanes
-                .iter()
-                .flat_map(|l| l.masses.iter().copied())
-                .collect();
-            let scales: Vec<f64> = lanes.iter().map(|l| l.mu2).collect();
-            let s_matrix: Option<Vec<f64>> = lanes
-                .iter()
-                .map(|l| l.s_matrix.clone())
-                .collect::<Option<Vec<_>>>()
-                .map(|rows| rows.concat());
-            let ids: Vec<String> = lanes.iter().map(|l| l.id.clone()).collect();
-            let mut tensor = TensorNumerator::new(rank, width);
-            for (lane, data) in lanes.iter().enumerate() {
-                tensor
-                    .lane_coefficients_mut(lane)
-                    .copy_from_slice(&data.tensor);
-            }
-            let input = FastInput {
-                lanes: width,
-                shifts: &shifts,
-                masses_squared: &masses,
-                scales_squared: &scales,
-                s_matrix: s_matrix.as_deref(),
-            };
-            let mut results = vec![FastResult::default(); width];
-            let mut statuses = vec![FastStatus::NotEvaluated; width];
-
-            let mut recording_numerator =
-                RecordingNumerator::new(TensorNumerator::new(rank, width));
-            recording_numerator
-                .inner_mut()
-                .coefficients_mut()
-                .copy_from_slice(tensor.coefficients());
-            let mut recorder = ArgumentRecorder {
-                inner: RecordingMasters::new(OneLoopNativeMasters::new()?),
-                calls: Vec::new(),
-            };
-            amplitude.evaluate(
-                &input,
-                &mut recording_numerator,
-                &mut recorder,
-                &mut results,
-                &mut statuses,
-            )?;
-            let failed = statuses
-                .iter()
-                .filter(|s| **s != FastStatus::Success)
-                .count();
-            let mut failure_kinds = std::collections::BTreeMap::<String, usize>::new();
-            for status in statuses.iter().filter(|s| **s != FastStatus::Success) {
-                *failure_kinds.entry(format!("{status:?}")).or_default() += 1;
-            }
-            let check = reference_check(&args.reference_dir, &case, &ids, &results, &statuses)?;
-            let mut replay_numerator = recording_numerator.replay();
-            let mut replay_masters = recorder.inner.replay();
-            let master_calls = recorder.calls;
-
-            let reduction = measure(args.blocks, min_block, width, || {
-                replay_numerator.rewind();
-                replay_masters.rewind();
-                amplitude.evaluate(
-                    &input,
-                    &mut replay_numerator,
-                    &mut replay_masters,
-                    &mut results,
-                    &mut statuses,
-                )?;
-                black_box(&results);
-                Ok(())
-            })?;
-            let reduction_and_tensor = measure(args.blocks, min_block, width, || {
-                replay_masters.rewind();
-                amplitude.evaluate(
-                    &input,
-                    &mut tensor,
-                    &mut replay_masters,
-                    &mut results,
-                    &mut statuses,
-                )?;
-                black_box(&results);
-                Ok(())
-            })?;
-            let mut master_out: Vec<Vec<[C64; 3]>> = master_calls
-                .iter()
-                .map(|(family, _, rows)| vec![[C64::ZERO; 3]; rows * family.outputs()])
-                .collect();
-            let mut master_ok: Vec<Vec<bool>> = master_calls
-                .iter()
-                .map(|(_, _, rows)| vec![false; *rows])
-                .collect();
-            let masters_only = measure(args.blocks, min_block, width, || {
-                for ((call, out), ok) in master_calls
-                    .iter()
-                    .zip(master_out.iter_mut())
-                    .zip(master_ok.iter_mut())
-                {
-                    masters.evaluate(call.0, &call.1, out, ok)?;
-                }
-                black_box(&master_out);
-                Ok(())
-            })?;
-            let total = measure(args.blocks, min_block, width, || {
-                amplitude.evaluate(
-                    &input,
-                    &mut tensor,
-                    &mut masters,
-                    &mut results,
-                    &mut statuses,
-                )?;
-                black_box(&results);
-                Ok(())
-            })?;
-            let median = |v: &Value| v["median_ns_per_point"].as_f64().unwrap_or(f64::NAN);
-            let tensor_ns = median(&reduction_and_tensor) - median(&reduction);
-            let sum = tensor_ns + median(&reduction) + median(&masters_only);
-            let mut families = std::collections::BTreeMap::<String, usize>::new();
-            for (family, _, rows) in &master_calls {
-                *families.entry(format!("{family:?}")).or_default() += rows;
-            }
-            widths.push(json!({
-                "width": width,
-                "failed_lanes": failed,
-                "failure_kinds": failure_kinds,
-                "reduction": reduction,
-                "reduction_and_tensor_numerator": reduction_and_tensor,
-                "masters": masters_only,
-                "total": total,
-                "summary_ns_per_point": {
-                    "tensor_numerator": tensor_ns,
-                    "reduction": median(&reduction),
-                    "masters": median(&masters_only),
-                    "total": median(&total),
-                    "sum_of_components": sum,
-                    "sum_over_total": sum / median(&total),
-                },
-                "master_rows_per_batch": families,
-                "reference_check": check,
-            }));
-        }
+        let widths = if case.mu_powers == 0 {
+            time_case::<TensorNumerator>(&args, &case, &mut amplitude, &mut masters, min_block)?
+        } else {
+            time_case::<MuTensorNumerator>(&args, &case, &mut amplitude, &mut masters, min_block)?
+        };
         reports.push(json!({
             "case": case.name,
             "file": path,
             "n": n,
             "rank": rank,
+            "mu_powers": case.mu_powers,
             "lanes": case.lanes.len(),
             "per_point_timing": widths,
         }));
@@ -378,7 +405,7 @@ pub fn run(args: Args) -> Result<()> {
         "command": std::env::args().collect::<Vec<_>>(),
         "cases": reports,
         "cpu_affinity": affinity(),
-        "boundary": "per point: TensorNumerator expansions (tensor_numerator = reduction_and_tensor_numerator - reduction), ninjars::fast reduction (replayed numerator and masters), oneloopmaster native masters (recorded calls replayed); total uninstrumented",
+        "boundary": "per point: TensorNumerator (MuTensorNumerator for v2 mu^2-block cases) expansions (tensor_numerator = reduction_and_tensor_numerator - reduction), ninjars::fast reduction (replayed numerator and masters), oneloopmaster native masters (recorded calls replayed); total uninstrumented",
     });
     let report = serde_json::to_string_pretty(&report)? + "\n";
     if let Some(path) = args.output {

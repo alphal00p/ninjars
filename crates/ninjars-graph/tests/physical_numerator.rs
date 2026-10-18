@@ -13,7 +13,7 @@ use std::{
 use feynkit_kinematics::{Helicity, WavefunctionKind};
 use ninjars_graph::{
     CoefficientBackend, FourMomentum, LegState, Model, NumeratorMode, PhysicalNumeratorError,
-    PhysicalNumeratorSpec, PhysicalTensorNumerator, vector_wavefunction,
+    PhysicalNumeratorSpec, PhysicalTensorNumerator, R2Scheme, vector_wavefunction,
 };
 use serde_json::Value;
 use symbolica::{
@@ -116,6 +116,7 @@ fn case(process: &str, graph: &str) -> Case {
         factor_coefficients: false,
         tensor_rank: None,
         backend: BACKEND,
+        r2: R2Scheme::Off,
     };
     Case {
         numerator: PhysicalTensorNumerator::new(&spec).unwrap(),

@@ -13,12 +13,16 @@ mod physical_numerator;
 mod prepare;
 mod tensor;
 
+pub use components::R2Scheme;
 pub use feynkit_graph::symbols;
 pub use feynkit_graph::{EdgeId, ExternalState, FeynmanDiagram, IntegralFamily, QuadraticMomentum};
 pub use feynkit_kinematics::{FourMomentum, Kinematics};
 pub use feynkit_model::Model;
 pub use numerator::{NumeratorMode, contract_numerator};
-pub use physical::{PhysicalPreparationError, prepare_top_four_photons, prepare_top_higgs_gluons};
+pub use physical::{
+    PhysicalPreparationError, prepare_gluon_self_energy, prepare_top_four_photons,
+    prepare_top_higgs_gluons,
+};
 pub use physical_numerator::{
     CoefficientBackend, GenerationTimings, LegState, PhysicalLeg, PhysicalNumeratorError,
     PhysicalNumeratorSpec, PhysicalTensorNumerator, vector_wavefunction,

@@ -139,7 +139,13 @@ fn splits(d: usize) -> (usize, usize, usize) {
 
 /// Scalar Horner evaluation of `N(q)` (all blocks) or of `N_R(q)` (top block).
 #[inline]
-fn horner_scalar(c: &[C64], rank: usize, q: &CMom, all_blocks: bool, work: &mut [C64]) -> C64 {
+pub(super) fn horner_scalar(
+    c: &[C64],
+    rank: usize,
+    q: &CMom,
+    all_blocks: bool,
+    work: &mut [C64],
+) -> C64 {
     if rank == 0 {
         return c[0];
     }
@@ -181,7 +187,7 @@ fn horner_scalar(c: &[C64], rank: usize, q: &CMom, all_blocks: bool, work: &mut 
 }
 
 /// Component index of `u^i s^j` in a T3 jet (Ninja's t3 layout).
-const fn t3_len_const(i: usize) -> usize {
+pub(super) const fn t3_len_const(i: usize) -> usize {
     // t3_len(i - 1) with t3_len(-1) = 0
     let mut total = 0;
     let mut k = 0;
@@ -193,7 +199,7 @@ const fn t3_len_const(i: usize) -> usize {
 }
 
 /// Offset of order `u^i` in a T2 jet.
-const fn t2_offset(i: usize) -> usize {
+pub(super) const fn t2_offset(i: usize) -> usize {
     let mut total = 0;
     let mut k = 0;
     while k < i {
@@ -212,7 +218,7 @@ const fn t2_offset(i: usize) -> usize {
 /// so every output jet is written once per level. The lower block `d-1`
 /// enters at the pure power `u^(R-d+1)` (dropped beyond truncation).
 #[inline(always)]
-fn horner_jet<P: Jet<L>, const L: usize>(
+pub(super) fn horner_jet<P: Jet<L>, const L: usize>(
     c: &[C64],
     rank: usize,
     xv: &[CMom; 4],
@@ -289,7 +295,12 @@ fn horner_jet<P: Jet<L>, const L: usize>(
 /// Convert the internal T3 jet (powers of `s = param + mu²`) to Ninja's
 /// layout (powers of `mu²`).
 #[inline(always)]
-fn t3_output<const L: usize>(jet: &[C64; L], mindeg: usize, param: C64, out: &mut [C64]) {
+pub(super) fn t3_output<const L: usize>(
+    jet: &[C64; L],
+    mindeg: usize,
+    param: C64,
+    out: &mut [C64],
+) {
     for i in 0..=mindeg {
         let o = t3_len_const(i);
         match i / 2 {
@@ -310,7 +321,12 @@ fn t3_output<const L: usize>(jet: &[C64; L], mindeg: usize, param: C64, out: &mu
 /// Convert the internal T2 jet (`x^k S^j`, `S = p0 + p1 x + p2 x² + mu²`) to
 /// Ninja's layout.
 #[inline(always)]
-fn t2_output<const L: usize>(jet: &[C64; L], mindeg: usize, p: &[C64; 3], out: &mut [C64]) {
+pub(super) fn t2_output<const L: usize>(
+    jet: &[C64; L],
+    mindeg: usize,
+    p: &[C64; 3],
+    out: &mut [C64],
+) {
     for i in 0..=mindeg {
         let o = t2_offset(i);
         match i {

@@ -193,6 +193,7 @@ pub fn run(args: Args) -> Result<()> {
         samples: args.reduction.samples.clone(),
         model: args.reduction.model.clone(),
         feynman_rules: args.reduction.feynman_rules,
+        r2: args.reduction.r2,
         output: None,
         reference_dir: None,
         reference_bench_dir: None,

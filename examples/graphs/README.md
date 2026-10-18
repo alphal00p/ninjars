@@ -86,3 +86,23 @@ The automatic auxiliary mu sampling scale continues to use masses and momentum
 invariants, independently of the optional matrix and squared renormalization
 scale. `--mu-sampling-scale` accepts an exact manual override. Sampling-scale
 failures affect reduction only when box cuts are active.
+
+## R2 and the dimension of the loop momentum
+
+The synthetic numerators above contain explicit `ninjars::mu2` terms and are
+reduced as given. Physical graphs (`physical/`) are contracted by FeynKit and
+Idenso into scalar products of the loop momentum; `--r2` selects their binding:
+`off` (default) is four-dimensional, `K.K -> q.q`, so the reduction gives R1
+but no R2; `fdh` binds `K.K -> q.q - mu2` (four-dimensional-helicity scheme,
+`d_s = 4` internal algebra), so the numerator's `mu2` terms give R2 in FDH:
+
+```sh
+ninjars reduce examples/graphs/physical/hgg/top-triangle-0.json --r2 fdh
+ninjars reduce examples/graphs/physical/gluon-self-energy/gluon-loop.json --r2 fdh --engine fast
+```
+
+`physical/gluon-self-energy` holds the four one-loop QCD gluon self-energy
+graphs (gluon, ghost, down- and top-quark loops) with off-shell momenta and
+one or both polarizations replaced by the momentum: their sum is transverse
+only with `--r2 fdh`. See `docs/physical-preparation.md` for the scheme, its
+limits and the MadGraph `R2_GGHt` comparison.

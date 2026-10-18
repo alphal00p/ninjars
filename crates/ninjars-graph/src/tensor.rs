@@ -12,8 +12,12 @@
 //! computed once at setup; [`TensorCoefficientPlan::scatter`] performs no
 //! allocation and no arithmetic.
 //!
-//! Ninja's tensor numerator has no `mu^2` slots, so numerators with explicit
-//! `mu^2` dependence are rejected by this path.
+//! Ninja's tensor numerator has no `mu^2` slots, so [`TensorCoefficientPlan::new`]
+//! and [`TensorCoefficientPlan::with_rank`] reject numerators with explicit
+//! `mu^2` dependence. [`TensorCoefficientPlan::with_mu_squared`] instead lays
+//! `N = sum_k mu^(2k) T_k(q)` out in the block layout of
+//! [`ninjars::fast::MuTensorNumerator`] (block `k` a rank-`(R - 2k)` tensor);
+//! without `mu^2` terms that layout is exactly the plain tensor.
 
 use std::collections::HashMap;
 
@@ -32,13 +36,17 @@ pub struct TensorEntry {
     pub head: usize,
     /// Exponents `(q0, q1, q2, q3)` of the slot's monomial.
     pub exponents: [u32; 4],
+    /// Power `k` of the slot's `mu^(2k)` block (zero without `mu^2` terms).
+    pub mu_power: u32,
 }
 
 /// Static map from evaluated coefficient heads to a dense rank-`R` tensor of
-/// `binomial(R + 4, 4)` complex coefficients per phase-space lane.
+/// `binomial(R + 4, 4)` complex coefficients per phase-space lane, followed
+/// by the `mu^(2k)` blocks of [`Self::with_mu_squared`].
 #[derive(Clone, Debug)]
 pub struct TensorCoefficientPlan {
     rank: usize,
+    mu_powers: usize,
     ncoeff: usize,
     heads: usize,
     entries: Vec<TensorEntry>,
@@ -55,25 +63,50 @@ impl TensorCoefficientPlan {
     /// the numerator's degree stay zero. Fails if the numerator depends on
     /// `mu^2` or exceeds `rank`.
     pub fn with_rank(plan: &PolynomialCoefficientPlan, rank: usize) -> Result<Self> {
+        Self::build(plan, rank, false)
+    }
+
+    /// Lay out a numerator with explicit `mu^2` terms as
+    /// `N = sum_{k=0}^{K} mu^(2k) T_k(q)`, `K` the highest `mu^2` power and
+    /// `T_k` a dense rank-`(rank - 2k)` tensor (rank defaults to the numerator
+    /// degree, `mu^2` weighing two); see
+    /// [`ninjars::fast::tensor_layout::ncoeff_mu`]. Without `mu^2` terms the
+    /// result is identical to [`Self::with_rank`].
+    pub fn with_mu_squared(plan: &PolynomialCoefficientPlan, rank: Option<usize>) -> Result<Self> {
+        Self::build(plan, rank.unwrap_or(plan.rank()), true)
+    }
+
+    fn build(plan: &PolynomialCoefficientPlan, rank: usize, allow_mu: bool) -> Result<Self> {
         let heads = plan.coefficient_expressions();
         let index: HashMap<_, _> = heads
             .iter()
             .enumerate()
             .map(|(column, head)| (head, column))
             .collect();
-        let ncoeff = tensor_layout::ncoeff(rank);
+        let mut mu_powers = 0;
+        for term in plan.polynomial() {
+            let mu = term.exponents.get(4).copied().unwrap_or(0);
+            if mu != 0 && !allow_mu {
+                return Err(CoefficientError::ExplicitMuSquared { power: mu });
+            }
+            mu_powers = mu_powers.max(mu.max(0) as usize);
+        }
+        if 2 * mu_powers > rank {
+            return Err(CoefficientError::TensorRank {
+                requested: rank,
+                required: plan.rank(),
+            });
+        }
+        let ncoeff = tensor_layout::ncoeff_mu(rank, mu_powers);
         let mut entries = Vec::with_capacity(plan.polynomial().nterms());
         for term in plan.polynomial() {
             let [a0, a1, a2, a3, mu] = <[i32; 5]>::try_from(term.exponents)
                 .map_err(|_| CoefficientError::NotPolynomial)?;
-            if mu != 0 {
-                return Err(CoefficientError::ExplicitMuSquared { power: mu });
-            }
-            if [a0, a1, a2, a3].iter().any(|power| *power < 0) {
+            if [a0, a1, a2, a3, mu].iter().any(|power| *power < 0) {
                 return Err(CoefficientError::NotPolynomial);
             }
             let exponents = [a0, a1, a2, a3].map(|power| power as u32);
-            let degree = exponents.iter().sum::<u32>() as usize;
+            let degree = exponents.iter().sum::<u32>() as usize + 2 * mu as usize;
             if degree > rank {
                 return Err(CoefficientError::TensorRank {
                     requested: rank,
@@ -84,9 +117,11 @@ impl TensorCoefficientPlan {
                 .get(term.coefficient)
                 .ok_or_else(|| CoefficientError::Symbolic("unindexed coefficient head".into()))?;
             entries.push(TensorEntry {
-                slot: tensor_layout::monomial_index(exponents),
+                slot: tensor_layout::mu_block_offset(rank, mu as usize)
+                    + tensor_layout::monomial_index(exponents),
                 head,
                 exponents,
+                mu_power: mu as u32,
             });
         }
         entries.sort_by_key(|entry| entry.slot);
@@ -102,6 +137,7 @@ impl TensorCoefficientPlan {
         let zero_slots = (0..ncoeff).filter(|slot| !occupied[*slot]).collect();
         Ok(Self {
             rank,
+            mu_powers,
             ncoeff,
             heads: heads.len(),
             entries,
@@ -113,7 +149,11 @@ impl TensorCoefficientPlan {
     pub fn rank(&self) -> usize {
         self.rank
     }
-    /// Coefficients per lane, `binomial(R + 4, 4)`.
+    /// Highest power `K` of `mu^2` (zero for Ninja's plain tensor layout).
+    pub fn mu_powers(&self) -> usize {
+        self.mu_powers
+    }
+    /// Coefficients per lane, `binomial(R + 4, 4)` (plus the `mu^2` blocks).
     pub fn ncoeff(&self) -> usize {
         self.ncoeff
     }

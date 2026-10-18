@@ -186,9 +186,14 @@ pub struct Args {
     pub model: Option<String>,
     #[arg(long)]
     pub feynman_rules: bool,
+    /// R2 from the numerator: `off` (four-dimensional loop momentum, R1 only)
+    /// or `fdh` (K.K -> q.q - mu^2 in FDH; the mu^2 terms give R2).
+    #[arg(long, value_enum, default_value = "off")]
+    pub r2: prepare::R2,
     /// Reduction engine. `fast` requires --precision f64 and the default box
-    /// mu-expansion; it uses Ninja's tensor numerator when the numerator has no
-    /// explicit mu^2 terms and oneloopmaster's native binary64 masters.
+    /// mu-expansion; it uses Ninja's tensor numerator (with explicit mu^2
+    /// blocks when the numerator has mu^2 terms, e.g. --r2 fdh) and
+    /// oneloopmaster's native binary64 masters.
     #[arg(long, value_enum, default_value = "generic")]
     pub engine: Engine,
     /// Numerical carrier; all input expressions are evaluated directly at this precision.
@@ -486,6 +491,7 @@ pub fn run(args: Args) -> Result<()> {
         samples: args.samples.clone(),
         model: args.model.clone(),
         feynman_rules: args.feynman_rules,
+        r2: args.r2,
         output: None,
         #[cfg(feature = "reference-codegen")]
         reference_dir: None,

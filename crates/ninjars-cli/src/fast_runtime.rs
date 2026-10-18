@@ -6,18 +6,20 @@
 //! The numerator is original Ninja's dense `TensorNumerator`, filled per batch
 //! from the coefficient heads of a `TensorCoefficientPlan` (Symbolica's
 //! interpreter or SymJIT O2, following `--numerator-evaluator`). A prepared
-//! numerator with explicit `mu^2` terms has no tensor layout; it runs as the
-//! existing `PolynomialNumerator<f64>` behind `GenericNumerator`. Masters are
-//! oneloopmaster's native binary64 code (`OneLoopNativeMasters`).
+//! numerator with explicit `mu^2` terms (`--r2 fdh`, or explicit fixture
+//! terms) uses the same heads in the `mu^2` block layout of
+//! `MuTensorNumerator` (`N = sum_k mu^(2k) T_k(q)`); a `mu^2`-free numerator
+//! keeps the plain `TensorNumerator`. Masters are oneloopmaster's native
+//! binary64 code (`OneLoopNativeMasters`).
 
 use std::{error::Error, time::Instant};
 
 use ninjars::fast::{
     C64, CMom, FastAmplitude, FastInput, FastMaster, FastMasters, FastNumerator, FastOptions,
-    FastResult, FastStatus, GenericNumerator, RMom, TensorNumerator,
+    FastResult, FastStatus, MuTensorNumerator, RMom, TensorNumerator,
 };
-use ninjars_graph::{CoefficientError, PolynomialCoefficientPlan, TensorCoefficientPlan};
-use ninjars_symbolica::{OneLoopNativeMasters, PolynomialNumerator};
+use ninjars_graph::{PolynomialCoefficientPlan, TensorCoefficientPlan};
+use ninjars_symbolica::OneLoopNativeMasters;
 use serde_json::{Value, json};
 use symbolica::domains::float::Complex;
 
@@ -173,57 +175,73 @@ impl FastPool {
     }
 }
 
+/// Batched dense numerator filled from tensor coefficients: Ninja's plain
+/// tensor, or the tensor with explicit `mu^2` blocks (`--r2 fdh`). Benchmarks
+/// monomorphize over it, so the `mu^2`-free path is exactly `TensorNumerator`.
+pub(crate) trait DenseNumerator: FastNumerator + Sized {
+    fn with_lanes(rank: usize, mu_powers: usize, lanes: usize) -> Result<Self>;
+    fn coefficients(&self) -> &[C64];
+    fn coefficients_mut(&mut self) -> &mut [C64];
+}
+
+impl DenseNumerator for TensorNumerator {
+    fn with_lanes(rank: usize, _mu_powers: usize, lanes: usize) -> Result<Self> {
+        Ok(TensorNumerator::new(rank, lanes))
+    }
+    fn coefficients(&self) -> &[C64] {
+        TensorNumerator::coefficients(self)
+    }
+    fn coefficients_mut(&mut self) -> &mut [C64] {
+        TensorNumerator::coefficients_mut(self)
+    }
+}
+
+impl DenseNumerator for MuTensorNumerator {
+    fn with_lanes(rank: usize, mu_powers: usize, lanes: usize) -> Result<Self> {
+        Ok(MuTensorNumerator::new(rank, mu_powers, lanes)?)
+    }
+    fn coefficients(&self) -> &[C64] {
+        MuTensorNumerator::coefficients(self)
+    }
+    fn coefficients_mut(&mut self) -> &mut [C64] {
+        MuTensorNumerator::coefficients_mut(self)
+    }
+}
+
+/// The dense numerator filled from the coefficient heads.
+enum Tensor {
+    /// Ninja's tensor numerator (no explicit mu^2 terms).
+    Plain(TensorNumerator),
+    /// Explicit mu^2 blocks, `sum_k mu^(2k) T_k(q)`.
+    Mu(MuTensorNumerator),
+}
+
 /// The numerator provider and its per-batch coefficient binding.
-enum Binding {
-    /// Ninja's dense tensor numerator from evaluated coefficient heads.
-    Tensor {
-        plan: TensorCoefficientPlan,
-        heads: Box<dyn CoefficientBatch<f64>>,
-        values: Vec<C64>,
-        tensor: TensorNumerator,
-    },
-    /// Explicit mu^2 dependence: the generic polynomial numerator.
-    Polynomial {
-        numerator: Box<GenericNumerator<PolynomialNumerator<f64>>>,
-        coefficients: Option<Box<dyn CoefficientBatch<f64>>>,
-    },
+struct Binding {
+    plan: TensorCoefficientPlan,
+    heads: Box<dyn CoefficientBatch<f64>>,
+    values: Vec<C64>,
+    tensor: Tensor,
 }
 
 impl Binding {
-    fn evaluates_coefficients(&self) -> bool {
-        match self {
-            Self::Tensor { .. } => true,
-            Self::Polynomial { coefficients, .. } => coefficients.is_some(),
-        }
-    }
-
     fn bind(&mut self, batch: &FastBatch) -> Result<()> {
-        match self {
-            Self::Tensor {
-                plan,
-                heads,
-                values,
-                tensor,
-            } => {
-                let rows = heads.evaluate_batch(&batch.parameters, batch.lanes)?;
-                values.clear();
-                values.extend(rows.iter().copied().map(C64::from_symbolica));
+        let rows = self.heads.evaluate_batch(&batch.parameters, batch.lanes)?;
+        self.values.clear();
+        self.values
+            .extend(rows.iter().copied().map(C64::from_symbolica));
+        let coefficients = match &mut self.tensor {
+            Tensor::Plain(tensor) => {
                 tensor.set_lanes(batch.lanes);
-                plan.scatter(values, tensor.coefficients_mut(), batch.lanes, &C64::ZERO)?;
+                tensor.coefficients_mut()
             }
-            Self::Polynomial {
-                numerator,
-                coefficients,
-            } => {
-                let values = match coefficients {
-                    Some(evaluator) => evaluator.evaluate_batch(&batch.parameters, batch.lanes)?,
-                    None => batch.parameters.as_slice(),
-                };
-                numerator
-                    .inner_mut()
-                    .set_parameter_batch(values, batch.lanes)?;
+            Tensor::Mu(tensor) => {
+                tensor.set_lanes(batch.lanes);
+                tensor.coefficients_mut()
             }
-        }
+        };
+        self.plan
+            .scatter(&self.values, coefficients, batch.lanes, &C64::ZERO)?;
         Ok(())
     }
 }
@@ -262,11 +280,8 @@ impl FastSession {
         } else {
             0.
         };
-        let tensor_plan = match TensorCoefficientPlan::new(&plan) {
-            Ok(tensor_plan) => Some(tensor_plan),
-            Err(CoefficientError::ExplicitMuSquared { .. }) => None,
-            Err(error) => return Err(error.into()),
-        };
+        // Ninja's plain tensor layout unless the numerator has mu^2 terms.
+        let tensor_plan = TensorCoefficientPlan::with_mu_squared(&plan, None)?;
         let preparation_ns = start.elapsed().as_secs_f64() * 1e9;
         let jit = !matches!(evaluator, NumeratorEvaluator::Symbolica);
         let mut compilation_ns = 0.;
@@ -288,71 +303,43 @@ impl FastSession {
             "coefficients_factored": factoring,
             "coefficient_factoring_ns": factoring_ns,
         });
-        let numerator = if let Some(tensor_plan) = tensor_plan {
-            let heads = compile(jit)?;
-            info["interface"] = "tensor".into();
-            info["tensor"] = json!({
-                "rank": tensor_plan.rank(),
-                "ncoeff": tensor_plan.ncoeff(),
-                "nonzero_slots": tensor_plan.entries().len(),
-                "ordering": "original Ninja/MadLoop tensor_layout (ninjars::fast::tensor_layout)",
-            });
-            info["coefficient_outputs"] = tensor_plan.head_count().into();
-            info["coefficient_policy"] = "all heads evaluated once per sample in every batch and scattered into Ninja's dense tensor; coefficient values not cached".into();
-            Binding::Tensor {
-                values: Vec::new(),
-                tensor: TensorNumerator::new(tensor_plan.rank(), 0),
-                plan: tensor_plan,
-                heads,
-            }
+        let heads = compile(jit)?;
+        let mu_powers = tensor_plan.mu_powers();
+        info["interface"] = if mu_powers == 0 {
+            "tensor"
         } else {
-            // Ninja's tensor numerator has no mu^2 slots; keep the polynomial
-            // numerator and its existing coefficient policy.
-            let (expression, parameters, coefficients) = if jit {
-                (
-                    plan.template().clone(),
-                    plan.coefficient_symbols().to_vec(),
-                    Some(compile(true)?),
-                )
-            } else {
-                (
-                    prepared.numerator_template.clone(),
-                    prepared.parameters.clone(),
-                    None,
-                )
-            };
-            info["interface"] = "generic-polynomial".into();
-            info["interface_reason"] = "explicit mu^2 dependence".into();
-            info["coefficient_outputs"] = if jit {
-                plan.coefficient_expressions().len().into()
-            } else {
-                Value::Null
-            };
-            info["coefficient_policy"] = if jit {
-                "all heads evaluated once per sample in every batch; coefficient values not cached"
-            } else {
-                "external coefficients evaluated within existing cut callbacks"
-            }
-            .into();
-            Binding::Polynomial {
-                numerator: Box::new(GenericNumerator::new(PolynomialNumerator::new(
-                    expression,
-                    loop_variables(),
-                    parameters,
-                    0_f64,
-                )?)),
-                coefficients,
-            }
+            "mu-tensor"
+        }
+        .into();
+        info["tensor"] = json!({
+            "rank": tensor_plan.rank(),
+            "ncoeff": tensor_plan.ncoeff(),
+            "nonzero_slots": tensor_plan.entries().len(),
+            "ordering": "original Ninja/MadLoop tensor_layout (ninjars::fast::tensor_layout)",
+        });
+        if mu_powers > 0 {
+            info["tensor"]["mu_powers"] = mu_powers.into();
+            info["tensor"]["layout"] = "blocks k = 0..=mu_powers of mu^(2k) T_k(q), T_k of rank (rank - 2k) (ninjars::fast::MuTensorNumerator)".into();
+        }
+        info["coefficient_outputs"] = tensor_plan.head_count().into();
+        info["coefficient_policy"] = "all heads evaluated once per sample in every batch and scattered into Ninja's dense tensor; coefficient values not cached".into();
+        let tensor = if mu_powers == 0 {
+            Tensor::Plain(TensorNumerator::new(tensor_plan.rank(), 0))
+        } else {
+            Tensor::Mu(MuTensorNumerator::new(tensor_plan.rank(), mu_powers, 0)?)
+        };
+        let numerator = Binding {
+            values: Vec::new(),
+            tensor,
+            plan: tensor_plan,
+            heads,
         };
         info["coefficient_compilation_ns"] = compilation_ns.into();
         if jit {
             info["optimization_level"] = 2.into();
             info["coefficient_error_policy"] = "reject_binding_batch_before_reduction".into();
         }
-        let rank = match &numerator {
-            Binding::Tensor { tensor, .. } => tensor.rank(),
-            Binding::Polynomial { numerator, .. } => numerator.rank(),
-        };
+        let rank = numerator.plan.rank();
         let amplitude = FastAmplitude::new(
             prepared.propagators,
             rank,
@@ -407,18 +394,15 @@ impl FastSession {
         self.reset(batch.lanes);
         let input = batch.input();
         let (results, statuses) = (&mut self.results, &mut self.statuses);
-        match &mut self.numerator {
-            Binding::Tensor { tensor, .. } => {
+        match &mut self.numerator.tensor {
+            Tensor::Plain(tensor) => {
                 self.amplitude
                     .evaluate(&input, tensor, &mut self.masters, results, statuses)?
             }
-            Binding::Polynomial { numerator, .. } => self.amplitude.evaluate(
-                &input,
-                &mut **numerator,
-                &mut self.masters,
-                results,
-                statuses,
-            )?,
+            Tensor::Mu(tensor) => {
+                self.amplitude
+                    .evaluate(&input, tensor, &mut self.masters, results, statuses)?
+            }
         }
         Ok(())
     }
@@ -429,13 +413,9 @@ impl FastSession {
         batch: &FastBatch,
         timings: &mut DiagnosticTimings,
     ) -> Result<()> {
-        if self.numerator.evaluates_coefficients() {
-            let start = Instant::now();
-            self.numerator.bind(batch)?;
-            timings.numerator_coefficients.record(start, batch.lanes);
-        } else {
-            self.numerator.bind(batch)?;
-        }
+        let start = Instant::now();
+        self.numerator.bind(batch)?;
+        timings.numerator_coefficients.record(start, batch.lanes);
         self.reset(batch.lanes);
         let input = batch.input();
         let (results, statuses) = (&mut self.results, &mut self.statuses);
@@ -447,8 +427,8 @@ impl FastSession {
             &mut timings.numerator_evaluation,
             &mut timings.numerator_expansion,
         );
-        match &mut self.numerator {
-            Binding::Tensor { tensor, .. } => {
+        match &mut self.numerator.tensor {
+            Tensor::Plain(tensor) => {
                 let mut numerator = TimedNumerator {
                     inner: tensor,
                     evaluation,
@@ -457,9 +437,9 @@ impl FastSession {
                 self.amplitude
                     .evaluate(&input, &mut numerator, &mut masters, results, statuses)?
             }
-            Binding::Polynomial { numerator, .. } => {
+            Tensor::Mu(tensor) => {
                 let mut numerator = TimedNumerator {
-                    inner: &mut **numerator,
+                    inner: tensor,
                     evaluation,
                     expansion,
                 };

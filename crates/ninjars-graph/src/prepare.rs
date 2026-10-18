@@ -39,6 +39,8 @@ pub enum PreparationError {
     ZeroBridge(EdgeId),
     #[error("no components supplied for routed external momentum {0}")]
     MissingMomentum(Atom),
+    #[error("the FDH (R2) loop-momentum binding is not exact for this numerator: it contains {0}")]
+    UnsupportedFdh(&'static str),
 }
 
 /// Prepared scalar numerator and ordered propagators in their shared types.

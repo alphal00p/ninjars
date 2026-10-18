@@ -13,4 +13,8 @@ Each JSON file binds exact momenta at a subthreshold point, MT=173, zero width, 
 ninjars prepare examples/graphs/physical/four-photon/top-box-0.json
 ```
 
-The six independently generated numerators and their verified loop-momentum maps match isolated MadLoop graph numerators on quartic 70-point complex grids. See `validation/madloop/four_photon/README.md` and the `four-photon-raw*.json` evidence. The raw matching uses MadLoop's printed binary64 couplings and polarization components, so it is not a high-precision input oracle. Integrated four-photon evaluation and Ward/summed-amplitude validation remain pending.
+The six independently generated numerators and their verified loop-momentum maps match isolated MadLoop graph numerators on quartic 70-point complex grids. See `validation/madloop/four_photon/README.md` and the `four-photon-raw*.json` evidence. The raw matching uses MadLoop's printed binary64 couplings and polarization components, so it is not a high-precision input oracle. With `--r2 fdh` (d-dimensional loop momentum, `K.K -> q.q - mu2`), the sum of
+the six boxes is gauge invariant: replacing one polarization by its momentum,
+the summed amplitude vanishes, while the four-dimensional (`--r2 off`)
+numerators leave a nonzero remainder (`crates/ninjars-cli/tests/r2.rs`). For a
+closed fermion loop with external photons R2 is scheme independent.

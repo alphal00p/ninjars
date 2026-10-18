@@ -87,13 +87,23 @@ masters. It requires `--precision f64` and the default mu-expansion, rejects
 the generic engine's box-sampling and kernel options, and needs real external
 kinematics. Numerators without explicit mu-squared terms use Ninja's dense
 tensor numerator, filled from coefficient heads of the selected
-`--numerator-evaluator`; others use the polynomial numerator through an
-adapter. The JSON schema is unchanged apart from `"engine": "fast"`. On the
+`--numerator-evaluator`; numerators with mu-squared terms use the same heads
+in `MuTensorNumerator` (`sum_k mu^(2k) T_k(q)`). The JSON schema is unchanged apart from `"engine": "fast"`. On the
 tested fixtures, Laurent coefficients agree with the generic engine within the
 scaled 1e-9 criterion; the cut-constructible/rational split follows original
 Ninja's cut basis. As in original Ninja, points with purely spacelike cut
 planes fail their lanes.
 See the [CLI guide](crates/ninjars-cli/README.md#reduction-engines).
+
+`--r2 off|fdh` (on `prepare`, `reduce`, `bench`, `compare`, `export-bench`,
+`numerator-bench` and `pipeline-bench`) selects whether the physical numerator
+carries R2. The default `off` binds the loop momentum four-dimensionally
+(R1 only, unchanged results). `fdh` binds `K.K -> q.q - mu^2` with the
+`d_s = 4` internal algebra, the four-dimensional-helicity numerator whose
+`mu^2` terms give all of R2 in FDH (HV/CDR's `(d_s-4)`-dimensional algebra is
+not implemented). The H→gg top triangles then reproduce MadGraph5 `loop_sm`'s
+`R2_GGHt` vertex, and the gluon self-energy and the summed four-photon boxes
+satisfy their Ward identities; see [R2 in FDH](docs/physical-preparation.md#r2-rational-terms-in-fdh).
 
 `--cut-stop N` omits cuts smaller than N; values 0/1 retain full reduction.
 As in original Ninja, using a higher stop assumes that omitted cuts contribute

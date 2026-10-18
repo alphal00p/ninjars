@@ -6,9 +6,10 @@ use std::{
     sync::Arc,
 };
 
-use clap::Args as ClapArgs;
+use clap::{Args as ClapArgs, ValueEnum};
 use ninjars_graph::{
-    FourMomentum, Kinematics, Model, NumeratorMode, PreparedIntegrand, prepare_dot, symbols,
+    FourMomentum, Kinematics, Model, NumeratorMode, PreparedIntegrand, R2Scheme, prepare_dot,
+    symbols,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -34,6 +35,42 @@ pub(crate) struct PreparedSample {
     pub parameters: Vec<Atom>,
 }
 
+/// Whether the physical numerator carries the `mu^2` terms that give R2.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, ValueEnum)]
+pub enum R2 {
+    /// Four-dimensional loop momentum, `K.K -> q.q`: the reduction gives R1 but no R2.
+    #[default]
+    Off,
+    /// FDH: d_s = 4 internal algebra with a d-dimensional loop momentum,
+    /// `K.K -> q.q - mu^2` (`K.p`, `K.eps` unchanged); the mu^2 terms give R2 in FDH.
+    Fdh,
+}
+
+impl R2 {
+    pub(crate) fn scheme(self) -> R2Scheme {
+        match self {
+            Self::Off => R2Scheme::Off,
+            Self::Fdh => R2Scheme::Fdh,
+        }
+    }
+
+    pub(crate) fn name(self) -> &'static str {
+        self.scheme().name()
+    }
+
+    /// Prepared-document metadata of the selected scheme.
+    pub(crate) fn metadata(self) -> Value {
+        match self {
+            Self::Off => {
+                json!({"mode":"off","loop_momentum":"four-dimensional: K.K -> q0^2-q1^2-q2^2-q3^2","rational_terms":"R1 from the d-dimensional denominators; no R2"})
+            }
+            Self::Fdh => {
+                json!({"mode":"fdh","scheme":"FDH: d_s = 4 internal algebra, d-dimensional loop momentum","loop_momentum":"K.K -> q0^2-q1^2-q2^2-q3^2-mu2; K.P and K.eps four-dimensional","rational_terms":"R1 from the denominators and R2 (FDH) from the numerator mu^2 terms"})
+            }
+        }
+    }
+}
+
 pub(crate) struct PreparedDocument {
     pub document: Value,
     pub propagators: usize,
@@ -56,6 +93,11 @@ pub struct Args {
     /// Construct local numerators and default external states from model rules.
     #[arg(long)]
     pub feynman_rules: bool,
+    /// R2 from the numerator: `off` binds the loop momentum four-dimensionally
+    /// (no mu^2 terms, R1 only); `fdh` binds K.K -> q.q - mu^2 (FDH: d_s = 4
+    /// algebra, d-dimensional loop momentum), so the mu^2 terms give R2.
+    #[arg(long, value_enum, default_value = "off")]
+    pub r2: R2,
     /// Write JSON to a file; default writes JSON to standard output.
     #[arg(short, long)]
     pub output: Option<PathBuf>,
@@ -354,6 +396,14 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
         parse("ninjars::q2")?,
         parse("ninjars::q3")?,
     );
+    // Create the mu^2 symbol only when it is bound: registering it earlier
+    // would change Symbolica's symbol order, and thereby the evaluation order
+    // and rounding of every `--r2 off` result.
+    let mu_squared = match args.r2 {
+        R2::Off => None,
+        R2::Fdh => Some(parse("ninjars::mu2")?),
+    };
+    let mu_squared = mu_squared.as_ref();
     let mut samples = Vec::<Value>::new();
     let mut exact_samples = Vec::new();
     // These are evaluator parameters, not a new symbolic momentum representation.
@@ -389,7 +439,7 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
         )
         .collect();
     let template_kinematics =
-        prepared.component_kinematics(&loop_components, &symbolic_external)?;
+        prepared.dimensional_kinematics(&loop_components, mu_squared, &symbolic_external)?;
     let numerator_template = substitute(
         &template_kinematics.apply(&(&prepared.numerator * &prepared.overall_factor)),
         &replacements,
@@ -399,9 +449,14 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
         for (lane, sample) in fixture.samples.iter().enumerate() {
             let external = bind_external(sample, &prepared, &replacements, &polarizations)
                 .map_err(|error| format!("sample {lane}: {error}"))?;
-            let kinematics = prepared.component_kinematics(&loop_components, &external)?;
+            let kinematics =
+                prepared.dimensional_kinematics(&loop_components, mu_squared, &external)?;
             let specialize = |atom: &Atom| substitute(&kinematics.apply(atom), &replacements);
-            let numerator = specialize(&prepared.component_numerator(&loop_components, &external)?);
+            let numerator = specialize(&prepared.dimensional_numerator(
+                &loop_components,
+                mu_squared,
+                &external,
+            )?);
             let shifts = prepared
                 .shifts(&external)?
                 .iter()
@@ -464,6 +519,7 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
         "model": model_name,
         "model_fingerprint": model.fingerprint().to_string(),
         "numerator_mode": if args.feynman_rules { "feynman_rules" } else { "explicit" },
+        "r2": args.r2.metadata(),
         "metric": "+---",
         "scale_squared": canonical(&scale),
         "propagator_edges": prepared.propagator_edges.iter().map(|edge| edge.0).collect::<Vec<_>>(),
