@@ -14,22 +14,23 @@ use ninjars::{
 use symbolica::{atom::Atom, domains::dual::DualNumber, evaluate::EvaluationDomain, symbol};
 
 fn accumulation(n: usize, rank: usize) -> Result<ExactKernel> {
-    let topology = Topology::new(n, rank)?;
-    let rows = topology.cuts().len() + 1;
+    Ok(accumulation_rows(Topology::new(n, rank)?.cuts().len() + 1))
+}
+
+/// Five sums (one per accumulated component) over `rows` rows.
+fn accumulation_rows(rows: usize) -> ExactKernel {
     let parameters: Vec<_> = (0..rows * 5)
         .map(|i| Atom::var(symbol!(format!("ninjars_accumulation::p{i}"))))
         .collect();
+    // One flat n-way addition: folding `sum + p` renormalizes the growing sum
+    // at every step, which is quadratic in the number of cuts.
     let expressions = (0..5)
-        .map(|component| {
-            (0..rows).fold(Atom::Zero, |sum, row| {
-                sum + &parameters[row * 5 + component]
-            })
-        })
+        .map(|component| Atom::add_many((0..rows).map(|row| &parameters[row * 5 + component])))
         .collect();
-    Ok(ExactKernel {
+    ExactKernel {
         parameters,
         expressions,
-    })
+    }
 }
 
 #[cfg(feature = "native-kernels")]
@@ -661,5 +662,44 @@ where
                 crate::KernelBackend::SymbolicaInterpreter
             }
         })
+    }
+}
+
+#[cfg(test)]
+mod accumulation_tests {
+    use super::{accumulation, accumulation_rows};
+    use symbolica::atom::{Atom, AtomCore};
+
+    /// One flat sum per component, built without common-pair elimination:
+    /// exactly the instructions of the default optimization, so the results of
+    /// every existing topology are bitwise unchanged.
+    #[test]
+    fn accumulation_is_a_flat_sum_with_unchanged_instructions() {
+        for n in 1..=7 {
+            for rank in 0..=n + 1 {
+                let kernel = accumulation(n, rank).unwrap();
+                assert!(kernel.is_disjoint_parameter_sum(), "n {n} rank {rank}");
+                let default = Atom::evaluator_multiple(&kernel.expressions, &kernel.parameters)
+                    .cores(1)
+                    .build()
+                    .unwrap();
+                assert_eq!(
+                    format!("{:?}", kernel.evaluator().unwrap().export_instructions()),
+                    format!("{:?}", default.export_instructions()),
+                    "n {n} rank {rank}"
+                );
+            }
+        }
+    }
+
+    /// Twenty propagators (21699 cuts plus the previous result) took 35 s: the
+    /// fold renormalized the growing sum at every cut and pair elimination
+    /// searched all operand pairs, both quadratic in the number of cuts.
+    #[test]
+    fn twenty_propagator_accumulation_builds_in_linear_time() {
+        let start = std::time::Instant::now();
+        accumulation_rows(21700).compile(&0_f64).unwrap();
+        let elapsed = start.elapsed();
+        assert!(elapsed.as_secs() < 20, "{elapsed:?}");
     }
 }

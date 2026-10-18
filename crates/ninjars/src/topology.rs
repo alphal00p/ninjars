@@ -1,4 +1,5 @@
 use crate::{Error, Result};
+use std::collections::HashMap;
 
 /// A cut and its uncut propagators, in original propagator order.
 #[derive(Clone, Debug)]
@@ -48,16 +49,27 @@ impl Topology {
                 }
             }
         }
-        for index in 0..cuts.len() {
-            cuts[index].parents = (0..index)
-                .filter(|&parent| {
-                    cuts[parent].partition.len() > cuts[index].partition.len()
-                        && cuts[index]
-                            .partition
-                            .iter()
-                            .all(|i| cuts[parent].partition.contains(i))
-                })
-                .collect();
+        // Enumerate each cut's strict supersets of at most five propagators
+        // instead of testing every earlier cut: the scan was quadratic in the
+        // number of cuts (seconds for every stage of twenty propagators).
+        let index: HashMap<Vec<usize>, usize> = cuts
+            .iter()
+            .enumerate()
+            .map(|(i, cut)| (cut.partition.clone(), i))
+            .collect();
+        for cut in &mut cuts {
+            let mut parents = Vec::new();
+            let mut extra = Vec::new();
+            supersets(
+                &cut.partition,
+                &cut.complement,
+                0,
+                propagators.min(5) - cut.partition.len(),
+                &mut extra,
+                &mut |superset| parents.push(index[superset]),
+            );
+            parents.sort_unstable();
+            cut.parents = parents;
         }
         Ok(Self {
             propagators,
@@ -79,6 +91,29 @@ impl Topology {
         self.cuts
             .iter()
             .filter(move |cut| cut.partition.len() == size)
+    }
+}
+
+/// Calls `found` with every sorted `partition ∪ extra` for nonempty `extra`
+/// drawn in order from `complement[start..]`, at most `remaining` more lines.
+fn supersets(
+    partition: &[usize],
+    complement: &[usize],
+    start: usize,
+    remaining: usize,
+    extra: &mut Vec<usize>,
+    found: &mut impl FnMut(&[usize]),
+) {
+    if remaining == 0 {
+        return;
+    }
+    for i in start..complement.len() {
+        extra.push(complement[i]);
+        let mut union: Vec<usize> = partition.iter().chain(extra.iter()).copied().collect();
+        union.sort_unstable();
+        found(&union);
+        supersets(partition, complement, i + 1, remaining - 1, extra, found);
+        extra.pop();
     }
 }
 
@@ -104,5 +139,38 @@ mod tests {
             }));
         }
         assert!(Topology::new(6, 8).is_err());
+    }
+
+    /// Parents enumerated from supersets equal the former scan of every earlier
+    /// cut (same indices, ascending), so every reduction order is unchanged.
+    #[test]
+    fn parents_equal_the_scan_over_earlier_cuts() {
+        for n in 1..=10 {
+            let topology = Topology::new(n, 0).unwrap();
+            let cuts = topology.cuts();
+            for (index, cut) in cuts.iter().enumerate() {
+                let scanned: Vec<usize> = (0..index)
+                    .filter(|&parent| {
+                        cuts[parent].partition.len() > cut.partition.len()
+                            && cut
+                                .partition
+                                .iter()
+                                .all(|i| cuts[parent].partition.contains(i))
+                    })
+                    .collect();
+                assert_eq!(cut.parents, scanned, "n {n} cut {index}");
+            }
+        }
+    }
+
+    /// Twenty-four propagators (55454 cuts) took about five seconds per
+    /// topology, and every reduction stage builds one.
+    #[test]
+    fn twenty_four_propagator_topology_builds_quickly() {
+        let start = std::time::Instant::now();
+        let topology = Topology::new(24, 0).unwrap();
+        let elapsed = start.elapsed();
+        assert_eq!(topology.cuts().len(), 55454);
+        assert!(elapsed.as_secs() < 5, "{elapsed:?}");
     }
 }

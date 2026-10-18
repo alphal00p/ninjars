@@ -2,7 +2,7 @@
 
 use ninjars::{BatchShape, Complex, Error, Real, Result, SingleFloat};
 use symbolica::{
-    atom::{Atom, AtomCore},
+    atom::{Atom, AtomCore, AtomView},
     domains::{
         dual::{DualNumber, DualNumberStructure, HyperDual},
         rational::Rational,
@@ -93,11 +93,32 @@ pub(crate) struct ExactKernel {
 }
 
 impl ExactKernel {
+    /// Every expression a parameter or a plain sum of parameters, and no
+    /// parameter in two expressions (the amplitude accumulation).
+    pub(crate) fn is_disjoint_parameter_sum(&self) -> bool {
+        let mut seen = std::collections::HashSet::new();
+        self.expressions
+            .iter()
+            .all(|expression| match expression.as_view() {
+                AtomView::Var(_) => seen.insert(expression.as_view()),
+                AtomView::Add(add) => add
+                    .iter()
+                    .all(|term| matches!(term, AtomView::Var(_)) && seen.insert(term)),
+                _ => false,
+            })
+    }
+
     pub(crate) fn evaluator(&self) -> Result<ExpressionEvaluator<Complex<Rational>>> {
-        Atom::evaluator_multiple(&self.expressions, &self.parameters)
-            .cores(1)
-            .build()
-            .map_err(|e| Error::Symbolic(e.to_string()))
+        let builder = Atom::evaluator_multiple(&self.expressions, &self.parameters).cores(1);
+        // Disjoint sums of parameters share no operand pairs: common-pair
+        // elimination leaves their instructions unchanged but takes time
+        // quadratic in their length (seconds for thousands of cuts).
+        let builder = if self.is_disjoint_parameter_sum() {
+            builder.cpe_iterations(Some(0))
+        } else {
+            builder
+        };
+        builder.build().map_err(|e| Error::Symbolic(e.to_string()))
     }
 
     pub(crate) fn dual_evaluator<D: DualNumberStructure + Clone>(
