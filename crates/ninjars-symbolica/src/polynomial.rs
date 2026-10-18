@@ -26,6 +26,8 @@ use symbolica::{
     symbol,
 };
 
+use crate::positional::positional_evaluator;
+
 static NEXT_NAMESPACE: AtomicU64 = AtomicU64::new(0);
 
 /// Batched Ninja callbacks over a Symbolica polynomial.
@@ -320,10 +322,12 @@ where
             .chain(&self.parameter_names)
             .cloned()
             .collect();
-        Atom::evaluator_multiple(std::slice::from_ref(&self.expression), &parameters)
-            .cores(1)
-            .build()
-            .map_err(symbolic_error)
+        positional_evaluator(
+            std::slice::from_ref(&self.expression),
+            &parameters,
+            &[],
+            true,
+        )
     }
 
     /// Bind row-major external parameters for a phase-space batch. Even when the
@@ -345,11 +349,7 @@ where
         parameters: &[Atom],
         prototype: &T,
     ) -> Result<BatchExpressionEvaluator<Complex<T>>> {
-        let evaluator: ExpressionEvaluator<Complex<Rational>> =
-            Atom::evaluator_multiple(expressions, parameters)
-                .cores(1)
-                .build()
-                .map_err(symbolic_error)?;
+        let evaluator = positional_evaluator(expressions, parameters, &[], true)?;
         Ok(Self::map_evaluator(evaluator, prototype))
     }
 
@@ -556,18 +556,14 @@ where
             .chain(&self.parameter_names)
             .cloned()
             .collect();
-        Atom::evaluator_multiple(&expressions, &parameters)
-            .add_aliases(
-                self.polynomial
-                    .coefficients
-                    .iter()
-                    .enumerate()
-                    .map(|(index, coefficient)| (symbols[22 + index].clone(), coefficient.clone())),
-            )
-            .map_err(symbolic_error)?
-            .cores(1)
-            .build()
-            .map_err(symbolic_error)
+        let aliases: Vec<_> = self
+            .polynomial
+            .coefficients
+            .iter()
+            .enumerate()
+            .map(|(index, coefficient)| (symbols[22 + index].clone(), coefficient.clone()))
+            .collect();
+        positional_evaluator(&expressions, &parameters, &aliases, true)
     }
 }
 

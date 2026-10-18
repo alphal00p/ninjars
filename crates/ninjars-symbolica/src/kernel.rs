@@ -2,7 +2,7 @@
 
 use ninjars::{BatchShape, Complex, Error, Real, Result, SingleFloat};
 use symbolica::{
-    atom::{Atom, AtomCore, AtomView},
+    atom::{Atom, AtomView},
     domains::{
         dual::{DualNumber, DualNumberStructure, HyperDual},
         rational::Rational,
@@ -10,7 +10,7 @@ use symbolica::{
     evaluate::{BatchExpressionEvaluator, Dualizer, EvaluationDomain, ExpressionEvaluator},
 };
 
-use crate::PolynomialNumerator;
+use crate::{PolynomialNumerator, positional::positional_evaluator};
 
 #[cfg(test)]
 #[path = "kernel_jit_probe.rs"]
@@ -109,16 +109,11 @@ impl ExactKernel {
     }
 
     pub(crate) fn evaluator(&self) -> Result<ExpressionEvaluator<Complex<Rational>>> {
-        let builder = Atom::evaluator_multiple(&self.expressions, &self.parameters).cores(1);
         // Disjoint sums of parameters share no operand pairs: common-pair
         // elimination leaves their instructions unchanged but takes time
         // quadratic in their length (seconds for thousands of cuts).
-        let builder = if self.is_disjoint_parameter_sum() {
-            builder.cpe_iterations(Some(0))
-        } else {
-            builder
-        };
-        builder.build().map_err(|e| Error::Symbolic(e.to_string()))
+        let common_pairs = !self.is_disjoint_parameter_sum();
+        positional_evaluator(&self.expressions, &self.parameters, &[], common_pairs)
     }
 
     pub(crate) fn dual_evaluator<D: DualNumberStructure + Clone>(
