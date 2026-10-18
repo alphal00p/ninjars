@@ -2,20 +2,27 @@
 //!
 //! For the fixed-precision carriers (binary64 and DoubleFloat), scalar
 //! families (A0, B0, dB0, C0, D0) use oneloopmaster's native direct-Rust
-//! implementation generated from its exact expressions. Arbitrary-precision
-//! `Float` keeps Symbolica's interpreter, which tracks the significant
-//! precision of every input component instead of padding inputs to the
-//! working precision. Tensor families without a native implementation and
-//! all Dual (derivative) evaluations also use the same exact formulas through
-//! the interpreter.
+//! implementation generated from its exact expressions, and the rank-four
+//! bubble coefficient B1111 uses oneloopmaster's native tensor family
+//! (`TensorIntegral::B1111`, OneLOop's `bub1111` with the corrected mass-swap
+//! sign): the exact Passarino-Veltman B1111 divides by `(p²)⁴` and loses about
+//! `4 log10(m²/p²)` digits in fixed precision (relative error 5.5e-6 in
+//! binary64 at `p² = m²/256`). Arbitrary-precision `Float` keeps Symbolica's
+//! interpreter, which tracks the significant precision of every input
+//! component instead of padding inputs to the working precision. The other
+//! tensor families (B1, B11, B111, An) and all Dual (derivative) evaluations
+//! also use the same exact formulas through the interpreter.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, btree_map::Entry};
 
 use ninjars::{
     BatchShape, Complex, Error, FloatLike, Laurent, MasterFailure, MasterIntegral, MasterProvider,
     MasterRequest, MasterStatus, Result,
 };
-use oneloop::{NativeEvaluator, NativeFloat, OneLoopExpressions, ScalarIntegral};
+use oneloop::{
+    NativeEvaluator, NativeFloat, NativeTensorEvaluator, OneLoopExpressions, ScalarIntegral,
+    TensorIntegral,
+};
 use symbolica::{
     domains::{
         dual::{DualNumber, DualNumberStructure, HyperDual},
@@ -88,6 +95,11 @@ pub struct SymbolicaMasters<T: NativeFloat> {
     onshell_threshold: Option<T>,
     evaluators: BTreeMap<MasterIntegral, BatchExpressionEvaluator<Complex<T>>>,
     native: BTreeMap<MasterIntegral, NativeEvaluator<T>>,
+    /// Native tensor families (only B1111) for fixed-precision carriers.
+    native_tensor: BTreeMap<MasterIntegral, NativeTensorEvaluator<T>>,
+    /// Every coefficient of a native tensor family, before the requested
+    /// one is selected.
+    tensor_results: Vec<Complex<T>>,
     arguments: Vec<Complex<T>>,
     results: Vec<Complex<T>>,
     active: Vec<usize>,
@@ -116,6 +128,8 @@ where
             onshell_threshold,
             evaluators: BTreeMap::new(),
             native: BTreeMap::new(),
+            native_tensor: BTreeMap::new(),
+            tensor_results: Vec::new(),
             arguments: Vec::new(),
             results: Vec::new(),
             active: Vec::new(),
@@ -183,6 +197,33 @@ where
         Ok(self.native.get_mut(&integral))
     }
 
+    /// The oneloopmaster tensor family serving `integral` natively, and the
+    /// position of `integral` among its coefficients. Only B1111: the exact
+    /// B1, B11 and B111 stay on the interpreter (bitwise unchanged results).
+    fn native_tensor_family(integral: MasterIntegral) -> Option<(TensorIntegral, usize)> {
+        match integral {
+            MasterIntegral::B1111 => Some((TensorIntegral::B1111, 4)),
+            _ => None,
+        }
+    }
+
+    fn native_tensor_evaluator(
+        &mut self,
+        integral: MasterIntegral,
+    ) -> Result<Option<&mut NativeTensorEvaluator<T>>> {
+        // As for the scalar families: fixed-precision carriers only.
+        let (Some((family, _)), Some(_)) = (Self::native_tensor_family(integral), T::FIXED_BITS)
+        else {
+            return Ok(None);
+        };
+        Ok(Some(match self.native_tensor.entry(integral) {
+            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Vacant(entry) => {
+                entry.insert(NativeTensorEvaluator::new(family).map_err(Error::Symbolic)?)
+            }
+        }))
+    }
+
     /// Working bits used to prepare constants; computed component precision may differ.
     pub fn precision(&self) -> u32 {
         self.representative.get_precision()
@@ -191,6 +232,16 @@ where
     /// Compile a family and reserve its reusable workspace before timing calls.
     pub fn prepare(&mut self, integral: MasterIntegral, rows: usize) -> Result<()> {
         if self.native_evaluator(integral)?.is_some() {
+            return Ok(());
+        }
+        if self.native_tensor_evaluator(integral)?.is_some() {
+            let (family, _) = Self::native_tensor_family(integral).unwrap();
+            let size = rows.checked_mul(family.outputs()).ok_or_else(|| {
+                Error::Unsupported("master output dimensions overflow usize".into())
+            })?;
+            let zero = self.representative.zero();
+            self.tensor_results
+                .resize_with(size, || Complex::new(zero.clone(), zero.clone()));
             return Ok(());
         }
         if !self.evaluators.contains_key(&integral) {
@@ -235,10 +286,11 @@ where
             MasterIntegral::B11 => oneloop::b11(&args[0], &args[1], &args[2], &args[3]),
             MasterIntegral::B111 => oneloop::b111(&args[0], &args[1], &args[2], &args[3]),
             // Exact Passarino-Veltman expression with oneloopmaster's
-            // corrected zero-momentum mass swap. In fixed precision it loses
-            // about 4 log10(m²/p²) digits at small p² (relative error 5.5e-6
-            // in binary64 at p² = m²/256); binary64 and DoubleFloat carriers
-            // are to use a native B1111 family once oneloopmaster has one.
+            // corrected zero-momentum mass swap, for `Float` and Dual
+            // carriers. In fixed precision it loses about 4 log10(m²/p²)
+            // digits at small p² (relative error 5.5e-6 in binary64 at
+            // p² = m²/256), so binary64 and DoubleFloat use the native family
+            // (`native_tensor_family`).
             MasterIntegral::B1111 => oneloop::b1111(&args[0], &args[1], &args[2], &args[3]),
             MasterIntegral::An { rank } => oneloop::an(rank, &args[0], &args[1])
                 .map_err(|_| Error::Unsupported("tadpole tensor rank exceeds four".into()))?
@@ -339,6 +391,21 @@ where
             native
                 .evaluate_batch(&self.arguments, results, rows)
                 .map_err(Error::Symbolic)?;
+        } else if let Some(native) = self.native_tensor.get_mut(&request.integral) {
+            let (family, slot) = Self::native_tensor_family(request.integral).unwrap();
+            let width = family.outputs();
+            let all = &mut self.tensor_results[..rows * width];
+            native
+                .evaluate_batch(&self.arguments, all, rows)
+                .map_err(Error::Symbolic)?;
+            for (result, values) in results
+                .as_chunks_mut::<3>()
+                .0
+                .iter_mut()
+                .zip(all.chunks_exact(width))
+            {
+                result.clone_from_slice(&values[3 * slot..3 * slot + 3]);
+            }
         } else {
             self.evaluators
                 .get_mut(&request.integral)
