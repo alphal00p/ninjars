@@ -16,16 +16,16 @@ ninjars-symbolica = { path = "crates/ninjars-symbolica" }
 ninjars-graph = { path = "crates/ninjars-graph" }
 symbolica = { version = "3.0.1", default-features = false, features = ["integer-gmp", "float-mpfr", "bincode", "serde", "tracing_max_level_info"] }
 numerica = { version = "3.0.1", default-features = false }
-feynkit-kinematics = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a80bc9f9f21bead0e1cde6acbcffbe93", default-features = false, features = ["native"] }
-feynkit-graph = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a80bc9f9f21bead0e1cde6acbcffbe93", default-features = false, features = ["native"] }
-feynkit-model = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a80bc9f9f21bead0e1cde6acbcffbe93", default-features = false, features = ["native"] }
-feynkit-generator = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a80bc9f9f21bead0e1cde6acbcffbe93", default-features = false, features = ["native"] }
-feynkit-amplitude = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a80bc9f9f21bead0e1cde6acbcffbe93", default-features = false, features = ["native"] }
-spenso = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a80bc9f9f21bead0e1cde6acbcffbe93", default-features = false, features = ["native", "shadowing"] }
-idenso = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a80bc9f9f21bead0e1cde6acbcffbe93", default-features = false, features = ["native"] }
-symbolica-utils = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a80bc9f9f21bead0e1cde6acbcffbe93", default-features = false, features = ["native"] }
+feynkit-kinematics = { git = "https://github.com/alphal00p/gammaloop.git", rev = "eb314a274faa8e4ed4e21e6cf78b42c68ec77cd7", default-features = false, features = ["native"] }
+feynkit-graph = { git = "https://github.com/alphal00p/gammaloop.git", rev = "eb314a274faa8e4ed4e21e6cf78b42c68ec77cd7", default-features = false, features = ["native"] }
+feynkit-model = { git = "https://github.com/alphal00p/gammaloop.git", rev = "eb314a274faa8e4ed4e21e6cf78b42c68ec77cd7", default-features = false, features = ["native"] }
+feynkit-generator = { git = "https://github.com/alphal00p/gammaloop.git", rev = "eb314a274faa8e4ed4e21e6cf78b42c68ec77cd7", default-features = false, features = ["native"] }
+feynkit-amplitude = { git = "https://github.com/alphal00p/gammaloop.git", rev = "eb314a274faa8e4ed4e21e6cf78b42c68ec77cd7", default-features = false, features = ["native"] }
+spenso = { git = "https://github.com/alphal00p/gammaloop.git", rev = "eb314a274faa8e4ed4e21e6cf78b42c68ec77cd7", default-features = false, features = ["native", "shadowing"] }
+idenso = { git = "https://github.com/alphal00p/gammaloop.git", rev = "eb314a274faa8e4ed4e21e6cf78b42c68ec77cd7", default-features = false, features = ["native"] }
+symbolica-utils = { git = "https://github.com/alphal00p/gammaloop.git", rev = "eb314a274faa8e4ed4e21e6cf78b42c68ec77cd7", default-features = false, features = ["native"] }
 oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "264a6ced74e3c7a5de000b93dddf1330826cd3e9", default-features = false }
-linnet = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a80bc9f9f21bead0e1cde6acbcffbe93", default-features = false, features = ["serde"] }
+linnet = { git = "https://github.com/alphal00p/gammaloop.git", rev = "eb314a274faa8e4ed4e21e6cf78b42c68ec77cd7", default-features = false, features = ["serde"] }
 thiserror = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

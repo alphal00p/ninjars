@@ -24,11 +24,11 @@
       "patches": [
         {
           "path": "dependencies/patches/feynkit-shared-types.patch",
-          "sha256": "7bc15975562034a01a5eb1d1ebe662f9c5c44697ebac3ecf5935e992118e39d6"
+          "sha256": "db13a100c9b0e1c6d26edff9399d28a0fd40d9fa2a91ddac09dbf478dcda154d"
         }
       ],
       "patched_revisions": [
-        "474478a7a80bc9f9f21bead0e1cde6acbcffbe93"
+        "eb314a274faa8e4ed4e21e6cf78b42c68ec77cd7"
       ]
     },
     {
