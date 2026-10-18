@@ -1,0 +1,14 @@
+== B. end-to-end: direct Feynman-parameter integral vs sum of Laurent-extracted coefficients x masters/rational terms
+   [prototype self-check worst rel.err 2.85e-40; max |coefficient| 929.0]
+   n=1 r=2: finite: direct -102.937338788945  reduction (-102.937338788945 - 1.33520120797562e-41j)  rel.diff 2.9e-41;  1/eps: direct 76.3125  reduction (76.3125 + 6.52118998217969e-41j)  rel.diff 1.9e-41
+   [prototype self-check worst rel.err 1.73e-38; max |coefficient| 11.1]
+   n=1 r=3: finite: direct -79.2165209853773  reduction (-79.2165209853773 + 8.45726095173208e-41j)  rel.diff 9.3e-41;  1/eps: direct -11.0  reduction (-11.0 - 4.13056886600133e-40j)  rel.diff 9.2e-40
+   [prototype self-check worst rel.err 3.28e-38; max |coefficient| 1.8e+7]
+   n=2 r=3: finite: direct -12.5501272225577  reduction (-12.5501272225577 - 5.55968356760579e-36j)  rel.diff 1.3e-36;  1/eps: direct 16.3078703703704  reduction (16.3078703703704 + 5.87689732109498e-36j)  rel.diff 1.0e-36
+   [prototype self-check worst rel.err 2.87e-37; max |coefficient| 1.66e+4]
+   n=2 r=4: finite: direct 901.179618947514  reduction (901.179618947514 - 5.67207373866379e-34j)  rel.diff 1.4e-36;  1/eps: direct -716.786522633745  reduction (-716.786522633745 + 4.84659979799309e-34j)  rel.diff 1.4e-36
+   [prototype self-check worst rel.err 1.12e-38; max |coefficient| 2.17e+4]
+   n=3 r=4: finite: direct 3.29760504419287  reduction (3.29760504419287 + 2.33779344882345e-38j)  rel.diff 4.5e-33;  1/eps: direct 2.06076388888889  reduction (2.06076388888889 - 1.65663822946112e-38j)  rel.diff 1.3e-38
+   [prototype self-check worst rel.err 1.53e-34; max |coefficient| 1.27e+7]
+   n=3 r=5: finite: direct -24.8940619153902  reduction (-24.8940619153902 - 2.02772274743087e-32j)  rel.diff 2.5e-33;  1/eps: direct -27.2635802469136  reduction (-27.2635802469136 + 3.27806346924283e-32j)  rel.diff 3.3e-33
+   worst relative difference 4.51e-33  PASS

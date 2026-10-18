@@ -41,6 +41,8 @@ impl Scope {
             MasterIntegral::D0 => 6,
             MasterIntegral::DB0 => 7,
             MasterIntegral::An { rank } => 8 + rank.min(5),
+            // Rank n+2 only: not part of the original Ninja ABI recorded here.
+            MasterIntegral::B1111 => return Self(None),
         };
         assert!(
             (1..=3).contains(&source),

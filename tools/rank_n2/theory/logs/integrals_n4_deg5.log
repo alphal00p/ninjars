@@ -1,0 +1,6 @@
+== B. end-to-end: direct Feynman-parameter integral vs sum of Laurent-extracted coefficients x masters/rational terms
+   [prototype self-check worst rel.err 1.49e-34; max |coefficient| 1.03e+10]
+   n=4 r=5: finite: direct 6.32523991144014  reduction (6.32523991144014 - 1.19866822474358e-29j)  rel.diff 3.5e-30;  1/eps: direct -5.9375  reduction (-5.9375 + 7.15675783363363e-30j)  rel.diff 2.1e-30
+   [prototype self-check worst rel.err 1.17e-29; max |coefficient| 1.12e+12]
+   n=4 r=6: finite: direct -7.5793257909721  reduction (-7.5793257909721 - 2.0370417863843e-26j)  rel.diff 5.3e-27;  1/eps: direct 31.0050925925926  reduction (31.0050925925926 + 1.529536100342e-26j)  rel.diff 1.1e-27
+   worst relative difference 5.31e-27  PASS

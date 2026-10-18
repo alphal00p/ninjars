@@ -26,6 +26,11 @@ thread_local! {
     pub(crate) static DUAL_COMPILATION_PRECISIONS: std::cell::RefCell<Vec<(u32, Vec<u32>)>> = const {
         std::cell::RefCell::new(Vec::new())
     };
+    /// While `Some`, the canonical text of every plan compiled on this thread
+    /// (plan fingerprints, `plan_fingerprints_tests.rs`).
+    pub(crate) static COMPILED_PLANS: std::cell::RefCell<Option<Vec<String>>> = const {
+        std::cell::RefCell::new(None)
+    };
 }
 
 pub(crate) trait KernelExecutor<V> {
@@ -93,6 +98,23 @@ pub(crate) struct ExactKernel {
 }
 
 impl ExactKernel {
+    /// Expressions and parameters as Symbolica canonical strings, which do not
+    /// depend on the order in which symbols were registered.
+    #[cfg(test)]
+    pub(crate) fn canonical_text(&self) -> String {
+        let mut text = String::new();
+        for expression in &self.expressions {
+            text.push_str(&expression.to_canonical_string());
+            text.push('\n');
+        }
+        text.push_str("--\n");
+        for parameter in &self.parameters {
+            text.push_str(&parameter.to_canonical_string());
+            text.push('\n');
+        }
+        text
+    }
+
     pub(crate) fn evaluator(&self) -> Result<ExpressionEvaluator<Complex<Rational>>> {
         Atom::evaluator_multiple(&self.expressions, &self.parameters)
             .cores(1)
@@ -113,6 +135,12 @@ impl ExactKernel {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        #[cfg(test)]
+        COMPILED_PLANS.with_borrow_mut(|plans| {
+            if let Some(plans) = plans {
+                plans.push(self.canonical_text());
+            }
+        });
         Ok(CompiledKernel {
             #[cfg(feature = "native-kernels")]
             native: None,

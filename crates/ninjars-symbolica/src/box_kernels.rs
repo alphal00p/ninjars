@@ -34,17 +34,17 @@ fn append_vector<V: Clone>(out: &mut Vec<V>, v: &FourMomentum<V>) {
     out.extend(v.components().into_iter().cloned());
 }
 
-struct Plans {
-    samples: ExactKernel,
-    denominators: ExactKernel,
-    division: ExactKernel,
-    mu_denominators: ExactKernel,
-    mu_division: ExactKernel,
-    projections: ExactKernel,
-    interpolation: ExactKernel,
+pub(crate) struct Plans {
+    pub(crate) samples: ExactKernel,
+    pub(crate) denominators: ExactKernel,
+    pub(crate) division: ExactKernel,
+    pub(crate) mu_denominators: ExactKernel,
+    pub(crate) mu_division: ExactKernel,
+    pub(crate) projections: ExactKernel,
+    pub(crate) interpolation: ExactKernel,
 }
 impl Plans {
-    fn new(n: usize, rank: usize, options: BoxReductionOptions) -> Result<Self> {
+    pub(crate) fn new(n: usize, rank: usize, options: BoxReductionOptions) -> Result<Self> {
         Topology::new(n, rank)?;
         if n < 4 {
             return Err(Error::Unsupported(

@@ -25,6 +25,8 @@ pub use native_kernels::{KernelBackend, KernelBackendSelection, KernelFamily};
 #[cfg(feature = "native-kernels")]
 pub use oneloop::rust_codegen::runtime::BatchExecutionPolicy;
 mod pentagon_kernels;
+#[cfg(test)]
+mod plan_fingerprints_tests;
 mod polynomial;
 mod projection;
 mod rank_specialization;

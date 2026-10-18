@@ -1,0 +1,36 @@
+rn2-int-complex-n5-r7 lane 0: tier None unc None | recipe-vs-fit worst 4.3e-35
+   rel diff (to lane scale) eps0 1.54e-13  eps-1 4.09e-27  eps-2 0.0;  |new rank-n+2 terms|/scale = 136.0
+   new-term parts / scale: box_mu6 0.106, B1111 133.0, bub_mu2qe2^2 8.51, bub_mu4 5.98
+rn2-int-complex-n5-r7 lane 1: tier None unc None | recipe-vs-fit worst 4.4e-34
+   rel diff (to lane scale) eps0 2.03e-16  eps-1 5.24e-31  eps-2 0.0;  |new rank-n+2 terms|/scale = 139.0
+   new-term parts / scale: box_mu6 0.0235, B1111 40.8, bub_mu2qe2^2 89.6, bub_mu4 8.58
+rn2-int-complex-n5-r7 lane 2: tier None unc None | recipe-vs-fit worst 2.6e-34
+   rel diff (to lane scale) eps0 1.37e-14  eps-1 1.4e-29  eps-2 0.0;  |new rank-n+2 terms|/scale = 453.0
+   new-term parts / scale: box_mu6 0.198, B1111 304.0, bub_mu2qe2^2 678.0, bub_mu4 79.4
+   rel diff (to lane scale) eps0 1.54e-13  eps-1 4.09e-27  eps-2 0.0;  |new rank-n+2 terms|/scale = 136.0
+   rel diff (to lane scale) eps0 2.03e-16  eps-1 5.24e-31  eps-2 0.0;  |new rank-n+2 terms|/scale = 139.0
+   rel diff (to lane scale) eps0 1.37e-14  eps-1 1.4e-29  eps-2 0.0;  |new rank-n+2 terms|/scale = 453.0
+rn2-int-complex-n5-r7-mu2 lane 0: tier None unc None | recipe-vs-fit worst 1.8e-25
+   rel diff (to lane scale) eps0 2.48e-13  eps-1 1.06e-25  eps-2 0.0;  |new rank-n+2 terms|/scale = 74.8
+   new-term parts / scale: box_mu6 15.5, B1111 8.24e-6, bub_mu2qe2^2 0.0236, bub_mu4 79.2
+rn2-int-complex-n5-r7-mu2 lane 1: tier None unc None | recipe-vs-fit worst 1.4e-26
+   rel diff (to lane scale) eps0 3.67e-16  eps-1 1.67e-29  eps-2 0.0;  |new rank-n+2 terms|/scale = 24.0
+   new-term parts / scale: box_mu6 6.98, B1111 6.66e-6, bub_mu2qe2^2 0.00873, bub_mu4 18.8
+rn2-int-complex-n5-r7-mu2 lane 2: tier None unc None | recipe-vs-fit worst 3.4e-25
+   rel diff (to lane scale) eps0 1.03e-16  eps-1 8.63e-29  eps-2 0.0;  |new rank-n+2 terms|/scale = 21.8
+   new-term parts / scale: box_mu6 6.36, B1111 0.000113, bub_mu2qe2^2 0.0195, bub_mu4 15.6
+   rel diff (to lane scale) eps0 2.02e-13  eps-1 7.66e-15  eps-2 0.0;  |new rank-n+2 terms|/scale = 74.8
+   rel diff (to lane scale) eps0 1.51e-13  eps-1 4.66e-15  eps-2 0.0;  |new rank-n+2 terms|/scale = 24.0
+   rel diff (to lane scale) eps0 1.16e-14  eps-1 1.28e-15  eps-2 0.0;  |new rank-n+2 terms|/scale = 21.8
+rn2-int-complex-n6-r8-mu2 lane 0: tier None unc None | recipe-vs-fit worst 1.8e-23
+   rel diff (to lane scale) eps0 9.04e-13  eps-1 4.14e-27  eps-2 0.0;  |new rank-n+2 terms|/scale = 25.1
+   new-term parts / scale: box_mu6 22.7, B1111 1.9e-5, bub_mu2qe2^2 0.011, bub_mu4 6.9
+rn2-int-complex-n6-r8-mu2 lane 1: tier None unc None | recipe-vs-fit worst 1.4e-21
+   rel diff (to lane scale) eps0 7.75e-13  eps-1 7.71e-29  eps-2 0.0;  |new rank-n+2 terms|/scale = 118.0
+   new-term parts / scale: box_mu6 124.0, B1111 0.000422, bub_mu2qe2^2 0.0822, bub_mu4 6.28
+rn2-int-complex-n6-r8-mu2 lane 2: tier None unc None | recipe-vs-fit worst 3.8e-21
+   rel diff (to lane scale) eps0 1.43e-11  eps-1 2.06e-26  eps-2 0.0;  |new rank-n+2 terms|/scale = 52.2
+   new-term parts / scale: box_mu6 57.2, B1111 1.71e-5, bub_mu2qe2^2 0.00796, bub_mu4 7.78
+   rel diff (to lane scale) eps0 2.4e-12  eps-1 2.92e-15  eps-2 0.0;  |new rank-n+2 terms|/scale = 25.1
+   rel diff (to lane scale) eps0 3.05e-12  eps-1 2.09e-15  eps-2 0.0;  |new rank-n+2 terms|/scale = 118.0
+   rel diff (to lane scale) eps0 2.43e-11  eps-1 2.32e-15  eps-2 0.0;  |new rank-n+2 terms|/scale = 52.2

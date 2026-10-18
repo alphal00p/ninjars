@@ -18,13 +18,18 @@ pub enum MasterIntegral {
     An {
         rank: usize,
     },
+    /// The rank-four longitudinal bubble coefficient (rank n+2 bubbles), in
+    /// OneLOop's `(q+K)` convention: `1/(5 eps) - int_0^1 x⁴ log(Delta/mu²)`.
+    /// OneLOop's own `bub1111` has the wrong sign after its mass swap; see
+    /// `tools/rank_n2/README.md`.
+    B1111,
 }
 
 impl MasterIntegral {
     pub const fn invariant_count(self) -> usize {
         match self {
             Self::A0 | Self::An { .. } => 0,
-            Self::B0 | Self::DB0 | Self::B1 | Self::B11 | Self::B111 => 1,
+            Self::B0 | Self::DB0 | Self::B1 | Self::B11 | Self::B111 | Self::B1111 => 1,
             Self::C0 => 3,
             Self::D0 => 6,
         }
@@ -33,7 +38,7 @@ impl MasterIntegral {
     pub const fn mass_count(self) -> usize {
         match self {
             Self::A0 | Self::An { .. } => 1,
-            Self::B0 | Self::DB0 | Self::B1 | Self::B11 | Self::B111 => 2,
+            Self::B0 | Self::DB0 | Self::B1 | Self::B11 | Self::B111 | Self::B1111 => 2,
             Self::C0 => 3,
             Self::D0 => 4,
         }

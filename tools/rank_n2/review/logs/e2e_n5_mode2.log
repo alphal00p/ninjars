@@ -1,0 +1,12 @@
+rn2-int-complex-n5-r7 lane 0: tier None unc None | recipe-vs-fit worst 4.3e-35
+   ours  eps0 = (7.813759723341948455237e-13 - 1.563547640555701365961e-12j)  eps-1 = (-3.78211491164306888e-13 - 3.69096065406215169e-14j)  eps-2 = (0.0 + 0.0j)
+   ref   eps0 = (7.813759723317058322298e-13 - 1.563547640553690544246e-12j)  eps-1 = (-3.78211491164306888e-13 - 3.69096065406215169e-14j)  eps-2 = (0.0 + 0.0j)
+   rel diff (to lane scale) eps0 1.83e-12  eps-1 4.09e-27  eps-2 0.0;  |new rank-n+2 terms|/scale = 136.0
+   sum|c0*M| over COLLIER scalar masters / scale = 2.16e+4
+   new-term parts / scale: box_mu6 0.106, B1111 133.0, bub_mu2qe2^2 8.51, bub_mu4 5.98
+rn2-int-complex-n5-r7 lane 2: tier None unc None | recipe-vs-fit worst 2.3e-34
+   ours  eps0 = (-1.660457979685918146521e-12 + 4.142364797130369283996e-13j)  eps-1 = (1.79254525231155215e-13 + 5.25600474610412815e-13j)  eps-2 = (0.0 + 0.0j)
+   ref   eps0 = (-1.660457979685904994855e-12 + 4.142364797130353098308e-13j)  eps-1 = (1.79254525231155215e-13 + 5.25600474610412815e-13j)  eps-2 = (0.0 + 0.0j)
+   rel diff (to lane scale) eps0 7.74e-15  eps-1 1.4e-29  eps-2 0.0;  |new rank-n+2 terms|/scale = 453.0
+   sum|c0*M| over COLLIER scalar masters / scale = 409.0
+   new-term parts / scale: box_mu6 0.198, B1111 304.0, bub_mu2qe2^2 678.0, bub_mu4 79.4

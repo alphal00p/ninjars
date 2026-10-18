@@ -8,14 +8,30 @@ pub struct NumeratorRequest<'a, T> {
     pub partition: &'a [usize],
 }
 
-/// Requested raw numerator Laurent coefficients. T3 tuples are `(t, mu²)`
-/// powers; T2 tuples are `(t, x, mu²)` powers.
+/// Requested raw numerator Laurent coefficients. Mu and MuShifted list
+/// powers of `t`; T3 tuples are `(t, mu²)` powers; T2 tuples are
+/// `(t, x, mu²)` powers.
 /// The output follows this explicit order; no implicit rank-dependent indexing.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ExpansionKind {
-    Mu { powers: Vec<i32> },
-    T3 { powers: Vec<(i32, u16)> },
-    T2 { powers: Vec<(i32, u16, u16)> },
+    Mu {
+        powers: Vec<i32>,
+    },
+    T3 {
+        powers: Vec<(i32, u16)>,
+    },
+    T2 {
+        powers: Vec<(i32, u16, u16)>,
+    },
+    /// The box expansion on the exact d-dimensional quadruple cut, needed at
+    /// rank n+2: `q = t*v0 + v1`, `mu² = t²*v0² - beta` with vectors
+    /// `[v0, v1]` and parameters `[beta]`. On the box cut `v1` is the centre of
+    /// the two four-dimensional solutions and `beta = m_i1² - (v1 + V_i1)²` for
+    /// the first cut line i1, so that the cut holds for every `t`; Ninja's `Mu`
+    /// convention is the special case `beta = 0`.
+    MuShifted {
+        powers: Vec<i32>,
+    },
 }
 
 impl ExpansionKind {
@@ -24,6 +40,7 @@ impl ExpansionKind {
             Self::Mu { powers } => powers.len(),
             Self::T3 { powers } => powers.len(),
             Self::T2 { powers } => powers.len(),
+            Self::MuShifted { powers } => powers.len(),
         }
     }
     pub fn is_empty(&self) -> bool {
@@ -34,6 +51,8 @@ impl ExpansionKind {
 /// Parameters for Ninja's three Laurent numerator callbacks.
 ///
 /// Mu: q = t*v0 + v1, mu² = t²*v0² (vectors [v0,v1], or [v0] for v1=0).
+/// MuShifted: q = t*v0 + v1, mu² = t²*v0² - beta (vectors [v0,v1],
+/// parameters [beta]).
 /// T3: q = a + t*e3 + (beta+mu²)*e4/t (vectors [a,e3,e4]).
 /// T2: q = a0+x*a1+t*e3+(b0+b1*x+b2*x²+mu²)*e4/t.
 pub struct ExpansionRequest<'a, T> {

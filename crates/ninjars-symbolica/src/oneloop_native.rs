@@ -74,6 +74,14 @@ fn native_error(error: String) -> Error {
     Error::Unsupported(format!("oneloopmaster native backend: {error}"))
 }
 
+/// The rank-four bubble (B1111, `FastMaster::BubbleRank4`) has no native
+/// oneloopmaster family yet; exact values come from `SymbolicaMasters`.
+fn native_b1111_unsupported() -> Error {
+    Error::Unsupported(
+        "oneloopmaster native backend: B1111 (rank-four bubble) is not available yet".into(),
+    )
+}
+
 impl OneLoopNativeMasters {
     pub fn new() -> Result<Self> {
         Ok(Self {
@@ -248,6 +256,8 @@ impl OneLoopNativeMasters {
                 .bubble(args[0], args[1], args[2], args[3])
                 .map(|b| b[3]),
             MasterIntegral::An { rank } => self.an(rank, args[0], args[1]),
+            // Rejected by `evaluate_batch` before any row is evaluated.
+            MasterIntegral::B1111 => None,
         };
         value.ok_or(MasterFailure::NonFiniteResult)
     }
@@ -282,6 +292,7 @@ impl FastMasters for OneLoopNativeMasters {
             FastMaster::BubbleRank2 | FastMaster::BubbleRank3 => 1,
             FastMaster::C0 => 3,
             FastMaster::D0 => 6,
+            FastMaster::BubbleRank4 => return Err(native_b1111_unsupported()),
         };
         // Common case: one batched native call for the whole family. Rows
         // violating the domain contract (the native batch call would reject
@@ -297,6 +308,7 @@ impl FastMasters for OneLoopNativeMasters {
                 FastMaster::D0 => self.d0.evaluate_batch(input, output, rows),
                 FastMaster::BubbleRank2 => self.b11.evaluate_batch(input, output, rows),
                 FastMaster::BubbleRank3 => self.b111.evaluate_batch(input, output, rows),
+                FastMaster::BubbleRank4 => unreachable!("rejected above"),
             };
             if result.is_ok() {
                 for ((values, result), ok) in self
@@ -339,6 +351,7 @@ impl FastMasters for OneLoopNativeMasters {
                 }
                 FastMaster::BubbleRank2 => self.tensor(TensorIntegral::B11, point, result),
                 FastMaster::BubbleRank3 => self.tensor(TensorIntegral::B111, point, result),
+                FastMaster::BubbleRank4 => unreachable!("rejected above"),
             };
         }
         Ok(())
@@ -378,6 +391,9 @@ impl MasterProvider<Complex<f64>> for OneLoopNativeMasters {
         statuses: &mut [MasterStatus],
     ) -> Result<()> {
         request.validate(output.len())?;
+        if request.integral == MasterIntegral::B1111 {
+            return Err(native_b1111_unsupported());
+        }
         let rows = request.rows();
         if statuses.len() != rows {
             return Err(Error::Shape {

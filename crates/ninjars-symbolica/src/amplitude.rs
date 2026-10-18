@@ -13,7 +13,7 @@ use ninjars::{
 };
 use symbolica::{atom::Atom, domains::dual::DualNumber, evaluate::EvaluationDomain, symbol};
 
-fn accumulation(n: usize, rank: usize) -> Result<ExactKernel> {
+pub(crate) fn accumulation(n: usize, rank: usize) -> Result<ExactKernel> {
     let topology = Topology::new(n, rank)?;
     let rows = topology.cuts().len() + 1;
     let parameters: Vec<_> = (0..rows * 5)

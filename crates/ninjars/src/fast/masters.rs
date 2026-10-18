@@ -21,13 +21,16 @@ pub enum FastMaster {
     C0,
     /// `[p1², p2², p3², p4², s12, s23, m0², m1², m2², m3², mu²]` → `[D0]`.
     D0,
+    /// `[p², m0², m1², mu²]` → `[B0, B1, B11, B111, B1111]` (rank n+2
+    /// bubbles; B1111 with the corrected OneLOop mass-swap sign).
+    BubbleRank4,
 }
 
 impl FastMaster {
     pub const fn arity(self) -> usize {
         match self {
             Self::A0 => 2,
-            Self::BubbleRank2 | Self::BubbleRank3 => 4,
+            Self::BubbleRank2 | Self::BubbleRank3 | Self::BubbleRank4 => 4,
             Self::C0 => 7,
             Self::D0 => 11,
         }
@@ -39,6 +42,7 @@ impl FastMaster {
             Self::A0 | Self::C0 | Self::D0 => 1,
             Self::BubbleRank2 => 3,
             Self::BubbleRank3 => 4,
+            Self::BubbleRank4 => 5,
         }
     }
 }

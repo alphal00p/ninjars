@@ -92,6 +92,19 @@ impl<N: FastNumerator> FastNumerator for RecordingNumerator<N> {
         self.record(out);
         Ok(())
     }
+    fn mu_expansion_x2(
+        &mut self,
+        cut: &[usize],
+        lanes: &[usize],
+        v0: &[CMom],
+        v1: &[CMom],
+        beta: &[C64],
+        out: &mut [C64],
+    ) -> Result<()> {
+        self.inner.mu_expansion_x2(cut, lanes, v0, v1, beta, out)?;
+        self.record(out);
+        Ok(())
+    }
     fn t3_expansion(
         &mut self,
         cut: &[usize],
@@ -184,6 +197,17 @@ impl FastNumerator for ReplayNumerator {
         _: &[usize],
         _: &[CMom],
         _: Option<&[CMom]>,
+        out: &mut [C64],
+    ) -> Result<()> {
+        self.next(out)
+    }
+    fn mu_expansion_x2(
+        &mut self,
+        _: &[usize],
+        _: &[usize],
+        _: &[CMom],
+        _: &[CMom],
+        _: &[C64],
         out: &mut [C64],
     ) -> Result<()> {
         self.next(out)

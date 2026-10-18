@@ -38,23 +38,28 @@ pub fn t3_powers(rank: usize, mindeg: usize) -> Vec<(i32, u16)> {
     powers
 }
 
-/// `T2` powers `(t, x, mu²)` of Ninja's `t2Expansion` layout:
-/// `[1]`, `[1, x]`, `[1, mu², x, x²]`, `[1, mu², x, x mu², x², x³]`.
+/// `T2` powers `(t, x, mu²)` of Ninja's `t2Expansion` layout: order `i`
+/// lists `t^(rank-i) x^a mu^(2j)` for `a + 2j <= i`, ordered by `a` then `j`:
+/// `[1]`, `[1, x]`, `[1, mu², x, x²]`, `[1, mu², x, x mu², x², x³]` and, at
+/// rank n+2, `[1, mu², mu⁴, x, x mu², x², x² mu², x³, x⁴]`.
 pub fn t2_powers(rank: usize, mindeg: usize) -> Vec<(i32, u16, u16)> {
-    const ORDERS: [&[(u16, u16)]; 4] = [
-        &[(0, 0)],
-        &[(0, 0), (1, 0)],
-        &[(0, 0), (0, 1), (1, 0), (2, 0)],
-        &[(0, 0), (0, 1), (1, 0), (1, 1), (2, 0), (3, 0)],
-    ];
     let mut powers = Vec::with_capacity(t2_len(mindeg));
-    for (i, order) in ORDERS.iter().enumerate().take(mindeg + 1) {
-        for &(x, mu) in order.iter() {
-            powers.push((rank as i32 - i as i32, x, mu));
+    for i in 0..=mindeg {
+        for x in 0..=i {
+            for mu in 0..=(i - x) / 2 {
+                powers.push((rank as i32 - i as i32, x as u16, mu as u16));
+            }
         }
     }
     powers
 }
+
+/// Deepest `t3_expansion` layout served by [`GenericNumerator`] (rank n+2
+/// triangles).
+const T3_MINDEG: usize = 5;
+/// Deepest `t2_expansion` layout served by [`GenericNumerator`] (rank n+2
+/// bubbles).
+const T2_MINDEG: usize = 4;
 
 /// A fast numerator backed by a generic NinjaRS [`Numerator`].
 ///
@@ -67,6 +72,7 @@ pub struct GenericNumerator<N> {
     t3: Vec<ExpansionKind>,
     t2: Vec<ExpansionKind>,
     mu: [ExpansionKind; 2],
+    mu_shifted: ExpansionKind,
     momenta: Vec<FourMomentum<Complex<f64>>>,
     scalars: Vec<Complex<f64>>,
     output: Vec<Complex<f64>>,
@@ -74,6 +80,7 @@ pub struct GenericNumerator<N> {
 
 enum Kind {
     Mu(usize),
+    MuShifted,
     T3(usize),
     T2(usize),
 }
@@ -90,12 +97,12 @@ impl<N: Numerator<Complex<f64>>> GenericNumerator<N> {
         Self {
             inner,
             rank,
-            t3: (0..=4)
+            t3: (0..=T3_MINDEG)
                 .map(|m| ExpansionKind::T3 {
                     powers: t3_powers(rank, m),
                 })
                 .collect(),
-            t2: (0..=3)
+            t2: (0..=T2_MINDEG)
                 .map(|m| ExpansionKind::T2 {
                     powers: t2_powers(rank, m),
                 })
@@ -108,6 +115,9 @@ impl<N: Numerator<Complex<f64>>> GenericNumerator<N> {
                     powers: vec![rank as i32, rank as i32 - 1],
                 },
             ],
+            mu_shifted: ExpansionKind::MuShifted {
+                powers: vec![rank as i32, rank as i32 - 1, rank as i32 - 2],
+            },
             momenta: Vec::new(),
             scalars: Vec::new(),
             output: Vec::new(),
@@ -135,6 +145,7 @@ impl<N: Numerator<Complex<f64>>> GenericNumerator<N> {
     ) -> Result<()> {
         let kind = match kind {
             Kind::Mu(m) => &self.mu[m],
+            Kind::MuShifted => &self.mu_shifted,
             Kind::T3(m) => &self.t3[m],
             Kind::T2(m) => &self.t2[m],
         };
@@ -230,6 +241,25 @@ impl<N: Numerator<Complex<f64>>> FastNumerator for GenericNumerator<N> {
         self.expand(Kind::Mu(vectors - 1), cut, lanes, vectors, 0, out)
     }
 
+    fn mu_expansion_x2(
+        &mut self,
+        cut: &[usize],
+        lanes: &[usize],
+        v0: &[CMom],
+        v1: &[CMom],
+        beta: &[C64],
+        out: &mut [C64],
+    ) -> Result<()> {
+        self.momenta.clear();
+        self.scalars.clear();
+        for row in 0..lanes.len() {
+            self.momenta
+                .extend([momentum(&v0[row]), momentum(&v1[row])]);
+            self.scalars.push(beta[row].to_symbolica());
+        }
+        self.expand(Kind::MuShifted, cut, lanes, 2, 1, out)
+    }
+
     fn t3_expansion(
         &mut self,
         cut: &[usize],
@@ -241,8 +271,10 @@ impl<N: Numerator<Complex<f64>>> FastNumerator for GenericNumerator<N> {
         mindeg: usize,
         out: &mut [C64],
     ) -> Result<()> {
-        if mindeg > 4 {
-            return Err(Error::Expansion(format!("t3 mindeg {mindeg} > 4")));
+        if mindeg > T3_MINDEG {
+            return Err(Error::Expansion(format!(
+                "t3 mindeg {mindeg} > {T3_MINDEG}"
+            )));
         }
         self.momenta.clear();
         self.scalars.clear();
@@ -266,8 +298,10 @@ impl<N: Numerator<Complex<f64>>> FastNumerator for GenericNumerator<N> {
         mindeg: usize,
         out: &mut [C64],
     ) -> Result<()> {
-        if mindeg > 3 {
-            return Err(Error::Expansion(format!("t2 mindeg {mindeg} > 3")));
+        if mindeg > T2_MINDEG {
+            return Err(Error::Expansion(format!(
+                "t2 mindeg {mindeg} > {T2_MINDEG}"
+            )));
         }
         self.momenta.clear();
         self.scalars.clear();
@@ -287,7 +321,8 @@ impl<N: Numerator<Complex<f64>>> FastNumerator for GenericNumerator<N> {
 
 /// Fast master families served by a generic NinjaRS [`MasterProvider`].
 ///
-/// Bubble families issue separate `B0`, `B1`, `B11` (and `B111`) requests.
+/// Bubble families issue separate `B0`, `B1`, `B11` (and `B111`, `B1111`)
+/// requests.
 /// NinjaRS master requests carry the squared renormalization scale, which is
 /// exactly the last fast argument, so values are forwarded unchanged.
 pub struct GenericMasters<M> {
@@ -341,7 +376,7 @@ impl<M: MasterProvider<Complex<f64>>> FastMasters for GenericMasters<M> {
         }
         let (invariants, masses) = match family {
             FastMaster::A0 => (0, 1),
-            FastMaster::BubbleRank2 | FastMaster::BubbleRank3 => (1, 2),
+            FastMaster::BubbleRank2 | FastMaster::BubbleRank3 | FastMaster::BubbleRank4 => (1, 2),
             FastMaster::C0 => (3, 3),
             FastMaster::D0 => (6, 4),
         };
@@ -368,6 +403,13 @@ impl<M: MasterProvider<Complex<f64>>> FastMasters for GenericMasters<M> {
                 MasterIntegral::B1,
                 MasterIntegral::B11,
                 MasterIntegral::B111,
+            ],
+            FastMaster::BubbleRank4 => &[
+                MasterIntegral::B0,
+                MasterIntegral::B1,
+                MasterIntegral::B11,
+                MasterIntegral::B111,
+                MasterIntegral::B1111,
             ],
             FastMaster::C0 => &[MasterIntegral::C0],
             FastMaster::D0 => &[MasterIntegral::D0],

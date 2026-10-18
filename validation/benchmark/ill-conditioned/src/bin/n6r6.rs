@@ -402,6 +402,17 @@ where
                 2,
             ),
             FastMaster::A0 => (vec![MasterIntegral::A0], 0, 1),
+            FastMaster::BubbleRank4 => (
+                vec![
+                    MasterIntegral::B0,
+                    MasterIntegral::B1,
+                    MasterIntegral::B11,
+                    MasterIntegral::B111,
+                    MasterIntegral::B1111,
+                ],
+                1,
+                2,
+            ),
         };
         let mut out = Vec::new();
         for integral in integrals {
