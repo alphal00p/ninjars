@@ -10,8 +10,7 @@
 //!   expressions) against oneloopmaster's references, `FastMaster::BubbleRank4`
 //!   through `GenericMasters`, and `OneLoopNativeMasters` serving both from
 //!   oneloopmaster's native B1111 family (details in `fast_native_masters.rs`).
-//! - Rank n+2 accepted by the generic engine only (the fast engine follows
-//!   with its own rank n+2 engine); rank n+3 rejected by both.
+//! - Rank n+2 accepted by both engines; rank n+3 rejected by both.
 
 // Symbolica's generated Dual division implementations multiply by an inverse.
 #![allow(clippy::suspicious_arithmetic_impl, clippy::suspicious_op_assign_impl)]
@@ -768,10 +767,10 @@ fn native_masters_serve_b1111_through_both_interfaces() {
 
 // ---------------------------------------------------------------------------
 
-/// The generic engine accepts rank n+2 (S2); the fast engine still rejects it
-/// until its rank n+2 engine lands. Rank n+3 is rejected everywhere.
+/// Both engines accept rank n+2 (generic: S2, fast: S3); rank n+3 is rejected
+/// everywhere.
 #[test]
-fn rank_n_plus_two_is_generic_only() {
+fn rank_n_plus_two_is_accepted_by_both_engines() {
     for n in 1..=7 {
         assert_eq!(RankClass::of(n, n + 1), Some(RankClass::NPlus1));
         assert_eq!(RankClass::of(n, n + 2), Some(RankClass::NPlus2));
@@ -781,7 +780,12 @@ fn rank_n_plus_two_is_generic_only() {
             RankClass::NPlus2
         );
         assert!(matches!(Topology::new(n, n + 3), Err(Error::Rank { .. })));
-        assert!(FastAmplitude::new(n, n + 2, FastOptions::default()).is_err());
+        // The fast engine reduces rank n+2 in its separate `fast/engine_x2.rs`.
+        assert!(FastAmplitude::new(n, n + 2, FastOptions::default()).is_ok());
+        assert!(matches!(
+            FastAmplitude::new(n, n + 3, FastOptions::default()),
+            Err(Error::Rank { .. })
+        ));
         assert!(SymbolicaAmplitudeKernels::new(n, n + 2, 0f64).is_ok());
         assert!(SymbolicaAmplitudeKernels::new(n, n + 3, 0f64).is_err());
         for cut in 1..=n.min(3) {

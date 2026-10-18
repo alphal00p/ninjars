@@ -18,26 +18,26 @@ use super::{
 };
 
 /// SplitMix64 generator for reproducible test data.
-struct Rng(u64);
+pub(super) struct Rng(pub(super) u64);
 
 impl Rng {
-    fn next(&mut self) -> u64 {
+    pub(super) fn next(&mut self) -> u64 {
         self.0 = self.0.wrapping_add(0x9E37_79B9_7F4A_7C15);
         let mut z = self.0;
         z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
         z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
         z ^ (z >> 31)
     }
-    fn uniform(&mut self) -> f64 {
+    pub(super) fn uniform(&mut self) -> f64 {
         (self.next() >> 11) as f64 / (1u64 << 53) as f64 * 2. - 1.
     }
-    fn c(&mut self) -> C64 {
+    pub(super) fn c(&mut self) -> C64 {
         C64::new(self.uniform(), self.uniform())
     }
-    fn cmom(&mut self) -> CMom {
+    pub(super) fn cmom(&mut self) -> CMom {
         [self.c(), self.c(), self.c(), self.c()]
     }
-    fn rmom(&mut self, scale: f64) -> RMom {
+    pub(super) fn rmom(&mut self, scale: f64) -> RMom {
         [
             scale * self.uniform(),
             scale * self.uniform(),
@@ -48,9 +48,9 @@ impl Rng {
 }
 
 /// Sparse polynomial in `(t, x, mu²)` with signed `t` powers.
-type Poly = BTreeMap<(i32, u16, u16), C64>;
+pub(super) type Poly = BTreeMap<(i32, u16, u16), C64>;
 
-fn poly_mul(a: &Poly, b: &Poly) -> Poly {
+pub(super) fn poly_mul(a: &Poly, b: &Poly) -> Poly {
     let mut out = Poly::new();
     for (&(ta, xa, ma), &ca) in a {
         for (&(tb, xb, mb), &cb) in b {
@@ -60,14 +60,14 @@ fn poly_mul(a: &Poly, b: &Poly) -> Poly {
     out
 }
 
-fn poly_add_scaled(acc: &mut Poly, p: &Poly, scale: C64) {
+pub(super) fn poly_add_scaled(acc: &mut Poly, p: &Poly, scale: C64) {
     for (&k, &v) in p {
         *acc.entry(k).or_default() += v * scale;
     }
 }
 
 /// `N(q)` for components given as polynomials, by explicit monomials.
-fn reference_numerator(coefficients: &[C64], rank: usize, q: &[Poly; 4]) -> Poly {
+pub(super) fn reference_numerator(coefficients: &[C64], rank: usize, q: &[Poly; 4]) -> Poly {
     let one: Poly = [((0, 0, 0), C64::ONE)].into_iter().collect();
     let mut powers = [
         vec![one.clone()],
@@ -92,7 +92,7 @@ fn reference_numerator(coefficients: &[C64], rank: usize, q: &[Poly; 4]) -> Poly
     total
 }
 
-fn linear(terms: &[((i32, u16, u16), C64)]) -> Poly {
+pub(super) fn linear(terms: &[((i32, u16, u16), C64)]) -> Poly {
     let mut p = Poly::new();
     for &(k, v) in terms {
         *p.entry(k).or_default() += v;
@@ -100,7 +100,7 @@ fn linear(terms: &[((i32, u16, u16), C64)]) -> Poly {
     p
 }
 
-fn assert_close(actual: &[C64], expected: &[C64], context: &str) {
+pub(super) fn assert_close(actual: &[C64], expected: &[C64], context: &str) {
     assert_eq!(actual.len(), expected.len(), "{context}");
     let scale = expected.iter().map(|z| z.abs()).fold(1e-300, f64::max);
     for (i, (a, e)) in actual.iter().zip(expected).enumerate() {
@@ -111,7 +111,7 @@ fn assert_close(actual: &[C64], expected: &[C64], context: &str) {
     }
 }
 
-fn get(p: &Poly, key: (i32, u16, u16)) -> C64 {
+pub(super) fn get(p: &Poly, key: (i32, u16, u16)) -> C64 {
     p.get(&key).copied().unwrap_or_default()
 }
 
@@ -250,7 +250,7 @@ fn tensor_numerator_matches_direct_polynomial_expansions() {
 }
 
 /// `sum_k mu^(2k) T_k(q)` with every block expanded by [`reference_numerator`].
-fn reference_mu_numerator(
+pub(super) fn reference_mu_numerator(
     numerator: &MuTensorNumerator,
     lane: usize,
     q: &[Poly; 4],
@@ -572,7 +572,7 @@ fn physical_pair(k1: &RMom, k2: &RMom) -> bool {
     k12 * k12 - mp2(k1) * mp2(k2) > 1e-6
 }
 
-fn random_masses(rng: &mut Rng, n: usize) -> Vec<C64> {
+pub(super) fn random_masses(rng: &mut Rng, n: usize) -> Vec<C64> {
     (0..n)
         .map(|_| C64::new(0.5 + rng.uniform().abs(), -0.1 * rng.uniform().abs()))
         .collect()
@@ -699,7 +699,7 @@ fn cut_solutions_are_on_shell() {
 
 /// Masters with unit values; rows of lane-tagged arguments can be failed or
 /// poisoned through the squared scale (`mu² = 7` fails, `mu² = 9` gives NaN).
-struct UnitMasters;
+pub(super) struct UnitMasters;
 
 impl FastMasters for UnitMasters {
     fn evaluate(
@@ -722,7 +722,7 @@ impl FastMasters for UnitMasters {
     }
 }
 
-fn unit_tensor(rank: usize, lanes: usize) -> TensorNumerator {
+pub(super) fn unit_tensor(rank: usize, lanes: usize) -> TensorNumerator {
     let mut tensor = TensorNumerator::new(rank, lanes);
     for (k, c) in tensor.coefficients_mut().iter_mut().enumerate() {
         *c = C64::new(1. / (1 + k % 7) as f64, 0.1 * (k % 3) as f64);

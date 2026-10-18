@@ -500,3 +500,308 @@ impl Jet<2> for Mu {
         out[1] += g[0] * x[1];
     }
 }
+
+/// Jets of the rank n+2 expansions (`tensor.rs` `horner_jet_x2`): the
+/// pure-power table also keeps `u^5`.
+pub(super) trait JetX2<const L: usize>: Jet<L> {
+    /// Component of the pure power `u^k`, `k <= 5`, if kept.
+    const PURE_X2: [Option<usize>; 6];
+}
+
+pub(super) struct T3K5;
+
+impl Jet<12> for T3K5 {
+    const PURE: [Option<usize>; 5] = [Some(0), Some(1), Some(2), Some(4), Some(6)];
+
+    #[inline(always)]
+    fn first_set(out: &mut [C64; 12], c: C64, x: &[C64; 4]) {
+        out[0] = c * x[0];
+        out[1] = c * x[1];
+        out[3] = c * x[2];
+        out[2] = C64::ZERO;
+        out[4] = C64::ZERO;
+        out[5] = C64::ZERO;
+        out[6] = C64::ZERO;
+        out[7] = C64::ZERO;
+        out[8] = C64::ZERO;
+        out[9] = C64::ZERO;
+        out[10] = C64::ZERO;
+        out[11] = C64::ZERO;
+    }
+
+    #[inline(always)]
+    fn first_acc(out: &mut [C64; 12], c: C64, x: &[C64; 4]) {
+        out[0] += c * x[0];
+        out[1] += c * x[1];
+        out[3] += c * x[2];
+    }
+
+    #[inline(always)]
+    fn mul_set(out: &mut [C64; 12], g: &[C64; 12], x: &[C64; 4]) {
+        out[0] = g[0] * x[0];
+        out[1] = g[1] * x[0];
+        out[1] += g[0] * x[1];
+        out[2] = g[2] * x[0];
+        out[2] += g[1] * x[1];
+        out[3] = g[3] * x[0];
+        out[3] += g[0] * x[2];
+        out[4] = g[4] * x[0];
+        out[4] += g[2] * x[1];
+        out[5] = g[5] * x[0];
+        out[5] += g[3] * x[1];
+        out[5] += g[1] * x[2];
+        out[6] = g[6] * x[0];
+        out[6] += g[4] * x[1];
+        out[7] = g[7] * x[0];
+        out[7] += g[5] * x[1];
+        out[7] += g[2] * x[2];
+        out[8] = g[8] * x[0];
+        out[8] += g[3] * x[2];
+        out[9] = g[9] * x[0];
+        out[9] += g[6] * x[1];
+        out[10] = g[10] * x[0];
+        out[10] += g[7] * x[1];
+        out[10] += g[4] * x[2];
+        out[11] = g[11] * x[0];
+        out[11] += g[8] * x[1];
+        out[11] += g[5] * x[2];
+    }
+
+    #[inline(always)]
+    fn mul_acc(out: &mut [C64; 12], g: &[C64; 12], x: &[C64; 4]) {
+        out[0] += g[0] * x[0];
+        out[1] += g[1] * x[0];
+        out[1] += g[0] * x[1];
+        out[2] += g[2] * x[0];
+        out[2] += g[1] * x[1];
+        out[3] += g[3] * x[0];
+        out[3] += g[0] * x[2];
+        out[4] += g[4] * x[0];
+        out[4] += g[2] * x[1];
+        out[5] += g[5] * x[0];
+        out[5] += g[3] * x[1];
+        out[5] += g[1] * x[2];
+        out[6] += g[6] * x[0];
+        out[6] += g[4] * x[1];
+        out[7] += g[7] * x[0];
+        out[7] += g[5] * x[1];
+        out[7] += g[2] * x[2];
+        out[8] += g[8] * x[0];
+        out[8] += g[3] * x[2];
+        out[9] += g[9] * x[0];
+        out[9] += g[6] * x[1];
+        out[10] += g[10] * x[0];
+        out[10] += g[7] * x[1];
+        out[10] += g[4] * x[2];
+        out[11] += g[11] * x[0];
+        out[11] += g[8] * x[1];
+        out[11] += g[5] * x[2];
+    }
+}
+
+impl JetX2<12> for T3K5 {
+    const PURE_X2: [Option<usize>; 6] = [Some(0), Some(1), Some(2), Some(4), Some(6), Some(9)];
+}
+
+pub(super) struct T2K4;
+
+impl Jet<22> for T2K4 {
+    const PURE: [Option<usize>; 5] = [Some(0), Some(1), Some(3), Some(7), Some(13)];
+
+    #[inline(always)]
+    fn first_set(out: &mut [C64; 22], c: C64, x: &[C64; 4]) {
+        out[0] = c * x[0];
+        out[1] = c * x[1];
+        out[2] = c * x[2];
+        out[6] = c * x[3];
+        out[3] = C64::ZERO;
+        out[4] = C64::ZERO;
+        out[5] = C64::ZERO;
+        out[7] = C64::ZERO;
+        out[8] = C64::ZERO;
+        out[9] = C64::ZERO;
+        out[10] = C64::ZERO;
+        out[11] = C64::ZERO;
+        out[12] = C64::ZERO;
+        out[13] = C64::ZERO;
+        out[14] = C64::ZERO;
+        out[15] = C64::ZERO;
+        out[16] = C64::ZERO;
+        out[17] = C64::ZERO;
+        out[18] = C64::ZERO;
+        out[19] = C64::ZERO;
+        out[20] = C64::ZERO;
+        out[21] = C64::ZERO;
+    }
+
+    #[inline(always)]
+    fn first_acc(out: &mut [C64; 22], c: C64, x: &[C64; 4]) {
+        out[0] += c * x[0];
+        out[1] += c * x[1];
+        out[2] += c * x[2];
+        out[6] += c * x[3];
+    }
+
+    #[inline(always)]
+    fn mul_set(out: &mut [C64; 22], g: &[C64; 22], x: &[C64; 4]) {
+        out[0] = g[0] * x[0];
+        out[1] = g[1] * x[0];
+        out[1] += g[0] * x[1];
+        out[2] = g[2] * x[0];
+        out[2] += g[0] * x[2];
+        out[3] = g[3] * x[0];
+        out[3] += g[1] * x[1];
+        out[4] = g[4] * x[0];
+        out[4] += g[2] * x[1];
+        out[4] += g[1] * x[2];
+        out[5] = g[5] * x[0];
+        out[5] += g[2] * x[2];
+        out[6] = g[6] * x[0];
+        out[6] += g[0] * x[3];
+        out[7] = g[7] * x[0];
+        out[7] += g[3] * x[1];
+        out[8] = g[8] * x[0];
+        out[8] += g[4] * x[1];
+        out[8] += g[3] * x[2];
+        out[9] = g[9] * x[0];
+        out[9] += g[5] * x[1];
+        out[9] += g[4] * x[2];
+        out[10] = g[10] * x[0];
+        out[10] += g[5] * x[2];
+        out[11] = g[11] * x[0];
+        out[11] += g[6] * x[1];
+        out[11] += g[1] * x[3];
+        out[12] = g[12] * x[0];
+        out[12] += g[6] * x[2];
+        out[12] += g[2] * x[3];
+        out[13] = g[13] * x[0];
+        out[13] += g[7] * x[1];
+        out[14] = g[14] * x[0];
+        out[14] += g[8] * x[1];
+        out[14] += g[7] * x[2];
+        out[15] = g[15] * x[0];
+        out[15] += g[9] * x[1];
+        out[15] += g[8] * x[2];
+        out[16] = g[16] * x[0];
+        out[16] += g[10] * x[1];
+        out[16] += g[9] * x[2];
+        out[17] = g[17] * x[0];
+        out[17] += g[10] * x[2];
+        out[18] = g[18] * x[0];
+        out[18] += g[11] * x[1];
+        out[18] += g[3] * x[3];
+        out[19] = g[19] * x[0];
+        out[19] += g[12] * x[1];
+        out[19] += g[11] * x[2];
+        out[19] += g[4] * x[3];
+        out[20] = g[20] * x[0];
+        out[20] += g[12] * x[2];
+        out[20] += g[5] * x[3];
+        out[21] = g[21] * x[0];
+        out[21] += g[6] * x[3];
+    }
+
+    #[inline(always)]
+    fn mul_acc(out: &mut [C64; 22], g: &[C64; 22], x: &[C64; 4]) {
+        out[0] += g[0] * x[0];
+        out[1] += g[1] * x[0];
+        out[1] += g[0] * x[1];
+        out[2] += g[2] * x[0];
+        out[2] += g[0] * x[2];
+        out[3] += g[3] * x[0];
+        out[3] += g[1] * x[1];
+        out[4] += g[4] * x[0];
+        out[4] += g[2] * x[1];
+        out[4] += g[1] * x[2];
+        out[5] += g[5] * x[0];
+        out[5] += g[2] * x[2];
+        out[6] += g[6] * x[0];
+        out[6] += g[0] * x[3];
+        out[7] += g[7] * x[0];
+        out[7] += g[3] * x[1];
+        out[8] += g[8] * x[0];
+        out[8] += g[4] * x[1];
+        out[8] += g[3] * x[2];
+        out[9] += g[9] * x[0];
+        out[9] += g[5] * x[1];
+        out[9] += g[4] * x[2];
+        out[10] += g[10] * x[0];
+        out[10] += g[5] * x[2];
+        out[11] += g[11] * x[0];
+        out[11] += g[6] * x[1];
+        out[11] += g[1] * x[3];
+        out[12] += g[12] * x[0];
+        out[12] += g[6] * x[2];
+        out[12] += g[2] * x[3];
+        out[13] += g[13] * x[0];
+        out[13] += g[7] * x[1];
+        out[14] += g[14] * x[0];
+        out[14] += g[8] * x[1];
+        out[14] += g[7] * x[2];
+        out[15] += g[15] * x[0];
+        out[15] += g[9] * x[1];
+        out[15] += g[8] * x[2];
+        out[16] += g[16] * x[0];
+        out[16] += g[10] * x[1];
+        out[16] += g[9] * x[2];
+        out[17] += g[17] * x[0];
+        out[17] += g[10] * x[2];
+        out[18] += g[18] * x[0];
+        out[18] += g[11] * x[1];
+        out[18] += g[3] * x[3];
+        out[19] += g[19] * x[0];
+        out[19] += g[12] * x[1];
+        out[19] += g[11] * x[2];
+        out[19] += g[4] * x[3];
+        out[20] += g[20] * x[0];
+        out[20] += g[12] * x[2];
+        out[20] += g[5] * x[3];
+        out[21] += g[21] * x[0];
+        out[21] += g[6] * x[3];
+    }
+}
+
+impl JetX2<22> for T2K4 {
+    const PURE_X2: [Option<usize>; 6] = [Some(0), Some(1), Some(3), Some(7), Some(13), None];
+}
+
+pub(super) struct Mu3;
+
+impl Jet<3> for Mu3 {
+    const PURE: [Option<usize>; 5] = [Some(0), Some(1), Some(2), None, None];
+
+    #[inline(always)]
+    fn first_set(out: &mut [C64; 3], c: C64, x: &[C64; 4]) {
+        out[0] = c * x[0];
+        out[1] = c * x[1];
+        out[2] = C64::ZERO;
+    }
+
+    #[inline(always)]
+    fn first_acc(out: &mut [C64; 3], c: C64, x: &[C64; 4]) {
+        out[0] += c * x[0];
+        out[1] += c * x[1];
+    }
+
+    #[inline(always)]
+    fn mul_set(out: &mut [C64; 3], g: &[C64; 3], x: &[C64; 4]) {
+        out[0] = g[0] * x[0];
+        out[1] = g[1] * x[0];
+        out[1] += g[0] * x[1];
+        out[2] = g[2] * x[0];
+        out[2] += g[1] * x[1];
+    }
+
+    #[inline(always)]
+    fn mul_acc(out: &mut [C64; 3], g: &[C64; 3], x: &[C64; 4]) {
+        out[0] += g[0] * x[0];
+        out[1] += g[1] * x[0];
+        out[1] += g[0] * x[1];
+        out[2] += g[2] * x[0];
+        out[2] += g[1] * x[1];
+    }
+}
+
+impl JetX2<3> for Mu3 {
+    const PURE_X2: [Option<usize>; 6] = [Some(0), Some(1), Some(2), None, None, None];
+}

@@ -138,6 +138,37 @@ impl<N: FastNumerator> FastNumerator for RecordingNumerator<N> {
         self.record(out);
         Ok(())
     }
+    fn t3_expansion_x2(
+        &mut self,
+        cut: &[usize],
+        lanes: &[usize],
+        a: &[CMom],
+        e3: &[CMom],
+        e4: &[CMom],
+        param: &[C64],
+        out: &mut [C64],
+    ) -> Result<()> {
+        self.inner
+            .t3_expansion_x2(cut, lanes, a, e3, e4, param, out)?;
+        self.record(out);
+        Ok(())
+    }
+    fn t2_expansion_x2(
+        &mut self,
+        cut: &[usize],
+        lanes: &[usize],
+        a0: &[CMom],
+        a1: &[CMom],
+        e3: &[CMom],
+        e4: &[CMom],
+        param: &[[C64; 3]],
+        out: &mut [C64],
+    ) -> Result<()> {
+        self.inner
+            .t2_expansion_x2(cut, lanes, a0, a1, e3, e4, param, out)?;
+        self.record(out);
+        Ok(())
+    }
 }
 
 /// Returns recorded numerator outputs in call order at O(1) cost per call.
