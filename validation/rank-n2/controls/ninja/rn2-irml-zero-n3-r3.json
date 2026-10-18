@@ -1,0 +1,86 @@
+{
+ "format": "ninjars-reference-ninja-bench-v1",
+ "case": "rn2-irml-zero-n3-r3",
+ "build": "o3",
+ "oneloop_warnings": false,
+ "n": 3,
+ "rank": 3,
+ "amplitude": "ninja::Amplitude<ninja::ComplexMasses>(n, rank, V, m2); setRenormalizationScale(mu_squared) (Ninja passes mu_R^2 to IntegralLibrary::init, AvHOneLoop uses mu_R=sqrt); setSMatrix if s_matrix given",
+ "all_replays_bitwise_identical": true,
+ "case_file": "controls/cases/rn2-irml-zero-n3-r3.json",
+ "provenance": "original Ninja @05fb0d3 + OneLOop 3.6, o3 build, validation/benchmark/ninja_bench.cc driver (phase-1 run, trimmed to the Laurent coefficients)",
+ "lanes": [
+  {
+   "id": "rn2-irml-zero-n3-r3-lane0",
+   "return_status": 0,
+   "eps0": [
+    0.007489704789053229,
+    -0.01134921052789553
+   ],
+   "eps_m1": [
+    -0.003103403617664556,
+    -0.0068764178071776755
+   ],
+   "eps_m2": [
+    -0.0018988939664385674,
+    -0.0005333742310328174
+   ],
+   "cut_constructible": [
+    0.007589780971537339,
+    -0.011608655551067845
+   ],
+   "rational": [
+    -0.00010007618248411045,
+    0.00025944502317231527
+   ]
+  },
+  {
+   "id": "rn2-irml-zero-n3-r3-lane1",
+   "return_status": 0,
+   "eps0": [
+    -0.0034586708059279906,
+    -0.001328358513237183
+   ],
+   "eps_m1": [
+    -0.0017423495775727466,
+    0.0010479258680805518
+   ],
+   "eps_m2": [
+    3.5632296081911376e-05,
+    0.0005237143360257607
+   ],
+   "cut_constructible": [
+    -0.003506255226113729,
+    -0.0014189873987051906
+   ],
+   "rational": [
+    4.7584420185738455e-05,
+    9.062888546800766e-05
+   ]
+  },
+  {
+   "id": "rn2-irml-zero-n3-r3-lane2",
+   "return_status": 0,
+   "eps0": [
+    -0.011758987221785543,
+    -7.955469558984171e-05
+   ],
+   "eps_m1": [
+    -0.0028065277854833494,
+    0.003406192528675594
+   ],
+   "eps_m2": [
+    0.0002220521471564301,
+    0.0009053821307294004
+   ],
+   "cut_constructible": [
+    -0.011581129676416115,
+    -2.5196981838594918e-05
+   ],
+   "rational": [
+    -0.00017785754536942845,
+    -5.4357713751246794e-05
+   ]
+  }
+ ]
+}

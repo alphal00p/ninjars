@@ -1,0 +1,108 @@
+{
+ "format": "ninjars-bench-case-v1",
+ "name": "rn2-shifted-mixed-n1-r0",
+ "n": 1,
+ "rank": 0,
+ "family": "shifted",
+ "masses": "mixed",
+ "description": "rank-n+2 reference suite: family shifted, masses mixed",
+ "generator": "validation/rank-n2/harness/gen_suite.py",
+ "seed": 20261024,
+ "screening": {
+  "lorentzian_planes": true,
+  "gram_min": 0.0001,
+  "cayley_min": 1e-05
+ },
+ "lanes": [
+  {
+   "id": "rn2-shifted-mixed-n1-r0-lane0",
+   "shifts": [
+    [
+     8.0,
+     -138.0,
+     -109.0,
+     -89.0
+    ]
+   ],
+   "masses_squared": [
+    [
+     8315.178393760001,
+     -227.969
+    ]
+   ],
+   "mu_squared": 10000.0,
+   "s_matrix": [
+    [
+     0.0
+    ]
+   ],
+   "tensor": [
+    [
+     -1.4583566355284494,
+     -0.14156940592508696
+    ]
+   ],
+   "generator_attempts": 1
+  },
+  {
+   "id": "rn2-shifted-mixed-n1-r0-lane1",
+   "shifts": [
+    [
+     -103.0,
+     125.0,
+     -131.0,
+     -56.0
+    ]
+   ],
+   "masses_squared": [
+    [
+     6464.160000000001,
+     0.0
+    ]
+   ],
+   "mu_squared": 8315.178393760001,
+   "s_matrix": [
+    [
+     0.0
+    ]
+   ],
+   "tensor": [
+    [
+     0.9337718951658405,
+     0.9343210623695233
+    ]
+   ],
+   "generator_attempts": 1
+  },
+  {
+   "id": "rn2-shifted-mixed-n1-r0-lane2",
+   "shifts": [
+    [
+     -97.0,
+     -72.0,
+     -56.0,
+     101.0
+    ]
+   ],
+   "masses_squared": [
+    [
+     6464.160000000001,
+     -168.84000000000003
+    ]
+   ],
+   "mu_squared": 29929.0,
+   "s_matrix": [
+    [
+     0.0
+    ]
+   ],
+   "tensor": [
+    [
+     -1.2755164513257902,
+     0.06874165526080288
+    ]
+   ],
+   "generator_attempts": 1
+  }
+ ]
+}

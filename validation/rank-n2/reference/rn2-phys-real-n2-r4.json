@@ -1,0 +1,267 @@
+{
+ "format": "ninjars-reference-collier-v1",
+ "case": "rn2-phys-real-n2-r4",
+ "case_file": "cases/rn2-phys-real-n2-r4.json",
+ "n": 2,
+ "rank": 4,
+ "mu_powers": 0,
+ "normalisation": "Ninja/OneLOop: mu_R^(2eps) / (i pi^(D/2) r_Gamma) int d^D q, eps_UV = eps_IR, mu_R^2 = lane mu_squared; numerator in the 4-dimensional components of q and the integrand mu^2 (v2 blocks), D_k = (qbar + V_k)^2 - m_k^2, qbar^2 = q^2 - mu^2",
+ "reference": "validation/rank-n2/README.md: source mp | reduction-exact | coli-quad | dd-quad per lane",
+ "lanes": [
+  {
+   "id": "rn2-phys-real-n2-r4-lane0",
+   "eps0": [
+    8.713486566883663,
+    -1.25462104338928
+   ],
+   "eps_m1": [
+    18.54064051983685,
+    -1.1138742514844655
+   ],
+   "eps_m2": [
+    0.0,
+    0.0
+   ],
+   "laurent_decimal": {
+    "eps0": [
+     "8.713486566883663954191187841287795252849",
+     "-1.254621043389279834760916940414229645847"
+    ],
+    "eps_m1": [
+     "18.54064051983684760341112173037112969377",
+     "-1.113874251484465588262858520307047779178"
+    ],
+    "eps_m2": [
+     "0.0",
+     "0.0"
+    ]
+   },
+   "source": "mp",
+   "tier": "B",
+   "uncertainty": 5.832105205252363e-17,
+   "uncertainty_independent": 5.832105205252363e-17,
+   "verified_to": 2.8377361941324654e-34,
+   "verified_by": "coli-quad",
+   "input_ambiguity": 5.832105205252363e-17,
+   "input_ambiguity_parts": {
+    "collier_shift_invariants": 4.9243253889721576e-17,
+    "reduction_shift_invariants": 4.9243253889721576e-17,
+    "generic_engine_on_twins": 3.611600637197176e-17,
+    "generic_engine_extrapolated": 5.832105205252363e-17
+   },
+   "scale": 18.574069740741688,
+   "vanishing": false,
+   "condition": {
+    "eps0": 2.5398967848601175,
+    "eps_m1": 2.1055332841174637,
+    "eps_m2": 0.0
+   },
+   "absum_over_scale": 2.1055332841174637,
+   "scalar_check": null,
+   "checks": {
+    "coli-quad": 2.8377361941324654e-34,
+    "dd-quad": 3.666752045127599e-34,
+    "coli-quad-shifts": 4.9243253889721576e-17,
+    "coli-double": 5.135122732804277e-16,
+    "dd-double": 2.700909740141157e-16,
+    "reduction-exact": 4.9243253889721576e-17,
+    "reduction-exact80": 4.9243253889721576e-17,
+    "reduction-exact-shifts": 4.9243253889721576e-17
+   },
+   "collier_coli_quad_decimal": {
+    "eps0": [
+     "8.713486566883663954191187841287790423976",
+     "-1.254621043389279834760916940414231758581"
+    ],
+    "eps_m1": [
+     "18.54064051983684760341112173037113476388",
+     "-1.113874251484465588262858520307048584908"
+    ],
+    "eps_m2": [
+     "0E-117",
+     "0E-117"
+    ]
+   },
+   "reduction": {
+    "recipe_vs_fit": 8.803062942521186e-51,
+    "new_terms_over_scale": 0.1935512479133428,
+    "parts_over_scale": {
+     "box_mu6": 0.0,
+     "B1111": 0.0008302030836068703,
+     "bub_mu2qe2^2": 0.07004045523836906,
+     "bub_mu4": 0.24417139734999901
+    }
+   }
+  },
+  {
+   "id": "rn2-phys-real-n2-r4-lane1",
+   "eps0": [
+    0.6598851415327661,
+    0.14383316212751443
+   ],
+   "eps_m1": [
+    0.6005798276229156,
+    0.3182985784603508
+   ],
+   "eps_m2": [
+    0.0,
+    0.0
+   ],
+   "laurent_decimal": {
+    "eps0": [
+     "0.6598851415327660893314466794307336693128",
+     "0.1438331621275144264782867868169654130149"
+    ],
+    "eps_m1": [
+     "0.6005798276229156721689940192488899667079",
+     "0.3182985784603508190217756459701228403221"
+    ],
+    "eps_m2": [
+     "0.0",
+     "0.0"
+    ]
+   },
+   "source": "mp",
+   "tier": "B",
+   "uncertainty": 1.309140793653179e-16,
+   "uncertainty_independent": 1.309140793653179e-16,
+   "verified_to": 2.66076272790414e-34,
+   "verified_by": "coli-quad",
+   "input_ambiguity": 1.309140793653179e-16,
+   "input_ambiguity_parts": {
+    "collier_shift_invariants": 1.997260512151584e-17,
+    "reduction_shift_invariants": 1.997260512151584e-17,
+    "generic_engine_on_twins": 2.855619621453756e-17,
+    "generic_engine_extrapolated": 1.309140793653179e-16
+   },
+   "scale": 0.6797132589536938,
+   "vanishing": false,
+   "condition": {
+    "eps0": 6.147022400534363,
+    "eps_m1": 4.443636953822827,
+    "eps_m2": 0.0
+   },
+   "absum_over_scale": 6.107822523892467,
+   "scalar_check": null,
+   "checks": {
+    "coli-quad": 2.66076272790414e-34,
+    "dd-quad": 6.896809980335682e-21,
+    "coli-quad-shifts": 1.997260512151584e-17,
+    "coli-double": 7.131998528842391e-16,
+    "dd-double": 4.2600620602042337e-16,
+    "reduction-exact": 1.997260512151584e-17,
+    "reduction-exact80": 1.997260512151584e-17,
+    "reduction-exact-shifts": 1.997260512151584e-17
+   },
+   "collier_coli_quad_decimal": {
+    "eps0": [
+     "0.6598851415327660893314466794307337495348",
+     "0.1438331621275144264782867868169652509249"
+    ],
+    "eps_m1": [
+     "0.6005798276229156721689940192488898588160",
+     "0.3182985784603508190217756459701228104621"
+    ],
+    "eps_m2": [
+     "0E-119",
+     "0E-119"
+    ]
+   },
+   "reduction": {
+    "recipe_vs_fit": 1.4807153443303523e-50,
+    "new_terms_over_scale": 1.7824196349153147,
+    "parts_over_scale": {
+     "box_mu6": 0.0,
+     "B1111": 0.42465405749946256,
+     "bub_mu2qe2^2": 2.108759530380834,
+     "bub_mu4": 0.1902542318251902
+    }
+   }
+  },
+  {
+   "id": "rn2-phys-real-n2-r4-lane2",
+   "eps0": [
+    1.4580605700367348,
+    3.932580441659252
+   ],
+   "eps_m1": [
+    0.3984340627900605,
+    1.39328195927208
+   ],
+   "eps_m2": [
+    0.0,
+    0.0
+   ],
+   "laurent_decimal": {
+    "eps0": [
+     "1.458060570036734891316045029997832393828",
+     "3.932580441659251937000768038349014779601"
+    ],
+    "eps_m1": [
+     "0.3984340627900604993153814165945916668855",
+     "1.393281959272080061553579246407264604976"
+    ],
+    "eps_m2": [
+     "0.0",
+     "0.0"
+    ]
+   },
+   "source": "mp",
+   "tier": "B",
+   "uncertainty": 5.177891250183505e-17,
+   "uncertainty_independent": 5.177891250183505e-17,
+   "verified_to": 6.448364961521243e-33,
+   "verified_by": "coli-quad",
+   "input_ambiguity": 5.177891250183505e-17,
+   "input_ambiguity_parts": {
+    "collier_shift_invariants": 1.807766590494674e-17,
+    "reduction_shift_invariants": 1.8077665904946737e-17,
+    "generic_engine_on_twins": 1.793412069182029e-17,
+    "generic_engine_extrapolated": 5.177891250183505e-17
+   },
+   "scale": 4.194178054877585,
+   "vanishing": false,
+   "condition": {
+    "eps0": 2.898449203971318,
+    "eps_m1": 2.6851806089676966,
+    "eps_m2": 0.0
+   },
+   "absum_over_scale": 2.898449203971318,
+   "scalar_check": null,
+   "checks": {
+    "coli-quad": 6.448364961521243e-33,
+    "dd-quad": 1.290427221384484e-20,
+    "coli-quad-shifts": 1.8077665904946737e-17,
+    "coli-double": 2.19832001700628e-14,
+    "dd-double": 2.8407850361054137e-15,
+    "reduction-exact": 1.8077665904946737e-17,
+    "reduction-exact80": 1.8077665904946737e-17,
+    "reduction-exact-shifts": 1.8077665904946737e-17
+   },
+   "collier_coli_quad_decimal": {
+    "eps0": [
+     "1.458060570036734891316045029997821088107",
+     "3.932580441659251937000768038348990210420"
+    ],
+    "eps_m1": [
+     "0.3984340627900604993153814165945914962329",
+     "1.393281959272080061553579246407264283616"
+    ],
+    "eps_m2": [
+     "0E-119",
+     "0E-119"
+    ]
+   },
+   "reduction": {
+    "recipe_vs_fit": 2.0421657139572955e-51,
+    "new_terms_over_scale": 0.074986112323814,
+    "parts_over_scale": {
+     "box_mu6": 0.0,
+     "B1111": 0.01704330513844511,
+     "bub_mu2qe2^2": 0.006867219940697018,
+     "bub_mu4": 0.06387429100589935
+    }
+   }
+  }
+ ]
+}

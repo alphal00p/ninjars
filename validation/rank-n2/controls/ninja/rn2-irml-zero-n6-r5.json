@@ -1,0 +1,86 @@
+{
+ "format": "ninjars-reference-ninja-bench-v1",
+ "case": "rn2-irml-zero-n6-r5",
+ "build": "o3",
+ "oneloop_warnings": false,
+ "n": 6,
+ "rank": 5,
+ "amplitude": "ninja::Amplitude<ninja::ComplexMasses>(n, rank, V, m2); setRenormalizationScale(mu_squared) (Ninja passes mu_R^2 to IntegralLibrary::init, AvHOneLoop uses mu_R=sqrt); setSMatrix if s_matrix given",
+ "all_replays_bitwise_identical": true,
+ "case_file": "controls/cases/rn2-irml-zero-n6-r5.json",
+ "provenance": "original Ninja @05fb0d3 + OneLOop 3.6, o3 build, validation/benchmark/ninja_bench.cc driver (phase-1 run, trimmed to the Laurent coefficients)",
+ "lanes": [
+  {
+   "id": "rn2-irml-zero-n6-r5-lane0",
+   "return_status": 0,
+   "eps0": [
+    8.103406995913555e-12,
+    -1.192786802768834e-12
+   ],
+   "eps_m1": [
+    2.473230234459832e-12,
+    -2.698478538055555e-12
+   ],
+   "eps_m2": [
+    7.768033342164806e-14,
+    -7.53209287952247e-13
+   ],
+   "cut_constructible": [
+    8.098499150916889e-12,
+    -1.1980536010871154e-12
+   ],
+   "rational": [
+    4.907844996666594e-15,
+    5.2667983182814395e-15
+   ]
+  },
+  {
+   "id": "rn2-irml-zero-n6-r5-lane1",
+   "return_status": 0,
+   "eps0": [
+    7.50705250131729e-12,
+    1.0313296537064058e-11
+   ],
+   "eps_m1": [
+    4.394160882922952e-12,
+    1.428864305742311e-12
+   ],
+   "eps_m2": [
+    8.015302659081988e-13,
+    -2.823629825100266e-13
+   ],
+   "cut_constructible": [
+    7.506942251898419e-12,
+    1.0312442140138893e-11
+   ],
+   "rational": [
+    1.1024941887071236e-16,
+    8.543969251649449e-16
+   ]
+  },
+  {
+   "id": "rn2-irml-zero-n6-r5-lane2",
+   "return_status": 0,
+   "eps0": [
+    -5.567083906962265e-11,
+    -7.890436263059256e-11
+   ],
+   "eps_m1": [
+    -2.643081970500779e-11,
+    -1.3253697710078966e-11
+   ],
+   "eps_m2": [
+    -4.523075563898146e-12,
+    1.1496465644294034e-13
+   ],
+   "cut_constructible": [
+    -5.567534337092117e-11,
+    -7.89030741125365e-11
+   ],
+   "rational": [
+    4.504301298524008e-15,
+    -1.2885180560641696e-15
+   ]
+  }
+ ]
+}

@@ -1,0 +1,86 @@
+{
+ "format": "ninjars-reference-ninja-bench-v1",
+ "case": "rn2-irml-zero-n5-r4",
+ "build": "o3",
+ "oneloop_warnings": false,
+ "n": 5,
+ "rank": 4,
+ "amplitude": "ninja::Amplitude<ninja::ComplexMasses>(n, rank, V, m2); setRenormalizationScale(mu_squared) (Ninja passes mu_R^2 to IntegralLibrary::init, AvHOneLoop uses mu_R=sqrt); setSMatrix if s_matrix given",
+ "all_replays_bitwise_identical": true,
+ "case_file": "controls/cases/rn2-irml-zero-n5-r4.json",
+ "provenance": "original Ninja @05fb0d3 + OneLOop 3.6, o3 build, validation/benchmark/ninja_bench.cc driver (phase-1 run, trimmed to the Laurent coefficients)",
+ "lanes": [
+  {
+   "id": "rn2-irml-zero-n5-r4-lane0",
+   "return_status": 0,
+   "eps0": [
+    9.770810908117007e-09,
+    3.147965618129444e-08
+   ],
+   "eps_m1": [
+    7.073175259219238e-09,
+    6.207194821214922e-09
+   ],
+   "eps_m2": [
+    1.6239873949171338e-09,
+    -3.560579833783096e-10
+   ],
+   "cut_constructible": [
+    9.766281670274585e-09,
+    3.148952170085943e-08
+   ],
+   "rational": [
+    4.529237842422322e-12,
+    -9.865519564985289e-12
+   ]
+  },
+  {
+   "id": "rn2-irml-zero-n5-r4-lane1",
+   "return_status": 0,
+   "eps0": [
+    4.7260899614851674e-08,
+    -2.1106523880797216e-07
+   ],
+   "eps_m1": [
+    -3.0316000730994706e-08,
+    -7.147136774839195e-08
+   ],
+   "eps_m2": [
+    -1.3063798674949388e-08,
+    -6.068881461895948e-09
+   ],
+   "cut_constructible": [
+    4.6920768657838615e-08,
+    -2.0918518705543044e-07
+   ],
+   "rational": [
+    3.4013095701305854e-10,
+    -1.8800517525417243e-09
+   ]
+  },
+  {
+   "id": "rn2-irml-zero-n5-r4-lane2",
+   "return_status": 0,
+   "eps0": [
+    1.642444882924993e-07,
+    6.907172857481856e-08
+   ],
+   "eps_m1": [
+    4.5495906267502e-08,
+    -6.079401022756446e-09
+   ],
+   "eps_m2": [
+    4.946310807050067e-09,
+    -5.171939087158913e-09
+   ],
+   "cut_constructible": [
+    1.642390232902498e-07,
+    6.909456920318948e-08
+   ],
+   "rational": [
+    5.465002249479668e-12,
+    -2.284062837091701e-11
+   ]
+  }
+ ]
+}

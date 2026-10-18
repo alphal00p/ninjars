@@ -1,0 +1,102 @@
+{
+ "format": "ninjars-known-failures-v1",
+ "description": "Lanes expected to fail until an upstream bug is fixed: oneloopmaster's scalar D0 is wrong for a few real-mass boxes, in the exact expressions (generic engine in Float) and the native backend (fast engine, generic f64) alike, and OneLOop has the same error. ninjars case-check (--known-failures) and the rank n+2 tests report them as known-failure while they fail, and as passing (with a note) once they agree, so that the entry can be removed.",
+ "lanes": [
+  {
+   "id": "rn2-int-mixed-n6-r5-lane1",
+   "reason": "oneloopmaster's exact and native D0 have the wrong real part for the real-mass box of README finding 3 (D0(p^2 = 20602, 6775, 113296, -106553; s12 = 80235, s23 = -4769; m^2 = 8315.18, 100, 8315.18, 0)); until oneloopmaster is fixed"
+  },
+  {
+   "id": "rn2-int-mixed-n6-r6-lane1",
+   "reason": "oneloopmaster's exact and native D0 have the wrong real part for the real-mass box of README finding 3 (D0(p^2 = 20602, 6775, 113296, -106553; s12 = 80235, s23 = -4769; m^2 = 8315.18, 100, 8315.18, 0)); until oneloopmaster is fixed"
+  },
+  {
+   "id": "rn2-int-mixed-n6-r7-lane1",
+   "reason": "oneloopmaster's exact and native D0 have the wrong real part for the real-mass box of README finding 3 (D0(p^2 = 20602, 6775, 113296, -106553; s12 = 80235, s23 = -4769; m^2 = 8315.18, 100, 8315.18, 0)); until oneloopmaster is fixed"
+  },
+  {
+   "id": "rn2-int-mixed-n6-r8-lane1",
+   "reason": "oneloopmaster's exact and native D0 have the wrong real part for the real-mass box of README finding 3 (D0(p^2 = 20602, 6775, 113296, -106553; s12 = 80235, s23 = -4769; m^2 = 8315.18, 100, 8315.18, 0)); until oneloopmaster is fixed"
+  },
+  {
+   "id": "rn2-int-real-n7-r6-lane0",
+   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+  },
+  {
+   "id": "rn2-int-real-n7-r6-lane1",
+   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+  },
+  {
+   "id": "rn2-int-real-n7-r7-lane0",
+   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+  },
+  {
+   "id": "rn2-int-real-n7-r7-lane1",
+   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+  },
+  {
+   "id": "rn2-int-real-n7-r8-lane0",
+   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+  },
+  {
+   "id": "rn2-int-real-n7-r8-lane1",
+   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+  },
+  {
+   "id": "rn2-int-real-n7-r8-mu2-lane0",
+   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+  },
+  {
+   "id": "rn2-int-real-n7-r8-mu2-lane1",
+   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+  },
+  {
+   "id": "rn2-int-real-n7-r9-lane0",
+   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+  },
+  {
+   "id": "rn2-int-real-n7-r9-lane1",
+   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+  },
+  {
+   "id": "rn2-int-real-n7-r9-mu2-lane0",
+   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+  },
+  {
+   "id": "rn2-int-real-n7-r9-mu2-lane1",
+   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+  },
+  {
+   "id": "rn2-int-real-n7-r9-muall-lane0",
+   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+  },
+  {
+   "id": "rn2-int-real-n7-r9-muall-lane1",
+   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+  },
+  {
+   "id": "rn2-shifted-mixed-n7-r6-lane1",
+   "reason": "lane 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-18) by a factor 3.3 on the box D0(103359, 84842, 9291, -10106; -31393, -31173; 100, 100, 0, 6464.16); README finding 5"
+  },
+  {
+   "id": "rn2-shifted-mixed-n7-r7-lane1",
+   "reason": "lane 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-18) by a factor 3.3 on the box D0(103359, 84842, 9291, -10106; -31393, -31173; 100, 100, 0, 6464.16); README finding 5"
+  },
+  {
+   "id": "rn2-shifted-mixed-n7-r8-lane1",
+   "reason": "lane 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-18) by a factor 3.3 on the box D0(103359, 84842, 9291, -10106; -31393, -31173; 100, 100, 0, 6464.16); README finding 5"
+  },
+  {
+   "id": "rn2-shifted-mixed-n7-r8-mu2-lane1",
+   "reason": "lane 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-18) by a factor 3.3 on the box D0(103359, 84842, 9291, -10106; -31393, -31173; 100, 100, 0, 6464.16); README finding 5"
+  },
+  {
+   "id": "rn2-shifted-mixed-n7-r9-lane1",
+   "reason": "lane 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-18) by a factor 3.3 on the box D0(103359, 84842, 9291, -10106; -31393, -31173; 100, 100, 0, 6464.16); README finding 5"
+  },
+  {
+   "id": "rn2-shifted-mixed-n7-r9-mu2-lane1",
+   "reason": "lane 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-18) by a factor 3.3 on the box D0(103359, 84842, 9291, -10106; -31393, -31173; 100, 100, 0, 6464.16); README finding 5"
+  }
+ ]
+}

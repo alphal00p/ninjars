@@ -46,7 +46,8 @@ pub struct Args {
     /// Minimum duration of one timed block in milliseconds.
     #[arg(long, default_value = "20")]
     pub min_block_ms: f64,
-    /// Directory of original-Ninja results ("<case>.json") to check against.
+    /// Directory of reference results ("<case>.json": original Ninja or
+    /// "ninjars-reference-collier-v1") to check against.
     #[arg(long)]
     pub reference_dir: Option<PathBuf>,
     #[arg(short, long)]
@@ -174,9 +175,14 @@ impl<M: FastMasters> FastMasters for ArgumentRecorder<M> {
     }
 }
 
-fn reference_check(
+/// Scaled check of the batch results against `<reference_dir>/<case>.json`
+/// (`lanes[].eps0/eps_m1/eps_m2` by lane id): the largest
+/// `max_k |x_k - ref_k| / max_k |ref_k|` over the first `case_lanes` batch
+/// lanes that succeeded. `case-check` reports the same check for its fast run.
+pub(crate) fn reference_check(
     reference_dir: &Option<PathBuf>,
-    case: &Case,
+    case_name: &str,
+    case_lanes: usize,
     ids: &[String],
     results: &[FastResult],
     statuses: &[FastStatus],
@@ -184,7 +190,7 @@ fn reference_check(
     let Some(dir) = reference_dir else {
         return Ok(Value::Null);
     };
-    let path = dir.join(format!("{}.json", case.name));
+    let path = dir.join(format!("{case_name}.json"));
     let Ok(text) = fs::read_to_string(&path) else {
         return Ok(Value::Null);
     };
@@ -192,7 +198,7 @@ fn reference_check(
     let lanes = reference["lanes"].as_array().ok_or("reference lanes")?;
     let mut worst = 0_f64;
     let mut checked = 0;
-    for (lane, id) in ids.iter().enumerate().take(case.lanes.len()) {
+    for (lane, id) in ids.iter().enumerate().take(case_lanes) {
         let Some(expected) = lanes.iter().find(|l| l["id"] == id.as_str()) else {
             continue;
         };
@@ -292,7 +298,14 @@ fn time_case<N: DenseNumerator>(
         for status in statuses.iter().filter(|s| **s != FastStatus::Success) {
             *failure_kinds.entry(format!("{status:?}")).or_default() += 1;
         }
-        let check = reference_check(&args.reference_dir, case, &ids, &results, &statuses)?;
+        let check = reference_check(
+            &args.reference_dir,
+            &case.name,
+            case.lanes.len(),
+            &ids,
+            &results,
+            &statuses,
+        )?;
         let mut replay_numerator = recording_numerator.replay();
         let mut replay_masters = recorder.inner.replay();
         let master_calls = recorder.calls;

@@ -1,5 +1,6 @@
 mod bench;
 mod case_bench;
+mod case_check;
 #[cfg(feature = "reference-codegen")]
 mod compare;
 mod draw;
@@ -46,6 +47,9 @@ enum Command {
     PipelineBench(pipeline_bench::Args),
     /// Binary64 fast-engine benchmark of shared bench cases (ninjars-bench-case-v1).
     CaseBench(case_bench::Args),
+    /// Check bench cases (v1, v2 mu^2 blocks) with the fast and/or generic engine
+    /// against high-precision or original-Ninja references, per lane.
+    CaseCheck(case_check::Args),
     /// Draw FeynKit DOT graphs as Typst documents with Linnest.
     Draw(draw::Args),
 }
@@ -107,6 +111,13 @@ fn main() {
             .expect("cannot start case benchmark worker")
             .join()
             .unwrap_or_else(|_| Err("case benchmark worker panicked".into())),
+        Command::CaseCheck(args) => std::thread::Builder::new()
+            .name("ninjars-case-check".into())
+            .stack_size(128 * 1024 * 1024)
+            .spawn(move || case_check::run(args).map_err(|error| error.to_string()))
+            .expect("cannot start case check worker")
+            .join()
+            .unwrap_or_else(|_| Err("case check worker panicked".into())),
         Command::PipelineBench(args) => std::thread::Builder::new()
             .name("ninjars-pipeline-bench".into())
             .stack_size(128 * 1024 * 1024)

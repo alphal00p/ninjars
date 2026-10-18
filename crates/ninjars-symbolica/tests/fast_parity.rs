@@ -7,6 +7,10 @@
 //! per-lane complex coefficients: with explicit `mu²` terms through
 //! `GenericNumerator(PolynomialNumerator)`, and q-only through
 //! `TensorNumerator`. Run with `--features native-masters --test-threads=1`.
+//!
+//! Rank n+2 (design V8) extends every n to ranks `0..=n+2` (n = 1..7); those
+//! tests need both rank n+2 engines and the native rank-4 bubble masters and
+//! are ignored until integration.
 
 use ninjars::fast::{
     C64, FastAmplitude, FastInput, FastOptions, FastResult, FastStatus, GenericNumerator, RMom,
@@ -176,10 +180,12 @@ fn numerator_terms(rank: usize) -> Vec<([u32; 4], u32)> {
 }
 
 /// Dense numerators through rank 5; above, a fixed pseudo-random quarter of
-/// the monomials (always including the leading `q0^rank`) keeps Symbolica's
-/// symbolic preparation of the generic engine affordable.
+/// the monomials (a sixteenth from rank 8, reached only at rank n+2; always
+/// including the leading `q0^rank`) keeps Symbolica's symbolic preparation of
+/// the generic engine affordable.
 fn active(rank: usize, k: usize) -> bool {
-    rank <= 5 || k == ncoeff(rank - 1) || (k.wrapping_mul(2_654_435_761) >> 7).is_multiple_of(4)
+    let share = if rank >= 8 { 16 } else { 4 };
+    rank <= 5 || k == ncoeff(rank - 1) || (k.wrapping_mul(2_654_435_761) >> 7).is_multiple_of(share)
 }
 
 fn polynomial(rank: usize) -> (Atom, Vec<Atom>) {
@@ -285,14 +291,20 @@ fn check(label: &str, fast: &[C64; 5], generic: &[C64; 5], noise: f64, summary: 
 }
 
 fn parity(n: usize) {
-    let mut rng = Rng(0x5eed + n as u64);
+    parity_ranks(n, 0..=n + 1, 0x5eed + n as u64);
+}
+
+/// Parity at ranks `ranks` with the random stream `seed` (the rank <= n+1
+/// tests keep their original stream).
+fn parity_ranks(n: usize, ranks: std::ops::RangeInclusive<usize>, seed: u64) {
+    let mut rng = Rng(seed);
     let mut masters = OneLoopNativeMasters::new().unwrap();
     let mut fast_masters = OneLoopNativeMasters::new().unwrap();
     let mut low = SymbolicaCuts::new(0.).unwrap();
     let mut high = SymbolicaHighCuts::new(0.).unwrap();
     let variables = ["q0", "q1", "q2", "q3", "mu2"].map(parse);
     let mut summary = Summary::default();
-    for rank in 0..=n + 1 {
+    for rank in ranks {
         // Lanes 4..8 repeat lanes 0..4 with reversed propagator order.
         let mut lanes = lanes(&mut rng, n);
         let reversed: Vec<Lane> = lanes
@@ -479,6 +491,45 @@ fn parity_n5() {
 #[test]
 fn parity_n6() {
     parity(6);
+}
+
+// V8: rank n+2 (needs the rank n+2 fast and generic engines and native B1111).
+#[test]
+#[ignore = "enable at integration"]
+fn parity_rank_n2_n1() {
+    parity_ranks(1, 3..=3, 0x5eed_0002 + 1);
+}
+#[test]
+#[ignore = "enable at integration"]
+fn parity_rank_n2_n2() {
+    parity_ranks(2, 4..=4, 0x5eed_0002 + 2);
+}
+#[test]
+#[ignore = "enable at integration"]
+fn parity_rank_n2_n3() {
+    parity_ranks(3, 5..=5, 0x5eed_0002 + 3);
+}
+#[test]
+#[ignore = "enable at integration"]
+fn parity_rank_n2_n4() {
+    parity_ranks(4, 6..=6, 0x5eed_0002 + 4);
+}
+#[test]
+#[ignore = "enable at integration"]
+fn parity_rank_n2_n5() {
+    parity_ranks(5, 7..=7, 0x5eed_0002 + 5);
+}
+#[test]
+#[ignore = "enable at integration"]
+fn parity_rank_n2_n6() {
+    parity_ranks(6, 8..=8, 0x5eed_0002 + 6);
+}
+/// n = 7 at every rank 0..=9 (the rank <= n+1 part runs with the generic
+/// engine for any n; kept with the rank n+2 test for its run time).
+#[test]
+#[ignore = "enable at integration"]
+fn parity_rank_n2_n7() {
+    parity_ranks(7, 0..=9, 0x5eed + 7);
 }
 
 /// `GenericMasters` over the generic `MasterProvider` interface of the native

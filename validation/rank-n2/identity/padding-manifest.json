@@ -1,0 +1,1910 @@
+{
+ "format": "ninjars-rank-n2-padding-v1",
+ "description": "rank <= n+1 cases with original-Ninja results, to be run declared as rank n+2 (V5)",
+ "cases": [
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-boxes-n4-r3.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-boxes-n4-r3.json",
+   "n": 4,
+   "rank": 3,
+   "declared_rank": 6,
+   "lanes": 6
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-boxes-n4-r4.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-boxes-n4-r4.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 6
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-boxes-n4-r5.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-boxes-n4-r5.json",
+   "n": 4,
+   "rank": 5,
+   "declared_rank": 6,
+   "lanes": 6
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-ir-triangle-n3-r2.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-ir-triangle-n3-r2.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 6
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-ir-triangle-n3-r3.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-ir-triangle-n3-r3.json",
+   "n": 3,
+   "rank": 3,
+   "declared_rank": 5,
+   "lanes": 6
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-ir-triangle-n3-r4.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-ir-triangle-n3-r4.json",
+   "n": 3,
+   "rank": 4,
+   "declared_rank": 5,
+   "lanes": 6
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-low-rank-n3-r0.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-low-rank-n3-r0.json",
+   "n": 3,
+   "rank": 0,
+   "declared_rank": 5,
+   "lanes": 2
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-low-rank-n3-r1.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-low-rank-n3-r1.json",
+   "n": 3,
+   "rank": 1,
+   "declared_rank": 5,
+   "lanes": 2
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-low-rank-n5-r0.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-low-rank-n5-r0.json",
+   "n": 5,
+   "rank": 0,
+   "declared_rank": 7,
+   "lanes": 2
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-low-rank-n5-r1.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-low-rank-n5-r1.json",
+   "n": 5,
+   "rank": 1,
+   "declared_rank": 7,
+   "lanes": 2
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-low-rank-n5-r2.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-low-rank-n5-r2.json",
+   "n": 5,
+   "rank": 2,
+   "declared_rank": 7,
+   "lanes": 2
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-low-rank-n5-r3.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-low-rank-n5-r3.json",
+   "n": 5,
+   "rank": 3,
+   "declared_rank": 7,
+   "lanes": 2
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-many-n7-r6.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-many-n7-r6.json",
+   "n": 7,
+   "rank": 6,
+   "declared_rank": 9,
+   "lanes": 4
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-many-n7-r7.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-many-n7-r7.json",
+   "n": 7,
+   "rank": 7,
+   "declared_rank": 9,
+   "lanes": 4
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-small-p2-n2-r1.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-small-p2-n2-r1.json",
+   "n": 2,
+   "rank": 1,
+   "declared_rank": 4,
+   "lanes": 12
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-small-p2-n2-r2.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-small-p2-n2-r2.json",
+   "n": 2,
+   "rank": 2,
+   "declared_rank": 4,
+   "lanes": 12
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-small-p2-n2-r3.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-small-p2-n2-r3.json",
+   "n": 2,
+   "rank": 3,
+   "declared_rank": 4,
+   "lanes": 12
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-tadpole-bases-n2-r1.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-tadpole-bases-n2-r1.json",
+   "n": 2,
+   "rank": 1,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-tadpole-bases-n2-r2.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-tadpole-bases-n2-r2.json",
+   "n": 2,
+   "rank": 2,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-tadpole-bases-n2-r3.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-tadpole-bases-n2-r3.json",
+   "n": 2,
+   "rank": 3,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-tadpole-bases-n3-r2.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-tadpole-bases-n3-r2.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 2
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-tadpole-bases-n3-r3.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-tadpole-bases-n3-r3.json",
+   "n": 3,
+   "rank": 3,
+   "declared_rank": 5,
+   "lanes": 2
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-tadpole-bases-n3-r4.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-tadpole-bases-n3-r4.json",
+   "n": 3,
+   "rank": 4,
+   "declared_rank": 5,
+   "lanes": 2
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-tadpole-n1-r0.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-tadpole-n1-r0.json",
+   "n": 1,
+   "rank": 0,
+   "declared_rank": 3,
+   "lanes": 2
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-tadpole-n1-r1.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-tadpole-n1-r1.json",
+   "n": 1,
+   "rank": 1,
+   "declared_rank": 3,
+   "lanes": 2
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-tadpole-n1-r2.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-tadpole-n1-r2.json",
+   "n": 1,
+   "rank": 2,
+   "declared_rank": 3,
+   "lanes": 2
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-unstable-n4-r2.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-unstable-n4-r2.json",
+   "n": 4,
+   "rank": 2,
+   "declared_rank": 6,
+   "lanes": 4
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-unstable-n4-r3.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-unstable-n4-r3.json",
+   "n": 4,
+   "rank": 3,
+   "declared_rank": 6,
+   "lanes": 4
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-unstable-n4-r4.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-unstable-n4-r4.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 4
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/edge-unstable-n4-r5.json",
+   "ninja": "validation/fast/ninja_reference/ninja/edge-unstable-n4-r5.json",
+   "n": 4,
+   "rank": 5,
+   "declared_rank": 6,
+   "lanes": 4
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/four-photon-top-box-0.json",
+   "ninja": "validation/fast/ninja_reference/ninja/four-photon-top-box-0.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/gg-hh-top-box-2.json",
+   "ninja": "validation/fast/ninja_reference/ninja/gg-hh-top-box-2.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/gg-hh-top-triangle-0.json",
+   "ninja": "validation/fast/ninja_reference/ninja/gg-hh-top-triangle-0.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/gg-hhh-top-box-8.json",
+   "ninja": "validation/fast/ninja_reference/ninja/gg-hhh-top-box-8.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/gg-hhh-top-pentagon-26.json",
+   "ninja": "validation/fast/ninja_reference/ninja/gg-hhh-top-pentagon-26.json",
+   "n": 5,
+   "rank": 4,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/gg-hhh-top-triangle-0.json",
+   "ninja": "validation/fast/ninja_reference/ninja/gg-hhh-top-triangle-0.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/fast/ninja_reference/cases/hgg-top-triangle-0.json",
+   "ninja": "validation/fast/ninja_reference/ninja/hgg-top-triangle-0.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/cases/four-photon-top-box-0.json",
+   "ninja": "validation/benchmark/ninja/four-photon-top-box-0.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/cases/gg-hh-top-box-2.json",
+   "ninja": "validation/benchmark/ninja/gg-hh-top-box-2.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/cases/gg-hh-top-triangle-0.json",
+   "ninja": "validation/benchmark/ninja/gg-hh-top-triangle-0.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/cases/gg-hhh-top-box-8.json",
+   "ninja": "validation/benchmark/ninja/gg-hhh-top-box-8.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/cases/gg-hhh-top-pentagon-26.json",
+   "ninja": "validation/benchmark/ninja/gg-hhh-top-pentagon-26.json",
+   "n": 5,
+   "rank": 4,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/cases/gg-hhh-top-triangle-0.json",
+   "ninja": "validation/benchmark/ninja/gg-hhh-top-triangle-0.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/cases/hgg-top-triangle-0.json",
+   "ninja": "validation/benchmark/ninja/hgg-top-triangle-0.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-gghhh-gHgHH-n5-r4.json",
+   "ninja": "validation/benchmark/ninja/syn-gghhh-gHgHH-n5-r4.json",
+   "n": 5,
+   "rank": 4,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-gghhh-gHgHH-n5-r5.json",
+   "ninja": "validation/benchmark/ninja/syn-gghhh-gHgHH-n5-r5.json",
+   "n": 5,
+   "rank": 5,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-gghhh-ggHHH-n5-r4.json",
+   "ninja": "validation/benchmark/ninja/syn-gghhh-ggHHH-n5-r4.json",
+   "n": 5,
+   "rank": 4,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-gghhh-ggHHH-n5-r5.json",
+   "ninja": "validation/benchmark/ninja/syn-gghhh-ggHHH-n5-r5.json",
+   "n": 5,
+   "rank": 5,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-gghhh-nosmat-n5-r4.json",
+   "ninja": "validation/benchmark/ninja/syn-gghhh-nosmat-n5-r4.json",
+   "n": 5,
+   "rank": 4,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-n2-r1.json",
+   "ninja": "validation/benchmark/ninja/syn-n2-r1.json",
+   "n": 2,
+   "rank": 1,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-n2-r2.json",
+   "ninja": "validation/benchmark/ninja/syn-n2-r2.json",
+   "n": 2,
+   "rank": 2,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-n2-r3.json",
+   "ninja": "validation/benchmark/ninja/syn-n2-r3.json",
+   "n": 2,
+   "rank": 3,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-n3-r2.json",
+   "ninja": "validation/benchmark/ninja/syn-n3-r2.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-n3-r3.json",
+   "ninja": "validation/benchmark/ninja/syn-n3-r3.json",
+   "n": 3,
+   "rank": 3,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-n3-r4.json",
+   "ninja": "validation/benchmark/ninja/syn-n3-r4.json",
+   "n": 3,
+   "rank": 4,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-n4-r3.json",
+   "ninja": "validation/benchmark/ninja/syn-n4-r3.json",
+   "n": 4,
+   "rank": 3,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-n4-r4.json",
+   "ninja": "validation/benchmark/ninja/syn-n4-r4.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-n4-r5.json",
+   "ninja": "validation/benchmark/ninja/syn-n4-r5.json",
+   "n": 4,
+   "rank": 5,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-n5-r4.json",
+   "ninja": "validation/benchmark/ninja/syn-n5-r4.json",
+   "n": 5,
+   "rank": 4,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-n5-r5.json",
+   "ninja": "validation/benchmark/ninja/syn-n5-r5.json",
+   "n": 5,
+   "rank": 5,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-n5-r6.json",
+   "ninja": "validation/benchmark/ninja/syn-n5-r6.json",
+   "n": 5,
+   "rank": 6,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-n6-r5.json",
+   "ninja": "validation/benchmark/ninja/syn-n6-r5.json",
+   "n": 6,
+   "rank": 5,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-n6-r6.json",
+   "ninja": "validation/benchmark/ninja/syn-n6-r6.json",
+   "n": 6,
+   "rank": 6,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/benchmark/synthetic/syn-n6-r7.json",
+   "ninja": "validation/benchmark/ninja/syn-n6-r7.json",
+   "n": 6,
+   "rank": 7,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-bub0-complex-n2-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-bub0-complex-n2-r1.json",
+   "n": 2,
+   "rank": 1,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-bub0-complex-n2-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-bub0-complex-n2-r2.json",
+   "n": 2,
+   "rank": 2,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-bub0-complex-n2-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-bub0-complex-n2-r3.json",
+   "n": 2,
+   "rank": 3,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-bub0-mixed-n2-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-bub0-mixed-n2-r1.json",
+   "n": 2,
+   "rank": 1,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-bub0-mixed-n2-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-bub0-mixed-n2-r2.json",
+   "n": 2,
+   "rank": 2,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-bub0-mixed-n2-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-bub0-mixed-n2-r3.json",
+   "n": 2,
+   "rank": 3,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-bub0-real-n2-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-bub0-real-n2-r1.json",
+   "n": 2,
+   "rank": 1,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-bub0-real-n2-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-bub0-real-n2-r2.json",
+   "n": 2,
+   "rank": 2,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-bub0-real-n2-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-bub0-real-n2-r3.json",
+   "n": 2,
+   "rank": 3,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n1-r0.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n1-r0.json",
+   "n": 1,
+   "rank": 0,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n1-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n1-r1.json",
+   "n": 1,
+   "rank": 1,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n1-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n1-r2.json",
+   "n": 1,
+   "rank": 2,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n2-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n2-r1.json",
+   "n": 2,
+   "rank": 1,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n2-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n2-r2.json",
+   "n": 2,
+   "rank": 2,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n2-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n2-r3.json",
+   "n": 2,
+   "rank": 3,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n3-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n3-r2.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n3-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n3-r3.json",
+   "n": 3,
+   "rank": 3,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n3-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n3-r4.json",
+   "n": 3,
+   "rank": 4,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n4-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n4-r3.json",
+   "n": 4,
+   "rank": 3,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n4-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n4-r4.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n4-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n4-r5.json",
+   "n": 4,
+   "rank": 5,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n5-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n5-r4.json",
+   "n": 5,
+   "rank": 4,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n5-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n5-r5.json",
+   "n": 5,
+   "rank": 5,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n5-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n5-r6.json",
+   "n": 5,
+   "rank": 6,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n6-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n6-r5.json",
+   "n": 6,
+   "rank": 5,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n6-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n6-r6.json",
+   "n": 6,
+   "rank": 6,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n6-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n6-r7.json",
+   "n": 6,
+   "rank": 7,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n7-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n7-r6.json",
+   "n": 7,
+   "rank": 6,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n7-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n7-r7.json",
+   "n": 7,
+   "rank": 7,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-complex-n7-r8.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-complex-n7-r8.json",
+   "n": 7,
+   "rank": 8,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n1-r0.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n1-r0.json",
+   "n": 1,
+   "rank": 0,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n1-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n1-r1.json",
+   "n": 1,
+   "rank": 1,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n1-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n1-r2.json",
+   "n": 1,
+   "rank": 2,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n2-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n2-r1.json",
+   "n": 2,
+   "rank": 1,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n2-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n2-r2.json",
+   "n": 2,
+   "rank": 2,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n2-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n2-r3.json",
+   "n": 2,
+   "rank": 3,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n3-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n3-r2.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n3-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n3-r3.json",
+   "n": 3,
+   "rank": 3,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n3-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n3-r4.json",
+   "n": 3,
+   "rank": 4,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n4-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n4-r3.json",
+   "n": 4,
+   "rank": 3,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n4-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n4-r4.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n4-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n4-r5.json",
+   "n": 4,
+   "rank": 5,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n5-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n5-r4.json",
+   "n": 5,
+   "rank": 4,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n5-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n5-r5.json",
+   "n": 5,
+   "rank": 5,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n5-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n5-r6.json",
+   "n": 5,
+   "rank": 6,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n6-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n6-r5.json",
+   "n": 6,
+   "rank": 5,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n6-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n6-r6.json",
+   "n": 6,
+   "rank": 6,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n6-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n6-r7.json",
+   "n": 6,
+   "rank": 7,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n7-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n7-r6.json",
+   "n": 7,
+   "rank": 6,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n7-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n7-r7.json",
+   "n": 7,
+   "rank": 7,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-mixed-n7-r8.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-mixed-n7-r8.json",
+   "n": 7,
+   "rank": 8,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n1-r0.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n1-r0.json",
+   "n": 1,
+   "rank": 0,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n1-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n1-r1.json",
+   "n": 1,
+   "rank": 1,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n1-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n1-r2.json",
+   "n": 1,
+   "rank": 2,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n2-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n2-r1.json",
+   "n": 2,
+   "rank": 1,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n2-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n2-r2.json",
+   "n": 2,
+   "rank": 2,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n2-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n2-r3.json",
+   "n": 2,
+   "rank": 3,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n3-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n3-r2.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n3-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n3-r3.json",
+   "n": 3,
+   "rank": 3,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n3-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n3-r4.json",
+   "n": 3,
+   "rank": 4,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n4-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n4-r3.json",
+   "n": 4,
+   "rank": 3,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n4-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n4-r4.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n4-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n4-r5.json",
+   "n": 4,
+   "rank": 5,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n5-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n5-r4.json",
+   "n": 5,
+   "rank": 4,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n5-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n5-r5.json",
+   "n": 5,
+   "rank": 5,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n5-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n5-r6.json",
+   "n": 5,
+   "rank": 6,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n6-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n6-r5.json",
+   "n": 6,
+   "rank": 5,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n6-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n6-r6.json",
+   "n": 6,
+   "rank": 6,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n6-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n6-r7.json",
+   "n": 6,
+   "rank": 7,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n7-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n7-r6.json",
+   "n": 7,
+   "rank": 6,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n7-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n7-r7.json",
+   "n": 7,
+   "rank": 7,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-real-n7-r8.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-real-n7-r8.json",
+   "n": 7,
+   "rank": 8,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-zero-n2-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-zero-n2-r1.json",
+   "n": 2,
+   "rank": 1,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-zero-n2-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-zero-n2-r2.json",
+   "n": 2,
+   "rank": 2,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-int-zero-n2-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-int-zero-n2-r3.json",
+   "n": 2,
+   "rank": 3,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irml-zero-n3-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irml-zero-n3-r2.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irml-zero-n3-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irml-zero-n3-r3.json",
+   "n": 3,
+   "rank": 3,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irml-zero-n3-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irml-zero-n3-r4.json",
+   "n": 3,
+   "rank": 4,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irml-zero-n4-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irml-zero-n4-r3.json",
+   "n": 4,
+   "rank": 3,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irml-zero-n4-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irml-zero-n4-r4.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irml-zero-n4-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irml-zero-n4-r5.json",
+   "n": 4,
+   "rank": 5,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irml-zero-n5-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irml-zero-n5-r4.json",
+   "n": 5,
+   "rank": 4,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irml-zero-n5-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irml-zero-n5-r5.json",
+   "n": 5,
+   "rank": 5,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irml-zero-n5-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irml-zero-n5-r6.json",
+   "n": 5,
+   "rank": 6,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irml-zero-n6-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irml-zero-n6-r5.json",
+   "n": 6,
+   "rank": 5,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irml-zero-n6-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irml-zero-n6-r6.json",
+   "n": 6,
+   "rank": 6,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irml-zero-n6-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irml-zero-n6-r7.json",
+   "n": 6,
+   "rank": 7,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irsoft-real-n3-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irsoft-real-n3-r2.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irsoft-real-n3-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irsoft-real-n3-r3.json",
+   "n": 3,
+   "rank": 3,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irsoft-real-n3-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irsoft-real-n3-r4.json",
+   "n": 3,
+   "rank": 4,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irsoft-real-n4-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irsoft-real-n4-r3.json",
+   "n": 4,
+   "rank": 3,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irsoft-real-n4-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irsoft-real-n4-r4.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irsoft-real-n4-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irsoft-real-n4-r5.json",
+   "n": 4,
+   "rank": 5,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irsoft-real-n5-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irsoft-real-n5-r4.json",
+   "n": 5,
+   "rank": 4,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irsoft-real-n5-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irsoft-real-n5-r5.json",
+   "n": 5,
+   "rank": 5,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irsoft-real-n5-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irsoft-real-n5-r6.json",
+   "n": 5,
+   "rank": 6,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irsoft-real-n6-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irsoft-real-n6-r5.json",
+   "n": 6,
+   "rank": 5,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irsoft-real-n6-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irsoft-real-n6-r6.json",
+   "n": 6,
+   "rank": 6,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-irsoft-real-n6-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-irsoft-real-n6-r7.json",
+   "n": 6,
+   "rank": 7,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n1-r0.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n1-r0.json",
+   "n": 1,
+   "rank": 0,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n1-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n1-r1.json",
+   "n": 1,
+   "rank": 1,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n1-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n1-r2.json",
+   "n": 1,
+   "rank": 2,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n2-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n2-r1.json",
+   "n": 2,
+   "rank": 1,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n2-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n2-r2.json",
+   "n": 2,
+   "rank": 2,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n2-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n2-r3.json",
+   "n": 2,
+   "rank": 3,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n3-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n3-r2.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n3-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n3-r3.json",
+   "n": 3,
+   "rank": 3,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n3-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n3-r4.json",
+   "n": 3,
+   "rank": 4,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n4-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n4-r3.json",
+   "n": 4,
+   "rank": 3,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n4-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n4-r4.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n4-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n4-r5.json",
+   "n": 4,
+   "rank": 5,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n5-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n5-r4.json",
+   "n": 5,
+   "rank": 4,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n5-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n5-r5.json",
+   "n": 5,
+   "rank": 5,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n5-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n5-r6.json",
+   "n": 5,
+   "rank": 6,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n6-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n6-r5.json",
+   "n": 6,
+   "rank": 5,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n6-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n6-r6.json",
+   "n": 6,
+   "rank": 6,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-complex-n6-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-complex-n6-r7.json",
+   "n": 6,
+   "rank": 7,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n1-r0.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n1-r0.json",
+   "n": 1,
+   "rank": 0,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n1-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n1-r1.json",
+   "n": 1,
+   "rank": 1,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n1-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n1-r2.json",
+   "n": 1,
+   "rank": 2,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n2-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n2-r1.json",
+   "n": 2,
+   "rank": 1,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n2-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n2-r2.json",
+   "n": 2,
+   "rank": 2,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n2-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n2-r3.json",
+   "n": 2,
+   "rank": 3,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n3-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n3-r2.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n3-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n3-r3.json",
+   "n": 3,
+   "rank": 3,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n3-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n3-r4.json",
+   "n": 3,
+   "rank": 4,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n4-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n4-r3.json",
+   "n": 4,
+   "rank": 3,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n4-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n4-r4.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n4-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n4-r5.json",
+   "n": 4,
+   "rank": 5,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n5-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n5-r4.json",
+   "n": 5,
+   "rank": 4,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n5-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n5-r5.json",
+   "n": 5,
+   "rank": 5,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n5-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n5-r6.json",
+   "n": 5,
+   "rank": 6,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n6-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n6-r5.json",
+   "n": 6,
+   "rank": 5,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n6-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n6-r6.json",
+   "n": 6,
+   "rank": 6,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-mixed-n6-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-mixed-n6-r7.json",
+   "n": 6,
+   "rank": 7,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n1-r0.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n1-r0.json",
+   "n": 1,
+   "rank": 0,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n1-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n1-r1.json",
+   "n": 1,
+   "rank": 1,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n1-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n1-r2.json",
+   "n": 1,
+   "rank": 2,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n2-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n2-r1.json",
+   "n": 2,
+   "rank": 1,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n2-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n2-r2.json",
+   "n": 2,
+   "rank": 2,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n2-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n2-r3.json",
+   "n": 2,
+   "rank": 3,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n3-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n3-r2.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n3-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n3-r3.json",
+   "n": 3,
+   "rank": 3,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n3-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n3-r4.json",
+   "n": 3,
+   "rank": 4,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n4-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n4-r3.json",
+   "n": 4,
+   "rank": 3,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n4-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n4-r4.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n4-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n4-r5.json",
+   "n": 4,
+   "rank": 5,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n5-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n5-r4.json",
+   "n": 5,
+   "rank": 4,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n5-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n5-r5.json",
+   "n": 5,
+   "rank": 5,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n5-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n5-r6.json",
+   "n": 5,
+   "rank": 6,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n6-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n6-r5.json",
+   "n": 6,
+   "rank": 5,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n6-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n6-r6.json",
+   "n": 6,
+   "rank": 6,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-phys-real-n6-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-phys-real-n6-r7.json",
+   "n": 6,
+   "rank": 7,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n1-r0.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n1-r0.json",
+   "n": 1,
+   "rank": 0,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n1-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n1-r1.json",
+   "n": 1,
+   "rank": 1,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n1-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n1-r2.json",
+   "n": 1,
+   "rank": 2,
+   "declared_rank": 3,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n2-r1.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n2-r1.json",
+   "n": 2,
+   "rank": 1,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n2-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n2-r2.json",
+   "n": 2,
+   "rank": 2,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n2-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n2-r3.json",
+   "n": 2,
+   "rank": 3,
+   "declared_rank": 4,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n3-r2.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n3-r2.json",
+   "n": 3,
+   "rank": 2,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n3-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n3-r3.json",
+   "n": 3,
+   "rank": 3,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n3-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n3-r4.json",
+   "n": 3,
+   "rank": 4,
+   "declared_rank": 5,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n4-r3.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n4-r3.json",
+   "n": 4,
+   "rank": 3,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n4-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n4-r4.json",
+   "n": 4,
+   "rank": 4,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n4-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n4-r5.json",
+   "n": 4,
+   "rank": 5,
+   "declared_rank": 6,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n5-r4.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n5-r4.json",
+   "n": 5,
+   "rank": 4,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n5-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n5-r5.json",
+   "n": 5,
+   "rank": 5,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n5-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n5-r6.json",
+   "n": 5,
+   "rank": 6,
+   "declared_rank": 7,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n6-r5.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n6-r5.json",
+   "n": 6,
+   "rank": 5,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n6-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n6-r6.json",
+   "n": 6,
+   "rank": 6,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n6-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n6-r7.json",
+   "n": 6,
+   "rank": 7,
+   "declared_rank": 8,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n7-r6.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n7-r6.json",
+   "n": 7,
+   "rank": 6,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n7-r7.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n7-r7.json",
+   "n": 7,
+   "rank": 7,
+   "declared_rank": 9,
+   "lanes": 3
+  },
+  {
+   "case": "validation/rank-n2/controls/cases/rn2-shifted-mixed-n7-r8.json",
+   "ninja": "validation/rank-n2/controls/ninja/rn2-shifted-mixed-n7-r8.json",
+   "n": 7,
+   "rank": 8,
+   "declared_rank": 9,
+   "lanes": 3
+  }
+ ]
+}

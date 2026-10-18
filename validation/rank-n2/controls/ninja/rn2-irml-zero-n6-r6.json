@@ -1,0 +1,86 @@
+{
+ "format": "ninjars-reference-ninja-bench-v1",
+ "case": "rn2-irml-zero-n6-r6",
+ "build": "o3",
+ "oneloop_warnings": false,
+ "n": 6,
+ "rank": 6,
+ "amplitude": "ninja::Amplitude<ninja::ComplexMasses>(n, rank, V, m2); setRenormalizationScale(mu_squared) (Ninja passes mu_R^2 to IntegralLibrary::init, AvHOneLoop uses mu_R=sqrt); setSMatrix if s_matrix given",
+ "all_replays_bitwise_identical": true,
+ "case_file": "controls/cases/rn2-irml-zero-n6-r6.json",
+ "provenance": "original Ninja @05fb0d3 + OneLOop 3.6, o3 build, validation/benchmark/ninja_bench.cc driver (phase-1 run, trimmed to the Laurent coefficients)",
+ "lanes": [
+  {
+   "id": "rn2-irml-zero-n6-r6-lane0",
+   "return_status": 0,
+   "eps0": [
+    7.307654428926869e-14,
+    8.03303166159056e-13
+   ],
+   "eps_m1": [
+    5.615456157930999e-13,
+    -2.366732453825283e-13
+   ],
+   "eps_m2": [
+    1.8701098995264567e-13,
+    -1.6984966409954606e-13
+   ],
+   "cut_constructible": [
+    6.074465881861523e-14,
+    7.945272368377419e-13
+   ],
+   "rational": [
+    1.2331885470653454e-14,
+    8.775929321314062e-15
+   ]
+  },
+  {
+   "id": "rn2-irml-zero-n6-r6-lane1",
+   "return_status": 0,
+   "eps0": [
+    1.9256902505596095e-11,
+    1.6205062419983922e-11
+   ],
+   "eps_m1": [
+    9.488606067257976e-12,
+    8.041323936107331e-13
+   ],
+   "eps_m2": [
+    1.5510203524586471e-12,
+    -9.48526605918767e-13
+   ],
+   "cut_constructible": [
+    1.9253039250632234e-11,
+    1.6203378712403736e-11
+   ],
+   "rational": [
+    3.863254963861382e-15,
+    1.6837075801855562e-15
+   ]
+  },
+  {
+   "id": "rn2-irml-zero-n6-r6-lane2",
+   "return_status": 0,
+   "eps0": [
+    -4.513314877408344e-11,
+    -3.829269471748233e-11
+   ],
+   "eps_m1": [
+    -1.781712844800831e-11,
+    -3.5547337703970972e-12
+   ],
+   "eps_m2": [
+    -2.6338754515437883e-12,
+    8.700967667098051e-13
+   ],
+   "cut_constructible": [
+    -4.513650914430042e-11,
+    -3.829442227477873e-11
+   ],
+   "rational": [
+    3.3603702169754416e-15,
+    1.7275572963958307e-15
+   ]
+  }
+ ]
+}
