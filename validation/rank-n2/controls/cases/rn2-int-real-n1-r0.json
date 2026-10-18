@@ -1,0 +1,108 @@
+{
+ "format": "ninjars-bench-case-v1",
+ "name": "rn2-int-real-n1-r0",
+ "n": 1,
+ "rank": 0,
+ "family": "int",
+ "masses": "real",
+ "description": "rank-n+2 reference suite: family int, masses real",
+ "generator": "validation/rank-n2/harness/gen_suite.py",
+ "seed": 20261019,
+ "screening": {
+  "lorentzian_planes": true,
+  "gram_min": 0.0001,
+  "cayley_min": 1e-05
+ },
+ "lanes": [
+  {
+   "id": "rn2-int-real-n1-r0-lane0",
+   "shifts": [
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "masses_squared": [
+    [
+     6464.160000000001,
+     0.0
+    ]
+   ],
+   "mu_squared": 10000.0,
+   "s_matrix": [
+    [
+     0.0
+    ]
+   ],
+   "tensor": [
+    [
+     1.8966714604964081,
+     0.024163568557409462
+    ]
+   ],
+   "generator_attempts": 1
+  },
+  {
+   "id": "rn2-int-real-n1-r0-lane1",
+   "shifts": [
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "masses_squared": [
+    [
+     8315.178393760001,
+     0.0
+    ]
+   ],
+   "mu_squared": 8315.178393760001,
+   "s_matrix": [
+    [
+     0.0
+    ]
+   ],
+   "tensor": [
+    [
+     -0.6173017142545557,
+     1.021069613221045
+    ]
+   ],
+   "generator_attempts": 1
+  },
+  {
+   "id": "rn2-int-real-n1-r0-lane2",
+   "shifts": [
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "masses_squared": [
+    [
+     8315.178393760001,
+     0.0
+    ]
+   ],
+   "mu_squared": 29929.0,
+   "s_matrix": [
+    [
+     0.0
+    ]
+   ],
+   "tensor": [
+    [
+     1.3245880484937227,
+     -0.03365187120066292
+    ]
+   ],
+   "generator_attempts": 1
+  }
+ ]
+}

@@ -1,0 +1,86 @@
+{
+ "format": "ninjars-reference-ninja-bench-v1",
+ "case": "rn2-irml-zero-n5-r5",
+ "build": "o3",
+ "oneloop_warnings": false,
+ "n": 5,
+ "rank": 5,
+ "amplitude": "ninja::Amplitude<ninja::ComplexMasses>(n, rank, V, m2); setRenormalizationScale(mu_squared) (Ninja passes mu_R^2 to IntegralLibrary::init, AvHOneLoop uses mu_R=sqrt); setSMatrix if s_matrix given",
+ "all_replays_bitwise_identical": true,
+ "case_file": "controls/cases/rn2-irml-zero-n5-r5.json",
+ "provenance": "original Ninja @05fb0d3 + OneLOop 3.6, o3 build, validation/benchmark/ninja_bench.cc driver (phase-1 run, trimmed to the Laurent coefficients)",
+ "lanes": [
+  {
+   "id": "rn2-irml-zero-n5-r5-lane0",
+   "return_status": 0,
+   "eps0": [
+    -1.3470337625889492e-08,
+    -4.246461153516359e-08
+   ],
+   "eps_m1": [
+    -8.099085519033755e-09,
+    -8.69239226616528e-09
+   ],
+   "eps_m2": [
+    -1.4961948879088074e-09,
+    2.7081093840446374e-10
+   ],
+   "cut_constructible": [
+    -1.3463780122472668e-08,
+    -4.244770934316113e-08
+   ],
+   "rational": [
+    -6.55750341682426e-12,
+    -1.6902192002458523e-11
+   ]
+  },
+  {
+   "id": "rn2-irml-zero-n5-r5-lane1",
+   "return_status": 0,
+   "eps0": [
+    2.4062877707247867e-08,
+    4.1229665586153955e-09
+   ],
+   "eps_m1": [
+    7.0985200343261215e-09,
+    -3.0829525857935084e-09
+   ],
+   "eps_m2": [
+    2.9260670480083775e-10,
+    -1.376530710762902e-09
+   ],
+   "cut_constructible": [
+    -3.586493598276049e-07,
+    5.068336305642789e-08
+   ],
+   "rational": [
+    3.827122375348528e-07,
+    -4.6560396497812495e-08
+   ]
+  },
+  {
+   "id": "rn2-irml-zero-n5-r5-lane2",
+   "return_status": 0,
+   "eps0": [
+    4.177444033502414e-07,
+    5.405505097254796e-07
+   ],
+   "eps_m1": [
+    1.6577416942226518e-07,
+    7.639806571382397e-08
+   ],
+   "eps_m2": [
+    2.6270048143106956e-08,
+    -5.099940941857671e-09
+   ],
+   "cut_constructible": [
+    4.1771796017936523e-07,
+    5.4064680614404e-07
+   ],
+   "rational": [
+    2.644317087618695e-11,
+    -9.62964185603959e-11
+   ]
+  }
+ ]
+}
