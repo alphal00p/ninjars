@@ -25,10 +25,11 @@ The complete specification and evidence ledger are in [the plan](references/PLAN
 
 The pinned Nix shell provides Rust 1.98.1, native numerical dependencies, and the
 C++/Fortran reference compilers on x86_64 Linux. Rust 1.96 or newer is required.
-Bootstrap the source dependencies before invoking Cargo:
+
+Every Rust dependency is a pinned git revision (`Cargo.toml`, `Cargo.lock`), so a
+plain clone builds without any local checkout:
 
 ```sh
-nix develop path:. --command python3 tools/bootstrap.py
 nix develop path:. --command cargo check --workspace --locked
 RUST_MIN_STACK=134217728 nix develop path:. --command cargo test --workspace --locked -- --test-threads=1
 nix develop path:. --command cargo run -p ninjars-cli -- prepare examples/graphs/bubble.json
@@ -45,11 +46,41 @@ nix develop path:. --command cargo run -p ninjars-cli -- reduce examples/graphs/
 nix develop path:. --command cargo run -p ninjars-symbolica --example bubble
 ```
 
-Dependencies are pinned in `dependencies/manifest.json`. Small upstream patches
-are stored in `dependencies/patches` while their pull requests are pending;
-`tools/bootstrap.py` applies them to isolated dependency checkouts. It does not
-reset or discard changes in existing checkouts. The large source checkouts and
-build products are excluded from this repository.
+Dependencies are pinned in `Cargo.toml` and recorded with their provenance in
+`dependencies/manifest.json`:
+
+| Dependency | Repository | Revision |
+| --- | --- | --- |
+| FeynKit, Spenso, Idenso (gammaloop) | `https://github.com/alphal00p/gammaloop` | `474478a7` |
+| oneloopmaster (`oneloop`) | `https://github.com/alphal00p/oneloopmaster` | `264a6ced` |
+| Symbolica, Numerica, Graphica | `https://github.com/alphal00p/symbolica` (branch `ninjars-pin`) | `e679e8c1` |
+
+Symbolica `e679e8c1` is upstream `c78cffc2` plus the patches in
+`dependencies/patches` and the binary64 dilogarithm of symbolica-dev/symbolica#89,
+whose pull requests are pending. NinjaRS replaces the crates.io `symbolica`,
+`numerica` and `graphica` through `[patch.crates-io]`; Cargo applies `[patch]`
+only in the root workspace, so a project that depends on NinjaRS crates through
+git must repeat that block in its own root `Cargo.toml`:
+
+```toml
+[dependencies]
+ninjars-symbolica = { git = "https://github.com/alphal00p/ninjars", rev = "<revision>" }
+
+[patch.crates-io]
+symbolica = { git = "https://github.com/alphal00p/symbolica.git", rev = "e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8" }
+numerica = { git = "https://github.com/alphal00p/symbolica.git", rev = "e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8" }
+graphica = { git = "https://github.com/alphal00p/symbolica.git", rev = "e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8" }
+symbolica-typst-plugin = { git = "https://github.com/symbolica-dev/symbolica-typst-plugin", rev = "57b7455b37c30f4f87353c0073e49f5225e937ab" }
+```
+
+The CLI installs directly: `cargo install --locked --git https://github.com/alphal00p/ninjars ninjars-cli`.
+
+To develop NinjaRS together with local checkouts of these dependencies, place
+them under `references/` (`python3 tools/bootstrap.py` clones the pinned
+revisions there and applies the patches) and pass
+`--config dependencies/local-references.toml` to Cargo. Nothing under
+`references/` is needed otherwise; the C++/Fortran reference validation
+(`--features reference-codegen`, `validation/`) also uses `references/ninja`.
 
 Symbolica retains its own licensing and runtime requirements. Run its tests
 serially when using a license that limits concurrent instances. Production

@@ -1,0 +1,28 @@
+# Optional Cargo configuration for developing NinjaRS together with local
+# checkouts of its dependencies in references/ (see dependencies/manifest.json
+# for the pinned revisions). The committed Cargo.toml only uses pinned git
+# revisions, so a plain clone builds without references/; pass this file to
+# build against the local checkouts instead:
+#
+#   cargo --config dependencies/local-references.toml build ...
+#
+# Relative paths are resolved against the directory that contains this file's
+# parent (the repository root).
+
+[patch."https://github.com/alphal00p/gammaloop.git"]
+feynkit-kinematics = { path = "references/gammaloop_ninja_shared/crates/feynkit-kinematics" }
+feynkit-graph = { path = "references/gammaloop_ninja_shared/crates/feynkit-graph" }
+feynkit-model = { path = "references/gammaloop_ninja_shared/crates/feynkit-model" }
+feynkit-generator = { path = "references/gammaloop_ninja_shared/crates/feynkit-generator" }
+feynkit-amplitude = { path = "references/gammaloop_ninja_shared/crates/feynkit-amplitude" }
+spenso = { path = "references/gammaloop_ninja_shared/crates/spenso" }
+idenso = { path = "references/gammaloop_ninja_shared/crates/idenso" }
+symbolica-utils = { path = "references/gammaloop_ninja_shared/crates/symbolica-utils" }
+
+[patch."https://github.com/alphal00p/oneloopmaster.git"]
+oneloop = { path = "references/oneloopmaster" }
+
+[patch.crates-io]
+symbolica = { path = "references/symbolica" }
+numerica = { path = "references/symbolica/lib/numerica" }
+graphica = { path = "references/symbolica/lib/graphica" }
