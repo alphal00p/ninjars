@@ -165,6 +165,12 @@ impl Numerator<C> for ForeignNumerator<'_> {
                 );
                 (3, 4, 3)
             }
+            // Rank n+2 boxes; original Ninja's callback ABI has no beta offset.
+            ExpansionKind::MuShifted { .. } => {
+                return Err(Error::Unsupported(
+                    "the wire ABI has no shifted mu expansion (rank n+2)".into(),
+                ));
+            }
         };
         let mut offset = 0;
         while offset < requests.len() {

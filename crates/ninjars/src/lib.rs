@@ -56,7 +56,7 @@ pub use tadpoles::{
     IntegratedTadpoleResidue, TadpoleCorrectionRequest, TadpoleDivisionRequest, TadpoleReducer,
     TadpoleReductionKernels, TadpoleSource,
 };
-pub use topology::{Cut, Topology};
+pub use topology::{Cut, RankClass, Topology, residue_coefficient_count};
 pub use triangles::{
     TriangleDivisionRequest, TriangleReducer, TriangleReductionKernels, TriangleResidue,
 };

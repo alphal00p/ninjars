@@ -234,6 +234,12 @@ where
             MasterIntegral::B1 => oneloop::b1(&args[0], &args[1], &args[2], &args[3]),
             MasterIntegral::B11 => oneloop::b11(&args[0], &args[1], &args[2], &args[3]),
             MasterIntegral::B111 => oneloop::b111(&args[0], &args[1], &args[2], &args[3]),
+            // Exact Passarino-Veltman expression with oneloopmaster's
+            // corrected zero-momentum mass swap. In fixed precision it loses
+            // about 4 log10(m²/p²) digits at small p² (relative error 5.5e-6
+            // in binary64 at p² = m²/256); binary64 and DoubleFloat carriers
+            // are to use a native B1111 family once oneloopmaster has one.
+            MasterIntegral::B1111 => oneloop::b1111(&args[0], &args[1], &args[2], &args[3]),
             MasterIntegral::An { rank } => oneloop::an(rank, &args[0], &args[1])
                 .map_err(|_| Error::Unsupported("tadpole tensor rank exceeds four".into()))?
                 .pop()

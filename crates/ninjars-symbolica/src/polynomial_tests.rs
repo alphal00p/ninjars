@@ -63,6 +63,18 @@ fn oracle(kind: &ExpansionKind) -> (Vec<Atom>, Vec<Atom>) {
                 .collect::<Vec<_>>();
             (a * t.clone() + b, value, input)
         }
+        // Rank n+2 boxes: the exact d-dimensional cut, mu² = t² a² - beta.
+        ExpansionKind::MuShifted { .. } => {
+            let value = &t * &t * a.dot(&a) - &p0;
+            let input = a
+                .components()
+                .into_iter()
+                .chain(b.components())
+                .cloned()
+                .chain([p0.clone()])
+                .collect::<Vec<_>>();
+            (a * t.clone() + b, value, input)
+        }
         ExpansionKind::T3 { .. } => {
             let input = a
                 .components()
@@ -99,7 +111,9 @@ fn oracle(kind: &ExpansionKind) -> (Vec<Atom>, Vec<Atom>) {
     let full = expression().replace_multiple(&replacements).expand();
     let polynomial = full.to_polynomial_in_vars_with_field::<i32>(&[t, x, mu], &exact_field());
     let powers = match kind {
-        ExpansionKind::Mu { powers } => powers.iter().map(|&t| [t, 0, 0]).collect::<Vec<_>>(),
+        ExpansionKind::Mu { powers } | ExpansionKind::MuShifted { powers } => {
+            powers.iter().map(|&t| [t, 0, 0]).collect::<Vec<_>>()
+        }
         ExpansionKind::T3 { powers } => powers.iter().map(|&(t, m)| [t, 0, i32::from(m)]).collect(),
         ExpansionKind::T2 { powers } => powers
             .iter()
@@ -123,6 +137,9 @@ fn coefficient_preserving_callbacks_equal_full_expansion_exactly() {
     let kinds = [
         ExpansionKind::Mu {
             powers: (0..=5).collect(),
+        },
+        ExpansionKind::MuShifted {
+            powers: (0..=5).rev().collect(),
         },
         ExpansionKind::T3 {
             powers: (-5..=5)

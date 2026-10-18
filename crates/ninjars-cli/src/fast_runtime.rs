@@ -539,6 +539,21 @@ impl<N: FastNumerator + ?Sized> FastNumerator for TimedNumerator<'_, N> {
         result
     }
 
+    fn mu_expansion_x2(
+        &mut self,
+        cut: &[usize],
+        lanes: &[usize],
+        v0: &[CMom],
+        v1: &[CMom],
+        beta: &[C64],
+        out: &mut [C64],
+    ) -> ninjars::Result<()> {
+        let start = Instant::now();
+        let result = self.inner.mu_expansion_x2(cut, lanes, v0, v1, beta, out);
+        self.expansion.record(start, lanes.len());
+        result
+    }
+
     fn t3_expansion(
         &mut self,
         cut: &[usize],

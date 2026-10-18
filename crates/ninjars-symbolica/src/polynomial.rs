@@ -251,6 +251,11 @@ where
                 let mu = t.pow(2) * a.dot(&a);
                 (a * t.clone() + vector(1), mu, 2, 0)
             }
+            ExpansionKind::MuShifted { .. } => {
+                let a = vector(0);
+                let mu = t.pow(2) * a.dot(&a) - &symbols[19];
+                (a * t.clone() + vector(1), mu, 2, 1)
+            }
             ExpansionKind::T3 { .. } => (
                 vector(0) + vector(1) * t.clone() + vector(2) * ((&symbols[19] + mu2) / t),
                 mu2.clone(),
@@ -308,7 +313,9 @@ where
             ));
         }
         let powers: Vec<[i32; 3]> = match kind {
-            ExpansionKind::Mu { powers } => powers.iter().map(|&a| [a, 0, 0]).collect(),
+            ExpansionKind::Mu { powers } | ExpansionKind::MuShifted { powers } => {
+                powers.iter().map(|&a| [a, 0, 0]).collect()
+            }
             ExpansionKind::T3 { powers } => {
                 powers.iter().map(|&(a, c)| [a, 0, i32::from(c)]).collect()
             }
@@ -393,6 +400,7 @@ where
             ExpansionKind::Mu { .. } => (2, 0),
             ExpansionKind::T3 { .. } => (3, 1),
             ExpansionKind::T2 { .. } => (4, 3),
+            ExpansionKind::MuShifted { .. } => (2, 1),
         };
         for request in requests {
             self.check_lane(request.id.lane)?;

@@ -292,6 +292,9 @@ fn complex<T: ninjars::SingleFloat>(prototype: &T, z: C64) -> Complex<T> {
     Complex::new(exact(prototype, z.re), exact(prototype, z.im))
 }
 
+/// Per-lane generic results and statuses.
+type GenericLanes<T> = (Vec<[Complex<T>; 5]>, Vec<ninjars::EvaluationStatus>);
+
 /// Generic reduction of all points of `case` with per-lane coefficients
 /// `coefficients` (row-major, one row per point) of `numerator`.
 fn generic<T, M>(
@@ -300,7 +303,7 @@ fn generic<T, M>(
     coefficients: &[C64],
     prototype: T,
     masters: &mut M,
-) -> Result<(Vec<[Complex<T>; 5]>, Vec<ninjars::EvaluationStatus>), String>
+) -> Result<GenericLanes<T>, String>
 where
     T: oneloop::NativeFloat,
     Complex<T>: ninjars::Real + symbolica::evaluate::EvaluationDomain,
@@ -429,6 +432,15 @@ fn generic_tensor_float(case: &Case) -> Value {
 // ---------------------------------------------------------------------------
 // Explicit mu² numerators.
 
+/// One fast evaluation of all lanes with some numerator.
+type FastRun<'a> = dyn FnMut(
+        &mut FastAmplitude,
+        &mut OneLoopNativeMasters,
+        &mut [FastResult],
+        &mut [FastStatus],
+    ) -> ninjars::Result<()>
+    + 'a;
+
 fn mu_numerator(case: &Case, name: &str) -> Value {
     let (n, rank) = (case.n, case.rank);
     let mu_powers = rank / 2;
@@ -463,12 +475,7 @@ fn mu_numerator(case: &Case, name: &str) -> Value {
     let input = batch.input();
     let mut amplitude = FastAmplitude::new(n, rank, FastOptions::default()).unwrap();
     let mut fast_masters = OneLoopNativeMasters::new().unwrap();
-    let mut run = |numerator: &mut dyn FnMut(
-        &mut FastAmplitude,
-        &mut OneLoopNativeMasters,
-        &mut [FastResult],
-        &mut [FastStatus],
-    ) -> ninjars::Result<()>| {
+    let mut run = |numerator: &mut FastRun<'_>| {
         let mut results = vec![FastResult::default(); count];
         let mut statuses = vec![FastStatus::NotEvaluated; count];
         match numerator(

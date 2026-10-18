@@ -203,6 +203,7 @@ where
             ExpansionKind::Mu { .. } => (2, 0),
             ExpansionKind::T3 { .. } => (3, 1),
             ExpansionKind::T2 { .. } => (4, 3),
+            ExpansionKind::MuShifted { .. } => (2, 1),
         };
         for request in requests {
             self.validate_lane(request.id.lane)?;

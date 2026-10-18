@@ -33,7 +33,9 @@ fn tuples(kind: &ExpansionKind) -> Vec<[i32; 3]> {
             .iter()
             .map(|&(t, mu)| [t, 0, i32::from(mu)])
             .collect(),
-        ExpansionKind::Mu { .. } => panic!("only existing T2/T3 division layouts are supported"),
+        ExpansionKind::Mu { .. } | ExpansionKind::MuShifted { .. } => {
+            panic!("only existing T2/T3 division layouts are supported")
+        }
     }
 }
 

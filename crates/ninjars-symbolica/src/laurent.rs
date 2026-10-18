@@ -36,7 +36,9 @@ fn triples(kind: &ExpansionKind) -> Vec<[i32; 3]> {
             .iter()
             .map(|&(t, x, mu)| [t, i32::from(x), i32::from(mu)])
             .collect(),
-        ExpansionKind::Mu { .. } => unreachable!("Laurent division uses T2/T3 expansions"),
+        ExpansionKind::Mu { .. } | ExpansionKind::MuShifted { .. } => {
+            unreachable!("Laurent division uses T2/T3 expansions")
+        }
     }
 }
 

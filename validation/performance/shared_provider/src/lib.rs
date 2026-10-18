@@ -589,7 +589,7 @@ fn control(number: u32, which: u32, lane: usize) -> Result<Vec<Pair>> {
                         *t += 1;
                     }
                 }
-                ExpansionKind::Mu { .. } => {}
+                ExpansionKind::Mu { .. } | ExpansionKind::MuShifted { .. } => {}
             }
         }
         let mut vectors = vectors;
