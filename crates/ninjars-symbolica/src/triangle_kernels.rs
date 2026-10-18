@@ -3,7 +3,7 @@
 use crate::{
     DenominatorExpansion, LaurentDivision, ResidueProjection,
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor},
-    value_checks::{DualChecks, OrdinaryChecks, ValueChecks},
+    value_checks::{DualChecks, Negligible, OrdinaryChecks, ValueChecks, difference_dot_scale},
 };
 use ninjars::{
     BatchShape, Complex, Error, ExpansionKind, FloatLike, FourMomentum, Real, Result, SingleFloat,
@@ -11,7 +11,7 @@ use ninjars::{
 };
 use symbolica::{atom::Atom, domains::dual::DualNumber, evaluate::EvaluationDomain, symbol};
 
-struct Engine<V, K, Checks> {
+struct Engine<V, K, Checks, R> {
     n: usize,
     rank: usize,
     layout: LaurentDivision,
@@ -21,6 +21,7 @@ struct Engine<V, K, Checks> {
     projection: K,
     swap: K,
     zero: V,
+    negligible: Negligible<R>,
     checks: std::marker::PhantomData<fn() -> Checks>,
     input: Vec<V>,
     denominators: Vec<V>,
@@ -29,7 +30,9 @@ struct Engine<V, K, Checks> {
     eligible: Vec<usize>,
 }
 
-impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Checks> {
+impl<V: FloatLike, K: KernelExecutor<V>, R: Real + SingleFloat, Checks: ValueChecks<V, Real = R>>
+    Engine<V, K, Checks, R>
+{
     #[cfg(feature = "native-kernels")]
     fn set_native_batch_execution(&mut self, policy: crate::BatchExecutionPolicy) {
         for kernel in [
@@ -79,6 +82,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             projection,
             swap,
             zero: prototype.zero(),
+            negligible: Negligible::new(&Checks::magnitude(prototype)),
             checks: std::marker::PhantomData,
             input: Vec::new(),
             denominators: Vec::new(),
@@ -187,16 +191,26 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         self.active.clear();
         self.input.clear();
         for (index, &row) in self.eligible.iter().enumerate() {
+            let r = &requests[row];
             let status = &mut stable[row];
             let num = &numerator[row * columns..(row + 1) * columns];
             let den = &self.denominators[index * uncut * 4..(index + 1) * uncut * 4];
+            // Leading coefficient 2 v_t.(V_j - V_0) (Ninja's `denc.d0` check).
             *status = num.iter().all(Checks::finite)
                 && den.iter().all(Checks::finite)
                 && den
                     .as_chunks::<4>()
                     .0
                     .iter()
-                    .all(|d| Checks::nonzero(&d[0]));
+                    .zip(r.complement)
+                    .all(|(d, &line)| {
+                        let scale = difference_dot_scale::<V, Checks>(
+                            &r.vectors[1],
+                            &r.shifts[line],
+                            &r.shifts[r.partition[0]],
+                        );
+                        !self.negligible.value::<V, Checks>(&d[0], &scale)
+                    });
             if *status {
                 self.active.push(row);
                 self.input.extend_from_slice(num);
@@ -240,7 +254,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
 /// Zero leading uncut denominators and nonfinite rows are isolated. Precision
 /// rescue and a scaled small-denominator criterion remain separate diagnostics.
 pub struct SymbolicaTriangleKernels<T> {
-    engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks>,
+    engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks, T>,
 }
 impl<T: Real + SingleFloat> SymbolicaTriangleKernels<T>
 where
@@ -265,7 +279,7 @@ where
 
 /// The same core triangle stage with a Symbolica static or dynamic Dual shape.
 pub struct SymbolicaDualTriangleKernels<T, D> {
-    engine: Engine<D, CompiledDualKernel<T, D>, DualChecks<T>>,
+    engine: Engine<D, CompiledDualKernel<T, D>, DualChecks<T>, T>,
 }
 impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualTriangleKernels<T, D>
 where

@@ -476,6 +476,11 @@ where
         };
         let kernels = SymbolicaAmplitudeKernels::new(n, rank, prototype.clone())?
             .with_box_options(box_options);
+        let kernels = if args.stability_test {
+            kernels.with_stability_test()
+        } else {
+            kernels
+        };
         let kernels = match args.reduction_kernels {
             ReductionKernels::InterpretedRank => kernels.with_rank_specialized_corrections()?,
             _ => kernels,
