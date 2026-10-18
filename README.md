@@ -92,6 +92,7 @@ development and reference-validation tools.
 | Package | Responsibility |
 | --- | --- |
 | `ninjars` | Topology, batched reduction callback contracts, kernels and results |
+| `ninjars-positional` | Symbolica evaluators whose results do not depend on the symbols a process registered before |
 | `ninjars-symbolica` | Symbolica polynomial/Dual callbacks, arithmetic kernels and masters |
 | `ninjars-graph` | Independent FeynKit graph, model and numerator preparation |
 | `ninjars-cli` | `prepare`, `reduce`, `bench`, optional `compare`, and benchmark-case tools (`export-bench`, `numerator-bench`, `pipeline-bench`, `case-bench`) |

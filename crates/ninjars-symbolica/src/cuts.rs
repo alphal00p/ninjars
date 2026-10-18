@@ -28,7 +28,10 @@ use symbolica::{
     symbol,
 };
 
-use crate::{PolynomialNumerator, TadpoleGeometryProbe, tadpole_plans::tadpole_reference_bases};
+use crate::{
+    PolynomialNumerator, TadpoleGeometryProbe, positional::positional_evaluator,
+    tadpole_plans::tadpole_reference_bases,
+};
 
 /// Complex cut geometry at the supplied coefficient precision.
 pub struct SymbolicaCuts<T> {
@@ -64,10 +67,7 @@ where
         shape: Option<&[Vec<usize>]>,
     ) -> Result<Self> {
         let exact: ExpressionEvaluator<Complex<Rational>> =
-            Atom::evaluator_multiple(expressions, parameters)
-                .cores(1)
-                .build()
-                .map_err(|e| Error::Symbolic(e.to_string()))?;
+            positional_evaluator(expressions, parameters, &[], true)?;
         let width = shape.map_or(1, |s| s.len());
         let exact = if let Some(shape) = shape {
             exact

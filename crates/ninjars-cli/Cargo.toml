@@ -20,6 +20,7 @@ ninjars.workspace = true
 ninjars-symbolica.workspace = true
 oneloop.workspace = true
 ninjars-graph.workspace = true
+ninjars-positional.workspace = true
 symbolica.workspace = true
 feynkit-model.workspace = true
 feynkit-graph.workspace = true

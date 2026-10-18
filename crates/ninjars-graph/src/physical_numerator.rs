@@ -33,6 +33,7 @@ use std::{
 use feynkit_graph::ExternalState;
 use feynkit_kinematics::{FourMomentum, Kinematics};
 use feynkit_model::Model;
+use ninjars_positional::positional_evaluator;
 use symbolica::{
     atom::{Atom, AtomCore, AtomView, Symbol},
     domains::float::{Complex, SingleFloat},
@@ -340,11 +341,9 @@ impl PhysicalTensorNumerator {
                 )));
             }
         }
-        let model_symbols: Vec<Atom> = spec
-            .runtime_parameters
-            .iter()
-            .map(|name| Atom::var(symbol!(format!("ninjars_physical::model_{name}"))))
-            .collect();
+        let (legs, carriers, sources, waves) = Self::legs(&prepared)?;
+        let parameters = Self::parameters(&prepared, carriers.len(), &spec.runtime_parameters)?;
+        let model_symbols = parameters[4 * carriers.len()..].to_vec();
         let mut overrides = BTreeMap::new();
         for (name, value) in &spec.fixed_parameters {
             overrides.insert(ufo(name)?, value.clone());
@@ -365,20 +364,6 @@ impl PhysicalTensorNumerator {
             })
             .collect();
 
-        let (legs, carriers, sources, waves) = Self::legs(&prepared)?;
-        let mut generation = 0;
-        let mut parameters = loop {
-            let candidates: Vec<_> = (0..4 * carriers.len())
-                .map(|i| Atom::var(symbol!(format!("ninjars_physical::p{generation}_{i}"))))
-                .collect();
-            if candidates.iter().all(|parameter| {
-                !prepared.numerator.contains(parameter)
-                    && !prepared.overall_factor.contains(parameter)
-            }) {
-                break candidates;
-            }
-            generation += 1;
-        };
         let symbolic_external: BTreeMap<_, _> = carriers
             .iter()
             .cloned()
@@ -391,7 +376,6 @@ impl PhysicalTensorNumerator {
                     .map(FourMomentum::from),
             )
             .collect();
-        parameters.extend(model_symbols.iter().cloned());
         let variables = ["q0", "q1", "q2", "q3", "mu2"]
             .map(|name| Atom::var(symbol!(format!("ninjars::{name}"))));
         let loop_components = FourMomentum::from_args(
@@ -483,9 +467,7 @@ impl PhysicalTensorNumerator {
             .iter()
             .map(|mass| mass.replace_multiple(&replacements))
             .collect();
-        let masses = Atom::evaluator_multiple(&masses, &model_symbols)
-            .cores(1)
-            .build()
+        let masses = positional_evaluator(&masses, &model_symbols, &[], true)
             .map_err(symbolic)?
             .map_coeff_with_prec(
                 &|v| Complex::new(0_f64.from_rational(&v.re), 0_f64.from_rational(&v.im)),
@@ -512,6 +494,49 @@ impl PhysicalTensorNumerator {
             input: Vec::new(),
             heads: Vec::new(),
         })
+    }
+
+    /// Coefficient parameters: four components per carrier, then the runtime
+    /// model parameters.
+    ///
+    /// They are `ninjars_positional`'s slots, so the polynomial is expanded
+    /// directly in the evaluator's positional parameters: the coefficient
+    /// heads, their factors and the evaluators do not depend on the symbols
+    /// the process registered before, and the heads need no renaming. Fresh
+    /// symbols take their place if the slots are functions (after tens of
+    /// thousands of registrations) or occur in the integrand.
+    fn parameters(
+        prepared: &PreparedIntegrand,
+        carriers: usize,
+        runtime_parameters: &[String],
+    ) -> Result<Vec<Atom>> {
+        let fresh = |parameter: &Atom| {
+            !prepared.numerator.contains(parameter) && !prepared.overall_factor.contains(parameter)
+        };
+        let slots =
+            ninjars_positional::slots(4 * carriers + runtime_parameters.len()).map_err(symbolic)?;
+        if slots
+            .iter()
+            .all(|slot| matches!(slot.as_view(), AtomView::Var(_)) && fresh(slot))
+        {
+            return Ok(slots);
+        }
+        let mut generation = 0;
+        let mut parameters = loop {
+            let candidates: Vec<_> = (0..4 * carriers)
+                .map(|i| Atom::var(symbol!(format!("ninjars_physical::p{generation}_{i}"))))
+                .collect();
+            if candidates.iter().all(fresh) {
+                break candidates;
+            }
+            generation += 1;
+        };
+        parameters.extend(
+            runtime_parameters
+                .iter()
+                .map(|name| Atom::var(symbol!(format!("ninjars_physical::model_{name}")))),
+        );
+        Ok(parameters)
     }
 
     /// Physical legs, the independent external-momentum carriers (first) and

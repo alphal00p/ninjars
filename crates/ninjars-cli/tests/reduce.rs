@@ -664,3 +664,30 @@ fn seven_propagators_reduce_in_every_precision_and_engine() {
         eprintln!("NINJARS_HEPTAGON {options:?} scaled_error={error:e}");
     }
 }
+
+/// `--stability-test` is opt-in. The H -> gg top triangle with FDH R2 has a
+/// double-longitudinal lane whose amplitude vanishes exactly (a Ward
+/// identity): its result is rounding noise of the summed cut contributions,
+/// which no relative accuracy test can certify, so that lane alone is
+/// reported unstable (and the run fails) only when the test is requested.
+#[test]
+fn stability_test_is_opt_in_and_flags_exact_cancellations() {
+    let fixture = "examples/graphs/physical/hgg/top-triangle-0.json";
+    let default = value(run(&[fixture, "--r2", "fdh"]));
+    let statuses = |document: &Value| -> Vec<Value> {
+        document["results"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|row| row["status"]["kind"].clone())
+            .collect()
+    };
+    assert_eq!(statuses(&default), vec![json!("success"); 3]);
+    let tested = run(&[fixture, "--r2", "fdh", "--stability-test"]);
+    assert!(!tested.status.success());
+    let tested: Value = serde_json::from_slice(&tested.stdout).unwrap();
+    assert_eq!(
+        statuses(&tested),
+        [json!("success"), json!("success"), json!("unstable")]
+    );
+}
