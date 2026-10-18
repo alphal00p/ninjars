@@ -4,6 +4,8 @@
 //! belong to FeynKit, Idenso and Symbolica. This crate only composes those APIs.
 //! The only item used from the `ninjars` crate is the tensor-numerator monomial
 //! ordering shared by original Ninja and MadLoop (`fast::tensor_layout`).
+//! Coefficient and mass evaluators are built through `ninjars-positional`, so
+//! their results do not depend on the symbols the process registered before.
 
 mod coefficients;
 mod components;

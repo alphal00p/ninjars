@@ -17,6 +17,7 @@ feynkit-model.workspace = true
 idenso.workspace = true
 linnet.workspace = true
 ninjars.workspace = true
+ninjars-positional.workspace = true
 spenso.workspace = true
 symbolica.workspace = true
 thiserror.workspace = true
