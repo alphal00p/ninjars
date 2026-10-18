@@ -12,6 +12,47 @@ rank-3 bubbles), i.e. everything Ninja consumes. max diff = largest |native - On
 over each call's outputs; relabel = largest deviation of native C0/D0 under the cyclic and
 reflected relabellings of the propagators (a native self-consistency check).
 
+## `olm-264a6ce-sym-e679e8c1-tensor`
+
+oneloopmaster main 264a6ce (continuation and degenerate-kinematics fixes, hand-written C0/D0 and tensor binary64 kernels) + Symbolica e679e8c1; the final benchmark revision
+
+| case | OneLOop all | native all | native/OneLOop | OL D0 | nat D0 | OL C0 | nat C0 | OL B | nat B (tensor) | OL A0 | nat A0 | max diff | relabel |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| four-photon-top-box-0 | 10.13 | 5.30 | 0.52x | 3.87 | 2.27 | 4.73 | 2.20 | 1.33 | 0.26 | 0.16 | 0.15 | 8.3e-14 | 5e-15 |
+| gg-hhh-top-box-8 | 22.02 | 11.79 | 0.54x | 13.14 | 8.24 | 5.41 | 2.80 | 3.15 | 0.34 | 0.16 | 0.15 | 4.1e-15 | 7e-15 |
+| gg-hhh-top-pentagon-26 | 91.38 | 50.60 | 0.55x | 59.19 | 37.64 | 24.20 | 11.45 | 7.24 | 0.63 | 0.19 | 0.19 | 1.3e-14 | 2e-14 |
+| gg-hhh-top-triangle-0 | 1.26 | 0.59 | 0.47x | - | - | 0.66 | 0.35 | 0.50 | 0.12 | 0.12 | 0.11 | 4.6e-16 | 2e-15 |
+| gg-hh-top-box-2 | 27.06 | 12.48 | 0.46x | 16.28 | 8.63 | 6.59 | 3.10 | 3.91 | 0.35 | 0.15 | 0.15 | 3.0e-14 | 4e-15 |
+| gg-hh-top-triangle-0 | 1.88 | 0.68 | 0.36x | - | - | 0.90 | 0.43 | 0.86 | 0.13 | 0.12 | 0.11 | 4.6e-16 | 3e-15 |
+| hgg-top-triangle-0 | 6.54 | 1.57 | 0.24x | - | - | 4.80 | 1.32 | 1.63 | 0.13 | 0.12 | 0.11 | 4.5e-15 | 7e-15 |
+| madloop-four-photon-top-box-0 | 8.97 | 4.91 | 0.55x | 3.81 | 2.27 | 3.60 | 1.85 | 1.34 | 0.26 | 0.16 | 0.15 | 5.0e-15 | 5e-15 |
+| madloop-gg-hhh-top-box-8 | 26.92 | 13.69 | 0.51x | 13.13 | 8.21 | 10.27 | 4.64 | 3.19 | 0.34 | 0.16 | 0.15 | 2.4e-15 | 7e-15 |
+| madloop-gg-hhh-top-pentagon-26 | 102.03 | 53.57 | 0.52x | 61.39 | 37.96 | 32.40 | 13.76 | 7.23 | 0.63 | 0.19 | 0.19 | 1.1e-14 | 2e-14 |
+| madloop-gg-hhh-top-triangle-0 | 1.27 | 0.59 | 0.46x | - | - | 0.66 | 0.34 | 0.49 | 0.12 | 0.12 | 0.11 | 4.6e-16 | 2e-15 |
+| madloop-gg-hh-top-box-2 | 32.13 | 14.28 | 0.44x | 16.48 | 8.66 | 11.36 | 4.78 | 3.94 | 0.36 | 0.16 | 0.15 | 3.1e-14 | 5e-15 |
+| madloop-gg-hh-top-triangle-0 | 1.89 | 0.67 | 0.36x | - | - | 0.90 | 0.42 | 0.87 | 0.13 | 0.12 | 0.11 | 4.6e-16 | 3e-15 |
+| madloop-hgg-top-triangle-0 | 3.21 | 0.85 | 0.27x | - | - | 1.47 | 0.57 | 1.62 | 0.14 | 0.12 | 0.11 | 2.8e-15 | 7e-15 |
+| syn-gghhh-ggHHH-n5-r4 | 109.97 | 56.35 | 0.51x | 65.80 | 40.21 | 35.19 | 14.43 | 7.98 | 0.65 | 0.19 | 0.19 | 2.5e-14 | 2e-14 |
+| syn-gghhh-ggHHH-n5-r5 | 109.72 | 57.71 | 0.53x | 65.32 | 40.22 | 35.57 | 14.38 | 8.00 | 0.64 | 0.19 | 0.19 | 4.4e-12 | 2e-13 |
+| syn-gghhh-gHgHH-n5-r4 | 60.75 | 26.02 | 0.43x | 24.10 | 12.81 | 29.41 | 12.63 | 6.80 | 0.66 | 0.19 | 0.19 | 2.0e-14 | 2e-14 |
+| syn-gghhh-gHgHH-n5-r5 | 59.09 | 25.79 | 0.44x | 23.42 | 12.57 | 28.41 | 12.16 | 6.81 | 0.65 | 0.19 | 0.19 | 1.7e-14 | 3e-14 |
+| syn-gghhh-nosmat-n5-r4 | 109.61 | 56.59 | 0.52x | 64.77 | 40.21 | 36.06 | 14.36 | 7.96 | 0.65 | 0.19 | 0.19 | 1.1e-14 | 1e-14 |
+| syn-n2-r1 | 0.21 | 0.11 | 0.50x | - | - | - | - | 0.16 | 0.07 | 0.05 | 0.04 | 1.9e-14 | 0e+00 |
+| syn-n2-r2 | 0.19 | 0.11 | 0.58x | - | - | - | - | 0.15 | 0.08 | 0.05 | 0.04 | 1.2e-15 | 0e+00 |
+| syn-n2-r3 | 0.31 | 0.11 | 0.37x | - | - | - | - | 0.28 | 0.07 | 0.05 | 0.04 | 5.0e-13 | 0e+00 |
+| syn-n3-r2 | 4.28 | 1.60 | 0.37x | - | - | 2.97 | 1.17 | 1.08 | 0.28 | 0.24 | 0.16 | 1.7e-14 | 2e-16 |
+| syn-n3-r3 | 3.85 | 1.85 | 0.48x | - | - | 2.55 | 1.43 | 1.09 | 0.28 | 0.24 | 0.16 | 1.7e-14 | 2e-16 |
+| syn-n3-r4 | 4.98 | 1.34 | 0.27x | - | - | 3.28 | 0.90 | 1.44 | 0.29 | 0.24 | 0.16 | 1.7e-14 | 2e-16 |
+| syn-n4-r3 | 16.70 | 11.64 | 0.70x | 7.73 | 3.56 | 6.40 | 7.42 | 2.38 | 0.31 | 0.12 | 0.11 | 7.9e-14 | 7e-15 |
+| syn-n4-r4 | 15.78 | 13.28 | 0.84x | 9.13 | 5.26 | 5.05 | 7.25 | 1.40 | 0.35 | 0.12 | 0.11 | 2.4e-14 | 1e-14 |
+| syn-n4-r5 | 12.04 | 10.41 | 0.87x | 5.19 | 3.23 | 4.50 | 6.50 | 2.07 | 0.32 | 0.12 | 0.11 | 1.1e-14 | 4e-15 |
+| syn-n5-r4 | 65.07 | 33.80 | 0.52x | 38.10 | 22.86 | 20.95 | 9.85 | 5.28 | 0.63 | 0.19 | 0.19 | 2.2e-14 | 4e-14 |
+| syn-n5-r5 | 71.14 | 35.07 | 0.49x | 40.29 | 22.36 | 24.66 | 11.62 | 5.53 | 0.61 | 0.20 | 0.19 | 6.2e-14 | 1e-13 |
+| syn-n5-r6 | 85.40 | 44.59 | 0.52x | 47.24 | 29.58 | 29.31 | 13.55 | 8.01 | 0.68 | 0.19 | 0.19 | 1.8e-14 | 3e-14 |
+| syn-n6-r5 | 483.91 | 299.16 | 0.62x | 398.65 | 243.42 | 55.18 | 43.56 | 9.31 | 1.93 | 0.31 | 0.22 | 1.4e-12 | 2e-13 |
+| syn-n6-r6 | 420.00 | 257.13 | 0.61x | 335.53 | 205.27 | 57.43 | 43.31 | 8.90 | 1.73 | 0.31 | 0.22 | 7.3e-13 | 2e-13 |
+| syn-n6-r7 | 535.31 | 315.88 | 0.59x | 433.67 | 259.04 | 69.05 | 43.74 | 12.65 | 2.03 | 0.31 | 0.22 | 2.5e-09 | 1e-13 |
+
 ## `olm-a92b148-sym-e679e8c1-tensor`
 
 oneloopmaster `claude/native-masters` a92b148 (direct `dilog_complex_f64`, NativeTensorEvaluator B11/B111 for Ninja's rank-2/3 bubble calls) + Symbolica e679e8c1 (2c06f245 + binary64 dilogarithm)
@@ -136,11 +177,10 @@ oneloopmaster main c9dd82f + Symbolica 2c06f245 (the NinjaRS workspace pin): MPF
   (`claude/oneloopmaster-integration-dilog`: 2c06f245 + a binary64 Bernoulli-series dilogarithm,
   the specialization described in oneloopmaster's `STATUS.md`/`patches/README.md`) evaluates it
   in 17-110 ns (`DILOG_TEST=1`); oneloopmaster a92b148 calls that kernel directly.
-* **Native C0 defect (unchanged by the dilogarithm).** C0 with one massless and two massive
-  internal lines above the massive-pair threshold has the wrong imaginary part, e.g.
-  C0(0, 0, 490000; 173^2, 0, 173^2; mu^2=1e4): native 3.4587e-5 (real; |OneLOop| = 3.4587e-5),
-  OneLOop -5.698e-6 - 3.411e-5 i (OneLOop 3.4 and 3.6 agree; the pair cut at p^2 > 4 m^2 requires
-  an imaginary part). In syn-n6-r6, C0(0, 70988, 271317; 173^2, 0, 173^2) is not even invariant
-  under relabelling (deviation 1.7). No physical case has such a triangle (all-massive top loops).
-* `syn-n6-r7`: the native B111 differs from OneLOop by 2.5e-9 (scaled) on one rank-3 bubble;
-  `syn-gghhh-ggHHH-n5-r5`: a D0 differs by 6.8e-10. Not investigated further (synthetic).
+* **Defects of earlier revisions, fixed in 264a6ce.** a92b148's native C0 with one massless and
+  two massive internal lines above the massive-pair threshold had the wrong imaginary part (e.g.
+  C0(0, 0, 490000; 173^2, 0, 173^2; mu^2=1e4)), syn-n4-r3/r4 had O(1) C0/D0 deviations, and
+  syn-gghhh-ggHHH-n5-r5 had a D0 near a vanishing Gram determinant at 6.8e-10 (OneLOop: 7.9e-15,
+  checked against 256-bit values). The remaining largest deviations are listed in the table; the
+  native C0 of syn-n6-r6 with nearly coincident roots is at ~2e-13 versus OneLOop's 3e-15 (OneLOop
+  uses a dedicated near-coincident dilogarithm difference).

@@ -3,7 +3,8 @@
 # (graph 26) at its three pool points: exact FeynKit preparation, the generic
 # NinjaRS engine on Symbolica Float, and oneloopmaster's exact master
 # expressions at the working precision. Compares 700- and 1000-bit results,
-# DoubleFloat and the binary64 fast engine.
+# DoubleFloat and the binary64 fast engine. summarize.py then writes
+# arb_summary.json and docs/benchmark/data/arbitrary_precision.json.
 set -euo pipefail
 NINJARS=${1:-target/perf/ninjars}
 FIXTURE=examples/graphs/physical/gg-hhh/top-pentagon-26-pool.json

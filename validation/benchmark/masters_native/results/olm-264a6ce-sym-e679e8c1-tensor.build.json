@@ -1,0 +1,20 @@
+{
+  "label": "olm-264a6ce-sym-e679e8c1-tensor",
+  "oneloopmaster_revision": "264a6ced74e3c7a5de000b93dddf1330826cd3e9",
+  "symbolica_revision": "e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8",
+  "tensor_feature": true,
+  "command": [
+    "cargo",
+    "build",
+    "--release",
+    "--offline",
+    "-j",
+    "24",
+    "--features",
+    "tensor"
+  ],
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "harness_main_rs_sha256": "11206cab633db7da2e9a2e8fe41a1aa8ac0726f91833e419278af56e7cb662e3",
+  "binary": "/shared/external/ninja/target/benchmark/masters-native/olm-264a6ce-sym-e679e8c1-tensor/target/release/masters-native-bench",
+  "binary_sha256": "2db54df53d3a6386d97b7c22afe36c14c45a2505c8ef1825804387a6ad088af5"
+}

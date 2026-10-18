@@ -16,6 +16,9 @@ NINJA = HERE.parent / "ninja"
 BUILD = "o3-fortranrules"
 PRIMARY = "olm-a92b148-sym-e679e8c1-tensor"
 LABELS = {
+    "olm-264a6ce-sym-e679e8c1-tensor":
+        "oneloopmaster main 264a6ce (continuation and degenerate-kinematics fixes, hand-written C0/D0 "
+        "and tensor binary64 kernels) + Symbolica e679e8c1; the final benchmark revision",
     "olm-a92b148-sym-e679e8c1-tensor":
         "oneloopmaster `claude/native-masters` a92b148 (direct `dilog_complex_f64`, NativeTensorEvaluator "
         "B11/B111 for Ninja's rank-2/3 bubble calls) + Symbolica e679e8c1 (2c06f245 + binary64 dilogarithm)",
@@ -108,14 +111,13 @@ def main():
         "  (`claude/oneloopmaster-integration-dilog`: 2c06f245 + a binary64 Bernoulli-series dilogarithm,",
         "  the specialization described in oneloopmaster's `STATUS.md`/`patches/README.md`) evaluates it",
         "  in 17-110 ns (`DILOG_TEST=1`); oneloopmaster a92b148 calls that kernel directly.",
-        "* **Native C0 defect (unchanged by the dilogarithm).** C0 with one massless and two massive",
-        "  internal lines above the massive-pair threshold has the wrong imaginary part, e.g.",
-        "  C0(0, 0, 490000; 173^2, 0, 173^2; mu^2=1e4): native 3.4587e-5 (real; |OneLOop| = 3.4587e-5),",
-        "  OneLOop -5.698e-6 - 3.411e-5 i (OneLOop 3.4 and 3.6 agree; the pair cut at p^2 > 4 m^2 requires",
-        "  an imaginary part). In syn-n6-r6, C0(0, 70988, 271317; 173^2, 0, 173^2) is not even invariant",
-        "  under relabelling (deviation 1.7). No physical case has such a triangle (all-massive top loops).",
-        "* `syn-n6-r7`: the native B111 differs from OneLOop by 2.5e-9 (scaled) on one rank-3 bubble;",
-        "  `syn-gghhh-ggHHH-n5-r5`: a D0 differs by 6.8e-10. Not investigated further (synthetic).",
+        "* **Defects of earlier revisions, fixed in 264a6ce.** a92b148's native C0 with one massless and",
+        "  two massive internal lines above the massive-pair threshold had the wrong imaginary part (e.g.",
+        "  C0(0, 0, 490000; 173^2, 0, 173^2; mu^2=1e4)), syn-n4-r3/r4 had O(1) C0/D0 deviations, and",
+        "  syn-gghhh-ggHHH-n5-r5 had a D0 near a vanishing Gram determinant at 6.8e-10 (OneLOop: 7.9e-15,",
+        "  checked against 256-bit values). The remaining largest deviations are listed in the table; the",
+        "  native C0 of syn-n6-r6 with nearly coincident roots is at ~2e-13 versus OneLOop's 3e-15 (OneLOop",
+        "  uses a dedicated near-coincident dilogarithm difference).",
         "",
     ]
     (HERE / "SUMMARY.md").write_text("\n".join(lines))

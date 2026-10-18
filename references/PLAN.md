@@ -2297,3 +2297,40 @@ Commits so far: `7b57642` (fast-path complex type and provider traits),
   (data via `validation/benchmark/collect.py`).
 - Coordination lesson: messaging agents that run inside a Workflow resumes a
   duplicate; the duplicates were stopped and their streams consolidated.
+
+### Gates met on the final revisions; correctness sweep (2026-10-18)
+
+- Pins: oneloopmaster main 264a6ce (continuation and degenerate-kinematics
+  fixes 26aad03, compact shared definitions 89631b3, Float trif2 zero
+  caad3c0, contour-residue r0 windings 264a6ce), Symbolica e679e8c1 (PR #89
+  binary64 dilogarithm). Final measurements: `validation/benchmark/ninjars/`
+  (pipeline-bench, case-bench), `validation/benchmark/masters_native/`
+  (olm-264a6ce), `validation/benchmark/arbitrary-precision/` (summarize.py),
+  report data `docs/benchmark/data/*.json`.
+- Gates on the seven physical diagrams (identical inputs, width 32): (a)
+  pure reduction 0.47–0.58× Ninja; (b) native masters 0.26–0.58× OneLOop;
+  (c) end to end 0.17–0.52× MadLoop (graph26: 78 vs 235 µs per point). Over
+  all 27 bench cases: reduction 0.47–0.63×, masters 0.26–0.88× (width 1:
+  at most 1.23×, syn-n2-r2), every lane succeeds. Call by call on the 1,998
+  master calls Ninja makes, native masters take 0.24–0.87× OneLOop's time and
+  agree to ≤8e-14 (physical) / ≤1.4e-12 (synthetic; one rank-3 tensor bubble
+  2.5e-9).
+- NinjaRS fixes: Float S-matrices are derived exactly from the prepared
+  momenta (662d906; rounded light-like invariants made the four-mass D0
+  wrong at 104/116/128/... bits with a claimed 8 bits); tied bubble
+  reference vectors are broken deterministically (606d94a; round-off moved
+  ±1375 between cut-constructible and rational parts at 23 of 51
+  precisions). Symbolica `Float`'s tracked precision overstates accuracy by
+  up to ~13 bits (rounding is not tracked), so accuracy is always measured
+  against a higher precision.
+- Ill-conditioned synthetic lanes (Table 2 †): syn-gghhh-ggHHH-n5-r5 lane 1
+  (near-singular box Gram 8e-8; Ninja 3e-4 from the 256-bit result) and
+  syn-n6-r6 lane 0 (1e12–1e13 cancellation; Ninja 2.3 %). NinjaRS's
+  reduction is as accurate as Ninja's with identical masters; the remaining
+  excess on syn-n6-r6 is one C0 with nearly coincident roots (native 2e-13
+  vs OneLOop's 3e-15 from its dedicated near-coincident dilogarithm
+  difference) — open in oneloopmaster, as is the Float D0 with a tiny
+  nonzero invariant (zero-external chart conditioning).
+- Arbitrary precision: graph26 at 700 bits agrees with 1000 bits to 208
+  digits in ~7.5 s for three points (including preparation);
+  double-double 30 digits, binary64 fast engine 14 digits.
