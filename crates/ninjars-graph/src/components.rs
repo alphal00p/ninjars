@@ -27,13 +27,17 @@
 //! `gamma5`; its four-dimensional rules are the axial (`gamma5`) trace
 //! recursion with Levi-Civita tensors, the optional three-gamma Chisholm
 //! expansion (disabled by default) and the Chisholm contraction of a repeated
-//! Lorentz index around a Dirac chain, which at one loop needs an internal
-//! vector attached twice to an open fermion line. External polarization sums
-//! (Minkowski metrics in the projector) are four-dimensional regular metrics
-//! that the scalar-product binding cannot distinguish from internal ones.
-//! [`PreparedIntegrand::check_fdh`] therefore rejects `gamma5`/chiral
-//! projectors, Levi-Civita tensors, external spinors and Minkowski metrics in
-//! the projector.
+//! Lorentz index around a Dirac chain. The latter is also applied to closed
+//! traces, where it was checked to agree with a symbolic-dimension contraction
+//! (five gammas on each arc, the loop momentum on both); at one loop such terms
+//! are linear in the loop momentum. External polarization sums (Minkowski
+//! metrics in the projector) are four-dimensional regular metrics that the
+//! scalar-product binding cannot distinguish from internal ones, and open
+//! fermion lines with symbolic spinors would need the loop momentum expanded in
+//! components, which loses `mu^2`; hand-written spin-trace projectors are the
+//! FDH route for open lines. [`PreparedIntegrand::check_fdh`] therefore rejects
+//! `gamma5`/chiral projectors, Levi-Civita tensors, external spinors and
+//! Minkowski metrics in the projector.
 
 use std::collections::BTreeMap;
 
@@ -185,7 +189,7 @@ impl PreparedIntegrand {
                     } else if symbol == levi_civita {
                         reason = Some("a Levi-Civita tensor (four-dimensional; its contractions with the loop momentum are not d-dimensional)");
                     } else if spinors.contains(&symbol) {
-                        reason = Some("an external spinor (open fermion lines admit Idenso's four-dimensional Chisholm contraction of long Dirac chains)");
+                        reason = Some("an external spinor (open fermion lines would need the loop momentum in components, losing mu^2; use a spin-trace projector)");
                     } else if index == 2
                         && symbol == ETS.metric
                         && function.iter().any(|slot| {

@@ -77,8 +77,8 @@ The FDH binding is exact only if no four-dimensional-only identity reached the
 loop momentum before binding. `--r2 fdh` therefore rejects numerators with
 `gamma5`/chiral projectors or Levi-Civita tensors (FDH needs a `gamma5`
 prescription; Idenso uses four-dimensional axial-trace identities), external
-spinors (open fermion lines admit Idenso's four-dimensional Chisholm
-contraction) and Minkowski metrics in the external projector (four-dimensional
+spinors (open fermion lines would need the loop momentum in components, which
+loses `mu^2`; hand-written spin-trace projectors work) and Minkowski metrics in the external projector (four-dimensional
 polarization sums); see `ninjars_graph::R2Scheme` and
 [`docs/physical-preparation.md`](../../docs/physical-preparation.md#r2-rational-terms-in-fdh).
 The prepared document records the scheme under `r2`.
