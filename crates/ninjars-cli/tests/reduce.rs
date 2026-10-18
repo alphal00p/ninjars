@@ -703,6 +703,7 @@ fn stability_test_is_opt_in_and_flags_exact_cancellations() {
             let modulus = modulus.as_f64().unwrap();
             assert_eq!(estimate.as_f64().unwrap(), modulus * 2_f64.powi(-53));
         }
+        assert_eq!(cancellation["precision_bits"], json!(53));
         let unstable = cancellation["ratio"]
             .as_f64()
             .is_none_or(|ratio| ratio > 2_f64.powf(26.5));

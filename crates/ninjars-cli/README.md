@@ -194,7 +194,9 @@ Whether or not the flag is set, every successful generic `reduce` lane reports
   result vanishes), the factor by which cancellation amplifies rounding;
 - `rounding_estimate`: `2^-p` times the moduli (`p` mantissa bits), the
   rounding error of summing the contributions alone; errors inside each
-  contribution come on top.
+  contribution come on top. It underflows to 0 when it leaves the binary64
+  range (e.g. `--bits` above 1074);
+- `precision_bits`: `p`, so the estimate can always be recomputed.
 
 The fast engine does not report it.
 

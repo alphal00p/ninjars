@@ -314,7 +314,9 @@ fn status_json(status: EvaluationStatus) -> Value {
 /// `|Re| + |Im|` of the contributions summed per Laurent coefficient
 /// (`Amplitude::contribution_moduli`), their largest over the result's
 /// largest modulus (null for a vanishing result), and the rounding error of
-/// that sum alone, `2^-p` times the moduli (`p` mantissa bits).
+/// that sum alone, `2^-p` times the moduli (`p` mantissa bits, also reported
+/// as `precision_bits`: the binary64 estimate underflows to zero once
+/// `2^-p` times a modulus leaves the binary64 range, e.g. above 1074 bits).
 fn cancellation_json<T: RealLike>(
     contributions: &ninjars::Laurent<Complex<T>>,
     result: &ninjars::Laurent<Complex<T>>,
@@ -328,6 +330,7 @@ fn cancellation_json<T: RealLike>(
         "contribution_moduli": contributions,
         "ratio": (result > 0.).then(|| largest(contributions) / result),
         "rounding_estimate": contributions.map(|modulus| modulus * epsilon),
+        "precision_bits": bits,
     })
 }
 
