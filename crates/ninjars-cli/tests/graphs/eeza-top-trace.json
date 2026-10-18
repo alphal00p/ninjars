@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "graph": "eeza-top-trace.dot",
+  "model": "sm",
+  "scale_squared": "250^2",
+  "parameter_overrides": { "Me": "1/2", "MT": "173", "ymt": "173", "MZ": "22797/250", "WT": "0" },
+  "samples": [
+    { "external_momenta": { "0": ["125", "0", "0", "125"], "1": ["125", "0", "0", "-125"], "2": ["4425953209/31250000", "-3386546791/31250000", "0", "0"] },
+      "external_polarizations": { "2": ["0", "0", "1", "0"], "3": ["0", "0", "0", "1"] } }
+  ]
+}

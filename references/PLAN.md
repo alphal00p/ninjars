@@ -2461,3 +2461,50 @@ Float(256..1024), fixed at 09b2c74).
   - The performance guard (21a3701) ran against dec3d55 on 8346699 and was not
     rerun after this merge; `syn-n2-r2` width 1 reduction stays at 1.061
     (code placement). No rank n+2 section in `docs/benchmark/benchmark.typ`.
+### Levi-Civita tensors from gamma5 traces (2026-10-18)
+
+- `ninjars prepare/reduce` now evaluate numerators that keep `spenso::epsilon`
+  (axial traces, e.g. `H -> Z a` through a top loop) instead of only
+  diagnosing them. Idenso's rules (`Tr[g5 g^mu g^nu g^rho g^sigma] = 4 eps`,
+  the three-gamma expansion, `eps eps = +det g`) fix `eps^{0123} = -i` for
+  `g5 = i g^0 g^1 g^2 g^3` = `diag(-1,-1,1,1)` (chiral basis, as
+  spenso-hep-lib's Idenso validation already binds). The generic part is
+  upstream in draft
+  [FeynKit/gammaloop PR #149](https://github.com/alphal00p/gammaloop/pull/149):
+  branch `idenso-epsilon-components` at
+  `3147bcad041640015472d702af3d2748a84c2b88` (based on `feynkit`
+  `d3b91d314`, independent of PRs #142–#144) documents the normalization and adds
+  `idenso::epsilon::contract_epsilon4`, with a basis-free test
+  (`Tr[g5 a b c d]` against `-i Tr[e0 e1 e2 e3 a b c d]`).
+- UFO's Lorentz `Epsilon` is real: ALOHA (MG5_aMC 3.7.0 `aloha_object.py`,
+  "matching FR choices") has `eps^{0123} = -1`, and with its own Weyl-basis
+  matrices `Tr[g5 g^a g^b g^c g^d] = 4i Epsilon^{abcd}` holds exactly for all
+  256 index choices. FeynKit lowered it to Idenso's epsilon unchanged, a factor
+  `i` off on every CP-odd UFO vertex (none in the SM). Draft
+  [FeynKit/gammaloop PR #150](https://github.com/alphal00p/gammaloop/pull/150)
+  (`ufo-epsilon-normalization` at `1b612ac6d8958d8ee36cb2625c1782fccabe98a7`,
+  based on `feynkit`) lowers it as `-i spenso::epsilon` with exactly four
+  indices; its test reproduces ALOHA's trace identity through Idenso and fails
+  without the factor.
+- Both commits are cherry-picked onto the integration branch
+  `ninjars-shared-integration-epsilon`
+  (`eb314a274faa8e4ed4e21e6cf78b42c68ec77cd7`, on PR #144's head), published
+  on alphal00p/gammaloop. `Cargo.toml` pins that revision, and the
+  consolidated `feynkit-shared-types.patch` is regenerated from `d3b91d314`;
+  a `references/gammaloop_ninja_shared` checkout used with
+  `dependencies/local-references.toml` must move to it.
+- NinjaRS keeps the one-loop glue: `ninjars_graph::expand_components` sums
+  open Lorentz indices over components jointly for spinor chains, Levi-Civita
+  tensors and vectors whose contraction left an explicit index (contraction
+  leaves `eps(.., mink(4,i)) V(mink(4,i))` and `V(mink(4,i))^2` explicit when a
+  closed trace meets a spin-trace projector through a tree propagator).
+  `reduce` on every `examples/graphs` fixture is bitwise unchanged.
+- Validation (`crates/ninjars-cli/tests/robustness.rs`): a hand-written
+  `Tr[g5 p0 p2 p3 p4]` pentagon equals the explicit-matrix trace times the
+  scalar pentagon; `H -> Z a` reduces in both engines, its axial part flips
+  sign with the loop orientation (C parity) while the vector part does not;
+  `e+ e- -> Z a` through a photon and a top loop agrees between 16
+  unit-spinor lanes and a spin-trace projector. Rational terms of axial
+  numerators are gamma5-scheme dependent (Shao, Zhang, Chao,
+  arXiv:1106.5030) and are not computed; no reading-point prescription is
+  needed for these four-dimensional numerators.

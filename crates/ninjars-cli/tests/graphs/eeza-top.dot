@@ -1,0 +1,11 @@
+digraph eeza_top {
+    ext [style=invis];
+    ext -> v3:0 [id=0, particle="e-"];
+    ext -> v3:1 [id=1, particle="e+"];
+    v1:2 -> ext [id=2, particle="Z"];
+    v0:3 -> ext [id=3, particle="a"];
+    v3:4 -> v2:5 [id=4, particle="a"];
+    v0:6 -> v1:7 [id=5, particle="t"];
+    v2:8 -> v0:9 [id=6, particle="t", lmb_id=0];
+    v1:10 -> v2:11 [id=7, particle="t"];
+}

@@ -10,6 +10,7 @@
 mod coefficients;
 mod components;
 mod graph_factors;
+mod levi_civita;
 mod numerator;
 mod physical;
 mod physical_numerator;
@@ -25,6 +26,7 @@ pub use feynkit_model::Model;
 pub use graph_factors::{
     DotAttributes, GraphFactors, connected_components, dot_attributes, graph_factors,
 };
+pub use levi_civita::has_levi_civita;
 pub use numerator::{NumeratorMode, contract_numerator, contract_numerator_with_color};
 pub use physical::{
     PhysicalPreparationError, prepare_gluon_self_energy, prepare_top_four_photons,
@@ -38,7 +40,7 @@ pub use prepare::{
     PreparationError, PreparationOptions, PreparationTimings, PreparedIntegrand, edge_width,
     prepare_diagram, prepare_diagram_timed, prepare_dot, prepare_dot_timed,
 };
-pub use spinors::{expand_spinor_chains, has_spinor_chains};
+pub use spinors::{expand_components, has_spinor_chains};
 
 pub use coefficients::{CoefficientError, CoefficientEvaluator, PolynomialCoefficientPlan};
 #[cfg(feature = "numerator-jit")]

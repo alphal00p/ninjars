@@ -484,37 +484,35 @@ fn slash(p: [f64; 4]) -> [[(f64, f64); 4]; 4] {
     matrix
 }
 
-#[test]
-fn explicit_spinors_reproduce_a_spin_trace_projection() {
-    // Unit spinors give the amputated vertex matrix: lane 4a+b is
-    // vbar(p1)=e_a and u(p0)=e_b. Contracting it with p0-slash p1-slash must
-    // reproduce the trace projector built symbolically by Spenso, which is
-    // independent of the Dirac basis.
-    let (explicit, _) = success(&[
-        "reduce",
-        &graph("eea-vertex-spinors.json"),
-        "--feynman-rules",
-    ]);
-    let (trace, _) = success(&["reduce", &graph("eea-vertex-trace.json"), "--feynman-rules"]);
-    assert_eq!(
-        explicit["spinor_basis"],
-        serde_json::json!({
-            "0": "gammalooprs::{spenso::rank1,spenso::tensor}::u(0)",
-            "1": "gammalooprs::{spenso::rank1,spenso::tensor}::vbar(1)"
-        })
-    );
-    let (p0, p1) = ([5., 0., 3., 4.], [5., 3., 0., -4.]);
-    let (a, b) = (slash(p0), slash(p1));
-    let mut projector = [[(0.0, 0.0); 4]; 4];
+fn product(a: &[[(f64, f64); 4]; 4], b: &[[(f64, f64); 4]; 4]) -> [[(f64, f64); 4]; 4] {
+    let mut matrix = [[(0.0, 0.0); 4]; 4];
     for row in 0..4 {
         for column in 0..4 {
             for k in 0..4 {
-                let product = multiply(a[row][k], b[k][column]);
-                projector[row][column].0 += product.0;
-                projector[row][column].1 += product.1;
+                let term = multiply(a[row][k], b[k][column]);
+                matrix[row][column].0 += term.0;
+                matrix[row][column].1 += term.1;
             }
         }
     }
+    matrix
+}
+
+/// The product of slashed vectors.
+fn slashes(vectors: &[[f64; 4]]) -> [[(f64, f64); 4]; 4] {
+    let identity = std::array::from_fn(|row| {
+        std::array::from_fn(|column| (if row == column { 1. } else { 0. }, 0.))
+    });
+    vectors
+        .iter()
+        .fold(identity, |matrix, vector| product(&matrix, &slash(*vector)))
+}
+
+/// Unit spinors give the amputated matrix element by element: lane 4a+b of
+/// `explicit` is vbar=e_a and u=e_b. Contracting it with `projector` must
+/// reproduce the spin-trace projection, which Spenso builds independently of
+/// the Dirac basis.
+fn assert_spin_trace(explicit: &Value, trace: &Value, projector: &[[(f64, f64); 4]; 4]) {
     let expected = &trace["results"][0]["values"];
     for component in 0..5 {
         let mut sum = (0.0, 0.0);
@@ -534,6 +532,26 @@ fn explicit_spinors_reproduce_a_spin_trace_projection() {
             "component {component}: {sum:?} vs {reference:?}"
         );
     }
+}
+
+#[test]
+fn explicit_spinors_reproduce_a_spin_trace_projection() {
+    // The trace projector closes the line with p0-slash p1-slash.
+    let (explicit, _) = success(&[
+        "reduce",
+        &graph("eea-vertex-spinors.json"),
+        "--feynman-rules",
+    ]);
+    let (trace, _) = success(&["reduce", &graph("eea-vertex-trace.json"), "--feynman-rules"]);
+    assert_eq!(
+        explicit["spinor_basis"],
+        serde_json::json!({
+            "0": "gammalooprs::{spenso::rank1,spenso::tensor}::u(0)",
+            "1": "gammalooprs::{spenso::rank1,spenso::tensor}::vbar(1)"
+        })
+    );
+    let projector = slashes(&[[5., 0., 3., 4.], [5., 3., 0., -4.]]);
+    assert_spin_trace(&explicit, &trace, &projector);
 }
 
 #[test]
@@ -602,4 +620,137 @@ fn explicit_spinors_cover_single_vertex_lines_and_open_vectors() {
         }
         assert_ne!(sum[0], (0.0, 0.0), "{name}: the projection must not vanish");
     }
+}
+
+/// A rational fixture component such as `-1/3`.
+fn rational(value: &Value) -> f64 {
+    let text = value.as_str().unwrap();
+    match text.split_once('/') {
+        Some((numerator, denominator)) => {
+            numerator.parse::<f64>().unwrap() / denominator.parse::<f64>().unwrap()
+        }
+        None => text.parse().unwrap(),
+    }
+}
+
+#[test]
+fn levi_civita_tensors_reproduce_explicit_axial_traces() {
+    // Idenso traces the hand-written numerator Tr[g5 p0 p2 p3 p4] (slashed)
+    // to 4 epsilon(p0,p2,p3,p4). Its components must reproduce the trace of
+    // explicit chiral-basis matrices, gamma5 = diag(-1,-1,1,1), times the
+    // scalar pentagon with the same propagators.
+    let (axial, _) = success(&["reduce", &graph("pentagon-axial-trace.json")]);
+    let (scalar, _) = success(&["reduce", &graph("pentagon-scalar.json")]);
+    // 4i det[p0; p2; p3; p4] for the first sample.
+    assert_eq!(axial["samples"][0]["numerator"], "-2𝑖");
+    let fixture: Value = serde_json::from_str(
+        &std::fs::read_to_string(root().join(graph("pentagon-axial-trace.json"))).unwrap(),
+    )
+    .unwrap();
+    let samples = fixture["samples"].as_array().unwrap();
+    for (lane, sample) in samples.iter().enumerate() {
+        let momenta = ["0", "2", "3", "4"].map(|key| {
+            let components = &sample["external_momenta"][key];
+            std::array::from_fn(|mu| rational(&components[mu]))
+        });
+        let mut matrix = slashes(&momenta);
+        for row in &mut matrix[..2] {
+            for entry in row.iter_mut() {
+                *entry = (-entry.0, -entry.1);
+            }
+        }
+        let trace = (0..4).fold((0.0, 0.0), |sum, i| {
+            (sum.0 + matrix[i][i].0, sum.1 + matrix[i][i].1)
+        });
+        assert!(
+            trace.1.abs() > 0.1,
+            "lane {lane}: the trace must not vanish"
+        );
+        let left = &axial["results"][lane];
+        let right = &scalar["results"][lane];
+        assert_eq!(left["status"]["kind"], "success");
+        assert_eq!(right["status"]["kind"], "success");
+        let expected = (0..5)
+            .map(|component| {
+                let (re, im) = multiply(trace, complex(&right["values"][component]));
+                serde_json::json!([re.to_string(), im.to_string()])
+            })
+            .collect::<Value>();
+        assert_close(&left["values"], &expected);
+    }
+}
+
+#[test]
+fn levi_civita_indices_are_summed_with_spinor_chains() {
+    // e+ e- -> Z a through a photon and a top triangle: the axial trace leaves
+    // epsilon tensors whose index joins the open electron line. Unit spinors
+    // sum it over components with the chain; the spin-trace projector
+    // p0-slash p1-slash p2-slash lets Idenso contract it symbolically.
+    let (explicit, _) = success(&["reduce", &graph("eeza-top-spinors.json"), "--feynman-rules"]);
+    let (trace, _) = success(&["reduce", &graph("eeza-top-trace.json"), "--feynman-rules"]);
+    assert_eq!(explicit["unbound"], serde_json::json!([]));
+    let projector = slashes(&[
+        [125., 0., 0., 125.],
+        [125., 0., 0., -125.],
+        [4425953209. / 31250000., -3386546791. / 31250000., 0., 0.],
+    ]);
+    assert_spin_trace(&explicit, &trace, &projector);
+}
+
+#[test]
+fn axial_top_loops_reduce_in_both_engines() {
+    // H -> Z a through one top loop orientation. Lane 0 contains only the
+    // epsilon(pH, pa, eps_a, eps_Z) structure, lane 1 only the vector part;
+    // lane 2 uses helicity states.
+    let reduce = |fixture: &str, engine: &str| {
+        let (result, _) = success(&[
+            "reduce",
+            &graph(fixture),
+            "--feynman-rules",
+            "--engine",
+            engine,
+        ]);
+        result
+    };
+    let generic = reduce("hza-top.json", "generic");
+    let fast = reduce("hza-top.json", "fast");
+    let reversed = reduce("hza-top-reversed.json", "generic");
+    for lane in 0..3 {
+        for result in [&generic, &fast, &reversed] {
+            assert_eq!(result["results"][lane]["status"]["kind"], "success");
+        }
+        assert_close(
+            &generic["results"][lane]["values"],
+            &fast["results"][lane]["values"],
+        );
+    }
+    // Charge conjugation: reversing the loop flips the axial (epsilon) part
+    // and keeps the vector part.
+    let axial = &generic["results"][0]["values"];
+    assert!(complex(&axial[0]).1.abs() > 0.1, "{axial}");
+    let flipped = (0..5)
+        .map(|component| {
+            let (re, im) = complex(&reversed["results"][0]["values"][component]);
+            serde_json::json!([(-re).to_string(), (-im).to_string()])
+        })
+        .collect::<Value>();
+    assert_close(axial, &flipped);
+    assert_close(
+        &generic["results"][1]["values"],
+        &reversed["results"][1]["values"],
+    );
+    // Without samples only the polarizations are missing.
+    let (prepared, _) = success(&[
+        "prepare",
+        &graph("hza-top.dot"),
+        "--model",
+        "sm",
+        "--feynman-rules",
+    ]);
+    assert_eq!(
+        prepared["unbound"],
+        serde_json::json!([
+            "external polarizations are unbound: give every sample `external_polarizations` for legs 1 (a), 2 (Z)"
+        ])
+    );
 }

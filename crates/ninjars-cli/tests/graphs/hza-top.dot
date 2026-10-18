@@ -1,0 +1,9 @@
+digraph hza_top {
+    ext [style=invis];
+    ext -> v2 [particle="H"];
+    v1 -> ext [particle="Z"];
+    v0 -> ext [particle="a"];
+    v0 -> v1 [particle="t"];
+    v2 -> v0 [particle="t", lmb_id=0];
+    v1 -> v2 [particle="t"];
+}

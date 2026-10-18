@@ -1,0 +1,14 @@
+digraph pentagon_scalar {
+    num = "1";
+    ext [style=invis];
+    ext -> a [id=0, particle="phi", num="1"];
+    ext -> b [id=1, particle="phi", num="1"];
+    c -> ext [id=2, particle="phi", num="1"];
+    d -> ext [id=3, particle="phi", num="1"];
+    e -> ext [id=4, particle="phi", num="1"];
+    a -> b [id=5, particle="phi", lmb_id=0, num="1"];
+    b -> c [id=6, particle="phi", num="1"];
+    c -> d [id=7, particle="phi", num="1"];
+    d -> e [id=8, particle="phi", num="1"];
+    e -> a [id=9, particle="phi", num="1"];
+}

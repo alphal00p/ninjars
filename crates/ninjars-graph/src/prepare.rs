@@ -65,6 +65,8 @@ pub enum PreparationError {
     Topology(String),
     #[error("spinor chain: {0}")]
     SpinorChain(String),
+    #[error("Levi-Civita tensor: {0}")]
+    LeviCivita(String),
 }
 
 /// Choices made while preparing an integrand, beyond the numerator source.

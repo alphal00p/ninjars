@@ -3,7 +3,7 @@
 use std::collections::BTreeMap;
 
 use idenso::dirac::AGS;
-use ninjars_graph::{FourMomentum, expand_spinor_chains, symbols};
+use ninjars_graph::{FourMomentum, expand_components, symbols};
 use spenso::network::tags::SPENSO_TAG;
 use symbolica::atom::{Atom, FunctionBuilder, Symbol};
 
@@ -36,7 +36,7 @@ fn reversed_chain_markers_transpose_and_unknown_markers_are_rejected() {
         (symbols::u().call(1), [2, 0, 1, -2].map(Atom::num)),
     ]);
     let (input, output) = (SPENSO_TAG.chain_in, SPENSO_TAG.chain_out);
-    let expand = |expression: &Atom| expand_spinor_chains(expression, &vectors, &spinors).ok();
+    let expand = |expression: &Atom| expand_components(expression, &vectors, &spinors).ok();
     // x (M^T) y = y M x.
     let transposed = expand(&chain(x.clone(), y.clone(), slashed(output, input))).unwrap();
     let swapped = expand(&chain(y.clone(), x.clone(), slashed(input, output))).unwrap();

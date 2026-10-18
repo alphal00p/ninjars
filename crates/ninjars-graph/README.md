@@ -53,8 +53,10 @@ contraction leaves exactly one joinable pair of open color indices, the numerato
 is projected onto `delta/N` and `color_projector` records it; other open indices
 are an error naming their external legs. `graph_factors` derives the generator's
 automorphism order and closed fermion/ghost-loop sign for graphs written without
-an `overall_factor`; `expand_spinor_chains` replaces open spinor chains by their
-chiral-basis components given explicit spinors (see the CLI guide's
+an `overall_factor`; `expand_components` replaces open spinor chains by their
+chiral-basis components given explicit spinors, and four-dimensional
+Levi-Civita tensors from `gamma5` traces by determinants of vector components
+in Idenso's normalization (see the CLI guide's
 [hand-written DOT graphs](../ninjars-cli/README.md#hand-written-dot-graphs)).
 
 `component_numerator`, `component_kinematics`, `shifts`, and `squared_masses`
