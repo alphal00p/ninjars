@@ -362,7 +362,8 @@ ninjars case-check validation/rank-n2/cases/*.json --engines fast,generic \
 
 - Engines: the fast engine (`TensorNumerator`, `MuTensorNumerator` for v2 cases, native
   masters, lanes batched as `case-bench` does) and the generic engine at `f64` (native
-  masters), `double` or `float:<bits>` (oneloopmaster's exact expressions). The generic
+  masters), `double` or `float:<bits>` (oneloopmaster's exact expressions; B1111 from its
+  native tensor family). The generic
   engine expands the dense tensor numerically, so a dense rank-9 numerator costs no
   Symbolica preparation: all 205 control cases (615 lanes, n = 1..7) take 6 minutes in Float(256).
 - Verdicts per lane: `pass`, `fail`, `report-only`, `known-failure`, `unchecked` (no

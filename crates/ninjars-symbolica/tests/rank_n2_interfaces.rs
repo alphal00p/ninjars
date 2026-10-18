@@ -686,7 +686,8 @@ fn exact_b1111_matches_oneloopmaster_references() {
         assert!((value[1] - C64::real(0.2)).abs() < 1e-13);
         assert_eq!(value[2], C64::ZERO);
     }
-    // Float carriers use the same exact expressions.
+    // Float carriers use the same native family (at the working precision
+    // for these exact inputs).
     let p = Float::new(200);
     let mut masters = SymbolicaMasters::new(p.clone());
     let (args, finite) = b1111_fixture_rows()[1];

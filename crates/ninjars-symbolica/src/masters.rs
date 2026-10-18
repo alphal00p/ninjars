@@ -2,16 +2,24 @@
 //!
 //! For the fixed-precision carriers (binary64 and DoubleFloat), scalar
 //! families (A0, B0, dB0, C0, D0) use oneloopmaster's native direct-Rust
-//! implementation generated from its exact expressions, and the rank-four
-//! bubble coefficient B1111 uses oneloopmaster's native tensor family
-//! (`TensorIntegral::B1111`, OneLOop's `bub1111` with the corrected mass-swap
-//! sign): the exact Passarino-Veltman B1111 divides by `(p²)⁴` and loses about
-//! `4 log10(m²/p²)` digits in fixed precision (relative error 5.5e-6 in
-//! binary64 at `p² = m²/256`). Arbitrary-precision `Float` keeps Symbolica's
-//! interpreter, which tracks the significant precision of every input
-//! component instead of padding inputs to the working precision. The other
-//! tensor families (B1, B11, B111, An) and all Dual (derivative) evaluations
-//! also use the same exact formulas through the interpreter.
+//! implementation generated from its exact expressions.
+//!
+//! The rank-four bubble coefficient B1111 uses oneloopmaster's native tensor
+//! family (`TensorIntegral::B1111`, OneLOop's `bub1111` with the corrected
+//! mass-swap sign) for every carrier, arbitrary-precision `Float` included.
+//! The exact Passarino-Veltman B1111 divides by `(p²)⁴` and loses about
+//! `5-6 log10(m²/|p²|)` digits at small `|p²|` (relative error 5.5e-6 in
+//! binary64 at `p² = m²/256`, 1.2e-4 in `Float(256)` at `|p²|/m² = 4e-13`),
+//! while its tracked `Float` precision overstates the digits that remain. For
+//! `Float`, each row is evaluated at the precision that its inputs determine
+//! (at most the working precision, see [`SymbolicaMasters`]), so the native
+//! route does not pad inputs beyond the digits they carry.
+//!
+//! Otherwise `Float` keeps Symbolica's interpreter of the exact expressions,
+//! which tracks the significant precision of every input component instead of
+//! padding inputs to the working precision: the scalar families, the other
+//! tensor families (B1, B11, B111, An), and all Dual (derivative) evaluations
+//! of every family, B1111 included.
 
 use std::collections::{BTreeMap, btree_map::Entry};
 
@@ -32,6 +40,13 @@ use symbolica::{
 };
 
 type ExactEvaluator = ExpressionEvaluator<Complex<Rational>>;
+
+/// Native tensor evaluators that `SymbolicaMasters<Float>` keeps for rows
+/// below its working precision. Each holds its series coefficients at its own
+/// precision (about a millisecond to build at 256 bits), so the cache is
+/// cleared, keeping the working-precision evaluator, when a new precision
+/// would exceed this count.
+const ROW_PRECISION_EVALUATORS: usize = 16;
 
 // These views are formed only after the complete request has passed structural
 // validation. Row identities remain those of the caller after compaction.
@@ -90,13 +105,32 @@ fn strict_status(statuses: &[MasterStatus]) -> Result<()> {
 /// S-matrix) for such configurations. A light-like invariant differenced from
 /// rounded momenta (e.g. `+2^-114` with 2 tracked bits at 128 bits) can make
 /// the four-mass D0 wrong by orders of magnitude while it reports 8 bits.
+///
+/// B1111 comes from oneloopmaster's native tensor family for every carrier.
+/// The native code rounds every input to one working precision, so for `Float`
+/// that precision is chosen per row, never above the provider's working
+/// precision: the least, over the row's inputs, of the bits that each input
+/// determines relative to the row's scale. A nonzero component `x` of `p²`,
+/// `m0²` or `m1²` with tracked precision `b` is uncertain by about
+/// `|x| 2^-b`, i.e. it determines `b + log2(S/|x|)` bits relative to the
+/// largest component magnitude `S` of the three, the scale that bubble
+/// functions depend on (they are homogeneous in it apart from
+/// `log(m²/mu²)`); `mu²` determines its own tracked precision. Inputs above
+/// that precision are rounded to it, and a component that is small against
+/// `S` (such as an invariant whose tracked precision reflects cancellation in
+/// its own computation) is not allowed to lower the precision of the whole row.
+/// The computed coefficients then carry Numerica's tracked precision from that
+/// evaluation. Rows with exact inputs at the working precision are evaluated at
+/// the working precision.
 pub struct SymbolicaMasters<T: NativeFloat> {
     representative: T,
     onshell_threshold: Option<T>,
     evaluators: BTreeMap<MasterIntegral, BatchExpressionEvaluator<Complex<T>>>,
     native: BTreeMap<MasterIntegral, NativeEvaluator<T>>,
-    /// Native tensor families (only B1111) for fixed-precision carriers.
-    native_tensor: BTreeMap<MasterIntegral, NativeTensorEvaluator<T>>,
+    /// Native tensor families (only B1111), by family and working bits: the
+    /// fixed precision of binary64 and DoubleFloat, or for `Float` each row's
+    /// precision ([`Self::tensor_row_bits`]).
+    native_tensor: BTreeMap<(MasterIntegral, u32), NativeTensorEvaluator<T>>,
     /// Every coefficient of a native tensor family, before the requested
     /// one is selected.
     tensor_results: Vec<Complex<T>>,
@@ -207,21 +241,56 @@ where
         }
     }
 
-    fn native_tensor_evaluator(
-        &mut self,
+    /// The native evaluator of the tensor family `family` (serving
+    /// `integral`) at `bits` working bits, built on first use. Fixed-precision
+    /// carriers only use their own precision.
+    fn tensor_evaluator(
+        evaluators: &mut BTreeMap<(MasterIntegral, u32), NativeTensorEvaluator<T>>,
         integral: MasterIntegral,
-    ) -> Result<Option<&mut NativeTensorEvaluator<T>>> {
-        // As for the scalar families: fixed-precision carriers only.
-        let (Some((family, _)), Some(_)) = (Self::native_tensor_family(integral), T::FIXED_BITS)
-        else {
-            return Ok(None);
-        };
-        Ok(Some(match self.native_tensor.entry(integral) {
+        family: TensorIntegral,
+        bits: u32,
+    ) -> Result<&mut NativeTensorEvaluator<T>> {
+        Ok(match evaluators.entry((integral, bits)) {
             Entry::Occupied(entry) => entry.into_mut(),
-            Entry::Vacant(entry) => {
-                entry.insert(NativeTensorEvaluator::new(family).map_err(Error::Symbolic)?)
+            Entry::Vacant(entry) => entry.insert(
+                NativeTensorEvaluator::with_binary_precision(family, bits)
+                    .map_err(Error::Symbolic)?,
+            ),
+        })
+    }
+
+    /// Working bits of the native tensor family for one `Float` row
+    /// `[invariants.., masses.., mu²]`: at most `working`, and at most the bits
+    /// that each nonzero input component determines, `b + log2(S/|x|)` for a
+    /// component `x` of an invariant or mass with tracked precision `b` (`S`
+    /// the largest such magnitude in the row), and the tracked precision of
+    /// `mu²`. See [`SymbolicaMasters`].
+    fn tensor_row_bits(working: u32, row: &[Complex<T>]) -> u32 {
+        let (kinematics, scale) = row.split_at(row.len() - 1);
+        let components = || {
+            kinematics
+                .iter()
+                .flat_map(|value| [&value.re, &value.im])
+                .filter(|component| !component.is_fully_zero())
+        };
+        let mut bits = working.min(scale[0].re.get_precision());
+        let Some(largest) = components()
+            .map(|component| component.norm())
+            .reduce(|a, b| if b > a { b } else { a })
+        else {
+            return bits.max(1);
+        };
+        for component in components() {
+            // Only the binary order of magnitude matters: the quotient is
+            // within a factor of two even at one tracked bit. A quotient
+            // beyond binary64 range imposes no limit.
+            let headroom = (largest.clone() / &component.norm()).to_f64().log2();
+            let determined = f64::from(component.get_precision()) + headroom.max(0.).floor();
+            if determined < f64::from(bits) {
+                bits = determined as u32;
             }
-        }))
+        }
+        bits.max(1)
     }
 
     /// Working bits used to prepare constants; computed component precision may differ.
@@ -230,12 +299,15 @@ where
     }
 
     /// Compile a family and reserve its reusable workspace before timing calls.
+    /// For `Float`, B1111 rows below the working precision build their native
+    /// evaluator on first use.
     pub fn prepare(&mut self, integral: MasterIntegral, rows: usize) -> Result<()> {
         if self.native_evaluator(integral)?.is_some() {
             return Ok(());
         }
-        if self.native_tensor_evaluator(integral)?.is_some() {
-            let (family, _) = Self::native_tensor_family(integral).unwrap();
+        if let Some((family, _)) = Self::native_tensor_family(integral) {
+            let bits = T::FIXED_BITS.unwrap_or_else(|| self.precision());
+            Self::tensor_evaluator(&mut self.native_tensor, integral, family, bits)?;
             let size = rows.checked_mul(family.outputs()).ok_or_else(|| {
                 Error::Unsupported("master output dimensions overflow usize".into())
             })?;
@@ -286,11 +358,11 @@ where
             MasterIntegral::B11 => oneloop::b11(&args[0], &args[1], &args[2], &args[3]),
             MasterIntegral::B111 => oneloop::b111(&args[0], &args[1], &args[2], &args[3]),
             // Exact Passarino-Veltman expression with oneloopmaster's
-            // corrected zero-momentum mass swap, for `Float` and Dual
-            // carriers. In fixed precision it loses about 4 log10(m²/p²)
-            // digits at small p² (relative error 5.5e-6 in binary64 at
-            // p² = m²/256), so binary64 and DoubleFloat use the native family
-            // (`native_tensor_family`).
+            // corrected zero-momentum mass swap, for Dual carriers only. It
+            // loses about 5-6 log10(m²/|p²|) digits at small p² (relative
+            // error 5.5e-6 in binary64 at p² = m²/256, 1.2e-4 in Float(256)
+            // at |p²|/m² = 4e-13), so `SymbolicaMasters` evaluates B1111 with
+            // the native family for every carrier (`native_tensor_family`).
             MasterIntegral::B1111 => oneloop::b1111(&args[0], &args[1], &args[2], &args[3]),
             MasterIntegral::An { rank } => oneloop::an(rank, &args[0], &args[1])
                 .map_err(|_| Error::Unsupported("tadpole tensor rank exceeds four".into()))?
@@ -391,13 +463,37 @@ where
             native
                 .evaluate_batch(&self.arguments, results, rows)
                 .map_err(Error::Symbolic)?;
-        } else if let Some(native) = self.native_tensor.get_mut(&request.integral) {
-            let (family, slot) = Self::native_tensor_family(request.integral).unwrap();
+        } else if let Some((family, slot)) = Self::native_tensor_family(request.integral) {
             let width = family.outputs();
             let all = &mut self.tensor_results[..rows * width];
-            native
-                .evaluate_batch(&self.arguments, all, rows)
-                .map_err(Error::Symbolic)?;
+            if let Some(bits) = T::FIXED_BITS {
+                Self::tensor_evaluator(&mut self.native_tensor, request.integral, family, bits)?
+                    .evaluate_batch(&self.arguments, all, rows)
+                    .map_err(Error::Symbolic)?;
+            } else {
+                // Arbitrary precision: every row at its own working bits.
+                let working = self.representative.get_precision();
+                for (point, values) in self
+                    .arguments
+                    .chunks_exact(family.arity())
+                    .zip(all.chunks_exact_mut(width))
+                {
+                    let bits = Self::tensor_row_bits(working, point);
+                    if !self.native_tensor.contains_key(&(request.integral, bits))
+                        && self.native_tensor.len() > ROW_PRECISION_EVALUATORS
+                    {
+                        self.native_tensor.retain(|&(_, kept), _| kept == working);
+                    }
+                    Self::tensor_evaluator(
+                        &mut self.native_tensor,
+                        request.integral,
+                        family,
+                        bits,
+                    )?
+                    .evaluate(point, values)
+                    .map_err(Error::Symbolic)?;
+                }
+            }
             for (result, values) in results
                 .as_chunks_mut::<3>()
                 .0

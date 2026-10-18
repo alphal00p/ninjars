@@ -50,6 +50,7 @@ below).
 | `native_rank4_prototype.py`, `.out` | The native rank-4 bubble recipe (OneLOop root representation with the corrected mass-swap sign) against quadrature, <= 1e-31 over 10 sectors. |
 | `bnlog_series.py` | Truncation lengths of the bnlog series at rank 4 (17 coefficients for radius 0.2, 9 for 0.01 at 53 bits). |
 | `bubble_refs.py` | 50-digit Feynman-parameter bubble references. |
+| `b_family_reference.py` | 200-digit Feynman-parameter finite parts of B0..B1111 on 220 rows (p² = 0, \|p²\|/m² down to 1e-14, thresholds, complex masses), written to `crates/ninjars-symbolica/tests/rank_n2_data/b_family_feynman.txt` for the `Float(256)`/`Float(512)` tests of `tests/masters.rs` (checked against a 170-digit run: 6.5e-157). |
 | `exact_b1111_precision.out` | Precision of oneloopmaster's exact (Passarino-Veltman) B111/B1111 in f64, DoubleFloat and Float(256) against those references: unusable in fixed precision at small p². |
 | `rationals.py` | sympy derivation of every rational term from the dimension shift. |
 
