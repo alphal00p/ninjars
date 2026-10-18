@@ -12,7 +12,7 @@
 //! Tolerances: generic Float(256) 1e-60 scaled, fast binary64
 //! `max(1e-11, 10 noise)` scaled, with `noise` the base lane's change when its
 //! propagators are listed in reverse order (as `tests/fast_parity.rs`).
-//! The rank n+2 cases run at integration. Now, the same identities run on
+//! The rank n+2 cases run as they are; the same identities also run on
 //! their rank n+1 truncations (relabelling commutes with truncation; the
 //! shifted numerator of the truncation is re-expanded exactly here), and the
 //! exact re-expansion is checked against the generator's own shifted cases.
@@ -328,21 +328,18 @@ fn batch_width_and_lane_order_are_bitwise_below_rank_n2() {
 
 /// V7a at rank n+2: the generator's shifted cases equal their base lanes.
 #[test]
-#[ignore = "enable at integration"]
 fn shift_invariance_rank_n2() {
     check_pairs("V7a", &pairs("V7a"), |p| load(&p.case), |p| load(&p.base));
 }
 
 /// V7b at rank n+2.
 #[test]
-#[ignore = "enable at integration"]
 fn relabelling_invariance_rank_n2() {
     check_pairs("V7b", &pairs("V7b"), |p| load(&p.case), |p| load(&p.base));
 }
 
 /// V7c at rank n+2: the exact cases and the reference suite.
 #[test]
-#[ignore = "enable at integration"]
 fn batch_width_and_lane_order_are_bitwise_rank_n2() {
     let mut files = cases_in(&rank_n2().join("identity/cases"), |name| {
         name.starts_with("rn2-exact-")

@@ -366,7 +366,7 @@ ninjars case-check validation/rank-n2/cases/*.json --engines fast,generic \
   engine expands the dense tensor numerically, so a dense rank-9 numerator costs no
   Symbolica preparation: all 205 control cases (615 lanes, n = 1..7) take 6 minutes in Float(256).
 - Verdicts per lane: `pass`, `fail`, `report-only`, `known-failure`, `unchecked` (no
-  reference lane), `error` (the engine rejects the case, e.g. rank n+2 before integration).
+  reference lane), `error` (the engine rejects the case, e.g. rank n+3).
   The exit status is non-zero if any lane fails.
 - On rank <= n+1 cases the fast run carries `case_bench_reference_check`, which is
   `case-bench`'s own reference check of the same batch (tested to be equal).
@@ -374,8 +374,10 @@ ninjars case-check validation/rank-n2/cases/*.json --engines fast,generic \
   the `GENERIC_RUNNER` of `run_suite.sh` (used for the n = 7 scalars).
 - Tests (`crates/ninjars-symbolica/tests/`): `rank_n2_reference.rs` (V4, V4f, V9),
   `rank_n2_identity.rs` (V6), `rank_n2_invariance.rs` (V7), `rank_n2_padding.rs` (V5),
-  `fast_parity.rs` (V8), `crates/ninjars-cli/tests/case_check.rs`. The parts that need the
-  rank n+2 engines are `#[ignore = "enable at integration"]`; the rank <= n+1 parts run now.
+  `fast_parity.rs` (V8), `crates/ninjars-cli/tests/case_check.rs`. All of them run, except
+  the binary64 rank n+2 checks of V4f (`suite_{fast,generic}_binary64_matches_references`)
+  and V6 (`rank_n2_integrals_equal_their_pieces_binary64`), which stay ignored until the
+  lanes named in their ignore reasons are fixed.
 
 Results on the controls (rank <= n+1, n = 1..7, 615 lanes, main + S0 interfaces):
 

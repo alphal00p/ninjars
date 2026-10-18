@@ -16,8 +16,8 @@
 //! - generic engine in Float(256): within 1e-50 of the unpadded result.
 //!
 //! Declared rank n+2 exercises the rank n+2 paths with rank <= n+1
-//! numerators and runs at integration. Declared rank n+1 for the rank <= n
-//! cases runs now (the rank n+1 paths with zero top coefficients).
+//! numerators. Declared rank n+1 for the rank <= n cases exercises the rank
+//! n+1 paths with zero top coefficients.
 
 mod common;
 mod rank_n2_reference_support;
@@ -224,7 +224,7 @@ fn fast_padding_to_rank_n_plus_one() {
 }
 
 /// The same with the generic engine in Float(256), n <= 5 (the n = 6 cases
-/// run at integration with the rank n+2 padding).
+/// run with the rank n+2 padding).
 #[test]
 fn generic_padding_to_rank_n_plus_one() {
     let entries: Vec<Entry> = entries(0).into_iter().filter(|e| e.case.n <= 5).collect();
@@ -233,7 +233,6 @@ fn generic_padding_to_rank_n_plus_one() {
 
 /// V5, fast engine: every rank <= n+1 case declared at rank n+2.
 #[test]
-#[ignore = "enable at integration"]
 fn fast_padding_to_rank_n_plus_two() {
     fast_padding(&entries(1), |case| case.n + 2);
 }
@@ -241,7 +240,6 @@ fn fast_padding_to_rank_n_plus_two() {
 /// V5, generic engine in Float(256): every rank <= n+1 case declared at
 /// rank n+2.
 #[test]
-#[ignore = "enable at integration"]
 fn generic_padding_to_rank_n_plus_two() {
     generic_padding(&entries(1), |case| case.n + 2);
 }

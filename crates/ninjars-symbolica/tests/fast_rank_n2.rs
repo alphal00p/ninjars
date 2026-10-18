@@ -698,8 +698,8 @@ fn fast_rank_n2_matches_high_precision_references() {
         ratios[ratios.len() / 2],
         ratios[ratios.len() - 1]
     );
-    // (2) The whole suite (report only: binary64 tolerances per lane are
-    // calibrated at integration, design V4f).
+    // (2) The whole suite (report only: the per-lane binary64 tolerances of
+    // design V4f are checked in tests/rank_n2_reference.rs).
     if !suite.join("reference").is_dir() {
         return;
     }

@@ -7,7 +7,7 @@
 //!   declared at a higher rank.
 //! - `--bits B --out-dir DIR` is the `GENERIC_RUNNER` interface of
 //!   `validation/rank-n2/harness/run_suite.sh`.
-//! - The rank n+2 suite runs at integration.
+//! - A sample of the rank n+2 suite passes with both engines.
 
 use serde_json::Value;
 use std::{
@@ -291,7 +291,6 @@ fn generic_runner_interface() {
 /// The rank n+2 suite through both engines (n = 1..7, a sample of every
 /// family and of the `mu^2` blocks).
 #[test]
-#[ignore = "enable at integration"]
 fn rank_n2_cases_pass() {
     let cases = [
         "validation/rank-n2/cases/rn2-int-complex-n1-r3-mu2.json",
