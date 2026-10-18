@@ -8,7 +8,7 @@ edition = "2024"
 [dependencies]
 ninjars = { path = "../../../crates/ninjars" }
 ninjars-symbolica = { path = "../../../crates/ninjars-symbolica" }
-oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "264a6ced74e3c7a5de000b93dddf1330826cd3e9", default-features = false }
+oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "fe550e3db45c6830e741e1d11fcf1ac193655539", default-features = false }
 symbolica = { version = "3.0.1", default-features = false, features = ["integer-gmp", "float-mpfr", "bincode", "serde", "tracing_max_level_info"] }
 serde_json = "1"
 

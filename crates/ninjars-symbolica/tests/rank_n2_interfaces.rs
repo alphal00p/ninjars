@@ -8,8 +8,8 @@
 //!   `FastNumerator::mu_expansion_x2`.
 //! - `MasterIntegral::B1111` through `SymbolicaMasters` (exact oneloopmaster
 //!   expressions) against oneloopmaster's references, `FastMaster::BubbleRank4`
-//!   through `GenericMasters`, and `OneLoopNativeMasters` rejecting both until
-//!   the native B1111 family exists.
+//!   through `GenericMasters`, and `OneLoopNativeMasters` serving both from
+//!   oneloopmaster's native B1111 family (details in `fast_native_masters.rs`).
 //! - Rank n+2 still rejected by both engines.
 
 // Symbolica's generated Dual division implementations multiply by an inverse.
@@ -734,34 +734,35 @@ fn bubble_rank4_family_through_generic_masters() {
 }
 
 #[test]
-fn native_masters_reject_b1111_until_the_native_family_exists() {
+fn native_masters_serve_b1111_through_both_interfaces() {
     let mut native = OneLoopNativeMasters::new().unwrap();
-    let args = b1111_fixture_rows()[0].0;
-    let mut out = vec![[C64::ZERO; 3]; 5];
-    let mut ok = [false];
-    assert!(matches!(
+    for (args, finite) in b1111_fixture_rows() {
+        let mut out = vec![[C64::ZERO; 3]; 5];
+        let mut ok = [false];
         FastMasters::evaluate(
             &mut native,
             FastMaster::BubbleRank4,
             &args,
             &mut out,
-            &mut ok
-        ),
-        Err(Error::Unsupported(_))
-    ));
-    let mut output = vec![[Complex::new(0., 0.); 3]];
-    let mut statuses = [MasterStatus::Success];
-    let request = MasterRequest {
-        integral: MasterIntegral::B1111,
-        invariants: &[args[0].to_symbolica()],
-        masses_squared: &[args[1].to_symbolica(), args[2].to_symbolica()],
-        scales_squared: &[args[3].to_symbolica()],
-    };
-    assert!(matches!(
-        MasterProvider::evaluate_batch(&mut native, request, &mut output, &mut statuses),
-        Err(Error::Unsupported(_))
-    ));
-    assert_eq!(output[0], [Complex::new(0., 0.); 3], "outputs unchanged");
+            &mut ok,
+        )
+        .unwrap();
+        assert!(ok[0]);
+        assert!((out[4][0] - finite).abs() < 1e-12, "{args:?}: {:?}", out[4]);
+        let mut output = vec![[Complex::new(0., 0.); 3]];
+        let mut statuses = [MasterStatus::Failed(
+            ninjars::MasterFailure::NonFiniteResult,
+        )];
+        let request = MasterRequest {
+            integral: MasterIntegral::B1111,
+            invariants: &[args[0].to_symbolica()],
+            masses_squared: &[args[1].to_symbolica(), args[2].to_symbolica()],
+            scales_squared: &[args[3].to_symbolica()],
+        };
+        MasterProvider::evaluate_batch(&mut native, request, &mut output, &mut statuses).unwrap();
+        assert_eq!(statuses, [MasterStatus::Success]);
+        assert_eq!(output[0].map(C64::from_symbolica), out[4], "bitwise");
+    }
 }
 
 // ---------------------------------------------------------------------------

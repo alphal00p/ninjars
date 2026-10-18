@@ -2,7 +2,7 @@ use ninjars::{
     Complex, DoubleFloat, Float, FloatLike, MasterFailure, MasterIntegral, MasterProvider,
     MasterRequest, MasterStatus,
 };
-use ninjars_symbolica::{SymbolicaDualMasters, SymbolicaMasters};
+use ninjars_symbolica::{OneLoopNativeMasters, SymbolicaDualMasters, SymbolicaMasters};
 use oneloop::NativeFloat;
 use symbolica::{
     domains::{
@@ -569,4 +569,155 @@ fn tracked_precision_acceptance_does_not_claim_recovered_digits() {
     assert!(error(&medium) < 1e-45);
     assert!(error(&higher) < 1e-90);
     assert!(error(&higher) < error(&medium) * 1e-30);
+}
+
+// ---------------------------------------------------------------------------
+// B1111 (rank n+2 bubbles) on the native route of fixed-precision carriers.
+
+/// `(p², m0², m1², mu²)` rows of a B1111 batch with their expected statuses:
+/// valid rows in several branches (spacelike, zero momentum after a mass swap,
+/// complex masses, small momentum) and one row per failure class.
+fn b1111_status_points() -> Vec<([Complex<f64>; 4], MasterStatus)> {
+    let success = MasterStatus::Success;
+    let tiny = f64::from_bits(1);
+    vec![
+        ([c(-1.), c(1.), c(1.5), c(1.)], success),
+        ([c(0.), c(5.), c(2.), c(1.)], success),
+        (
+            [
+                c(3.),
+                Complex::new(0.7, -0.03),
+                Complex::new(1.4, -0.08),
+                c(2.),
+            ],
+            success,
+        ),
+        ([c(0.5f64.powi(16)), c(1.), c(1.5), c(1.)], success),
+        (
+            [c(-1.), Complex::new(1., 0.01), c(1.), c(1.)],
+            MasterStatus::Failed(MasterFailure::InvalidMass),
+        ),
+        (
+            [c(f64::NAN), c(1.), c(1.), c(1.)],
+            MasterStatus::Failed(MasterFailure::NonFiniteInput),
+        ),
+        (
+            [c(-1.), c(1.), c(1.), Complex::new(1., tiny)],
+            MasterStatus::Failed(MasterFailure::InvalidScale),
+        ),
+        (
+            [c(-1.), c(1.), c(1.), c(0.)],
+            MasterStatus::Failed(MasterFailure::InvalidScale),
+        ),
+        (
+            [Complex::new(-1., tiny), c(1.), c(1.), c(1.)],
+            MasterStatus::Failed(MasterFailure::NonRealInvariant),
+        ),
+    ]
+}
+
+/// Invariants, squared masses and squared scales of one request.
+type RequestRows<T> = (Vec<Complex<T>>, Vec<Complex<T>>, Vec<Complex<T>>);
+
+/// Batches of B1111 rows in permuted, repeated and empty orders through
+/// `provider`: failed rows keep their output and status class, and every
+/// successful row is bitwise the single-row value (the native family is
+/// evaluated once per compacted batch). Returns the single-row values.
+fn b1111_batches<T, M>(provider: &mut M, lift: impl Fn(f64) -> T) -> Vec<Option<[Complex<T>; 3]>>
+where
+    T: NativeFloat,
+    M: MasterProvider<Complex<T>>,
+{
+    let points = b1111_status_points();
+    let complex = |z: Complex<f64>| Complex::new(lift(z.re), lift(z.im));
+    let sentinel = complex(c(101.));
+    let request = |rows: &[usize], buffers: &mut RequestRows<T>| {
+        buffers.0 = rows.iter().map(|&i| complex(points[i].0[0])).collect();
+        buffers.1 = rows
+            .iter()
+            .flat_map(|&i| [complex(points[i].0[1]), complex(points[i].0[2])])
+            .collect();
+        buffers.2 = rows.iter().map(|&i| complex(points[i].0[3])).collect();
+    };
+    let mut buffers: RequestRows<T> = (Vec::new(), Vec::new(), Vec::new());
+    let single: Vec<_> = (0..points.len())
+        .map(|i| {
+            request(&[i], &mut buffers);
+            let mut output = vec![std::array::from_fn(|_| sentinel.clone())];
+            let result = provider.evaluate(
+                MasterRequest {
+                    integral: MasterIntegral::B1111,
+                    invariants: &buffers.0,
+                    masses_squared: &buffers.1,
+                    scales_squared: &buffers.2,
+                },
+                &mut output,
+            );
+            // Strict evaluation fails exactly for the failing rows and then
+            // leaves the output untouched.
+            assert_eq!(result.is_ok(), points[i].1 == MasterStatus::Success);
+            if result.is_err() {
+                assert!(output[0].iter().all(|v| v == &sentinel));
+            }
+            result.ok().map(|()| output.pop().unwrap())
+        })
+        .collect();
+    let tail: Vec<_> = (0..31).map(|i| (3 * i + 2) % points.len()).collect();
+    for order in [
+        &[4, 0, 5, 2, 6, 1, 8, 3, 7][..],
+        tail.as_slice(),
+        &[6][..],
+        &[][..],
+        &[3][..],
+        &[2, 0, 1, 3, 3, 0][..],
+    ] {
+        request(order, &mut buffers);
+        let mut output: Vec<_> = (0..order.len())
+            .map(|i| std::array::from_fn(|_| complex(c(101. + i as f64))))
+            .collect();
+        let before = output.clone();
+        let mut status = vec![MasterStatus::Failed(MasterFailure::DerivativeShape); order.len()];
+        provider
+            .evaluate_batch(
+                MasterRequest {
+                    integral: MasterIntegral::B1111,
+                    invariants: &buffers.0,
+                    masses_squared: &buffers.1,
+                    scales_squared: &buffers.2,
+                },
+                &mut output,
+                &mut status,
+            )
+            .unwrap();
+        for (row, &source) in order.iter().enumerate() {
+            assert_eq!(status[row], points[source].1, "row {row} = point {source}");
+            match &single[source] {
+                Some(value) => assert_eq!(&output[row], value, "point {source}"),
+                None => assert_eq!(output[row], before[row]),
+            }
+        }
+    }
+    single
+}
+
+#[test]
+fn rank_four_bubble_batches_keep_failed_rows_and_bitwise_lane_values() {
+    let binary64 = b1111_batches(&mut SymbolicaMasters::new(0f64), |x| x);
+    // OneLoopNativeMasters evaluates the same native family row by row: the
+    // same statuses and bits.
+    let native = b1111_batches(&mut OneLoopNativeMasters::new().unwrap(), |x| x);
+    assert_eq!(binary64, native);
+    let double = b1111_batches(
+        &mut SymbolicaMasters::new(DoubleFloat::default()),
+        DoubleFloat::from,
+    );
+    for (binary64, double) in binary64.iter().zip(&double) {
+        assert_eq!(binary64.is_some(), double.is_some());
+        if let (Some(binary64), Some(double)) = (binary64, double) {
+            let to_f64 = |z: &Complex<DoubleFloat>| Complex::new(z.re.to_f64(), z.im.to_f64());
+            close(binary64[0], to_f64(&double[0]));
+            assert_eq!(binary64[1], c(0.2));
+            assert_eq!(to_f64(&double[1]), c(0.2));
+        }
+    }
 }
