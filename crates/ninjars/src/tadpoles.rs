@@ -226,22 +226,22 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
         let cuts = stage(1);
         let triangle_cuts = stage(3);
         let bubble_cuts = stage(2);
+        // Topology parents are ascending, so triangles (larger cuts, earlier)
+        // precede bubbles, each in row order.
+        let mut rows = vec![None; topology.cuts().len()];
+        for (row, &triangle) in triangle_cuts.iter().enumerate() {
+            rows[triangle] = Some(Parent::Triangle(row));
+        }
+        for (row, &bubble) in bubble_cuts.iter().enumerate() {
+            rows[bubble] = Some(Parent::Bubble(row));
+        }
         let parents = cuts
             .iter()
             .map(|&index| {
-                let contains = |&parent: &usize| topology.cuts()[index].parents.contains(&parent);
-                triangle_cuts
+                topology.cuts()[index]
+                    .parents
                     .iter()
-                    .enumerate()
-                    .filter(|(_, c)| contains(c))
-                    .map(|(i, _)| Parent::Triangle(i))
-                    .chain(
-                        bubble_cuts
-                            .iter()
-                            .enumerate()
-                            .filter(|(_, c)| contains(c))
-                            .map(|(i, _)| Parent::Bubble(i)),
-                    )
+                    .filter_map(|&parent| rows[parent])
                     .collect()
             })
             .collect();

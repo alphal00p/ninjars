@@ -40,6 +40,19 @@ pub trait AmplitudeKernels<T> {
     fn values_are_finite(&self, values: &[T]) -> bool;
     /// Compare complete carriers, including every derivative component.
     fn values_equal(&self, left: &T, right: &T) -> bool;
+    /// Whether one lane's cut contributions can be summed without losing the
+    /// result to cancellation (see [`EvaluationStatus::Unstable`]). The default
+    /// accepts every lane.
+    fn cancellation_stable<'a>(
+        &self,
+        contributions: impl Iterator<Item = &'a IntegratedContribution<T>>,
+    ) -> bool
+    where
+        T: 'a,
+    {
+        let _ = contributions;
+        true
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -63,6 +76,14 @@ pub enum EvaluationStatus {
         first: usize,
         second: usize,
     },
+    /// Every cut succeeded, but the cut contributions cancel so strongly that
+    /// rounding leaves fewer than half of the carrier's significant bits: the
+    /// summed magnitudes of the contributions exceed `2^(p/2)` times the largest
+    /// Laurent coefficient of their sum (`p` mantissa bits). Ninja's
+    /// floating-point checks only detect exactly singular cuts (the stage
+    /// kernels reject those as cut failures); this lane needs more precision.
+    /// Reported only when the kernels opt in ([`AmplitudeKernels::cancellation_stable`]).
+    Unstable,
 }
 
 /// Borrowed lane-major numerical inputs, including an optional exact S-matrix.
@@ -240,6 +261,10 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
     }
     pub fn statuses(&self) -> &[EvaluationStatus] {
         &self.statuses
+    }
+    #[doc(hidden)]
+    pub fn debug_contributions(&self) -> &[IntegratedContribution<T>] {
+        &self.contributions
     }
     pub fn triangles(&self) -> &[CutOutcome<TriangleResidue<T>>] {
         &self.triangles
@@ -692,6 +717,15 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                     &mut self.integration_values,
                     &mut self.integration_statuses,
                 )?,
+            }
+        }
+        for (lane, status) in statuses.iter_mut().enumerate() {
+            if *status == EvaluationStatus::Success
+                && !self.kernels.cancellation_stable(
+                    (0..cuts).map(|cut| &self.contributions[cut * lanes + lane]),
+                )
+            {
+                *status = EvaluationStatus::Unstable;
             }
         }
         let active = &mut self.active;

@@ -8,28 +8,70 @@ use crate::{
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel},
 };
 use ninjars::{
-    Amplitude, AmplitudeKernels, BoxCoefficientMode, BoxMuMode, BoxReductionOptions, Complex, Real,
-    Result, SingleFloat, Topology,
+    Amplitude, AmplitudeKernels, BoxCoefficientMode, BoxMuMode, BoxReductionOptions, Complex,
+    IntegratedContribution, Real, Result, SingleFloat, Topology,
 };
+use std::cmp::Ordering;
 use symbolica::{atom::Atom, domains::dual::DualNumber, evaluate::EvaluationDomain, symbol};
 
 fn accumulation(n: usize, rank: usize) -> Result<ExactKernel> {
-    let topology = Topology::new(n, rank)?;
-    let rows = topology.cuts().len() + 1;
+    Ok(accumulation_rows(Topology::new(n, rank)?.cuts().len() + 1))
+}
+
+/// Five sums (one per accumulated component) over `rows` rows.
+fn accumulation_rows(rows: usize) -> ExactKernel {
     let parameters: Vec<_> = (0..rows * 5)
         .map(|i| Atom::var(symbol!(format!("ninjars_accumulation::p{i}"))))
         .collect();
+    // One flat n-way addition: folding `sum + p` renormalizes the growing sum
+    // at every step, which is quadratic in the number of cuts.
     let expressions = (0..5)
-        .map(|component| {
-            (0..rows).fold(Atom::Zero, |sum, row| {
-                sum + &parameters[row * 5 + component]
-            })
-        })
+        .map(|component| Atom::add_many((0..rows).map(|row| &parameters[row * 5 + component])))
         .collect();
-    Ok(ExactKernel {
+    ExactKernel {
         parameters,
         expressions,
-    })
+    }
+}
+
+/// [`ninjars::EvaluationStatus::Unstable`] test on the primal Laurent
+/// coefficients (taxicab moduli, `p` mantissa bits of `prototype`): the sum
+/// is stable while `2^(-p/2) max_k sum_cuts |c_k| <= max_k |sum_cuts c_k|`.
+fn cancellation_stable<'a, T: Real + SingleFloat + 'a>(
+    prototype: &T,
+    contributions: impl Iterator<Item = [&'a Complex<T>; 3]>,
+) -> bool
+where
+    Complex<T>: Real,
+{
+    let zero = prototype.zero();
+    let mut sums: [Complex<T>; 3] =
+        std::array::from_fn(|_| Complex::new(zero.clone(), zero.clone()));
+    let mut magnitudes: [T; 3] = std::array::from_fn(|_| zero.clone());
+    for contribution in contributions {
+        for (k, value) in contribution.into_iter().enumerate() {
+            magnitudes[k] += value.re.norm() + value.im.norm();
+            sums[k] += value;
+        }
+    }
+    let largest = |values: [T; 3]| {
+        values
+            .into_iter()
+            .reduce(|a, b| {
+                if b.real_cmp(&a) == Some(Ordering::Greater) {
+                    b
+                } else {
+                    a
+                }
+            })
+            .unwrap()
+    };
+    let total = largest(sums.map(|sum| sum.re.norm() + sum.im.norm()));
+    let tolerance = prototype
+        .from_i64(2)
+        .pow(u64::from(prototype.get_precision() / 2))
+        .inv();
+    (tolerance * largest(magnitudes)).real_cmp(&total) != Some(Ordering::Greater)
 }
 
 #[cfg(feature = "native-kernels")]
@@ -63,6 +105,7 @@ pub struct SymbolicaAmplitudeKernels<T> {
     rank: usize,
     rank_specialized_corrections: bool,
     pruned_swapped_arithmetic: bool,
+    stability_test: bool,
     prototype: T,
     box_options: BoxReductionOptions,
     accumulation: CompiledKernel<T>,
@@ -94,6 +137,7 @@ where
             rank,
             rank_specialized_corrections: false,
             pruned_swapped_arithmetic: false,
+            stability_test: false,
             prototype,
             box_options: BoxReductionOptions {
                 coefficients: BoxCoefficientMode::Integrated,
@@ -108,6 +152,16 @@ where
     }
     pub fn with_box_options(mut self, options: BoxReductionOptions) -> Self {
         self.box_options = options;
+        self
+    }
+
+    /// Opt into the cancellation test of [`ninjars::EvaluationStatus::Unstable`].
+    /// It is off by default, like Ninja's accuracy tests: an amplitude that
+    /// vanishes exactly (a Ward identity, a zero helicity amplitude, a
+    /// cut-constructible part cancelled by its rational part) is rounding noise
+    /// of the summed cut contributions and fails the test in every precision.
+    pub fn with_stability_test(mut self) -> Self {
+        self.stability_test = true;
         self
     }
 
@@ -256,6 +310,19 @@ where
     fn values_equal(&self, left: &Complex<T>, right: &Complex<T>) -> bool {
         left == right
     }
+    fn cancellation_stable<'a>(
+        &self,
+        contributions: impl Iterator<Item = &'a IntegratedContribution<Complex<T>>>,
+    ) -> bool
+    where
+        Complex<T>: 'a,
+    {
+        !self.stability_test
+            || cancellation_stable(
+                &self.prototype,
+                contributions.map(|c| [&c[0], &c[1], &c[2]]),
+            )
+    }
 }
 
 /// The same kernels transformed by Symbolica for a static or dynamic Dual shape.
@@ -279,6 +346,7 @@ pub struct SymbolicaDualAmplitudeKernels<T, D> {
     rank: usize,
     rank_specialized_corrections: bool,
     pruned_swapped_arithmetic: bool,
+    stability_test: bool,
     prototype: T,
     dual: D,
     box_options: BoxReductionOptions,
@@ -309,6 +377,7 @@ where
             rank,
             rank_specialized_corrections: false,
             pruned_swapped_arithmetic: false,
+            stability_test: false,
             prototype,
             dual: dual.zero(),
             box_options: BoxReductionOptions {
@@ -324,6 +393,16 @@ where
     }
     pub fn with_box_options(mut self, options: BoxReductionOptions) -> Self {
         self.box_options = options;
+        self
+    }
+
+    /// Opt into the cancellation test of [`ninjars::EvaluationStatus::Unstable`].
+    /// It is off by default, like Ninja's accuracy tests: an amplitude that
+    /// vanishes exactly (a Ward identity, a zero helicity amplitude, a
+    /// cut-constructible part cancelled by its rational part) is rounding noise
+    /// of the summed cut contributions and fails the test in every precision.
+    pub fn with_stability_test(mut self) -> Self {
+        self.stability_test = true;
         self
     }
 
@@ -481,6 +560,19 @@ where
     }
     fn values_equal(&self, left: &D, right: &D) -> bool {
         left.get_shape() == right.get_shape() && left.values() == right.values()
+    }
+    fn cancellation_stable<'a>(
+        &self,
+        contributions: impl Iterator<Item = &'a IntegratedContribution<D>>,
+    ) -> bool
+    where
+        D: 'a,
+    {
+        !self.stability_test
+            || cancellation_stable(
+                &self.prototype,
+                contributions.map(|c| [&c[0].values()[0], &c[1].values()[0], &c[2].values()[0]]),
+            )
     }
 }
 
@@ -661,5 +753,44 @@ where
                 crate::KernelBackend::SymbolicaInterpreter
             }
         })
+    }
+}
+
+#[cfg(test)]
+mod accumulation_tests {
+    use super::{accumulation, accumulation_rows};
+    use symbolica::atom::{Atom, AtomCore};
+
+    /// One flat sum per component, built without common-pair elimination:
+    /// exactly the instructions of the default optimization, so the results of
+    /// every existing topology are bitwise unchanged.
+    #[test]
+    fn accumulation_is_a_flat_sum_with_unchanged_instructions() {
+        for n in 1..=7 {
+            for rank in 0..=n + 1 {
+                let kernel = accumulation(n, rank).unwrap();
+                assert!(kernel.is_disjoint_parameter_sum(), "n {n} rank {rank}");
+                let default = Atom::evaluator_multiple(&kernel.expressions, &kernel.parameters)
+                    .cores(1)
+                    .build()
+                    .unwrap();
+                assert_eq!(
+                    format!("{:?}", kernel.evaluator().unwrap().export_instructions()),
+                    format!("{:?}", default.export_instructions()),
+                    "n {n} rank {rank}"
+                );
+            }
+        }
+    }
+
+    /// Twenty propagators (21699 cuts plus the previous result) took 35 s: the
+    /// fold renormalized the growing sum at every cut and pair elimination
+    /// searched all operand pairs, both quadratic in the number of cuts.
+    #[test]
+    fn twenty_propagator_accumulation_builds_in_linear_time() {
+        let start = std::time::Instant::now();
+        accumulation_rows(21700).compile(&0_f64).unwrap();
+        let elapsed = start.elapsed();
+        assert!(elapsed.as_secs() < 20, "{elapsed:?}");
     }
 }

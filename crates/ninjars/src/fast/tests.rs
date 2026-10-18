@@ -635,6 +635,27 @@ fn bases_are_massless_and_orthogonal() {
     check(&Basis::from_single(&lightlike, eps));
 }
 
+/// Orthogonal massive momenta (k1.k2 = 0 up to rounding): Ninja's
+/// `k1.k2 / (1 + r1 r2)` divides noise by noise. Box (4,5,6,7) of the any-n
+/// verification fixture `n8r0genericm1`, lane 0, where the fast engine was off
+/// by 3e-3 (and original Ninja by a different 3e-3).
+#[test]
+fn orthogonal_cut_momenta_keep_the_basis_normalization() {
+    let v4 = [2. / 3., -0.25, 1. / 6., 8. / 3.];
+    let (v5, v7) = ([8. / 3., -0.25, 1. / 6., 5. / 3.], [2., 0., 1., 0.]);
+    let (k3, k0) = (sub(&v4, &v7), sub(&v5, &v4));
+    assert!(mp_rr(&k3, &k0).abs() < 1e-15, "orthogonal up to rounding");
+    let e = Basis::from_pair(&k3, &k0, 1e-9);
+    let exact = mp_rr(&e.e1, &e.e2);
+    assert!(
+        (e.mp12 - exact).abs() <= 1e-12 * exact.abs(),
+        "{} vs {exact}",
+        e.mp12
+    );
+    let e34 = mp_cc(&e.e3, &e.e4);
+    assert!((e34.re + e.mp12).abs() <= 1e-12 * exact.abs() && e34.im.abs() <= 1e-12);
+}
+
 #[test]
 fn cut_solutions_are_on_shell() {
     let mut rng = Rng(9);

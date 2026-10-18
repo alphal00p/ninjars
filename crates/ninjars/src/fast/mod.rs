@@ -71,7 +71,16 @@ pub enum FastStatus {
     NotEvaluated,
     Success,
     /// A cut failed Ninja's stability checks (near-singular Gram determinant,
-    /// vanishing uncut denominator expansion, ...). Results are unchanged.
+    /// vanishing uncut denominator expansion, ...; see
+    /// [`FastOptions::relative_tolerance`]). Results are unchanged.
+    ///
+    /// Inherited from Ninja: two real cut momenta spanning a Euclidean plane
+    /// (positive Gram determinant `k1² k2² - (k1.k2)²`) have no real massless
+    /// basis, and Ninja's `Basis(k1, k2)` takes the square root of the
+    /// negative `(k1.k2)² - k1² k2²` (C++ Ninja continues with NaN). Physical
+    /// kinematics rarely have such planes, but random momenta do: among the
+    /// many triangles and boxes of `n >= 12` propagators almost every lane
+    /// has one. The generic engine handles these cuts.
     Unstable,
     /// A master integral failed for this lane. Results are unchanged.
     MasterFailed,
