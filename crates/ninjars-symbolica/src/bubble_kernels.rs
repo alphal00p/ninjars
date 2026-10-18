@@ -68,8 +68,8 @@ impl PrunedSwappedArithmetic {
         let degree = (n >= 2)
             .then(|| rank.checked_add(2)?.checked_sub(n))
             .flatten();
-        let full_columns = degree.map_or(0, |d| [1, 3, 7, 13][d]);
-        let swapped_columns = degree.map_or(0, |d| [0, 1, 3, 7][d]);
+        let full_columns = degree.map_or(0, |d| [1, 3, 7, 13, 22][d]);
+        let swapped_columns = degree.map_or(0, |d| [0, 1, 3, 7, 13][d]);
         Self {
             full_columns,
             swapped_columns,
@@ -260,7 +260,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
             parameters: p,
         })?;
         let source_projection = compile(&BubbleSourceProjection::new().exact)?;
-        let source_count = if rank > n { 15 } else { 10 };
+        let source_count = ninjars::residue_coefficient_count(3, layout.rank_class());
         let correction = compile(&TriangleBubbleSubtraction::for_quotient(&layout)?.exact)?;
         let width = layout.quotient_expansion().len();
         let p = parameters("ninjars_bubble_parent_sum", width * (n - 1));
@@ -1041,7 +1041,8 @@ where
     }
 
     /// Select denominators, shared source-axis projections, and the exact
-    /// triangle-parent correction for this topology's quotient degree.
+    /// triangle-parent correction for this topology's quotient degree. Rank
+    /// n+2 has no catalogued correction body and keeps the interpreter.
     pub fn new_with_native_kernels(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
         use crate::native_kernels::bubbles::{BubblePlan, install};
         let mut kernels = Self::new_with_native_denominators(propagators, rank, prototype.clone())?;
@@ -1051,7 +1052,7 @@ where
             &prototype,
         )?;
         if let Some(plan) = BubblePlan::correction(
-            kernels.engine.layout.higher_rank(),
+            kernels.engine.layout.rank_class(),
             kernels.engine.layout.quotient_expansion(),
         )? {
             install(&mut kernels.engine.correction, plan, &prototype)?;

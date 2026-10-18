@@ -157,9 +157,11 @@ pub struct IntegratedTadpoleResidue<T> {
     pub cut_index: usize,
     pub id: SampleId,
     pub geometry: TadpoleCut<T>,
-    /// Original 5/16-entry Ninja indexing; uncomputed entries are placeholders.
+    /// Original 5/16-entry Ninja indexing (16 also at rank n+2, whose new
+    /// degree-3 terms are odd and integrate to zero); uncomputed entries are
+    /// placeholders.
     pub coefficients: Vec<T>,
-    /// Only c0 (ordinary), or c0/c14/c15 (rank n+1), are computed.
+    /// Only c0 (ordinary), or c0/c14/c15 (ranks n+1 and n+2), are computed.
     pub computed: Vec<bool>,
 }
 
@@ -398,6 +400,11 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
         }
         .validate("parent bubble residues", bubbles.len())?;
         let higher = rank > n;
+        let class = self.topology.rank_class();
+        let (triangle_count, bubble_count) = (
+            crate::residue_coefficient_count(3, class),
+            crate::residue_coefficient_count(2, class),
+        );
         for (row, parent) in triangles.iter().enumerate() {
             if let CutOutcome::Stable(parent) = parent {
                 let expected = self.triangle_cuts[row / lanes];
@@ -407,7 +414,7 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
                             lane: row % lanes,
                             sample: expected,
                         })
-                    || parent.coefficients.len() != if higher { 15 } else { 10 }
+                    || parent.coefficients.len() != triangle_count
                 {
                     return Err(Error::Unsupported(
                         "triangle parent provenance/coefficient layout is inconsistent".into(),
@@ -424,7 +431,7 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
                             lane: row % lanes,
                             sample: expected,
                         })
-                    || parent.coefficients.len() != if higher { 20 } else { 10 }
+                    || parent.coefficients.len() != bubble_count
                 {
                     return Err(Error::Unsupported(
                         "bubble parent provenance/coefficient layout is inconsistent".into(),

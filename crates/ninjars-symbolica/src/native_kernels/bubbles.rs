@@ -4,7 +4,7 @@ use crate::{
     BatchExecutionPolicy,
     kernel::{CompiledKernel, KernelExecutor},
 };
-use ninjars::{Complex, Error, ExpansionKind, Real, Result};
+use ninjars::{Complex, Error, ExpansionKind, RankClass, Real, Result};
 use symbolica::evaluate::EvaluationDomain;
 
 #[rustfmt::skip]
@@ -41,7 +41,9 @@ pub(crate) enum BubblePlan {
     HigherDegree3,
 }
 impl BubblePlan {
-    pub(crate) fn correction(higher_rank: bool, quotient: &ExpansionKind) -> Result<Option<Self>> {
+    /// `None` keeps the interpreter body: an empty quotient, and rank n+2,
+    /// whose degree-4 correction is not catalogued.
+    pub(crate) fn correction(class: RankClass, quotient: &ExpansionKind) -> Result<Option<Self>> {
         let ExpansionKind::T2 { powers } = quotient else {
             return Err(Error::Unsupported(
                 "native bubble correction requires a T2 quotient".into(),
@@ -50,11 +52,12 @@ impl BubblePlan {
         let Some(&(degree, _, _)) = powers.first() else {
             return Ok(None);
         };
-        let plan = match (higher_rank, degree) {
-            (false, 0) => Self::OrdinaryDegree0,
-            (false, 1) => Self::OrdinaryDegree1,
-            (false, 2) => Self::OrdinaryDegree2,
-            (true, 3) => Self::HigherDegree3,
+        let plan = match (class, degree) {
+            (RankClass::NPlus2, _) => return Ok(None),
+            (RankClass::UpToN, 0) => Self::OrdinaryDegree0,
+            (RankClass::UpToN, 1) => Self::OrdinaryDegree1,
+            (RankClass::UpToN, 2) => Self::OrdinaryDegree2,
+            (RankClass::NPlus1, 3) => Self::HigherDegree3,
             _ => {
                 return Err(Error::Unsupported(
                     "uncatalogued bubble correction degree".into(),

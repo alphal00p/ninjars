@@ -6,7 +6,10 @@
 
 use std::ops::Range;
 
-use ninjars::{BatchShape, Complex, Error, Laurent, MasterIntegral, Real, Result, SingleFloat};
+use ninjars::{
+    BatchShape, Complex, Error, Laurent, MasterIntegral, RankClass, Real, Result, SingleFloat,
+    residue_coefficient_count,
+};
 use symbolica::{
     atom::{Atom, AtomCore},
     domains::dual::DualNumber,
@@ -37,6 +40,10 @@ pub struct MasterContractionInputLayout {
 /// Ordinary/higher-rank coefficient counts are 5/16, 10/20, 10/15, and 5/6. Higher
 /// rank means numerator rank n+1. In particular, the higher-rank tadpole retains
 /// original unused c[9]; c[14] and c[15] are never compacted or renumbered.
+/// Rank n+2 ([`Self::new_class`]) has 16, 35, 21 and 7 coefficients: the bubble
+/// adds B1111 with weight c20·ke2⁴ and the rational terms of c21 (mu²(q·e2)²)
+/// and c22 (mu⁴), the box the rational term of c6 (mu⁶); tadpole and triangle
+/// formulas are unchanged (`tools/rank_n2/README.md`).
 ///
 /// Weight rows are `[weights in masters() order, rational]`. Contracted rows
 /// are `[finite including rational, single pole, double pole,
@@ -44,8 +51,8 @@ pub struct MasterContractionInputLayout {
 /// only to the finite coefficient; rational contributions already inside a
 /// tensor master stay in the cut-constructible contribution, as in Ninja.
 ///
-/// Bubble B1 and B111 use OneLOop's `(q+K)` denominator convention directly:
-/// their UV poles are -1/2 and -1/4. Callers supply compatible master Laurent
+/// Bubble B1, B111 and B1111 use OneLOop's `(q+K)` denominator convention
+/// directly: their UV poles are -1/2, -1/4 and 1/5. Callers supply compatible master Laurent
 /// arrays and handle scaleless/singular lanes before accumulation.
 pub struct MasterContraction {
     layout: MasterContractionInputLayout,
@@ -56,20 +63,26 @@ pub struct MasterContraction {
 
 impl MasterContraction {
     pub fn new(cut_size: usize, higher_rank: bool) -> Result<Self> {
-        let coefficient_count = match (cut_size, higher_rank) {
-            (1, false) => 5,
-            (1, true) => 16,
-            (2 | 3, false) => 10,
-            (2, true) => 20,
-            (3, true) => 15,
-            (4, false) => 5,
-            (4, true) => 6,
-            _ => {
-                return Err(Error::Unsupported(
-                    "master contraction currently supports cuts of size one through four".into(),
-                ));
-            }
-        };
+        Self::new_class(
+            cut_size,
+            if higher_rank {
+                RankClass::NPlus1
+            } else {
+                RankClass::UpToN
+            },
+        )
+    }
+
+    /// Contraction for a residue of the given rank class.
+    pub fn new_class(cut_size: usize, class: RankClass) -> Result<Self> {
+        if !(1..=4).contains(&cut_size) {
+            return Err(Error::Unsupported(
+                "master contraction currently supports cuts of size one through four".into(),
+            ));
+        }
+        let higher_rank = class != RankClass::UpToN;
+        let rank_n2 = class == RankClass::NPlus2;
+        let coefficient_count = residue_coefficient_count(cut_size, class);
         let invariant_count = match cut_size {
             1 => 0,
             2 => 1,
@@ -115,6 +128,17 @@ impl MasterContraction {
                     expressions.push(&c[13] * ke2.pow(3));
                     rational += ke2 * (&s[0] - &m[0] * 2 - &m[1] * 4) * &c[10] / 12;
                 }
+                if rank_n2 {
+                    // I2[mu²(q·e2)²] and I2[mu⁴] by dimension shifting, with
+                    // m[0] the origin line (`tools/rank_n2/README.md`).
+                    masters.push(MasterIntegral::B1111);
+                    expressions.push(&c[20] * ke2.pow(4));
+                    rational += ke2.pow(2) * (&m[0] * 5 + &m[1] * 15 - &s[0] * 3) * &c[21] / 60
+                        - (s[0].pow(2) - &s[0] * (&m[0] + &m[1]) * 5
+                            + (m[0].pow(2) + &m[0] * &m[1] + m[1].pow(2)) * 10)
+                            * &c[22]
+                            / 60;
+                }
                 (masters, expressions, rational)
             }
             3 => {
@@ -124,7 +148,16 @@ impl MasterContraction {
                 }
                 (vec![MasterIntegral::C0], vec![c[0].clone()], rational)
             }
-            _ => (vec![MasterIntegral::D0], vec![c[0].clone()], -&c[4] / 6),
+            _ => {
+                let mut rational = -&c[4] / 6;
+                if rank_n2 {
+                    // I4[mu⁶] = sum m/12 - sum s/60 over all six invariants.
+                    let masses = m.iter().fold(Atom::Zero, |sum, v| sum + v);
+                    let invariants = s.iter().fold(Atom::Zero, |sum, v| sum + v);
+                    rational += &c[6] * (masses / 12 - invariants / 60);
+                }
+                (vec![MasterIntegral::D0], vec![c[0].clone()], rational)
+            }
         };
         expressions.push(rational);
         let weights = ExactKernel {

@@ -369,7 +369,7 @@ fn precision_validation_empty_input_and_unsupported_rank_are_explicit() {
     let invalid = run(&["examples/graphs/bubble.json", "--bits", "128"]);
     assert!(!invalid.status.success());
     assert!(String::from_utf8_lossy(&invalid.stderr).contains("only to --precision float"));
-    let invalid = modified("rank", "ninjars::q0^4", bubble(), &[]);
+    let invalid = modified("rank", "ninjars::q0^5", bubble(), &[]);
     assert!(!invalid.status.success());
     assert!(String::from_utf8_lossy(&invalid.stderr).contains("rank"));
     let mut empty = bubble();

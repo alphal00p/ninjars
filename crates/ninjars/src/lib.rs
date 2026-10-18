@@ -74,7 +74,7 @@ pub enum Error {
     },
     #[error("a topology must have at least one propagator")]
     NoPropagators,
-    #[error("rank {rank} exceeds {propagators} propagators + 1")]
+    #[error("rank {rank} exceeds {propagators} propagators + 2")]
     Rank { rank: usize, propagators: usize },
     #[error("invalid phase-space lane {lane}; batch has {lanes} lanes")]
     Lane { lane: usize, lanes: usize },

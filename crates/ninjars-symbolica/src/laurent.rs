@@ -1,6 +1,6 @@
 //! Laurent quotient kernels generated once from exact Symbolica series.
 
-use ninjars::{Complex, Error, ExpansionKind, Real, Result, SingleFloat};
+use ninjars::{Complex, Error, ExpansionKind, RankClass, Real, Result, SingleFloat};
 use symbolica::{
     atom::{Atom, AtomCore},
     domains::{atom::AtomField, dual::DualNumber},
@@ -13,7 +13,7 @@ use crate::kernel::{CompiledDualKernel, CompiledKernel, ExactKernel};
 /// Topology-only division of numerator Laurent coefficients by uncut lines.
 ///
 /// Supports the T3 parameterization for triple/single cuts and T2 for double
-/// cuts, including rank `n+1`. All powers are explicit; mu² has rank weight two.
+/// cuts, for ranks up to `n+2`. All powers are explicit; mu² has rank weight two.
 /// Preparing this plan uses Symbolica series algebra once. Compiled evaluators
 /// execute across the entire batch and support changing coefficients per row.
 pub struct LaurentDivision {
@@ -22,7 +22,7 @@ pub struct LaurentDivision {
     quotient: ExpansionKind,
     uncut: usize,
     cut_size: usize,
-    higher_rank: bool,
+    class: RankClass,
     pub(crate) exact: ExactKernel,
 }
 
@@ -69,15 +69,14 @@ impl LaurentDivision {
         if propagators == 0 {
             return Err(Error::NoPropagators);
         }
-        if rank > propagators.saturating_add(1) {
+        let Some(class) = RankClass::of(propagators, rank) else {
             return Err(Error::Rank { rank, propagators });
-        }
+        };
         if !(1..=3).contains(&cut_size) || cut_size > propagators {
             return Err(Error::Unsupported(
                 "Laurent division requires a single, double or triple cut".into(),
             ));
         }
-        let higher_rank = rank > propagators;
         let uncut = propagators - cut_size;
         let shift =
             i32::try_from(uncut).map_err(|_| Error::Unsupported("too many propagators".into()))?;
@@ -167,7 +166,7 @@ impl LaurentDivision {
             quotient,
             uncut,
             cut_size,
-            higher_rank,
+            class,
             exact: ExactKernel {
                 expressions,
                 parameters,
@@ -192,8 +191,16 @@ impl LaurentDivision {
     pub fn cut_size(&self) -> usize {
         self.cut_size
     }
+    /// Rank above the number of propagators (rank n+1 or n+2).
     pub fn higher_rank(&self) -> bool {
-        self.higher_rank
+        self.class != RankClass::UpToN
+    }
+    pub fn rank_class(&self) -> RankClass {
+        self.class
+    }
+    /// `max(rank - n, 0)`: the residue degree is `cut_size + excess`.
+    pub fn rank_excess(&self) -> u8 {
+        self.class.excess()
     }
     /// Each input row contains numerator coefficients followed by one block per
     /// uncut denominator. Output rows follow `quotient_expansion`.

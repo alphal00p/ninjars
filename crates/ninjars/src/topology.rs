@@ -5,9 +5,9 @@ use crate::{Error, Result};
 /// Rank counts the loop momentum with weight one and `mu²` with weight two.
 /// The class fixes every residue layout: the excess `rank - n` (0 for any
 /// rank `<= n`) raises the degree of each `k`-point residue to
-/// `k + excess` (see [`residue_coefficient_count`]). Both engines currently
-/// accept `UpToN` and `NPlus1`; `NPlus2` is the class being implemented
-/// (`tools/rank_n2/README.md`).
+/// `k + excess` (see [`residue_coefficient_count`]). The generic engine
+/// accepts every class; the fast engine (`ninjars::fast`) accepts `UpToN` and
+/// `NPlus1` (`tools/rank_n2/README.md`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum RankClass {
     /// `rank <= n` (excess 0).
@@ -97,7 +97,7 @@ impl Topology {
         if propagators == 0 {
             return Err(Error::NoPropagators);
         }
-        if rank > propagators.saturating_add(1) {
+        if rank > propagators.saturating_add(2) {
             return Err(Error::Rank { rank, propagators });
         }
         let mut cuts = Vec::new();
@@ -183,7 +183,8 @@ mod tests {
                     .all(|i| topology.cuts[p].partition.contains(i))
             }));
         }
-        assert!(Topology::new(6, 8).is_err());
+        assert!(Topology::new(6, 8).is_ok());
+        assert!(Topology::new(6, 9).is_err());
     }
 
     #[test]
@@ -195,12 +196,11 @@ mod tests {
             assert_eq!(RankClass::of(n, n + 1), Some(RankClass::NPlus1));
             assert_eq!(RankClass::of(n, n + 2), Some(RankClass::NPlus2));
             assert_eq!(RankClass::of(n, n + 3), None);
-            for rank in 0..=n + 1 {
+            for rank in 0..=n + 2 {
                 let topology = Topology::new(n, rank).unwrap();
                 assert_eq!(topology.rank_class(), RankClass::of(n, rank).unwrap());
             }
-            // Rank n+2 stays rejected until both engines support it.
-            assert!(matches!(Topology::new(n, n + 2), Err(Error::Rank { .. })));
+            assert!(matches!(Topology::new(n, n + 3), Err(Error::Rank { .. })));
         }
         assert_eq!(
             [RankClass::UpToN, RankClass::NPlus1, RankClass::NPlus2].map(RankClass::excess),

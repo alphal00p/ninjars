@@ -10,7 +10,8 @@
 //!   expressions) against oneloopmaster's references, `FastMaster::BubbleRank4`
 //!   through `GenericMasters`, and `OneLoopNativeMasters` rejecting both until
 //!   the native B1111 family exists.
-//! - Rank n+2 still rejected by both engines.
+//! - Rank n+2 accepted by the generic engine only (the fast engine follows
+//!   with its own rank n+2 engine); rank n+3 rejected by both.
 
 // Symbolica's generated Dual division implementations multiply by an inverse.
 #![allow(clippy::suspicious_arithmetic_impl, clippy::suspicious_op_assign_impl)]
@@ -766,17 +767,25 @@ fn native_masters_reject_b1111_until_the_native_family_exists() {
 
 // ---------------------------------------------------------------------------
 
+/// The generic engine accepts rank n+2 (S2); the fast engine still rejects it
+/// until its rank n+2 engine lands. Rank n+3 is rejected everywhere.
 #[test]
-fn rank_n_plus_two_is_still_rejected_by_both_engines() {
+fn rank_n_plus_two_is_generic_only() {
     for n in 1..=7 {
         assert_eq!(RankClass::of(n, n + 1), Some(RankClass::NPlus1));
         assert_eq!(RankClass::of(n, n + 2), Some(RankClass::NPlus2));
         assert!(Topology::new(n, n + 1).is_ok());
-        assert!(matches!(Topology::new(n, n + 2), Err(Error::Rank { .. })));
+        assert_eq!(
+            Topology::new(n, n + 2).unwrap().rank_class(),
+            RankClass::NPlus2
+        );
+        assert!(matches!(Topology::new(n, n + 3), Err(Error::Rank { .. })));
         assert!(FastAmplitude::new(n, n + 2, FastOptions::default()).is_err());
-        assert!(SymbolicaAmplitudeKernels::new(n, n + 2, 0f64).is_err());
+        assert!(SymbolicaAmplitudeKernels::new(n, n + 2, 0f64).is_ok());
+        assert!(SymbolicaAmplitudeKernels::new(n, n + 3, 0f64).is_err());
         for cut in 1..=n.min(3) {
-            assert!(LaurentDivision::new(n, n + 2, cut).is_err());
+            assert!(LaurentDivision::new(n, n + 2, cut).is_ok());
+            assert!(LaurentDivision::new(n, n + 3, cut).is_err());
         }
     }
 }

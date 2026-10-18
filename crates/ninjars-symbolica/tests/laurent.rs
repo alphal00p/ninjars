@@ -122,7 +122,7 @@ fn low_rank_and_invalid_layouts_are_explicit() {
         .evaluate_batch(&vec![c(1.); plan.input_columns()], &mut [], 1)
         .unwrap();
     assert!(LaurentDivision::new(0, 0, 1).is_err());
-    assert!(LaurentDivision::new(3, 5, 3).is_err());
+    assert!(LaurentDivision::new(3, 6, 3).is_err());
     assert!(LaurentDivision::new(3, 3, 4).is_err());
 }
 
