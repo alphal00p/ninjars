@@ -1,4 +1,4 @@
-//! Explicit components for open spinor lines.
+//! Explicit components for open spinor lines and Levi-Civita tensors.
 //!
 //! Contraction leaves each open fermion line as the index contraction
 //! `x_a (M1 ⋯ Mk)_ab y_b` of its two external spinor carriers `x`, `y` (`u`,
@@ -14,6 +14,11 @@
 //! `γᵏ = [[0, σᵏ], [−σᵏ, 0]]`, `γ⁵ = diag(−1, −1, 1, 1)`, and
 //! `P∓ = (1 ∓ γ⁵)/2`. A slashed vector is `γ^μ g_μν V^ν` with the metric
 //! `(+, −, −, −)` and contravariant components `[E, x, y, z]`.
+//!
+//! Levi-Civita tensors from axial traces are expanded in the same pass; one
+//! whose index joins a line, e.g. from a closed loop attached to an open line
+//! by a tree propagator, is summed with it over components.
+//! [`crate::levi_civita`] gives the tensor's normalization.
 
 use std::collections::BTreeMap;
 
@@ -22,7 +27,11 @@ use idenso::dirac::AGS;
 use spenso::network::tags::SPENSO_TAG;
 use symbolica::atom::{Atom, AtomCore, AtomView, FunctionBuilder, Symbol};
 
-use crate::{PreparationError, symbols};
+use crate::{
+    PreparationError,
+    levi_civita::{evaluate_levi_civita, has_levi_civita, is_levi_civita, levi_civita_indices},
+    symbols,
+};
 
 type Matrix = [[Atom; 4]; 4];
 
@@ -284,33 +293,41 @@ fn vector_index(part: AtomView<'_>) -> Option<Atom> {
     arguments.next().is_none().then_some(index)
 }
 
-/// Replace every spinor line by its explicit components.
+/// Replace every spinor line and four-dimensional Levi-Civita tensor by its
+/// explicit components.
 ///
 /// `vectors` and `spinors` are keyed by their carrier without its
 /// representation argument, e.g. `K(0)`, `P(1)`, `ϵ(2)` and `u(0)`.
-/// Lorentz indices shared between lines, or between a line and a vector, are
+/// Lorentz indices shared between lines, Levi-Civita tensors and vectors are
 /// summed with the metric.
-pub fn expand_spinor_chains(
+pub fn expand_components(
     expression: &Atom,
     vectors: &BTreeMap<Atom, FourMomentum<Atom>>,
     spinors: &BTreeMap<Atom, [Atom; 4]>,
 ) -> Result<Atom, PreparationError> {
-    if !has_spinor_chains(expression) {
+    let open = |expression: &Atom| has_spinor_chains(expression) || has_levi_civita(expression);
+    if !open(expression) {
         return Ok(expression.clone());
     }
     let mut failure = None;
-    // Lines without open Lorentz indices are replaced in place.
+    // Lines and tensors without open Lorentz indices are replaced in place.
     let local = expression.replace_map(|part, _, output| {
-        if failure.is_some() || !is_spinor_line(part) {
+        if failure.is_some() {
             return;
         }
-        let value = Line::parse(part).and_then(|line| {
-            if line.indices().is_empty() {
-                line.evaluate(&BTreeMap::new(), vectors, spinors).map(Some)
-            } else {
-                Ok(None)
-            }
-        });
+        let value = if is_spinor_line(part) {
+            Line::parse(part).and_then(|line| {
+                if line.indices().is_empty() {
+                    line.evaluate(&BTreeMap::new(), vectors, spinors).map(Some)
+                } else {
+                    Ok(None)
+                }
+            })
+        } else if is_levi_civita(part) && levi_civita_indices(part).is_empty() {
+            evaluate_levi_civita(part, &BTreeMap::new(), vectors).map(Some)
+        } else {
+            Ok(None)
+        };
         match value {
             Ok(Some(value)) => **output = value,
             Ok(None) => {}
@@ -320,7 +337,7 @@ pub fn expand_spinor_chains(
     if let Some(error) = failure {
         return Err(error);
     }
-    if !has_spinor_chains(&local) {
+    if !open(&local) {
         return Ok(local);
     }
     // Contracted Lorentz indices: sum each term over components.
@@ -346,6 +363,7 @@ fn expand_term(
         _ => vec![term.clone()],
     };
     let mut lines = Vec::new();
+    let mut tensors = Vec::new();
     let mut open_vectors = Vec::new();
     let mut rest = Atom::num(1);
     for factor in factors {
@@ -361,6 +379,8 @@ fn expand_term(
         };
         if is_spinor_line(base.as_view()) {
             lines.extend(std::iter::repeat_n(base, power));
+        } else if is_levi_civita(base.as_view()) {
+            tensors.extend(std::iter::repeat_n(base, power));
         } else if let Some(index) = vector_index(base.as_view()) {
             open_vectors.extend(std::iter::repeat_n((base, index), power));
         } else {
@@ -371,11 +391,16 @@ fn expand_term(
         .iter()
         .map(|line| Line::parse(line.as_view()))
         .collect::<Result<Vec<_>, _>>()?;
-    // Every index occurs on exactly two objects: lines or vectors.
+    // Every index occurs on exactly two objects: lines, tensors or vectors.
     let mut occurrences = BTreeMap::<Atom, usize>::new();
     for index in lines
         .iter()
         .flat_map(Line::indices)
+        .chain(
+            tensors
+                .iter()
+                .flat_map(|tensor| levi_civita_indices(tensor.as_view())),
+        )
         .chain(open_vectors.iter().map(|(_, index)| index.clone()))
     {
         *occurrences.entry(index).or_default() += 1;
@@ -408,17 +433,20 @@ fn expand_term(
         for line in &lines {
             value *= line.evaluate(&values, vectors, spinors)?;
         }
+        for tensor in &tensors {
+            value *= evaluate_levi_civita(tensor.as_view(), &values, vectors)?;
+        }
         sum += value;
     }
     Ok(rest * sum)
 }
 
-fn metric(mu: usize) -> Atom {
+pub(crate) fn metric(mu: usize) -> Atom {
     Atom::num(if mu == 0 { 1 } else { -1 })
 }
 
 /// The index of a bare Lorentz slot `mink(d, i)`, as opposed to a vector `V(n, mink(d))`.
-fn lorentz_index(argument: AtomView<'_>) -> Option<Atom> {
+pub(crate) fn lorentz_index(argument: AtomView<'_>) -> Option<Atom> {
     let AtomView::Fun(slot) = argument else {
         return None;
     };
@@ -428,7 +456,7 @@ fn lorentz_index(argument: AtomView<'_>) -> Option<Atom> {
 }
 
 /// The carrier key `head(first argument)` of a vector or spinor.
-fn carrier(atom: AtomView<'_>) -> Option<Atom> {
+pub(crate) fn carrier(atom: AtomView<'_>) -> Option<Atom> {
     let AtomView::Fun(function) = atom else {
         return None;
     };

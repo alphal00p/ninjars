@@ -10,8 +10,8 @@ use clap::{Args as ClapArgs, ValueEnum};
 use feynkit_graph::{DiagramEndpoint, DiagramHalfEdge};
 use ninjars_graph::{
     ExternalState, FeynmanDiagram, FourMomentum, Kinematics, Model, NumeratorMode,
-    PreparationOptions, PreparedIntegrand, R2Scheme, dot_attributes, edge_width,
-    expand_spinor_chains, has_spinor_chains, prepare_dot, symbols,
+    PreparationOptions, PreparedIntegrand, R2Scheme, dot_attributes, edge_width, expand_components,
+    has_levi_civita, has_spinor_chains, prepare_dot, symbols,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -564,6 +564,8 @@ fn unbound_symbols(
             "external polarizations are unbound: give every sample `external_polarizations` for legs {vectors}"
         ));
     }
+    // Levi-Civita tensors contracted with unbound states remain with them.
+    let unbound_states = !messages.is_empty();
     let rest = symbols
         .iter()
         .filter(|symbol| {
@@ -586,13 +588,14 @@ fn unbound_symbols(
                 .into(),
         );
     }
-    if rest.contains(&"spenso::epsilon") {
+    if rest.contains(&"spenso::epsilon") && !unbound_states {
         messages.push(
-            "Levi-Civita tensors (from gamma5 traces) remain; they have no component binding"
+            "Levi-Civita tensors remain without components: only four-dimensional tensors \
+             whose vectors and indices are bound are expanded"
                 .into(),
         );
     }
-    // Vector, spinor-chain and representation heads are implied by the
+    // Vector, spinor-chain, index and representation heads are implied by the
     // messages above.
     let implied = [
         "spenso::cas",
@@ -603,6 +606,10 @@ fn unbound_symbols(
         "spenso::in",
         "spenso::out",
         "spenso::gamma",
+        "spenso::gamma5",
+        "spenso::projm",
+        "spenso::projp",
+        "gammalooprs::hedge",
         "spenso::mink",
         "spenso::bis",
         "spenso::coad",
@@ -831,20 +838,26 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
     };
     let mu_squared = mu_squared.as_ref();
     let loop_momentum = prepared.family.loop_momenta()[0].clone();
-    // Expand spinor chains once every external fermion has bound components;
-    // otherwise they remain and are reported as unbound below.
-    let chains = has_spinor_chains(&prepared.numerator)
-        && legs
-            .iter()
-            .all(|leg| leg.spin != 2 || spinors.contains_key(&leg.index));
-    // Explicit spinor components for the chains, from the same vectors.
+    // Expand spinor chains once every external fermion has bound components,
+    // and Levi-Civita tensors from axial traces once every external vector
+    // has; otherwise they remain and are reported as unbound below.
+    let bound = |spin: i64, states: &BTreeMap<usize, Atom>| {
+        legs.iter()
+            .all(|leg| leg.spin != spin || states.contains_key(&leg.index))
+    };
+    let explicit = if has_spinor_chains(&prepared.numerator) {
+        bound(2, &spinors)
+    } else {
+        has_levi_civita(&prepared.numerator) && bound(3, &polarizations)
+    };
+    // Explicit spinor and Levi-Civita components, from the same vectors.
     let expand = |numerator: &Atom,
                   vectors: &BTreeMap<Atom, FourMomentum<Atom>>,
                   spinor_values: &BTreeMap<Atom, [Atom; 4]>|
      -> Result<Atom> {
         let mut vectors = vectors.clone();
         vectors.insert(loop_momentum.clone(), loop_components.clone());
-        Ok(expand_spinor_chains(numerator, &vectors, spinor_values)?)
+        Ok(expand_components(numerator, &vectors, spinor_values)?)
     };
     let mut samples = Vec::<Value>::new();
     let mut exact_samples = Vec::new();
@@ -893,9 +906,10 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
     }
     let template_kinematics =
         prepared.dimensional_kinematics(&loop_components, mu_squared, &symbolic_external)?;
-    // FDH rejects external spinors in `dimensional_kinematics` above, so
-    // chains are only expanded with a four-dimensional loop momentum.
-    let numerator = if chains {
+    // FDH rejects external spinors and Levi-Civita tensors in
+    // `dimensional_kinematics` above, so both are only expanded with a
+    // four-dimensional loop momentum.
+    let numerator = if explicit {
         expand(&prepared.numerator, &symbolic_external, &symbolic_spinors)?
     } else {
         prepared.numerator.clone()
@@ -951,7 +965,7 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
             let kinematics =
                 prepared.dimensional_kinematics(&loop_components, mu_squared, &external)?;
             let specialize = |atom: &Atom| substitute(&kinematics.apply(atom), &replacements);
-            let numerator = if chains {
+            let numerator = if explicit {
                 // The model-bound numerator with exact sample components needs
                 // no further normalization: a rational-function `together` of
                 // the expanded chains would dominate preparation.

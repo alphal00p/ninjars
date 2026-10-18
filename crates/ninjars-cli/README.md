@@ -150,9 +150,25 @@ leg, and preparation warns if a graph ever differs. Each sample may bind:
   fermion line with a spin-trace `projector`.
 
 `spinor_basis` and `polarization_basis` list the bound carriers. Anything the
-numerator still needs (spinors, polarizations, color invariants, Levi-Civita
-tensors from gamma5 traces) is reported by `prepare`: an error when samples are
-given, a warning and the `unbound` list otherwise.
+numerator still needs (spinors, polarizations, color invariants) is reported by
+`prepare`: an error when samples are given, a warning and the `unbound` list
+otherwise.
+
+**Levi-Civita tensors.** Idenso evaluates `gamma5` traces, from chiral
+couplings such as the `Z`'s, with `epsilon` tensors normalized by
+`Tr[gamma5 gamma^mu gamma^nu gamma^rho gamma^sigma] = 4 epsilon^{mu nu rho sigma}`.
+With `gamma5 = i gamma^0 gamma^1 gamma^2 gamma^3`, the
+`diag(-1,-1,1,1)` above, this is `epsilon^{0123} = -i`
+(`idenso::epsilon::contract_epsilon4`), so a fully contracted tensor becomes
+`epsilon(a,b,c,d) = i det[a; b; c; d]` in contravariant components once every
+external polarization is bound. The loop momentum enters with its four
+components only. A tensor whose index joins an open fermion line is summed
+over components with the line. UFO `Epsilon` vertices, the real tensor with
+`Epsilon^{0123} = -1` of ALOHA, are lowered by FeynKit as `-i epsilon`.
+Rational terms of axial numerators depend on the `gamma5` scheme and are not
+included (`--r2 fdh` rejects them). `tests/graphs` checks the convention
+against a hand-written trace of explicit matrices (`pentagon-axial-trace.*`)
+and reduces `H -> Z a` through a top loop (`hza-top.*`) in both engines.
 
 **Widths.** Propagator widths are ignored by default, with a warning naming
 every nonzero width. `--complex-mass-propagators` uses `m^2 - i*m*width` in every
