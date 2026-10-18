@@ -1,0 +1,41 @@
+== bubble mu^2 integrals: I_2[(mu^2)^b ((q+p0).v)^a] / (k.v)^a
+BUB1 a=0 b=1                        closed=(0.55 - 0.055j)  feynman=(0.54999999999999998 - 0.054999999999999998j)  collier=(0.54999999999999994 - 0.055j)  max rel diff=1.09e-16
+BUB1 a=1 b=1                        closed=(-0.33333333333333333 + 0.031666666666666667j)  feynman=(-0.33333333333333332 + 0.031666666666666665j)  collier=(-0.33333333333333332 + 0.03166666666666667j)  max rel diff=4.1e-17
+BUB1 a=2 b=1                        closed=(0.25833333333333333 - 0.0225j)  feynman=(0.25833333333333332 - 0.022499999999999999j)  collier=(0.2583333333333333 - 0.022500000000000002j)  max rel diff=1.29e-16
+BUB1 a=0 b=2                        closed=(-0.19505 + 0.033166666666666667j)  feynman=(-0.19505000000000001 + 0.033166666666666669j)  collier=(-0.19504999999999997 + 0.033166666666666664j)  max rel diff=1.42e-16
+BUB2 a=0 b=1                        closed=3.5  feynman=3.4999999999999999  collier=(3.5 + 0.0j)  max rel diff=3.85e-17
+BUB2 a=1 b=1                        closed=-2.0  feynman=-1.9999999999999999  collier=(-2.0 + 0.0j)  max rel diff=3.85e-17
+BUB2 a=2 b=1                        closed=1.4166666666666667  feynman=1.4166666666666666  collier=(1.4166666666666667 + 0.0j)  max rel diff=5.18e-17
+BUB2 a=0 b=2                        closed=-6.5  feynman=-6.5000000000000005  collier=(-6.5 + 0.0j)  max rel diff=7.63e-17
+BUB3 a=0 b=1                        closed=2.8666666666666667  feynman=2.8666666666666666  collier=(2.8666666666666662 + 0.0j)  max rel diff=1.63e-16
+BUB3 a=1 b=1                        closed=-1.6416666666666667  feynman=-1.6416666666666666  collier=(-1.6416666666666666 + 0.0j)  max rel diff=4.06e-17
+BUB3 a=2 b=1                        closed=1.1233333333333333  feynman=1.1233333333333333  collier=(1.1233333333333333 + 0.0j)  max rel diff=3.85e-17
+BUB3 a=0 b=2                        closed=-4.5173333333333333  feynman=-4.5173333333333337  collier=(-4.5173333333333332 + 0.0j)  max rel diff=7.63e-17
+BUB4 a=0 b=1                        closed=-0.98333333333333333  feynman=(-0.9833333333333333 + 3.3223970845020636e-25j)  collier=(-0.98333333333333318 + 0.0j)  max rel diff=1.56e-16
+BUB4 a=1 b=1                        closed=0.53333333333333333  feynman=(0.53333333333333331 - 1.736967371037819e-25j)  collier=(0.53333333333333322 + 0.0j)  max rel diff=2.12e-16
+BUB4 a=2 b=1                        closed=-0.30833333333333333  feynman=(-0.30833333333333332 + 1.0231989520331515e-25j)  collier=(-0.30833333333333334 + 0.0j)  max rel diff=3.85e-17
+BUB4 a=0 b=2                        closed=-0.83  feynman=(-0.83000000000000006 + 2.5326497508089913e-25j)  collier=(-0.82999999999999972 + 0.0j)  max rel diff=3.37e-16
+== triangle mu^2, mu^4
+TRI mu^2                            closed=0.5  feynman=(0.5 + 5.5354692982830492e-26j)  collier=(0.5 + 0.0j)  max rel diff=1.25e-25
+TRI mu^4                            closed=(-0.14583333333333333 + 0.016666666666666667j)  feynman=(-0.14583333333333333 + 0.016666666666666666j)  collier=(-0.14583333333333332 + 0.016666666666666666j)  max rel diff=1.18e-16
+== box mu^4, mu^6
+BOX mu^4                            closed=-0.16666666666666667  feynman=(-0.16666666666666667 - 1.0308412069774821e-26j)  collier=(-0.16666666666666666 + 0.0j)  max rel diff=6.4e-17
+BOX mu^6 (new)                      closed=(0.2575 - 0.016666666666666667j)  feynman=(0.25749999999999999 - 0.016666666666666666j)  collier=(0.2575 - 0.016666666666666674j)  max rel diff=3.85e-17
+== tadpole mu^2
+TAD mu^2                            closed=(3.6 - 0.81j)  feynman=(3.6000000000000003 - 0.81000000000000006j)  collier=(3.6000000000000006 - 0.81000000000000006j)  max rel diff=1.63e-16
+== spurious checks: odd tadpole and transverse triangle/bubble terms vanish
+   tadpole: P = 0, so every odd monomial in (q+p_i) integrates to zero exactly
+== B1111 finite parts: -int x^4 log(Delta/mu^2) vs COLLIER (DeltaUV=0, mu^2=1)
+   BUB1 pole COLLIER=(0.20000000000000001 + 0.0j) (expected 1/5)
+BUB1 B1111 finite                   feynman=(0.029939862301517691 + 0.017531313325083211j)  collier=(0.029939862301517718 + 0.017531313325083196j)  max rel diff=8.98e-16
+   BUB2 pole COLLIER=(0.20000000000000001 + 0.0j) (expected 1/5)
+BUB2 B1111 finite                   feynman=(-0.29984750299708589 + 0.0j)  collier=(-0.29984750299708585 + 0.0j)  max rel diff=1.25e-16
+   BUB3 pole COLLIER=(0.20000000000000001 + 0.0j) (expected 1/5)
+BUB3 B1111 finite                   feynman=(-0.24134908024104314 + 0.0j)  collier=(-0.24134908024104273 - 1.0658141036401502e-15j)  max rel diff=4.73e-15
+   BUB4 pole COLLIER=(0.20000000000000001 + 0.0j) (expected 1/5)
+BUB4 B1111 finite                   feynman=(0.13341801364954708 + 0.45855436619535174j)  collier=(0.13341801364954717 + 0.458554366195352j)  max rel diff=5.76e-16
+   BUB5 pole COLLIER=(0.20000000000000001 + 0.0j) (expected 1/5)
+BUB5 B1111 finite                   feynman=(-0.05247285289349821 + 0.0j)  collier=(-0.052472852893498213 + 0.0j)  max rel diff=4.94e-17
+   oneloopmaster src/tests.rs references: BUB1 0.029939862301517683+0.017531313325083266i, BUB2 -0.2998475029970866
+
+WORST relative difference over all comparisons: 4.73e-15

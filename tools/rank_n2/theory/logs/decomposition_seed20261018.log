@@ -1,0 +1,46 @@
+# exact decomposition check, seed=20261018
+n=1 r=2 [independent tadpole bases]: OK; 0-point term: wdeg 0 (1 terms)
+n=1 r=3 [independent tadpole bases]: OK; 0-point term: wdeg 1 (5 terms)
+n=1 r=0 (r-n=-1): exact top-down reduction OK [0.0s]; coefficients per cut k: k=1:[1]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=1 r=1 (r-n=+0): exact top-down reduction OK [0.0s]; coefficients per cut k: k=1:[5]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=1 r=2 (r-n=+1): exact top-down reduction OK [0.0s]; coefficients per cut k: k=1:[15]; 0-point term: wdeg 0 (1 terms); N == sum Delta*prod(D) exactly
+n=1 r=3 (r-n=+2): exact top-down reduction OK [0.5s]; coefficients per cut k: k=1:[35]; 0-point term: wdeg 1 (5 terms); N == sum Delta*prod(D) exactly
+      control with rank-(n+1) residue bases: fails as expected: cut (0,): residue degree 3 exceeds bound R_1=2
+      global system mod p (r=n+2): 40 rows x 40 residue columns (per k: {1: 35}, 0-point: 5); rank=40 (full column rank: True); dim P_r=40, rank[M|P_r]=40 (P_r in span: True) [0.0s]
+n=2 r=3 [independent tadpole bases]: OK; 0-point term: wdeg 0 (1 terms)
+n=2 r=4 [independent tadpole bases]: OK; 0-point term: wdeg 1 (5 terms)
+n=2 r=1 (r-n=-1): exact top-down reduction OK [0.0s]; coefficients per cut k: k=2:[4], k=1:[1]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=2 r=2 (r-n=+0): exact top-down reduction OK [0.0s]; coefficients per cut k: k=2:[10], k=1:[5]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=2 r=3 (r-n=+1): exact top-down reduction OK [0.2s]; coefficients per cut k: k=2:[20], k=1:[15]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=2 r=4 (r-n=+2): exact top-down reduction OK [1.7s]; coefficients per cut k: k=2:[35], k=1:[35]; 0-point term: wdeg 0 (1 terms); N == sum Delta*prod(D) exactly
+      control with rank-(n+1) residue bases: fails as expected: cut (0, 1): residue degree 4 exceeds bound R_2=3
+      global system mod p (r=n+2): 166 rows x 106 residue columns (per k: {2: 35, 1: 70}, 0-point: 1); rank=106 (full column rank: True); dim P_r=86, rank[M|P_r]=106 (P_r in span: True) [0.1s]
+n=3 r=4 [independent tadpole bases]: OK; 0-point term: wdeg 0 (1 terms)
+n=3 r=5 [independent tadpole bases]: OK; 0-point term: wdeg 1 (5 terms)
+n=3 r=2 (r-n=-1): exact top-down reduction OK [0.0s]; coefficients per cut k: k=3:[6], k=2:[4], k=1:[1]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=3 r=3 (r-n=+0): exact top-down reduction OK [0.1s]; coefficients per cut k: k=3:[10], k=2:[10], k=1:[5]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=3 r=4 (r-n=+1): exact top-down reduction OK [0.6s]; coefficients per cut k: k=3:[15], k=2:[20], k=1:[15]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=3 r=5 (r-n=+2): exact top-down reduction OK [3.8s]; coefficients per cut k: k=3:[21], k=2:[35], k=1:[35]; 0-point term: wdeg 0 (1 terms); N == sum Delta*prod(D) exactly
+      control with rank-(n+1) residue bases: fails as expected: cut (0, 1, 2): residue degree 5 exceeds bound R_3=4
+      global system mod p (r=n+2): 496 rows x 232 residue columns (per k: {3: 21, 2: 105, 1: 105}, 0-point: 1); rank=232 (full column rank: True); dim P_r=166, rank[M|P_r]=232 (P_r in span: True) [0.8s]
+n=4 r=5 [independent tadpole bases]: OK; 0-point term: wdeg 0 (1 terms)
+n=4 r=6 [independent tadpole bases]: OK; 0-point term: wdeg 1 (5 terms)
+n=4 r=3 (r-n=-1): exact top-down reduction OK [0.1s]; coefficients per cut k: k=4:[4], k=3:[6], k=2:[4], k=1:[1]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=4 r=4 (r-n=+0): exact top-down reduction OK [0.4s]; coefficients per cut k: k=4:[5], k=3:[10], k=2:[10], k=1:[5]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=4 r=5 (r-n=+1): exact top-down reduction OK [1.5s]; coefficients per cut k: k=4:[6], k=3:[15], k=2:[20], k=1:[15]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=4 r=6 (r-n=+2): exact top-down reduction OK [8.0s]; coefficients per cut k: k=4:[7], k=3:[21], k=2:[35], k=1:[35]; 0-point term: wdeg 0 (1 terms); N == sum Delta*prod(D) exactly
+      control with rank-(n+1) residue bases: fails as expected: cut (0, 1, 2, 3): residue degree 6 exceeds bound R_4=5
+      global system mod p (r=n+2): 1211 rows x 442 residue columns (per k: {4: 7, 3: 84, 2: 210, 1: 140}, 0-point: 1); rank=442 (full column rank: True); dim P_r=296, rank[M|P_r]=442 (P_r in span: True) [4.1s]
+n=5 r=4 (r-n=-1): exact top-down reduction OK [0.5s]; coefficients per cut k: k=5:[1], k=4:[4], k=3:[6], k=2:[4], k=1:[1]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=5 r=5 (r-n=+0): exact top-down reduction OK [1.1s]; coefficients per cut k: k=5:[1], k=4:[5], k=3:[10], k=2:[10], k=1:[5]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=5 r=6 (r-n=+1): exact top-down reduction OK [3.7s]; coefficients per cut k: k=5:[1], k=4:[6], k=3:[15], k=2:[20], k=1:[15]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=5 r=7 (r-n=+2): exact top-down reduction OK [14.8s]; coefficients per cut k: k=5:[1], k=4:[7], k=3:[21], k=2:[35], k=1:[35]; 0-point term: wdeg 0 (1 terms); N == sum Delta*prod(D) exactly
+      control with rank-(n+1) residue bases: fails as expected: cut (0, 1, 2, 3): residue degree 6 exceeds bound R_4=5
+      global system mod p (r=n+2): 2576 rows x 772 residue columns (per k: {5: 1, 4: 35, 3: 210, 2: 350, 1: 175}, 0-point: 1); rank=772 (full column rank: True); dim P_r=496, rank[M|P_r]=772 (P_r in span: True) [17.5s]
+n=6 r=5 (r-n=-1): exact top-down reduction OK [1.8s]; coefficients per cut k: k=5:[1], k=4:[4], k=3:[6], k=2:[4], k=1:[1]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=6 r=6 (r-n=+0): exact top-down reduction OK [4.3s]; coefficients per cut k: k=5:[1], k=4:[5], k=3:[10], k=2:[10], k=1:[5]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=6 r=7 (r-n=+1): exact top-down reduction OK [11.3s]; coefficients per cut k: k=5:[1], k=4:[6], k=3:[15], k=2:[20], k=1:[15]; 0-point term: none; N == sum Delta*prod(D) exactly
+n=6 r=8 (r-n=+2): exact top-down reduction OK [33.0s]; coefficients per cut k: k=5:[1], k=4:[7], k=3:[21], k=2:[35], k=1:[35]; 0-point term: wdeg 0 (1 terms); N == sum Delta*prod(D) exactly
+      control with rank-(n+1) residue bases: fails as expected: cut (0, 1, 2, 3): residue degree 6 exceeds bound R_4=5
+      global system mod p (r=n+2): 4956 rows x 1267 residue columns (per k: {5: 6, 4: 105, 3: 420, 2: 525, 1: 210}, 0-point: 1); rank=1267 (full column rank: True); dim P_r=791, rank[M|P_r]=1267 (P_r in span: True) [75.5s]
+ALL CHECKS PASSED
