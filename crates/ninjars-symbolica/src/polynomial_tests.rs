@@ -247,3 +247,229 @@ fn factored_external_coefficients_preserve_mixed_dual_lanes() {
     }
     numerator.expansion_batch(&kind, &[], &mut []).unwrap();
 }
+
+/// The previous preparation: substitute the cut parameterization into the
+/// whole numerator, expand in t, x and mu², then extract coefficients. Its
+/// atoms define the evaluators, so the truncated expansion must reproduce
+/// them exactly (equal atoms give equal evaluators and bitwise results).
+fn full_expansion(
+    numerator: &PolynomialNumerator<f64>,
+    kind: &ExpansionKind,
+    symbols: &[Atom],
+) -> Vec<Atom> {
+    let (t, x, mu2) = (&symbols[0], &symbols[1], &symbols[2]);
+    let vector = |index: usize| {
+        FourMomentum::from_args(
+            symbols[3 + 4 * index].clone(),
+            symbols[4 + 4 * index].clone(),
+            symbols[5 + 4 * index].clone(),
+            symbols[6 + 4 * index].clone(),
+        )
+    };
+    let (q, mu) = match kind {
+        ExpansionKind::Mu { .. } => {
+            let a = vector(0);
+            let mu = t.pow(2) * a.dot(&a);
+            (a * t.clone() + vector(1), mu)
+        }
+        ExpansionKind::T3 { .. } => (
+            vector(0) + vector(1) * t.clone() + vector(2) * ((&symbols[19] + mu2) / t),
+            mu2.clone(),
+        ),
+        ExpansionKind::T2 { .. } => (
+            vector(0)
+                + vector(1) * x.clone()
+                + vector(2) * t.clone()
+                + vector(3)
+                    * ((&symbols[19] + &symbols[20] * x + &symbols[21] * x.pow(2) + mu2) / t),
+            mu2.clone(),
+        ),
+    };
+    let replacements: Vec<_> = numerator
+        .variables()
+        .iter()
+        .zip(q.components().into_iter().chain([&mu]))
+        .map(|(from, to)| {
+            Replacement::new(Pattern::Literal(from.clone()), Pattern::Literal(to.clone()))
+        })
+        .collect();
+    let polynomial = numerator.polynomial();
+    let protected = polynomial.map_coeff(
+        |coefficient| {
+            let index = polynomial
+                .coefficients
+                .iter()
+                .position(|candidate| candidate == coefficient)
+                .unwrap();
+            symbols[22 + index].clone()
+        },
+        exact_field(),
+    );
+    let substituted = protected
+        .flatten(false)
+        .replace_multiple(&replacements)
+        .expand_in(t)
+        .expand_in(x)
+        .expand_in(mu2);
+    let expanded = substituted.to_polynomial_in_vars_with_field::<i32>(
+        &[t.clone(), x.clone(), mu2.clone()],
+        &exact_field(),
+    );
+    let powers: Vec<[i32; 3]> = match kind {
+        ExpansionKind::Mu { powers } => powers.iter().map(|&a| [a, 0, 0]).collect(),
+        ExpansionKind::T3 { powers } => powers.iter().map(|&(a, c)| [a, 0, i32::from(c)]).collect(),
+        ExpansionKind::T2 { powers } => powers
+            .iter()
+            .map(|&(a, b, c)| [a, i32::from(b), i32::from(c)])
+            .collect(),
+    };
+    powers
+        .iter()
+        .map(|power| expanded.coefficient(power).unwrap_or(Atom::Zero))
+        .collect()
+}
+
+/// Expansion kinds requested by the reduction (Laurent divisions of every cut
+/// size for several propagator counts, and the box mu expansion) plus wide
+/// ranges with negative powers.
+fn requested_kinds(rank: usize) -> Vec<ExpansionKind> {
+    let r = rank as i32;
+    let mut kinds = vec![
+        ExpansionKind::Mu { powers: vec![r] },
+        ExpansionKind::Mu {
+            powers: vec![r, r - 1],
+        },
+        ExpansionKind::T3 {
+            powers: (-3..=r)
+                .flat_map(|t| (0..=3).map(move |m| (t, m)))
+                .collect(),
+        },
+        ExpansionKind::T2 {
+            powers: (-2..=r)
+                .flat_map(|t| (0..=4).flat_map(move |x| (0..=2).map(move |m| (t, x, m))))
+                .collect(),
+        },
+    ];
+    for propagators in rank.saturating_sub(1).max(1)..=rank + 4 {
+        for cut in 1..=3.min(propagators) {
+            if let Ok(division) = crate::LaurentDivision::new(propagators, rank, cut) {
+                kinds.push(division.numerator_expansion().clone());
+            }
+        }
+    }
+    kinds
+}
+
+#[test]
+fn truncated_expansion_reproduces_full_expansion_atoms() {
+    // Dense through rank 4 in q and mu², with repeated, rational, imaginary
+    // and parameter-dependent coefficients.
+    let q = variables();
+    let [a, b] = [parse!("factoring_test::a"), parse!("factoring_test::b")];
+    let coefficients = [
+        Atom::num(1),
+        a.clone(),
+        Atom::num(1) / 3,
+        &a * &b - Atom::i(),
+        Atom::num(1),
+        (&a + &b).pow(2),
+    ];
+    let mut dense = Atom::Zero;
+    let mut count = 0;
+    for e0 in 0..=4u32 {
+        for e1 in 0..=4 - e0 {
+            for e2 in 0..=4 - e0 - e1 {
+                for e3 in 0..=4 - e0 - e1 - e2 {
+                    for m in 0..=(4 - e0 - e1 - e2 - e3) / 2 {
+                        let monomial = q[0].pow(e0 as i64)
+                            * q[1].pow(e1 as i64)
+                            * q[2].pow(e2 as i64)
+                            * q[3].pow(e3 as i64)
+                            * q[4].pow(m as i64);
+                        dense += &coefficients[count % coefficients.len()] * monomial;
+                        count += 1;
+                    }
+                }
+            }
+        }
+    }
+    let sparse_rank7 = parse!(
+        "factoring_test::a*factoring_test::q0^3*factoring_test::q1^2*factoring_test::q3^2+factoring_test::q2^7+3*factoring_test::mu2^2*factoring_test::q0*factoring_test::q3^2+factoring_test::b*factoring_test::mu2^3*factoring_test::q1+factoring_test::q0*factoring_test::q1*factoring_test::q2*factoring_test::q3+factoring_test::a"
+    );
+    let numerators = [
+        (expression(), 5),
+        (dense, 4),
+        (sparse_rank7, 7),
+        (Atom::num(3) / 2, 0),
+        (
+            parse!("factoring_test::a*factoring_test::q1+factoring_test::mu2"),
+            2,
+        ),
+    ];
+    for (expression, rank) in numerators {
+        let numerator =
+            PolynomialNumerator::new(expression, variables(), parameters(), 0_f64).unwrap();
+        assert_eq!(numerator.rank(), rank);
+        let symbols = numerator.fresh_symbols();
+        for kind in requested_kinds(rank) {
+            assert_eq!(
+                numerator.laurent_coefficients(&kind, &symbols),
+                full_expansion(&numerator, &kind, &symbols),
+                "rank {rank} {kind:?}"
+            );
+        }
+    }
+}
+
+/// A sparse rank-12 numerator took about 900 s to prepare: the full expansion
+/// of a rank-12 double-cut substitution has ~10^5 terms, of which the
+/// reduction keeps a handful of leading powers.
+#[test]
+fn rank_twelve_expansions_prepare_quickly() {
+    let [q0, q1, q2, q3, mu] = variables();
+    let [a, b] = [parse!("factoring_test::a"), parse!("factoring_test::b")];
+    let monomials = [
+        q0.pow(12),
+        q3.pow(12),
+        q1.pow(4) * q2.pow(5) * q3.pow(3),
+        q0.pow(3) * q1.pow(3) * q2.pow(3) * q3.pow(3),
+        q0.pow(2) * q1.pow(2) * mu.pow(4),
+        q2.pow(7) * q3.pow(1) * mu.pow(2),
+        q0.pow(1) * q1.pow(5) * q2.pow(1) * q3.pow(2) * mu.pow(1),
+        mu.pow(6),
+        q0.pow(5) * q2.pow(4),
+        q1.pow(3) * q3.pow(2) * mu.pow(2),
+        q0.pow(1) * q1.pow(1) * q2.pow(1) * q3.pow(1),
+        q2.pow(2) * mu.pow(1),
+        Atom::num(1),
+    ];
+    let expression = monomials
+        .into_iter()
+        .enumerate()
+        .fold(Atom::Zero, |sum, (k, monomial)| {
+            let coefficient = if k % 2 == 0 {
+                &a + Atom::num(k as i64)
+            } else {
+                &b * Atom::num(k as i64)
+            };
+            sum + coefficient * monomial
+        });
+    let numerator = PolynomialNumerator::new(expression, variables(), parameters(), 0_f64).unwrap();
+    assert_eq!(numerator.rank(), 12);
+    let start = std::time::Instant::now();
+    numerator
+        .exact_expansion(&ExpansionKind::Mu {
+            powers: vec![12, 11],
+        })
+        .unwrap();
+    for propagators in [11, 12] {
+        for cut in 1..=3 {
+            let division = crate::LaurentDivision::new(propagators, 12, cut).unwrap();
+            numerator
+                .exact_expansion(division.numerator_expansion())
+                .unwrap();
+        }
+    }
+    let elapsed = start.elapsed();
+    assert!(elapsed.as_secs() < 20, "{elapsed:?}");
+}

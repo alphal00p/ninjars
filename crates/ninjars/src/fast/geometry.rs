@@ -131,6 +131,11 @@ pub(crate) struct Basis {
     pub mp12: f64,
 }
 
+/// `|1 + r1 r2| = 2 |k1.k2 / gamma|` below which [`Basis::from_pair`] takes
+/// `e1.e2 = gamma / 2` instead of Ninja's cancelling `k1.k2 / (1 + r1 r2)`
+/// (more than ten bits lost).
+const ORTHOGONAL: f64 = 1. / 1024.;
+
 impl Basis {
     /// `Basis(k1, k2)`: `k1 = e1 + r1 e2`, `k2 = e2 + r2 e1`.
     pub(crate) fn from_pair(k1: &RMom, k2: &RMom, eps: f64) -> Self {
@@ -162,7 +167,17 @@ impl Basis {
             let inv_den = 1. / (1. - r1 * r2);
             e1 = scale(&sub(&e1, &scale(k2, r1)), inv_den);
             e2 = scale(&sub(&e2, &scale(k1, r2)), inv_den);
-            mp12 = k1k2 / (1. + r1 * r2);
+            // 1 + r1 r2 = 2 k1.k2 / gamma, so Ninja's k1.k2 / (1 + r1 r2) is
+            // gamma / 2. For nearly orthogonal momenta Ninja's form divides
+            // rounding noise by rounding noise (a wrong basis normalization
+            // and silently wrong cut solutions); use gamma / 2 there and keep
+            // Ninja's arithmetic elsewhere.
+            let one_plus = 1. + r1 * r2;
+            mp12 = if one_plus.abs() < ORTHOGONAL {
+                0.5 * gamma
+            } else {
+                k1k2 / one_plus
+            };
         }
         Self::complete(e1, e2, r1, r2, mp12, eps)
     }

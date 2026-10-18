@@ -105,6 +105,7 @@ impl Args {
             mu_extraction: self.mu_extraction,
             full_box_coefficients: self.full_box_coefficients,
             mu_sampling_scale: self.mu_sampling_scale.clone(),
+            stability_test: false,
             output: None,
         }
     }

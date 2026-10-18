@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/ninjars", "crates/ninjars-symbolica", "crates/ninjars-graph", "crates/ninjars-cli"]
+members = ["crates/ninjars", "crates/ninjars-positional", "crates/ninjars-symbolica", "crates/ninjars-graph", "crates/ninjars-cli"]
 exclude = ["references"]
 
 [workspace.package]
@@ -11,6 +11,7 @@ license = "GPL-3.0-or-later"
 
 [workspace.dependencies]
 ninjars = { path = "crates/ninjars" }
+ninjars-positional = { path = "crates/ninjars-positional" }
 ninjars-symbolica = { path = "crates/ninjars-symbolica" }
 ninjars-graph = { path = "crates/ninjars-graph" }
 symbolica = { version = "3.0.1", default-features = false, features = ["integer-gmp", "float-mpfr", "bincode", "serde", "tracing_max_level_info"] }
