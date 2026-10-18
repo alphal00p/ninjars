@@ -110,6 +110,7 @@ fn scalar_expression<T: NativeFloat + Into<Float>>(
             [7, 0, 0, 1],
             [11, 1, 2, 1],
             [16, 2, -1, 2],
+            [29, 3, -2, 1],
         ]
     };
     let shifts: Vec<_> = (0..3)
@@ -298,10 +299,12 @@ fn native_triangle_dual_preserves_existing_c0_derivative_domain_rejection() {
 
 #[test]
 fn growing_catalog_covers_lower_quotient_degrees_and_complex_precisions() {
-    for n in 1..=6 {
+    for n in 1..=7 {
         scalar(0., n, 9, true);
     }
     scalar_expression(0., 3, 9, true, parse!("a*(q0-q1)^4+mu2^2"));
+    // Seven propagators at rank n+1 select the catalog for every quotient degree.
+    scalar_expression(0., 7, 9, true, parse!("a*(q0-q1)^8+mu2^4"));
     scalar(DoubleFloat::default(), 3, 25, true);
     scalar(Float::new(192), 3, 45, true);
     let selection = SymbolicaAmplitudeKernels::new(3, 3, 0.)

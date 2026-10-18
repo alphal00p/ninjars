@@ -30,7 +30,7 @@ struct Cli {
 enum Command {
     /// Prepare a FeynKit DOT graph or a JSON fixture using exact symbolic inputs.
     Prepare(prepare::Args),
-    /// Reduce graphs through six propagators with fully specified samples.
+    /// Reduce graphs with any number of propagators and fully specified samples.
     Reduce(reduce::Args),
     /// Measure warmed Rust evaluation; reference performance acceptance is separate.
     Bench(bench::Args),

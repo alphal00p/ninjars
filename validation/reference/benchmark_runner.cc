@@ -187,7 +187,7 @@ int run(int argc, char **argv) {
   if (!(std::cin >> magic) || magic != "NINJARS_BENCH_V1")
     throw std::invalid_argument("invalid benchmark protocol version");
   const Count n = read_count(), rank = read_count(), parameters = read_count(), rows = read_count();
-  if (n == 0 || n > 6 || rank > n + 1 || rows == 0
+  if (n == 0 || rank > n + 1 || rows == 0
       || n != ninjars_reference::propagator_count || rank != ninjars_reference::rank
       || parameters != ninjars_reference::parameter_count)
     throw std::invalid_argument("pool shape does not match the compiled numerator");

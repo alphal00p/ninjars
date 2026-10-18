@@ -42,6 +42,11 @@ The generic `symbolica` and `native` selectors remain available for comparisons.
 Rank selections report their guarded alternate separately from generic fallback
 coverage and reject other topologies.
 
+`heptagon-rank8.json` reduces seven propagators at rank n+1 (`q0^8`, `mu2^4`
+and mixed `mu2` terms) at two exact timelike points, in every `--precision` and
+with `--engine fast`. Both reduction engines and original Ninja (`compare`)
+support any number of propagators; seven or more only add uncut denominators.
+
 `triangle-reference.json` supplies a separate timelike configuration for checking
 original Ninja's generated and tensor callbacks. The Euclidean triangle remains
 useful for preparation and future complex-basis tests, but original Ninja's real

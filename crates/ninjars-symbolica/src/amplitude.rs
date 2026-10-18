@@ -8,18 +8,13 @@ use crate::{
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel},
 };
 use ninjars::{
-    Amplitude, AmplitudeKernels, BoxCoefficientMode, BoxMuMode, BoxReductionOptions, Complex,
-    Error, Real, Result, SingleFloat, Topology,
+    Amplitude, AmplitudeKernels, BoxCoefficientMode, BoxMuMode, BoxReductionOptions, Complex, Real,
+    Result, SingleFloat, Topology,
 };
 use symbolica::{atom::Atom, domains::dual::DualNumber, evaluate::EvaluationDomain, symbol};
 
 fn accumulation(n: usize, rank: usize) -> Result<ExactKernel> {
     let topology = Topology::new(n, rank)?;
-    if n > 6 {
-        return Err(Error::Unsupported(
-            "integrated reduction currently supports at most six propagators".into(),
-        ));
-    }
     let rows = topology.cuts().len() + 1;
     let parameters: Vec<_> = (0..rows * 5)
         .map(|i| Atom::var(symbol!(format!("ninjars_accumulation::p{i}"))))

@@ -11,7 +11,9 @@ fn root() -> PathBuf {
 #[ignore = "builds original Ninja runners with C++/Fortran reference dependencies"]
 fn prepared_polynomials_compare_with_original_ninja_in_all_laurent_coefficients() {
     let directory = std::env::temp_dir().join(format!("ninjars-compare-{}", std::process::id()));
-    for fixture in ["bubble", "triangle-reference", "box"] {
+    // The seven-propagator rank-8 heptagon exercises the reference export and
+    // runner beyond six propagators.
+    for fixture in ["bubble", "triangle-reference", "box", "heptagon-rank8"] {
         let output = Command::new(env!("CARGO_BIN_EXE_ninjars"))
             .current_dir(root())
             .args([

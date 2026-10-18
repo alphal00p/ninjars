@@ -52,9 +52,10 @@ while evaluating all eligible rows through one batched instruction graph.
 ## Integrated amplitudes
 
 `SymbolicaAmplitudeKernels::new(n, rank, prototype)?.into_amplitude(lanes)`
-constructs a core `Amplitude` for one through six propagators and rank at most
-n+1. Supply shared lane-major shifts/masses, one squared scale per lane, a
-numerator, `SymbolicaCuts` and a master provider to `evaluate_batch`. Successful
+constructs a core `Amplitude` for any number n >= 1 of propagators and rank at
+most n+1. Five-cuts are the highest cuts; seven or more propagators only add
+uncut denominators, divided out by Laurent kernels generated for each n. Supply
+shared lane-major shifts/masses, one squared scale per lane, a numerator, `SymbolicaCuts` and a master provider to `evaluate_batch`. Successful
 lanes accumulate into `[finite, single pole, double pole, cut-constructible finite,
 rational]`; failed lanes retain all previous components. Inspect `statuses()`
 for the last attempt and call `reset()` or `reset_batch(lanes)` to clear results.

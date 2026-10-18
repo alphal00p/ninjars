@@ -1,0 +1,18 @@
+digraph heptagon_rank8 {
+    num = "1 + ninjars::q0^8 + ninjars::q1^3*ninjars::q2^2*ninjars::q3 + ninjars::mu2*ninjars::q0^3*ninjars::q1^3 + ninjars::mu2^2*ninjars::q2^2 + ninjars::mu2^4 + ninjars::q3^5";
+    ext [style=invis];
+    ext -> a [particle="phi", num="1"];
+    ext -> b [particle="phi", num="1"];
+    c -> ext [particle="phi", num="1"];
+    d -> ext [particle="phi", num="1"];
+    e -> ext [particle="phi", num="1"];
+    f -> ext [particle="phi", num="1"];
+    g -> ext [particle="phi", num="1"];
+    a -> b [particle="phi", lmb_id=0, num="1"];
+    b -> c [particle="phi", num="1"];
+    c -> d [particle="phi", num="1"];
+    d -> e [particle="phi", num="1"];
+    e -> f [particle="phi", num="1"];
+    f -> g [particle="phi", num="1"];
+    g -> a [particle="phi", num="1"];
+}

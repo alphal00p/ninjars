@@ -1,4 +1,6 @@
-//! Integrated amplitudes through six propagators with lane-local accumulation.
+//! Integrated amplitudes for any number of propagators with lane-local
+//! accumulation. Five-cuts are the highest cuts: for n > 5 every pentagon,
+//! box, triangle, bubble and tadpole simply has more uncut denominators.
 
 use crate::{
     BatchShape, BoxCoefficientMode, BoxMuMode, BoxReducer, BoxReductionKernels,
@@ -68,7 +70,7 @@ pub struct AmplitudeInput<'a, T> {
 
 /// Ninja-style accumulation over a fixed phase-space batch.
 ///
-/// This implementation accepts up to six propagators and rank n+1.
+/// This implementation accepts any number of propagators n >= 1 and rank n+1.
 /// Calls add successful lanes to existing results. Every field of a failed lane
 /// remains unchanged; its last-attempt status is recorded separately. Structural
 /// errors leave results and last-attempt statuses unchanged. Shifts and masses
@@ -107,11 +109,6 @@ pub struct Amplitude<T, K: AmplitudeKernels<T>> {
 impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
     pub fn new(kernels: K, prototype: T, lanes: usize) -> Result<Self> {
         let topology = Topology::new(kernels.propagators(), kernels.rank())?;
-        if topology.propagators() > 6 {
-            return Err(Error::Unsupported(
-                "integrated reduction currently supports at most six propagators".into(),
-            ));
-        }
         let active = |size| {
             size <= topology.propagators()
                 && (size == 4 || topology.rank().saturating_add(size) >= topology.propagators())

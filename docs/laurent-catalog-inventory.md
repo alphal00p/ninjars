@@ -1,9 +1,10 @@
 # Ordinary Laurent catalog inventory
 
-The existing `LaurentDivision` and `RustKernelExport` APIs can produce a bounded
-catalog for up to six propagators, rank at most n+1, and cuts of size one to
-three. The inventory example uses only these exact Symbolica plans and
-oneloopmaster's emitter. It installs no backend and introduces no algebra.
+The existing `LaurentDivision` and `RustKernelExport` APIs produce plans for any
+number of propagators; this inventory covers the bounded catalog for up to six
+propagators, rank at most n+1, and cuts of size one to three. The inventory
+example uses only these exact Symbolica plans and oneloopmaster's emitter. It
+installs no backend and introduces no algebra.
 
 ```sh
 cargo run --locked -p ninjars-symbolica --features rust-codegen --example inventory_laurent_catalog -- target/laurent-catalog-inventory.json

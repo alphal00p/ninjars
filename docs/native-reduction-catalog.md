@@ -55,9 +55,10 @@ and check warmed f64 storage allocations. The extracted projection is also
 checked against shared FourMomentum arithmetic with arbitrary complex source
 origins and every higher/mixed Dual component. Dual correction subsets are
 checked against the original full exact correction, including malformed shape
-rejection. Integrated tests cover the supported one-through-six-propagator
-stages, higher rank, accumulated failure isolation and reset. CLI tests use
-archived original-Ninja total Laurent controls.
+rejection. Integrated tests cover one- through seven-propagator stages (the
+catalog is keyed by quotient degree, not by n), higher rank, accumulated
+failure isolation and reset. CLI tests use archived original-Ninja total
+Laurent controls.
 
 No speedup or latency/throughput acceptance is claimed. The profiling evidence
 motivated these families, but included intrusive instrumentation and interpreted
