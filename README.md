@@ -5,9 +5,10 @@ physics types, Symbolica's algebra and evaluators, and oneloopmaster's scalar
 integrals. The intended interface carries batches and generic numerical domains
 through numerator callbacks, reduction, and master integrals.
 
-This is a development version. The library provides reduction stages through
-six propagators and rank n+1, with batched polynomial/Dual callbacks, both box
-mu-extraction modes, lower-cut subtraction, master integrals and lane-local accumulation.
+This is a development version. The library provides reduction stages for any
+number of propagators and rank n+1 in every precision, with batched
+polynomial/Dual callbacks, both box mu-extraction modes, lower-cut subtraction,
+master integrals and lane-local accumulation.
 Analytic and original Ninja controls validate an initial synthetic suite.
 Independent FeynKit preparation also matches raw MadLoop numerators for both
 top-quark H→gg orientations, six four-photon boxes and eight gg→HH graphs.

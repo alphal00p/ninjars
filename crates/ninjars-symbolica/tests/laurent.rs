@@ -50,12 +50,12 @@ fn coefficients(expression: &Atom, kind: &ExpansionKind) -> Vec<Complex<f64>> {
 }
 
 #[test]
-fn division_reconstructs_known_quotients_through_six_lines_and_rank_n_plus_one() {
+fn division_reconstructs_known_quotients_through_nine_lines_and_rank_n_plus_one() {
     let t = parse!("division_test::t");
     let x = parse!("division_test::x");
     let mu = parse!("division_test::mu");
     for cut in 1..=3 {
-        for n in cut..=6 {
+        for n in cut..=9 {
             let plan = LaurentDivision::new(n, n + 1, cut).unwrap();
             let mut evaluator = plan.compile(&0_f64).unwrap();
             let degree = cut + 1;

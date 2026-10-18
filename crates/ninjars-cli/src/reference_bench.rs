@@ -26,10 +26,8 @@ fn real(value: &Complex<f64>) -> Result<f64> {
 
 pub(crate) fn export(directory: &Path, prepared: &PreparedDocument) -> Result<Value> {
     let n = prepared.propagators;
-    if !(1..=6).contains(&n) || prepared.samples.is_empty() {
-        return Err(
-            "reference benchmark requires 1..=6 propagators and a nonempty sample pool".into(),
-        );
+    if n == 0 || prepared.samples.is_empty() {
+        return Err("reference benchmark requires propagators and a nonempty sample pool".into());
     }
     // Check original Ninja's real-input domain before the f64 binding can
     // underflow an imaginary component. The values written below still come

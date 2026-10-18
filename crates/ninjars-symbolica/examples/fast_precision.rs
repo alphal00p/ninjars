@@ -5,7 +5,7 @@
 //! numerator in `Float(--bits)` arithmetic with exactly the OneLOop masters
 //! original Ninja used; the binary64 errors of the fast engine (same masters)
 //! and of original Ninja are reported relative to the lane's largest exact
-//! Laurent/split modulus. The generic engine accepts up to six propagators.
+//! Laurent/split modulus. The generic engine accepts any number of propagators.
 //!
 //! ```text
 //! cargo run --profile perf -p ninjars-symbolica --example fast_precision -- \

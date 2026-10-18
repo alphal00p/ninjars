@@ -599,3 +599,59 @@ fn native_block_rows_preserve_serialized_values_tail_and_kernel_coverage() {
         }
     }
 }
+
+/// Seven propagators, rank n+1 (`heptagon-rank8.json`): the generic engine
+/// reduces beyond six propagators in every precision. Its results agree with
+/// the binary64 fast engine, and DoubleFloat and Float at two working
+/// precisions agree to their own accuracy. The single pole vanishes (no UV or
+/// IR divergence at rank 8 < 2n-4 with massive propagators).
+#[test]
+fn seven_propagators_reduce_in_every_precision_and_engine() {
+    let fixture = "examples/graphs/heptagon-rank8.json";
+    let laurent = |document: &Value| -> Vec<[(f64, f64); 3]> {
+        assert_eq!(document["success"], true);
+        assert_eq!(document["propagator_edges"].as_array().unwrap().len(), 7);
+        assert_eq!(document["rank"], 8);
+        document["results"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|row| {
+                assert_eq!(row["status"]["kind"], "success");
+                std::array::from_fn(|k| (component(row, k, 0), component(row, k, 1)))
+            })
+            .collect()
+    };
+    let scaled = |actual: &[[(f64, f64); 3]], expected: &[[(f64, f64); 3]]| {
+        actual
+            .iter()
+            .zip(expected)
+            .map(|(a, b)| {
+                let scale = b.iter().map(|z| z.0.hypot(z.1)).fold(0., f64::max);
+                (0..3)
+                    .map(|k| (a[k].0 - b[k].0).hypot(a[k].1 - b[k].1) / scale)
+                    .fold(0., f64::max)
+            })
+            .fold(0., f64::max)
+    };
+    let reference = value(run(&[fixture, "--precision", "float", "--bits", "300"]));
+    let exact = laurent(&reference);
+    assert_eq!(exact.len(), 2);
+    for lane in &exact {
+        assert!(lane[1].0.hypot(lane[1].1) < 1e-80 * lane[0].0.hypot(lane[0].1));
+    }
+    for (options, tolerance) in [
+        (&["--precision", "f64"][..], 1e-10),
+        (&["--engine", "fast"][..], 1e-9),
+        (&["--precision", "double-float"][..], 1e-27),
+        (&["--precision", "float", "--bits", "200"][..], 1e-54),
+        (&["--precision", "float"][..], 1e-70),
+    ] {
+        let mut args = vec![fixture, "--batch-size", "1"];
+        args.extend_from_slice(options);
+        let document = value(run(&args));
+        let error = scaled(&laurent(&document), &exact);
+        assert!(error <= tolerance, "{options:?}: scaled error {error:e}");
+        eprintln!("NINJARS_HEPTAGON {options:?} scaled_error={error:e}");
+    }
+}

@@ -67,9 +67,9 @@ pub(crate) fn export(
     let has_s_matrix = samples.iter().any(|sample| sample.s_matrix.is_some());
     for sample in samples {
         let n = sample.shifts.len();
-        if !(1..=6).contains(&n) || n != sample.mass_squared.len() {
+        if n == 0 || n != sample.mass_squared.len() {
             return Err(format!(
-                "sample {}: reference runner requires 1..=6 matched propagators",
+                "sample {}: reference runner requires matched propagators",
                 sample.lane
             )
             .into());

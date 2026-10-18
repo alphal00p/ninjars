@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
       mu_expansion = false;
     } else if (option == "--s-matrix" && arg + 1 < argc) {
       std::ifstream input(argv[++arg]);
-      if (!(input >> matrix_size) || matrix_size == 0 || matrix_size > 6) return 2;
+      if (!(input >> matrix_size) || matrix_size == 0) return 2;
       matrix.resize(matrix_size * matrix_size);
       for (unsigned i = 0; i < matrix.size(); ++i) {
         if (!(input >> matrix[i]) || !std::isfinite(matrix[i])) return 2;
@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
     // Original Ninja's D0 key omits s14. Never reuse it across changed
     // phase-space requests. Within a request the warm/timed inputs are identical.
     ninja::avh_olo.clearIntegralCache();
-    if (!(std::cin >> rank >> repetitions) || !read_real(scale) || n == 0 || n > 6 || rank > n + 1 ||
+    if (!(std::cin >> rank >> repetitions) || !read_real(scale) || n == 0 || rank > n + 1 ||
         repetitions == 0 || scale <= 0) {
       std::cerr << "invalid request header\n";
       return 2;
