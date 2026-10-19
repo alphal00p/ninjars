@@ -1,5 +1,7 @@
 //! Batched quadruple-cut reduction with both rational extraction modes.
 
+use std::collections::HashMap;
+
 use crate::residue_storage::VecPool;
 use crate::{
     BatchShape, BoxCut, BoxCutRequest, BoxSampleRequest, CutFailure, CutOutcome, Error,
@@ -165,20 +167,25 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
         };
         let cuts = indices(4);
         let pentagons = indices(5);
+        // Look pentagons up by partition: a scan per box line is quadratic in
+        // the number of cuts (seconds at twenty propagators).
+        let rows: HashMap<&[usize], usize> = pentagons
+            .iter()
+            .enumerate()
+            .map(|(row, &parent)| (topology.cuts()[parent].partition.as_slice(), row))
+            .collect();
         let parents = cuts
             .iter()
             .map(|&cut| {
-                topology.cuts()[cut]
-                    .complement
+                let cut = &topology.cuts()[cut];
+                cut.complement
                     .iter()
-                    .map(|extra| {
-                        pentagons
-                            .iter()
-                            .position(|&parent| {
-                                let p = &topology.cuts()[parent].partition;
-                                p.contains(extra)
-                                    && topology.cuts()[cut].partition.iter().all(|i| p.contains(i))
-                            })
+                    .map(|&extra| {
+                        let mut pentagon = cut.partition.clone();
+                        pentagon.push(extra);
+                        pentagon.sort_unstable();
+                        *rows
+                            .get(pentagon.as_slice())
                             .expect("every box complement line defines a pentagon")
                     })
                     .collect()

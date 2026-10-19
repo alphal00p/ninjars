@@ -5,7 +5,10 @@ use crate::{
     TriangleBubbleSubtraction,
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor},
     rank_specialization::{self, GuardedCorrection},
-    value_checks::{DualChecks, IntegrationChecks, OrdinaryChecks},
+    value_checks::{
+        DualChecks, IntegrationChecks, Negligible, OrdinaryChecks, ValueChecks,
+        difference_dot_scale,
+    },
 };
 use ninjars::{
     BatchShape, BubbleCut, BubbleDivisionRequest, BubbleReductionKernels,
@@ -19,7 +22,7 @@ thread_local! {
     pub(crate) static DENOMINATOR_ROWS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
 }
 
-struct Engine<V, K, Checks> {
+struct Engine<V, K, Checks, R> {
     n: usize,
     rank: usize,
     layout: LaurentDivision,
@@ -35,6 +38,7 @@ struct Engine<V, K, Checks> {
     pruned_swapped: Option<PrunedHeads<V, K>>,
     subtraction: K,
     zero: V,
+    negligible: Negligible<R>,
     checks: std::marker::PhantomData<fn() -> Checks>,
     input: Vec<V>,
     denominators: Vec<V>,
@@ -207,7 +211,13 @@ fn append_denominator<V: Clone>(
     output.push(masses[line].clone());
 }
 
-impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V, K, Checks> {
+impl<
+    V: FloatLike,
+    K: KernelExecutor<V>,
+    R: Real + SingleFloat,
+    Checks: IntegrationChecks<V> + ValueChecks<V, Real = R>,
+> Engine<V, K, Checks, R>
+{
     #[cfg(feature = "native-kernels")]
     fn set_native_batch_execution(&mut self, policy: crate::BatchExecutionPolicy) {
         for kernel in [
@@ -291,6 +301,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
             pruned_swapped: None,
             subtraction,
             zero: prototype.zero(),
+            negligible: Negligible::new(&Checks::magnitude(prototype)),
             checks: std::marker::PhantomData,
             input: Vec::new(),
             denominators: Vec::new(),
@@ -304,6 +315,20 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
 
     fn valid(&self, value: &V) -> bool {
         Checks::shape_matches(value, &self.zero) && Checks::finite(value)
+    }
+
+    /// Whether the leading Laurent coefficient `d0 = 2 v_t.(V_line - V_anchor)`
+    /// of an uncut denominator (Ninja's `denc.d0`) is negligible.
+    fn negligible_leading(
+        &self,
+        vectors: &[FourMomentum<V>; 4],
+        shifts: &[FourMomentum<V>],
+        anchor: usize,
+        line: usize,
+        d0: &V,
+    ) -> bool {
+        let scale = difference_dot_scale::<V, Checks>(&vectors[2], &shifts[line], &shifts[anchor]);
+        self.negligible.value::<V, Checks>(d0, &scale)
     }
 
     fn specialize_correction(
@@ -476,13 +501,18 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
         self.input.clear();
         self.active.clear();
         for (index, &row) in self.eligible.iter().enumerate() {
+            let r = &requests[row];
             let den = &self.denominators[index * uncut * 7..(index + 1) * uncut * 7];
+            // Leading coefficient 2 v_t.(V_j - V_0) (Ninja's `denc.d0` check).
             stable[row] = den.iter().all(Checks::finite)
                 && den
                     .as_chunks::<7>()
                     .0
                     .iter()
-                    .all(|d| Checks::nonzero(&d[0]));
+                    .zip(r.complement)
+                    .all(|(d, &line)| {
+                        !self.negligible_leading(r.vectors, r.shifts, r.partition[0], line, &d[0])
+                    });
             if stable[row] {
                 self.active.push(row);
                 self.input
@@ -668,7 +698,14 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
             };
             let den = &self.denominators[offset..offset + 7];
             let proj = &self.projections[index * 8..(index + 1) * 8];
-            stable[row] = den.iter().chain(proj).all(Checks::finite) && Checks::nonzero(&den[0]);
+            let r = &requests[row];
+            let line = *r
+                .source_partition
+                .iter()
+                .find(|i| !r.partition.contains(i))
+                .unwrap();
+            stable[row] = den.iter().chain(proj).all(Checks::finite)
+                && !self.negligible_leading(r.vectors, r.shifts, r.partition[0], line, &den[0]);
             if stable[row] {
                 self.active.push(row);
                 self.input
@@ -826,10 +863,10 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
     }
 }
 
-/// Bubble reduction arithmetic, with exact-zero/nonfinite isolation. Scaled
-/// conditioning checks and precision rescue remain separate acceptance work.
+/// Bubble reduction arithmetic, with precision-aware singular/nonfinite
+/// isolation. Precision rescue remains separate acceptance work.
 pub struct SymbolicaBubbleKernels<T> {
-    engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks>,
+    engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks, T>,
 }
 impl<T: Real + SingleFloat> SymbolicaBubbleKernels<T>
 where
@@ -897,7 +934,7 @@ where
 
 /// Static/dynamic Dual execution of the same exact bubble graphs.
 pub struct SymbolicaDualBubbleKernels<T, D> {
-    engine: Engine<D, CompiledDualKernel<T, D>, DualChecks<T>>,
+    engine: Engine<D, CompiledDualKernel<T, D>, DualChecks<T>, T>,
 }
 impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualBubbleKernels<T, D>
 where

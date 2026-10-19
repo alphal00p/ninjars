@@ -28,6 +28,7 @@ mod pentagon_kernels;
 #[cfg(test)]
 mod plan_fingerprints_tests;
 mod polynomial;
+mod positional;
 mod projection;
 mod rank_specialization;
 #[cfg(feature = "reference-codegen")]

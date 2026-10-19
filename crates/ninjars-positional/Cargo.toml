@@ -1,0 +1,11 @@
+[package]
+name = "ninjars-positional"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Symbolica evaluators independent of the process's symbol registration history"
+
+[dependencies]
+symbolica.workspace = true
+thiserror.workspace = true

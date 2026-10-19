@@ -3,6 +3,8 @@ mod case_bench;
 mod case_check;
 #[cfg(feature = "reference-codegen")]
 mod compare;
+#[cfg(test)]
+mod determinism_tests;
 mod draw;
 mod export_bench;
 mod fast_runtime;

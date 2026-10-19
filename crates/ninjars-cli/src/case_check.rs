@@ -104,6 +104,11 @@ pub struct Args {
     /// Exit successfully even when lanes fail.
     #[arg(long)]
     pub no_fail: bool,
+    /// Generic engine: report a lane as `Unstable` (and fail it) when
+    /// cancellation between its cut contributions leaves fewer than half of the
+    /// carrier's significant bits, as `reduce --stability-test`.
+    #[arg(long)]
+    pub stability_test: bool,
 }
 
 #[derive(Clone, Copy)]
@@ -345,6 +350,7 @@ pub fn run(args: Args) -> Result<()> {
     }
     let mut fast_masters = None;
     let mut generic = Engines::default();
+    generic.stability_test = args.stability_test;
     let mut reports = Vec::new();
     let mut totals = BTreeMap::<String, Vec<(Verdict, Option<f64>)>>::new();
     let mut errors = 0;

@@ -1229,6 +1229,8 @@ where
     Complex<T>: Real + EvaluationDomain,
 {
     prototype: T,
+    /// Opt-in cancellation test ([`SymbolicaAmplitudeKernels::with_stability_test`]).
+    stability_test: bool,
     low: SymbolicaCuts<T>,
     high: SymbolicaHighCuts<T>,
     amplitudes:
@@ -1244,8 +1246,17 @@ where
             low: SymbolicaCuts::new(prototype.clone())?,
             high: SymbolicaHighCuts::new(prototype.clone())?,
             prototype,
+            stability_test: false,
             amplitudes: HashMap::new(),
         })
+    }
+
+    /// Report lanes whose cut contributions cancel to fewer than half of the
+    /// carrier's bits as [`EvaluationStatus::Unstable`] (`--stability-test`).
+    pub fn with_stability_test(mut self, enabled: bool) -> Self {
+        self.stability_test = enabled;
+        self.amplitudes.clear();
+        self
     }
 
     pub fn prototype(&self) -> &T {
@@ -1264,8 +1275,13 @@ where
     /// Build (or reuse) the plans for `n` propagators at `rank`.
     pub fn prepare(&mut self, n: usize, rank: usize) -> Result<()> {
         if !self.amplitudes.contains_key(&(n, rank)) {
-            let amplitude = SymbolicaAmplitudeKernels::new(n, rank, self.prototype.clone())?
-                .into_amplitude(1)?;
+            let kernels = SymbolicaAmplitudeKernels::new(n, rank, self.prototype.clone())?;
+            let kernels = if self.stability_test {
+                kernels.with_stability_test()
+            } else {
+                kernels
+            };
+            let amplitude = kernels.into_amplitude(1)?;
             self.amplitudes.insert((n, rank), amplitude);
         }
         Ok(())
@@ -1586,12 +1602,17 @@ pub struct Engines {
     f64: Option<(GenericEngine<f64>, OneLoopNativeMasters)>,
     double: Option<(GenericEngine<DoubleFloat>, SymbolicaMasters<DoubleFloat>)>,
     float: BTreeMap<u32, (GenericEngine<Float>, SymbolicaMasters<Float>)>,
+    /// Engines created from now on run the opt-in cancellation test.
+    pub stability_test: bool,
 }
 
 impl Engines {
     pub fn f64(&mut self) -> Result<(&mut GenericEngine<f64>, &mut OneLoopNativeMasters)> {
         if self.f64.is_none() {
-            self.f64 = Some((GenericEngine::new(0.)?, OneLoopNativeMasters::new()?));
+            self.f64 = Some((
+                GenericEngine::new(0.)?.with_stability_test(self.stability_test),
+                OneLoopNativeMasters::new()?,
+            ));
         }
         let (engine, masters) = self.f64.as_mut().unwrap();
         Ok((engine, masters))
@@ -1606,7 +1627,7 @@ impl Engines {
         if self.double.is_none() {
             let prototype = DoubleFloat::default();
             self.double = Some((
-                GenericEngine::new(prototype)?,
+                GenericEngine::new(prototype)?.with_stability_test(self.stability_test),
                 SymbolicaMasters::new(prototype),
             ));
         }
@@ -1622,7 +1643,8 @@ impl Engines {
             std::collections::btree_map::Entry::Occupied(entry) => entry.into_mut(),
             std::collections::btree_map::Entry::Vacant(entry) => {
                 let prototype = Float::new(bits);
-                let engine = GenericEngine::new(prototype.clone())?;
+                let engine =
+                    GenericEngine::new(prototype.clone())?.with_stability_test(self.stability_test);
                 entry.insert((engine, SymbolicaMasters::new(prototype)))
             }
         };
