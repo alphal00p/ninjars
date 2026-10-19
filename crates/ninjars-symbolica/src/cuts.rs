@@ -14,7 +14,7 @@
 
 use ninjars::{
     BatchShape, BubbleCut, BubbleCutRequest, BubbleSampleRequest, CutBasis, CutFailure, CutOutcome,
-    CutProvider, CutSampler, Error, FourMomentum, RankClass, Result, TadpoleCut, TadpoleCutRequest,
+    CutProvider, CutSampler, Error, FourMomentum, Result, TadpoleCut, TadpoleCutRequest,
     TriangleCut, TriangleCutRequest, TriangleSampleRequest,
 };
 use symbolica::{
@@ -113,19 +113,16 @@ struct CutEngine<T> {
     tadpole_finishes: Vec<Kernel<T>>,
     tadpole_probe_rows: Vec<usize>,
     tadpole_scores: Vec<[T; 6]>,
-    /// Per tadpole row: whether it is scored as at rank n+2 (`run_tadpole`).
-    tadpole_wide: Vec<bool>,
     /// `(1 + |z1|^2)^2` and `(1 + |z1|^2)(1 + |z2|^2)`: twice the squared
     /// Euclidean norms of `e1` and `e3` of each tadpole basis.
     tadpole_norms: [[T; 2]; 6],
     bubble_complement_probe: Kernel<T>,
+    /// Per probe row, its first row in both uncut-line probes.
     bubble_complement_starts: Vec<usize>,
-    /// Rank n+2 bubbles: the 16 further references, and per probe row its row
-    /// in these kernels (`None` below rank n+2).
-    bubble_wide_probe: Kernel<T>,
-    bubble_wide_complement_probe: Kernel<T>,
-    bubble_wide_rows: Vec<Option<usize>>,
-    bubble_wide_complement_starts: Vec<usize>,
+    /// The 16 further bubble references ([`further_bubble_references`]),
+    /// probed row for row with the first probe and its uncut-line probe.
+    further_bubble_probe: Kernel<T>,
+    further_bubble_complement_probe: Kernel<T>,
     samplers: [Kernel<T>; 2],
     active: Vec<usize>,
     seeded: Vec<usize>,
@@ -151,7 +148,7 @@ fn append_vector(out: &mut Vec<Atom>, v: &FourMomentum<Atom>) {
     out.extend(v.components().into_iter().cloned());
 }
 
-/// The bubble's auxiliary null references, in probe column order.
+/// The bubble's first eight auxiliary null references, in probe column order.
 ///
 /// As in Ninja's one-momentum Basis constructor, keep every spatial component
 /// nonzero. Axis references put the two transverse vectors outside a planar
@@ -160,7 +157,8 @@ fn append_vector(out: &mut Vec<Atom>, v: &FourMomentum<Atom>) {
 /// Being rational, any one of them can lie exactly in the plane of the cut
 /// momentum and an uncut shift difference at rational kinematics (Ninja's
 /// irrational reference avoids this only generically), so the provider scores
-/// all of them against the uncut lines of each request.
+/// them and the 16 of [`further_bubble_references`] against the uncut lines of
+/// each request.
 fn bubble_references() -> Vec<FourMomentum<Atom>> {
     let mut references = Vec::new();
     for swap in [false, true] {
@@ -180,12 +178,12 @@ fn bubble_references() -> Vec<FourMomentum<Atom>> {
     references
 }
 
-/// The rank n+2 bubble's further references: with [`bubble_references`],
-/// the 24 signed permutations of `(1, 2/3, 2/3, 1/3)`, the fast engine's
-/// candidates up to normalization (`ninjars::fast` `bases_x2.rs`). These 16
-/// have the 1/3 in the x or y component; they are exactly null and keep every
-/// spatial component nonzero.
-fn wide_bubble_references() -> Vec<FourMomentum<Atom>> {
+/// The bubble's further references: with [`bubble_references`], the 24
+/// signed permutations of `(1, 2/3, 2/3, 1/3)`, the fast engine's candidates
+/// up to normalization (`ninjars::fast` `bases_x2.rs`). These 16 have the 1/3
+/// in the x or y component; they are exactly null and keep every spatial
+/// component nonzero.
+fn further_bubble_references() -> Vec<FourMomentum<Atom>> {
     let mut references = Vec::new();
     for small in 1..3 {
         for signs in 0..8 {
@@ -322,8 +320,8 @@ where
         let triangle_probe = Kernel::new(&expressions, &p, &prototype, shape)?;
         let (bubble_probe, bubble_complement_probe) =
             bubble_probes(&bubble_references(), false, &prototype, shape)?;
-        let (bubble_wide_probe, bubble_wide_complement_probe) =
-            bubble_probes(&wide_bubble_references(), true, &prototype, shape)?;
+        let (further_bubble_probe, further_bubble_complement_probe) =
+            bubble_probes(&further_bubble_references(), true, &prototype, shape)?;
 
         let mut seeds = Vec::new();
         for mode in 0..2 {
@@ -463,14 +461,11 @@ where
             tadpole_finishes,
             tadpole_probe_rows: Vec::new(),
             tadpole_scores: Vec::new(),
-            tadpole_wide: Vec::new(),
             tadpole_norms,
             bubble_complement_probe,
             bubble_complement_starts: Vec::new(),
-            bubble_wide_probe,
-            bubble_wide_complement_probe,
-            bubble_wide_rows: Vec::new(),
-            bubble_wide_complement_starts: Vec::new(),
+            further_bubble_probe,
+            further_bubble_complement_probe,
             samplers: [triangle_sampler, bubble_sampler],
             active: Vec::new(),
             seeded: Vec::new(),
@@ -490,153 +485,75 @@ where
         !Self::greater(&Self::magnitude(value), &(self.tolerance.clone() * scale))
     }
 
-    /// Choose the bubble reference for one probed row: the probe column of
-    /// its k.r, or None when no reference is well conditioned.
+    /// Choose the bubble reference of one probed row among the 24 of
+    /// [`bubble_references`] and [`further_bubble_references`]: the column of
+    /// its `k.r` in the first probe, or past that probe's columns in the
+    /// further probe, or None when no reference is well conditioned.
     ///
-    /// Each uncut difference v has, for reference r, the scale-free ratio
-    /// |G(k,r,v)|/((k.r)^2 |v|^2) = 2|(e3.v)(e4.v)/(e3.e4)|/|v|^2 (|.| is
-    /// the largest component modulus). It vanishes when v lies in the plane
-    /// of k and r, where that uncut denominator's leading Laurent coefficient
-    /// is exactly zero and only round-off would otherwise be divided by. A
-    /// reference scores the minimum of (|k.r|/|k|)^2 and these ratios, and
-    /// the highest score wins (the largest |k.r| without uncut lines), the
-    /// lowest index among scores tied within the tolerance. As
-    /// before, |k.r| must exceed the tolerance relative to |k|. The plane
-    /// ratios, quadratic in the transverse components like the triangle Gram
-    /// determinant, must exceed the tolerance itself; only an uncut line
-    /// (nearly) along k is in the plane of every reference.
-    fn bubble_reference(&self, probe_row: usize, scale: &T) -> Option<usize> {
-        let probe = &self.probes[1];
-        let uncut = &self.bubble_complement_probe;
-        let zero = self.prototype.zero();
-        let products: [T; 8] = std::array::from_fn(|candidate| {
-            Self::magnitude(&probe.component(probe_row, 4 + 5 * candidate)[0])
-        });
-        let mut planes: [Option<T>; 8] = std::array::from_fn(|_| None);
-        let lines =
-            self.bubble_complement_starts[probe_row]..self.bubble_complement_starts[probe_row + 1];
-        for line in lines {
-            let mut norm = zero.clone();
-            for i in 0..4 {
-                let value = Self::magnitude(&uncut.component(line, i)[0]);
-                if Self::greater(&value, &norm) {
-                    norm = value;
-                }
-            }
-            if !norm.is_finite() || norm.is_fully_zero() {
-                return None;
-            }
-            for (candidate, plane) in planes.iter_mut().enumerate() {
-                let gram = Self::magnitude(&uncut.component(line, 4 + candidate)[0]);
-                let product = &products[candidate];
-                let mut ratio = gram / (product.clone() * product * &norm * &norm);
-                if !ratio.is_finite() {
-                    ratio = zero.clone();
-                }
-                if plane
-                    .as_ref()
-                    .is_none_or(|plane| Self::greater(plane, &ratio))
-                {
-                    *plane = Some(ratio);
-                }
-            }
-        }
-        let score = |candidate: usize| {
-            let ratio = products[candidate].clone() / scale;
-            let leading = ratio.clone() * ratio;
-            match &planes[candidate] {
-                Some(plane) if Self::greater(&leading, plane) => plane.clone(),
-                _ => leading,
-            }
-        };
-        // Symmetric rational kinematics often tie several references exactly
-        // (here the eight differ only by signs and a swap). The reference fixes
-        // the bubble's e2 direction and hence how the residue splits between
-        // B1/B11, the explicit mu^2 term, and the tadpoles' A0 subtraction:
-        // only their sum is reference independent, so the reported
-        // cut-constructible/rational split must not follow round-off. Like
-        // Ninja's fixed reference, break ties deterministically: take the
-        // lowest-index candidate within the conditioning tolerance of the best.
-        let scores: [T; 8] = std::array::from_fn(score);
-        let mut maximum = scores[0].clone();
-        for candidate_score in &scores[1..] {
-            if Self::greater(candidate_score, &maximum) {
-                maximum = candidate_score.clone();
-            }
-        }
-        let threshold = maximum * (self.prototype.one() - &self.tolerance);
-        let best = (0..8)
-            .find(|&candidate| !Self::greater(&threshold, &scores[candidate]))
-            .unwrap_or(0);
-        let column = 4 + 5 * best;
-        (!self.too_small(&probe.component(probe_row, column)[0], scale)
-            && planes[best]
-                .as_ref()
-                .is_none_or(|plane| Self::greater(plane, &self.tolerance)))
-        .then_some(column)
-    }
-
-    /// Choose the reference of a rank n+2 bubble among the 24 of
-    /// [`bubble_references`] and [`wide_bubble_references`]: `(row, column)`
-    /// of its `k.r` in the first probe, or past that probe's columns in the
-    /// rank n+2 probe, or None when no reference is well conditioned.
-    ///
-    /// At rank n+2 the Laurent division and the subtraction terms divide by up
-    /// to `(e3.v)^5` for every uncut line `v`, and the read-off by up to
-    /// `(k.r)^4`. As the fast engine (`ninjars::fast` `bases_x2.rs`), a
-    /// reference therefore scores
+    /// The Laurent division and the subtraction terms divide by powers of
+    /// `e3.v` for every uncut line `v` (up to the fifth at rank n+2), and the
+    /// read-off by powers of `k.r` (up to the fourth). As the fast engine
+    /// (`ninjars::fast` `bases_x2.rs`), a reference therefore scores
     /// `|k.r|/(|k| |r⁰|) · min_v |e3.v|/(|e3| |v|)` (Euclidean norms of the
     /// components), here squared: `|e3.v|² = |G(k, r, v)|/(2 |k.r|)` from the
     /// probe's Gram determinant and `|e3|² = 2 |e1⁰ r⁰|` with
     /// `e1 = k - k²/(2 k.r) r`. Both factors are scale free and at most 1, and
-    /// the line factor is 1 without uncut lines. The lower ranks keep
-    /// [`Self::bubble_reference`], whose plane ratio grows as `|k.r|` shrinks.
-    /// At rank n+2 that score, not the number of references, cost digits on
+    /// the line factor is 1 without uncut lines.
+    ///
+    /// This replaced `min((|k.r|/|k|)², min_v |G(k, r, v)|/((k.r)² |v|²))`
+    /// over the first eight references, whose line term grows as `|k.r|`
+    /// shrinks. That score, not the number of references, cost digits on
     /// light-like kinematics (final review, finding 5): on its 41 lanes with a
     /// binary64 error above 1e-9 the fast engine restricted to the eight
-    /// references and that score lost a geometric mean factor 3.05 against
-    /// its own choices, and with the eight references and this score 1.02.
+    /// references and that score lost a geometric mean factor 3.05 against its
+    /// own choices, and with the eight references and this score 1.02. This
+    /// score was adopted at rank n+2 first and then at every rank
+    /// (`validation/regression/README.md`, History).
     ///
-    /// Ties within the tolerance go to the lowest index, the eight references
-    /// of the lower ranks first, so the choice does not depend on the
-    /// precision. The checks are those of [`Self::bubble_reference`]: `|k.r|`
-    /// must exceed the tolerance relative to `|k|`, and the squared line
-    /// factor the tolerance.
-    fn wide_bubble_reference(
-        &self,
-        probe_row: usize,
-        wide_row: usize,
-        scale: &T,
-    ) -> Option<(usize, usize)> {
-        const NARROW: usize = 8;
-        const WIDE: usize = 16;
+    /// The reference fixes the bubble's e2 direction and hence how the residue
+    /// splits between B1/B11, the explicit mu^2 term and the tadpoles' A0
+    /// subtraction: only their sum is reference independent, so the reported
+    /// cut-constructible/rational split must not follow round-off. Symmetric
+    /// rational kinematics often tie several references exactly; like Ninja's
+    /// fixed reference, ties are broken deterministically: the lowest index
+    /// (the first eight first) among the scores within the conditioning
+    /// tolerance `2^-(p/2)` of the best. Exact ties therefore resolve
+    /// identically in every precision, but on near ties (gaps within the
+    /// tolerance of binary64, not of the higher precisions) binary64 can
+    /// choose differently from DoubleFloat and Float. `|k.r|` must exceed the
+    /// tolerance relative to the largest component of `k`, and the squared
+    /// line factor the tolerance; only an uncut line (nearly) along `k` is in
+    /// the plane of every reference.
+    fn bubble_reference(&self, probe_row: usize, scale: &T) -> Option<usize> {
+        const FIRST: usize = 8;
+        const FURTHER: usize = 16;
         let probe = &self.probes[1];
-        let wide = &self.bubble_wide_probe;
+        let further = &self.further_bubble_probe;
         let uncut = &self.bubble_complement_probe;
-        let wide_uncut = &self.bubble_wide_complement_probe;
+        let further_uncut = &self.further_bubble_complement_probe;
         let zero = self.prototype.zero();
         let one = self.prototype.one();
         let source = |candidate: usize| {
-            if candidate < NARROW {
-                (probe, probe_row, 4 + 5 * candidate)
+            if candidate < FIRST {
+                (probe, 4 + 5 * candidate)
             } else {
-                (wide, wide_row, 4 + 5 * (candidate - NARROW))
+                (further, 4 + 5 * (candidate - FIRST))
             }
         };
         let k: [&Complex<T>; 4] = std::array::from_fn(|i| &probe.component(probe_row, i)[0]);
-        let kk = &wide.component(wide_row, 4 + 5 * WIDE)[0];
+        let kk = &further.component(probe_row, 4 + 5 * FURTHER)[0];
         let mut k_norm = zero.clone();
         for component in k {
             let value = Self::magnitude(component);
             k_norm += value.clone() * value;
         }
         let two = self.prototype.from_i64(2);
-        let mut leading: [T; NARROW + WIDE] = std::array::from_fn(|_| zero.clone());
-        let mut weights: [T; NARROW + WIDE] = std::array::from_fn(|_| zero.clone());
-        for candidate in 0..NARROW + WIDE {
-            let (kernel, row, column) = source(candidate);
-            let kr = &kernel.component(row, column)[0];
-            let r0 = &kernel.component(row, column + 1)[0];
+        let mut leading: [T; FIRST + FURTHER] = std::array::from_fn(|_| zero.clone());
+        let mut weights: [T; FIRST + FURTHER] = std::array::from_fn(|_| zero.clone());
+        for candidate in 0..FIRST + FURTHER {
+            let (kernel, column) = source(candidate);
+            let kr = &kernel.component(probe_row, column)[0];
+            let r0 = &kernel.component(probe_row, column + 1)[0];
             let (kr_modulus, r0_modulus) = (Self::magnitude(kr), Self::magnitude(r0));
             leading[candidate] =
                 kr_modulus.clone() * &kr_modulus / (k_norm.clone() * &r0_modulus * &r0_modulus);
@@ -644,23 +561,22 @@ where
             let e1 = (k[0].clone() - kk.clone() / (kr.clone() * &two) * r0) * r0;
             weights[candidate] = self.prototype.from_i64(4) * kr_modulus * Self::magnitude(&e1);
         }
-        let mut lines: [T; NARROW + WIDE] = std::array::from_fn(|_| one.clone());
+        let mut lines: [T; FIRST + FURTHER] = std::array::from_fn(|_| one.clone());
         let start = self.bubble_complement_starts[probe_row];
-        let wide_start = self.bubble_wide_complement_starts[wide_row];
-        for line in 0..self.bubble_complement_starts[probe_row + 1] - start {
+        for line in start..self.bubble_complement_starts[probe_row + 1] {
             let mut norm = zero.clone();
             for i in 0..4 {
-                let value = Self::magnitude(&uncut.component(start + line, i)[0]);
+                let value = Self::magnitude(&uncut.component(line, i)[0]);
                 norm += value.clone() * value;
             }
             if !norm.is_finite() || norm.is_fully_zero() {
                 return None;
             }
             for (candidate, factor) in lines.iter_mut().enumerate() {
-                let gram = if candidate < NARROW {
-                    &uncut.component(start + line, 4 + candidate)[0]
+                let gram = if candidate < FIRST {
+                    &uncut.component(line, 4 + candidate)[0]
                 } else {
-                    &wide_uncut.component(wide_start + line, 4 + candidate - NARROW)[0]
+                    &further_uncut.component(line, 4 + candidate - FIRST)[0]
                 };
                 let mut ratio = Self::magnitude(gram) / (weights[candidate].clone() * &norm);
                 if !ratio.is_finite() {
@@ -671,7 +587,7 @@ where
                 }
             }
         }
-        let scores: [T; NARROW + WIDE] = std::array::from_fn(|candidate| {
+        let scores: [T; FIRST + FURTHER] = std::array::from_fn(|candidate| {
             let score = leading[candidate].clone() * &lines[candidate];
             if score.is_finite() {
                 score
@@ -686,31 +602,32 @@ where
             }
         }
         let threshold = maximum * (one - &self.tolerance);
-        let best = (0..NARROW + WIDE)
+        let best = (0..FIRST + FURTHER)
             .find(|&candidate| !Self::greater(&threshold, &scores[candidate]))
             .unwrap_or(0);
-        let (kernel, row, column) = source(best);
-        let reference = if best < NARROW {
-            (row, column)
+        let (kernel, column) = source(best);
+        let reference = if best < FIRST {
+            column
         } else {
-            (row, probe.columns + column)
+            probe.columns + column
         };
-        (!self.too_small(&kernel.component(row, column)[0], scale)
+        (!self.too_small(&kernel.component(probe_row, column)[0], scale)
             && Self::greater(&lines[best], &self.tolerance))
         .then_some(reference)
     }
 
-    /// The rank n+2 tadpole score of one uncut line against every basis: the
-    /// growing expansion vectors are `e1` and `e3` (orientations A and B),
-    /// and the line enters the division through `1/(e.v)` up to the fifth
-    /// power. As the fast engine (`ninjars::fast` `bases_x2.rs`), a basis
+    /// The tadpole score of one uncut line against every basis: the growing
+    /// expansion vectors are `e1` and `e3` (orientations A and B), and the
+    /// line enters the division through `1/(e.v)`, up to the fifth power at
+    /// rank n+2. As the fast engine (`ninjars::fast` `bases_x2.rs`), a basis
     /// scores `min_v min(|e1.v|/|e1|, |e3.v|/|e3|)/|v|` (Euclidean norms),
-    /// here squared and doubled (`tadpole_norms`). The lower ranks keep the
-    /// smallest projection on all four vectors; restricted to these six bases,
-    /// the fast engine lost a geometric mean factor 1.21 with that score on the
-    /// final review's 41 lanes (see [`Self::wide_bubble_reference`]), and none
-    /// (0.86) with this one.
-    fn wide_tadpole_scores(&self, probe_row: usize) -> Option<[T; 6]> {
+    /// here squared and doubled (`tadpole_norms`). This replaced the smallest
+    /// projection on all four vectors relative to the largest component of
+    /// `v`, which also penalised `e2` and `e4`, never expanded in; restricted
+    /// to these six bases, the fast engine lost a geometric mean factor 1.21
+    /// with that score on the final review's 41 lanes (see
+    /// [`Self::bubble_reference`]), and none (0.86) with this one.
+    fn tadpole_line_scores(&self, probe_row: usize) -> Option<[T; 6]> {
         let probe = &self.tadpole_probe;
         let mut norm = self.prototype.zero();
         for column in 0..4 {
@@ -734,11 +651,12 @@ where
         Some(scores)
     }
 
-    /// The rank n+2 tadpole basis: the best score, the lowest index among
-    /// scores tied within the conditioning tolerance (so the choice does not
-    /// depend on the precision), or None when every basis has an uncut line
+    /// The tadpole basis: the best score, the lowest index among the scores
+    /// within the conditioning tolerance of the best (exact ties resolve
+    /// identically in every precision; near ties as in
+    /// [`Self::bubble_reference`]), or None when every basis has an uncut line
     /// (nearly) orthogonal to its `e1` or `e3`.
-    fn wide_tadpole_basis(&self, row: usize) -> Option<usize> {
+    fn tadpole_basis(&self, row: usize) -> Option<usize> {
         let scores = &self.tadpole_scores[row];
         let mut maximum = scores[0].clone();
         for score in &scores[1..] {
@@ -778,12 +696,6 @@ where
         self.tadpole_scores.resize_with(requests.len(), || {
             std::array::from_fn(|_| self.prototype.one())
         });
-        self.tadpole_wide.clear();
-        self.tadpole_wide.extend(
-            requests
-                .iter()
-                .map(|request| request.rank_class == RankClass::NPlus2),
-        );
         self.tadpole_probe.inputs.clear();
         self.tadpole_probe_rows.clear();
         for (row, request) in requests.iter().enumerate() {
@@ -838,60 +750,24 @@ where
                 self.failures[row] = Some(CutFailure::DegenerateReference);
                 continue;
             }
-            if self.tadpole_wide[row] {
-                match self.wide_tadpole_scores(probe_row) {
-                    Some(scores) => {
-                        for (score, line) in self.tadpole_scores[row].iter_mut().zip(scores) {
-                            if Self::greater(score, &line) {
-                                *score = line;
-                            }
+            match self.tadpole_line_scores(probe_row) {
+                Some(scores) => {
+                    for (score, line) in self.tadpole_scores[row].iter_mut().zip(scores) {
+                        if Self::greater(score, &line) {
+                            *score = line;
                         }
                     }
-                    None => self.failures[row] = Some(CutFailure::NonFiniteResult),
                 }
-                continue;
-            }
-            for candidate in 0..6 {
-                for direction in 0..4 {
-                    let projection = &self
-                        .tadpole_probe
-                        .component(probe_row, 4 + 4 * candidate + direction)[0];
-                    let score = Self::magnitude(projection) / &scale;
-                    if !score.is_finite() {
-                        self.failures[row] = Some(CutFailure::NonFiniteResult);
-                    } else if Self::greater(&self.tadpole_scores[row][candidate], &score) {
-                        self.tadpole_scores[row][candidate] = score;
-                    }
-                }
+                None => self.failures[row] = Some(CutFailure::NonFiniteResult),
             }
         }
         for row in 0..requests.len() {
             if self.failures[row].is_some() {
                 continue;
             }
-            if self.tadpole_wide[row] {
-                match self.wide_tadpole_basis(row) {
-                    Some(selected) => self.groups[selected].push(row),
-                    None => self.failures[row] = Some(CutFailure::DegenerateReference),
-                }
-                continue;
-            }
-            let mut selected = 0;
-            for candidate in 1..6 {
-                if Self::greater(
-                    &self.tadpole_scores[row][candidate],
-                    &self.tadpole_scores[row][selected],
-                ) {
-                    selected = candidate;
-                }
-            }
-            if !Self::greater(
-                &self.tadpole_scores[row][selected],
-                &(self.tolerance.clone() * self.prototype.from_i64(32)),
-            ) {
-                self.failures[row] = Some(CutFailure::DegenerateReference);
-            } else {
-                self.groups[selected].push(row);
+            match self.tadpole_basis(row) {
+                Some(selected) => self.groups[selected].push(row),
+                None => self.failures[row] = Some(CutFailure::DegenerateReference),
             }
         }
         for candidate in 0..6 {
@@ -995,8 +871,7 @@ where
         Ok(())
     }
 
-    /// `complement` lists a bubble row's uncut shifts and `wide` whether it is
-    /// a rank n+2 bubble (both ignored for triangles).
+    /// `complement` lists a bubble row's uncut shifts (ignored for triangles).
     #[allow(clippy::too_many_arguments)]
     fn run<'a, D: 'a>(
         &mut self,
@@ -1005,7 +880,6 @@ where
         shift: impl Fn(usize, usize) -> &'a FourMomentum<D>,
         mass: impl Fn(usize, usize) -> &'a D,
         complement: impl Fn(usize) -> &'a [FourMomentum<D>],
-        wide: impl Fn(usize) -> bool,
         components: impl for<'v> Fn(&'v D) -> &'v [Complex<T>],
         valid: impl Fn(&D) -> bool,
     ) -> Result<()> {
@@ -1027,13 +901,9 @@ where
         self.seeds[mode].inputs.clear();
         self.bubble_complement_probe.inputs.clear();
         self.bubble_complement_starts.clear();
-        self.bubble_wide_probe.inputs.clear();
-        self.bubble_wide_complement_probe.inputs.clear();
-        self.bubble_wide_rows.clear();
-        self.bubble_wide_complement_starts.clear();
+        self.further_bubble_probe.inputs.clear();
+        self.further_bubble_complement_probe.inputs.clear();
         let mut complement_rows = 0;
-        let mut wide_rows = 0;
-        let mut wide_complement_rows = 0;
         for row in 0..rows {
             let mut failure = None;
             let uncut: &[FourMomentum<D>] = if mode == 1 { complement(row) } else { &[] };
@@ -1062,6 +932,20 @@ where
                         .extend_from_slice(components(value));
                 }
             }
+            if mode == 0 {
+                continue;
+            }
+            // Bubbles also probe the further references, with the same
+            // inputs and rows (`bubble_reference`).
+            for value in shift(row, 0)
+                .components()
+                .into_iter()
+                .chain(shift(row, 1).components())
+            {
+                self.further_bubble_probe
+                    .inputs
+                    .extend_from_slice(components(value));
+            }
             self.bubble_complement_starts.push(complement_rows);
             for line in uncut {
                 complement_rows += 1;
@@ -1071,55 +955,21 @@ where
                     .chain(shift(row, 1).components())
                     .chain(line.components())
                 {
-                    self.bubble_complement_probe
+                    let value = components(value);
+                    self.bubble_complement_probe.inputs.extend_from_slice(value);
+                    self.further_bubble_complement_probe
                         .inputs
-                        .extend_from_slice(components(value));
+                        .extend_from_slice(value);
                 }
-            }
-            // Rank n+2 bubbles also probe the further references, with the
-            // same inputs (`wide_bubble_reference`).
-            if mode == 1 && wide(row) {
-                self.bubble_wide_rows.push(Some(wide_rows));
-                self.bubble_wide_complement_starts
-                    .push(wide_complement_rows);
-                wide_rows += 1;
-                for value in shift(row, 0)
-                    .components()
-                    .into_iter()
-                    .chain(shift(row, 1).components())
-                {
-                    self.bubble_wide_probe
-                        .inputs
-                        .extend_from_slice(components(value));
-                }
-                for line in uncut {
-                    wide_complement_rows += 1;
-                    for value in shift(row, 0)
-                        .components()
-                        .into_iter()
-                        .chain(shift(row, 1).components())
-                        .chain(line.components())
-                    {
-                        self.bubble_wide_complement_probe
-                            .inputs
-                            .extend_from_slice(components(value));
-                    }
-                }
-            } else {
-                self.bubble_wide_rows.push(None);
             }
         }
         self.bubble_complement_starts.push(complement_rows);
-        self.bubble_wide_complement_starts
-            .push(wide_complement_rows);
         self.probes[mode].evaluate(self.active.len())?;
         if mode == 1 {
+            self.further_bubble_probe.evaluate(self.active.len())?;
             self.bubble_complement_probe.evaluate(complement_rows)?;
-            if wide_rows > 0 {
-                self.bubble_wide_probe.evaluate(wide_rows)?;
-                self.bubble_wide_complement_probe
-                    .evaluate(wide_complement_rows)?;
-            }
+            self.further_bubble_complement_probe
+                .evaluate(complement_rows)?;
         }
         for (probe_row, &row) in self.active.iter().enumerate() {
             let probe = &self.probes[mode];
@@ -1149,19 +999,13 @@ where
                     &Self::magnitude(&probe.component(probe_row, 8)[0]),
                     &Self::magnitude(&probe.component(probe_row, 9)[0]),
                 ) {
-                    (probe_row, 8)
+                    8
                 } else {
-                    (probe_row, 9)
+                    9
                 }
             } else {
-                let reference = match self.bubble_wide_rows[probe_row] {
-                    Some(wide_row) => self.wide_bubble_reference(probe_row, wide_row, &scale),
-                    None => self
-                        .bubble_reference(probe_row, &scale)
-                        .map(|column| (probe_row, column)),
-                };
-                match reference {
-                    Some(reference) => reference,
+                match self.bubble_reference(probe_row, &scale) {
+                    Some(column) => column,
                     None => {
                         self.failures[row] = Some(CutFailure::DegenerateReference);
                         continue;
@@ -1177,23 +1021,18 @@ where
             if mode == 0 {
                 self.seeds[mode]
                     .inputs
-                    .extend_from_slice(probe.component(probe_row, selected.1));
+                    .extend_from_slice(probe.component(probe_row, selected));
             } else {
-                // A column past the first probe's names a further reference
-                // in the rank n+2 probe.
-                let (source, source_row, column) = if selected.1 < probe.columns {
-                    (probe, selected.0, selected.1)
+                // A column past the first probe's names a further reference.
+                let (source, column) = if selected < probe.columns {
+                    (probe, selected)
                 } else {
-                    (
-                        &self.bubble_wide_probe,
-                        selected.0,
-                        selected.1 - probe.columns,
-                    )
+                    (&self.further_bubble_probe, selected - probe.columns)
                 };
                 for i in column + 1..column + 5 {
                     self.seeds[mode]
                         .inputs
-                        .extend_from_slice(source.component(source_row, i));
+                        .extend_from_slice(source.component(probe_row, i));
                 }
             }
         }
@@ -1410,7 +1249,6 @@ where
             |row, i| requests[row].shifts[i],
             |row, i| requests[row].masses_squared[i],
             |_| &[][..],
-            |_| false,
             std::slice::from_ref,
             |_| true,
         )?;
@@ -1435,7 +1273,6 @@ where
             |row, i| requests[row].shifts[i],
             |row, i| requests[row].masses_squared[i],
             |row| requests[row].complementary_shifts,
-            |row| requests[row].rank_class == RankClass::NPlus2,
             std::slice::from_ref,
             |_| true,
         )?;
@@ -1518,7 +1355,6 @@ where
             |row, i| requests[row].shifts[i],
             |row, i| requests[row].masses_squared[i],
             |_| &[][..],
-            |_| false,
             |value| value.values(),
             |value| {
                 value
@@ -1550,7 +1386,6 @@ where
             |row, i| requests[row].shifts[i],
             |row, i| requests[row].masses_squared[i],
             |row| requests[row].complementary_shifts,
-            |row| requests[row].rank_class == RankClass::NPlus2,
             |value| value.values(),
             |value| {
                 value

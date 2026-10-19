@@ -17,17 +17,7 @@
 //!   unpadded result (or Ninja's) is less accurate than that tolerance, the
 //!   padded one must instead be within ten times its error of the exact
 //!   reduction (generic engine in Float(256) with exact masters);
-//! - generic engine in Float(256): within 1e-50 of the unpadded result. At
-//!   rank n+2 the engine conditions its bubble references and tadpole bases
-//!   for the rank n+2 depth (`cuts.rs::wide_bubble_reference`), so padded
-//!   and unpadded lanes round differently; as for the fast engine, where the
-//!   unpadded result is less accurate than 1e-50, the padded one must
-//!   instead be within ten times its error of the exact reduction (Float(512)).
-//!   This comparison takes the invariants of the shifts: on a lane whose
-//!   `s_matrix` is not exactly those invariants (snapped `phys` and `syn`
-//!   S-matrices), the integral is defined only up to how a code combines the
-//!   two (`validation/rank-n2/README.md`, "Input ambiguity"), and two bubble
-//!   references are two such combinations.
+//! - generic engine in Float(256): within 1e-50 of the unpadded result.
 //!
 //! Declared rank n+2 exercises the rank n+2 paths with rank <= n+1
 //! numerators. Declared rank n+1 for the rank <= n cases exercises the rank
@@ -50,9 +40,6 @@ use symbolica::domains::float::RealLike;
 const FAST_TOLERANCE: f64 = 1e-11;
 const FLOAT_TOLERANCE: f64 = 1e-50;
 const BITS: u32 = 256;
-/// The exact reduction of a lane whose Float(256) result is less accurate
-/// than `FLOAT_TOLERANCE`.
-const EXACT_BITS: u32 = 512;
 
 struct Entry {
     case: BenchCase,
@@ -242,37 +229,16 @@ fn fast_padding(entries: &[Entry], declared: impl Fn(&BenchCase) -> usize) {
 }
 
 /// Generic engine in Float(256), padded to `declared(case)`, against the
-/// unpadded result: within `FLOAT_TOLERANCE`, or, where the unpadded result
-/// is itself less accurate than that (ill-conditioned lanes, against the
-/// exact reduction in Float(`EXACT_BITS`)), within ten times its error of
-/// the exact reduction. With `shift_invariants` every lane takes the
-/// invariants of its shifts instead of its `s_matrix` (module docs).
-fn generic_padding(
-    entries: &[Entry],
-    declared: impl Fn(&BenchCase) -> usize,
-    shift_invariants: bool,
-) {
+/// unpadded result.
+fn generic_padding(entries: &[Entry], declared: impl Fn(&BenchCase) -> usize) {
     let mut engines = Engines::default();
-    let (mut worst, mut lanes, mut exact_checked, mut worst_ratio) = (0_f64, 0, 0, 0_f64);
+    let (engine, masters) = engines.float(BITS).unwrap();
+    let (mut worst, mut lanes) = (0_f64, 0);
     for entry in entries {
-        let case = if shift_invariants {
-            let mut case = entry.case.clone();
-            for lane in &mut case.lanes {
-                lane.s_matrix = None;
-            }
-            case
-        } else {
-            entry.case.clone()
-        };
-        let rank = declared(&case);
-        let (original, padded) = {
-            let (engine, masters) = engines.float(BITS).unwrap();
-            (
-                engine.evaluate(&case, case.rank, masters).unwrap(),
-                engine.evaluate(&case, rank, masters).unwrap(),
-            )
-        };
-        let mut exact = None;
+        let case = &entry.case;
+        let rank = declared(case);
+        let original = engine.evaluate(case, case.rank, masters).unwrap();
+        let padded = engine.evaluate(case, rank, masters).unwrap();
         for (lane, (a, b)) in padded.iter().zip(&original).enumerate() {
             let label = format!("{} declared rank {rank} lane {lane}", case.name);
             assert_eq!(a.status, b.status, "{label}");
@@ -281,44 +247,25 @@ fn generic_padding(
             }
             let scale = b.values[..3]
                 .iter()
-                .map(|z| z.re.to_f64().hypot(z.im.to_f64()))
+                .map(|z| {
+                    use symbolica::domains::float::RealLike;
+                    z.re.to_f64().hypot(z.im.to_f64())
+                })
                 .fold(0., f64::max)
                 .max(1e-300);
-            let laurent = |values: &[ninjars::Complex<ninjars::Float>]| -> [ninjars::Complex<ninjars::Float>; 3] {
-                std::array::from_fn(|k| {
-                    let mut z = values[k].clone();
-                    z.re.set_prec(BITS);
-                    z.im.set_prec(BITS);
-                    z
-                })
-            };
-            let d = scaled_difference(&a.values, &laurent(&b.values), scale);
+            let expected = [
+                b.values[0].clone(),
+                b.values[1].clone(),
+                b.values[2].clone(),
+            ];
+            let d = scaled_difference(&a.values, &expected, scale);
+            assert!(d <= FLOAT_TOLERANCE, "{label}: {d:e}");
             worst = worst.max(d);
             lanes += 1;
-            if d <= FLOAT_TOLERANCE {
-                continue;
-            }
-            let exact = exact.get_or_insert_with(|| {
-                let (engine, masters) = engines.float(EXACT_BITS).unwrap();
-                engine.evaluate(&case, case.rank, masters).unwrap()
-            });
-            assert_eq!(exact[lane].status, b.status, "{label} (exact)");
-            let reference = laurent(&exact[lane].values);
-            let unpadded = scaled_difference(&b.values, &reference, scale);
-            let error = scaled_difference(&a.values, &reference, scale);
-            assert!(
-                unpadded > FLOAT_TOLERANCE && error <= 10. * unpadded,
-                "{label}: padded {d:e} from the unpadded result; against the exact reduction \
-                 padded {error:e}, unpadded {unpadded:e}"
-            );
-            exact_checked += 1;
-            worst_ratio = worst_ratio.max(error / unpadded);
         }
     }
     eprintln!(
-        "V5 generic Float(256): {} cases, {lanes} lanes; max scaled difference {worst:e}; \
-         {exact_checked} lanes above {FLOAT_TOLERANCE:e} checked against Float({EXACT_BITS}) \
-         (max error ratio to the unpadded result's {worst_ratio:.2})",
+        "V5 generic Float(256): {} cases, {lanes} lanes; max scaled difference {worst:e}",
         entries.len()
     );
 }
@@ -335,7 +282,7 @@ fn fast_padding_to_rank_n_plus_one() {
 #[test]
 fn generic_padding_to_rank_n_plus_one() {
     let entries: Vec<Entry> = entries(0).into_iter().filter(|e| e.case.n <= 5).collect();
-    generic_padding(&entries, |case| case.n + 1, false);
+    generic_padding(&entries, |case| case.n + 1);
 }
 
 /// V5, fast engine: every rank <= n+1 case declared at rank n+2.
@@ -348,5 +295,5 @@ fn fast_padding_to_rank_n_plus_two() {
 /// rank n+2.
 #[test]
 fn generic_padding_to_rank_n_plus_two() {
-    generic_padding(&entries(1), |case| case.n + 2, true);
+    generic_padding(&entries(1), |case| case.n + 2);
 }

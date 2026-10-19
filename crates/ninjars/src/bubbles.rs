@@ -433,7 +433,6 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
                         &masses_squared[lane * n + partition[i]]
                     }),
                     complementary_shifts: &complement_shifts[i * uncut..(i + 1) * uncut],
-                    rank_class: self.topology.rank_class(),
                 }
             })
             .collect();

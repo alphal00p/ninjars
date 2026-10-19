@@ -21,8 +21,11 @@
 //!
 //! The expected values in `validation/regression/r-le-n1-d53dd08.json` are those
 //! of NinjaRS main d53dd08 with oneloopmaster 09b2c74, without any rank n+2
-//! change (first generated at e4c16a7; see `validation/regression/README.md`
-//! for the two reviewed re-blesses). Any difference fails.
+//! change (first generated at e4c16a7), except the generic engine's sections,
+//! re-blessed in place for the native bubble tensor coefficients and for the
+//! generic cut provider's bubble-reference and tadpole-basis selection; see
+//! `validation/regression/README.md` (History) for every reviewed re-bless.
+//! Any difference fails.
 //! `NINJARS_BLESS=1` rewrites the file (only ever on a reviewed baseline).
 //! Everything runs sequentially in one test so Symbolica symbols are always
 //! registered in the same order.

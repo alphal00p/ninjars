@@ -1,6 +1,6 @@
 use ninjars::{
     BubbleCutRequest, Complex, CutFailure, CutOutcome, CutProvider, ExpansionKind, FloatLike,
-    FourMomentum, RankClass, Real, SampleId, TadpoleCutRequest, TriangleCutRequest,
+    FourMomentum, Real, SampleId, TadpoleCutRequest, TriangleCutRequest,
 };
 use ninjars_symbolica::{DenominatorExpansion, SymbolicaCuts, SymbolicaDualCuts};
 use symbolica::domains::dual::{DualNumber, HyperDual};
@@ -69,7 +69,6 @@ fn rows_on_cut<T: Real>(
                 shift: &shifts[0],
                 mass_squared: &masses[0],
                 complementary_shifts: &shifts[1..],
-                rank_class: RankClass::UpToN,
             };
             let mut out = [CutOutcome::Unstable(CutFailure::NonFiniteResult)];
             provider.tadpole_batch(&[request], &mut out).unwrap();
@@ -92,7 +91,6 @@ fn rows_on_cut<T: Real>(
                 shifts: [&shifts[0], &shifts[1]],
                 masses_squared: [&masses[0], &masses[1]],
                 complementary_shifts: &shifts[2..],
-                rank_class: RankClass::UpToN,
             };
             let mut out = [CutOutcome::Unstable(CutFailure::NonFiniteResult)];
             provider.bubble_batch(&[request], &mut out).unwrap();

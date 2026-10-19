@@ -487,10 +487,14 @@ fn rank_n2_cases_pass() {
 /// rn2-phys-{real,complex}-n6-r8 (scaled differences 1.4e-6 real, 4.4e-5
 /// complex). Real lane 1 cancels between the cut-constructible and rational
 /// parts of single cuts. Lane 2 (1.3e-6 real, 6.0e-6 complex) cancelled
-/// beyond half the bits only with the lower ranks' bubble references (1.1e-3
-/// and 5.4e-4); the rank n+2 references (`cuts.rs::wide_bubble_reference`)
-/// keep it below. DoubleFloat keeps more than half of its bits on the same
-/// lanes and passes.
+/// between cuts beyond half the bits only with the earlier eight-reference
+/// bubble score (1.1e-3 and 5.4e-4); with the 24 references of
+/// `cuts.rs::bubble_reference` it stays below, so the test passes it. Real
+/// lane 2 is then a false negative: its 1.3e-6 exceeds its binary64 budget
+/// (5.9e-7; the lane is report only, cond' > 1e6) because the remaining loss
+/// is inside single cuts, which the test does not measure (TODO_NEXT_PLAN.md
+/// 2.4). DoubleFloat keeps more than half of its bits on the same lanes and
+/// passes.
 #[test]
 fn stability_test_flags_rank_n2_cancellations() {
     let statuses = |extra: &[&str]| -> Vec<Vec<String>> {

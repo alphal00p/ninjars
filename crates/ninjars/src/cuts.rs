@@ -1,6 +1,6 @@
 //! Reduction-specific cut geometry over shared FeynKit momenta.
 
-use crate::{FourMomentum, RankClass, Result, SampleId};
+use crate::{FourMomentum, Result, SampleId};
 
 #[derive(Clone, Debug)]
 pub struct CutBasis<T> {
@@ -53,11 +53,6 @@ pub struct TadpoleCutRequest<'a, T> {
     pub mass_squared: &'a T,
     /// Uncut propagator shifts used to select a well-conditioned reference.
     pub complementary_shifts: &'a [FourMomentum<T>],
-    /// Rank class of the reduction requesting the cut. The Laurent division
-    /// divides by powers of each uncut line's leading coefficient that grow
-    /// with the class (up to the fifth at rank n+2), so providers may condition
-    /// the basis for it.
-    pub rank_class: RankClass,
 }
 
 /// Propagators are in cut partition order: D_i=(q+shifts[i])²-masses_squared[i]-mu².
@@ -77,11 +72,6 @@ pub struct BubbleCutRequest<'a, T> {
     /// difference lies in the plane of the cut momentum and the auxiliary
     /// reference; providers use these shifts to choose a reference avoiding it.
     pub complementary_shifts: &'a [FourMomentum<T>],
-    /// Rank class of the reduction requesting the cut. The Laurent division
-    /// divides by powers of each uncut line's leading coefficient that grow
-    /// with the class (up to the fifth at rank n+2), so providers may condition
-    /// the reference for it.
-    pub rank_class: RankClass,
 }
 
 pub struct TriangleSampleRequest<'a, T> {
