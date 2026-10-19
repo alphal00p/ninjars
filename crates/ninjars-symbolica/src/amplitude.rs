@@ -9,7 +9,7 @@ use crate::{
 };
 use ninjars::{
     Amplitude, AmplitudeKernels, BoxCoefficientMode, BoxMuMode, BoxReductionOptions, Complex,
-    Error, IntegratedContribution, RankClass, Real, Result, SingleFloat, Topology,
+    Error, IntegratedContribution, Laurent, RankClass, Real, Result, SingleFloat, Topology,
 };
 use std::cmp::Ordering;
 use symbolica::{atom::Atom, domains::dual::DualNumber, evaluate::EvaluationDomain, symbol};
@@ -36,12 +36,15 @@ fn accumulation_rows(rows: usize) -> ExactKernel {
 
 /// [`ninjars::EvaluationStatus::Unstable`] test on the primal Laurent
 /// coefficients (taxicab moduli, `p` mantissa bits of `prototype`): the sum
-/// is stable while `2^(-p/2) max_k sum_cuts |c_k| <= max_k |sum_cuts c_k|`.
-/// For the finite part, `|c_0|` of a cut is `|cut-constructible| + |rational|`,
-/// whose sum `c_0` can itself cancel (rank n+2 final review, finding 4).
+/// is stable while `2^(-p/2) max_k sum_cuts |t_k| <= max_k |sum_cuts c_k|`,
+/// where `|t_k|` sums the moduli of the terms contracted into the coefficient
+/// `c_k` of one cut ([`ninjars::ResidueIntegrator::term_moduli`]: every master
+/// integral times its weight, and every rational term), so that cancellation
+/// inside a cut counts as well as between cuts (rank n+2 final review,
+/// finding 4).
 fn cancellation_stable<'a, T: Real + SingleFloat + 'a>(
     prototype: &T,
-    contributions: impl Iterator<Item = [&'a Complex<T>; 5]>,
+    cuts: impl Iterator<Item = ([&'a Complex<T>; 3], [&'a Complex<T>; 3])>,
 ) -> bool
 where
     Complex<T>: Real,
@@ -50,14 +53,11 @@ where
     let mut sums: [Complex<T>; 3] =
         std::array::from_fn(|_| Complex::new(zero.clone(), zero.clone()));
     let mut magnitudes: [T; 3] = std::array::from_fn(|_| zero.clone());
-    let norm = |value: &Complex<T>| value.re.norm() + value.im.norm();
-    for [finite, single, double, constructible, rational] in contributions {
-        magnitudes[0] += norm(constructible) + norm(rational);
-        magnitudes[1] += norm(single);
-        magnitudes[2] += norm(double);
-        sums[0] += finite;
-        sums[1] += single;
-        sums[2] += double;
+    for (laurent, term_moduli) in cuts {
+        for k in 0..3 {
+            sums[k] += laurent[k];
+            magnitudes[k] += &term_moduli[k].re;
+        }
     }
     let largest = |values: [T; 3]| {
         values
@@ -76,7 +76,10 @@ where
         .from_i64(2)
         .pow(u64::from(prototype.get_precision() / 2))
         .inv();
-    (tolerance * largest(magnitudes)).real_cmp(&total) != Some(Ordering::Greater)
+    matches!(
+        (tolerance * largest(magnitudes)).real_cmp(&total),
+        Some(Ordering::Less | Ordering::Equal)
+    )
 }
 
 #[cfg(feature = "native-kernels")]
@@ -171,6 +174,10 @@ where
     /// vanishes exactly (a Ward identity, a zero helicity amplitude, a
     /// cut-constructible part cancelled by its rational part) is rounding noise
     /// of the summed cut contributions and fails the test in every precision.
+    /// The test measures every term of each cut contribution (each master
+    /// integral times its weight, and each term of the rational part, whose
+    /// kernels it adds); without it nothing is measured or evaluated in
+    /// addition, and with it the results are the same.
     pub fn with_stability_test(mut self) -> Self {
         self.stability_test = true;
         self
@@ -305,7 +312,19 @@ where
         Ok(kernels)
     }
     fn integration_kernels(&self, cut_size: usize) -> Result<Self::Integration> {
-        SymbolicaIntegrationKernels::new_class(cut_size, self.rank_class()?, self.prototype.clone())
+        if self.stability_test {
+            SymbolicaIntegrationKernels::new_class_with_rational_terms(
+                cut_size,
+                self.rank_class()?,
+                self.prototype.clone(),
+            )
+        } else {
+            SymbolicaIntegrationKernels::new_class(
+                cut_size,
+                self.rank_class()?,
+                self.prototype.clone(),
+            )
+        }
     }
     fn accumulate_batch(
         &mut self,
@@ -324,9 +343,17 @@ where
     fn modulus(&self, value: &Complex<T>) -> Complex<T> {
         Complex::new(value.re.norm() + value.im.norm(), value.re.zero())
     }
+    fn tests_cancellation(&self) -> bool {
+        self.stability_test
+    }
     fn cancellation_stable<'a>(
         &self,
-        contributions: impl Iterator<Item = &'a IntegratedContribution<Complex<T>>>,
+        cuts: impl Iterator<
+            Item = (
+                &'a IntegratedContribution<Complex<T>>,
+                &'a Laurent<Complex<T>>,
+            ),
+        >,
     ) -> bool
     where
         Complex<T>: 'a,
@@ -334,7 +361,7 @@ where
         !self.stability_test
             || cancellation_stable(
                 &self.prototype,
-                contributions.map(|c| [&c[0], &c[1], &c[2], &c[3], &c[4]]),
+                cuts.map(|(c, t)| ([&c[0], &c[1], &c[2]], t.each_ref())),
             )
     }
 }
@@ -421,6 +448,10 @@ where
     /// vanishes exactly (a Ward identity, a zero helicity amplitude, a
     /// cut-constructible part cancelled by its rational part) is rounding noise
     /// of the summed cut contributions and fails the test in every precision.
+    /// The test measures every term of each cut contribution (each master
+    /// integral times its weight, and each term of the rational part, whose
+    /// kernels it adds); without it nothing is measured or evaluated in
+    /// addition, and with it the results are the same.
     pub fn with_stability_test(mut self) -> Self {
         self.stability_test = true;
         self
@@ -561,12 +592,21 @@ where
         Ok(kernels)
     }
     fn integration_kernels(&self, cut_size: usize) -> Result<Self::Integration> {
-        SymbolicaDualIntegrationKernels::new_class(
-            cut_size,
-            self.rank_class()?,
-            self.prototype.clone(),
-            &self.dual,
-        )
+        if self.stability_test {
+            SymbolicaDualIntegrationKernels::new_class_with_rational_terms(
+                cut_size,
+                self.rank_class()?,
+                self.prototype.clone(),
+                &self.dual,
+            )
+        } else {
+            SymbolicaDualIntegrationKernels::new_class(
+                cut_size,
+                self.rank_class()?,
+                self.prototype.clone(),
+                &self.dual,
+            )
+        }
     }
     fn accumulate_batch(&mut self, input: &[D], output: &mut [D], rows: usize) -> Result<()> {
         self.accumulation.evaluate_batch(input, output, rows)
@@ -591,9 +631,12 @@ where
         modulus.values_mut()[0] = Complex::new(primal.re.norm() + primal.im.norm(), zero);
         modulus
     }
+    fn tests_cancellation(&self) -> bool {
+        self.stability_test
+    }
     fn cancellation_stable<'a>(
         &self,
-        contributions: impl Iterator<Item = &'a IntegratedContribution<D>>,
+        cuts: impl Iterator<Item = (&'a IntegratedContribution<D>, &'a Laurent<D>)>,
     ) -> bool
     where
         D: 'a,
@@ -601,7 +644,12 @@ where
         !self.stability_test
             || cancellation_stable(
                 &self.prototype,
-                contributions.map(|c| std::array::from_fn(|k| &c[k].values()[0])),
+                cuts.map(|(c, t)| {
+                    (
+                        std::array::from_fn(|k| &c[k].values()[0]),
+                        std::array::from_fn(|k| &t[k].values()[0]),
+                    )
+                }),
             )
     }
 }

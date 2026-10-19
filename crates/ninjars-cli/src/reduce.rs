@@ -225,8 +225,10 @@ pub struct Args {
     /// This auxiliary scale is independent of the squared renormalization scale.
     #[arg(long)]
     pub mu_sampling_scale: Option<String>,
-    /// Report a lane as `unstable` when cancellation between its cut contributions
-    /// leaves fewer than half of the carrier's significant bits (generic engine).
+    /// Report a lane as `unstable` when cancellation among the terms of its cut
+    /// contributions (each master integral times its weight, each rational
+    /// term) leaves fewer than half of the carrier's significant bits (generic
+    /// engine).
     /// Exactly vanishing amplitudes (Ward identities, zero helicity amplitudes)
     /// fail it in every precision.
     #[arg(long)]

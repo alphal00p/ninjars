@@ -490,27 +490,14 @@ fn rank_n2_cases_pass() {
 /// its bits on the same lanes and passes.
 #[test]
 fn stability_test_flags_rank_n2_cancellations() {
-    let statuses = |extra: &[&str]| -> Vec<Vec<String>> {
-        let mut args = vec!["--engines", "generic", "--no-fail"];
-        args.extend(extra);
-        args.extend([
-            "validation/rank-n2/cases/rn2-phys-real-n6-r8.json",
-            "validation/rank-n2/cases/rn2-phys-complex-n6-r8.json",
-        ]);
-        let report = value(run("case-check", &args));
-        report["cases"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|case| {
-                case["runs"][0]["lanes"]
-                    .as_array()
-                    .unwrap()
-                    .iter()
-                    .map(|lane| lane["status"].as_str().unwrap().to_string())
-                    .collect()
-            })
-            .collect()
+    let statuses = |extra: &[&str]| {
+        generic_statuses(
+            extra,
+            &[
+                "validation/rank-n2/cases/rn2-phys-real-n6-r8.json",
+                "validation/rank-n2/cases/rn2-phys-complex-n6-r8.json",
+            ],
+        )
     };
     let success = vec![vec!["Success".to_string(); 3]; 2];
     assert_eq!(statuses(&["--precision", "f64"]), success);
@@ -524,5 +511,60 @@ fn stability_test_flags_rank_n2_cancellations() {
     assert_eq!(
         statuses(&["--precision", "double", "--stability-test"]),
         success
+    );
+}
+
+/// Generic-engine lane statuses (`[case][lane]`) of `case-check` with `extra`.
+fn generic_statuses(extra: &[&str], cases: &[&str]) -> Vec<Vec<String>> {
+    let mut args = vec!["--engines", "generic", "--no-fail"];
+    args.extend(extra);
+    args.extend(cases);
+    let report = value(run("case-check", &args));
+    report["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|case| {
+            case["runs"][0]["lanes"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|lane| lane["status"].as_str().unwrap().to_string())
+                .collect()
+        })
+        .collect()
+}
+
+/// `--stability-test` measures the terms inside each cut contribution, not
+/// only whole contributions (final review of the rank n+2 work, finding 4):
+/// - `tests/data/repro-stability-test-miss-n6-r8.json` (`fr-light-zero-n6-r8`
+///   lane 2) is 24 % wrong in generic binary64 with a vanishing amplitude:
+///   cut-constructible and rational parts of single cuts cancel (about -0.086
+///   and +0.086 to 1e-12), and the terms of its cuts reach 3e15 times the
+///   result. Before 22c332c it was reported `Success`. DoubleFloat (error
+///   1e-17, below its half-precision 1.1e-16) passes.
+/// - `rn2-phys-complex-n6-r7` lane 1 (a rank n+1 control) is off by 3.5e-7 in
+///   binary64. Its master-integral terms cancel inside cut contributions by
+///   1.2e9 (2^26 = 6.7e7 is the binary64 limit), while the whole contributions
+///   and their cut-constructible and rational parts pass. Lanes 0 and 2 (off
+///   by 1.1e-10 and 1.0e-7, terms 7.9e5 and 2.5e7 times the result) pass.
+#[test]
+fn stability_test_flags_cancellation_inside_cut_contributions() {
+    let cases = [
+        "crates/ninjars-cli/tests/data/repro-stability-test-miss-n6-r8.json",
+        "validation/rank-n2/controls/cases/rn2-phys-complex-n6-r7.json",
+    ];
+    let success = |lanes: usize| vec!["Success".to_string(); lanes];
+    assert_eq!(
+        generic_statuses(&["--precision", "f64"], &cases),
+        [success(1), success(3)]
+    );
+    assert_eq!(
+        generic_statuses(&["--precision", "f64", "--stability-test"], &cases),
+        [vec!["Unstable"], vec!["Success", "Unstable", "Success"]]
+    );
+    assert_eq!(
+        generic_statuses(&["--precision", "double", "--stability-test"], &cases),
+        [success(1), success(3)]
     );
 }

@@ -45,17 +45,27 @@ pub trait AmplitudeKernels<T> {
     /// cut contributions to measure their cancellation
     /// ([`Amplitude::contribution_moduli`]).
     fn modulus(&self, value: &T) -> T;
+    /// Whether the kernels test cancellation ([`Self::cancellation_stable`],
+    /// [`EvaluationStatus::Unstable`]). Only then does the amplitude measure
+    /// the moduli of the terms inside each cut contribution. The default is
+    /// false.
+    fn tests_cancellation(&self) -> bool {
+        false
+    }
     /// Whether one lane's cut contributions can be summed without losing the
-    /// result to cancellation (see [`EvaluationStatus::Unstable`]). The default
+    /// result to cancellation (see [`EvaluationStatus::Unstable`]). Each cut
+    /// gives its contribution and the moduli of the terms contracted into its
+    /// Laurent coefficients ([`crate::ResidueIntegrator::term_moduli`]).
+    /// Called only when [`Self::tests_cancellation`] holds; the default
     /// accepts every lane.
     fn cancellation_stable<'a>(
         &self,
-        contributions: impl Iterator<Item = &'a IntegratedContribution<T>>,
+        cuts: impl Iterator<Item = (&'a IntegratedContribution<T>, &'a crate::Laurent<T>)>,
     ) -> bool
     where
         T: 'a,
     {
-        let _ = contributions;
+        let _ = cuts;
         true
     }
 }
@@ -81,13 +91,14 @@ pub enum EvaluationStatus {
         first: usize,
         second: usize,
     },
-    /// Every cut succeeded, but the cut contributions cancel so strongly that
-    /// rounding leaves fewer than half of the carrier's significant bits: the
-    /// summed magnitudes of the contributions exceed `2^(p/2)` times the largest
-    /// Laurent coefficient of their sum (`p` mantissa bits). Ninja's
+    /// Every cut succeeded, but the terms of the cut contributions cancel so
+    /// strongly that rounding leaves fewer than half of the carrier's
+    /// significant bits: the summed moduli of the terms (each master integral
+    /// times its weight, and each rational term, of every cut) exceed `2^(p/2)`
+    /// times the largest Laurent coefficient of their sum (`p` mantissa bits). Ninja's
     /// floating-point checks only detect exactly singular cuts (the stage
     /// kernels reject those as cut failures); this lane needs more precision.
-    /// Reported only when the kernels opt in ([`AmplitudeKernels::cancellation_stable`]).
+    /// Reported only when the kernels opt in ([`AmplitudeKernels::tests_cancellation`]).
     Unstable,
 }
 
@@ -133,6 +144,9 @@ pub struct Amplitude<T, K: AmplitudeKernels<T>> {
     moduli: Vec<crate::Laurent<T>>,
     statuses: Vec<EvaluationStatus>,
     contributions: Vec<IntegratedContribution<T>>,
+    /// Per cut and lane, the moduli of the terms inside each contribution;
+    /// measured only when the kernels test cancellation.
+    term_moduli: Vec<crate::Laurent<T>>,
     input: Vec<T>,
     output: Vec<T>,
     // Private staging remains distinct from published statuses and results.
@@ -228,6 +242,7 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
             moduli: vec![std::array::from_fn(|_| zero.clone()); lanes],
             statuses: vec![EvaluationStatus::NotEvaluated; lanes],
             contributions: Vec::new(),
+            term_moduli: Vec::new(),
             input: Vec::new(),
             output: Vec::new(),
             next_statuses: Vec::new(),
@@ -267,7 +282,9 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
     /// the kernels test cancellation ([`EvaluationStatus::Unstable`]). Their
     /// ratio to [`Self::result_moduli`] measures how strongly the cuts
     /// cancel: summing them alone leaves a rounding error of order `2^-p`
-    /// times these sums (`p` mantissa bits).
+    /// times these sums (`p` mantissa bits). The opt-in test also measures
+    /// the terms inside each contribution
+    /// ([`crate::ResidueIntegrator::term_moduli`]), which can cancel further.
     pub fn contribution_moduli(&self) -> &[crate::Laurent<T>] {
         &self.moduli
     }
@@ -671,6 +688,15 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
             .resize_with(cuts * lanes, || std::array::from_fn(|_| self.zero.clone()));
         self.contributions
             .fill(std::array::from_fn(|_| self.zero.clone()));
+        let measure = self.kernels.tests_cancellation();
+        if measure {
+            self.term_moduli
+                .resize_with(cuts * lanes, || std::array::from_fn(|_| self.zero.clone()));
+            self.term_moduli
+                .fill(std::array::from_fn(|_| self.zero.clone()));
+        }
+        let kernels = &self.kernels;
+        let modulus: &dyn Fn(&T) -> T = &|value: &T| kernels.modulus(value);
         for size in (self.minimum_cut..=4).rev() {
             let Some(integration) = &mut self.integration[size - 1] else {
                 continue;
@@ -692,6 +718,7 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                     &self.integration_cuts[size - 1],
                     &mut self.integration_values,
                     &mut self.integration_statuses,
+                    measure.then_some((&mut self.term_moduli[..], modulus)),
                 )?,
                 3 => integrate_stage(
                     &self.topology,
@@ -709,6 +736,7 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                     &self.integration_cuts[size - 1],
                     &mut self.integration_values,
                     &mut self.integration_statuses,
+                    measure.then_some((&mut self.term_moduli[..], modulus)),
                 )?,
                 2 => integrate_stage(
                     &self.topology,
@@ -726,6 +754,7 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                     &self.integration_cuts[size - 1],
                     &mut self.integration_values,
                     &mut self.integration_statuses,
+                    measure.then_some((&mut self.term_moduli[..], modulus)),
                 )?,
                 _ => integrate_stage(
                     &self.topology,
@@ -743,16 +772,22 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
                     &self.integration_cuts[size - 1],
                     &mut self.integration_values,
                     &mut self.integration_statuses,
+                    measure.then_some((&mut self.term_moduli[..], modulus)),
                 )?,
             }
         }
-        for (lane, status) in statuses.iter_mut().enumerate() {
-            if *status == EvaluationStatus::Success
-                && !self.kernels.cancellation_stable(
-                    (0..cuts).map(|cut| &self.contributions[cut * lanes + lane]),
-                )
-            {
-                *status = EvaluationStatus::Unstable;
+        if measure {
+            for (lane, status) in statuses.iter_mut().enumerate() {
+                if *status == EvaluationStatus::Success
+                    && !self.kernels.cancellation_stable((0..cuts).map(|cut| {
+                        (
+                            &self.contributions[cut * lanes + lane],
+                            &self.term_moduli[cut * lanes + lane],
+                        )
+                    }))
+                {
+                    *status = EvaluationStatus::Unstable;
+                }
             }
         }
         let active = &mut self.active;
@@ -970,6 +1005,10 @@ impl<T> HighCutProvider<T> for UnavailableHighCuts {
     }
 }
 
+/// Per cut and lane, the moduli of the terms inside each contribution, and the
+/// modulus they are measured with ([`AmplitudeKernels::modulus`]).
+type TermModuli<'a, T> = (&'a mut [crate::Laurent<T>], &'a dyn Fn(&T) -> T);
+
 #[allow(clippy::too_many_arguments)]
 fn integrate_stage<
     T: FloatLike,
@@ -992,6 +1031,7 @@ fn integrate_stage<
     cuts: &[usize],
     values: &mut Vec<IntegratedContribution<T>>,
     integration_status: &mut Vec<IntegrationStatus>,
+    mut term_moduli: Option<TermModuli<'_, T>>,
 ) -> Result<()> {
     let n = topology.propagators();
 
@@ -1030,16 +1070,18 @@ fn integrate_stage<
     integration_status.resize(requests.len(), IntegrationStatus::InvalidInput);
     integration_status.fill(IntegrationStatus::InvalidInput);
     integration.evaluate_batch(&requests, provider, values, integration_status)?;
-    for ((request, value), &status) in requests
+    for (row, ((request, value), &status)) in requests
         .iter()
         .zip(values.iter_mut())
         .zip(integration_status.iter())
+        .enumerate()
     {
         if status == IntegrationStatus::Success {
-            std::mem::swap(
-                &mut contributions[request.id.sample * lanes + request.id.lane],
-                value,
-            );
+            let index = request.id.sample * lanes + request.id.lane;
+            std::mem::swap(&mut contributions[index], value);
+            if let Some((moduli, modulus)) = &mut term_moduli {
+                moduli[index] = integration.term_moduli(row, *modulus);
+            }
         } else if statuses[request.id.lane] == EvaluationStatus::Success {
             statuses[request.id.lane] = EvaluationStatus::IntegrationFailed {
                 cut_index: request.id.sample,
