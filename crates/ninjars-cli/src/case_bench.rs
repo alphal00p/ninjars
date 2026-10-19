@@ -15,6 +15,12 @@
 //!
 //! "ninjars-bench-case-v2" files (`export-bench --r2 fdh`) carry explicit
 //! `mu^2` blocks (`mu_powers`) and run with `MuTensorNumerator`.
+//!
+//! `--engines generic` (or `fast,generic`) adds the same breakdown for the
+//! generic engine in binary64 with native masters ([`generic`]), reported as
+//! `generic_per_point_timing`.
+
+mod generic;
 
 use std::{error::Error, fs, hint::black_box, path::PathBuf, time::Duration};
 
@@ -52,6 +58,16 @@ pub struct Args {
     pub reference_dir: Option<PathBuf>,
     #[arg(short, long)]
     pub output: Option<PathBuf>,
+    /// Engines to time: `fast` (`ninjars::fast`, the default) and/or
+    /// `generic` (`SymbolicaAmplitudeKernels` in binary64, native masters).
+    #[arg(long, value_delimiter = ',', default_value = "fast")]
+    pub engines: Vec<String>,
+    /// Fixed work for external instruction counting (`perf stat`): evaluate
+    /// the live fast-engine total exactly this many times per width, after
+    /// one recording pass, and time nothing. Two runs with different counts
+    /// give the instructions per call by difference.
+    #[arg(long, default_value = "0")]
+    pub total_calls: usize,
 }
 
 struct Lane {
@@ -306,6 +322,20 @@ fn time_case<N: DenseNumerator>(
             &results,
             &statuses,
         )?;
+        if args.total_calls > 0 {
+            // Fixed work for external instruction counting: the live total only.
+            for _ in 0..args.total_calls {
+                amplitude.evaluate(&input, &mut tensor, masters, &mut results, &mut statuses)?;
+                black_box(&results);
+            }
+            widths.push(json!({
+                "width": width,
+                "failed_lanes": failed,
+                "total_calls": args.total_calls,
+                "reference_check": check,
+            }));
+            continue;
+        }
         let mut replay_numerator = recording_numerator.replay();
         let mut replay_masters = recorder.inner.replay();
         let master_calls = recorder.calls;
@@ -393,26 +423,46 @@ pub fn run(args: Args) -> Result<()> {
     let min_block = Duration::from_secs_f64(args.min_block_ms * 1e-3);
     let mut masters = OneLoopNativeMasters::new()?;
     let mut reports = Vec::new();
+    for engine in &args.engines {
+        if engine != "fast" && engine != "generic" {
+            return Err(format!("unknown engine {engine:?} (fast, generic)").into());
+        }
+    }
+    let fast = args.engines.iter().any(|e| e == "fast");
+    let generic = args.engines.iter().any(|e| e == "generic");
     for path in &args.cases {
         let case = load(path)?;
         let (n, rank) = (case.n, case.rank);
-        let mut amplitude = FastAmplitude::new(n, rank, FastOptions::default())?;
-        let widths = if case.mu_powers == 0 {
-            time_case::<TensorNumerator>(&args, &case, &mut amplitude, &mut masters, min_block)?
-        } else {
-            time_case::<MuTensorNumerator>(&args, &case, &mut amplitude, &mut masters, min_block)?
-        };
-        reports.push(json!({
+        let mut report = json!({
             "case": case.name,
             "file": path,
             "n": n,
             "rank": rank,
             "mu_powers": case.mu_powers,
             "lanes": case.lanes.len(),
-            "per_point_timing": widths,
-        }));
+        });
+        if fast {
+            let mut amplitude = FastAmplitude::new(n, rank, FastOptions::default())?;
+            let widths = if case.mu_powers == 0 {
+                time_case::<TensorNumerator>(&args, &case, &mut amplitude, &mut masters, min_block)?
+            } else {
+                time_case::<MuTensorNumerator>(
+                    &args,
+                    &case,
+                    &mut amplitude,
+                    &mut masters,
+                    min_block,
+                )?
+            };
+            report["per_point_timing"] = Value::from(widths);
+        }
+        if generic {
+            let widths = generic::time_case(&args, &case, &mut masters, min_block)?;
+            report["generic_per_point_timing"] = Value::from(widths);
+        }
+        reports.push(report);
     }
-    let report = json!({
+    let mut report = json!({
         "schema_version": 1,
         "operation": "case-bench",
         "command": std::env::args().collect::<Vec<_>>(),
@@ -420,6 +470,11 @@ pub fn run(args: Args) -> Result<()> {
         "cpu_affinity": affinity(),
         "boundary": "per point: TensorNumerator (MuTensorNumerator for v2 mu^2-block cases) expansions (tensor_numerator = reduction_and_tensor_numerator - reduction), ninjars::fast reduction (replayed numerator and masters), oneloopmaster native masters (recorded calls replayed); total uninstrumented",
     });
+    if generic {
+        report["generic_boundary"] = Value::from(
+            "per point: generic engine (SymbolicaAmplitudeKernels, binary64) with case-check's dense-tensor numerator (numerator = reduction_and_numerator - reduction), pure reduction (replayed numerator outputs and master values), oneloopmaster native masters (recorded requests replayed); total uninstrumented",
+        );
+    }
     let report = serde_json::to_string_pretty(&report)? + "\n";
     if let Some(path) = args.output {
         fs::write(path, report)?;
