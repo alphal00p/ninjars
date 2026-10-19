@@ -4,7 +4,10 @@
 //!    original-Ninja result (`validation/fast/ninja_reference/cases`,
 //!    `validation/benchmark/{cases,synthetic}`) is declared rank n+2 (zero top
 //!    tensor blocks) and reduced by the rank n+2 engine with Ninja's own
-//!    OneLOop master values. Where the rank n+2 engine asks for a bubble
+//!    OneLOop master values, wrapped in `AtDeclaredRank`: by default the fast
+//!    engine reduces each lane at its own rank (`fast/declared_rank.rs`),
+//!    which must then equal the numerator declared at that rank bitwise, at
+//!    width 1 and in batches. Where the rank n+2 engine asks for a bubble
 //!    family Ninja did not call (rank 3 or 4: the coefficients of `B111` and
 //!    `B1111` are then rounding-level), or a family of a stage Ninja skips at
 //!    low rank, the missing entries come from the exact oneloopmaster
@@ -43,8 +46,8 @@ mod common;
 use common::ninja_reference::{MasterCall, NinjaLane, parse_case, parse_ninja, values};
 use common::precision::precision;
 use ninjars::fast::{
-    C64, FastAmplitude, FastInput, FastMaster, FastMasters, FastNumerator, FastOptions, FastResult,
-    FastStatus, MuTensorNumerator, RMom, TensorNumerator,
+    AtDeclaredRank, C64, FastAmplitude, FastInput, FastMaster, FastMasters, FastNumerator,
+    FastOptions, FastResult, FastStatus, MuTensorNumerator, RMom, TensorNumerator,
     tensor_layout::{ncoeff, ncoeff_mu},
 };
 use ninjars::{Complex, Float, MasterIntegral, MasterProvider, MasterRequest};
@@ -240,6 +243,11 @@ impl FastMasters for PaddedMasters {
     }
 }
 
+/// The bits of the five values of a result.
+fn bits(result: &FastResult) -> [(u64, u64); 5] {
+    values(result).map(|z| (z.re.to_bits(), z.im.to_bits()))
+}
+
 fn padded_tensor(
     case: &common::ninja_reference::Case,
     points: &[usize],
@@ -286,6 +294,7 @@ fn fast_rank_n2_padding_reproduces_original_ninja() {
     let (mut lanes, mut worst, mut completed, mut unstable) = (0, 0f64, 0, 0);
     let (mut excepted, mut worst_excepted, mut worst_ratio) = (0, 0f64, 0f64);
     let (mut exact_checked, mut worst_exact_ratio, mut worst_split) = (0, 0f64, 0f64);
+    let mut lowered = 0;
     for (case_path, ninja_path) in &pairs {
         let case = parse_case(&std::fs::read_to_string(case_path).unwrap()).unwrap();
         let masters_path = ninja_path.with_extension("masters.json");
@@ -304,16 +313,57 @@ fn fast_rank_n2_padding_reproduces_original_ninja() {
         let mut amplitude = FastAmplitude::new(case.n, declared, FastOptions::default()).unwrap();
         // The validated rank n+1 engine on the same numerator padded to n+1.
         let mut x1 = FastAmplitude::new(case.n, case.n + 1, FastOptions::default()).unwrap();
-        let mut single = Vec::new();
+        let (mut single, mut single_lowered) = (Vec::new(), Vec::new());
         for (index, reference) in ninja.iter().enumerate() {
             let batch = batch_input(&case, &[index]);
             let mut tensor = padded_tensor(&case, &[index], declared);
             let mut results = [FastResult::default()];
             let mut statuses = [FastStatus::NotEvaluated];
+            // By default: bitwise the numerator declared at the lane's rank.
             amplitude
                 .evaluate(
                     &batch.input(),
                     &mut tensor,
+                    &mut masters,
+                    &mut results,
+                    &mut statuses,
+                )
+                .unwrap();
+            let rank = tensor.lane_rank(0).unwrap();
+            let mut at_rank = FastAmplitude::new(case.n, rank, FastOptions::default()).unwrap();
+            let mut truncated = TensorNumerator::new(rank, 1);
+            truncated
+                .lane_coefficients_mut(0)
+                .copy_from_slice(&tensor.lane_coefficients(0)[..ncoeff(rank)]);
+            let mut want = [FastResult::default()];
+            let mut want_statuses = [FastStatus::NotEvaluated];
+            at_rank
+                .evaluate(
+                    &batch.input(),
+                    &mut truncated,
+                    &mut masters,
+                    &mut want,
+                    &mut want_statuses,
+                )
+                .unwrap();
+            assert_eq!(
+                statuses, want_statuses,
+                "{name} {} at rank {rank}",
+                reference.id
+            );
+            assert_eq!(
+                bits(&results[0]),
+                bits(&want[0]),
+                "{name} {} at rank {rank}",
+                reference.id
+            );
+            single_lowered.push((results[0], statuses[0]));
+            lowered += 1;
+            // The rank n+2 engine.
+            amplitude
+                .evaluate(
+                    &batch.input(),
+                    &mut AtDeclaredRank(&mut tensor),
                     &mut masters,
                     &mut results,
                     &mut statuses,
@@ -422,7 +472,7 @@ fn fast_rank_n2_padding_reproduces_original_ninja() {
             amplitude
                 .evaluate(
                     &batch.input(),
-                    &mut tensor,
+                    &mut AtDeclaredRank(&mut tensor),
                     &mut masters,
                     &mut results,
                     &mut statuses,
@@ -435,11 +485,33 @@ fn fast_rank_n2_padding_reproduces_original_ninja() {
                     assert_eq!(results[lane], want, "{name} batch lane {lane}");
                 }
             }
+            let mut results = vec![FastResult::default(); points.len()];
+            amplitude
+                .evaluate(
+                    &batch.input(),
+                    &mut tensor,
+                    &mut masters,
+                    &mut results,
+                    &mut statuses,
+                )
+                .unwrap();
+            for (lane, &index) in points.iter().enumerate() {
+                let (want, want_status) = single_lowered[index];
+                assert_eq!(
+                    statuses[lane], want_status,
+                    "{name} lowered batch lane {lane}"
+                );
+                assert_eq!(
+                    bits(&results[lane]),
+                    bits(&want),
+                    "{name} lowered batch lane {lane}"
+                );
+            }
         }
     }
     assert!(unstable >= 8, "the edge cases must include unstable points");
     eprintln!(
-        "FAST_RANK_N2_PADDING cases={} lanes={lanes} unstable={unstable} exact_fills={completed} max_scaled_error={worst:e}; lanes where the rank n+1 engine itself deviates (> 1e-11): {excepted}, their max scaled error {worst_excepted:e}, max ratio to the rank n+1 deviation {worst_ratio:.2}; lanes checked against the exact reduction: {exact_checked}, max error ratio to Ninja's {worst_exact_ratio:.2}; max split difference {worst_split:.1e}",
+        "FAST_RANK_N2_PADDING cases={} lanes={lanes} unstable={unstable} exact_fills={completed} max_scaled_error={worst:e}; lanes where the rank n+1 engine itself deviates (> 1e-11): {excepted}, their max scaled error {worst_excepted:e}, max ratio to the rank n+1 deviation {worst_ratio:.2}; lanes checked against the exact reduction: {exact_checked}, max error ratio to Ninja's {worst_exact_ratio:.2}; max split difference {worst_split:.1e}; lanes reduced at their own rank, bitwise, by default: {lowered}",
         pairs.len()
     );
 }

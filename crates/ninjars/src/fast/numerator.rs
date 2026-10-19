@@ -178,6 +178,39 @@ pub trait FastNumerator {
     ) -> Result<()> {
         self.t2_expansion(cut, lanes, a0, a1, e3, e4, param, 4, out)
     }
+
+    /// The rank of lane `lane`: the highest total degree (`mu²` counting
+    /// two) with a non-zero coefficient, at most [`Self::rank`] (0 for a lane
+    /// that is identically zero). `None` means unknown; it is the default.
+    ///
+    /// [`super::FastAmplitude`] asks this only at declared rank n+2, once per
+    /// lane and evaluation. It reduces every lane of a lower rank `r` with the
+    /// rank <= n+1 engine built at rank `r`, after [`Self::lower_rank`], so
+    /// the lane's result is bitwise that of declaring rank `r`. A numerator
+    /// answering `Some(r)` with `r < rank()` must implement
+    /// [`Self::lower_rank`] and [`Self::restore_rank`].
+    fn lane_rank(&mut self, lane: usize) -> Option<usize> {
+        let _ = lane;
+        None
+    }
+
+    /// Present lanes `lanes`, each of rank at most `rank`
+    /// ([`Self::lane_rank`]), as lanes `0..lanes.len()` of a numerator of
+    /// rank `rank < self.rank()` until [`Self::restore_rank`]. In between,
+    /// every method (including [`Self::rank`]) must behave exactly as that
+    /// numerator, declared at rank `rank`, would.
+    ///
+    /// The default reports [`Error::Unsupported`].
+    fn lower_rank(&mut self, lanes: &[usize], rank: usize) -> Result<()> {
+        let _ = (lanes, rank);
+        Err(Error::Unsupported(
+            "numerator cannot present itself at a lower rank".into(),
+        ))
+    }
+
+    /// Undo [`Self::lower_rank`]: afterwards the numerator is exactly as it
+    /// was before. Without a preceding [`Self::lower_rank`] it does nothing.
+    fn restore_rank(&mut self) {}
 }
 
 #[cfg(test)]
