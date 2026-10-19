@@ -1,0 +1,56 @@
+generic bench: runs A=16 B=16; 16 keys; geomean 1.0046; min 0.993; max 1.019; > 1.05: 0
+  box-double               w1   A       24061121 ns  B       23965660 ns  ratio 0.9960
+  box-double               w8   A       23820251 ns  B       23757408 ns  ratio 0.9974
+  box-f64                  w1   A         130358 ns  B         132240 ns  ratio 1.0144
+  box-f64                  w32  A         121289 ns  B         123646 ns  ratio 1.0194
+  box-float128             w1   A       50790968 ns  B       50887003 ns  ratio 1.0019
+  box-float128             w8   A       49038438 ns  B       48694761 ns  ratio 0.9930
+  gg-hh-top-box-2-f64      w1   A         424678 ns  B         427759 ns  ratio 1.0073
+  gg-hh-top-box-2-f64      w32  A         390856 ns  B         396500 ns  ratio 1.0144
+  heptagon-rank8-f64       w1   A        2378800 ns  B        2404218 ns  ratio 1.0107
+  heptagon-rank8-f64       w32  A        2169870 ns  B        2196995 ns  ratio 1.0125
+  pentagon-rank4-double    w1   A       57830526 ns  B       57957344 ns  ratio 1.0022
+  pentagon-rank4-double    w8   A       57640180 ns  B       57516236 ns  ratio 0.9978
+  pentagon-rank4-f64       w1   A         264557 ns  B         265585 ns  ratio 1.0039
+  pentagon-rank4-f64       w32  A         255301 ns  B         257763 ns  ratio 1.0096
+  pentagon-rank4-float128  w1   A       75788413 ns  B       75582399 ns  ratio 0.9973
+  pentagon-rank4-float128  w8   A       74073589 ns  B       73832844 ns  ratio 0.9967
+representative results identical across all runs: yes
+# replicate 1 (CPU 205, ABBA x4)
+generic bench: runs A=8 B=8; 16 keys; geomean 1.0112; min 0.992; max 1.063; > 1.05: 2
+  box-double               w1   A       24069587 ns  B       23965031 ns  ratio 0.9957
+  box-double               w8   A       23842650 ns  B       23720256 ns  ratio 0.9949
+  box-f64                  w1   A         131427 ns  B         132167 ns  ratio 1.0056
+  box-f64                  w32  A         116283 ns  B         123593 ns  ratio 1.0629
+  box-float128             w1   A       50967306 ns  B       50876033 ns  ratio 0.9982
+  box-float128             w8   A       49011419 ns  B       48610107 ns  ratio 0.9918
+  gg-hh-top-box-2-f64      w1   A         424678 ns  B         427230 ns  ratio 1.0060
+  gg-hh-top-box-2-f64      w32  A         391559 ns  B         396923 ns  ratio 1.0137
+  heptagon-rank8-f64       w1   A        2271067 ns  B        2401087 ns  ratio 1.0573
+  heptagon-rank8-f64       w32  A        2156328 ns  B        2197694 ns  ratio 1.0192
+  pentagon-rank4-double    w1   A       58019840 ns  B       58071677 ns  ratio 1.0009
+  pentagon-rank4-double    w8   A       57714409 ns  B       57476703 ns  ratio 0.9959
+  pentagon-rank4-f64       w1   A         264695 ns  B         266304 ns  ratio 1.0061
+  pentagon-rank4-f64       w32  A         248319 ns  B         257950 ns  ratio 1.0388
+  pentagon-rank4-float128  w1   A       75655479 ns  B       75449548 ns  ratio 0.9973
+  pentagon-rank4-float128  w8   A       73754343 ns  B       73664166 ns  ratio 0.9988
+representative results identical across all runs: yes
+# replicate 2 (CPU 205, BAAB x4)
+generic bench: runs A=8 B=8; 16 keys; geomean 1.0050; min 0.993; max 1.022; > 1.05: 0
+  box-double               w1   A       24041501 ns  B       23972726 ns  ratio 0.9971
+  box-double               w8   A       23785219 ns  B       23772166 ns  ratio 0.9995
+  box-f64                  w1   A         130332 ns  B         132690 ns  ratio 1.0181
+  box-f64                  w32  A         121289 ns  B         124012 ns  ratio 1.0225
+  box-float128             w1   A       50726197 ns  B       50887003 ns  ratio 1.0032
+  box-float128             w8   A       49041959 ns  B       48694761 ns  ratio 0.9929
+  gg-hh-top-box-2-f64      w1   A         424408 ns  B         428507 ns  ratio 1.0097
+  gg-hh-top-box-2-f64      w32  A         390615 ns  B         394349 ns  ratio 1.0096
+  heptagon-rank8-f64       w1   A        2383956 ns  B        2404218 ns  ratio 1.0085
+  heptagon-rank8-f64       w32  A        2171462 ns  B        2191541 ns  ratio 1.0092
+  pentagon-rank4-double    w1   A       57792160 ns  B       57884284 ns  ratio 1.0016
+  pentagon-rank4-double    w8   A       57552618 ns  B       57581333 ns  ratio 1.0005
+  pentagon-rank4-f64       w1   A         263773 ns  B         265367 ns  ratio 1.0060
+  pentagon-rank4-f64       w32  A         256018 ns  B         257483 ns  ratio 1.0057
+  pentagon-rank4-float128  w1   A       75931677 ns  B       75711978 ns  ratio 0.9971
+  pentagon-rank4-float128  w8   A       74133891 ns  B       74038939 ns  ratio 0.9987
+representative results identical across all runs: yes

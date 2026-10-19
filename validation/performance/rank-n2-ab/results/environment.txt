@@ -1,0 +1,20 @@
+Host: AMD EPYC 9754 (Zen 4c, 2 x 128 cores, 384 threads, 32 L3 complexes), Linux 6.18.45,
+governor "performance", boost on; shared machine, load average 85-115 during the runs.
+Toolchain: rustc 1.98.1 (48a229cea 2026-09-01), cargo 1.98.1; profile perf (release,
+codegen-units 16, ninjars/ninjars-symbolica/oneloop codegen-units 1), features numerator-jit.
+
+A (baseline): main dec3d55 (oneloopmaster 264a6ce, gammaloop 474478a7, Symbolica e679e8c1)
+  bins/ninjars-a  sha256 3a8c129d59d3c4ace4340e39ae5a7e18cffe093728d1ee3f753912faf197aa42
+B (candidate): claude/rank-n2-integration 8346699 (oneloopmaster fe550e3 = 264a6ce + B1111)
+  bins/ninjars-b  sha256 82cefea96faa039ad5d4f8ee3623b0bfd76c32fcec00e7647a85a0b6f6301479
+Both built from exported trees (git archive) into separate CARGO_TARGET_DIRs.
+Benchmark inputs: the A tree (examples/graphs/physical, validation/benchmark/{points,
+cases,synthetic,ninja}); identical in B for the 7 graphs and 27 cases.
+
+Cores (taskset), chosen with scripts/idle_l3.py (busy threads per L3 complex):
+  CPU 189 (L3 184-191): fast A/B (20 runs), then A/A (16 runs), rerun
+  CPU 197 (L3 192-199): fast A/A (16 runs), then A/B (20 runs), rerun
+  CPU 205 (L3 200-207): generic A/B (2 x 16 runs), instruction counts
+  CPU 221 (L3 216-223): rank n+2 twin costs (B only)
+  CPU 229 (L3 224-231): layout investigation, probes, rerun, generic instruction counts
+Builds during the measurements were pinned to socket 0 (CPUs 0-47, 256-303).
