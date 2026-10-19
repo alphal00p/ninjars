@@ -1,0 +1,45 @@
+rerun B/A [rerun-x] runs A=9 B=9: keys=8 geomean(reduction+total, n=8)=0.9990 geomean(all)=0.9990 max=1.009 >1.03: 0 >1.05: 0
+  case reduction n=  4 geomean=0.9968 min=0.971 max=1.009 >1.03: 0 >1.05: 0
+  case total     n=  4 geomean=1.0011 min=0.994 max=1.008 >1.03: 0 >1.05: 0
+  run-to-run spread of A (half IQR / median): median 0.59%  max 1.29%
+  per-lane results identical across all A and B runs: yes
+rerun B/A [rerun-y] runs A=9 B=9: keys=8 geomean(reduction+total, n=8)=1.0009 geomean(all)=1.0009 max=1.016 >1.03: 0 >1.05: 0
+  case reduction n=  4 geomean=0.9951 min=0.976 max=1.015 >1.03: 0 >1.05: 0
+  case total     n=  4 geomean=1.0067 min=1.000 max=1.016 >1.03: 0 >1.05: 0
+  run-to-run spread of A (half IQR / median): median 0.72%  max 1.52%
+  per-lane results identical across all A and B runs: yes
+rerun B/A [combined: geometric mean over 2 replicates]: keys=8 geomean(reduction+total, n=8)=0.9999 geomean(all)=0.9999 max=1.012 >1.03: 0 >1.05: 0
+  case reduction n=  4 geomean=0.9960 min=0.973 max=1.012 >1.03: 0 >1.05: 0
+  case total     n=  4 geomean=1.0039 min=0.999 max=1.012 >1.03: 0 >1.05: 0
+ratios > 1.03 (combined): none
+top 10: gg-hhh-top-box-8 w1 reduction 1.012, syn-n2-r2 w1 total 1.012, gg-hhh-top-box-8 w32 total 1.006, gg-hhh-top-box-8 w32 reduction 1.005, gg-hhh-top-box-8 w1 total 0.999, syn-n2-r2 w32 total 0.999, syn-n2-r2 w32 reduction 0.994, syn-n2-r2 w1 reduction 0.973
+bottom 5: syn-n2-r2 w1 reduction 0.973, syn-n2-r2 w32 reduction 0.994, syn-n2-r2 w32 total 0.999, gg-hhh-top-box-8 w1 total 0.999, gg-hhh-top-box-8 w32 reduction 1.005
+== <work>/guard1/ab/rerun-x
+gg-hhh-top-box-8 w1   reduction  A   6302.9 B   6361.2 ratio 1.0093  nA 9 nB 9  A[min..max] 6207..6361 B 6284..6497
+gg-hhh-top-box-8 w1   total      A  31451.4 B  31403.1 ratio 0.9985  nA 9 nB 9  A[min..max] 31209..31930 B 31012..32823
+gg-hhh-top-box-8 w32  reduction  A   5392.2 B   5411.5 ratio 1.0036  nA 9 nB 9  A[min..max] 5372..5438 B 5340..5494
+gg-hhh-top-box-8 w32  total      A  27737.7 B  27852.1 ratio 1.0041  nA 9 nB 9  A[min..max] 27444..28023 B 27549..28286
+syn-n2-r2    w1   reduction  A    472.1 B    458.3 ratio 0.9709  nA 9 nB 9  A[min..max] 471..476 B 451..471
+syn-n2-r2    w1   total      A   1189.2 B   1198.2 ratio 1.0076  nA 9 nB 9  A[min..max] 1181..1217 B 1191..1210
+syn-n2-r2    w32  reduction  A    286.7 B    287.9 ratio 1.0041  nA 9 nB 9  A[min..max] 282..296 B 281..297
+syn-n2-r2    w32  total      A    668.1 B    664.4 ratio 0.9944  nA 9 nB 9  A[min..max] 664..682 B 658..674
+reference checks identical across runs: True []
+== <work>/guard1/ab/rerun-y
+gg-hhh-top-box-8 w1   reduction  A   6246.9 B   6340.1 ratio 1.0149  nA 9 nB 9  A[min..max] 6207..6461 B 6270..6404
+gg-hhh-top-box-8 w1   total      A  31292.0 B  31294.1 ratio 1.0001  nA 9 nB 9  A[min..max] 31138..33347 B 31078..31774
+gg-hhh-top-box-8 w32  reduction  A   5361.6 B   5391.0 ratio 1.0055  nA 9 nB 9  A[min..max] 5326..5590 B 5346..5435
+gg-hhh-top-box-8 w32  total      A  27587.0 B  27780.9 ratio 1.0070  nA 9 nB 9  A[min..max] 27383..28201 B 27575..28040
+syn-n2-r2    w1   reduction  A    471.3 B    460.1 ratio 0.9761  nA 9 nB 9  A[min..max] 467..483 B 449..472
+syn-n2-r2    w1   total      A   1183.3 B   1202.8 ratio 1.0165  nA 9 nB 9  A[min..max] 1179..1217 B 1190..1220
+syn-n2-r2    w32  reduction  A    291.1 B    286.5 ratio 0.9843  nA 9 nB 9  A[min..max] 281..293 B 282..293
+syn-n2-r2    w32  total      A    663.8 B    666.0 ratio 1.0033  nA 9 nB 9  A[min..max] 658..678 B 660..673
+reference checks identical across runs: True []
+== geomean over roots
+gg-hhh-top-box-8 w1   reduction  1.0121  1.0093 1.0149
+gg-hhh-top-box-8 w1   total      0.9993  0.9985 1.0001
+gg-hhh-top-box-8 w32  reduction  1.0045  1.0036 1.0055
+gg-hhh-top-box-8 w32  total      1.0056  1.0041 1.0070
+syn-n2-r2    w1   reduction  0.9735  0.9709 0.9761
+syn-n2-r2    w1   total      1.0120  1.0076 1.0165
+syn-n2-r2    w32  reduction  0.9941  1.0041 0.9843
+syn-n2-r2    w32  total      0.9988  0.9944 1.0033

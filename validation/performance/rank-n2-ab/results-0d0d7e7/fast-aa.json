@@ -1,0 +1,28 @@
+{
+ "label": "A2/A",
+ "replicates": {
+  "x-aa": {
+   "runs_a": 8,
+   "runs_b": 8,
+   "summary": "A2/A [x-aa] runs A=8 B=8: keys=192 geomean(reduction+total, n=164)=1.0004 geomean(all)=1.0006 max=1.022 >1.03: 0 >1.05: 0",
+   "lane_results_identical": true,
+   "differing_keys": []
+  },
+  "y-aa": {
+   "runs_a": 8,
+   "runs_b": 8,
+   "summary": "A2/A [y-aa] runs A=8 B=8: keys=192 geomean(reduction+total, n=164)=1.0001 geomean(all)=0.9999 max=1.023 >1.03: 0 >1.05: 0",
+   "lane_results_identical": true,
+   "differing_keys": []
+  }
+ },
+ "combined": {
+  "keys": 192,
+  "geomean_reduction_total": 1.000256365563037,
+  "geomean_all": 1.0002336614614349,
+  "max": 1.0222125835067222,
+  "above_1_03": 0,
+  "above_1_05": 0
+ },
+ "above_1_03": []
+}

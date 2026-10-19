@@ -1,0 +1,38 @@
+{
+ "label": "B/A",
+ "replicates": {
+  "x-ab": {
+   "runs_a": 10,
+   "runs_b": 10,
+   "summary": "B/A [x-ab] runs A=10 B=10: keys=192 geomean(reduction+total, n=164)=0.9995 geomean(all)=0.9990 max=1.039 >1.03: 1 >1.05: 0",
+   "lane_results_identical": true,
+   "differing_keys": []
+  },
+  "y-ab": {
+   "runs_a": 10,
+   "runs_b": 10,
+   "summary": "B/A [y-ab] runs A=10 B=10: keys=192 geomean(reduction+total, n=164)=0.9997 geomean(all)=0.9990 max=1.037 >1.03: 1 >1.05: 0",
+   "lane_results_identical": true,
+   "differing_keys": []
+  }
+ },
+ "combined": {
+  "keys": 192,
+  "geomean_reduction_total": 0.9996177666055552,
+  "geomean_all": 0.9990342758726647,
+  "max": 1.0377121810013141,
+  "above_1_03": 1,
+  "above_1_05": 0
+ },
+ "above_1_03": [
+  {
+   "key": [
+    "case",
+    "gg-hhh-top-box-8",
+    "1",
+    "reduction"
+   ],
+   "ratio": 1.0377121810013141
+  }
+ ]
+}

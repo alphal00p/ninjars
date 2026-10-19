@@ -1,0 +1,37 @@
+Host: AMD EPYC 9754 (Zen 4c, 2 x 128 cores, 384 logical CPUs, 32 L3 complexes), Linux 6.18.45,
+governor "performance", boost on; shared machine, load average 110-270 during the runs.
+Toolchain: rustc 1.98.1 (48a229cea 2026-09-01), cargo 1.98.1, LLVM 22.1.8; the CLI is linked by
+rust-lld (LLD 22.1.8, see readelf -p .comment); glibc 2.42. Profile perf (release, codegen-units 16,
+ninjars/ninjars-symbolica/oneloop codegen-units 1), features numerator-jit.
+Each tree is a detached worktree (git worktree add --detach) built into its own CARGO_TARGET_DIR.
+
+Guard (design section 8):
+A  main d53dd08 (oneloopmaster 09b2c74, gammaloop 474478a7, Symbolica e679e8c1)
+   bins/ninjars-a  sha256 bbfce588ccc033c0ecbce6bc52be3a48cc458d1386f0460a1d43592acc398d96
+B  main 0d0d7e7 (oneloopmaster 09b2c74, gammaloop 1e8063a7, Symbolica e679e8c1)
+   bins/ninjars-b  sha256 fdeee8e8a6acec88581abcbe540ed771cc7a34fb5d6ccf39b23bfa6044c44a69
+Inputs: each side reads its own checkout (INPUTS_A, INPUTS_B): B's 70 physical DOT graphs carry the
+model fingerprint of the new gammaloop pin and are rejected by A, and the reverse; cases, points and
+Ninja references are identical.
+
+Layout experiments (previous pair of README.md):
+oldA  dec3d55   bins/ninjars-olda  sha256 3a8c129d59d3c4ace4340e39ae5a7e18cffe093728d1ee3f753912faf197aa42
+      (identical to the binary of the first guard, results/environment.txt)
+oldB  8346699   bins/ninjars-oldb  sha256 135aa2d3f00d5c80406ab5a274c886a85db1532973b29c962f6c333c2432bf3f
+      (code and section layout identical to the first guard's B: hot span 0x345cb10..0x34d3711; the
+      first guard's file hash differs, only in .strtab)
+oldB variants (relink_cli.sh, coldmark.py):
+  oldb-x2first   75 rank n+2 symbols first (--symbol-ordering-file)       c7bd0c5a8554190dcb2b75c27e89a1c30da7e7bbc03809f9438ba3e00ed159be
+  oldb-cold      #[cold] on 42 rank n+2 functions                         a3bc4d42f6b965630657c2a8d4636a600324056356b59f04723dc4ef38b6b004
+  oldb-cold-kp   oldb-cold linked with -z keep-text-section-prefix        ffc5b59bd08901d20484b531e90a520c0f35cc727c9e00b9bd6fa811e9b87d25
+  oldb-kp        oldB linked with -z keep-text-section-prefix             38fd5ab76b874f9b32f3ea5c41fdd5531fd03721f094b9f9585842214c6162a8
+
+Cores (taskset), chosen with per-CPU busy fractions from /proc/stat (no CPU of the host was fully idle):
+  CPU 214 (L3 208-215): fast A/B (20 runs), then A/A (16 runs)
+  CPU 220 (L3 216-223): fast A/A (16 runs), then A/B (20 runs)
+  CPU 254 (L3 248-255): generic A/B (2 x 16 runs)
+  CPU 190 (L3 184-191): instruction counts, callgrind, layout_pad.sh (gg-hhh-top-box-8), multi_screen.sh
+  CPU 243 (L3 240-247): multi_screen.sh (second replicate)
+  CPU 246 (L3 240-247): layout_pad.sh (syn-n2-r2), layout_sweep.sh, perf profiles
+  CPU 245: performance counters; CPUs 187, 191, 250, 167, 180: ab_screen.sh replicates
+Builds that overlapped the guard were pinned to CPUs 0-47 (the first screens overlapped unpinned builds).

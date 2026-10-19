@@ -1,0 +1,101 @@
+syn-n2-r2, width 1, case-bench `reduction` (replayed numerator and masters): the key that
+failed check (d) in the first guard (dec3d55 -> 8346699: 1.061, rerun 1.11). TODO item 2.3.
+oldA = dec3d55, oldB = 8346699, A = d53dd08, B = 0d0d7e7. ns per call (one point per call).
+Interleaved runs pinned with taskset; "ratio" = median over runs of the per-run median, B/A.
+
+1. Current main is not slower
+   ab_screen.sh, syn-n2-r2 + syn-n2-r1, 12+12 runs on each of CPU 191 and 187 (screen-current-ab.txt):
+       syn-n2-r2 w1 reduction  0.952 / 0.972   (A 466-477, B 453-454 ns)
+       syn-n2-r1 w1 reduction  0.937 / 0.942
+   full guard (fast-ab.txt): syn-n2-r2 w1 reduction 0.993, syn-n2-r1 w1 reduction 0.887.
+   A/A (same binary twice), 12+12 runs on CPU 250: 1.018 / 1.007 (screen-current-aa.txt).
+
+2. The first guard's pair still reproduces the outlier on this host
+   ab_screen.sh oldA/oldB, 12+12 runs on each of CPU 191 and 187 (screen-old-ab.txt):
+       syn-n2-r2 w1 reduction  1.060 / 1.072   (oldA 473-475, oldB 503-507 ns)
+   B (0d0d7e7) and oldB (8346699) have the same fast-engine code (engine.rs unchanged, engine_x2.rs
+   4 lines) and the same placement of the rank <= n+1 hot functions (hot-span.txt: both 475 KiB
+   with 211 KiB of rank n+2 code inside), yet B is 453 ns and oldB 505 ns.
+
+3. Placement remedies applied to oldB do not remove it
+   How functions are placed: rustc emits a codegen unit's functions sorted by mangled (v0) symbol
+   name (checked: the 122 .text sections of the ninjars object of B are in byte-wise name order),
+   so the rank n+2 modules interleave with engine/geometry/subtractions/replay. The CLI is linked by
+   rust-lld, which concatenates .text.unlikely.* with the other .text.* input sections in input
+   order: evaluate_x2, #[cold] since S3, sits inside the hot span (0x3926210 in B).
+   Variants of oldB (relink_cli.sh; coldmark.py marks 42 rank n+2 functions #[cold]):
+       variant                                         hot span   rank n+2 inside
+       oldB as built                                   475 KiB    211 KiB
+       oldb-x2first: 75 rank n+2 symbols linked first  264 KiB      0 KiB  (--symbol-ordering-file)
+       oldb-cold: #[cold] on 42 functions              472 KiB    218 KiB
+       oldb-cold-kp: + -z keep-text-section-prefix     252 KiB      0 KiB  (.text.unlikely output section)
+       oldb-kp: -z keep-text-section-prefix only       473 KiB    211 KiB
+   multi_screen.sh, all six binaries round-robin, 8 rounds on each of CPU 190 and 243
+   (screen-old-variants.txt), syn-n2-r2 w1 reduction against oldA (469 ns):
+       oldB 1.072, oldb-x2first 1.084, oldb-cold 1.081, oldb-cold-kp 1.089, oldb-kp 1.141
+   ab_screen.sh oldA/oldb-x2first, 12+12 runs on each of CPU 167 and 180: 1.080 / 1.084
+   (screen-old-x2first.txt). A separate crate or codegen unit for the rank n+2 engine can only
+   produce layouts like oldb-x2first and oldb-cold-kp (rank n+2 code out of the span).
+
+4. Heap layout decides it
+   layout_pad.sh: the case file padded with 0..256 bytes of trailing whitespace. This changes only
+   the size of the buffer the case-bench worker thread reads it into, and with it the addresses of
+   the buffers allocated after it in that thread's malloc arena. 2 runs per binary and layout,
+   CPU 246 (layout-pad-default.txt), median (min-max) ns:
+       pad    A            B            oldA         oldB
+       0      469          456          481          509
+       16     472          459          464          500
+       32     474          466          469          505
+       48     459          450          470          470
+       64     479          454          467          512
+       80     479          480          489          502
+       96     466          462          462          474
+       112    478          453          463          486
+       128    461          466          461          478
+       160    464          453          470          466
+       192    474          441          463          462
+       256    501          463          469          466
+   oldB is within 1 % of oldA at 4 of 12 layouts and within 3 % at 2 more; A and B each move
+   by up to 9 %.
+   A long -o path (allocated by the main thread) shifts nothing: the timing runs on a worker
+   thread with its own malloc arena. With GLIBC_TUNABLES=glibc.malloc.arena_max=1 (one arena) oldB
+   runs 464-472 ns at 7 of 8 -o path lengths, like oldA (layout-arena1-opath.txt).
+
+5. With every heap block of >= 64 bytes 64-byte aligned the outlier vanishes
+   LD_PRELOAD=libalign64.so (align64.c), same sweep (layout-pad-align64.txt):
+       oldA 461-493 ns (median of layouts 471), oldB 454-472 (462): ratio 0.98
+       (oldB at pad 0: runs of 462 and 553 ns, the only layout outside 454-472)
+       A    457-485 (464),                        B   439-466 (451): ratio 0.97
+
+6. Line-crossing loads follow the time, op-cache misses do not
+   perf stat, user space, whole case-bench process on syn-n2-r2 width 1, 40 blocks, CPU 245,
+   per 1000 instructions (counters-old-pad.txt):
+                            loads crossing 64 B   op-cache misses   load-not-complete stalls
+       pad 0  (oldB slow)   oldA 4.66-4.71        32.3-32.5         41.8-42.4
+                            oldB 5.05-5.66        30.7-34.5         44.7-49.8
+       pad 48 (oldB fast)   oldA 4.63-4.64        32.5              42.1-42.8
+                            oldB 4.60             33.9-34.2         41.2-43.0
+   The op-cache misses do not track the time: at pad 48, where oldB is as fast as oldA, it still
+   has 33.9-34.2 against 32.5. The line-crossing loads and load stalls do: they are up at pad 0
+   and back to oldA's values at pad 48.
+   cycles:u profile (perf record, syn-n2-r2 width 1, CPU 246): glibc's memset took 1.2-1.3 % of the
+   process in oldA and 3.3-3.6 % in oldB (two profiles each), 34 % of its samples on the 64-byte tail store
+   (vmovdqu64 %zmm16,-0x40(%rdi,%rdx,1)) against 4 % in oldA, consistent with small zeroed
+   heap buffers whose 64-byte stores cross a cache line.
+
+7. Same work
+   callgrind, CLI binaries, case-bench syn-n2-r1 width 1 (callgrind-replay.txt): replay evaluate
+   4716 instructions per call in A (evaluate), 4715 in B (evaluate_up_to_n1); bubbles 1601,
+   integrate 1240, prepare 297.6, prepare_out 38, refresh_active 38 on both sides.
+   The ab_icount.rs probe binary executes +24 instructions per call at width 1 in B
+   (icount-fast.txt: syn-n2-r1 w1 replay 4772 -> 4796, +0.50 %), its own register allocation of
+   `evaluate`, as in the first guard.
+
+Conclusion: the width-1 replayed reduction of the smallest cases (about 450 ns, 5000
+instructions per call) moves by up to 10 % with the cache-line offsets of the heap buffers in the
+case-bench worker thread, which depend on the allocation history of each binary. The rank n+2
+code placement does not matter. No placement change is adopted; the rank <= n+1 code is
+unchanged. Layout sweep of all 27 cases (layout-sweep-ab.txt, 4 layouts x 3 runs, CPU 246):
+width-1 reduction ratios B/A have geometric mean 0.996 and max 1.044 over layouts; the median
+layout spread (max/min of a side's medians over the 4 layouts) is 2.0 % (max 4.7 % for A, 9.9 %
+for B).

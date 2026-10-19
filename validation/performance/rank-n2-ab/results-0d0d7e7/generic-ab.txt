@@ -1,0 +1,37 @@
+generic bench: runs A=8 B=8; 16 keys; geomean 0.9757; min 0.905; max 1.011; > 1.05: 0
+  box-double               w1   A       23504768 ns  B       23426142 ns  ratio 0.9967
+  box-double               w8   A       23603598 ns  B       23502343 ns  ratio 0.9957
+  box-f64                  w1   A         133660 ns  B         135106 ns  ratio 1.0108
+  box-f64                  w32  A         126741 ns  B         126117 ns  ratio 0.9951
+  box-float128             w1   A       54027326 ns  B       54021313 ns  ratio 0.9999
+  box-float128             w8   A       52043429 ns  B       51995170 ns  ratio 0.9991
+  gg-hh-top-box-2-f64      w1   A         450917 ns  B         410775 ns  ratio 0.9110
+  gg-hh-top-box-2-f64      w32  A         413087 ns  B         392617 ns  ratio 0.9504
+  heptagon-rank8-f64       w1   A        2784371 ns  B        2519155 ns  ratio 0.9047
+  heptagon-rank8-f64       w32  A        2347346 ns  B        2195536 ns  ratio 0.9353
+  pentagon-rank4-double    w1   A       50570412 ns  B       50036332 ns  ratio 0.9894
+  pentagon-rank4-double    w8   A       51297512 ns  B       50760879 ns  ratio 0.9895
+  pentagon-rank4-f64       w1   A         271961 ns  B         261766 ns  ratio 0.9625
+  pentagon-rank4-f64       w32  A         274622 ns  B         266417 ns  ratio 0.9701
+  pentagon-rank4-float128  w1   A       75340771 ns  B       76185394 ns  ratio 1.0112
+  pentagon-rank4-float128  w8   A       73963838 ns  B       73912878 ns  ratio 0.9993
+representative results identical across all runs: NO: [('gg-hh-top-box-2-f64', 1), ('gg-hh-top-box-2-f64', 32), ('heptagon-rank8-f64', 1), ('heptagon-rank8-f64', 32), ('pentagon-rank4-double', 1), ('pentagon-rank4-double', 8), ('pentagon-rank4-f64', 1), ('pentagon-rank4-f64', 32), ('pentagon-rank4-float128', 1), ('pentagon-rank4-float128', 8)]
+
+generic bench: runs A=8 B=8; 16 keys; geomean 0.9898; min 0.950; max 1.009; > 1.05: 0
+  box-double               w1   A       23446595 ns  B       23306042 ns  ratio 0.9940
+  box-double               w8   A       23528670 ns  B       23408871 ns  ratio 0.9949
+  box-f64                  w1   A         133581 ns  B         134546 ns  ratio 1.0072
+  box-f64                  w32  A         130830 ns  B         127553 ns  ratio 0.9750
+  box-float128             w1   A       53640169 ns  B       53554624 ns  ratio 0.9984
+  box-float128             w8   A       51454189 ns  B       51902564 ns  ratio 1.0087
+  gg-hh-top-box-2-f64      w1   A         425188 ns  B         407679 ns  ratio 0.9588
+  gg-hh-top-box-2-f64      w32  A         396007 ns  B         397963 ns  ratio 1.0049
+  heptagon-rank8-f64       w1   A        2544511 ns  B        2498823 ns  ratio 0.9820
+  heptagon-rank8-f64       w32  A        2247262 ns  B        2222122 ns  ratio 0.9888
+  pentagon-rank4-double    w1   A       50298008 ns  B       49868162 ns  ratio 0.9915
+  pentagon-rank4-double    w8   A       50799268 ns  B       50409534 ns  ratio 0.9923
+  pentagon-rank4-f64       w1   A         269328 ns  B         255918 ns  ratio 0.9502
+  pentagon-rank4-f64       w32  A         266337 ns  B         262730 ns  ratio 0.9865
+  pentagon-rank4-float128  w1   A       75412854 ns  B       75163243 ns  ratio 0.9967
+  pentagon-rank4-float128  w8   A       73069930 ns  B       73714169 ns  ratio 1.0088
+representative results identical across all runs: NO: [('gg-hh-top-box-2-f64', 1), ('gg-hh-top-box-2-f64', 32), ('heptagon-rank8-f64', 1), ('heptagon-rank8-f64', 32), ('pentagon-rank4-double', 1), ('pentagon-rank4-double', 8), ('pentagon-rank4-f64', 1), ('pentagon-rank4-f64', 32), ('pentagon-rank4-float128', 1), ('pentagon-rank4-float128', 8)]

@@ -1,0 +1,11 @@
+== <work>/screen/aa0-250
+syn-n2-r1      w1   reduction A    434.2 B    437.3 ratio 1.0070  runs 12+12  A 431..473  B 428..465
+syn-n2-r1      w1   total     A    850.3 B    850.8 ratio 1.0005  runs 12+12  A 834..920  B 844..909
+syn-n2-r1      w32  reduction A    261.6 B    261.4 ratio 0.9995  runs 12+12  A 256..276  B 255..268
+syn-n2-r1      w32  total     A    458.7 B    461.3 ratio 1.0058  runs 12+12  A 451..475  B 451..479
+syn-n2-r2      w1   reduction A    471.8 B    480.4 ratio 1.0184  runs 12+12  A 461..503  B 471..502
+syn-n2-r2      w1   total     A   1195.9 B   1203.6 ratio 1.0064  runs 12+12  A 1178..1227  B 1183..1455
+syn-n2-r2      w32  reduction A    287.0 B    287.0 ratio 1.0001  runs 12+12  A 283..303  B 283..321
+syn-n2-r2      w32  total     A    663.2 B    663.6 ratio 1.0006  runs 12+12  A 655..747  B 658..683
+process cycles per instruction: A 0.2785 B 0.2787 ratio 1.0006
+reference checks identical across runs: yes

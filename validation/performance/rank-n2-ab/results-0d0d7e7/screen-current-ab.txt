@@ -1,0 +1,31 @@
+== <work>/screen/ab0-191
+syn-n2-r1      w1   reduction A    440.8 B    413.1 ratio 0.9372  runs 12+12  A 430..449  B 406..425
+syn-n2-r1      w1   total     A    845.6 B    860.7 ratio 1.0179  runs 12+12  A 831..926  B 844..894
+syn-n2-r1      w32  reduction A    258.6 B    264.1 ratio 1.0211  runs 12+12  A 255..270  B 258..276
+syn-n2-r1      w32  total     A    457.9 B    465.8 ratio 1.0172  runs 12+12  A 450..488  B 455..476
+syn-n2-r2      w1   reduction A    476.6 B    453.9 ratio 0.9524  runs 12+12  A 460..504  B 448..471
+syn-n2-r2      w1   total     A   1199.2 B   1194.1 ratio 0.9958  runs 12+12  A 1178..1277  B 1181..1290
+syn-n2-r2      w32  reduction A    285.3 B    290.1 ratio 1.0166  runs 12+12  A 282..312  B 284..343
+syn-n2-r2      w32  total     A    661.7 B    663.1 ratio 1.0022  runs 12+12  A 654..674  B 658..674
+process cycles per instruction: A 0.2785 B 0.2767 ratio 0.9935
+reference checks identical across runs: yes
+== <work>/screen/ab0-187
+syn-n2-r1      w1   reduction A    433.3 B    408.3 ratio 0.9423  runs 12+12  A 430..519  B 404..439
+syn-n2-r1      w1   total     A    840.0 B    870.3 ratio 1.0361  runs 12+12  A 828..878  B 844..1088
+syn-n2-r1      w32  reduction A    258.3 B    263.5 ratio 1.0200  runs 12+12  A 255..263  B 255..286
+syn-n2-r1      w32  total     A    454.8 B    461.5 ratio 1.0145  runs 12+12  A 452..462  B 455..482
+syn-n2-r2      w1   reduction A    466.3 B    453.4 ratio 0.9724  runs 12+12  A 462..485  B 446..493
+syn-n2-r2      w1   total     A   1187.4 B   1200.9 ratio 1.0113  runs 12+12  A 1174..1223  B 1186..1242
+syn-n2-r2      w32  reduction A    288.5 B    290.1 ratio 1.0054  runs 12+12  A 282..293  B 286..301
+syn-n2-r2      w32  total     A    663.8 B    669.0 ratio 1.0079  runs 12+12  A 658..676  B 656..718
+process cycles per instruction: A 0.2775 B 0.2767 ratio 0.9973
+reference checks identical across runs: yes
+== geometric mean over replicates
+syn-n2-r1      w1   reduction 0.9397   0.9372 0.9423
+syn-n2-r1      w1   total     1.0270   1.0179 1.0361
+syn-n2-r1      w32  reduction 1.0205   1.0211 1.0200
+syn-n2-r1      w32  total     1.0159   1.0172 1.0145
+syn-n2-r2      w1   reduction 0.9624   0.9524 0.9724
+syn-n2-r2      w1   total     1.0035   0.9958 1.0113
+syn-n2-r2      w32  reduction 1.0110   1.0166 1.0054
+syn-n2-r2      w32  total     1.0050   1.0022 1.0079
