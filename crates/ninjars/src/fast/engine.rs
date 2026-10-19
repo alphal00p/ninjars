@@ -23,7 +23,7 @@
 
 use super::bases_x2::TadpoleBasesX2;
 use super::complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr};
-use super::engine_x2::{DynMasters, DynNumerator, RankN2Engine, evaluate_x2};
+use super::engine_x2::{DynMasters, DynNumerator, RankN2Engine};
 use super::geometry::{
     Basis, box_solutions, bubble_solution, cmom_from_real, combine_real2, gram_det, mp2,
     reference_vectors_ok, scale, sub, tadpole_candidates, triangle_solution,
@@ -692,7 +692,7 @@ enum Replacement {
 /// geometry ([`FastOptions::conditioned_cuts`]): the stages of
 /// [`conditioned`] on workspaces of their own, with type-erased providers
 /// (as for the rank n+2 engine), so that they are compiled once and apart
-/// from the default instances.
+/// from the default instances (see [`evaluate_replacement`]).
 struct ConditionedEngine {
     /// The workspaces; its own `replacement` is `None`.
     amp: FastAmplitude,
@@ -700,44 +700,20 @@ struct ConditionedEngine {
     tadpoles: TadpoleBasesX2,
 }
 
-impl ConditionedEngine {
-    /// Generic only in name (`Here` is always `()`): like every generic
-    /// instance, it is then compiled in the crate that instantiates
-    /// [`FastAmplitude::evaluate`] (through [`evaluate_replacement`]), next to
-    /// the default instances and once for all providers. Compiled in this
-    /// crate instead, it would also instantiate the generic functions it
-    /// shares with them (e.g. `RawVec::grow_one` of the row vectors) here;
-    /// thin LTO then keeps one copy of each, in this crate, and the default
-    /// instances' direct calls to their own copies become calls through the
-    /// GOT.
-    #[allow(clippy::extra_unused_type_parameters)]
-    #[inline(never)]
-    fn evaluate<Here>(
-        &mut self,
-        input: &FastInput,
-        numerator: &mut dyn FastNumerator,
-        masters: &mut dyn FastMasters,
-        results: &mut [FastResult],
-        statuses: &mut [FastStatus],
-    ) -> Result<()> {
-        self.amp.evaluate_up_to_n1_conditioned(
-            input,
-            numerator,
-            masters,
-            results,
-            statuses,
-            &self.tadpoles,
-        )
-    }
-}
-
 /// The replaced branch of [`FastAmplitude::evaluate`]: a cold, never-inlined
-/// entry with the arguments of the rank n+2 branch it generalises, so the
-/// branch weights (and with them the inlining decisions) of the default
-/// rank <= n+1 evaluation stay those of an engine without this branch. `N`
-/// and `M` are [`FastAmplitude::evaluate`]'s, unused: they place this
-/// dispatcher, and with it [`ConditionedEngine::evaluate`], in the crate of
-/// the default instances (see there).
+/// entry with the arguments the rank n+2 branch had, so the branch weights
+/// (and with them the inlining decisions) of the default rank <= n+1
+/// evaluation stay those of an engine without this branch.
+///
+/// `N` and `M` are [`FastAmplitude::evaluate`]'s, unused: they make this
+/// dispatcher, and with it the conditioned stages it instantiates (for
+/// `dyn` providers, once for all), compiled in the crate that instantiates
+/// [`FastAmplitude::evaluate`], next to the default instances. Compiled in
+/// this crate instead, the conditioned stages would instantiate here the
+/// generic functions they share with the default ones (e.g.
+/// `RawVec::grow_one` of the row vectors); thin LTO then keeps one copy of
+/// each, in this crate, and the default instances' direct calls to their
+/// own copies become calls through the GOT.
 #[allow(clippy::extra_unused_type_parameters)]
 #[cold]
 #[inline(never)]
@@ -752,11 +728,12 @@ fn evaluate_replacement<N: ?Sized, M: ?Sized>(
 ) -> Result<()> {
     match replacement {
         Replacement::RankN2 { engine, .. } => {
-            evaluate_x2(engine, topo, input, numerator, masters, results, statuses)
+            engine.evaluate(topo, input, numerator, masters, results, statuses)
         }
-        Replacement::Conditioned(engine) => {
-            engine.evaluate::<()>(input, numerator, masters, results, statuses)
-        }
+        Replacement::Conditioned(ConditionedEngine { amp, tadpoles }) => amp
+            .evaluate_up_to_n1_conditioned::<dyn FastNumerator, dyn FastMasters>(
+                input, numerator, masters, results, statuses, tadpoles,
+            ),
     }
 }
 

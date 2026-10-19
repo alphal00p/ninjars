@@ -1599,24 +1599,6 @@ impl RankN2Engine {
     }
 }
 
-/// The rank n+2 branch of [`super::FastAmplitude::evaluate`]: a cold,
-/// never-inlined entry, so the branch weights (and with them the inlining
-/// decisions) of the rank <= n+1 evaluation stay those of an engine without
-/// this branch.
-#[cold]
-#[inline(never)]
-pub(super) fn evaluate_x2(
-    engine: &mut RankN2Engine,
-    topo: &Topology,
-    input: &FastInput,
-    numerator: &mut dyn FastNumerator,
-    masters: &mut dyn FastMasters,
-    results: &mut [FastResult],
-    statuses: &mut [FastStatus],
-) -> Result<()> {
-    engine.evaluate(topo, input, numerator, masters, results, statuses)
-}
-
 /// A sized view of any (possibly unsized) [`FastNumerator`], so the rank n+2
 /// engine is compiled once, in this crate, against `dyn FastNumerator`
 /// instead of once per numerator type in every caller (which would also
