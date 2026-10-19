@@ -241,6 +241,49 @@ fn failures_are_reported() {
     assert_eq!(lane["verdict"], "fail");
 }
 
+/// A known-failure entry whose lane agrees with COLLIER's value (here a
+/// lane without any upstream bug) is stale: it is reported as
+/// `stale-known-failure` and fails the command, so that a fixed upstream bug
+/// is noticed.
+#[test]
+fn stale_known_failures_are_reported() {
+    let dir = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join("case-check-stale");
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    let known = dir.join("known-failures.json");
+    std::fs::write(
+        &known,
+        r#"{"format": "ninjars-known-failures-v1", "lanes": [{"id": "rn2-int-complex-n3-r4-lane1", "reason": "test entry"}]}"#,
+    )
+    .unwrap();
+    for engine in ["fast", "generic"] {
+        let output = run(
+            "case-check",
+            &[
+                "validation/rank-n2/controls/cases/rn2-int-complex-n3-r4.json",
+                "--engines",
+                engine,
+                "--precision",
+                "f64",
+                "--reference-dir",
+                CONTROLS,
+                "--known-failures",
+                known.to_str().unwrap(),
+            ],
+        );
+        assert!(!output.status.success(), "{engine}");
+        let report: Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(report["failed_lanes"], 1, "{engine}");
+        let lane = &report["cases"][0]["runs"][0]["lanes"][1];
+        assert_eq!(lane["id"], "rn2-int-complex-n3-r4-lane1");
+        assert_eq!(lane["verdict"], "stale-known-failure", "{engine}");
+        assert!(
+            lane["collier_difference"].as_f64().unwrap() <= 1e-6,
+            "{engine}"
+        );
+    }
+}
+
 /// `--bits 256 --out-dir DIR` writes `DIR/<case>.json` with 45-digit
 /// `lanes[].laurent_decimal` that reproduce the reference.
 #[test]

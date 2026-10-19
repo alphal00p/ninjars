@@ -1,0 +1,154 @@
+{
+ "format": "ninjars-reference-collier-v1",
+ "case": "rn2-exact-mu-n7-r9-shift",
+ "case_file": "identity/cases/rn2-exact-mu-n7-r9-shift.json",
+ "n": 7,
+ "rank": 9,
+ "mu_powers": 4,
+ "normalisation": "Ninja/OneLOop: mu_R^(2eps) / (i pi^(D/2) r_Gamma) int d^D q, eps_UV = eps_IR, mu_R^2 = lane mu_squared; numerator in the 4-dimensional components of q and the integrand mu^2 (v2 blocks), D_k = (qbar + V_k)^2 - m_k^2, qbar^2 = q^2 - mu^2",
+ "reference": "validation/rank-n2/README.md: source mp | reduction-exact | coli-quad | dd-quad per lane",
+ "lanes": [
+  {
+   "id": "rn2-exact-mu-n7-r9-shift-lane0",
+   "eps0": [
+    -0.0002685202517697248,
+    0.00025121402553212577
+   ],
+   "eps_m1": [
+    1.4805405429967712e-53,
+    -1.2348385969273025e-53
+   ],
+   "eps_m2": [
+    0.0,
+    0.0
+   ],
+   "laurent_decimal": {
+    "eps0": [
+     "-0.0002685202517697248305731921452096077062019",
+     "0.0002512140255321257678074890068623731281798"
+    ],
+    "eps_m1": [
+     "1.480540542996771191520947060556032939087E-53",
+     "-1.234838596927302451451543375990944100113E-53"
+    ],
+    "eps_m2": [
+     "0.0",
+     "0.0"
+    ]
+   },
+   "source": "reduction-exact",
+   "tier": "A",
+   "uncertainty": 1e-38,
+   "uncertainty_independent": 2.1247266269896663e-10,
+   "verified_to": 2.1247266269896663e-10,
+   "verified_by": "coli-quad",
+   "input_ambiguity": null,
+   "input_ambiguity_parts": null,
+   "scale": 0.00036771131643523284,
+   "vanishing": false,
+   "condition": {
+    "eps0": 10377100.251775198,
+    "eps_m1": 53.934395348869295,
+    "eps_m2": 0.0
+   },
+   "absum_over_scale": 10377100.251775198,
+   "scalar_check": 1.510476788010062e-16,
+   "checks": {
+    "coli-quad": 2.1247266269896663e-10,
+    "id-coli-quad": 4.442157379008078e-08,
+    "coli-quad-shifts": 2.1247266269896663e-10,
+    "coli-double": 3.92769569886872e-05,
+    "reduction-exact80": 4.079287019343621e-39
+   },
+   "collier_coli_quad_decimal": {
+    "eps0": [
+     "-0.0002685202517066036216628618095810098416506",
+     "0.0002512140254860845741274916625943258656981"
+    ],
+    "eps_m1": [
+     "1.030207686494465222913133546221179972167E-27",
+     "5.958231239366901889471598558927070844534E-28"
+    ],
+    "eps_m2": [
+     "0E-52",
+     "0E-52"
+    ]
+   },
+   "reduction": {
+    "recipe_vs_fit": 4.4590626928295845e-31,
+    "new_terms_over_scale": 101414.8881626912,
+    "parts_over_scale": {
+     "box_mu6": 56588.72723583602,
+     "B1111": 46409.542958411745,
+     "bub_mu2qe2^2": 93987.47927934623,
+     "bub_mu4": 3802.583717108436
+    }
+   }
+  },
+  {
+   "id": "rn2-exact-mu-n7-r9-shift-lane1",
+   "eps0": [
+    0.0006186192443713873,
+    -0.00032882639453189375
+   ],
+   "eps_m1": [
+    -6.719593185269253e-29,
+    3.7451403274256065e-31
+   ],
+   "eps_m2": [
+    0.0,
+    0.0
+   ],
+   "laurent_decimal": {
+    "eps0": [
+     "0.0006186192443713873150835604343161893256880",
+     "-0.0003288263945318937457282769730853214535004"
+    ],
+    "eps_m1": [
+     "-6.719593185269253456370100666361761274430E-29",
+     "3.745140327425606500755881876504131454638E-31"
+    ],
+    "eps_m2": [
+     "0E-52",
+     "0E-52"
+    ]
+   },
+   "source": "coli-quad",
+   "tier": "C",
+   "uncertainty": null,
+   "uncertainty_independent": null,
+   "verified_to": null,
+   "verified_by": null,
+   "input_ambiguity": null,
+   "input_ambiguity_parts": null,
+   "scale": 0.0007005830195255027,
+   "vanishing": false,
+   "condition": {
+    "eps0": 4904015.676039617,
+    "eps_m1": 3.7396691441631327,
+    "eps_m2": 0.0
+   },
+   "absum_over_scale": 4904015.676039617,
+   "scalar_check": 2.7702654209298724e-17,
+   "checks": {
+    "id-coli-quad": 6.312581293923633e-09,
+    "coli-quad-shifts": 0.0,
+    "coli-double": 0.0003161517038718661
+   },
+   "collier_coli_quad_decimal": {
+    "eps0": [
+     "0.0006186192443713873150835604343161893256880",
+     "-0.0003288263945318937457282769730853214535004"
+    ],
+    "eps_m1": [
+     "-6.719593185269253456370100666361761274430E-29",
+     "3.745140327425606500755881876504131454638E-31"
+    ],
+    "eps_m2": [
+     "0E-52",
+     "0E-52"
+    ]
+   }
+  }
+ ]
+}

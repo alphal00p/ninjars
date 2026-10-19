@@ -117,7 +117,7 @@ impl SetReport {
 
     pub fn summary(&self) -> String {
         let mut text = format!(
-            "{}: {} lanes in {:.1}s: pass {}, fail {}, report-only {}, known-failure {}, unchecked {}, case errors {}; max checked difference {:.2e}",
+            "{}: {} lanes in {:.1}s: pass {}, fail {}, report-only {}, known-failure {}, stale known-failure {}, unchecked {}, case errors {}; max checked difference {:.2e}",
             self.label,
             self.lanes.len(),
             self.seconds,
@@ -125,6 +125,7 @@ impl SetReport {
             self.count(Verdict::Fail),
             self.count(Verdict::ReportOnly),
             self.count(Verdict::KnownFailure),
+            self.count(Verdict::StaleKnownFailure),
             self.count(Verdict::Unchecked),
             self.errors.len(),
             self.worst()
@@ -155,11 +156,16 @@ impl SetReport {
         text
     }
 
-    /// No failing lane, no case error, and every case lane checked.
+    /// No failing lane (`Verdict::is_failure`: fail or stale known failure),
+    /// no case error, and every case lane checked.
     pub fn assert_clean(&self, expect_checked: bool) {
         eprintln!("{}", self.summary());
         assert!(
-            self.errors.is_empty() && self.count(Verdict::Fail) == 0,
+            self.errors.is_empty()
+                && !self
+                    .lanes
+                    .iter()
+                    .any(|(_, l)| l.judgement.verdict.is_failure()),
             "{}",
             self.summary()
         );
@@ -363,9 +369,58 @@ pub fn reversed(case: &BenchCase) -> BenchCase {
     out
 }
 
+/// `max_k |a_k - b_k| / max_k |b_k|` of two binary64 Laurent triples.
+pub fn laurent_difference(a: &[ninjars::fast::C64; 3], b: &[ninjars::fast::C64; 3]) -> f64 {
+    let scale = b.iter().map(|z| z.abs()).fold(0., f64::max).max(1e-300);
+    (0..3).map(|k| (a[k] - b[k]).abs()).fold(0., f64::max) / scale
+}
+
+/// Laurent coefficients of every lane with the generic engine in binary64
+/// (native masters); `None` for lanes that did not succeed.
+pub fn generic_f64(
+    case: &BenchCase,
+    declared_rank: usize,
+    engines: &mut Engines,
+) -> Vec<Option<[ninjars::fast::C64; 3]>> {
+    let (engine, masters) = engines.f64().unwrap();
+    engine
+        .evaluate(case, declared_rank, masters)
+        .unwrap()
+        .into_iter()
+        .map(|lane| {
+            (lane.status == ninjars::EvaluationStatus::Success).then(|| {
+                std::array::from_fn(|k| {
+                    ninjars::fast::C64::new(lane.values[k].re, lane.values[k].im)
+                })
+            })
+        })
+        .collect()
+}
+
+/// Binary64 noise of every lane measured on the generic engine: the scaled
+/// change of its binary64 Laurent coefficients when the propagators are
+/// listed in reverse order. The generic engine is independent of the fast
+/// engine, and the Float(256) identities validate its algorithm, so this
+/// noise is the rounding of a correct reduction and an order-dependent error
+/// of the fast engine cannot inflate it. Lanes that fail in either order get
+/// `f64::INFINITY`.
+pub fn generic_noise(case: &BenchCase, declared_rank: usize, engines: &mut Engines) -> Vec<f64> {
+    let a = generic_f64(case, declared_rank, engines);
+    let b = generic_f64(&reversed(case), declared_rank, engines);
+    a.iter()
+        .zip(&b)
+        .map(|(x, y)| match (x, y) {
+            (Some(x), Some(y)) => laurent_difference(y, x),
+            _ => f64::INFINITY,
+        })
+        .collect()
+}
+
 /// Binary64 noise of every lane: the scaled difference of the fast engine's
 /// Laurent coefficients when the propagators are listed in reverse order
 /// (as `tests/fast_parity.rs`). Lanes that fail in either order get 0.
+/// Measured on the engine under test, so an order-dependent error of the
+/// fast engine inflates it: the invariance tests (V7) use [`generic_noise`].
 pub fn fast_noise(
     case: &BenchCase,
     declared_rank: usize,

@@ -974,9 +974,7 @@ fn benchmark_metadata() -> serde_json::Value {
         "sha256sum",
         &files.iter().map(String::as_str).collect::<Vec<_>>(),
     );
-    let dependencies:[serde_json::Value;3]=["references/symbolica","references/oneloopmaster","references/gammaloop_ninja_shared"].map(|path| {
-        serde_json::json!({"path":path,"revision":command("git",&["-C",path,"rev-parse","HEAD"]),"status":command("git",&["-C",path,"status","--porcelain"])})
-    });
+    let dependencies = dependency_provenance(&root, &command);
     let executable = std::env::current_exe().unwrap();
     serde_json::json!({"head":command("git",&["rev-parse","HEAD"]),"status":command("git",&["status","--porcelain"]),"source_hashes":source_hashes,"dependencies":dependencies,
         "executable":executable,"executable_sha256":command("sha256sum",&[executable.to_str().unwrap()]),"compiler":command("rustc",&["-Vv"]),
@@ -984,12 +982,105 @@ fn benchmark_metadata() -> serde_json::Value {
         "cpuinfo":std::fs::read_to_string("/proc/cpuinfo").unwrap(),"master_computations":0,"quiet_window_acknowledged":std::env::var("NINJARS_BLOCKING_QUIET_WINDOW").as_deref()==Ok("approved"),"performance_acceptance":false})
 }
 
+/// The `source` of package `name` in a `Cargo.lock`: `Some("")` for a
+/// package without one (a path dependency), `None` if it is not locked.
+fn locked_source(lock: &str, name: &str) -> Option<String> {
+    let mut found = None;
+    for block in lock.split("[[package]]").skip(1) {
+        let field = |key: &str| {
+            block.lines().find_map(|line| {
+                line.strip_prefix(key)?
+                    .trim_start()
+                    .strip_prefix("= \"")?
+                    .strip_suffix('"')
+                    .map(str::to_owned)
+            })
+        };
+        if field("name").as_deref() == Some(name) {
+            assert!(found.is_none(), "{name} is locked twice");
+            found = Some(field("source").unwrap_or_default());
+        }
+    }
+    found
+}
+
+/// Provenance of the Rust source dependencies that the build used, from the
+/// root `Cargo.lock` and `dependencies/manifest.json` (the pins), so that it
+/// is available in any checkout. The manifests pin git revisions, which are
+/// immutable (status ""). Only a build against local checkouts
+/// (`--config dependencies/local-references.toml`, which turns the locked
+/// package into a path dependency) reads the revision and status of the
+/// manifest's `references/` checkout.
+fn dependency_provenance(
+    root: &std::path::Path,
+    command: &dyn Fn(&str, &[&str]) -> String,
+) -> Vec<serde_json::Value> {
+    let lock = std::fs::read_to_string(root.join("Cargo.lock")).unwrap();
+    let manifest: serde_json::Value = serde_json::from_str(
+        &std::fs::read_to_string(root.join("dependencies/manifest.json")).unwrap(),
+    )
+    .unwrap();
+    // (manifest name, a locked package built from it)
+    [
+        ("symbolica", "symbolica"),
+        ("oneloopmaster", "oneloop"),
+        ("feynkit", "feynkit-kinematics"),
+    ]
+    .map(|(name, package)| {
+        let pin = manifest["dependencies"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|d| d["name"] == name)
+            .unwrap_or_else(|| panic!("{name} is not in dependencies/manifest.json"));
+        let path = pin["path"].as_str().unwrap();
+        let source = locked_source(&lock, package)
+            .unwrap_or_else(|| panic!("{package} is not in Cargo.lock"));
+        let (revision, status) = match source.rsplit_once('#') {
+            Some((_, revision)) if source.starts_with("git+") => (revision.to_owned(), String::new()),
+            _ => (
+                command("git", &["-C", path, "rev-parse", "HEAD"]),
+                command("git", &["-C", path, "status", "--porcelain"]),
+            ),
+        };
+        serde_json::json!({
+            "name": name,
+            "package": package,
+            "path": path,
+            "source": if source.is_empty() { "path" } else { source.as_str() },
+            "pinned_revision": pin["revision"],
+            "patched_revisions": pin.get("patched_revisions").cloned().unwrap_or_else(|| serde_json::json!([])),
+            "revision": revision,
+            "status": status,
+        })
+    })
+    .into()
+}
+
 #[test]
 fn native_blocking_archive_metadata_and_jsonl_are_readable() {
     let metadata = benchmark_metadata();
     assert_eq!(metadata["head"].as_str().unwrap().len(), 40);
     assert!(!metadata["source_hashes"].as_str().unwrap().is_empty());
-    assert_eq!(metadata["dependencies"].as_array().unwrap().len(), 3);
+    let dependencies = metadata["dependencies"].as_array().unwrap();
+    assert_eq!(dependencies.len(), 3);
+    for dependency in dependencies {
+        let revision = dependency["revision"].as_str().unwrap();
+        assert_eq!(revision.len(), 40, "{dependency}");
+        // A pinned git source is the manifest's revision or its patched one.
+        if dependency["source"] != "path" {
+            let mut pins = vec![dependency["pinned_revision"].clone()];
+            pins.extend(
+                dependency["patched_revisions"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .cloned(),
+            );
+            assert!(pins.iter().any(|p| p == revision), "{dependency}");
+            assert_eq!(dependency["status"], "");
+        }
+    }
     let path = std::env::temp_dir().join(format!(
         "ninjars-blocking-metadata-{}.jsonl",
         std::process::id()

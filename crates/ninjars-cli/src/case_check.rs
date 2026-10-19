@@ -71,8 +71,11 @@ pub struct Args {
     /// `ninjars-reference-collier-v1` or original-Ninja results).
     #[arg(long)]
     pub reference_dir: Option<PathBuf>,
-    /// `ninjars-known-failures-v1` file: listed lanes that fail are reported
-    /// as `known-failure`.
+    /// `ninjars-known-failures-v1` file: lanes failing for an upstream bug
+    /// (`lanes`, compared with COLLIER's value) or for a known fixed-precision
+    /// inaccuracy of one engine (`inaccuracies`) are reported as
+    /// `known-failure`, and as `stale-known-failure` (a failure) once they
+    /// agree.
     #[arg(long)]
     pub known_failures: Option<PathBuf>,
     /// Binary64 tolerance floor: `factor max(1, cond)` (scaled to the unit
@@ -84,7 +87,7 @@ pub struct Args {
     #[arg(long, default_value = "30")]
     pub fast_ninja_factor: f64,
     /// The same for the generic engine in fixed precision.
-    #[arg(long, default_value = "1000")]
+    #[arg(long, default_value = "100")]
     pub generic_ninja_factor: f64,
     /// `assemble.py` summaries with original Ninja's errors on rank twins
     /// (`validation/rank-n2/summary/{controls,synthetic-twins}.json`), for the
@@ -94,6 +97,10 @@ pub struct Args {
     /// Scaled tolerance against original-Ninja references.
     #[arg(long, default_value = "1e-8")]
     pub ninja_tolerance: f64,
+    /// Scaled tolerance of a known failure against COLLIER's value: within
+    /// it the entry is reported as `stale-known-failure` (a failure).
+    #[arg(long, default_value = "1e-6")]
+    pub known_failure_tolerance: f64,
     /// Write per-case result files (`lanes[].laurent_decimal`); needs exactly
     /// one engine run.
     #[arg(long)]
@@ -207,6 +214,12 @@ fn lane_report(lane: &CheckedLane) -> Value {
         "tolerance": lane.judgement.tolerance,
         "verdict": lane.judgement.verdict.label(),
     });
+    if let Some(d) = lane.collier_difference {
+        report["collier_difference"] = json!(d);
+    }
+    if let Some(e) = lane.judgement.ninja_error {
+        report["ninja_error_estimate"] = json!(e);
+    }
     if let Some(reason) = &lane.judgement.reason {
         report["reason"] = json!(reason);
     }
@@ -218,6 +231,8 @@ fn lane_report(lane: &CheckedLane) -> Value {
                 "uncertainty_origin": r.uncertainty_origin,
                 "condition": r.condition,
                 "ninja_error": r.ninja_error,
+                "new_terms": r.new_terms,
+                "new_term_parts": r.new_term_parts,
                 "scale": r.scale,
             }),
             ReferenceKind::Ninja => json!({"ninja_status": r.ninja_status, "scale": r.scale}),
@@ -338,6 +353,7 @@ pub fn run(args: Args) -> Result<()> {
         fast_ninja_factor: args.fast_ninja_factor,
         generic_ninja_factor: args.generic_ninja_factor,
         ninja_tolerance: args.ninja_tolerance,
+        known_failure_tolerance: args.known_failure_tolerance,
         ..Policy::default()
     };
     if let Some(path) = &args.known_failures {
@@ -439,7 +455,7 @@ pub fn run(args: Args) -> Result<()> {
     let failures: usize = totals
         .values()
         .flatten()
-        .filter(|(v, _)| matches!(v, Verdict::Fail | Verdict::Error))
+        .filter(|(v, _)| v.is_failure())
         .count();
     let report = json!({
         "schema_version": 1,

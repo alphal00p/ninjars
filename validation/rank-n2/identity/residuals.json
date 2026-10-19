@@ -159,6 +159,62 @@
    },
    "reference": 0.0,
    "coli-quad": 6.071257163371349e-16
+  },
+  {
+   "lhs": {
+    "case": "rn2-id-pinch-n7",
+    "lane": 0
+   },
+   "reference": 3.500641541821298e-52,
+   "coli-quad": 0.0
+  },
+  {
+   "lhs": {
+    "case": "rn2-id-pinch-n7",
+    "lane": 1
+   },
+   "reference": 3.640832041474518e-52,
+   "coli-quad": 5.741881037894245e-29
+  },
+  {
+   "lhs": {
+    "case": "rn2-id-pinch-n7",
+    "lane": 2
+   },
+   "reference": 6.39815067245071e-53,
+   "coli-quad": 1.3422243357779546e-29
+  },
+  {
+   "lhs": {
+    "case": "rn2-id-pinch-n7",
+    "lane": 3
+   },
+   "reference": 5.433637432833715e-52,
+   "coli-quad": 7.815773036403043e-30
+  },
+  {
+   "lhs": {
+    "case": "rn2-id-pinch-n7",
+    "lane": 4
+   },
+   "reference": 4.329306667259796e-53,
+   "coli-quad": 5.145781142107935e-30
+  },
+  {
+   "lhs": {
+    "case": "rn2-id-pinch-n7",
+    "lane": 5
+   },
+   "reference": 4.642476036654815e-52,
+   "coli-quad": 5.218199277054951e-29
+  },
+  {
+   "lhs": {
+    "case": "rn2-id-pinch-n7",
+    "lane": 6
+   },
+   "reference": 2.1653555792705482e-52,
+   "coli-quad": 6.50790123497134e-30
   }
  ],
  "V6b": [
@@ -241,6 +297,22 @@
    },
    "reference": 1.2843431537509756e-40,
    "coli-quad": 1.667902310340217e-14
+  },
+  {
+   "lhs": {
+    "case": "rn2-id-decomp-n7",
+    "lane": 0
+   },
+   "reference": 1.3890697121133867e-40,
+   "coli-quad": 3.239977065314401e-15
+  },
+  {
+   "lhs": {
+    "case": "rn2-id-decomp-n7",
+    "lane": 1
+   },
+   "reference": 1.489146588728149e-40,
+   "coli-quad": 9.721288536724783e-16
   }
  ],
  "V7a": [
@@ -431,6 +503,38 @@
   {
    "lhs": {
     "case": "rn2-exact-mu-n6-r8-shift",
+    "lane": 1
+   },
+   "reference": 0.0,
+   "coli-quad": 0.0
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-q-n7-r9-shift",
+    "lane": 0
+   },
+   "reference": 2.6389502395555002e-52,
+   "coli-quad": 0.0
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-q-n7-r9-shift",
+    "lane": 1
+   },
+   "reference": 3.184028068713254e-56,
+   "coli-quad": 0.0
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-mu-n7-r9-shift",
+    "lane": 0
+   },
+   "reference": 5.195644605054702e-39,
+   "coli-quad": 0.0
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-mu-n7-r9-shift",
     "lane": 1
    },
    "reference": 0.0,
@@ -981,6 +1085,134 @@
    },
    "reference": 0.0,
    "coli-quad": 5.09433726984201e-13
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-q-n7-r9-perm",
+    "lane": 0
+   },
+   "reference": 0.0,
+   "coli-quad": 0.0
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-q-n7-r9-perm",
+    "lane": 1
+   },
+   "reference": 4.674341337405178e-52,
+   "coli-quad": 3.1380925545231075e-12
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-q-n7-r9-perm",
+    "lane": 2
+   },
+   "reference": 5.484853646491982e-52,
+   "coli-quad": 1.753117088804959e-12
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-q-n7-r9-perm",
+    "lane": 3
+   },
+   "reference": 5.103221631193005e-52,
+   "coli-quad": 1.4587969316955008e-12
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-q-n7-r9-perm",
+    "lane": 4
+   },
+   "reference": 1.3408571774080107e-51,
+   "coli-quad": 3.230944220387312e-12
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-q-n7-r9-perm",
+    "lane": 5
+   },
+   "reference": 6.54419524469949e-52,
+   "coli-quad": 1.1573448028273071e-12
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-q-n7-r9-perm",
+    "lane": 6
+   },
+   "reference": 3.774981989384685e-52,
+   "coli-quad": 8.290814580908394e-13
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-q-n7-r9-perm",
+    "lane": 7
+   },
+   "reference": 4.191530701435014e-52,
+   "coli-quad": 2.8951776460002583e-12
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-mu-n7-r9-perm",
+    "lane": 0
+   },
+   "reference": 0.0,
+   "coli-quad": 0.0
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-mu-n7-r9-perm",
+    "lane": 1
+   },
+   "reference": 1.5383954740182043e-39,
+   "coli-quad": 2.4075828346665464e-10
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-mu-n7-r9-perm",
+    "lane": 2
+   },
+   "reference": 1.2162084099979782e-39,
+   "coli-quad": 1.1879903686620488e-10
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-mu-n7-r9-perm",
+    "lane": 3
+   },
+   "reference": 7.691977370091022e-40,
+   "coli-quad": 2.092761182087047e-10
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-mu-n7-r9-perm",
+    "lane": 4
+   },
+   "reference": 6.081042049989891e-40,
+   "coli-quad": 3.6281543035931067e-10
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-mu-n7-r9-perm",
+    "lane": 5
+   },
+   "reference": 6.081042049989891e-40,
+   "coli-quad": 1.1306959486793464e-09
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-mu-n7-r9-perm",
+    "lane": 6
+   },
+   "reference": 8.599892140456792e-40,
+   "coli-quad": 7.35005048048179e-11
+  },
+  {
+   "lhs": {
+    "case": "rn2-exact-mu-n7-r9-perm",
+    "lane": 7
+   },
+   "reference": 8.158574038687241e-40,
+   "coli-quad": 1.4378634688338014e-08
   }
  ]
 }
