@@ -1,0 +1,20 @@
+callgrind (valgrind 3.27.1), CLI binaries, case-bench validation/benchmark/synthetic/syn-n2-r1.json --widths 1 --blocks 2 --min-block-ms 5;
+calls and inclusive instructions per call (call counts differ: the timed loops are time-based).
+== a (d53dd08)
+     20508 calls        38.0 Ir/call  <ninjars::fast::engine::FastAmplitude>::refresh_active
+     15381 calls        38.0 Ir/call  <ninjars::fast::engine::Calls>::prepare_out
+      5127 calls       297.6 Ir/call  <ninjars::fast::engine::FastAmplitude>::prepare
+      2050 calls      1601.0 Ir/call  <ninjars::fast::engine::FastAmplitude>::bubbles::<ninjars::fast::replay::ReplayNumerator>
+      4100 calls      1240.0 Ir/call  <ninjars::fast::engine::FastAmplitude>::integrate::<ninjars::fast::replay::ReplayMasters>
+      2050 calls      4716.0 Ir/call  <ninjars::fast::engine::FastAmplitude>::evaluate::<ninjars::fast::replay::ReplayNumerator, ninjars::fast::replay::ReplayMasters>
+         1 calls      4983.0 Ir/call  <ninjars::fast::engine::FastAmplitude>::bubbles::<ninjars::fast::replay::RecordingNumerator<ninjars::fast::tensor::TensorNumerator>>
+         1 calls      3016.0 Ir/call  <ninjars::fast::engine::FastAmplitude>::tadpoles::<ninjars::fast::replay::RecordingNumerator<ninjars::fast::tensor::TensorNumerator>>
+== b (0d0d7e7)
+     20508 calls        38.0 Ir/call  <ninjars::fast::engine::FastAmplitude>::refresh_active
+     15381 calls        38.0 Ir/call  <ninjars::fast::engine::Calls>::prepare_out
+      5127 calls       297.6 Ir/call  <ninjars::fast::engine::FastAmplitude>::prepare
+         1 calls      5057.0 Ir/call  <ninjars::fast::engine::FastAmplitude>::bubbles::<ninjars::fast::replay::RecordingNumerator<ninjars::fast::tensor::TensorNumerator>>
+         1 calls      2693.0 Ir/call  <ninjars::fast::engine::FastAmplitude>::tadpoles::<ninjars::fast::replay::RecordingNumerator<ninjars::fast::tensor::TensorNumerator>>
+      4100 calls      1240.0 Ir/call  <ninjars::fast::engine::FastAmplitude>::integrate::<ninjars::fast::replay::ReplayMasters>
+      2050 calls      4715.0 Ir/call  <ninjars::fast::engine::FastAmplitude>::evaluate_up_to_n1::<ninjars::fast::replay::ReplayNumerator, ninjars::fast::replay::ReplayMasters>
+      2050 calls      1601.0 Ir/call  <ninjars::fast::engine::FastAmplitude>::bubbles::<ninjars::fast::replay::ReplayNumerator>

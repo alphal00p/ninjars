@@ -1,0 +1,8 @@
+olda: 12 hot functions span 0x3312e60..0x3335021 = 136 KiB; rank n+2 code inside: 0 functions, 0 KiB
+oldb: 12 hot functions span 0x345cb10..0x34d3711 = 475 KiB; rank n+2 code inside: 17 functions, 211 KiB
+oldb-x2first: 12 hot functions span 0x34916a0..0x34d3711 = 264 KiB; rank n+2 code inside: 4 functions, 0 KiB
+oldb-cold: 12 hot functions span 0x345ccf0..0x34d2d81 = 472 KiB; rank n+2 code inside: 22 functions, 218 KiB
+oldb-cold-kp: 12 hot functions span 0x3406d60..0x3445f01 = 252 KiB; rank n+2 code inside: 0 functions, 0 KiB
+oldb-kp: 12 hot functions span 0x341b200..0x34917c1 = 473 KiB; rank n+2 code inside: 12 functions, 211 KiB
+a: 12 hot functions span 0x3671890..0x3693a51 = 136 KiB; rank n+2 code inside: 0 functions, 0 KiB
+b: 12 hot functions span 0x38f9850..0x3970451 = 475 KiB; rank n+2 code inside: 17 functions, 211 KiB

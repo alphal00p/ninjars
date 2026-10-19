@@ -1,0 +1,10 @@
+perf stat, user space, whole case-bench process on syn-n2-r2 (case file padded by 0 or 48 bytes),
+width 1, 40 blocks, CPU 245; per 1000 instructions; old A = dec3d55, old B = 8346699
+pad  0 olda rep 1: IPC 3.354  loads crossing 64 B 4.707  op-cache misses 32.47  load-not-complete stalls 42.4
+pad  0 olda rep 2: IPC 3.375  loads crossing 64 B 4.662  op-cache misses 32.32  load-not-complete stalls 41.8
+pad  0 oldb rep 1: IPC 3.299  loads crossing 64 B 5.049  op-cache misses 34.48  load-not-complete stalls 49.8
+pad  0 oldb rep 2: IPC 3.336  loads crossing 64 B 5.663  op-cache misses 30.74  load-not-complete stalls 44.7
+pad 48 olda rep 1: IPC 3.359  loads crossing 64 B 4.627  op-cache misses 32.47  load-not-complete stalls 42.1
+pad 48 olda rep 2: IPC 3.358  loads crossing 64 B 4.638  op-cache misses 32.46  load-not-complete stalls 42.8
+pad 48 oldb rep 1: IPC 3.367  loads crossing 64 B 4.605  op-cache misses 33.87  load-not-complete stalls 41.2
+pad 48 oldb rep 2: IPC 3.384  loads crossing 64 B 4.601  op-cache misses 34.16  load-not-complete stalls 43.0
