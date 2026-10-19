@@ -363,6 +363,10 @@ Both report medians of `--blocks` blocks of at least `--min-block-ms`;
 [benchmark report](../../docs/benchmark/benchmark.typ). `case-bench` also
 times rank n+2 cases (`validation/benchmark/synthetic-rank-n2/`,
 `validation/rank-n2/cases/`), for which original Ninja has no reference.
+`case-bench --conditioned-cuts` times the fast engine's opt-in conditioned
+cut geometry for rank <= n+1 (`FastOptions::conditioned_cuts`, see
+`case-check` below); each case's report then carries
+`"conditioned_cuts": true`.
 
 ## Checking cases against references (`case-check`)
 
@@ -395,6 +399,16 @@ nix develop --command cargo run --release -p ninjars-cli -- case-check \
   no Symbolica preparation.
 - `--declare-rank R` (or `n+K`) runs every numerator declared at a higher rank
   with zero top coefficients.
+- `--conditioned-cuts` runs the fast engine with the opt-in conditioned cut
+  geometry for rank <= n+1 (`FastOptions::conditioned_cuts`): per cut and
+  lane, the bubble reference and tadpole basis that best condition the uncut
+  lines and the box geometry of the rank n+2 engine, instead of original
+  Ninja's fixed choices. It is more accurate on lanes where an uncut line is
+  nearly orthogonal to Ninja's reference vectors, gives up bitwise agreement
+  with original Ninja and costs about +29 % instructions in the replayed
+  reduction ([rank n+2](../../docs/rank-n2.md), section 7.2). Rank n+2
+  always uses that geometry. The fast run's report then carries
+  `"conditioned_cuts": true`.
 - `--stability-test` marks generic-engine lanes whose cut contributions
   cancel below half the carrier's bits as `Unstable`.
 
