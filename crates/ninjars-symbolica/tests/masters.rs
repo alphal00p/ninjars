@@ -801,14 +801,16 @@ fn fixed_precision_b1111_is_native_and_matches_feynman_parameters() {
 ///
 /// Numerica's tracked precision of the results is not a bound: it overstates
 /// the accuracy of some components by up to 2^19 (the exact expression by up
-/// to 2^17), so this checks only that it is not off by more than 2^24.
+/// to 2^17), the most on finite parts far below the row's scale (equal masses
+/// with `mu² = m²` at small `p²`, where they are `O(p²/m²)`), so this checks
+/// only that it is not off by more than 2^24.
 #[test]
 fn arbitrary_precision_b1111_is_native_and_matches_feynman_parameters() {
     let references = feynman_rows();
     let rows: Vec<_> = references.iter().map(|row| row.input).collect();
-    // Worst measured: 2.6e-72 (256 bits) and 2.3e-149 (512 bits), at the
-    // thresholds within 2^-40 and the near-equal masses at p² = 0.
-    for (bits, tolerance) in [(256, 1e-69), (512, 1e-146)] {
+    // Worst measured: 2.3e-33 (128 bits), 2.6e-72 (256 bits) and 2.3e-149
+    // (512 bits), at the thresholds within 2^-40.
+    for (bits, tolerance) in [(128, 1e-31), (256, 1e-69), (512, 1e-146)] {
         let output = b1111_batch(Float::new(bits), |x| Float::with_val(bits, x), &rows);
         let mut native =
             NativeTensorEvaluator::<Float>::with_binary_precision(TensorIntegral::B1111, bits)

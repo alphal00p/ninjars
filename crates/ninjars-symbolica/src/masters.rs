@@ -13,7 +13,8 @@
 //! while its tracked `Float` precision overstates the digits that remain. For
 //! `Float`, each row is evaluated at the precision that its inputs determine
 //! (at most the working precision, see [`SymbolicaMasters`]), so the native
-//! route does not pad inputs beyond the digits they carry.
+//! route does not pad inputs beyond the digits they determine relative to the
+//! row's scale.
 //!
 //! Otherwise `Float` keeps Symbolica's interpreter of the exact expressions,
 //! which tracks the significant precision of every input component instead of

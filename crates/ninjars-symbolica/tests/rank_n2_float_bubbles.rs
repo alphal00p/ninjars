@@ -15,9 +15,14 @@
 //!   before limited the same lanes to 1.3e-11 (with the S-matrix) and
 //!   O(100) relative errors (without) at `|p²|/m² = 1.4e-14`.
 //! - With the provider alone, the existing exact Passarino-Veltman B0, B1,
-//!   B11 and B111 still lose digits at small `p²` (B111: about 4.5 digits per
-//!   decade of `m²/|p²|`): the lanes reach 1e-60 for k <= 12
-//!   (`|p²|/m² >= 2^-12`, asserted) and are reported for smaller `p²`.
+//!   B11 and B111 still lose digits at small `p²`: about 1, 2, 3 and 4
+//!   digits per decade of `m²/|p²|` against the Feynman-parameter values of
+//!   `rank_n2_data/b_family_feynman.txt`, in `Float(256)` and `Float(512)`
+//!   alike (their tracked precision follows the loss to within 2^15). The
+//!   lanes reach 1e-60 for k <= 12 (`|p²|/m² >= 2^-12`, asserted) and lose
+//!   about 4-5 digits per decade below (reported; at k = 47, 7e-24 for
+//!   n = 2, where B111 alone from 512 bits gives 3e-37, and 2e-10 for n = 3,
+//!   whose `p²` enters the interpreter with fewer tracked bits).
 //!
 //! Run with `cargo test --release -p ninjars-symbolica --test rank_n2_float_bubbles`.
 
