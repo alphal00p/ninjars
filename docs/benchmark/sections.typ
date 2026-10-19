@@ -114,7 +114,8 @@ is accurate on these lanes:
   against OneLOop's $7.9 times 10^(-15)$; it was off by
   $4.4 times 10^(-12)$ (NinjaRS's lane by $3.4 times 10^(-4)$) before
   oneloopmaster took the contour box's edge roots from exact Källén
-  functions (9c5490b). This regression has been reported upstream.
+  functions (9c5490b). This regression has been reported upstream and is
+  still open (09b2c74 returns the same $D_0$).
 - `syn-n6-r6`, lane 0, cancels by a factor of about $10^(12)$. Ninja is off
   by 2.3 % and NinjaRS by 1.3 % (1.2 % with Ninja's own master values).
   NinjaRS was off by 24 % before oneloopmaster conditioned the dilogarithm
@@ -136,8 +137,8 @@ defects.
   oneloopmaster's binary64 code calls it directly.
 - *oneloopmaster* (fixed in the exact expressions, so every route — native,
   hand-written, SymJIT, interpreter, arbitrary precision and Dual numbers —
-  carries the fix, except where noted; NinjaRS pins oneloopmaster 149ddff,
-  and the last seven items and the full extent of the $B_(1111)$ error were
+  carries the fix, except where noted; NinjaRS pins oneloopmaster 09b2c74,
+  and the last eight items and the full extent of the $B_(1111)$ error were
   found after the previous revision of this report, which used 264a6ce):
   - $B_0$/$B_0'$ returning NaN with a massless line;
   - inexact unit roots in massless bubble tensors (fixed in the native port
@@ -156,7 +157,8 @@ defects.
     some of these points;
   - a box near a vanishing Gram determinant (accuracy $7 times 10^(-10)$,
     then $4 times 10^(-12)$; $3.6 times 10^(-11)$ in binary64 since the
-    exact Källén edge roots below, a regression reported upstream);
+    exact Källén edge roots below, a regression reported upstream and still
+    open);
   - exact-zero branch tests decided by rounding noise in arbitrary precision
     ($C_0$ wrong at 256, 512 and 1024 bits for some arguments);
   - an expression-construction blow-up introduced and removed during these
@@ -192,7 +194,11 @@ defects.
     one of eight labellings (in NinjaRS a 12-point double-double amplitude
     was off by $1.6 times 10^(-3)$). The native products are now symmetric;
     the interpreter's double-double route (tensor families, Dual numbers)
-    keeps Symbolica's product.
+    keeps Symbolica's product;
+  - in the interpreter only, the cancellation test of the conditioned
+    dilogarithm differences above evaluating both dilogarithms two or three
+    times, slowing the arbitrary-precision runs of @arbprec by 1.4–1.5×;
+    they are now evaluated once (09b2c74).
 - *NinjaRS:*
   - rounded light-like invariants entering the masters without OneLOop's
     on-shell threshold (a $10^(-7)$ error in $gamma gamma -> gamma gamma$
@@ -234,13 +240,14 @@ prepares the numerator exactly (FeynKit, exact radical momenta and
 polarization vectors), runs the generic reduction engine on Symbolica's
 arbitrary-precision `Float` (cut solutions, Laurent divisions and
 subtractions at 700 bits) and evaluates oneloopmaster's exact master
-expressions at the same precision. All three points take 11.1–11.6
-seconds in total at 700 bits and 14.4–14.8 seconds at 1000 bits, including
-the one-time preparation. The same CLI built on oneloopmaster 264a6ce,
-run alternately with it on the same core (CPU 245), takes 7.8–8.6 and
-9.1–9.9 seconds: the run became about 1.4× (700 bits) and 1.5× (1000 bits)
-slower with oneloopmaster 3cbe08d, which conditions the dilogarithm
-differences; the regression has been reported upstream. The 700-bit results
+expressions at the same precision. All three points take 7.7–7.8
+seconds in total at 700 bits and 8.7–9.0 seconds at 1000 bits, including
+the one-time preparation. The same CLI built on the previous pin,
+oneloopmaster 149ddff, run alternately with it on the same core (CPU 245),
+takes 10.5 and 13.3–13.7 seconds: oneloopmaster 3cbe08d, which conditions
+the dilogarithm differences, had made the run about 1.4× (700 bits) and
+1.5× (1000 bits) slower, and 09b2c74 fixes this (a CLI built on 264a6ce,
+before 3cbe08d, takes 7.3–7.4 and 8.5–8.6 seconds there). The 700-bit results
 agree with a 1000-bit run to
 #calc.floor(calc.min(..arb.points.map(p => p.digits_700_vs_1000))) digits;
 the poles and the rational part vanish to working precision (below
@@ -360,9 +367,14 @@ reproduces the direct evaluation bit for bit.
 the references alike, runs single-threaded and pinned to the same core
 (CPU 250; the arbitrary-precision runs of @arbprec used CPU 245). The
 reference timings are from 2026-10-18, the NinjaRS timings from 2026-10-19
-(Symbolica e679e8c1), measured with oneloopmaster 3023fa6; the pinned
-149ddff changes no evaluated call (every benchmark case and example gives
-bit-identical results with both), so they stand. References
+(Symbolica e679e8c1), measured with oneloopmaster 3023fa6 (the
+arbitrary-precision timings with the pinned 09b2c74). 149ddff and 09b2c74
+change no binary64 evaluated call (every benchmark case and example gives
+bit-identical binary64 and double-double results with all three, and the
+native masters return the same bits on every recorded call), so they stand.
+09b2c74 rounds the interpreted $D_0$ differently: the 700- and 1000-bit
+results of @arbprec (computed with 3023fa6) move by at most 56 units in the
+last place, the 700-bit column of @tab:arbprec by at most 0.1 digit. References
 timed a day earlier on another core (CPU 29) agree within about 1 %, except
 OneLOop on the $n = 5$ cases (5–8 % faster there), which moves no gate
 (`validation/benchmark/cpu-crosscheck.md`). Rust 1.98
