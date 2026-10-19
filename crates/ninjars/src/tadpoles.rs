@@ -507,6 +507,7 @@ impl<T: FloatLike, K: TadpoleReductionKernels<T>> TadpoleReducer<T, K> {
                     shift: &shifts[lane * n + line],
                     mass_squared: &masses_squared[lane * n + line],
                     complementary_shifts: &complement_shifts[i * (n - 1)..(i + 1) * (n - 1)],
+                    rank_class: self.topology.rank_class(),
                 }
             })
             .collect();

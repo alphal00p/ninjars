@@ -4,8 +4,9 @@
 
 use ninjars::{
     BubbleCutRequest, BubbleReducer, BubbleResidue, Complex, CutFailure, CutOutcome, CutProvider,
-    DoubleFloat, Float, FourMomentum, IntegratedTadpoleResidue, Numerator, Real, SampleId,
-    SingleFloat, TadpoleReducer, Topology, TriangleCutRequest, TriangleReducer, TriangleResidue,
+    DoubleFloat, Float, FourMomentum, IntegratedTadpoleResidue, Numerator, RankClass, Real,
+    SampleId, SingleFloat, TadpoleReducer, Topology, TriangleCutRequest, TriangleReducer,
+    TriangleResidue,
 };
 use ninjars_symbolica::{
     DualPolynomialNumerator, PolynomialNumerator, SymbolicaBubbleKernels, SymbolicaCuts,
@@ -292,6 +293,7 @@ fn exact_propagator_cancellation_and_both_nonzero_parent_families() {
                 shifts: [&shifts[1], &shifts[2]],
                 masses_squared: [&masses[1], &masses[2]],
                 complementary_shifts: std::slice::from_ref(&shifts[0]),
+                rank_class: RankClass::UpToN,
             }],
             &mut bubble,
         )
@@ -618,6 +620,7 @@ fn higher_mixed_dual_parent_residue_is_removed_componentwise() {
                 shifts: [&shifts[0], &shifts[1]],
                 masses_squared: [&masses[0], &masses[1]],
                 complementary_shifts: &[],
+                rank_class: RankClass::UpToN,
             }],
             &mut cut,
         )

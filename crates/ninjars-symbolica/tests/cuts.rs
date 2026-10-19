@@ -3,7 +3,7 @@
 
 use ninjars::{
     BubbleCut, BubbleCutRequest, BubbleSampleRequest, Complex, CutBasis, CutFailure, CutOutcome,
-    CutProvider, CutSampler, FourMomentum, SampleId, TadpoleCutRequest, TriangleCut,
+    CutProvider, CutSampler, FourMomentum, RankClass, SampleId, TadpoleCutRequest, TriangleCut,
     TriangleCutRequest, TriangleSampleRequest,
 };
 use ninjars_symbolica::{SymbolicaCuts, SymbolicaDualCuts};
@@ -220,6 +220,7 @@ fn mixed_cut_batches_preserve_lane_order_and_isolate_failures() {
                 shifts: std::array::from_fn(|i| &bubble_shifts[lane][i]),
                 masses_squared: [&masses[0], &masses[1]],
                 complementary_shifts: &[],
+                rank_class: RankClass::UpToN,
             })
             .collect();
         let mut out = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); order.len()];
@@ -276,18 +277,21 @@ fn mixed_cut_batches_preserve_lane_order_and_isolate_failures() {
             shift: &origin,
             mass_squared: &masses[0],
             complementary_shifts: &complements,
+            rank_class: RankClass::UpToN,
         },
         TadpoleCutRequest {
             id: SampleId { lane: 3, sample: 0 },
             shift: &origin,
             mass_squared: &masses[1],
             complementary_shifts: &repeated,
+            rank_class: RankClass::UpToN,
         },
         TadpoleCutRequest {
             id: SampleId { lane: 1, sample: 0 },
             shift: &shifts[0][1],
             mass_squared: &masses[2],
             complementary_shifts: &[],
+            rank_class: RankClass::UpToN,
         },
     ];
     let mut output = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); 3];
@@ -360,6 +364,7 @@ where
         shifts: [&shifts[0], &shifts[1]],
         masses_squared: [&masses[0], &masses[1]],
         complementary_shifts,
+        rank_class: RankClass::UpToN,
     };
     let requests = [request(&[]), request(&uncut), request(&collinear)];
     let mut output = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); 3];
@@ -432,6 +437,7 @@ where
         shifts: [&shifts[0], &shifts[1]],
         masses_squared: [&mass, &mass],
         complementary_shifts: &uncut,
+        rank_class: RankClass::UpToN,
     };
     let mut output = [CutOutcome::Unstable(CutFailure::NonFiniteResult)];
     provider.bubble_batch(&[request], &mut output).unwrap();
@@ -603,6 +609,7 @@ fn dual_check<D: Real + DualNumber<Complex<f64>>>(prototype: D) {
         shifts: [&bubble_shifts[0], &bubble_shifts[1]],
         masses_squared: [&masses[0], &masses[1]],
         complementary_shifts: &shifts[2..],
+        rank_class: RankClass::UpToN,
     };
     let mut output = [CutOutcome::Unstable(CutFailure::NonFiniteResult)];
     provider.bubble_batch(&[request], &mut output).unwrap();
@@ -638,6 +645,7 @@ fn dual_check<D: Real + DualNumber<Complex<f64>>>(prototype: D) {
         shift: &shifts[1],
         mass_squared: &masses[1],
         complementary_shifts: &shifts[2..],
+        rank_class: RankClass::UpToN,
     };
     let mut output = [CutOutcome::Unstable(CutFailure::NonFiniteResult)];
     provider.tadpole_batch(&[request], &mut output).unwrap();
@@ -700,12 +708,14 @@ fn reordered_dual_components_are_rejected_per_lane() {
             shifts: [&shifts[0], &shifts[1]],
             masses_squared: [&mass, &bad],
             complementary_shifts: &[],
+            rank_class: RankClass::UpToN,
         },
         BubbleCutRequest {
             id: SampleId { lane: 1, sample: 0 },
             shifts: [&shifts[0], &shifts[1]],
             masses_squared: [&mass, &mass],
             complementary_shifts: &[],
+            rank_class: RankClass::UpToN,
         },
     ];
     let mut output = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); 2];
@@ -715,4 +725,301 @@ fn reordered_dual_components_are_rejected_per_lane() {
         CutOutcome::Unstable(CutFailure::DerivativeShape)
     ));
     assert!(matches!(output[1], CutOutcome::Stable(_)));
+}
+
+/// The {0, 2} double cut of lane 2 of the final review's
+/// `fr-light-zero-n5-r7` (massless, light-like legs): `k = (2, 14, -2, 6)`
+/// with uncut shifts that include two null vectors. Below rank n+2 the
+/// reference is one of the eight `(1, ±2/3, ±2/3, ±1/3)`; at rank n+2 the
+/// fast engine's score over all 24 signed permutations of
+/// `(1, 2/3, 2/3, 1/3)` picks `(1, -2/3, -1/3, -2/3)`.
+fn light_like_bubble<T: Real + RealLike + SingleFloat>(
+    prototype: T,
+    rank_class: RankClass,
+) -> Vec<f64>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    let mut provider = SymbolicaCuts::new(prototype.clone()).unwrap();
+    let zero = Complex::new(prototype.zero(), prototype.zero());
+    let shifts = [
+        momentum(&zero, [0, 0, 0, 0]),
+        momentum(&zero, [-2, -14, 2, -6]),
+    ];
+    let uncut = [
+        momentum(&zero, [21, -11, -16, 8]),
+        momentum(&zero, [-33, -28, -19, 12]),
+        momentum(&zero, [9, 4, 7, 4]),
+    ];
+    let request = BubbleCutRequest {
+        id: SampleId { lane: 0, sample: 0 },
+        shifts: [&shifts[0], &shifts[1]],
+        masses_squared: [&zero, &zero],
+        complementary_shifts: &uncut,
+        rank_class,
+    };
+    let mut output = [CutOutcome::Unstable(CutFailure::NonFiniteResult)];
+    provider.bubble_batch(&[request], &mut output).unwrap();
+    let CutOutcome::Stable(cut) = &output[0] else {
+        panic!("light-like bubble cut failed: {:?}", output[0])
+    };
+    let check = |v: Complex<T>| assert!(v.norm().re.to_f64() < 1e-9, "{v}");
+    check_bubble(cut, &shifts, &[zero.clone(), zero.clone()], &check);
+    cut.basis
+        .e2
+        .components()
+        .into_iter()
+        .flat_map(|c| [c.re.to_f64(), c.im.to_f64()])
+        .collect()
+}
+
+#[test]
+fn rank_n2_bubble_reference_scores_the_wider_candidates() {
+    let third = 1. / 3.;
+    let narrow = [1., -2. * third, -2. * third, -third];
+    let wide = [1., -2. * third, -third, -2. * third];
+    let close = |e2: &[f64], want: &[f64; 4]| {
+        e2.chunks(2)
+            .zip(want)
+            .all(|(c, w)| (c[0] - w).abs() < 1e-12 && c[1].abs() < 1e-12)
+    };
+    for rank_class in [RankClass::UpToN, RankClass::NPlus1] {
+        let e2 = light_like_bubble(0., rank_class);
+        assert!(close(&e2, &narrow), "{rank_class:?}: {e2:?}");
+    }
+    for e2 in [
+        light_like_bubble(0., RankClass::NPlus2),
+        light_like_bubble(DoubleFloat::from(0.), RankClass::NPlus2),
+        light_like_bubble(Float::new(256), RankClass::NPlus2),
+    ] {
+        assert!(close(&e2, &wide), "rank n+2: {e2:?}");
+    }
+}
+
+/// [`tied_bubble_reference`] at rank n+2: the 24 references tie in groups
+/// as well, and the lowest index wins in every precision.
+fn tied_bubble_reference_n2<T: Real + RealLike + SingleFloat>(prototype: T) -> Vec<f64>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    let mut provider = SymbolicaCuts::new(prototype.clone()).unwrap();
+    let zero = Complex::new(prototype.zero(), prototype.zero());
+    let shifts = [
+        momentum(&zero, [100, 60, 0, 80]),
+        momentum(&zero, [100, 0, 0, 100]),
+    ];
+    let uncut = [
+        momentum(&zero, [0, 0, 0, 0]),
+        momentum(&zero, [200, 0, 0, 0]),
+    ];
+    let mass = Complex::new(prototype.from_i64(173 * 173), prototype.zero());
+    let request = BubbleCutRequest {
+        id: SampleId { lane: 0, sample: 0 },
+        shifts: [&shifts[0], &shifts[1]],
+        masses_squared: [&mass, &mass],
+        complementary_shifts: &uncut,
+        rank_class: RankClass::NPlus2,
+    };
+    let mut output = [CutOutcome::Unstable(CutFailure::NonFiniteResult)];
+    provider.bubble_batch(&[request], &mut output).unwrap();
+    let CutOutcome::Stable(cut) = &output[0] else {
+        panic!("tied rank n+2 bubble cut failed: {:?}", output[0])
+    };
+    let check = |v: Complex<T>| assert!(v.norm().re.to_f64() < 1e-6, "{v}");
+    check_bubble(cut, &shifts, &[mass.clone(), mass.clone()], &check);
+    cut.basis
+        .e2
+        .components()
+        .into_iter()
+        .flat_map(|c| [c.re.to_f64(), c.im.to_f64()])
+        .collect()
+}
+
+#[test]
+fn tied_rank_n2_bubble_references_do_not_depend_on_the_precision() {
+    let expected = tied_bubble_reference_n2(Float::new(400));
+    let mut chosen = vec![
+        ("f64".to_string(), tied_bubble_reference_n2(0.)),
+        (
+            "double-float".into(),
+            tied_bubble_reference_n2(DoubleFloat::from(0.)),
+        ),
+    ];
+    for bits in [64, 68, 80, 100, 116, 128, 148, 256] {
+        chosen.push((
+            format!("{bits} bits"),
+            tied_bubble_reference_n2(Float::new(bits)),
+        ));
+    }
+    for (label, e2) in chosen {
+        assert!(
+            e2.iter().zip(&expected).all(|(a, b)| (a - b).abs() < 1e-12),
+            "{label}: reference {e2:?} != 400-bit {expected:?}"
+        );
+    }
+}
+
+/// At rank n+2 a tadpole basis scores only the growing expansion vectors,
+/// `min_v min(|e1.v|/|e1|, |e3.v|/|e3|)/|v|` (Euclidean norms), as in the
+/// fast engine; the lower ranks keep the smallest projection on all four.
+/// For the uncut difference `v = (-3, -3, -3, -1)` the two rules choose
+/// different bases.
+#[test]
+fn rank_n2_tadpole_basis_scores_the_growing_vectors() {
+    // The (a, b, c, d) of the six bases: e1 and e2 have the Weyl components
+    // (1, a + i b) and (1, c + i d); e3 mixes the angle of e1 with the square
+    // of e2 (`tadpole_plans.rs`).
+    let pairs: [(f64, f64, f64, f64); 6] = [
+        (1., 2., -2., 1.),
+        (2., -1., 1., 3.),
+        (-1., 3., 2., 1.),
+        (3., 1., -1., -2.),
+        (1., -3., 3., -2.),
+        (2., 3., -3., 1.),
+    ];
+    let v = [-3., -3., -3., -1.];
+    let dot =
+        |e: [Complex<f64>; 4]| e[0] * c(v[0]) - e[1] * c(v[1]) - e[2] * c(v[2]) - e[3] * c(v[3]);
+    let norm2 = |e: &[Complex<f64>; 4]| e.iter().map(|x| x.norm_squared()).sum::<f64>();
+    let from_spinors = |angle: [Complex<f64>; 2], square: [Complex<f64>; 2]| {
+        let (d0, d1) = (angle[0] * square[0], angle[1] * square[1]);
+        let (o0, o1) = (angle[0] * square[1], angle[1] * square[0]);
+        let half = c(0.5);
+        [
+            (d0 + d1) * half,
+            (o0 + o1) * half,
+            Complex::new(0., 1.) * (o0 - o1) * half,
+            (d0 - d1) * half,
+        ]
+    };
+    let scores: Vec<f64> = pairs
+        .iter()
+        .map(|&(a, b, cc, d)| {
+            let one = c(1.);
+            let e1 = from_spinors([one, Complex::new(a, b)], [one, Complex::new(a, -b)]);
+            let e3 = from_spinors([one, Complex::new(a, b)], [one, Complex::new(cc, -d)]);
+            let vv: f64 = v.iter().map(|x| x * x).sum();
+            (dot(e1).norm_squared() / norm2(&e1)).min(dot(e3).norm_squared() / norm2(&e3)) / vv
+        })
+        .collect();
+    let best = (0..6).fold(0, |best, i| if scores[i] > scores[best] { i } else { best });
+
+    let mut provider = SymbolicaCuts::new(0.).unwrap();
+    let zero = c(0.);
+    let origin = momentum(&zero, [0, 0, 0, 0]);
+    let uncut = [momentum(&zero, [-3, -3, -3, -1])];
+    let mass = c(2.);
+    let mut chosen = Vec::new();
+    for rank_class in [RankClass::NPlus1, RankClass::NPlus2] {
+        let request = TadpoleCutRequest {
+            id: SampleId { lane: 0, sample: 0 },
+            shift: &origin,
+            mass_squared: &mass,
+            complementary_shifts: &uncut,
+            rank_class,
+        };
+        let mut output = [CutOutcome::Unstable(CutFailure::NonFiniteResult)];
+        provider.tadpole_batch(&[request], &mut output).unwrap();
+        let CutOutcome::Stable(cut) = &output[0] else {
+            panic!("tadpole failed: {:?}", output[0])
+        };
+        let check = |value: Complex<f64>| assert!(value.norm().re < 1e-10, "{value}");
+        check_basis(&cut.basis, &check);
+        // The basis is identified by e1 = ((1 + a² + b²)/2, a, b, (1 - a² - b²)/2).
+        let e1 = cut.basis.e1.components().map(|x| x.re);
+        let index = pairs
+            .iter()
+            .position(|&(a, b, _, _)| (e1[1] - a).abs() < 1e-12 && (e1[2] - b).abs() < 1e-12)
+            .expect("one of the six bases");
+        chosen.push(index);
+    }
+    assert_eq!(chosen[1], best, "rank n+2 scores {scores:?}");
+    assert_ne!(
+        chosen[0], chosen[1],
+        "the fixture no longer separates the two rules"
+    );
+}
+
+/// Rank n+2 bubble requests are probed with the further references, the
+/// others are not: in a mixed batch every row equals its single-row result
+/// bitwise, in any order.
+#[test]
+fn mixed_rank_class_bubble_batches_equal_single_rows() {
+    let mut provider = SymbolicaCuts::new(0.).unwrap();
+    let zero = c(0.);
+    let shifts = [
+        [
+            momentum(&zero, [0, 0, 0, 0]),
+            momentum(&zero, [-2, -14, 2, -6]),
+        ],
+        [
+            momentum(&zero, [100, 60, 0, 80]),
+            momentum(&zero, [100, 0, 0, 100]),
+        ],
+    ];
+    let uncut = [
+        vec![
+            momentum(&zero, [21, -11, -16, 8]),
+            momentum(&zero, [-33, -28, -19, 12]),
+            momentum(&zero, [9, 4, 7, 4]),
+        ],
+        vec![
+            momentum(&zero, [0, 0, 0, 0]),
+            momentum(&zero, [200, 0, 0, 0]),
+        ],
+    ];
+    let masses = [c(0.), c(173. * 173.)];
+    let rows: Vec<(usize, RankClass)> = [0, 1]
+        .into_iter()
+        .flat_map(|g| [RankClass::NPlus1, RankClass::NPlus2].map(|r| (g, r)))
+        .collect();
+    let request = |&(g, rank_class): &(usize, RankClass)| BubbleCutRequest {
+        id: SampleId { lane: g, sample: 0 },
+        shifts: [&shifts[g][0], &shifts[g][1]],
+        masses_squared: [&masses[g], &masses[g]],
+        complementary_shifts: &uncut[g],
+        rank_class,
+    };
+    let bits = |outcome: &CutOutcome<BubbleCut<Complex<f64>>>| {
+        let CutOutcome::Stable(cut) = outcome else {
+            panic!("bubble failed: {outcome:?}")
+        };
+        [
+            &cut.basis.e1,
+            &cut.basis.e2,
+            &cut.basis.e3,
+            &cut.basis.e4,
+            &cut.a0,
+            &cut.a1,
+        ]
+        .into_iter()
+        .flat_map(|v| v.components())
+        .chain(&cut.parameters)
+        .flat_map(|x| [x.re.to_bits(), x.im.to_bits()])
+        .collect::<Vec<_>>()
+    };
+    let single: Vec<_> = rows
+        .iter()
+        .map(|row| {
+            let mut output = [CutOutcome::Unstable(CutFailure::NonFiniteResult)];
+            provider.bubble_batch(&[request(row)], &mut output).unwrap();
+            bits(&output[0])
+        })
+        .collect();
+    assert_ne!(
+        single[0], single[1],
+        "rank n+2 should change this reference"
+    );
+    for order in [[0, 1, 2, 3], [3, 1, 0, 2], [2, 3, 1, 0]] {
+        let requests: Vec<_> = order.iter().map(|&i| request(&rows[i])).collect();
+        let mut output = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult); requests.len()];
+        provider.bubble_batch(&requests, &mut output).unwrap();
+        for (position, &i) in order.iter().enumerate() {
+            assert_eq!(
+                bits(&output[position]),
+                single[i],
+                "row {i} in order {order:?}"
+            );
+        }
+    }
 }

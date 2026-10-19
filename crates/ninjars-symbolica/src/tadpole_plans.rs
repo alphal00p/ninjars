@@ -67,18 +67,21 @@ impl TadpoleSourceProjection {
     }
 }
 
+/// `(a, b, c, d)` of the six tadpole bases: the Weyl components
+/// `(1, a + i b)` and `(1, c + i d)` of `e1` and `e2`.
+pub(crate) const TADPOLE_REFERENCE_SPINORS: [(i64, i64, i64, i64); 6] = [
+    (1, 2, -2, 1),
+    (2, -1, 1, 3),
+    (-1, 3, 2, 1),
+    (3, 1, -1, -2),
+    (1, -3, 3, -2),
+    (2, 3, -3, 1),
+];
+
 // The existing six exact rational Weyl choices. Probe and finish construction
 // use this one source so their candidate indices and normalizations stay equal.
 pub(crate) fn tadpole_reference_bases() -> [[FourMomentum<Atom>; 4]; 6] {
-    [
-        (1, 2, -2, 1),
-        (2, -1, 1, 3),
-        (-1, 3, 2, 1),
-        (3, 1, -1, -2),
-        (1, -3, 3, -2),
-        (2, 3, -3, 1),
-    ]
-    .map(|(a, b, c, d)| {
+    TADPOLE_REFERENCE_SPINORS.map(|(a, b, c, d)| {
         let angle1 = [Atom::num(1), Atom::num(a) + Atom::i() * b];
         let square1 = [Atom::num(1), Atom::num(a) - Atom::i() * b];
         let angle2 = [Atom::num(1), Atom::num(c) + Atom::i() * d];
