@@ -1,9 +1,18 @@
-# Wall time of run.sh on oneloopmaster 3023fa6 (AMD EPYC 9754, pinned with taskset -c 250, 2026-10-19)
-700 bits, three points incl. preparation: real 11.274 s, user 10.132 s, sys 0.977 s
-1000 bits, three points incl. preparation: real 16.571 s, user 14.904 s, sys 1.380 s
-# Same core and session, 700 bits, three runs each: CLIs on oneloopmaster 264a6ce took 8.4-9.6 s,
+# Wall time of run.sh on oneloopmaster 149ddff, the current pin (AMD EPYC 9754, pinned with taskset -c 245,
+# 2026-10-19; the host was loaded and no core was idle, about 25 % background load on CPU 245)
+700 bits, three points incl. preparation: real 11.662 s, user 10.314 s, sys 1.201 s
+1000 bits, three points incl. preparation: real 14.655 s, user 13.446 s, sys 1.025 s
+# 149ddff reproduces the committed p700/p1000/dd/fast.json (from 3023fa6) bit for bit, timing fields aside.
+# Same core and session (CPU 245), three rounds, each running the 264a6ce, 3023fa6 and 149ddff CLIs in turn:
+#   700 bits:  264a6ce 7.8-8.6 s, 3023fa6 11.1-12.7 s, 149ddff 11.1-11.6 s (about 1.4x slower than 264a6ce)
+#   1000 bits: 264a6ce 9.1-9.9 s, 3023fa6 14.0-14.6 s, 149ddff 14.4-14.8 s (about 1.5x slower than 264a6ce)
+# Earlier measurement on oneloopmaster 3023fa6 (pinned with taskset -c 250, 2026-10-19):
+# 700 bits, three points incl. preparation: real 11.274 s, user 10.132 s, sys 0.977 s
+# 1000 bits, three points incl. preparation: real 16.571 s, user 14.904 s, sys 1.380 s
+# Same core and session (CPU 250), 700 bits, three runs each: CLIs on oneloopmaster 264a6ce took 8.4-9.6 s,
 # on 3023fa6 12.3-13.2 s. CLIs built on each intermediate revision put the step at oneloopmaster
 # 3cbe08d (conditioned dilogarithm differences and tiny box invariants): 9.0 s before, 12.4 s after.
+# The slowdown has been reported upstream.
 # Previous measurement, oneloopmaster 264a6ce (pinned with taskset -c 251, 2026-10-18):
 # 700 bits, three points incl. preparation: real 7.504 s, user 6.956 s, sys 0.472 s
 # 1000 bits, three points incl. preparation: real 8.761 s, user 8.206 s, sys 0.468 s

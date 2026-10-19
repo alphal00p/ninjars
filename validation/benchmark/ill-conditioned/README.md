@@ -20,12 +20,17 @@ python3 an5.py n5r5.jsonl
 
 Measured with NinjaRS 606d94a and oneloopmaster 264a6ce (`n6r6.jsonl`,
 `n5r5.jsonl`, `n5r5_d0.txt`); the native-master columns were re-measured with
-oneloopmaster 3023fa6 (`*-olm3023fa6.*`, NinjaRS branch
-`claude/oneloopmaster-repin`; the n6r6 rerun has no OneLOop quadruple-precision
-tables, so it has no `master_check` records). The exact values are unchanged.
-Errors are |x - exact| / |exact eps0| on the finite part (eps0).
+oneloopmaster 3023fa6 (`*-olm3023fa6.*`). The n6r6 rerun was made without
+OneLOop's quadruple-precision tables: its six `master_check` records (256 and
+400 bits, lanes 0-2) list no bad calls, but there they only confirm that every
+exact master evaluated and make no quadruple-precision comparison. The exact
+values are unchanged. oneloopmaster 149ddff, the current pin, leaves the
+3023fa6 columns as they are: its native masters return the same bits as
+3023fa6's on every master call Ninja records for these cases, and `case-bench`
+gives identical reference checks. Errors are |x - exact| / |exact eps0| on the
+finite part (eps0).
 
-| `syn-n6-r6` | Ninja + OneLOop | fast, native masters (264a6ce → 3023fa6) | fast, Ninja's OneLOop masters | fast, exact masters (rounded) |
+| `syn-n6-r6` | Ninja + OneLOop | fast, native masters (264a6ce → 3023fa6 = 149ddff) | fast, Ninja's OneLOop masters | fast, exact masters (rounded) |
 |---|---|---|---|---|
 | lane 0 | 2.32e-2 | 2.35e-1 → 1.31e-2 | 1.23e-2 | 1.50e-2 |
 | lane 1 | 2.54e-10 | 6.87e-10 → 6.87e-10 | 6.95e-10 | 3.30e-10 |
@@ -43,7 +48,7 @@ of the same C0 is accurate to 2.3e-14 (`probe.jsonl`). oneloopmaster 3cbe08d
 conditions those dilogarithm differences (native 2.2e-15), and the fast engine
 with native masters is now off by 1.3e-2 on this lane, like Ninja.
 
-| `syn-gghhh-ggHHH-n5-r5` | Ninja + OneLOop | fast, native masters (264a6ce → 3023fa6) | fast, Ninja's OneLOop masters | fast, exact masters (rounded) |
+| `syn-gghhh-ggHHH-n5-r5` | Ninja + OneLOop | fast, native masters (264a6ce → 3023fa6 = 149ddff) | fast, Ninja's OneLOop masters | fast, exact masters (rounded) |
 |---|---|---|---|---|
 | lane 0 | 3.52e-12 | 6.85e-12 → 4.78e-12 | 3.82e-12 | 3.35e-12 |
 | lane 1 | 2.99e-4 | 3.36e-4 → 4.58e-4 | 3.09e-4 | 3.09e-4 |
@@ -54,7 +59,7 @@ is a ~1e-7 remainder of cancelling box and triangle terms. The binary64
 reduction itself loses the digits (exact masters rounded to binary64 still
 give 3.1e-4), in both codes. The D0 at that box is in `n5r5_d0.txt` and
 `n5r5_d0-olm3023fa6.txt`: native relative error 4.4e-12 at 264a6ce (6.8e-10
-before it) and 3.6e-11 at 3023fa6, OneLOop 7.9e-15. The 3023fa6 value comes
-from oneloopmaster 9c5490b (contour-box edge roots from exact Källén
-functions), which moved this D0 by 4.0e-11; it raises the lane's error from
-3.4e-4 to 4.6e-4.
+before it) and 3.6e-11 at 3023fa6 and 149ddff, OneLOop 7.9e-15. The 3023fa6
+value comes from oneloopmaster 9c5490b (contour-box edge roots from exact
+Källén functions), which moved this D0 by 4.0e-11; it raises the lane's error
+from 3.4e-4 to 4.6e-4. This regression has been reported upstream.

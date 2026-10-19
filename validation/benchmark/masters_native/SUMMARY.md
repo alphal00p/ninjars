@@ -16,7 +16,7 @@ reflected relabellings of the propagators (a native self-consistency check).
 
 ## `olm-3023fa6-sym-e679e8c1-tensor`
 
-oneloopmaster main 3023fa6 (264a6ce plus the B1111 tensor family, conditioned C0 dilogarithm differences, the contour box for real three-mass boxes, exact Kallen edge roots, far-root r1, labelling-independent real four-mass D0, collinear few-mass boxes and commutative DoubleFloat products) + Symbolica e679e8c1; the final benchmark revision
+oneloopmaster main 3023fa6 (264a6ce plus the B1111 tensor family, conditioned C0 dilogarithm differences, the contour box for real three-mass boxes, exact Kallen edge roots, far-root r1, labelling-independent real four-mass D0, collinear few-mass boxes and commutative DoubleFloat products) + Symbolica e679e8c1; the final benchmark revision (the pinned 149ddff returns the same bits on every call)
 
 | case | OneLOop all | native all | native/OneLOop | OL D0 | nat D0 | OL C0 | nat C0 | OL B | nat B (tensor) | OL A0 | nat A0 | max diff | relabel |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |

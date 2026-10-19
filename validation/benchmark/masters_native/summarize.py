@@ -20,7 +20,8 @@ LABELS = {
         "oneloopmaster main 3023fa6 (264a6ce plus the B1111 tensor family, conditioned C0 dilogarithm "
         "differences, the contour box for real three-mass boxes, exact Kallen edge roots, far-root r1, "
         "labelling-independent real four-mass D0, collinear few-mass boxes and commutative DoubleFloat "
-        "products) + Symbolica e679e8c1; the final benchmark revision",
+        "products) + Symbolica e679e8c1; the final benchmark revision (the pinned 149ddff returns the same "
+        "bits on every call)",
     "olm-264a6ce-sym-e679e8c1-tensor":
         "oneloopmaster main 264a6ce (continuation and degenerate-kinematics fixes, hand-written C0/D0 "
         "and tensor binary64 kernels) + Symbolica e679e8c1; the previous benchmark revision",
