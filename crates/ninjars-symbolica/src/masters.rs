@@ -2,12 +2,17 @@
 //!
 //! For the fixed-precision carriers (binary64 and DoubleFloat), scalar
 //! families (A0, B0, dB0, C0, D0) use oneloopmaster's native direct-Rust
-//! implementation generated from its exact expressions. Arbitrary-precision
-//! `Float` keeps Symbolica's interpreter, which tracks the significant
-//! precision of every input component instead of padding inputs to the
-//! working precision. Tensor families without a native implementation and
-//! all Dual (derivative) evaluations also use the same exact formulas through
-//! the interpreter.
+//! implementation generated from its exact expressions. Its exact branch
+//! predicates need analytically real products such as `z conj(z)` to be
+//! exactly real. The compensated DoubleFloat product rounds differently in
+//! each operand order, so oneloopmaster forms its native DoubleFloat products
+//! symmetrically; before it did, a four-mass D0 lost its real part
+//! (`tests/box_masters.rs`). Arbitrary-precision `Float` keeps Symbolica's
+//! interpreter, which tracks the significant precision of every input
+//! component instead of padding inputs to the working precision. Tensor
+//! families without a native implementation and all Dual (derivative)
+//! evaluations also use the same exact formulas through the interpreter,
+//! whose DoubleFloat products keep their operand-order rounding.
 
 use std::collections::BTreeMap;
 
