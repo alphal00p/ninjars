@@ -1,7 +1,7 @@
 use ninjars::{
-    Complex, CutBasis, FourMomentum, IntegrationStatus, Laurent, MasterFailure, MasterIntegral,
-    MasterProvider, MasterRequest, MasterStatus, ResidueIntegrationRequest, ResidueIntegrator,
-    Result, SampleId, SingleFloat,
+    Complex, CutBasis, FloatLike, FourMomentum, IntegrationKernels, IntegrationStatus, Laurent,
+    MasterFailure, MasterIntegral, MasterProvider, MasterRequest, MasterStatus, RankClass,
+    ResidueIntegrationRequest, ResidueIntegrator, Result, SampleId, SingleFloat,
 };
 use ninjars_symbolica::{
     SymbolicaDualIntegrationKernels, SymbolicaDualMasters, SymbolicaIntegrationKernels,
@@ -27,6 +27,13 @@ fn basis() -> CutBasis<Complex<f64>> {
 fn close(value: Complex<f64>, expected: f64) {
     assert!(
         (value.re - expected).abs() < 1e-9 * (1. + expected.abs()) && value.im.abs() < 1e-9,
+        "{value} != {expected}"
+    );
+}
+fn close_complex(value: Complex<f64>, expected: Complex<f64>) {
+    assert!(
+        (value.re - expected.re).hypot(value.im - expected.im)
+            < 1e-9 * (1. + expected.re.hypot(expected.im)),
         "{value} != {expected}"
     );
 }
@@ -321,4 +328,149 @@ fn derivative_only_weights_retain_higher_mixed_master_products() {
         }
     }
     assert!(zero.is_zero()); // The derivative-only weight has the same primal, but was not skipped.
+}
+
+/// B0 = 1 + 2i (single pole 1) and B1 = 3 (single pole -1/2), lifted into the
+/// carrier; any other master has a zero weight here.
+struct FixedBubbleMasters<V>(fn(Complex<f64>) -> V);
+impl<V: Clone> MasterProvider<V> for FixedBubbleMasters<V> {
+    fn evaluate(&mut self, request: MasterRequest<'_, V>, output: &mut [Laurent<V>]) -> Result<()> {
+        let mut statuses = vec![MasterStatus::Success; request.rows()];
+        self.evaluate_batch(request, output, &mut statuses)
+    }
+    fn evaluate_batch(
+        &mut self,
+        request: MasterRequest<'_, V>,
+        output: &mut [Laurent<V>],
+        statuses: &mut [MasterStatus],
+    ) -> Result<()> {
+        let values = match request.integral {
+            MasterIntegral::B0 => [Complex::new(1., 2.), c(1.), c(0.)],
+            MasterIntegral::B1 => [c(3.), c(-0.5), c(0.)],
+            integral => panic!("{integral:?} has a zero weight"),
+        };
+        for (out, status) in output.iter_mut().zip(statuses) {
+            *out = values.map(self.0);
+            *status = MasterStatus::Success;
+        }
+        Ok(())
+    }
+}
+
+/// A rank n+2 bubble residue with `c0 = c1 = c9 = c21 = c22 = 1`, unit masses
+/// and `V1 - V0 = (0, 1, 0, 0)` (`s = -1`, `ke2 = -1`): the masters
+/// contribute `B0 - B1`, and the rational part is `7/6 + 23/60 - 41/60 =
+/// 13/15` (the terms of c9, c21 and c22; that of c10 vanishes). Returns the
+/// contracted row and its
+/// term moduli.
+fn rank_n2_bubble<V: FloatLike, K: IntegrationKernels<V>>(
+    kernels: K,
+    lift: fn(Complex<f64>) -> V,
+    modulus: impl Fn(&V) -> V,
+) -> ([V; 5], Laurent<V>) {
+    let zero = lift(c(0.));
+    let base = basis();
+    let map = |v: &Complex<f64>| lift(*v);
+    let basis = CutBasis {
+        e1: base.e1.map_ref(map),
+        e2: base.e2.map_ref(map),
+        e3: base.e3.map_ref(map),
+        e4: base.e4.map_ref(map),
+        e12: lift(base.e12),
+    };
+    let shifts = [q([0.; 4]).map_ref(map), q([0., 1., 0., 0.]).map_ref(map)];
+    let masses = [lift(c(1.)), lift(c(1.))];
+    let scale = lift(c(1.));
+    let mut coefficients = vec![zero.clone(); 35];
+    for index in [0, 1, 9, 21, 22] {
+        coefficients[index] = lift(c(1.));
+    }
+    let requests = [ResidueIntegrationRequest {
+        id: SampleId { lane: 0, sample: 0 },
+        partition: &[0, 1],
+        shifts: &shifts,
+        masses_squared: &masses,
+        coefficients: &coefficients,
+        basis: Some(&basis),
+        scale_squared: &scale,
+        s_matrix: None,
+    }];
+    let mut integration = ResidueIntegrator::new(kernels, zero.clone());
+    let mut output = [std::array::from_fn(|_| zero.clone())];
+    let mut statuses = [IntegrationStatus::InvalidInput];
+    integration
+        .evaluate_batch(
+            &requests,
+            &mut FixedBubbleMasters(lift),
+            &mut output,
+            &mut statuses,
+        )
+        .unwrap();
+    assert_eq!(statuses, [IntegrationStatus::Success]);
+    let [output] = output;
+    (output, integration.term_moduli(0, modulus))
+}
+
+/// The cancellation test's term moduli: each master times its weight per
+/// Laurent coefficient, plus each rational term (or the whole rational part
+/// when the kernels evaluate no terms). The contracted values do not depend on
+/// the terms, and Dual carriers measure their primal values.
+#[test]
+fn term_moduli_count_every_master_and_rational_term() {
+    let taxicab = |v: &Complex<f64>| c(v.re.abs() + v.im.abs());
+    let finite = Complex::new(-2. + 13. / 15., 2.);
+    let expected = [finite, c(1.5), c(0.), finite - c(13. / 15.), c(13. / 15.)];
+    let (whole, whole_moduli) = rank_n2_bubble(
+        SymbolicaIntegrationKernels::new_class(2, RankClass::NPlus2, 0.).unwrap(),
+        |v| v,
+        taxicab,
+    );
+    let kernels =
+        SymbolicaIntegrationKernels::new_class_with_rational_terms(2, RankClass::NPlus2, 0.)
+            .unwrap();
+    assert_eq!(kernels.rational_term_count(), 4);
+    let (split, split_moduli) = rank_n2_bubble(kernels, |v| v, taxicab);
+    assert_eq!(whole, split, "the terms change no contracted value");
+    for (value, expected) in whole.iter().zip(expected) {
+        close_complex(*value, expected);
+    }
+    for (moduli, rational) in [(whole_moduli, 13. / 15.), (split_moduli, 67. / 30.)] {
+        for (value, expected) in moduli.iter().zip([6. + rational, 1.5, 0.]) {
+            close(*value, expected);
+        }
+    }
+
+    // Dual carriers: derivative components (here 7 times every input and
+    // master) do not enter the moduli, which carry the primal value only.
+    let shape = vec![vec![0], vec![1]];
+    let zero = HyperDual::from_values(shape.clone(), vec![c(0.); 2]);
+    let kernels = SymbolicaDualIntegrationKernels::new_class_with_rational_terms(
+        2,
+        RankClass::NPlus2,
+        0.,
+        &zero,
+    )
+    .unwrap();
+    assert_eq!(kernels.rational_term_count(), 4);
+    let (dual, dual_moduli) = rank_n2_bubble(
+        kernels,
+        |v| {
+            HyperDual::from_values(
+                vec![vec![0], vec![1]],
+                vec![v, Complex::new(7. * v.re, 7. * v.im)],
+            )
+        },
+        |v| {
+            let mut modulus = v.clone();
+            modulus.values = vec![taxicab(&v.values[0]), c(0.)];
+            modulus
+        },
+    );
+    for (value, expected) in dual.iter().zip(&split) {
+        close_complex(value.values[0], *expected);
+    }
+    for (value, expected) in dual_moduli.iter().zip(&split_moduli) {
+        close(value.values[0], expected.re);
+        assert_eq!(value.values[1], c(0.));
+    }
 }

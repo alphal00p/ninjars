@@ -7,8 +7,9 @@
 //!   n+2, whose boxes expand on the exact d-dimensional cut, and the binary64
 //!   rank n+2 fast engine rejects the lane too.
 //! - The opt-in cancellation test reports [`EvaluationStatus::Unstable`] for a
-//!   binary64 lane whose cut contributions cancel by fourteen orders of
-//!   magnitude, and accepts the same lane in DoubleFloat.
+//!   lane whose cut contributions cancel by fifteen orders of magnitude (their
+//!   terms by more) in binary64 and DoubleFloat, which lose more than half of
+//!   their bits there, and accepts the same lane in Float(256).
 
 use ninjars::fast::{
     C64, FastAmplitude, FastInput, FastOptions, FastResult, FastStatus, GenericNumerator,
@@ -424,25 +425,53 @@ where
     (status, value)
 }
 
+/// The opt-in test flags exactly the carriers that lose more than half of
+/// their bits on the cancelling lane. Float(256) reduces the same inputs with
+/// the same master values, passes, and is the reference: binary64 loses
+/// everything, and DoubleFloat is off by 6.9e-16, above `2^-53` (fewer than 53
+/// of its 106 bits survive). Its whole cut contributions cancel by only 1.6e15,
+/// below `2^53`, which passed it until the test measured the terms inside each
+/// contribution.
 #[test]
-fn opt_in_cancellation_test_flags_lost_binary64_digits() {
-    let (status, f64_value) = cancelling_lane(0_f64, false);
+fn opt_in_cancellation_test_flags_lost_digits() {
+    let (status, reference) = cancelling_lane(Float::new(256), true);
+    assert_eq!(status, EvaluationStatus::Success);
+    let reference = Complex::new(
+        reference.re.to_double_float(),
+        reference.im.to_double_float(),
+    );
+    let taxicab = |z: &Complex<DoubleFloat>| z.re.norm() + z.im.norm();
+    let error = |value: Complex<DoubleFloat>| {
+        (taxicab(&(value - reference)) / taxicab(&reference)).to_f64()
+    };
+
+    let (status, value) = cancelling_lane(0_f64, false);
     assert_eq!(status, EvaluationStatus::Success, "the test is opt-in");
+    let value = Complex::new(DoubleFloat::from(value.re), DoubleFloat::from(value.im));
+    assert!(
+        error(value) > 1.,
+        "binary64 relative error {:e}",
+        error(value)
+    );
     let (status, _) = cancelling_lane(0_f64, true);
     assert_eq!(status, EvaluationStatus::Unstable);
-    // DoubleFloat reduces the same inputs with the same master values and keeps
-    // more than half of its bits: it passes, and shows that binary64 lost all.
-    let (status, reference) = cancelling_lane(DoubleFloat::from(0.), true);
-    assert_eq!(status, EvaluationStatus::Success);
-    let reference = Complex::new(reference.re.to_f64(), reference.im.to_f64());
-    let error = (f64_value.re - reference.re).hypot(f64_value.im - reference.im)
-        / reference.re.hypot(reference.im);
-    assert!(error > 1., "binary64 relative error {error:e}");
+
+    let (status, value) = cancelling_lane(DoubleFloat::from(0.), false);
+    assert_eq!(status, EvaluationStatus::Success, "the test is opt-in");
+    let error = error(value);
+    assert!(
+        error > 2_f64.powi(-53) && error < 1e-14,
+        "DoubleFloat relative error {error:e}"
+    );
+    let (status, _) = cancelling_lane(DoubleFloat::from(0.), true);
+    assert_eq!(status, EvaluationStatus::Unstable);
 }
 
-/// The cancellation measurement is reported without the opt-in test. It
-/// agrees with the test's verdict (a ratio above `2^(p/2)` in binary64, below
-/// it in DoubleFloat), and it accumulates and resets with the results.
+/// The cancellation between whole cut contributions is reported without the
+/// opt-in test: a ratio above `2^(p/2)` in binary64 and below it in
+/// DoubleFloat (the test also measures the terms inside each contribution,
+/// which cancel further; see above). It accumulates and resets with the
+/// results.
 #[test]
 fn cancellation_is_measured_without_the_stability_test() {
     let largest = |moduli: [f64; 3]| moduli.into_iter().fold(0., f64::max);

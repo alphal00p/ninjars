@@ -114,8 +114,8 @@ pub struct Args {
     #[arg(long)]
     pub no_fail: bool,
     /// Generic engine: report a lane as `Unstable` (and fail it) when
-    /// cancellation between its cut contributions leaves fewer than half of the
-    /// carrier's significant bits, as `reduce --stability-test`.
+    /// cancellation among the terms of its cut contributions leaves fewer than
+    /// half of the carrier's significant bits, as `reduce --stability-test`.
     #[arg(long)]
     pub stability_test: bool,
 }

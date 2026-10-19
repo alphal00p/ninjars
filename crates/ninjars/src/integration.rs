@@ -49,7 +49,15 @@ pub trait IntegrationKernels<T> {
     fn coefficient_count(&self) -> usize;
     fn masters(&self) -> &[MasterIntegral];
     fn invariant_count(&self) -> usize;
-    /// Return row-major invariants and `[master weights..., rational]` rows.
+    /// Number of separately evaluated terms of the rational part that
+    /// [`Self::prepare_batch`] appends to each weight row (default none). They
+    /// only measure cancellation ([`ResidueIntegrator::term_moduli`]):
+    /// contraction uses the rational part itself.
+    fn rational_term_count(&self) -> usize {
+        0
+    }
+    /// Return row-major invariants and `[master weights..., rational,
+    /// rational terms...]` rows ([`Self::rational_term_count`] terms).
     /// Invalid numerical rows leave numerical outputs unchanged and set false.
     fn prepare_batch(
         &mut self,
@@ -132,7 +140,7 @@ impl<T: FloatLike, K: IntegrationKernels<T>> ResidueIntegrator<T, K> {
         }
         let invariants = self.kernels.invariant_count();
         let masters = self.kernels.masters().len();
-        let columns = masters + 1;
+        let columns = masters + 1 + self.kernels.rational_term_count();
         self.invariants.resize(rows * invariants, self.zero.clone());
         self.weights.resize(rows * columns, self.zero.clone());
         self.valid.resize(rows, false);
@@ -222,7 +230,7 @@ impl<T: FloatLike, K: IntegrationKernels<T>> ResidueIntegrator<T, K> {
             if self.valid[row] {
                 self.indices.push(row);
                 self.active_weights
-                    .extend_from_slice(&self.weights[row * columns..(row + 1) * columns]);
+                    .extend_from_slice(&self.weights[row * columns..row * columns + masters + 1]);
                 self.active_masters
                     .extend_from_slice(&self.master_values[row * masters..(row + 1) * masters]);
             }
@@ -244,6 +252,40 @@ impl<T: FloatLike, K: IntegrationKernels<T>> ResidueIntegrator<T, K> {
         }
         statuses.clone_from_slice(&self.staged_status);
         Ok(())
+    }
+
+    /// The moduli of the terms that request `row` of the last
+    /// [`Self::evaluate_batch`] contracted into its Laurent coefficients, valid
+    /// only for a row whose status was `Success`. Coefficient `k` sums
+    /// `modulus(w_i M_i[k])` over the masters `i`; the finite part adds the
+    /// modulus of each term of the rational part (the whole rational part when
+    /// the kernels evaluate no terms, [`IntegrationKernels::rational_term_count`]).
+    /// A relative error `δ` of every term (rounding, or the accuracy of its
+    /// weight and master) moves the coefficient by at most `δ` times its sum,
+    /// so their ratio to the coefficient measures the cancellation inside one
+    /// cut contribution.
+    pub fn term_moduli(&self, row: usize, modulus: impl Fn(&T) -> T) -> Laurent<T> {
+        let masters = self.kernels.masters().len();
+        let terms = self.kernels.rational_term_count();
+        let weights = &self.weights[row * (masters + 1 + terms)..][..masters + 1 + terms];
+        let values = &self.master_values[row * masters..(row + 1) * masters];
+        let rational = if terms == 0 {
+            &weights[masters..]
+        } else {
+            &weights[masters + 1..]
+        };
+        std::array::from_fn(|k| {
+            let mut sum = self.zero.clone();
+            for (weight, value) in weights[..masters].iter().zip(values) {
+                sum += &modulus(&(weight.clone() * &value[k]));
+            }
+            if k == 0 {
+                for term in rational {
+                    sum += &modulus(term);
+                }
+            }
+            sum
+        })
     }
 }
 

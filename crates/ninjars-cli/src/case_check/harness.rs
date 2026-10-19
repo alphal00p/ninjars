@@ -1697,8 +1697,9 @@ where
         })
     }
 
-    /// Report lanes whose cut contributions cancel to fewer than half of the
-    /// carrier's bits as [`EvaluationStatus::Unstable`] (`--stability-test`).
+    /// Report lanes whose cut contributions, term by term, cancel to fewer than
+    /// half of the carrier's bits as [`EvaluationStatus::Unstable`]
+    /// (`--stability-test`).
     pub fn with_stability_test(mut self, enabled: bool) -> Self {
         self.stability_test = enabled;
         self.amplitudes.clear();

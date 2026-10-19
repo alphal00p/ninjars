@@ -11,7 +11,7 @@ use ninjars::{
     residue_coefficient_count,
 };
 use symbolica::{
-    atom::{Atom, AtomCore},
+    atom::{Atom, AtomCore, AtomView},
     domains::dual::DualNumber,
     evaluate::EvaluationDomain,
     symbol,
@@ -58,6 +58,8 @@ pub struct MasterContraction {
     layout: MasterContractionInputLayout,
     masters: Vec<MasterIntegral>,
     pub(crate) weights: ExactKernel,
+    /// The additive terms of the rational weight, with the weights' inputs.
+    pub(crate) rational_terms: ExactKernel,
     pub(crate) contraction: ExactKernel,
 }
 
@@ -159,6 +161,16 @@ impl MasterContraction {
                 (vec![MasterIntegral::D0], vec![c[0].clone()], rational)
             }
         };
+        // The additive terms of the rational part as built above, for the
+        // opt-in cancellation test only; the weights keep the rational part
+        // as one expression.
+        let rational_terms = ExactKernel {
+            expressions: match rational.as_view() {
+                AtomView::Add(add) => add.iter().map(|term| term.to_owned()).collect(),
+                _ => vec![rational.clone()],
+            },
+            parameters: parameters.clone(),
+        };
         expressions.push(rational);
         let weights = ExactKernel {
             expressions,
@@ -184,6 +196,7 @@ impl MasterContraction {
             layout,
             masters,
             weights,
+            rational_terms,
             contraction: ExactKernel {
                 expressions,
                 parameters,
@@ -340,5 +353,36 @@ where
         )?;
         self.contraction
             .evaluate_batch(&self.arguments, output, rows)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::MasterContraction;
+    use ninjars::RankClass;
+    use symbolica::atom::Atom;
+
+    /// The cancellation test's rational terms are the additive terms of the
+    /// rational weight as built: they add up to it exactly and read the same
+    /// inputs.
+    #[test]
+    fn rational_terms_add_up_to_the_rational_weight() {
+        let mut counts = Vec::new();
+        for size in 1..=4 {
+            for class in [RankClass::UpToN, RankClass::NPlus1, RankClass::NPlus2] {
+                let plan = MasterContraction::new_class(size, class).unwrap();
+                let terms = &plan.rational_terms;
+                assert_eq!(terms.parameters, plan.weights.parameters);
+                assert_eq!(
+                    &Atom::add_many(terms.expressions.iter()),
+                    plan.weights.expressions.last().unwrap(),
+                    "size {size} {class:?}"
+                );
+                counts.push(terms.expressions.len());
+            }
+        }
+        // Tadpole (zero below rank n+1), bubble (c9, c10, c21, c22), triangle
+        // (c7, c14) and box (c4, c6) by rank class.
+        assert_eq!(counts, [1, 1, 1, 1, 2, 4, 1, 2, 2, 1, 1, 2]);
     }
 }
