@@ -1,4 +1,4 @@
-use feynkit_graph::{DiagramEndpoint, DiagramHalfEdge, FeynmanDiagram};
+use feynkit_graph::{DiagramEndpoint, DiagramHalfEdge, FeynmanDiagram, LoopMomentumBasis, symbols};
 use feynkit_kinematics::Kinematics;
 use idenso::{
     representations::{ColorAdjoint, ColorFundamental, ColorSextet},
@@ -12,7 +12,12 @@ use spenso::{
         slot::{DualSlotTo, IsAbstractSlot},
     },
 };
-use symbolica::atom::{Atom, AtomCore, AtomView, FunctionBuilder};
+use symbolica::{
+    atom::{Atom, AtomCore, AtomView, FunctionBuilder},
+    function,
+    id::Replacement,
+    symbol,
+};
 
 use crate::PreparationError;
 
@@ -54,7 +59,8 @@ pub fn contract_numerator_with_color(
     kinematics: &Kinematics,
 ) -> Result<(Atom, Option<Atom>), PreparationError> {
     let numerator = diagram.numerator() * diagram.numerator_prefactor() * diagram.projector();
-    let routed = diagram.loop_momentum_basis().route_expression(&numerator);
+    let basis = diagram.loop_momentum_basis();
+    let routed = basis.route_expression(&dependent_externals_as_edges(basis, numerator));
     let contracted = contract(routed.clone())?;
     let slots = contracted.structure().slots()?;
     if slots.is_empty() {
@@ -187,4 +193,50 @@ fn describe_slot(diagram: &FeynmanDiagram, slot: &Atom) -> String {
     } else {
         format!("{slot} at {}", legs.join(" and "))
     }
+}
+
+/// Write each dependent external momentum `P(i, ...)` of a hand-written
+/// numerator as its edge momentum `Q(e, ...)`, so that routing expresses it
+/// through the independent external momenta with the same signature as the
+/// propagators. `P(i)` is the momentum of the `i`-th basis external edge, so
+/// `P(i) = Q(e_i)` holds for the independent ones by construction. Without
+/// dependent `P`, nothing is registered or replaced: Symbolica's symbol order,
+/// and with it every other result, stays as it was.
+fn dependent_externals_as_edges(basis: &LoopMomentumBasis, expression: Atom) -> Atom {
+    let head = symbols::external_momentum();
+    let dependent = basis
+        .external_edges
+        .iter()
+        .enumerate()
+        .filter(|(_, edge)| basis.dependent_externals.contains(edge))
+        .collect::<Vec<_>>();
+    let mut found = false;
+    expression.visitor(&mut |part| {
+        if let AtomView::Fun(function) = part
+            && function.get_symbol() == head
+            && let Some(position) = function
+                .iter()
+                .next()
+                .and_then(|arg| usize::try_from(arg).ok())
+        {
+            found |= dependent
+                .iter()
+                .any(|(candidate, _)| *candidate == position);
+        }
+        !found
+    });
+    if !found {
+        return expression;
+    }
+    let arguments = symbol!("ninjars_graph::dependent_arguments___");
+    let replacements = dependent
+        .iter()
+        .map(|(position, edge)| {
+            Replacement::new(
+                function!(head, *position, arguments).to_pattern(),
+                function!(symbols::momentum(), edge.0, arguments).to_pattern(),
+            )
+        })
+        .collect::<Vec<_>>();
+    expression.replace_multiple(&replacements)
 }

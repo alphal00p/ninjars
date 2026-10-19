@@ -157,3 +157,48 @@ fn dot_preparation_applies_generator_graph_factors_to_hand_written_graphs() {
     assert!(!direct.graph_factors_applied);
     assert_eq!(direct.overall_factor, parse!("1"));
 }
+
+#[test]
+fn dependent_external_momentum_routes_like_its_edge() {
+    // In this box, edge 1 is the dependent external: P(1) = -P(0) + P(2) + P(3).
+    let graph = |head: &str, label: &str| {
+        let vector = |head: &str, label: &str, i: usize| {
+            format!(
+                "gammalooprs::{{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,\
+                 spenso::tensor-label:{label}}}::{head}({i},spenso::{{spenso::representation,\
+                 spenso::self_dual}}::mink(4,gammalooprs::{{spenso::index}}::hedge(202,1)))"
+            )
+        };
+        format!(
+            r#"digraph box_effective {{
+    ext [style=invis];
+    ext -> a [id=0, particle="phi", num="1"];
+    ext -> b [id=1, particle="phi", num="1"];
+    c -> ext [id=2, particle="phi", num="1"];
+    d -> ext [id=3, particle="phi", num="1"];
+    a -> b [id=4, particle="phi", lmb_id=0, num="1"];
+    b -> c [id=5, particle="phi", num="1"];
+    c -> d [id=6, particle="phi", num="1"];
+    d -> a [id=7, particle="phi", num="1"];
+    b [num="{}*{}"];
+}}"#,
+            vector("P", "p", 0),
+            vector(head, label, 1)
+        )
+    };
+    let prepare = |dot: &str| {
+        prepare_dot(
+            Model::phi3(),
+            dot,
+            &Kinematics::new(),
+            NumeratorMode::Explicit,
+        )
+        .unwrap()
+    };
+    let external = prepare(&graph("P", "p"));
+    let edge = prepare(&graph("Q", "q"));
+    let basis = external.diagram.loop_momentum_basis();
+    assert_eq!(basis.dependent_externals, vec![basis.external_edges[1]]);
+    assert!((&external.numerator - &edge.numerator).expand().is_zero());
+    assert!(!external.numerator.to_canonical_string().contains("::P(1,"));
+}
