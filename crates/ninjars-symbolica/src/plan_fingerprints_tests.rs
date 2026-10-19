@@ -15,8 +15,8 @@
 //!   high-cut and sampling-scale providers, in compilation order.
 //!
 //! Expected values: `validation/regression/plan-fingerprints-e4c16a7.json`,
-//! generated at e4c16a7 before any rank n+2 change. `NINJARS_BLESS=1`
-//! rewrites the file.
+//! generated at e4c16a7 before any rank n+2 change and unchanged at main
+//! dec3d55. `NINJARS_BLESS=1` rewrites the file.
 
 use std::collections::BTreeMap;
 

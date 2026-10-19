@@ -2,7 +2,7 @@
 
 use crate::{
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor},
-    value_checks::{DualChecks, OrdinaryChecks, ValueChecks},
+    value_checks::{DualChecks, Negligible, OrdinaryChecks, ValueChecks, denominator_scale},
 };
 use ninjars::{
     BatchShape, Complex, CutFailure, Error, FloatLike, FourMomentum, PentagonDivisionRequest,
@@ -11,12 +11,13 @@ use ninjars::{
 use std::marker::PhantomData;
 use symbolica::{atom::Atom, domains::dual::DualNumber, evaluate::EvaluationDomain, symbol};
 
-struct Engine<V, K, Checks> {
+struct Engine<V, K, Checks, R> {
     n: usize,
     rank: usize,
     denominator: K,
     division: K,
     zero: V,
+    negligible: Negligible<R>,
     checks: PhantomData<fn() -> Checks>,
     eligible: Vec<usize>,
     active: Vec<usize>,
@@ -25,7 +26,9 @@ struct Engine<V, K, Checks> {
     values: Vec<V>,
 }
 
-impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Checks> {
+impl<V: FloatLike, K: KernelExecutor<V>, R: Real + SingleFloat, Checks: ValueChecks<V, Real = R>>
+    Engine<V, K, Checks, R>
+{
     fn new(
         n: usize,
         rank: usize,
@@ -73,6 +76,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             denominator,
             division,
             zero: prototype.zero(),
+            negligible: Negligible::new(&Checks::magnitude(prototype)),
             checks: PhantomData,
             eligible: Vec::new(),
             active: Vec::new(),
@@ -80,6 +84,27 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             denominators: Vec::new(),
             values: Vec::new(),
         })
+    }
+
+    /// Scale of the divisor `mu² prod_j D_j` (Ninja's `D` check).
+    fn product_scale(&self, r: &PentagonDivisionRequest<'_, V>) -> R {
+        let q = &r.geometry.q;
+        let first = r.partition[0];
+        let mut scale = denominator_scale::<V, Checks>(
+            q,
+            &r.shifts[first],
+            &r.masses_squared[first],
+            &self.zero,
+        );
+        for &line in r.complement {
+            scale *= denominator_scale::<V, Checks>(
+                q,
+                &r.shifts[line],
+                &r.masses_squared[line],
+                &r.geometry.mu_squared,
+            );
+        }
+        scale
     }
 
     fn divide(
@@ -141,7 +166,18 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             if failures[row].is_some() {
                 continue;
             }
-            if !Checks::nonzero(&r.geometry.mu_squared) {
+            // mu² = (q + V_0)² - m_0² on the five-cut.
+            let first = r.partition[0];
+            let mu_scale = denominator_scale::<V, Checks>(
+                &r.geometry.q,
+                &r.shifts[first],
+                &r.masses_squared[first],
+                &self.zero,
+            );
+            if self
+                .negligible
+                .value::<V, Checks>(&r.geometry.mu_squared, &mu_scale)
+            {
                 failures[row] = Some(CutFailure::SingularParameter);
                 continue;
             }
@@ -165,7 +201,10 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             let den = &self.denominators[index];
             if !Checks::finite(den) {
                 failures[row] = Some(CutFailure::NonFiniteResult);
-            } else if !Checks::nonzero(den) {
+            } else if self
+                .negligible
+                .value::<V, Checks>(den, &self.product_scale(&requests[row]))
+            {
                 failures[row] = Some(CutFailure::SingularParameter);
             } else {
                 self.active.push(row);
@@ -187,7 +226,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
 }
 
 pub struct SymbolicaPentagonKernels<T> {
-    engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks>,
+    engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks, T>,
 }
 impl<T: Real + SingleFloat> SymbolicaPentagonKernels<T>
 where
@@ -201,7 +240,7 @@ where
     }
 }
 pub struct SymbolicaDualPentagonKernels<T, D> {
-    engine: Engine<D, CompiledDualKernel<T, D>, DualChecks<T>>,
+    engine: Engine<D, CompiledDualKernel<T, D>, DualChecks<T>, T>,
 }
 impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualPentagonKernels<T, D>
 where

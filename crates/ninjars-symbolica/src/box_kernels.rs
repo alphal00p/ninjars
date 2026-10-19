@@ -2,7 +2,10 @@
 
 use crate::{
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor},
-    value_checks::{DualChecks, OrdinaryChecks, ValueChecks},
+    value_checks::{
+        DualChecks, Negligible, OrdinaryChecks, ValueChecks, denominator_scale,
+        difference_dot_scale, square_scale,
+    },
 };
 use ninjars::{
     BatchShape, BoxCoefficientMode, BoxDivisionRequest, BoxMuDivisionRequest, BoxMuMode,
@@ -331,7 +334,7 @@ impl Plans {
     }
 }
 
-struct Engine<V, K, Checks> {
+struct Engine<V, K, Checks, R> {
     n: usize,
     rank: usize,
     /// Rank n+2: three mu-expansion terms on the exact d-dimensional cut and
@@ -347,6 +350,7 @@ struct Engine<V, K, Checks> {
     projections: K,
     interpolation: K,
     zero: V,
+    negligible: Negligible<R>,
     checks: PhantomData<fn() -> Checks>,
     input: Vec<V>,
     probe: Vec<V>,
@@ -355,7 +359,9 @@ struct Engine<V, K, Checks> {
     eligible: Vec<usize>,
     active: Vec<usize>,
 }
-impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Checks> {
+impl<V: FloatLike, K: KernelExecutor<V>, R: Real + SingleFloat, Checks: ValueChecks<V, Real = R>>
+    Engine<V, K, Checks, R>
+{
     fn new(
         n: usize,
         rank: usize,
@@ -395,6 +401,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             projections: compile(&plans.projections)?,
             interpolation: compile(&plans.interpolation)?,
             zero: prototype.zero(),
+            negligible: Negligible::new(&Checks::magnitude(prototype)),
             checks: PhantomData,
             input: Vec::new(),
             probe: Vec::new(),
@@ -514,7 +521,17 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         for (index, &row) in self.eligible.iter().enumerate() {
             let r = &requests[row];
             let den = &self.probe[index * uncut..(index + 1) * uncut];
-            if !den.iter().all(|d| self.valid(d) && Checks::nonzero(d)) {
+            if !den.iter().zip(r.complement).all(|(d, &line)| {
+                self.valid(d) && {
+                    let scale = denominator_scale::<V, Checks>(
+                        r.momentum,
+                        &r.shifts[line],
+                        &r.masses_squared[line],
+                        r.mu_squared,
+                    );
+                    !self.negligible.value::<V, Checks>(d, &scale)
+                }
+            }) {
                 continue;
             }
             self.active.push(row);
@@ -606,9 +623,19 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
         self.packed.clear();
         for (index, &row) in self.eligible.iter().enumerate() {
             let probe = &self.probe[index * probe_width..(index + 1) * probe_width];
+            // Ninja's mp2(Vort) and den[0] = 2 Vort.(V_j - V_0) checks.
+            let r = &requests[row];
+            let v = &r.geometry.v_orth;
+            let origin = &r.shifts[r.partition[0]];
             if !probe.iter().all(|v| self.valid(v))
-                || !Checks::nonzero(&probe[0])
-                || (0..uncut).any(|i| !Checks::nonzero(&probe[1 + i * 2]))
+                || self
+                    .negligible
+                    .value::<V, Checks>(&probe[0], &square_scale::<V, Checks>(v))
+                || r.complement.iter().enumerate().any(|(i, &line)| {
+                    let scale = difference_dot_scale::<V, Checks>(v, &r.shifts[line], origin);
+                    self.negligible
+                        .value::<V, Checks>(&probe[1 + i * 2], &scale)
+                })
             {
                 continue;
             }
@@ -695,7 +722,14 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
             let r = &requests[row];
             let probe = &self.probe[index * levels * 3..(index + 1) * levels * 3];
             if !probe.iter().all(|v| self.valid(v))
-                || (full && (0..levels).any(|level| !Checks::nonzero(&probe[level * 3 + 2])))
+                || (full
+                    && (0..levels).any(|level| {
+                        // (q+ - q-).v_orth, the difference of two projections.
+                        let scale = Checks::magnitude(&probe[level * 3])
+                            + Checks::magnitude(&probe[level * 3 + 1]);
+                        self.negligible
+                            .value::<V, Checks>(&probe[level * 3 + 2], &scale)
+                    }))
             {
                 continue;
             }
@@ -725,7 +759,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: ValueChecks<V>> Engine<V, K, Ch
 }
 
 pub struct SymbolicaBoxKernels<T> {
-    engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks>,
+    engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks, T>,
 }
 impl<T: Real + SingleFloat> SymbolicaBoxKernels<T>
 where
@@ -746,7 +780,7 @@ where
     }
 }
 pub struct SymbolicaDualBoxKernels<T, D> {
-    engine: Engine<D, CompiledDualKernel<T, D>, DualChecks<T>>,
+    engine: Engine<D, CompiledDualKernel<T, D>, DualChecks<T>, T>,
 }
 impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualBoxKernels<T, D>
 where

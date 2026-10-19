@@ -42,6 +42,20 @@ pub struct FastOptions {
     /// term with a smaller taxicab norm marks the lane
     /// [`FastStatus::Unstable`].
     pub stability_threshold: f64,
+    /// Precision-aware complement of `stability_threshold` (default
+    /// `2^10 ε`, Ninja's `REAL_EPS = 10³ ε`): the box and triangle checks
+    /// (Gram determinants, the box normal's factors `p1.e3` and `p1.e4`, uncut
+    /// denominators and Laurent leading coefficients) are also unstable when
+    /// their taxicab norm is at most this fraction of the magnitudes of the
+    /// terms they are computed from. A quantity that vanishes exactly at a
+    /// singular point is computed as rounding noise of that size as often as
+    /// it is computed as zero, which Ninja's absolute threshold alone accepts
+    /// (the generic engine's kernels apply the same test in every precision).
+    /// The rank n+2 engine (`engine_x2.rs`) applies it to the same checks.
+    /// Bubbles and tadpoles keep Ninja's absolute check: their directions
+    /// involve Ninja's fixed irrational reference vectors. `0` restores Ninja's
+    /// checks.
+    pub relative_tolerance: f64,
 }
 
 impl Default for FastOptions {
@@ -50,6 +64,7 @@ impl Default for FastOptions {
             cut_stop: 1,
             infrared_eps: 1.0e-9,
             stability_threshold: 1.0e20 * f64::MIN_POSITIVE,
+            relative_tolerance: 1024. * f64::EPSILON,
         }
     }
 }
@@ -341,6 +356,79 @@ pub(super) fn den(q: &CMom, v: &RMom, m2: C64) -> C64 {
     mp_cc(&s, &s) - m2
 }
 
+/// Ninja's stability check on a taxicab norm `x`, plus the precision-aware
+/// relative test of [`FastOptions::relative_tolerance`] against the scale of
+/// the terms `x` was computed from. NaN is unstable.
+#[derive(Clone, Copy)]
+pub(super) struct Stability {
+    threshold: f64,
+    tolerance: f64,
+}
+
+impl Stability {
+    pub(super) fn new(options: &FastOptions) -> Self {
+        Self {
+            threshold: options.stability_threshold,
+            tolerance: options.relative_tolerance,
+        }
+    }
+    /// Ninja's absolute check only.
+    #[inline(always)]
+    pub(super) fn absolute(self, x: f64) -> bool {
+        x >= self.threshold
+    }
+    #[inline(always)]
+    pub(super) fn relative(self, x: f64, scale: f64) -> bool {
+        x >= self.threshold && x > self.tolerance * scale
+    }
+    /// [`Self::relative`] against `scale()`, evaluated only when `x` does not
+    /// already exceed the tolerance times `bound >= scale()`.
+    #[inline(always)]
+    pub(super) fn relative_within(self, x: f64, bound: f64, scale: impl FnOnce() -> f64) -> bool {
+        x >= self.threshold && (x > self.tolerance * bound || x > self.tolerance * scale())
+    }
+}
+
+/// Scale of `2 a.(b - c)` for real `b`, `c`: `2 Σ_μ |a_μ|₁ (|b_μ| + |c_μ|)`.
+#[inline(always)]
+pub(super) fn difference_scale(a: &CMom, b: &RMom, c: &RMom) -> f64 {
+    2. * (0..4)
+        .map(|mu| a[mu].taxicab() * (b[mu].abs() + c[mu].abs()))
+        .sum::<f64>()
+}
+
+/// Scale of `(q + v)² - m²`: `Σ_μ (|q_μ|₁ + |v_μ|)² + |m²|₁`.
+#[inline(always)]
+pub(super) fn den_scale(q: &CMom, v: &RMom, m2: C64) -> f64 {
+    m2.taxicab()
+        + (0..4)
+            .map(|mu| {
+                let t = q[mu].taxicab() + v[mu].abs();
+                t * t
+            })
+            .sum::<f64>()
+}
+
+/// Scale of the Gram determinant `k1² k2² - (k1.k2)²` of real momenta.
+#[inline(always)]
+pub(super) fn gram_scale(k1: &RMom, k2: &RMom) -> f64 {
+    let e = |k: &RMom| k.iter().map(|x| x * x).sum::<f64>();
+    2. * e(k1) * e(k2)
+}
+
+/// `Σ_μ |a_μ|₁`: with `vmax >= |V^mu|`, `4 vmax` times this bounds
+/// [`difference_scale`].
+#[inline(always)]
+pub(super) fn taxicab_sum(a: &CMom) -> f64 {
+    a.iter().map(|z| z.taxicab()).sum()
+}
+
+/// Scale of the real-by-complex product `a.k`: `Σ_μ |a_μ|₁ |k_μ|`.
+#[inline(always)]
+pub(super) fn dot_scale(a: &CMom, k: &RMom) -> f64 {
+    (0..4).map(|mu| a[mu].taxicab() * k[mu].abs()).sum()
+}
+
 #[inline(always)]
 pub(super) fn is_zero(z: C64) -> bool {
     z.re == 0. && z.im == 0.
@@ -497,6 +585,9 @@ pub struct FastAmplitude {
     active: Vec<usize>,
     smat: Vec<f64>,
     vsq: Vec<f64>,
+    /// Per lane `(max |V_i^mu|, max |m_i²|₁)`: cheap upper bounds of the scales
+    /// in the precision-aware stability checks.
+    bounds: Vec<(f64, f64)>,
     box_c: Vec<[C64; 2]>,
     tri: Vec<TriangleData>,
     bub: Vec<BubbleData>,
@@ -550,6 +641,7 @@ impl FastAmplitude {
             active: Vec::new(),
             smat: Vec::new(),
             vsq: Vec::new(),
+            bounds: Vec::new(),
             box_c: Vec::new(),
             tri: Vec::new(),
             bub: Vec::new(),
@@ -706,11 +798,21 @@ impl FastAmplitude {
         self.active.extend(0..lanes);
         self.staged.resize(lanes, FastResult::default());
         self.smat.resize(lanes * n * n, 0.);
+        self.bounds.resize(lanes, (0., 0.));
         self.vsq.resize(lanes * n, 0.);
         for lane in 0..lanes {
             let v = &input.shifts[lane * n..(lane + 1) * n];
             for i in 0..n {
                 self.vsq[lane * n + i] = mp2(&v[i]);
+            }
+            // Only boxes and triangles with uncut lines use these bounds.
+            if n >= 4 {
+                self.bounds[lane] = (
+                    v.iter().flatten().fold(0_f64, |a, x| a.max(x.abs())),
+                    input.masses_squared[lane * n..(lane + 1) * n]
+                        .iter()
+                        .fold(0_f64, |a, m| a.max(m.taxicab())),
+                );
             }
             let s = &mut self.smat[lane * n * n..(lane + 1) * n * n];
             if let Some(matrix) = input.s_matrix {
@@ -742,8 +844,7 @@ impl FastAmplitude {
         let n = self.topo.n;
         let lanes = self.lanes;
         let eps = self.options.infrared_eps;
-        let threshold = self.options.stability_threshold;
-        let check = |x: f64| x >= threshold;
+        let check = Stability::new(&self.options);
         let x1 = self.topo.x1();
         let with_mu = self.topo.rank >= n;
         for b in 0..self.topo.boxes.len() {
@@ -762,7 +863,7 @@ impl FastAmplitude {
                 let k0 = sub(&v[c2], &v[c1]);
                 let k1 = sub(&v[c3], &v[c2]);
                 let k3 = sub(&v[c1], &v[c4]);
-                if !check(gram_det(&k3, &k0).abs()) {
+                if !check.relative(gram_det(&k3, &k0).abs(), gram_scale(&k3, &k0)) {
                     fail(&mut self.alive, &mut self.lane_status, lane);
                     continue;
                 }
@@ -773,7 +874,13 @@ impl FastAmplitude {
                 for mu in 0..4 {
                     vort[mu] = p1e4 * e.e3[mu] - p1e3 * e.e4[mu];
                 }
-                if !check(mp_cc(&vort, &vort).taxicab()) {
+                // mp2(Vort) = -2 (p1.e3) (p1.e4) e3.e4 vanishes exactly when the box
+                // is degenerate (a light-like or vanishing normal): test the two
+                // factors relative to their own scales.
+                if !check.absolute(mp_cc(&vort, &vort).taxicab())
+                    || !check.relative(p1e3.taxicab(), dot_scale(&e.e3, &k1))
+                    || !check.relative(p1e4.taxicab(), dot_scale(&e.e4, &k1))
+                {
                     fail(&mut self.alive, &mut self.lane_status, lane);
                     continue;
                 }
@@ -810,14 +917,25 @@ impl FastAmplitude {
                 let lane = row.lane;
                 let v = &input.shifts[lane * n..(lane + 1) * n];
                 let m = &input.masses_squared[lane * n..(lane + 1) * n];
+                let (vmax, mmax) = self.bounds[lane];
                 let mut values = [C64::ZERO; 2];
                 let mut stable = true;
                 for s in 0..2 {
                     let mut d = C64::ONE;
+                    let mut singular = false;
+                    let bound = mmax
+                        + row.q[s]
+                            .iter()
+                            .map(|z| (z.taxicab() + vmax).powi(2))
+                            .sum::<f64>();
                     for &j in cp {
-                        d *= den(&row.q[s], &v[j], m[j]);
+                        let factor = den(&row.q[s], &v[j], m[j]);
+                        singular |= !check.relative_within(factor.taxicab(), bound, || {
+                            den_scale(&row.q[s], &v[j], m[j])
+                        });
+                        d *= factor;
                     }
-                    if !check(d.taxicab()) {
+                    if singular || !check.absolute(d.taxicab()) {
                         stable = false;
                         break;
                     }
@@ -858,12 +976,18 @@ impl FastAmplitude {
                 let v = &input.shifts[lane * n..(lane + 1) * n];
                 let m = &input.masses_squared[lane * n..(lane + 1) * n];
                 let vort2 = mp_cc(&row.vort, &row.vort);
+                let bound = 4. * self.bounds[lane].0 * taxicab_sum(&row.vort);
                 if !x1 {
                     let mut d = C64::ONE;
+                    let mut singular = false;
                     for &j in cp {
-                        d *= mp_cr(&row.vort, &sub(&v[j], &v[c1])) * 2.;
+                        let factor = mp_cr(&row.vort, &sub(&v[j], &v[c1])) * 2.;
+                        singular |= !check.relative_within(factor.taxicab(), bound, || {
+                            difference_scale(&row.vort, &v[j], &v[c1])
+                        });
+                        d *= factor;
                     }
-                    if !check(d.taxicab()) {
+                    if singular || !check.absolute(d.taxicab()) {
                         fail(&mut self.alive, &mut self.lane_status, lane);
                         continue;
                     }
@@ -875,7 +999,9 @@ impl FastAmplitude {
                     for &j in cp {
                         let kk = sub(&v[j], &v[c1]);
                         let d0 = mp_cr(&row.vort, &kk) * 2.;
-                        if !check(d0.taxicab()) {
+                        if !check.relative_within(d0.taxicab(), bound, || {
+                            difference_scale(&row.vort, &v[j], &v[c1])
+                        }) {
                             stable = false;
                             break;
                         }
@@ -906,8 +1032,7 @@ impl FastAmplitude {
         let n = self.topo.n;
         let lanes = self.lanes;
         let eps = self.options.infrared_eps;
-        let threshold = self.options.stability_threshold;
-        let check = |x: f64| x >= threshold;
+        let check = Stability::new(&self.options);
         let rmn = self.topo.rmn();
         let x1 = self.topo.x1();
         let mindeg = (rmn + 3) as usize;
@@ -928,7 +1053,7 @@ impl FastAmplitude {
                 let m = &input.masses_squared[lane * n..(lane + 1) * n];
                 let k0 = sub(&v[c2], &v[c1]);
                 let k2 = sub(&v[c1], &v[c3]);
-                if !check(gram_det(&k2, &k0).abs()) {
+                if !check.relative(gram_det(&k2, &k0).abs(), gram_scale(&k2, &k0)) {
                     fail(&mut self.alive, &mut self.lane_status, lane);
                     continue;
                 }
@@ -987,13 +1112,19 @@ impl FastAmplitude {
                 let num1 = &mut head[r * width..(r + 1) * width];
                 let num2 = &mut tail[r * width..(r + 1) * width];
                 let inv34 = 1. / row.e34;
+                let vmax4 = 4. * self.bounds[lane].0;
+                let (bound3, bound4) = (vmax4 * taxicab_sum(&row.e3), vmax4 * taxicab_sum(&row.e4));
                 let mut stable = true;
                 for &j in cp {
                     let pdiff = sub(&v[j], &v[c1]);
                     let e3p = mp_cr(&row.e3, &pdiff);
                     let e4p = mp_cr(&row.e4, &pdiff);
                     let (d0a, d0b) = (e3p * 2., e4p * 2.);
-                    if !check(d0a.taxicab()) || !check(d0b.taxicab()) {
+                    if !check.relative_within(d0a.taxicab(), bound3, || {
+                        difference_scale(&row.e3, &v[j], &v[c1])
+                    }) || !check.relative_within(d0b.taxicab(), bound4, || {
+                        difference_scale(&row.e4, &v[j], &v[c1])
+                    }) {
                         stable = false;
                         break;
                     }
@@ -1078,8 +1209,7 @@ impl FastAmplitude {
         let n = self.topo.n;
         let lanes = self.lanes;
         let eps = self.options.infrared_eps;
-        let threshold = self.options.stability_threshold;
-        let check = |x: f64| x >= threshold;
+        let check = Stability::new(&self.options);
         let rmn = self.topo.rmn();
         let x1 = self.topo.x1();
         let mindeg = (rmn + 2) as usize;
@@ -1186,7 +1316,7 @@ impl FastAmplitude {
                 for &j in cp {
                     let pdiff = sub(&v[j], &v[c1]);
                     let e3k = mp_cr(&e.e3, &pdiff);
-                    if !check(e3k.taxicab() * 2.) {
+                    if !check.absolute(e3k.taxicab() * 2.) {
                         stable = false;
                         break;
                     }
@@ -1349,7 +1479,7 @@ impl FastAmplitude {
                     let pdiff = sub(&v[j], &v[c1]);
                     // Orientation e3 <-> e4: `e3k` holds e4.(V_j - V_0) here.
                     let e4k = mp_cr(&e.e4, &pdiff);
-                    if !check(e4k.taxicab() * 2.) {
+                    if !check.absolute(e4k.taxicab() * 2.) {
                         stable = false;
                         break;
                     }
@@ -1439,8 +1569,7 @@ impl FastAmplitude {
         let n = self.topo.n;
         let lanes = self.lanes;
         let eps = self.options.infrared_eps;
-        let threshold = self.options.stability_threshold;
-        let check = |x: f64| x >= threshold;
+        let check = Stability::new(&self.options);
         let rmn = self.topo.rmn();
         let x1 = self.topo.x1();
         let mindeg = (rmn + 1) as usize;
@@ -1537,7 +1666,7 @@ impl FastAmplitude {
                     for &j in cp {
                         let pdiff = sub(&v[j], &v[a]);
                         let e3k = mp_cr(&ev3, &pdiff);
-                        if !check(e3k.taxicab() * 2.) {
+                        if !check.absolute(e3k.taxicab() * 2.) {
                             stable = false;
                             break;
                         }

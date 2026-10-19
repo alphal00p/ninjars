@@ -10,6 +10,7 @@ use std::{
     sync::atomic::{AtomicU64, Ordering},
 };
 
+use ninjars_positional::positional_evaluator;
 use symbolica::{
     atom::{Atom, AtomCore, AtomView},
     domains::{
@@ -187,14 +188,14 @@ impl PolynomialCoefficientPlan {
     }
 
     /// Build every coefficient head in one Symbolica graph, sharing common
-    /// arithmetic between outputs. Zero polynomials need no evaluator.
+    /// arithmetic between outputs. Parameters become positional slots, so
+    /// the evaluator does not depend on what the process registered before.
+    /// Zero polynomials need no evaluator.
     pub fn exact_evaluator(&self) -> Result<Option<ExpressionEvaluator<Complex<Rational>>>> {
         if self.heads.is_empty() {
             return Ok(None);
         }
-        Atom::evaluator_multiple(&self.heads, &self.parameters)
-            .cores(1)
-            .build()
+        positional_evaluator(&self.heads, &self.parameters, &[], true)
             .map(Some)
             .map_err(|e| CoefficientError::Symbolic(e.to_string()))
     }

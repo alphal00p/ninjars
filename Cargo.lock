@@ -1566,6 +1566,7 @@ dependencies = [
  "feynkit-model",
  "ninjars",
  "ninjars-graph",
+ "ninjars-positional",
  "ninjars-symbolica",
  "oneloop",
  "serde",
@@ -1586,8 +1587,17 @@ dependencies = [
  "idenso",
  "linnet",
  "ninjars",
+ "ninjars-positional",
  "serde_json",
  "spenso",
+ "symbolica",
+ "thiserror",
+]
+
+[[package]]
+name = "ninjars-positional"
+version = "0.1.0"
+dependencies = [
  "symbolica",
  "thiserror",
 ]
@@ -1597,6 +1607,7 @@ name = "ninjars-symbolica"
 version = "0.1.0"
 dependencies = [
  "ninjars",
+ "ninjars-positional",
  "oneloop",
  "serde_json",
  "symbolica",

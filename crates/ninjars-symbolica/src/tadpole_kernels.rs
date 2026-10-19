@@ -4,7 +4,10 @@ use crate::{
     DenominatorExpansion, LaurentDivision, TadpoleSourceProjection, TadpoleSubtraction,
     kernel::{CompiledDualKernel, CompiledKernel, ExactKernel, KernelExecutor},
     rank_specialization::{self, GuardedCorrection},
-    value_checks::{DualChecks, IntegrationChecks, OrdinaryChecks},
+    value_checks::{
+        DualChecks, IntegrationChecks, Negligible, OrdinaryChecks, ValueChecks,
+        difference_dot_scale,
+    },
 };
 use ninjars::{
     BatchShape, Complex, CutFailure, Error, ExpansionKind, FloatLike, FourMomentum, Real, Result,
@@ -18,7 +21,7 @@ thread_local! {
     pub(crate) static DENOMINATOR_ROWS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
 }
 
-struct Engine<V, K, Checks> {
+struct Engine<V, K, Checks, R> {
     topology: Topology,
     layout: LaurentDivision,
     mask: Vec<bool>,
@@ -34,6 +37,7 @@ struct Engine<V, K, Checks> {
     correction_map: Vec<usize>,
     extras: Vec<Vec<usize>>,
     zero: V,
+    negligible: Negligible<R>,
     checks: std::marker::PhantomData<fn() -> Checks>,
     input: Vec<V>,
     denominators: Vec<V>,
@@ -49,7 +53,13 @@ fn vars(n: usize, scope: &str) -> Vec<Atom> {
         .map(|i| Atom::var(symbol!(format!("ninjars_tadpole_{scope}::p{i}"))))
         .collect()
 }
-impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V, K, Checks> {
+impl<
+    V: FloatLike,
+    K: KernelExecutor<V>,
+    R: Real + SingleFloat,
+    Checks: IntegrationChecks<V> + ValueChecks<V, Real = R>,
+> Engine<V, K, Checks, R>
+{
     #[cfg(feature = "native-kernels")]
     fn set_native_batch_execution(&mut self, policy: crate::BatchExecutionPolicy) {
         for kernel in [
@@ -191,6 +201,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
             correction_map,
             extras,
             zero: prototype.zero(),
+            negligible: Negligible::new(&Checks::magnitude(prototype)),
             checks: std::marker::PhantomData,
             input: Vec::new(),
             denominators: Vec::new(),
@@ -239,6 +250,20 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
         }
         self.specialized_subtraction = specialized;
         Ok(())
+    }
+
+    /// Whether the leading Laurent coefficient `d0 = 2 v_t.(V_line - V_anchor)`
+    /// of an uncut denominator (Ninja's `denc.d0`) is negligible.
+    fn negligible_leading(
+        &self,
+        vectors: &[FourMomentum<V>; 3],
+        shifts: &[FourMomentum<V>],
+        anchor: usize,
+        line: usize,
+        d0: &V,
+    ) -> bool {
+        let scale = difference_dot_scale::<V, Checks>(&vectors[1], &shifts[line], &shifts[anchor]);
+        self.negligible.value::<V, Checks>(d0, &scale)
     }
 
     fn status(&self, values: &[V]) -> Option<CutFailure> {
@@ -334,13 +359,17 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
         self.active.clear();
         self.input.clear();
         for (index, &row) in self.eligible.iter().enumerate() {
+            let r = &requests[row];
             let denominator = &self.denominators[index * uncut * 4..(index + 1) * uncut * 4];
             stable[row] = denominator.iter().all(Checks::finite)
                 && denominator
                     .as_chunks::<4>()
                     .0
                     .iter()
-                    .all(|d| Checks::nonzero(&d[0]));
+                    .zip(r.complement)
+                    .all(|(d, &line)| {
+                        !self.negligible_leading(r.vectors, r.shifts, r.partition[0], line, &d[0])
+                    });
             if stable[row] {
                 self.active.push(row);
                 self.input
@@ -564,7 +593,20 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
                     .flat_map(|d| d.iter())
                     .chain(projections)
                     .all(Checks::finite)
-                    || !denominators.iter().all(|d| Checks::nonzero(&d[0]))
+                    || {
+                        let r = &requests[row];
+                        let source = match &r.source {
+                            TadpoleSource::Triangle(r) => r.cut_index,
+                            TadpoleSource::Bubble(r) => r.cut_index,
+                        };
+                        let target = self.topology.cuts()[r.id.sample].partition[0];
+                        denominators
+                            .iter()
+                            .zip(&self.extras[source * n + target])
+                            .any(|(d, &line)| {
+                                self.negligible_leading(r.vectors, r.shifts, target, line, &d[0])
+                            })
+                    }
                 {
                     continue;
                 }
@@ -740,7 +782,7 @@ impl<V: FloatLike, K: KernelExecutor<V>, Checks: IntegrationChecks<V>> Engine<V,
 
 /// Minimal tadpole integration coefficients; no full residue reconstruction.
 pub struct SymbolicaTadpoleKernels<T> {
-    engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks>,
+    engine: Engine<Complex<T>, CompiledKernel<T>, OrdinaryChecks, T>,
 }
 impl<T: Real + SingleFloat> SymbolicaTadpoleKernels<T>
 where
@@ -791,7 +833,7 @@ where
 
 /// The same tadpole coefficients through shared static or runtime Dual bodies.
 pub struct SymbolicaDualTadpoleKernels<T, D> {
-    engine: Engine<D, CompiledDualKernel<T, D>, DualChecks<T>>,
+    engine: Engine<D, CompiledDualKernel<T, D>, DualChecks<T>, T>,
 }
 impl<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>> SymbolicaDualTadpoleKernels<T, D>
 where

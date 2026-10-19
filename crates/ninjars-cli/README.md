@@ -173,6 +173,20 @@ valid JSON.
 engine carries every precision (`f64`, `double-float`, `float`), both box
 mu-extraction modes and the optional native reduction kernels.
 
+Both engines, at every rank up to n+2, apply Ninja's stability checks
+precision-aware: a Gram determinant, uncut denominator or Laurent leading
+coefficient whose magnitude is at most `2^10 ε` (Ninja's `REAL_EPS`) times the
+magnitudes of the terms it is computed from is rounding noise of an exact zero,
+and the lane reports `cut_failed` in every precision (`SingularParameter` for
+the generic engine), where an exact-zero test accepted or rejected it depending
+on the carrier. `reduce --stability-test` and `case-check --stability-test`
+(generic engine) also report `unstable` lanes whose cut contributions cancel so
+much that fewer than half of the carrier's bits survive (the summed
+contribution magnitudes exceed `2^(p/2)` times the result). It is opt-in like
+Ninja's accuracy tests: an exactly vanishing amplitude (a Ward identity, a zero
+helicity amplitude) is rounding noise of its cut contributions and fails it in
+every precision.
+
 `--engine fast` runs `ninjars::fast`, a batched binary64 port of original
 Ninja's `Amplitude::evaluate` (complex masses, box mu-expansion, Ninja's skip
 rules and stability checks), with oneloopmaster's native binary64 masters

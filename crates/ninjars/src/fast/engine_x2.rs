@@ -34,8 +34,9 @@
 
 use super::complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr};
 use super::engine::{
-    FastOptions, MasterBatch, TadpoleData, Topology, Uncut, den, divide_t2, divide_t3, fail,
-    is_zero, scale_c, sub_cr,
+    FastOptions, MasterBatch, Stability, TadpoleData, Topology, Uncut, den, den_scale,
+    difference_scale, divide_t2, divide_t3, dot_scale, fail, gram_scale, is_zero, scale_c, sub_cr,
+    taxicab_sum,
 };
 use super::geometry::{
     Basis, box_solutions, bubble_solution, cmom_from_real, combine_real2, gram_det, mp2,
@@ -296,6 +297,9 @@ pub(super) struct RankN2Engine {
     active: Vec<usize>,
     smat: Vec<f64>,
     vsq: Vec<f64>,
+    /// Per lane `(max |V_i^mu|, max |m_i²|₁)`: cheap upper bounds of the scales
+    /// in the precision-aware stability checks (as in `engine.rs`).
+    bounds: Vec<(f64, f64)>,
     /// `[c0, c4, c6]` per (box, lane).
     box_c: Vec<[C64; 3]>,
     tri: Vec<TriangleDataX2>,
@@ -327,6 +331,7 @@ impl RankN2Engine {
             active: Vec::new(),
             smat: Vec::new(),
             vsq: Vec::new(),
+            bounds: Vec::new(),
             box_c: Vec::new(),
             tri: Vec::new(),
             bub: Vec::new(),
@@ -442,11 +447,21 @@ impl RankN2Engine {
         self.active.extend(0..lanes);
         self.staged.resize(lanes, FastResult::default());
         self.smat.resize(lanes * n * n, 0.);
+        self.bounds.resize(lanes, (0., 0.));
         self.vsq.resize(lanes * n, 0.);
         for lane in 0..lanes {
             let v = &input.shifts[lane * n..(lane + 1) * n];
             for i in 0..n {
                 self.vsq[lane * n + i] = mp2(&v[i]);
+            }
+            // Only boxes and triangles with uncut lines use these bounds.
+            if n >= 4 {
+                self.bounds[lane] = (
+                    v.iter().flatten().fold(0_f64, |a, x| a.max(x.abs())),
+                    input.masses_squared[lane * n..(lane + 1) * n]
+                        .iter()
+                        .fold(0_f64, |a, m| a.max(m.taxicab())),
+                );
             }
             let s = &mut self.smat[lane * n * n..(lane + 1) * n * n];
             if let Some(matrix) = input.s_matrix {
@@ -482,8 +497,7 @@ impl RankN2Engine {
         let n = topo.n;
         let lanes = self.lanes;
         let eps = self.options.infrared_eps;
-        let threshold = self.options.stability_threshold;
-        let check = |x: f64| x >= threshold;
+        let check = Stability::new(&self.options);
         for b in 0..topo.boxes.len() {
             self.refresh_active();
             if self.active.is_empty() {
@@ -500,7 +514,7 @@ impl RankN2Engine {
                 let k0 = sub(&v[c2], &v[c1]);
                 let k1 = sub(&v[c3], &v[c2]);
                 let k3 = sub(&v[c1], &v[c4]);
-                if !check(gram_det(&k3, &k0).abs()) {
+                if !check.relative(gram_det(&k3, &k0).abs(), gram_scale(&k3, &k0)) {
                     fail(&mut self.alive, &mut self.lane_status, lane);
                     continue;
                 }
@@ -511,7 +525,13 @@ impl RankN2Engine {
                 for mu in 0..4 {
                     vort[mu] = p1e4 * e.e3[mu] - p1e3 * e.e4[mu];
                 }
-                if !check(mp_cc(&vort, &vort).taxicab()) {
+                // mp2(Vort) = -2 (p1.e3) (p1.e4) e3.e4 vanishes exactly when the box
+                // is degenerate (a light-like or vanishing normal): test the two
+                // factors relative to their own scales (as in `engine.rs`).
+                if !check.absolute(mp_cc(&vort, &vort).taxicab())
+                    || !check.relative(p1e3.taxicab(), dot_scale(&e.e3, &k1))
+                    || !check.relative(p1e4.taxicab(), dot_scale(&e.e4, &k1))
+                {
                     fail(&mut self.alive, &mut self.lane_status, lane);
                     continue;
                 }
@@ -555,14 +575,25 @@ impl RankN2Engine {
                 let lane = row.lane;
                 let v = &input.shifts[lane * n..(lane + 1) * n];
                 let m = &input.masses_squared[lane * n..(lane + 1) * n];
+                let (vmax, mmax) = self.bounds[lane];
                 let mut values = [C64::ZERO; 2];
                 let mut stable = true;
                 for s in 0..2 {
                     let mut d = C64::ONE;
+                    let mut singular = false;
+                    let bound = mmax
+                        + row.q[s]
+                            .iter()
+                            .map(|z| (z.taxicab() + vmax).powi(2))
+                            .sum::<f64>();
                     for &j in cp {
-                        d *= den(&row.q[s], &v[j], m[j]);
+                        let factor = den(&row.q[s], &v[j], m[j]);
+                        singular |= !check.relative_within(factor.taxicab(), bound, || {
+                            den_scale(&row.q[s], &v[j], m[j])
+                        });
+                        d *= factor;
                     }
-                    if !check(d.taxicab()) {
+                    if singular || !check.absolute(d.taxicab()) {
                         stable = false;
                         break;
                     }
@@ -606,6 +637,7 @@ impl RankN2Engine {
                 let m = &input.masses_squared[lane * n..(lane + 1) * n];
                 let vsq = &self.vsq[lane * n..(lane + 1) * n];
                 let vort2 = mp_cc(&row.vort, &row.vort);
+                let bound = 4. * self.bounds[lane].0 * taxicab_sum(&row.vort);
                 let mut nmu = [
                     self.calls.out[3 * r][0],
                     self.calls.out[3 * r + 1][0],
@@ -616,7 +648,9 @@ impl RankN2Engine {
                     // D_j = d0 t + d1 exactly on this parametrization.
                     let kk = sub(&v[j], &v[c1]);
                     let d0 = mp_cr(&row.vort, &kk) * 2.;
-                    if !check(d0.taxicab()) {
+                    if !check.relative_within(d0.taxicab(), bound, || {
+                        difference_scale(&row.vort, &v[j], &v[c1])
+                    }) {
                         stable = false;
                         break;
                     }
@@ -653,8 +687,7 @@ impl RankN2Engine {
         let n = topo.n;
         let lanes = self.lanes;
         let eps = self.options.infrared_eps;
-        let threshold = self.options.stability_threshold;
-        let check = |x: f64| x >= threshold;
+        let check = Stability::new(&self.options);
         for t in 0..topo.triangles.len() {
             self.refresh_active();
             if self.active.is_empty() {
@@ -669,7 +702,7 @@ impl RankN2Engine {
                 let m = &input.masses_squared[lane * n..(lane + 1) * n];
                 let k0 = sub(&v[c2], &v[c1]);
                 let k2 = sub(&v[c1], &v[c3]);
-                if !check(gram_det(&k2, &k0).abs()) {
+                if !check.relative(gram_det(&k2, &k0).abs(), gram_scale(&k2, &k0)) {
                     fail(&mut self.alive, &mut self.lane_status, lane);
                     continue;
                 }
@@ -731,13 +764,19 @@ impl RankN2Engine {
                 let num1 = &mut head[r * T3_WIDTH..(r + 1) * T3_WIDTH];
                 let num2 = &mut tail[r * T3_WIDTH..(r + 1) * T3_WIDTH];
                 let inv34 = 1. / row.e34;
+                let vmax4 = 4. * self.bounds[lane].0;
+                let (bound3, bound4) = (vmax4 * taxicab_sum(&row.e3), vmax4 * taxicab_sum(&row.e4));
                 let mut stable = true;
                 for &j in cp {
                     let pdiff = sub(&v[j], &v[c1]);
                     let e3p = mp_cr(&row.e3, &pdiff);
                     let e4p = mp_cr(&row.e4, &pdiff);
                     let (d0a, d0b) = (e3p * 2., e4p * 2.);
-                    if !check(d0a.taxicab()) || !check(d0b.taxicab()) {
+                    if !check.relative_within(d0a.taxicab(), bound3, || {
+                        difference_scale(&row.e3, &v[j], &v[c1])
+                    }) || !check.relative_within(d0b.taxicab(), bound4, || {
+                        difference_scale(&row.e4, &v[j], &v[c1])
+                    }) {
                         stable = false;
                         break;
                     }
@@ -800,8 +839,7 @@ impl RankN2Engine {
         let n = topo.n;
         let lanes = self.lanes;
         let eps = self.options.infrared_eps;
-        let threshold = self.options.stability_threshold;
-        let check = |x: f64| x >= threshold;
+        let check = Stability::new(&self.options);
         // Triangle parents exist only when the triangle stage ran.
         let subtract = self.any_triangle(topo);
         for b in 0..topo.bubbles.len() {
@@ -882,7 +920,7 @@ impl RankN2Engine {
                 for &j in cp {
                     let pdiff = sub(&v[j], &v[c1]);
                     let e3k = mp_cr(&e.e3, &pdiff);
-                    if !check(e3k.taxicab() * 2.) {
+                    if !check.absolute(e3k.taxicab() * 2.) {
                         stable = false;
                         break;
                     }
@@ -1046,7 +1084,7 @@ impl RankN2Engine {
                     let pdiff = sub(&v[j], &v[c1]);
                     // Orientation e3 <-> e4: `e3k` holds e4.(V_j - V_0) here.
                     let e4k = mp_cr(&e.e4, &pdiff);
-                    if !check(e4k.taxicab() * 2.) {
+                    if !check.absolute(e4k.taxicab() * 2.) {
                         stable = false;
                         break;
                     }
@@ -1147,8 +1185,7 @@ impl RankN2Engine {
         let n = topo.n;
         let lanes = self.lanes;
         let eps = self.options.infrared_eps;
-        let threshold = self.options.stability_threshold;
-        let check = |x: f64| x >= threshold;
+        let check = Stability::new(&self.options);
         let any_triangle = self.any_triangle(topo);
         let any_bubble = self.any_bubble(topo);
         for a in 0..n {
@@ -1238,7 +1275,7 @@ impl RankN2Engine {
                     for &j in cp {
                         let pdiff = sub(&v[j], &v[a]);
                         let e3k = mp_cr(&ev3, &pdiff);
-                        if !check(e3k.taxicab() * 2.) {
+                        if !check.absolute(e3k.taxicab() * 2.) {
                             stable = false;
                             break;
                         }

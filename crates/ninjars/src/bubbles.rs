@@ -244,18 +244,19 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
         };
         let cuts = indices(2);
         let triangles = indices(3);
+        // Map topology parents (ascending) to triangle rows instead of testing
+        // every triangle against every bubble.
+        let mut rows = vec![None; topology.cuts().len()];
+        for (row, &triangle) in triangles.iter().enumerate() {
+            rows[triangle] = Some(row);
+        }
         let parents = cuts
             .iter()
             .map(|&cut| {
-                triangles
+                topology.cuts()[cut]
+                    .parents
                     .iter()
-                    .enumerate()
-                    .filter_map(|(row, &parent)| {
-                        topology.cuts()[cut]
-                            .parents
-                            .contains(&parent)
-                            .then_some(row)
-                    })
+                    .filter_map(|&parent| rows[parent])
                     .collect()
             })
             .collect();

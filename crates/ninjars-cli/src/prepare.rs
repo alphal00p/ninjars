@@ -848,25 +848,39 @@ pub(crate) fn prepare(args: &Args) -> Result<PreparedDocument> {
     };
     let mut samples = Vec::<Value>::new();
     let mut exact_samples = Vec::new();
-    // These are evaluator parameters, not a new symbolic momentum representation.
-    // Pick names absent from the bound integrand, including parameter overrides.
+    // These are evaluator parameters, not a new symbolic momentum representation:
+    // `ninjars_positional`'s slots, so the template is expanded directly in the
+    // evaluators' positional parameters. Its coefficient heads, their exact
+    // factors and their evaluators then do not depend on the symbols the process
+    // registered before, and need no renaming. Fresh names absent from the bound
+    // integrand (including parameter overrides) take their place if the slots
+    // are functions (after tens of thousands of registrations) or occur in it.
     let bound_numerator = substitute(&prepared.numerator, &replacements);
     let bound_factor = substitute(&prepared.overall_factor, &replacements);
-    let mut generation = 0;
-    let parameters = loop {
-        let parameters: Vec<_> = (0..carriers.len() * 4)
-            .map(|index| {
-                Atom::var(symbol!(format!(
-                    "ninjars_cli_components::p{generation}_{index}"
-                )))
-            })
-            .collect();
-        if parameters.iter().all(|parameter| {
-            !bound_numerator.contains(parameter) && !bound_factor.contains(parameter)
-        }) {
-            break parameters;
+    let absent = |parameter: &Atom| {
+        !bound_numerator.contains(parameter) && !bound_factor.contains(parameter)
+    };
+    let slots = ninjars_positional::slots(carriers.len() * 4)?;
+    let parameters = if slots
+        .iter()
+        .all(|slot| matches!(slot.as_view(), AtomView::Var(_)) && absent(slot))
+    {
+        slots
+    } else {
+        let mut generation = 0;
+        loop {
+            let parameters: Vec<_> = (0..carriers.len() * 4)
+                .map(|index| {
+                    Atom::var(symbol!(format!(
+                        "ninjars_cli_components::p{generation}_{index}"
+                    )))
+                })
+                .collect();
+            if parameters.iter().all(absent) {
+                break parameters;
+            }
+            generation += 1;
         }
-        generation += 1;
     };
     let mut symbolic_external = BTreeMap::new();
     let mut symbolic_spinors = BTreeMap::new();
