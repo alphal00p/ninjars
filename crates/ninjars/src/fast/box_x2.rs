@@ -12,7 +12,10 @@
 //! cancellations at high rank.
 //!
 //! Original Ninja's normal `(p1.e4) e3 - (p1.e3) e4` is built from the spinors
-//! of the cut basis, and its residual is `delta = 2e-16..1.4e-15`. On
+//! of the cut basis. Its residual `delta` reaches 3.2e-15 (median 9.1e-17
+//! over the 573 non-vanishing boxes of eight rank n+2 cases, n = 4..7,
+//! measured in Float(256) when 611f6dc was verified; the normal below stays
+//! at or below 8.2e-17). On
 //! `rn2-exact-mu-n7-r9-perm` lane 1 this put the box `c4` 5 to 100 times
 //! further from the Float(256) value than the generic engine's (whose normal
 //! comes from a linear solve), and the box stage cancels 3e5 times against
@@ -27,14 +30,30 @@
 //! refined once against `q̄.K_i = h_i = (m_i² - m_0² - K_i²)/2` with
 //! compensated residuals; `beta` is compensated as well. The two
 //! four-dimensional solutions are `q̄ ± sqrt(beta/n²) n`, so that `c0` uses
-//! the same, consistently rounded geometry. On the 657 tier-A lanes of the
-//! rank n+2 suite and the identity cases (against their high-precision
-//! references) this left the binary64 error 0.79 times the spinor
-//! geometry's in geometric mean: 79 lanes more than 2 times better, 10
-//! worse (all below 1.7e-11, at most 7 times the generic engine's error).
-//! It took `rn2-shifted-mixed-n7-r9-mu2` lane 0 from 1.7e-3 to 1.3e-5 and
-//! `rn2-exact-mu-n7-r9-perm` lane 1 from 6.1e-7 to 1.8e-8. Compensating the
-//! Gram matrix, the projections or `n²` as well changed nothing measurable.
+//! the same, consistently rounded geometry. Compensating the Gram matrix,
+//! the projections or `n²` as well changed nothing measurable.
+//!
+//! Effect on the binary64 error against the high-precision references
+//! (`ninjars case-check --engines fast --precision f64`, its scaled
+//! differences) on the 426 tier-A lanes of the rank n+2 cases of
+//! `validation/rank-n2/cases`, `validation/benchmark/synthetic-rank-n2` and
+//! `validation/rank-n2/identity` (tier from the reference files; every lane
+//! succeeds in both geometries and in the generic engine's binary64 run;
+//! ratios of errors floored at 1e-16), against the spinor geometry of main
+//! 0d0d7e7:
+//! - geometric mean of the error ratio 0.70;
+//! - 77 lanes more than 2 times better and 11 more than 2 times worse, the
+//!   largest of those 5.4e-11 (`rn2-exact-q-n7-r9` lane 1, was 1.9e-11;
+//!   generic binary64 2.1e-10), all within 6.9 times the generic engine's
+//!   binary64 error;
+//! - lanes outside `max(10 e_generic, 1e-13)` (`e_generic`: the generic
+//!   engine's binary64 error): 28 -> 13;
+//! - `rn2-shifted-mixed-n7-r9-mu2` lane 0: 1.7e-3 -> 1.3e-5 (generic 1.6e-4);
+//!   `rn2-exact-mu-n7-r9-perm` lane 1: 6.1e-7 -> 1.8e-8.
+//!
+//! [`box_geometry_x2`] adds one failure condition to Ninja's checks, which
+//! are kept and run first: the lane is unstable when the normal, `n²` or the
+//! Gram determinant of the cut momenta is exactly zero or not finite.
 //!
 //! These are plain numerical kernels on binary64 numbers (error-free products
 //! by `mul_add` and two-sums); no algebra is involved.
