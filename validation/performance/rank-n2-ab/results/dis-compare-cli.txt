@@ -1,0 +1,164 @@
+# scripts/dis_compare.py bins/ninjars-a (main dec3d55) bins/ninjars-b (integration 8346699), default pattern
+# (fast engine, native master providers, oneloopmaster native masters, case/pipeline bench drivers; rank n+2 modules excluded).
+# B's rank <= n+1 body FastAmplitude::evaluate_up_to_n1 is matched with A's FastAmplitude::evaluate.
+functions compared: 1829; identical after normalisation: 1733; different: 96
+only in A: 23; only in B (not rank n+2): 135
+  DIFF [code] 10 -> 10 instructions: <&ninjars::fast::FastStatus as core::fmt::Debug>::fmt
+  DIFF [code] 834 -> 114 instructions: <alloc::collections::btree::map::BTreeMap<ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<f64>>>::insert
+  DIFF [code] 834 -> 114 instructions: <alloc::collections::btree::map::BTreeMap<ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<numerica::domains::float::double::DoubleFloat>>>::insert
+  DIFF [code] 213 -> 216 instructions: <alloc::collections::btree::map::IntoIter<ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<f64>>>::dying_next
+  DIFF [code] 213 -> 216 instructions: <alloc::collections::btree::map::IntoIter<ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<numerica::domains::float::double::DoubleFloat>>>::dying_next
+  DIFF [code] 213 -> 216 instructions: <alloc::collections::btree::map::IntoIter<ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<numerica::domains::float::multiprecision::Float>>>::dying_next
+  DIFF [instance count] 643 -> 1659 instructions: <f64 as oneloop::native::primitives::NativeFloat>::complex_inverse
+  DIFF [instance count] 144 -> 432 instructions: <f64 as oneloop::native::primitives::NativeFloat>::hypot
+  DIFF [code] 87 -> 86 instructions: <ninjars::case_bench::ArgumentRecorder<ninjars::fast::replay::RecordingMasters<ninjars_symbolica::oneloop_native::OneLoopNativeMasters>> as ninjars::fast::masters::FastMasters>::evaluate
+  DIFF [code] 9 -> 9 instructions: <ninjars::fast::FastStatus as core::fmt::Debug>::fmt
+  DIFF [code] 4010 -> 4130 instructions: <ninjars::fast::engine::FastAmplitude>::bubbles::<ninjars::fast_runtime::TimedNumerator<ninjars::fast::tensor::TensorNumerator>>
+  DIFF [code] 4010 -> 4130 instructions: <ninjars::fast::engine::FastAmplitude>::bubbles::<ninjars::fast_runtime::TimedNumerator<ninjars::fast::tensor_mu::MuTensorNumerator>>
+  DIFF [code] 264 -> 261 instructions: <ninjars::fast::engine::FastAmplitude>::evaluate::<ninjars::fast::replay::RecordingNumerator<ninjars::fast::tensor::TensorNumerator>, ninjars::case_bench::ArgumentRecorder<ninjars::fast::replay::Recor
+  DIFF [code] 264 -> 261 instructions: <ninjars::fast::engine::FastAmplitude>::evaluate::<ninjars::fast::replay::RecordingNumerator<ninjars::fast::tensor::TensorNumerator>, ninjars::pipeline_bench::ArgumentRecorder<ninjars::fast::replay::R
+  DIFF [code] 264 -> 261 instructions: <ninjars::fast::engine::FastAmplitude>::evaluate::<ninjars::fast::replay::RecordingNumerator<ninjars::fast::tensor_mu::MuTensorNumerator>, ninjars::case_bench::ArgumentRecorder<ninjars::fast::replay::
+  DIFF [code] 264 -> 261 instructions: <ninjars::fast::engine::FastAmplitude>::evaluate::<ninjars::fast::replay::RecordingNumerator<ninjars::fast::tensor_mu::MuTensorNumerator>, ninjars::pipeline_bench::ArgumentRecorder<ninjars::fast::repl
+  DIFF [code] 7531 -> 7530 instructions: <ninjars::fast::engine::FastAmplitude>::evaluate::<ninjars::fast::replay::ReplayNumerator, ninjars::fast::replay::ReplayMasters>
+  DIFF [code] 264 -> 261 instructions: <ninjars::fast::engine::FastAmplitude>::evaluate::<ninjars::fast::tensor::TensorNumerator, ninjars::fast::replay::ReplayMasters>
+  DIFF [code] 264 -> 261 instructions: <ninjars::fast::engine::FastAmplitude>::evaluate::<ninjars::fast::tensor::TensorNumerator, ninjars_symbolica::oneloop_native::OneLoopNativeMasters>
+  DIFF [code] 264 -> 261 instructions: <ninjars::fast::engine::FastAmplitude>::evaluate::<ninjars::fast::tensor_mu::MuTensorNumerator, ninjars::fast::replay::ReplayMasters>
+  DIFF [code] 264 -> 261 instructions: <ninjars::fast::engine::FastAmplitude>::evaluate::<ninjars::fast::tensor_mu::MuTensorNumerator, ninjars_symbolica::oneloop_native::OneLoopNativeMasters>
+  DIFF [code] 7541 -> 7686 instructions: <ninjars::fast::engine::FastAmplitude>::evaluate::<ninjars::fast_runtime::TimedNumerator<ninjars::fast::tensor::TensorNumerator>, ninjars::fast_runtime::TimedMasters<ninjars_symbolica::oneloop_native:
+  DIFF [code] 7541 -> 7686 instructions: <ninjars::fast::engine::FastAmplitude>::evaluate::<ninjars::fast_runtime::TimedNumerator<ninjars::fast::tensor_mu::MuTensorNumerator>, ninjars::fast_runtime::TimedMasters<ninjars_symbolica::oneloop_na
+  DIFF [code] 2616 -> 2616 instructions: <ninjars::fast::engine::FastAmplitude>::integrate::<ninjars::case_bench::ArgumentRecorder<ninjars::fast::replay::RecordingMasters<ninjars_symbolica::oneloop_native::OneLoopNativeMasters>>>
+  DIFF [code] 2616 -> 2616 instructions: <ninjars::fast::engine::FastAmplitude>::integrate::<ninjars::fast::replay::ReplayMasters>
+  DIFF [code] 2616 -> 2230 instructions: <ninjars::fast::engine::FastAmplitude>::integrate::<ninjars::fast_runtime::TimedMasters<ninjars_symbolica::oneloop_native::OneLoopNativeMasters>>
+  DIFF [code] 2616 -> 2616 instructions: <ninjars::fast::engine::FastAmplitude>::integrate::<ninjars::pipeline_bench::ArgumentRecorder<ninjars::fast::replay::RecordingMasters<ninjars_symbolica::oneloop_native::OneLoopNativeMasters>>>
+  DIFF [code] 2616 -> 2616 instructions: <ninjars::fast::engine::FastAmplitude>::integrate::<ninjars_symbolica::oneloop_native::OneLoopNativeMasters>
+  DIFF [code] 1365 -> 2885 instructions: <ninjars::fast::engine::FastAmplitude>::new
+  DIFF [code] 199 -> 200 instructions: <ninjars::pipeline_bench::Pipeline<ninjars::fast::tensor::TensorNumerator>>::prepare
+  DIFF [code] 199 -> 200 instructions: <ninjars::pipeline_bench::Pipeline<ninjars::fast::tensor_mu::MuTensorNumerator>>::prepare
+  DIFF [code] 653 -> 662 instructions: <ninjars_symbolica::oneloop_native::OneLoopNativeMasters as ninjars::fast::masters::FastMasters>::evaluate
+  DIFF [code] 739 -> 800 instructions: <ninjars_symbolica::oneloop_native::OneLoopNativeMasters>::new
+  DIFF [code] 315 -> 332 instructions: <ninjars_symbolica::oneloop_native::OneLoopNativeMasters>::tensor
+  DIFF [instance count] 589 -> 4219 instructions: <oneloop::native::NativeEvaluator<f64>>::evaluate_batch
+  DIFF [instance count] 1221 -> 1965 instructions: <oneloop::native::NativeEvaluator<f64>>::with_binary_precision
+  DIFF [instance count] 500 -> 750 instructions: <oneloop::native::handwritten::Constants<numerica::domains::float::multiprecision::Float>>::from_int
+  DIFF [code] 279 -> 241 instructions: <oneloop::native::handwritten::sheet::Sheet<f64>>::dilog
+  DIFF [code] 361 -> 279 instructions: <oneloop::native::handwritten::sheet::Sheet<f64>>::dilog
+  DIFF [code] 1041 -> 1042 instructions: <oneloop::native::handwritten::sheet::Sheet<numerica::domains::float::double::DoubleFloat>>::dilog
+  DIFF [code] 1037 -> 1045 instructions: <oneloop::native::handwritten::sheet::Sheet<numerica::domains::float::multiprecision::Float>>::dilog
+  DIFF [code] 1045 -> 1153 instructions: <oneloop::native::handwritten::sheet::Sheet<numerica::domains::float::multiprecision::Float>>::dilog
+  DIFF [instance count] 11613 -> 36088 instructions: <oneloop::native::tensor::BnlogSeries<f64>>::new
+  DIFF [instance count] 481 -> 3062 instructions: <oneloop::native::tensor::NativeTensorEvaluator<f64>>::evaluate_batch
+  DIFF [code] 393 -> 410 instructions: <oneloop::native::tensor::NativeTensorEvaluator<f64>>::evaluate_row
+  DIFF [code] 93 -> 90 instructions: <oneloop::native::tensor::NativeTensorEvaluator<f64>>::validate_shape
+  DIFF [instance count] 2297 -> 5767 instructions: <oneloop::native::tensor::NativeTensorEvaluator<f64>>::with_binary_precision
+  DIFF [instance count] 2164 -> 5532 instructions: <oneloop::native::tensor::TensorKernel<f64>>::bnlog
+  DIFF [instance count] 4663 -> 12379 instructions: <oneloop::native::tensor::TensorKernel<f64>>::bubble
+  DIFF [instance count] 287 -> 476 instructions: <oneloop::native::tensor::TensorKernel<f64>>::new::{closure#0}
+  DIFF [code] 3121 -> 232 instructions: <oneloop::native::tensor::binary64::Binary64>::new
+  DIFF [instance count] 134 -> 268 instructions: core::ptr::drop_glue::<alloc::vec::Vec<(ninjars::fast::masters::FastMaster, alloc::vec::Vec<ninjars::fast::complex::C64>, usize)>>
+  DIFF [instance count] 747 -> 996 instructions: core::ptr::drop_glue::<ninjars::fast::engine::Calls>
+  DIFF [instance count] 3438 -> 5163 instructions: core::ptr::drop_glue::<ninjars::fast::engine::FastAmplitude>
+  DIFF [instance count] 62 -> 124 instructions: core::ptr::drop_glue::<ninjars::fast::tensor::TensorNumerator>
+  DIFF [instance count] 62 -> 124 instructions: core::ptr::drop_glue::<ninjars::fast::tensor_mu::MuTensorNumerator>
+  DIFF [instance count] 962 -> 1972 instructions: core::ptr::drop_glue::<ninjars_symbolica::oneloop_native::OneLoopNativeMasters>
+  DIFF [instance count] 138 -> 207 instructions: core::ptr::drop_glue::<oneloop::native::NativeEvaluator<f64>>
+  DIFF [instance count] 69 -> 138 instructions: core::ptr::drop_glue::<oneloop::native::NativeEvaluator<numerica::domains::float::double::DoubleFloat>>
+  DIFF [instance count] 124 -> 248 instructions: core::ptr::drop_glue::<oneloop::native::tensor::BnlogSeries<f64>>
+  DIFF [instance count] 679 -> 2339 instructions: core::ptr::drop_glue::<oneloop::native::tensor::NativeTensorEvaluator<f64>>
+  DIFF [instance count] 245 -> 626 instructions: core::ptr::drop_glue::<oneloop::native::tensor::TensorKernel<f64>>
+  DIFF [code] 4882 -> 3674 instructions: ninjars::case_bench::time_case::<ninjars::fast::tensor::TensorNumerator>
+  DIFF [code] 66 -> 98 instructions: ninjars::case_bench::time_case::<ninjars::fast::tensor::TensorNumerator>::{closure#10}
+  DIFF [code] 63 -> 95 instructions: ninjars::case_bench::time_case::<ninjars::fast::tensor::TensorNumerator>::{closure#14}
+  DIFF [code] 67 -> 99 instructions: ninjars::case_bench::time_case::<ninjars::fast::tensor::TensorNumerator>::{closure#9}
+  DIFF [code] 4866 -> 3699 instructions: ninjars::case_bench::time_case::<ninjars::fast::tensor_mu::MuTensorNumerator>
+  DIFF [code] 66 -> 98 instructions: ninjars::case_bench::time_case::<ninjars::fast::tensor_mu::MuTensorNumerator>::{closure#10}
+  DIFF [code] 63 -> 95 instructions: ninjars::case_bench::time_case::<ninjars::fast::tensor_mu::MuTensorNumerator>::{closure#14}
+  DIFF [code] 5549 -> 3180 instructions: ninjars::pipeline_bench::time_widths::<ninjars::fast::tensor::TensorNumerator>
+  DIFF [code] 88 -> 117 instructions: ninjars::pipeline_bench::time_widths::<ninjars::fast::tensor::TensorNumerator>::{closure#8}
+  DIFF [code] 5567 -> 3165 instructions: ninjars::pipeline_bench::time_widths::<ninjars::fast::tensor_mu::MuTensorNumerator>
+  DIFF [code] 88 -> 117 instructions: ninjars::pipeline_bench::time_widths::<ninjars::fast::tensor_mu::MuTensorNumerator>::{closure#8}
+  DIFF [code] 432 -> 313 instructions: oneloop::native::generated_a0::evaluate::<f64>
+  DIFF [code] 5233 -> 4057 instructions: oneloop::native::generated_b0::evaluate::<f64>
+  DIFF [code] 6373 -> 5233 instructions: oneloop::native::generated_b0::evaluate::<f64>
+  DIFF [instance count] 65395 -> 30668 instructions: oneloop::native::generated_db0::branch_1::<f64>
+  DIFF [instance count] 65934 -> 30604 instructions: oneloop::native::generated_db0::branch_3::<f64>
+  DIFF [code] 4484 -> 5879 instructions: oneloop::native::generated_db0::evaluate::<f64>
+  DIFF [code] 5879 -> 7505 instructions: oneloop::native::generated_db0::evaluate::<f64>
+  DIFF [instance count] 850 -> 1275 instructions: oneloop::native::handwritten::neg::<numerica::domains::float::multiprecision::Float>
+  DIFF [instance count] 762 -> 1143 instructions: oneloop::native::handwritten::negative::<numerica::domains::float::multiprecision::Float>
+  DIFF [instance count] 786 -> 1179 instructions: oneloop::native::handwritten::sub::<numerica::domains::float::multiprecision::Float>
+  DIFF [instance count] 3657 -> 4380 instructions: oneloop::native::primitives::log::<f64>
+  DIFF [instance count] 5570 -> 6974 instructions: oneloop::native::primitives::log::<numerica::domains::float::double::DoubleFloat>
+  DIFF [instance count] 20025 -> 25033 instructions: oneloop::native::primitives::log::<numerica::domains::float::multiprecision::Float>
+  DIFF [code] 806 -> 672 instructions: oneloop::native::primitives::powf::<f64>
+  DIFF [code] 868 -> 806 instructions: oneloop::native::primitives::powf::<f64>
+  DIFF [code] 396 -> 400 instructions: oneloop::native::primitives::powf::<numerica::domains::float::double::DoubleFloat>
+  DIFF [code] 238 -> 135 instructions: oneloop::native::primitives::powi::<f64>
+  DIFF [code] 377 -> 238 instructions: oneloop::native::primitives::powi::<f64>
+  DIFF [instance count] 13240 -> 16550 instructions: oneloop::native::primitives::sqrt::<numerica::domains::float::double::DoubleFloat>
+  DIFF [instance count] 16152 -> 20160 instructions: oneloop::native::primitives::sqrt::<numerica::domains::float::multiprecision::Float>
+  DIFF [instance count] 1780 -> 2649 instructions: oneloop::native::validate_point::<f64>
+  DIFF [instance count] 1079 -> 2153 instructions: oneloop::native::validate_point::<numerica::domains::float::double::DoubleFloat>
+  DIFF [instance count] 939 -> 1878 instructions: oneloop::native::validate_point::<numerica::domains::float::multiprecision::Float>
+  only A: <alloc::boxed::Box<alloc::collections::btree::node::InternalNode<ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<f64>>>>::new_uninit_in
+  only A: <alloc::boxed::Box<alloc::collections::btree::node::InternalNode<ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<numerica::domains::float::double::DoubleFloat>>>>::new_uninit_in
+  only A: <alloc::boxed::Box<alloc::collections::btree::node::LeafNode<ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<f64>>>>::new_uninit_in
+  only A: <alloc::boxed::Box<alloc::collections::btree::node::LeafNode<ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<numerica::domains::float::double::DoubleFloat>>>>::new_uninit_in
+  only A: <alloc::collections::btree::map::BTreeMap<ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<f64>>>::get_mut::<ninjars::masters::MasterIntegral>
+  only A: <alloc::collections::btree::map::BTreeMap<ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<numerica::domains::float::double::DoubleFloat>>>::get_mut::<ninjars::masters::MasterIntegra
+  only A: <alloc::vec::Vec<ninjars::fast::FastResult>>::resize
+  only A: <alloc::vec::Vec<ninjars::fast::FastStatus>>::resize
+  only A: <ninjars::fast_runtime::TimedMasters<ninjars_symbolica::oneloop_native::OneLoopNativeMasters> as ninjars::fast::masters::FastMasters>::evaluate
+  only A: <ninjars::fast_runtime::TimedNumerator<ninjars::fast::tensor::TensorNumerator> as ninjars::fast::numerator::FastNumerator>::evaluate
+  only A: <ninjars::fast_runtime::TimedNumerator<ninjars::fast::tensor::TensorNumerator> as ninjars::fast::numerator::FastNumerator>::mu_expansion
+  only A: <ninjars::fast_runtime::TimedNumerator<ninjars::fast::tensor::TensorNumerator> as ninjars::fast::numerator::FastNumerator>::t2_expansion
+  only A: <ninjars::fast_runtime::TimedNumerator<ninjars::fast::tensor::TensorNumerator> as ninjars::fast::numerator::FastNumerator>::t3_expansion
+  only A: <ninjars::fast_runtime::TimedNumerator<ninjars::fast::tensor_mu::MuTensorNumerator> as ninjars::fast::numerator::FastNumerator>::evaluate
+  only A: <ninjars::fast_runtime::TimedNumerator<ninjars::fast::tensor_mu::MuTensorNumerator> as ninjars::fast::numerator::FastNumerator>::mu_expansion
+  only A: <ninjars::fast_runtime::TimedNumerator<ninjars::fast::tensor_mu::MuTensorNumerator> as ninjars::fast::numerator::FastNumerator>::t2_expansion
+  only A: <ninjars::fast_runtime::TimedNumerator<ninjars::fast::tensor_mu::MuTensorNumerator> as ninjars::fast::numerator::FastNumerator>::t3_expansion
+  only A: <ninjars_graph::tensor::TensorCoefficientPlan>::scatter::<ninjars::fast::complex::C64>
+  only A: <oneloop::native::tensor::binary64::Binary64>::bubble::<2>
+  only A: <oneloop::native::tensor::binary64::Binary64>::bubble::<3>
+  only A: oneloop::native::handwritten::triangle::three_masses::<f64>
+  only A: oneloop::native::handwritten::triangle::three_masses::<numerica::domains::float::double::DoubleFloat>
+  only A: oneloop::native::handwritten::triangle::three_masses::<numerica::domains::float::multiprecision::Float>
+  only B: <&mut <ninjars::amplitude::Amplitude<numerica::domains::float::complex::Complex<f64>, ninjars_symbolica::amplitude::SymbolicaAmplitudeKernels<f64>>>::evaluate_batch_with_inputs<ninjars::case_check::ha
+  only B: <[ninjars::fast::complex::C64; 5]>::try_map::<core::ops::try_trait::NeverShortCircuit<[alloc::string::String; 2]>, <core::ops::try_trait::NeverShortCircuit<[alloc::string::String; 2]>>::wrap_mut_1<nin
+  only B: <alloc::collections::btree::map::BTreeMap<(ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::NativeTensorEvaluator<f64>> as core::ops::drop::Drop>::drop
+  only B: <alloc::collections::btree::map::BTreeMap<(ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::NativeTensorEvaluator<numerica::domains::float::double::DoubleFloat>> as core::ops::drop::Dr
+  only B: <alloc::collections::btree::map::BTreeMap<(ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::NativeTensorEvaluator<numerica::domains::float::multiprecision::Float>> as core::ops::drop::
+  only B: <alloc::collections::btree::map::BTreeMap<(ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::NativeTensorEvaluator<numerica::domains::float::multiprecision::Float>>>::extract_if::<<allo
+  only B: <alloc::collections::btree::map::ExtractIf<(ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::NativeTensorEvaluator<numerica::domains::float::multiprecision::Float>, core::ops::range::R
+  only B: <alloc::collections::btree::map::IntoIter<(ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::NativeTensorEvaluator<f64>>>::dying_next
+  only B: <alloc::collections::btree::map::IntoIter<(ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::NativeTensorEvaluator<numerica::domains::float::double::DoubleFloat>>>::dying_next
+  only B: <alloc::collections::btree::map::IntoIter<(ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::NativeTensorEvaluator<numerica::domains::float::multiprecision::Float>>>::dying_next
+  only B: <alloc::collections::btree::map::entry::VacantEntry<ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<f64>>>::insert_entry
+  only B: <alloc::collections::btree::map::entry::VacantEntry<ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<numerica::domains::float::double::DoubleFloat>>>::insert_entry
+  only B: <alloc::collections::btree::node::BalancingContext<(ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::NativeTensorEvaluator<numerica::domains::float::multiprecision::Float>>>::bulk_stea
+  only B: <alloc::collections::btree::node::BalancingContext<(ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::NativeTensorEvaluator<numerica::domains::float::multiprecision::Float>>>::bulk_stea
+  only B: <alloc::collections::btree::node::BalancingContext<(ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::NativeTensorEvaluator<numerica::domains::float::multiprecision::Float>>>::merge_tra
+  only B: <alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Dying, (ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::Nati
+  only B: <alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Dying, (ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::Nati
+  only B: <alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Dying, (ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::Nati
+  only B: <alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::Native
+  only B: <alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::Native
+  only B: <alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::Native
+  only B: <alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::Native
+  only B: <alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::Native
+  only B: <alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<f64>,
+  only B: <alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<numer
+  only B: <alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Immut, (ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::NativeTensorEvaluator<numerica::domains::flo
+  only B: <alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Immut, ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<f64>, alloc::collections::btree::node::mark
+  only B: <alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Immut, ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<numerica::domains::float::double::DoubleFlo
+  only B: <alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::NativeTensorEvaluator<f64>, alloc::collections
+  only B: <alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::NativeTensorEvaluator<numerica::domains::float
+  only B: <alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::NativeTensorEvaluator<numerica::domains::float
+  only B: <alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (ninjars::masters::MasterIntegral, u32), oneloop::native::tensor::NativeTensorEvaluator<numerica::domains::float
+  only B: <alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<f64>, alloc::collections::btree::node::marker
+  only B: <alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<numerica::domains::float::double::DoubleFloat
+  only B: <alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, ninjars::masters::MasterIntegral, oneloop::native::NativeEvaluator<numerica::domains::float::multiprecision::Flo
+  only B: <alloc::raw_vec::RawVec<[[ninjars::fast::complex::C64; 3]; 1]>>::grow_one
+  only B: <alloc::raw_vec::RawVec<[[ninjars::fast::complex::C64; 4]; 1]>>::grow_one
+  only B: <alloc::raw_vec::RawVec<[ninjars::fast::complex::C64; 1]>>::grow_one
+  only B: <alloc::vec::Vec<&ninjars::case_check::harness::BenchLane> as alloc::vec::spec_from_iter::SpecFromIter<&ninjars::case_check::harness::BenchLane, core::iter::adapters::map::Map<core::slice::iter::Iter<
+  only B: <alloc::vec::Vec<(usize, (usize, usize))> as alloc::vec::spec_from_iter::SpecFromIter<(usize, (usize, usize)), core::iter::adapters::filter_map::FilterMap<core::ops::range::Range<usize>, <ninjars::amp

@@ -1,0 +1,27 @@
+{
+ "points": 54,
+ "reproducibility": {
+  "A": 1.215003347265764e-06,
+  "B": 3.7842412348165766e-07
+ },
+ "worst": {
+  "replay": {
+   "ratio": 1.0050297488688305,
+   "key": [
+    "syn-n2-r1",
+    1
+   ]
+  },
+  "live": {
+   "ratio": 1.0019452203590822,
+   "key": [
+    "syn-n2-r1",
+    1
+   ]
+  }
+ },
+ "outside_0_5_percent": {
+  "replay": 1,
+  "live": 0
+ }
+}

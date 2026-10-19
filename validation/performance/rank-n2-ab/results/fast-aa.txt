@@ -1,0 +1,25 @@
+A2/A [x-aa] runs A=8 B=8: keys=192 geomean(reduction+total, n=164)=0.9996 geomean(all)=0.9999 max=1.023 >1.03: 0 >1.05: 0
+  case reduction n= 54 geomean=0.9995 min=0.991 max=1.007 >1.03: 0 >1.05: 0
+  case total     n= 54 geomean=0.9982 min=0.994 max=1.004 >1.03: 0 >1.05: 0
+  pipe reduction n= 28 geomean=1.0017 min=0.994 max=1.018 >1.03: 0 >1.05: 0
+  pipe masters   n= 28 geomean=1.0019 min=0.997 max=1.023 >1.03: 0 >1.05: 0
+  pipe total     n= 28 geomean=1.0004 min=0.986 max=1.010 >1.03: 0 >1.05: 0
+  run-to-run spread of A (half IQR / median): median 0.33%  max 1.66%
+  per-lane results identical across all A and B runs: yes
+A2/A [y-aa] runs A=8 B=8: keys=192 geomean(reduction+total, n=164)=0.9990 geomean(all)=0.9993 max=1.021 >1.03: 0 >1.05: 0
+  case reduction n= 54 geomean=0.9986 min=0.983 max=1.007 >1.03: 0 >1.05: 0
+  case total     n= 54 geomean=0.9980 min=0.991 max=1.005 >1.03: 0 >1.05: 0
+  pipe reduction n= 28 geomean=1.0019 min=0.995 max=1.011 >1.03: 0 >1.05: 0
+  pipe masters   n= 28 geomean=1.0012 min=0.997 max=1.021 >1.03: 0 >1.05: 0
+  pipe total     n= 28 geomean=0.9989 min=0.989 max=1.009 >1.03: 0 >1.05: 0
+  run-to-run spread of A (half IQR / median): median 0.43%  max 2.23%
+  per-lane results identical across all A and B runs: yes
+A2/A [combined: geometric mean over 2 replicates]: keys=192 geomean(reduction+total, n=164)=0.9993 geomean(all)=0.9996 max=1.022 >1.03: 0 >1.05: 0
+  case reduction n= 54 geomean=0.9990 min=0.993 max=1.004 >1.03: 0 >1.05: 0
+  case total     n= 54 geomean=0.9981 min=0.995 max=1.004 >1.03: 0 >1.05: 0
+  pipe reduction n= 28 geomean=1.0018 min=0.997 max=1.010 >1.03: 0 >1.05: 0
+  pipe masters   n= 28 geomean=1.0016 min=0.998 max=1.022 >1.03: 0 >1.05: 0
+  pipe total     n= 28 geomean=0.9997 min=0.989 max=1.005 >1.03: 0 >1.05: 0
+ratios > 1.03 (combined): none
+top 10: gg-hhh-top-triangle-0 w1 masters 1.022, gg-hh-top-triangle-0 w1 masters 1.015, gg-hh-top-triangle-0 w1 reduction 1.010, gg-hhh-top-box-8 w1 reduction 1.008, gg-hhh-top-triangle-0 w32 reduction 1.007, gg-hhh-top-triangle-0 w1 reduction 1.007, four-photon-top-box-0 w1 reduction 1.007, gg-hh-top-box-2 w1 reduction 1.006, gg-hhh-top-triangle-0 w8 total 1.005, gg-hhh-top-pentagon-26 w128 reduction 1.005
+bottom 5: gg-hhh-top-box-8 w128 total 0.989, syn-n2-r3 w32 reduction 0.993, syn-n2-r2 w32 reduction 0.993, syn-gghhh-gHgHH-n5-r4 w1 reduction 0.994, syn-n2-r3 w1 reduction 0.995

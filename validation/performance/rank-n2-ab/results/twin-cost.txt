@@ -1,0 +1,111 @@
+Fast engine, rank n+2 / rank n+1 twin (same kinematics), median over families
+ n set    pairs  red w1 red w32  tot w1 tot w32 ins red w32 ins live w32  red w32 range
+ 2 q-only     7    2.01    2.40    2.39    2.87        2.30         2.85  2.15-2.41
+ 3 q-only     7    2.43    2.93    2.62    2.71        2.50         2.67  2.91-2.94
+ 4 q-only     7    2.39    2.88    2.20    2.26        2.46         2.28  2.85-2.89
+ 5 q-only     7    2.36    2.72    1.93    1.99        2.39         2.06  2.70-2.72
+ 6 q-only     7    2.33    2.59    1.77    1.76        2.33         1.89  2.56-2.62
+ 7 q-only     4    2.27    2.47    1.60    1.59        2.26         1.73  2.47-2.47
+ 2 mu2        3    2.03    2.38    2.42    3.05        2.30         2.92  2.33-2.40
+ 3 mu2        3    2.43    2.90    2.55    2.81        2.50         2.70  2.90-2.93
+ 4 mu2        3    2.40    2.88    2.07    2.32        2.46         2.32  2.81-2.89
+ 5 mu2        3    2.35    2.70    1.85    1.89        2.39         1.99  2.69-2.71
+ 6 mu2        3    2.32    2.59    1.75    1.79        2.33         1.91  2.55-2.61
+ 7 mu2        3    2.26    2.47    1.69    1.70        2.26         1.83  2.46-2.48
+
+Fast engine per pair (width 32): reduction ns/point rank n+2 | twin | ratio; total ratio
+  syn-n2-r4                            1095        509   2.15   total   2.98
+  syn-n3-r5                           11715       4004   2.93   total   2.80
+  syn-n4-r6                           31668      10984   2.88   total   2.43
+  syn-n5-r7                           77540      28474   2.72   total   2.19
+  syn-n6-r8                          141597      54660   2.59   total   1.76
+  rn2-int-complex-n2-r4                1950        810   2.41   total   2.79
+  rn2-int-complex-n3-r5               11835       4045   2.93   total   2.65
+  rn2-int-complex-n4-r6               35322      12245   2.88   total   2.05
+  rn2-int-complex-n5-r7               77943      28684   2.72   total   1.76
+  rn2-int-complex-n6-r8              149407      57804   2.58   total   1.63
+  rn2-int-complex-n7-r9              255293     103473   2.47   total   1.59
+  rn2-int-complex-n2-r4-mu2            1932        810   2.38   total   2.96
+  rn2-int-complex-n3-r5-mu2           11864       4054   2.93   total   2.81
+  rn2-int-complex-n4-r6-mu2           35311      12235   2.89   total   2.17
+  rn2-int-complex-n5-r7-mu2           77456      28738   2.70   total   1.86
+  rn2-int-complex-n6-r8-mu2          150074      57592   2.61   total   1.73
+  rn2-int-complex-n7-r9-mu2          258504     105011   2.46   total   1.70
+  rn2-int-real-n2-r4                   1945        812   2.40   total   2.92
+  rn2-int-real-n3-r5                  11843       4049   2.92   total   2.82
+  rn2-int-real-n4-r6                  35415      12274   2.89   total   2.28
+  rn2-int-real-n5-r7                  78078      28670   2.72   total   1.99
+  rn2-int-real-n6-r8                 149853      57205   2.62   total   1.92
+  rn2-int-real-n7-r9                 258839     104779   2.47   total   1.88
+  rn2-int-real-n2-r4-mu2               1941        810   2.40   total   3.08
+  rn2-int-real-n3-r5-mu2              11810       4069   2.90   total   2.97
+  rn2-int-real-n4-r6-mu2              35307      12239   2.88   total   2.40
+  rn2-int-real-n5-r7-mu2              77863      28987   2.69   total   2.10
+  rn2-int-real-n6-r8-mu2             149994      57830   2.59   total   2.03
+  rn2-int-real-n7-r9-mu2             259004     104921   2.47   total   2.01
+  rn2-int-mixed-n2-r4                  1644        707   2.33   total   2.87
+  rn2-int-mixed-n3-r5                 11806       4043   2.92   total   2.71
+  rn2-int-mixed-n4-r6                 31464      10978   2.87   total   2.24
+  rn2-int-mixed-n5-r7                 74647      27658   2.70   total   1.78
+  rn2-int-mixed-n6-r8                142710      55328   2.58   total   1.65
+  rn2-int-mixed-n7-r9                249373     100833   2.47   total   1.58
+  rn2-shifted-mixed-n2-r4              1648        704   2.34   total   2.85
+  rn2-shifted-mixed-n3-r5             11135       3821   2.91   total   2.64
+  rn2-shifted-mixed-n4-r6             31473      11043   2.85   total   2.22
+  rn2-shifted-mixed-n5-r7             76212      28237   2.70   total   1.79
+  rn2-shifted-mixed-n6-r8            141143      55091   2.56   total   1.69
+  rn2-shifted-mixed-n7-r9            249304     100774   2.47   total   1.59
+  rn2-shifted-mixed-n2-r4-mu2          1646        706   2.33   total   3.05
+  rn2-shifted-mixed-n3-r5-mu2         11121       3834   2.90   total   2.78
+  rn2-shifted-mixed-n4-r6-mu2         31419      11164   2.81   total   2.32
+  rn2-shifted-mixed-n5-r7-mu2         76457      28173   2.71   total   1.89
+  rn2-shifted-mixed-n6-r8-mu2        140901      55214   2.55   total   1.79
+  rn2-shifted-mixed-n7-r9-mu2        254607     102590   2.48   total   1.69
+  rn2-phys-complex-n2-r4               1941        809   2.40   total   2.78
+  rn2-phys-complex-n3-r5              11789       4014   2.94   total   2.69
+  rn2-phys-complex-n4-r6              35253      12218   2.89   total   2.26
+  rn2-phys-complex-n5-r7              77466      28443   2.72   total   2.00
+  rn2-phys-complex-n6-r8             149310      57400   2.60   total   1.77
+  rn2-phys-real-n2-r4                  1942        810   2.40   total   2.89
+  rn2-phys-real-n3-r5                 11798       4022   2.93   total   2.86
+  rn2-phys-real-n4-r6                 35240      12198   2.89   total   2.48
+  rn2-phys-real-n5-r7                 77758      28638   2.72   total   2.27
+  rn2-phys-real-n6-r8                149219      57224   2.61   total   2.18
+
+n-gon twins (ninjars bench): ns/point rank n+1 -> rank n+2, ratio
+  f64      n=2 w1            36556 ->          90372   2.47
+  f64      n=2 w32           25921 ->          58508   2.26
+  f64      n=3 w1           208122 ->         437567   2.10
+  f64      n=3 w32          145334 ->         312598   2.15
+  f64      n=4 w1           587118 ->        1415704   2.41
+  f64      n=4 w32          495055 ->        1212417   2.45
+  f64      n=5 w1          1664344 ->        4299951   2.58
+  f64      n=5 w32         1515628 ->        4046902   2.67
+  f64      n=6 w1          4450867 ->       12036139   2.70
+  f64      n=6 w32         3873358 ->       10666715   2.75
+  f64      n=7 w1          8979035 ->       27396724   3.05
+  f64      n=7 w32         8777820 ->       23862365   2.72
+  fast     n=2 w1             3809 ->           9478   2.49
+  fast     n=2 w32            2636 ->           7962   3.02
+  fast     n=3 w1            18646 ->          46789   2.51
+  fast     n=3 w32           15116 ->          43084   2.85
+  fast     n=4 w1            79423 ->         176571   2.22
+  fast     n=4 w32           70459 ->         166956   2.37
+  fast     n=5 w1           259776 ->         528131   2.03
+  fast     n=5 w32          243650 ->         513382   2.11
+  fast     n=6 w1           694217 ->        1339721   1.93
+  fast     n=6 w32          670116 ->        1315293   1.96
+  fast     n=7 w1          1677868 ->        3108812   1.85
+  fast     n=7 w32         1633453 ->        3065530   1.88
+  double   n=2 w1           243488 ->         616561   2.53
+  double   n=3 w1          6925395 ->        9026497   1.30
+  double   n=4 w1         26972154 ->       34730336   1.29
+  double   n=5 w1         82167390 ->      109705780   1.34
+  double   n=6 w1        236056682 ->      309073318   1.31
+  double   n=7 w1        500403270 ->      657729391   1.31
+  float128 n=2 w1          2155768 ->        6267396   2.91
+  float128 n=3 w1         20407700 ->       42718174   2.09
+  float128 n=4 w1         96462331 ->      190233893   1.97
+  float128 n=5 w1        317981484 ->      728388984   2.29
+  float128 n=6 w1        879695320 ->     1908053783   2.17
+  float128 n=7 w1       2058155151 ->     4361885702   2.12

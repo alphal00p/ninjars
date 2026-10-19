@@ -1,0 +1,76 @@
+syn-n2-r2, width 1, case-bench `reduction` (replayed numerator and masters):
+the one key above 1.05. A = main dec3d55, B = claude/rank-n2-integration 8346699.
+All timings in ns per call (one point per call); CPU 229 unless noted.
+
+1. Interleaved A/B (design 8)
+   CPU 189, 10+10 runs, all 27 cases ............ ratio 1.058
+   CPU 197, 10+10 runs, all 27 cases ............ ratio 1.064
+   rerun alone (syn-n2-r2 + syn-n2-r1), 9+9 runs on each of CPU 189, 197, 229:
+       syn-n2-r2 width 1 reduction  1.111 / 1.111 / 1.116
+       syn-n2-r2 width 1 total      0.994 / 0.991 / 0.984
+       syn-n2-r1 width 1 reduction  1.018 combined (1.040 in the full A/B)
+   Absolute: A 452-482 ns, B 499-524 ns per call (+35-45 ns).
+
+2. Work done per call is the same (callgrind, CLI binaries, case-bench on
+   syn-n2-r2 width 1, 10,242 replayed calls on each side)
+                                                    A        B
+   evaluate[_up_to_n1]::<ReplayNumerator,ReplayMasters>, inclusive Ir/call
+                                                  5038.0   5037.0
+   the timed closure (rewind + dispatch + evaluate), inclusive Ir/call
+                                                  5072.0   5082.0
+   measure() loop around it (inlined into time_case in A)   +7 in B
+   callees (bubbles, integrate, prepare, refresh_active, reference_vectors_ok,
+   t3_expansion, prepare_out, memcpy): identical call counts and Ir.
+   Machine code (scripts/dis_compare.py, displacements kept): the replay
+   evaluate body differs only in 7 register renames and one removed
+   `mov %rdi,%rax`; bubbles::<ReplayNumerator> and prepare are identical;
+   integrate::<ReplayMasters> differs in the position of one store (2 sites).
+
+3. Performance counters (perf stat, user space, whole case-bench process on
+   syn-n2-r2 width 1, 40 blocks; per 1000 instructions, two runs per side)
+                                     A              B
+   IPC                          3.405 / 3.407  3.299 / 3.296
+   loads crossing a 64-B line   4.689 / 4.673  5.054 / 5.050   (ls_misal_loads.ma64)
+   op-cache misses              32.00 / 32.01  34.42 / 34.21
+   load not complete stalls     40.9  / 41.3   43.8  / 44.0    (ex_no_retire.load_not_complete)
+   L1i misses                   20.5  / 20.6   20.2  / 20.1
+   branch mispredictions        0.027 / 0.003  0.004 / 0.005
+   In the probe harness (ab_stackprobe.rs, replay loop only): op-cache misses
+   35.7 / 34.2 (A) against 38.6 / 38.4 (B) per 1000 instructions; L1 iTLB misses
+   about 0.001 per 1000 instructions on both sides.
+
+4. Not removed by any layout control tried
+   64-byte function and loop alignment (RUSTFLAGS -C llvm-args=-align-all-functions=6
+   -C llvm-args=-align-loops=64), both sides rebuilt, 6 runs each:
+       plain  A 466 470 471 471 477 482   B 503 508 508 509 509 512
+       al64   A 461 461 461 464 483 486   B 499 501 506 506 510 511
+   glibc malloc tunables (GLIBC_TUNABLES; 3-4 runs per side, range of the per-run medians, A / B):
+       default                         467-480 / 507-571
+       arena_max=1                     452-473 / 468-491
+       mmap_threshold=4096             464-473 / 505-524
+       arena_max=1, top_pad=65536      452-457 / 476-496
+       tcache_count=0                  456-462 / 477-486
+       top_pad=1 MiB                   466-468 / 517-519
+       hugetlb=1                       465-467 / 516-521
+       mmap_threshold=256              466-467 / 518-524
+   stack offset of the engine frame 0..112 bytes (16-byte steps), separate probe
+   binary (layout-stackprobe-syn-n2-r2.tsv): A 507-516 ns (1559-1585 cycles),
+   B 549-565 ns (1685-1738 cycles) at every offset; B executes +43 instructions
+   per call (+0.85 %) in that binary, for +8 % cycles.
+
+5. Placement of the hot rank <= n+1 code (CLI binaries)
+   The non-generic fast-engine functions on this path (refresh_active, prepare,
+   Calls::prepare_out, Basis::from_single/complete, reference_vectors_ok,
+   ReplayNumerator/ReplayMasters methods) are emitted from the single `ninjars`
+   codegen unit. They span 0x3312e60..0x3335030 (136 KiB) in A and
+   0x345cb10..0x34d3700 (475 KiB) in B: the new rank n+2 modules
+   (engine_x2, bases_x2, subtractions_x2, subtractions_series_x2) are placed
+   between them. The extra stalls are front-end (op cache) and load-side,
+   with no extra instructions, consistent with this wider and shifted hot
+   footprint for the smallest case (about 460 ns per call). Not affected:
+   width 32 of the same case (1.007 in the full A/B, 1.018 in the reruns), its
+   total (live path) at width 1 (1.003 full, 0.98-0.99 reruns), and every
+   other key (next highest 1.040, syn-n2-r1 width 1 reduction, 1.018 rerun).
+   Not tried: reordering functions at link time (`-Wl,--sort-section=name`
+   did not move the sections) or moving the rank n+2 modules out of the
+   `ninjars` codegen unit.

@@ -1,0 +1,27 @@
+B/A [x-ab] runs A=10 B=10: keys=192 geomean(reduction+total, n=164)=0.9970 geomean(all)=0.9978 max=1.058 >1.03: 1 >1.05: 1
+  case reduction n= 54 geomean=0.9907 min=0.921 max=1.058 >1.03: 1 >1.05: 1
+  case total     n= 54 geomean=1.0004 min=0.986 max=1.013 >1.03: 0 >1.05: 0
+  pipe reduction n= 28 geomean=0.9974 min=0.973 max=1.007 >1.03: 0 >1.05: 0
+  pipe masters   n= 28 geomean=1.0021 min=0.988 max=1.007 >1.03: 0 >1.05: 0
+  pipe total     n= 28 geomean=1.0022 min=0.992 max=1.006 >1.03: 0 >1.05: 0
+  run-to-run spread of A (half IQR / median): median 0.37%  max 2.28%
+  per-lane results identical across all A and B runs: yes
+B/A [y-ab] runs A=10 B=10: keys=192 geomean(reduction+total, n=164)=0.9980 geomean(all)=0.9989 max=1.064 >1.03: 2 >1.05: 2
+  case reduction n= 54 geomean=0.9924 min=0.919 max=1.064 >1.03: 2 >1.05: 2
+  case total     n= 54 geomean=1.0017 min=0.983 max=1.014 >1.03: 0 >1.05: 0
+  pipe reduction n= 28 geomean=0.9968 min=0.967 max=1.011 >1.03: 0 >1.05: 0
+  pipe masters   n= 28 geomean=1.0044 min=0.989 max=1.017 >1.03: 0 >1.05: 0
+  pipe total     n= 28 geomean=1.0029 min=0.994 max=1.009 >1.03: 0 >1.05: 0
+  run-to-run spread of A (half IQR / median): median 0.36%  max 2.02%
+  per-lane results identical across all A and B runs: yes
+B/A [combined: geometric mean over 2 replicates]: keys=192 geomean(reduction+total, n=164)=0.9975 geomean(all)=0.9983 max=1.061 >1.03: 2 >1.05: 1
+  case reduction n= 54 geomean=0.9916 min=0.920 max=1.061 >1.03: 2 >1.05: 1
+  case total     n= 54 geomean=1.0011 min=0.988 max=1.013 >1.03: 0 >1.05: 0
+  pipe reduction n= 28 geomean=0.9971 min=0.971 max=1.005 >1.03: 0 >1.05: 0
+  pipe masters   n= 28 geomean=1.0033 min=0.988 max=1.011 >1.03: 0 >1.05: 0
+  pipe total     n= 28 geomean=1.0026 min=0.996 max=1.007 >1.03: 0 >1.05: 0
+ratios > 1.03 (combined):
+  case syn-n2-r2 w1 reduction: 1.061  (x-ab=1.058  y-ab=1.064)
+  case syn-n2-r1 w1 reduction: 1.040  (x-ab=1.027  y-ab=1.053)
+top 10: syn-n2-r2 w1 reduction 1.061, syn-n2-r1 w1 reduction 1.040, syn-n3-r3 w1 reduction 1.016, syn-n3-r4 w32 total 1.013, gg-hhh-top-box-8 w128 masters 1.011, gg-hhh-top-box-8 w1 masters 1.011, gg-hhh-top-box-8 w8 masters 1.010, gg-hhh-top-box-8 w32 masters 1.010, gg-hh-top-box-2 w32 masters 1.009, gg-hh-top-box-2 w128 masters 1.008
+bottom 5: syn-n4-r5 w32 reduction 0.920, syn-n3-r4 w32 reduction 0.942, syn-n5-r6 w32 reduction 0.948, gg-hhh-top-box-8 w1 reduction 0.948, syn-n6-r7 w32 reduction 0.954

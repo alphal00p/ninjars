@@ -1,0 +1,22 @@
+rerun B/A [rerun-189] runs A=9 B=9: keys=8 geomean(reduction+total, n=8)=1.0180 geomean(all)=1.0180 max=1.111 >1.03: 1 >1.05: 1
+  case reduction n=  4 geomean=1.0376 min=1.005 max=1.111 >1.03: 1 >1.05: 1
+  case total     n=  4 geomean=0.9988 min=0.994 max=1.002 >1.03: 0 >1.05: 0
+  run-to-run spread of A (half IQR / median): median 0.98%  max 1.66%
+  per-lane results identical across all A and B runs: yes
+rerun B/A [rerun-197] runs A=9 B=9: keys=8 geomean(reduction+total, n=8)=1.0169 geomean(all)=1.0169 max=1.111 >1.03: 1 >1.05: 1
+  case reduction n=  4 geomean=1.0367 min=1.010 max=1.111 >1.03: 1 >1.05: 1
+  case total     n=  4 geomean=0.9975 min=0.991 max=1.003 >1.03: 0 >1.05: 0
+  run-to-run spread of A (half IQR / median): median 0.58%  max 1.26%
+  per-lane results identical across all A and B runs: yes
+rerun B/A [rerun-syn-n2] runs A=9 B=9: keys=8 geomean(reduction+total, n=8)=1.0171 geomean(all)=1.0171 max=1.116 >1.03: 1 >1.05: 1
+  case reduction n=  4 geomean=1.0403 min=1.010 max=1.116 >1.03: 1 >1.05: 1
+  case total     n=  4 geomean=0.9944 min=0.984 max=1.001 >1.03: 0 >1.05: 0
+  run-to-run spread of A (half IQR / median): median 1.42%  max 2.80%
+  per-lane results identical across all A and B runs: yes
+rerun B/A [combined: geometric mean over 3 replicates]: keys=8 geomean(reduction+total, n=8)=1.0174 geomean(all)=1.0174 max=1.113 >1.03: 1 >1.05: 1
+  case reduction n=  4 geomean=1.0382 min=1.008 max=1.113 >1.03: 1 >1.05: 1
+  case total     n=  4 geomean=0.9969 min=0.990 max=1.001 >1.03: 0 >1.05: 0
+ratios > 1.03 (combined):
+  case syn-n2-r2 w1 reduction: 1.113  (rerun-189=1.111  rerun-197=1.111  rerun-syn-n2=1.116)
+top 10: syn-n2-r2 w1 reduction 1.113, syn-n2-r1 w1 reduction 1.018, syn-n2-r2 w32 reduction 1.018, syn-n2-r1 w32 reduction 1.008, syn-n2-r2 w32 total 1.001, syn-n2-r1 w1 total 1.001, syn-n2-r1 w32 total 0.996, syn-n2-r2 w1 total 0.990
+bottom 5: syn-n2-r2 w1 total 0.990, syn-n2-r1 w32 total 0.996, syn-n2-r1 w1 total 1.001, syn-n2-r2 w32 total 1.001, syn-n2-r1 w32 reduction 1.008
