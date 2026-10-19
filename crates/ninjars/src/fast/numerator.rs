@@ -43,6 +43,21 @@ pub const fn t2_len(mindeg: usize) -> usize {
     total
 }
 
+/// [`t2_len`] for `mindeg <= 3`, in original Ninja's form (`SizeHelper<2>`,
+/// `1 + i + i/2 + i/3` entries per order). The rank <= n+1 call sites, which
+/// stop at `mindeg` 3, use this form: it is the one their machine code was
+/// compiled from before rank n+2 (with a runtime `mindeg` the two formulas
+/// compile differently).
+pub(super) const fn t2_len_le3(mindeg: usize) -> usize {
+    let mut total = 0;
+    let mut i = 0;
+    while i <= mindeg {
+        total += 1 + i + i / 2 + i / 3;
+        i += 1;
+    }
+    total
+}
+
 /// Batched numerator interface used by [`super::FastAmplitude`].
 ///
 /// All methods receive `rows = lanes.len()` requests. `cut` is the sorted cut
@@ -173,6 +188,7 @@ mod tests {
     fn layouts_match_original_ninja() {
         assert_eq!((0..5).map(t3_len).collect::<Vec<_>>(), [1, 2, 4, 6, 9]);
         assert_eq!((0..4).map(t2_len).collect::<Vec<_>>(), [1, 3, 7, 13]);
+        assert_eq!((0..4).map(t2_len_le3).collect::<Vec<_>>(), [1, 3, 7, 13]);
     }
 
     /// Rank n+2 depths: T3 mindeg 5 (12 slots), T2 mindeg 4 (22 slots,
