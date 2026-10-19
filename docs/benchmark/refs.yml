@@ -1,7 +1,7 @@
 ninja-laurent:
   type: article
   title: Integrand reduction of one-loop scattering amplitudes through Laurent series expansion
-  author: [Mastrolia, Pierpaolo, Mirabella, Edoardo, Peraro, Tiziano]
+  author: ["Mastrolia, Pierpaolo", "Mirabella, Edoardo", "Peraro, Tiziano"]
   date: 2012
   serial-number:
     arxiv: "1203.0291"
@@ -25,7 +25,7 @@ ninja-paper:
 ninja-tensor:
   type: article
   title: Integrand reduction of one-loop amplitudes with a tensor numerator
-  author: [Hirschi, Valentin, Peraro, Tiziano]
+  author: ["Hirschi, Valentin", "Peraro, Tiziano"]
   date: 2016
   serial-number:
     arxiv: "1604.01363"
@@ -49,7 +49,7 @@ oneloop:
 madloop:
   type: article
   title: Automation of one-loop QCD corrections
-  author: [Hirschi, Valentin, Frederix, Rikkert, Frixione, Stefano, Garzelli, Maria Vittoria, Maltoni, Fabio, Pittau, Roberto]
+  author: ["Hirschi, Valentin", "Frederix, Rikkert", "Frixione, Stefano", "Garzelli, Maria Vittoria", "Maltoni, Fabio", "Pittau, Roberto"]
   date: 2011
   serial-number:
     arxiv: "1103.0621"
@@ -58,3 +58,51 @@ madloop:
     title: JHEP
     volume: 1105
     page-range: 044
+collier:
+  type: article
+  title: "COLLIER: a fortran-based Complex One-Loop LIbrary in Extended Regularizations"
+  author: ["Denner, Ansgar", "Dittmaier, Stefan", "Hofer, Lars"]
+  date: 2017
+  serial-number:
+    arxiv: "1604.06792"
+  parent:
+    type: periodical
+    title: Comput. Phys. Commun.
+    volume: 212
+    page-range: 220-238
+denner-dittmaier-5pt:
+  type: article
+  title: Reduction of one-loop tensor 5-point integrals
+  author: ["Denner, Ansgar", "Dittmaier, Stefan"]
+  date: 2003
+  serial-number:
+    arxiv: "hep-ph/0212259"
+  parent:
+    type: periodical
+    title: Nucl. Phys. B
+    volume: 658
+    page-range: 175-202
+denner-dittmaier-reduction:
+  type: article
+  title: Reduction schemes for one-loop tensor integrals
+  author: ["Denner, Ansgar", "Dittmaier, Stefan"]
+  date: 2006
+  serial-number:
+    arxiv: "hep-ph/0509141"
+  parent:
+    type: periodical
+    title: Nucl. Phys. B
+    volume: 734
+    page-range: 62-115
+denner-dittmaier-d0:
+  type: article
+  title: Scalar one-loop 4-point integrals
+  author: ["Denner, Ansgar", "Dittmaier, Stefan"]
+  date: 2011
+  serial-number:
+    arxiv: "1005.2076"
+  parent:
+    type: periodical
+    title: Nucl. Phys. B
+    volume: 844
+    page-range: 199-242

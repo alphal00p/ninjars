@@ -21,6 +21,7 @@ L3 complex that was idle when measured; other users' jobs were not stopped).
 | `ninja/<case>.json`, `ninja/<case>.masters.json`, `ninja/SUMMARY.md` | Part 2 results; exact master-integral call lists |
 | `masters_native/` | oneloopmaster native masters on the identical call lists |
 | `madloop/` | Part 3 (MadLoop generation, compilation, per-point timings) |
+| `synthetic-rank-n2/`, `collier/` | Part 4: numerator rank n+2, where original Ninja has no result: COLLIER 1.2.10 as timing and accuracy reference (`collier/README.md`) |
 
 ## Part 1 — Ninja builds
 
