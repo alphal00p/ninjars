@@ -372,9 +372,9 @@ arbitrary-precision timings with the pinned 09b2c74). 149ddff and 09b2c74
 change no binary64 evaluated call (every benchmark case and example gives
 bit-identical binary64 and double-double results with all three, and the
 native masters return the same bits on every recorded call), so they stand.
-09b2c74 rounds the interpreted $D_0$ differently: the 700- and 1000-bit
-results of @arbprec (computed with 3023fa6) move by at most 56 units in the
-last place, the 700-bit column of @tab:arbprec by at most 0.1 digit. References
+09b2c74 rounds the interpreted $D_0$ differently, by at most 56 units in the
+last place at 700 and 1000 bits; the results of @arbprec are computed with
+09b2c74. References
 timed a day earlier on another core (CPU 29) agree within about 1 %, except
 OneLOop on the $n = 5$ cases (5–8 % faster there), which moves no gate
 (`validation/benchmark/cpu-crosscheck.md`). Rust 1.98

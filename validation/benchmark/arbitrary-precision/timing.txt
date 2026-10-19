@@ -14,7 +14,7 @@
 # 700- and 1000-bit results differ from the committed p700/p1000.json (3023fa6, reproduced by 149ddff) by at
 # most 26 x 2^-700 and 56 x 2^-1000 relative: only the interpreted D0 calls round differently (every C0, B and A0
 # call is unchanged), and digits_700_vs_1000 moves by at most 0.11 (208.7/209.1/208.1 -> 208.8/209.0/208.1).
-# The committed files stay.
+# p700/p1000.json are now regenerated with 09b2c74 (arb_summary.json and the report data follow).
 # Previous measurement, oneloopmaster 149ddff (pinned with taskset -c 245, 2026-10-19; the host was loaded and no
 # core was idle, about 25 % background load on CPU 245):
 # 700 bits, three points incl. preparation: real 11.662 s, user 10.314 s, sys 1.201 s
