@@ -229,6 +229,17 @@ pub struct ReferenceLane {
     pub ninja_error: Option<f64>,
     /// `rank - n` of the case.
     pub excess: Option<i64>,
+    /// `reduction.new_terms_over_scale`: the new rank n+2 integrated terms
+    /// (box `mu^6`, `B1111`, bubble `mu^2 (q.e2)^2` and `mu^4`) relative to the
+    /// lane scale. Above 1 they cancel against the rest of the lane.
+    pub new_terms: Option<f64>,
+    /// `reduction.parts_over_scale`: every new term (name, size relative to
+    /// the lane scale). A tolerance at least as large as a part cannot detect
+    /// that term being wrong or missing.
+    pub new_term_parts: Vec<(String, f64)>,
+    /// COLLIER's COLI quad value (`collier_coli_quad_decimal`), against which
+    /// known failures are compared.
+    pub collier: Option<[[String; 2]; 3]>,
 }
 
 #[derive(Clone, Debug)]
@@ -244,6 +255,18 @@ fn decimal_pair(value: &Value) -> Option<[String; 2]> {
         value.get(0)?.as_str()?.to_string(),
         value.get(1)?.as_str()?.to_string(),
     ])
+}
+
+impl ReferenceLane {
+    /// The smallest new rank n+2 term above `vanishing` (name, size relative
+    /// to the lane scale).
+    pub fn smallest_new_term(&self, vanishing: f64) -> Option<(&str, f64)> {
+        self.new_term_parts
+            .iter()
+            .filter(|(_, size)| *size > vanishing)
+            .min_by(|a, b| a.1.total_cmp(&b.1))
+            .map(|(name, size)| (name.as_str(), *size))
+    }
 }
 
 impl Reference {
@@ -288,13 +311,27 @@ impl Reference {
             })() else {
                 continue;
             };
-            let decimal = lane.get("laurent_decimal").and_then(|d| {
+            let laurent_decimal = |d: &Value| {
                 Some([
                     decimal_pair(&d["eps0"])?,
                     decimal_pair(&d["eps_m1"])?,
                     decimal_pair(&d["eps_m2"])?,
                 ])
-            });
+            };
+            let decimal = lane.get("laurent_decimal").and_then(laurent_decimal);
+            let collier = lane
+                .get("collier_coli_quad_decimal")
+                .and_then(laurent_decimal);
+            let reduction = &lane["reduction"];
+            let new_term_parts = reduction["parts_over_scale"]
+                .as_object()
+                .map(|parts| {
+                    parts
+                        .iter()
+                        .filter_map(|(k, v)| Some((k.clone(), v.as_f64()?)))
+                        .collect()
+                })
+                .unwrap_or_default();
             let computed = values.iter().fold(0_f64, |m, z| m.max(z.abs()));
             let scale = lane["scale"]
                 .as_f64()
@@ -324,6 +361,9 @@ impl Reference {
                 ninja_status: lane["return_status"].as_i64(),
                 ninja_error: lane["ninja"].as_f64(),
                 excess,
+                new_terms: reduction["new_terms_over_scale"].as_f64(),
+                new_term_parts,
+                collier,
             });
         }
         Ok(Self {
@@ -388,6 +428,25 @@ pub fn reference_values<T: SingleFloat>(
         });
     }
     Ok(out.try_into().unwrap_or_else(|_| unreachable!()))
+}
+
+/// COLLIER's COLI quad value of the lane in the carrier's precision, if the
+/// reference has it.
+pub fn collier_values<T: SingleFloat>(
+    lane: &ReferenceLane,
+    prototype: &T,
+) -> Result<Option<[Complex<T>; 3]>> {
+    let Some(d) = &lane.collier else {
+        return Ok(None);
+    };
+    let mut out = Vec::with_capacity(3);
+    for pair in d {
+        out.push(Complex::new(
+            prototype.from_rational(&parse_decimal(&pair[0])?),
+            prototype.from_rational(&parse_decimal(&pair[1])?),
+        ));
+    }
+    Ok(Some(out.try_into().unwrap_or_else(|_| unreachable!())))
 }
 
 /// `max_k |x_k - ref_k| / scale` over the three Laurent coefficients,
@@ -473,6 +532,10 @@ pub enum Verdict {
     ReportOnly,
     /// Listed in the known-failure file and still failing.
     KnownFailure,
+    /// Listed in the known-failure file, but agrees with COLLIER's value (or
+    /// passes): the upstream bug is fixed and the entry must be removed. A
+    /// failure.
+    StaleKnownFailure,
     /// No reference lane.
     Unchecked,
     /// The engine could not run the case.
@@ -486,9 +549,15 @@ impl Verdict {
             Self::Fail => "fail",
             Self::ReportOnly => "report-only",
             Self::KnownFailure => "known-failure",
+            Self::StaleKnownFailure => "stale-known-failure",
             Self::Unchecked => "unchecked",
             Self::Error => "error",
         }
+    }
+
+    /// Verdicts that make `case-check` and the tests fail.
+    pub fn is_failure(self) -> bool {
+        matches!(self, Self::Fail | Self::StaleKnownFailure | Self::Error)
     }
 }
 
@@ -498,6 +567,9 @@ pub struct Judgement {
     pub tolerance: Option<f64>,
     pub within_tolerance: Option<bool>,
     pub reason: Option<String>,
+    /// Original Ninja's binary64 error behind a fixed-precision budget
+    /// (measured on the lane or estimated from its rank twins).
+    pub ninja_error: Option<f64>,
 }
 
 /// Uncertainty origins of `assemble.py` that come from the generic engine's
@@ -542,22 +614,46 @@ pub fn kinematics_key(id: &str) -> String {
 ///   `max(3 unc, 1e-30)`; tier-C lanes and tier-B lanes whose uncertainty
 ///   comes from the generic engine's own twins are report-only.
 /// - Binary64 and other fixed precisions (V4f):
-///   `3 unc' + eps/eps_64 max(binary64_factor max(1, cond), A e_ninja)`, where
-///   `e_ninja` is original Ninja's binary64 error on the lane (the reference's
-///   `ninja` field) or, without one, on its rank twins (`--twins`: the largest
-///   twin error at the lane's rank excess, else the error at the two highest
-///   twin excesses extrapolated geometrically), and `A` is
-///   `fast_ninja_factor` or `generic_ninja_factor`. COLLIER's contraction
-///   condition `cond` alone does not predict the reduction's binary64 loss
-///   (calibration on the controls: up to 1e5 x `1e-14 cond` at n = 6), while
-///   the fast engine stays within 12x Ninja's error on all 505 control lanes
-///   with a Ninja result (the generic engine within 575x). `unc' = 100 unc`
-///   for generic-engine-derived uncertainties. Tier C and `cond > 1e6` are
-///   report-only.
+///   `3 unc' + eps/eps_64 max(binary64_factor max(1, cond'), min(A e_ninja, cap))`.
+///   - `cond' = max(cond, new)`: COLLIER's contraction condition `cond`, and
+///     `new`, the size of the new rank n+2 integrated terms relative to the
+///     lane (`reduction.new_terms_over_scale`), which above 1 cancel against
+///     the rest of the lane.
+///   - `e_ninja` is original Ninja's binary64 error on the lane (the
+///     reference's `ninja` field) or, without one, on its rank twins
+///     (`--twins`: the largest twin error at the lane's rank excess, else the
+///     error at the two highest twin excesses extrapolated geometrically). It
+///     measures the reduction's binary64 loss on the kinematics, which COLLIER's
+///     condition does not predict (calibration on the controls: up to 1e5 x
+///     `1e-14 cond` at n = 6). It is not used on the kinematics of a known
+///     failure, and capped at `ninja_budget_cap`.
+///   - `A` per engine: `fast_ninja_factor` for the fast engine and
+///     `generic_ninja_factor` for the generic engine in fixed precision
+///     (`validation/rank-n2/README.md` gives the calibration). Lanes where an
+///     engine's binary64 error is known to exceed its budget are listed
+///     individually (`known_inaccuracies`) rather than widening `A` for
+///     every lane.
+///   - `unc' = 100 unc` for generic-engine-derived uncertainties.
+///   - Report-only: tier C and `cond' > ill_conditioned`.
+/// - Every precision: a tolerance at least as large as the smallest non-zero
+///   new rank n+2 term of the lane (`reduction.parts_over_scale`) cannot
+///   detect that term being wrong or missing. Such a lane is reported
+///   (report-only) when it is within the tolerance and still fails outside it.
 ///
 /// Original-Ninja references: `ninja_tolerance` (scaled); lanes Ninja flagged
-/// unstable are report-only. Lanes listed in `known_failures` that fail are
-/// `known-failure`.
+/// unstable are report-only.
+///
+/// Known failures (`known_failures`, oneloopmaster's D0 bug): the lane is
+/// compared with COLLIER's COLI quad value (`collier_coli_quad_decimal`) at
+/// `known_failure_tolerance`, far above COLLIER's error and far below the
+/// D0 bug's effect (at least 3 % of the lane). Within it, or within the
+/// lane's own tolerance, the entry is stale (`stale-known-failure`, a
+/// failure: remove it); otherwise the lane is a `known-failure`.
+///
+/// Known inaccuracies (`known_inaccuracies`): one engine at one fixed
+/// precision misses the lane's budget although the reference is right. The
+/// lane is a `known-failure` while its difference stays within the entry's
+/// `limit`, a failure beyond it, and stale once it is within the tolerance.
 #[derive(Clone, Debug)]
 pub struct Policy {
     pub binary64_factor: f64,
@@ -570,10 +666,26 @@ pub struct Policy {
     /// Largest binary64 budget taken from original Ninja's errors.
     pub ninja_budget_cap: f64,
     pub ninja_tolerance: f64,
+    /// Scaled tolerance of a known failure against COLLIER's value: within
+    /// it the entry is stale.
+    pub known_failure_tolerance: f64,
     /// Lane id -> reason.
     pub known_failures: BTreeMap<String, String>,
+    /// Lane id -> known inaccuracy of one engine at one fixed precision.
+    pub known_inaccuracies: BTreeMap<String, KnownInaccuracy>,
     /// Kinematics key -> rank excess -> largest original-Ninja error.
     pub twins: BTreeMap<String, BTreeMap<i64, f64>>,
+}
+
+/// An entry of `known-failures.json`'s `inaccuracies`: `engine` at
+/// `precision` misses the lane's tolerance (the reference is right).
+#[derive(Clone, Debug)]
+pub struct KnownInaccuracy {
+    pub engine: Engine,
+    pub precision: Precision,
+    /// Largest accepted scaled difference: beyond it the lane fails.
+    pub limit: f64,
+    pub reason: String,
 }
 
 impl Default for Policy {
@@ -581,14 +693,16 @@ impl Default for Policy {
         Self {
             binary64_factor: 1e-14,
             fast_ninja_factor: 30.,
-            generic_ninja_factor: 1e3,
+            generic_ninja_factor: 100.,
             ill_conditioned: 1e6,
             high_floor: 1e-30,
             uncertainty_factor: 3.,
             generic_derived_factor: 100.,
             ninja_budget_cap: 1e-4,
             ninja_tolerance: 1e-8,
+            known_failure_tolerance: 1e-6,
             known_failures: BTreeMap::new(),
+            known_inaccuracies: BTreeMap::new(),
             twins: BTreeMap::new(),
         }
     }
@@ -608,6 +722,35 @@ impl Policy {
                 .unwrap_or("listed as a known failure");
             self.known_failures
                 .insert(id.to_string(), reason.to_string());
+        }
+        for entry in value["inaccuracies"].as_array().into_iter().flatten() {
+            let id = entry["id"].as_str().ok_or("known-inaccuracy id")?;
+            let engine = match entry["engine"].as_str() {
+                Some("fast") => Engine::Fast,
+                Some("generic") => Engine::Generic,
+                other => return Err(format!("{id}: known-inaccuracy engine {other:?}").into()),
+            };
+            let precision = Precision::parse(
+                entry["precision"]
+                    .as_str()
+                    .ok_or("known-inaccuracy precision")?,
+            )?;
+            if precision.is_high() {
+                return Err(format!("{id}: known inaccuracies are for fixed precisions").into());
+            }
+            let limit = entry["limit"].as_f64().ok_or("known-inaccuracy limit")?;
+            let reason = entry["reason"]
+                .as_str()
+                .unwrap_or("listed as a known inaccuracy");
+            self.known_inaccuracies.insert(
+                id.to_string(),
+                KnownInaccuracy {
+                    engine,
+                    precision,
+                    limit,
+                    reason: reason.to_string(),
+                },
+            );
         }
         Ok(())
     }
@@ -687,17 +830,26 @@ impl Policy {
                 "Float >= 160 bits: tiers A, B: max({} unc, {:e}); tier C and tier-B lanes with generic-engine-derived uncertainty ({}) report-only",
                 self.uncertainty_factor, self.high_floor, GENERIC_DERIVED_ORIGINS.join(", ")),
             "fixed_precision": format!(
-                "{} unc + eps/eps_f64 max({:e} max(1, cond), A e_ninja), A = {} (fast) or {} (generic); e_ninja = original Ninja's error on the lane or its rank twins ({} kinematics loaded); {}x unc for generic-engine-derived uncertainties; cond > {:e} and tier C report-only",
-                self.uncertainty_factor, self.binary64_factor, self.fast_ninja_factor,
-                self.generic_ninja_factor, self.twins.len(), self.generic_derived_factor,
-                self.ill_conditioned),
+                "{} unc + eps/eps_f64 max({:e} max(1, cond'), min(A e_ninja, {:e})), cond' = max(cond, new), new = the new rank n+2 terms over the lane scale; A = {} (fast) or {} (generic); e_ninja = original Ninja's error on the lane or its rank twins ({} kinematics loaded); {}x unc for generic-engine-derived uncertainties; cond' > {:e} and tier C report-only",
+                self.uncertainty_factor, self.binary64_factor, self.ninja_budget_cap,
+                self.fast_ninja_factor, self.generic_ninja_factor, self.twins.len(),
+                self.generic_derived_factor, self.ill_conditioned),
+            "new_terms": "a tolerance >= the smallest new rank n+2 term of the lane cannot detect it: report-only within the tolerance, fail outside",
             "ninja": format!("original-Ninja references: {:e} scaled; Ninja-unstable lanes report-only", self.ninja_tolerance),
-            "known_failures": self.known_failures,
+            "known_failures": {
+                "lanes": self.known_failures,
+                "stale_when": format!("within {:e} of COLLIER's COLI quad value, or within the lane's tolerance", self.known_failure_tolerance),
+            },
+            "known_inaccuracies": self.known_inaccuracies.iter().map(|(id, k)| {
+                json!({"id": id, "engine": format!("{:?}", k.engine).to_lowercase(), "precision": k.precision.label(), "limit": k.limit, "reason": k.reason})
+            }).collect::<Vec<_>>(),
             "scaled_difference": "max over (eps0, eps_m1, eps_m2) of |x - ref| / max_k |ref_k|",
         })
     }
 
-    /// Judge one lane. `difference` is `None` when the engine did not succeed.
+    /// Judge one lane. `difference` is `None` when the engine did not succeed;
+    /// `collier_difference` is the scaled difference to COLLIER's value (used
+    /// for known failures only).
     pub fn judge(
         &self,
         engine: Engine,
@@ -705,6 +857,7 @@ impl Policy {
         reference: Option<(&ReferenceLane, ReferenceKind)>,
         succeeded: bool,
         difference: Option<f64>,
+        collier_difference: Option<f64>,
     ) -> Judgement {
         let Some((lane, kind)) = reference else {
             return Judgement {
@@ -712,10 +865,12 @@ impl Policy {
                 tolerance: None,
                 within_tolerance: None,
                 reason: Some("no reference lane".into()),
+                ninja_error: None,
             };
         };
         let mut report_only: Option<String> = None;
         let mut basis: Option<String> = None;
+        let mut estimate: Option<f64> = None;
         let tolerance = match kind {
             ReferenceKind::Ninja => {
                 if lane.ninja_status.is_some_and(|s| s != 0) {
@@ -751,9 +906,17 @@ impl Policy {
                     }
                     Some(u) => {
                         let condition = lane.condition.unwrap_or(1.).max(1.);
-                        if condition > self.ill_conditioned {
+                        let new_terms = lane.new_terms.unwrap_or(0.);
+                        let effective = condition.max(new_terms);
+                        if effective > self.ill_conditioned {
                             report_only.get_or_insert_with(|| {
-                                format!("ill-conditioned lane (cond {condition:.1e})")
+                                if new_terms > condition {
+                                    format!(
+                                        "ill-conditioned lane (the new rank n+2 terms are {new_terms:.1e} x the lane)"
+                                    )
+                                } else {
+                                    format!("ill-conditioned lane (cond {condition:.1e})")
+                                }
                             });
                         }
                         let u = if generic_derived {
@@ -765,9 +928,10 @@ impl Policy {
                             Engine::Fast => self.fast_ninja_factor,
                             Engine::Generic => self.generic_ninja_factor,
                         };
-                        let mut budget = self.binary64_factor * condition;
+                        let mut budget = self.binary64_factor * effective;
                         if let Some((error, origin)) = self.ninja_error(lane) {
                             budget = budget.max((factor * error).min(self.ninja_budget_cap));
+                            estimate = Some(error);
                             basis = Some(origin);
                         }
                         Some(
@@ -778,29 +942,88 @@ impl Policy {
                 }
             }
         };
-        let known = self.known_failures.get(&lane.id);
+        // A tolerance that cannot resolve the smallest new rank n+2 term
+        // (parts below the high-precision floor vanish).
+        let unresolved = match (tolerance, lane.smallest_new_term(self.high_floor)) {
+            (Some(t), Some((part, size))) if t >= size => Some(format!(
+                "tolerance {t:.1e} does not resolve the new term {part} ({size:.1e} of the lane)"
+            )),
+            _ => None,
+        };
         let within = match (succeeded, difference, tolerance) {
             (true, Some(d), Some(t)) => Some(d <= t),
             (true, _, None) => None,
             _ => Some(false),
         };
-        let (verdict, reason) = match (within, known, report_only) {
-            (Some(true), Some(k), _) => (
-                Verdict::Pass,
-                Some(format!("listed as a known failure ({k}) but passes")),
-            ),
-            (_, Some(k), _) => (Verdict::KnownFailure, Some(k.clone())),
-            (_, None, Some(reason)) => (Verdict::ReportOnly, Some(reason)),
-            (Some(true), None, None) => (Verdict::Pass, None),
-            (None, None, None) => (Verdict::ReportOnly, Some("no tolerance".into())),
-            (Some(false), None, None) => (
-                Verdict::Fail,
-                Some(if succeeded {
-                    "outside the tolerance".into()
-                } else {
-                    "the engine did not succeed".into()
-                }),
-            ),
+        let (verdict, reason) = if let Some(k) = self.known_failures.get(&lane.id) {
+            let agrees = succeeded
+                && (collier_difference.is_some_and(|d| d <= self.known_failure_tolerance)
+                    || within == Some(true));
+            let measured = match (succeeded, collier_difference) {
+                (false, _) => "the engine did not succeed".into(),
+                (true, Some(d)) => format!("{d:.2e} from COLLIER's value"),
+                (true, None) => "no COLLIER value".into(),
+            };
+            if agrees {
+                (
+                    Verdict::StaleKnownFailure,
+                    Some(format!(
+                        "listed as a known failure but agrees ({measured}, limit {:.0e}): remove the entry ({k})",
+                        self.known_failure_tolerance
+                    )),
+                )
+            } else {
+                (Verdict::KnownFailure, Some(format!("{measured}; {k}")))
+            }
+        } else if let Some(k) = self
+            .known_inaccuracies
+            .get(&lane.id)
+            .filter(|k| k.engine == engine && k.precision == precision)
+        {
+            let tolerance = tolerance.map_or_else(|| "none".into(), |t| format!("{t:.2e}"));
+            match (within, difference) {
+                (Some(true), Some(d)) => (
+                    Verdict::StaleKnownFailure,
+                    Some(format!(
+                        "listed as a known inaccuracy but within the tolerance ({d:.2e} <= {tolerance}): remove the entry ({})",
+                        k.reason
+                    )),
+                ),
+                (_, Some(d)) if succeeded && d <= k.limit => (
+                    Verdict::KnownFailure,
+                    Some(format!(
+                        "known inaccuracy: {d:.2e} (tolerance {tolerance}, limit {:.0e}); {}",
+                        k.limit, k.reason
+                    )),
+                ),
+                (_, d) => (
+                    Verdict::Fail,
+                    Some(format!(
+                        "beyond the known inaccuracy's limit {:.0e} ({}); {}",
+                        k.limit,
+                        d.map_or_else(
+                            || "the engine did not succeed".into(),
+                            |d| format!("{d:.2e}")
+                        ),
+                        k.reason
+                    )),
+                ),
+            }
+        } else {
+            match (within, report_only, unresolved) {
+                (_, Some(reason), _) => (Verdict::ReportOnly, Some(reason)),
+                (Some(true), None, Some(reason)) => (Verdict::ReportOnly, Some(reason)),
+                (Some(true), None, None) => (Verdict::Pass, None),
+                (None, None, _) => (Verdict::ReportOnly, Some("no tolerance".into())),
+                (Some(false), None, unresolved) => (
+                    Verdict::Fail,
+                    Some(match (succeeded, unresolved) {
+                        (false, _) => "the engine did not succeed".into(),
+                        (true, None) => "outside the tolerance".into(),
+                        (true, Some(u)) => format!("outside the tolerance ({u})"),
+                    }),
+                ),
+            }
         };
         let reason = match (reason, basis) {
             (Some(r), Some(b)) => Some(format!("{r}; binary64 budget from {b}")),
@@ -812,6 +1035,7 @@ impl Policy {
             tolerance,
             within_tolerance: within,
             reason,
+            ninja_error: estimate,
         }
     }
 }
@@ -1486,6 +1710,8 @@ pub struct CheckedLane {
     pub values: [[String; 2]; 5],
     /// Scaled difference to the reference (when both exist).
     pub difference: Option<f64>,
+    /// Scaled difference to COLLIER's value (known failures only).
+    pub collier_difference: Option<f64>,
     pub judgement: Judgement,
     pub reference: Option<(ReferenceLane, ReferenceKind)>,
 }
@@ -1540,13 +1766,33 @@ pub fn check_fast(
             )),
             _ => None,
         };
-        let judgement = policy.judge(Engine::Fast, Precision::F64, found, succeeded, difference);
+        let collier_difference = match found {
+            Some((r, _)) if succeeded && policy.known_failures.contains_key(&r.id) => {
+                collier_values(r, &0_f64)?.map(|c| {
+                    scaled_difference_f64(
+                        &[values[0], values[1], values[2]],
+                        &c.map(|z| C64::new(z.re, z.im)),
+                        r.scale,
+                    )
+                })
+            }
+            _ => None,
+        };
+        let judgement = policy.judge(
+            Engine::Fast,
+            Precision::F64,
+            found,
+            succeeded,
+            difference,
+            collier_difference,
+        );
         lanes.push(CheckedLane {
             id: lane.id.clone(),
             status: format!("{status:?}"),
             succeeded,
             values: values.map(decimal_f64),
             difference,
+            collier_difference,
             judgement,
             reference: found.map(|(r, k)| (r.clone(), k)),
         });
@@ -1579,13 +1825,28 @@ pub fn check_generic_lanes<T: oneloop::NativeFloat>(
             )),
             _ => None,
         };
-        let judgement = policy.judge(Engine::Generic, precision, found, succeeded, difference);
+        let collier_difference = match found {
+            Some((r, _)) if succeeded && policy.known_failures.contains_key(&r.id) => {
+                collier_values(r, prototype)?
+                    .map(|c| scaled_difference(&result.values, &c, r.scale))
+            }
+            _ => None,
+        };
+        let judgement = policy.judge(
+            Engine::Generic,
+            precision,
+            found,
+            succeeded,
+            difference,
+            collier_difference,
+        );
         lanes.push(CheckedLane {
             id: lane.id.clone(),
             status: format!("{:?}", result.status),
             succeeded,
             values: std::array::from_fn(|k| decimal(&result.values[k])),
             difference,
+            collier_difference,
             judgement,
             reference: found.map(|(r, k)| (r.clone(), k)),
         });

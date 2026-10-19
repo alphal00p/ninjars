@@ -11,14 +11,15 @@ Writes validation/rank-n2/identity/cases/*.json and identity/manifest.json.
   V7a  ...-shift                    V_i -> V_i - P, N'(q, mu^2) = N(q - P, mu^2), P per lane
   V7b  ...-perm                     lane k = lane 0 with the propagators relabelled by
                                     sigma_k (all 2n dihedral orders for n <= 4, the identity
-                                    and 7 random ones for n = 5, 6); same integral
+                                    and 7 random ones for n >= 5); same integral
   V6a  rn2-id-pinch-n{n}           lane j: D_j M_j, M_j of rank n            (v2, n lanes)
        rn2-id-pinch-n{n}-sub       lane j: M_j on the n-1 propagators != j   (v1, n lanes)
                                     I_n[D_j M_j] = I_(n-1)[M_j]
   V6b  rn2-id-decomp-n{n}          N = R + sum_i D_i B_i + sum_(i<j) D_i D_j C_ij       (v2)
        rn2-id-decomp-n{n}-R/-B/-C  the pieces, every one of rank <= N+1 (v1); I[N] = sum
-with D_i = (q + V_i)^2 - m_i^2 - mu^2 (mu^2 the integrand mu^2).  n = 1..6 for V2/V7,
-n = 2..6 for V6 (V6b: C_ij from n = 3).
+with D_i = (q + V_i)^2 - m_i^2 - mu^2 (mu^2 the integrand mu^2).  n = 1..7 for V2/V7,
+n = 2..7 for V6 (V6b: C_ij from n = 3).  The n = 7 cases (S5b fix-up) come last in
+every manifest list and use their own seeds, so every n <= 6 case is unchanged.
 
     gen_identity.py --out validation/rank-n2/identity"""
 import argparse
@@ -125,7 +126,7 @@ def main():
                                "by case name and lane index; every identity is exact in exact arithmetic",
                 "V2": [], "V7a": [], "V7b": [], "V6a": [], "V6b": []}
     docs = []
-    for n in range(1, 7):
+    for n in range(1, 8):
         rank = n + 2
         for kind in ("q", "mu"):
             rng = random.Random(f"rn2-exact-{kind}-n{n}")
@@ -173,7 +174,7 @@ def main():
                 docs.append(case_doc(f"{name}-perm", n, rank, pl,
                                      "V7b: lane k = lane 0 of the base case with propagator i -> sigma_k(i)", K))
     # V6a pinch
-    for n in range(2, 7):
+    for n in range(2, 8):
         rng = random.Random(f"rn2-id-pinch-n{n}")
         shifts, m2 = kinematics(rng, n, "complex")
         lanes, subs = [], []
@@ -193,7 +194,7 @@ def main():
         docs.append(case_doc(f"rn2-id-pinch-n{n}-sub", n - 1, n, subs,
                              "V6a: lane j numerator M_j on the propagators != j (rank (n-1)+1)"))
     # V6b decomposition
-    for n in range(2, 7):
+    for n in range(2, 8):
         rng = random.Random(f"rn2-id-decomp-n{n}")
         name = f"rn2-id-decomp-n{n}"
         full, Rl, Bl, Cl = [], [], [], []

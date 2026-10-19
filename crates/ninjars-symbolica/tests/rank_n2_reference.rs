@@ -6,16 +6,21 @@
 //!   tiers A and B within `max(3 unc, 1e-30)`; tier C and tier-B lanes whose
 //!   uncertainty comes from the generic engine's own twins are report-only.
 //! - Binary64 (V4f), fast engine (native masters) and generic engine in f64:
-//!   `3 unc + max(1e-14 max(1, cond), A e_ninja)` with `e_ninja` original
-//!   Ninja's error on the lane or its rank twins (`Policy`).
+//!   `3 unc + max(1e-14 max(1, cond'), min(A e_ninja, 1e-4))`, with `cond'`
+//!   COLLIER's condition or the cancellation of the new rank n+2 terms,
+//!   whichever is larger, and `e_ninja` original Ninja's error on the lane or
+//!   its rank twins (`Policy`); `cond' > 1e6` is report-only.
+//! - Every precision: a lane whose tolerance does not resolve its smallest
+//!   new rank n+2 term is report-only while within the tolerance.
 //! - Lanes listed in `validation/rank-n2/known-failures.json` (oneloopmaster's
-//!   real-mass D0 bug) must fail as known failures and are reported if they
-//!   start to pass.
+//!   real-mass D0 bug) are compared with COLLIER's value at 1e-6: a lane that
+//!   agrees (or passes) is a stale entry and fails the test.
 //!
 //! The rank <= n+1 controls (the suite kinematics at ranks n-1, n, n+1,
 //! `mu^2` twins, the synthetic benchmark cases; n = 1..7) and the rank n+2
-//! suite run with both engines. The binary64 rank n+2 checks (V4f) are
-//! ignored until the next phase fixes the lanes named in their reasons.
+//! suite run with both engines. The fast engine's binary64 rank n+2 checks
+//! (V4f, and its comparison with the generic engine in binary64) are ignored
+//! until its accuracy work fixes the lanes named in their reasons.
 //! The numerator is the dense tensor of each case, expanded numerically
 //! (`TensorGenericNumerator`), which is checked first against Symbolica's
 //! `PolynomialNumerator`.
@@ -35,7 +40,7 @@ use ninjars::{
 use ninjars_symbolica::PolynomialNumerator;
 use rank_n2_reference_support::{
     Run, cases_in, check_set, controls,
-    harness::{Precision, TensorGenericNumerator, Verdict},
+    harness::{self, Precision, TensorGenericNumerator, Verdict},
     policy, rank_n2, root,
 };
 use symbolica::{
@@ -252,6 +257,124 @@ fn tensor_numerator_matches_polynomial_numerator() {
 }
 
 // ---------------------------------------------------------------------------
+// The tolerance policy on synthetic lanes.
+
+/// The verdict rules of `Policy::judge` that the suite relies on: the new
+/// terms' cancellation in the binary64 condition, the per-lane generic
+/// factor, the resolution of the smallest new term and known failures
+/// judged against COLLIER's value.
+#[test]
+fn policy_semantics() {
+    use harness::{Engine, ReferenceKind, ReferenceLane};
+    let lane = |id: &str| ReferenceLane {
+        id: id.into(),
+        values: [ninjars::fast::C64::ZERO; 3],
+        decimal: None,
+        scale: 1.,
+        tier: Some("A".into()),
+        uncertainty: Some(1e-38),
+        condition: Some(2.),
+        uncertainty_origin: None,
+        ninja_status: None,
+        ninja_error: Some(1e-12),
+        excess: Some(2),
+        new_terms: Some(0.5),
+        new_term_parts: vec![("box_mu6".into(), 1e-3), ("B1111".into(), 1e-40)],
+        collier: None,
+    };
+    let mut policy = harness::Policy::default();
+    let judge = |policy: &harness::Policy, lane: &ReferenceLane, engine, d: f64, collier| {
+        policy.judge(
+            engine,
+            Precision::F64,
+            Some((lane, ReferenceKind::HighPrecision)),
+            true,
+            Some(d),
+            collier,
+        )
+    };
+    // Budget max(1e-14 cond', A e_ninja): A = 30 fast, 100 generic.
+    let plain = lane("a-lane0");
+    let t = |engine, lane: &ReferenceLane| judge(&policy, lane, engine, 0., None).tolerance;
+    assert!((t(Engine::Fast, &plain).unwrap() - 30e-12).abs() < 1e-24);
+    assert!((t(Engine::Generic, &plain).unwrap() - 100e-12).abs() < 1e-24);
+    assert_eq!(
+        judge(&policy, &plain, Engine::Fast, 1e-11, None).verdict,
+        Verdict::Pass
+    );
+    assert_eq!(
+        judge(&policy, &plain, Engine::Fast, 1e-10, None).verdict,
+        Verdict::Fail
+    );
+    // The new terms' cancellation enters the condition: report-only above 1e6.
+    let cancelling = ReferenceLane {
+        new_terms: Some(5e7),
+        ..plain.clone()
+    };
+    let j = judge(&policy, &cancelling, Engine::Generic, 1e-3, None);
+    assert_eq!(j.verdict, Verdict::ReportOnly, "{:?}", j.reason);
+    let cancelling = ReferenceLane {
+        new_terms: Some(1e5),
+        ..plain.clone()
+    };
+    assert!((t(Engine::Fast, &cancelling).unwrap() - 1e-9).abs() < 1e-21);
+    // A tolerance at least as large as the smallest new term (parts below
+    // 1e-30 vanish): report-only within it, still a failure outside.
+    let unresolved = ReferenceLane {
+        new_term_parts: vec![("B1111".into(), 2e-11)],
+        ..plain.clone()
+    };
+    let j = judge(&policy, &unresolved, Engine::Fast, 1e-11, None);
+    assert_eq!(j.verdict, Verdict::ReportOnly, "{:?}", j.reason);
+    assert!(j.reason.unwrap().contains("B1111"));
+    assert_eq!(
+        judge(&policy, &unresolved, Engine::Fast, 1e-10, None).verdict,
+        Verdict::Fail
+    );
+    // Known failures: compared with COLLIER's value at 1e-6.
+    policy
+        .known_failures
+        .insert("a-lane0".into(), "test entry".into());
+    let j = judge(&policy, &plain, Engine::Fast, 0.3, Some(0.3));
+    assert_eq!(j.verdict, Verdict::KnownFailure);
+    let j = judge(&policy, &plain, Engine::Fast, 0.3, Some(1e-7));
+    assert_eq!(j.verdict, Verdict::StaleKnownFailure);
+    assert!(j.verdict.is_failure());
+    // (No Ninja budget on the kinematics of a known failure: 1e-14 cond.)
+    let j = judge(&policy, &plain, Engine::Fast, 1e-14, Some(0.3));
+    assert_eq!(j.verdict, Verdict::StaleKnownFailure);
+    // Known inaccuracies: one engine at one fixed precision, within a limit.
+    let inaccurate = lane("b-lane1");
+    policy.known_inaccuracies.insert(
+        "b-lane1".into(),
+        harness::KnownInaccuracy {
+            engine: Engine::Generic,
+            precision: Precision::F64,
+            limit: 1e-6,
+            reason: "test entry".into(),
+        },
+    );
+    let j = judge(&policy, &inaccurate, Engine::Generic, 4e-7, None);
+    assert_eq!(j.verdict, Verdict::KnownFailure, "{:?}", j.reason);
+    let j = judge(&policy, &inaccurate, Engine::Generic, 2e-6, None);
+    assert_eq!(j.verdict, Verdict::Fail, "{:?}", j.reason);
+    let j = judge(&policy, &inaccurate, Engine::Generic, 1e-11, None);
+    assert_eq!(j.verdict, Verdict::StaleKnownFailure, "{:?}", j.reason);
+    // Other engines and precisions judge the lane as usual.
+    let j = judge(&policy, &inaccurate, Engine::Fast, 4e-7, None);
+    assert_eq!(j.verdict, Verdict::Fail, "{:?}", j.reason);
+    let j = policy.judge(
+        Engine::Generic,
+        Precision::Float(256),
+        Some((&inaccurate, ReferenceKind::HighPrecision)),
+        true,
+        Some(1e-40),
+        None,
+    );
+    assert_eq!(j.verdict, Verdict::Pass, "{:?}", j.reason);
+}
+
+// ---------------------------------------------------------------------------
 // Rank <= n+1 controls (run now).
 
 /// V4 on the controls: the generic engine in Float(256) with exact masters
@@ -318,7 +441,7 @@ fn suite_generic_float_matches_references() {
 
 /// V4f: the rank n+2 suite in binary64, fast engine with native masters.
 #[test]
-#[ignore = "next phase: fast-engine binary64 accuracy at rank n+2 and the V4f budget (twins extrapolated one rank) disagree on 12 of 333 lanes, e.g. syn-n6-r8 lane 2 6.2e-4 > 1.0e-4, rn2-phys-real-n6-r8 lane 2 1.9e-6 > 1.6e-7"]
+#[ignore = "needs fast accuracy fix: 9 of 333 lanes outside the V4f budget, e.g. syn-n6-r8 lane 2 6.2e-4 > 1.0e-4, rn2-int-real-n6-r8 lane 2 1.2e-9 > 1.5e-10, rn2-int-complex-n6-r8 lane 0 2.3e-11 > 9.1e-13"]
 fn suite_fast_binary64_matches_references() {
     let report = check_set(
         &suite(),
@@ -332,7 +455,6 @@ fn suite_fast_binary64_matches_references() {
 
 /// V4f: the rank n+2 suite in binary64, generic engine with native masters.
 #[test]
-#[ignore = "next phase: V4f budget misses the cancellation of the new rank n+2 terms on rn2-phys-{real,complex}-n6-r8 lane 2 (1.1e-3 > 2.2e-6, 5.4e-4 > 1.0e-4; Float(256) agrees with the references to 5e-9)"]
 fn suite_generic_binary64_matches_references() {
     let report = check_set(
         &suite(),
@@ -342,6 +464,76 @@ fn suite_generic_binary64_matches_references() {
         &policy(),
     );
     report.assert_clean(true);
+}
+
+/// Fast engine against the generic engine, both in binary64 with native
+/// masters, on the rank n+2 suite (the target of the fast engine's accuracy
+/// work): on every lane with a reference, the fast engine's error is at most
+/// `max(10 e_generic, tier tolerance)`, with `e_generic` the generic engine's
+/// error on the same lane and the tier tolerance the lane's V4f binary64
+/// tolerance for the fast engine (`Policy`, whatever the lane's verdict;
+/// none on tier C). The generic engine shares no reduction code with the
+/// fast engine, so this bounds the fast engine's accuracy tail by what a
+/// binary64 reduction of the same lane reaches, also where the V4f budget
+/// cannot (report-only lanes). Known failures are skipped (the shared D0 bug
+/// dominates both errors), as are lanes where the generic engine does not
+/// succeed; the fast engine must succeed wherever the generic one does.
+#[test]
+#[ignore = "needs fast accuracy fix: 12 of 324 lanes, e.g. rn2-int-complex-n7-r9-mu2 lane 1 (fast 2.1e-2, generic 1.4e-6), rn2-phys-real-n6-r8 lane 1 (1.9e-3 vs 4.4e-6), rn2-int-complex-n6-r8 lane 0 (2.3e-11 vs 1.6e-13)"]
+fn suite_fast_within_ten_times_generic_binary64() {
+    let policy = policy();
+    let files = suite();
+    let reference = rank_n2().join("reference");
+    let fast = check_set(&files, &reference, Run::Fast, |case| case.rank, &policy);
+    let generic = check_set(
+        &files,
+        &reference,
+        Run::Generic(Precision::F64),
+        |case| case.rank,
+        &policy,
+    );
+    assert!(fast.errors.is_empty() && generic.errors.is_empty());
+    let generic: std::collections::HashMap<&str, &harness::CheckedLane> = generic
+        .lanes
+        .iter()
+        .map(|(_, lane)| (lane.id.as_str(), lane))
+        .collect();
+    let (mut compared, mut skipped, mut worst_ratio) = (0, 0, 0_f64);
+    let mut failures = Vec::new();
+    for (case, lane) in &fast.lanes {
+        if lane.reference.is_none() || policy.known_failures.contains_key(&lane.id) {
+            continue;
+        }
+        let Some(e_generic) = generic.get(lane.id.as_str()).and_then(|g| g.difference) else {
+            skipped += 1;
+            continue;
+        };
+        let tier = lane.judgement.tolerance.unwrap_or(0.);
+        let limit = (10. * e_generic).max(tier);
+        compared += 1;
+        match lane.difference {
+            Some(e_fast) if e_fast <= limit => {
+                worst_ratio = worst_ratio.max(e_fast / limit.max(1e-300));
+            }
+            e_fast => failures.push(format!(
+                "{case} {}: fast {} vs generic f64 {e_generic:.2e} (tier tolerance {tier:.2e}, {})",
+                lane.id,
+                e_fast.map_or_else(|| lane.status.clone(), |e| format!("{e:.2e}")),
+                lane.judgement.verdict.label(),
+            )),
+        }
+    }
+    eprintln!(
+        "fast vs generic f64: {compared} lanes compared ({skipped} skipped: the generic engine did not succeed), {} outside max(10 e_generic, tier tolerance); largest passing e_fast / limit = {worst_ratio:.2}",
+        failures.len()
+    );
+    assert!(compared >= 300, "{compared} lanes compared");
+    assert!(
+        failures.is_empty(),
+        "{} of {compared} lanes:\n{}",
+        failures.len(),
+        failures.join("\n")
+    );
 }
 
 /// The exact-input identity cases (V2 numerators of full rank n+2, their

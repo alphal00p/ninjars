@@ -4,7 +4,8 @@
 #
 #   harness/run_suite.sh SET [JOBS]   SET = suite | controls | identity | scan | synthetic |
 #                                           synthetic-twins (syn-n{2..6}-r{n,n+1}, ambiguity calibration) |
-#                                           n7 | n7-controls (the n = 7 suite cases and their twins only;
+#                                           n7 | n7-controls | identity-n7 (the n = 7 suite cases, their twins,
+#                                           and the n = 7 identity cases with their pieces;
 #                                           finalize them with finalize_n7.sh)
 #
 # Steps (env STEPS, default "collier hp"; all output in $WORK/<set>/, default WORK =
@@ -43,6 +44,7 @@ case $SET in
   synthetic-twins) CASES=(); for n in 2 3 4 5 6; do for r in $n $((n + 1)); do CASES+=("$REPO/validation/benchmark/synthetic/syn-n$n-r$r.json"); done; done ;;
   n7)        CASES=("$RN2"/cases/*-n7-r*.json) ;;
   n7-controls) CASES=("$RN2"/controls/cases/*-n7-r*.json) ;;
+  identity-n7) CASES=("$RN2"/identity/cases/*-n7*.json) ;;
   *) echo "unknown set $SET" >&2; exit 2 ;;
 esac
 OUT="$WORK/$SET"; mkdir -p "$OUT"

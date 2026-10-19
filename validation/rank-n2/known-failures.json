@@ -1,102 +1,111 @@
 {
  "format": "ninjars-known-failures-v1",
- "description": "Lanes expected to fail until an upstream bug is fixed: oneloopmaster's scalar D0 is wrong for a few real-mass boxes, in the exact expressions (generic engine in Float) and the native backend (fast engine, generic f64) alike, and OneLOop has the same error. ninjars case-check (--known-failures) and the rank n+2 tests report them as known-failure while they fail, and as passing (with a note) once they agree, so that the entry can be removed.",
+ "description": "Lanes expected to fail. lanes: an upstream bug, oneloopmaster's scalar D0 has the wrong real part for a few real-mass boxes, in the exact expressions (generic engine in Float) and the native backend (fast engine, generic f64) alike, and OneLOop has the same error (README findings 3 and 5). ninjars case-check (--known-failures) and the rank n+2 tests compare these lanes with COLLIER's COLI quad value (collier_coli_quad_decimal) at a loose scaled tolerance (1e-6, --known-failure-tolerance): known-failure while they differ by more, stale-known-failure (a failure) once they agree, or pass their own tolerance, so that the entry is removed. The bug moves each lane by at least 3 % of its scale. inaccuracies: one engine at one fixed precision misses the lane's binary64 budget (README \"Tolerances\") although the reference is right: known-failure while the scaled difference stays within limit, a failure beyond it, and stale-known-failure once the lane is within its tolerance.",
  "lanes": [
   {
    "id": "rn2-int-mixed-n6-r5-lane1",
-   "reason": "oneloopmaster's exact and native D0 have the wrong real part for the real-mass box of README finding 3 (D0(p^2 = 20602, 6775, 113296, -106553; s12 = 80235, s23 = -4769; m^2 = 8315.18, 100, 8315.18, 0)); until oneloopmaster is fixed"
+   "reason": "oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part, 2.1 times the modulus of COLLIER's value (COLI and DD agree to 6e-27; imaginary part correct), for the real-mass box of README finding 3: D0(p^2 = 20602, 6775, 113296, -106553; s12 = 80235, s23 = -4769; m^2 = 8315.18, 100, 8315.18, 0)"
   },
   {
    "id": "rn2-int-mixed-n6-r6-lane1",
-   "reason": "oneloopmaster's exact and native D0 have the wrong real part for the real-mass box of README finding 3 (D0(p^2 = 20602, 6775, 113296, -106553; s12 = 80235, s23 = -4769; m^2 = 8315.18, 100, 8315.18, 0)); until oneloopmaster is fixed"
+   "reason": "oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part, 2.1 times the modulus of COLLIER's value (COLI and DD agree to 6e-27; imaginary part correct), for the real-mass box of README finding 3: D0(p^2 = 20602, 6775, 113296, -106553; s12 = 80235, s23 = -4769; m^2 = 8315.18, 100, 8315.18, 0)"
   },
   {
    "id": "rn2-int-mixed-n6-r7-lane1",
-   "reason": "oneloopmaster's exact and native D0 have the wrong real part for the real-mass box of README finding 3 (D0(p^2 = 20602, 6775, 113296, -106553; s12 = 80235, s23 = -4769; m^2 = 8315.18, 100, 8315.18, 0)); until oneloopmaster is fixed"
+   "reason": "oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part, 2.1 times the modulus of COLLIER's value (COLI and DD agree to 6e-27; imaginary part correct), for the real-mass box of README finding 3: D0(p^2 = 20602, 6775, 113296, -106553; s12 = 80235, s23 = -4769; m^2 = 8315.18, 100, 8315.18, 0)"
   },
   {
    "id": "rn2-int-mixed-n6-r8-lane1",
-   "reason": "oneloopmaster's exact and native D0 have the wrong real part for the real-mass box of README finding 3 (D0(p^2 = 20602, 6775, 113296, -106553; s12 = 80235, s23 = -4769; m^2 = 8315.18, 100, 8315.18, 0)); until oneloopmaster is fixed"
+   "reason": "oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part, 2.1 times the modulus of COLLIER's value (COLI and DD agree to 6e-27; imaginary part correct), for the real-mass box of README finding 3: D0(p^2 = 20602, 6775, 113296, -106553; s12 = 80235, s23 = -4769; m^2 = 8315.18, 100, 8315.18, 0)"
   },
   {
    "id": "rn2-int-real-n7-r6-lane0",
-   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+   "reason": "README finding 5, lane 0: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct) on two real-mass boxes, off by 51 and 9.4 times the modulus of COLLIER's value (COLI and DD agree to 8e-20 and 6e-16): D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929) and D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625)"
   },
   {
    "id": "rn2-int-real-n7-r6-lane1",
-   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+   "reason": "README finding 5, lane 1: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct), off by 4.7 times the modulus of COLLIER's value (COLI and DD agree to 1e-16), on the real-mass box D0(p^2 = 127304, 248388, 26377, -115917; s12 = -95504, s23 = 64791; m^2 = 29929, 6464.16, 100, 6464.16)"
   },
   {
    "id": "rn2-int-real-n7-r7-lane0",
-   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+   "reason": "README finding 5, lane 0: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct) on two real-mass boxes, off by 51 and 9.4 times the modulus of COLLIER's value (COLI and DD agree to 8e-20 and 6e-16): D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929) and D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625)"
   },
   {
    "id": "rn2-int-real-n7-r7-lane1",
-   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+   "reason": "README finding 5, lane 1: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct), off by 4.7 times the modulus of COLLIER's value (COLI and DD agree to 1e-16), on the real-mass box D0(p^2 = 127304, 248388, 26377, -115917; s12 = -95504, s23 = 64791; m^2 = 29929, 6464.16, 100, 6464.16)"
   },
   {
    "id": "rn2-int-real-n7-r8-lane0",
-   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+   "reason": "README finding 5, lane 0: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct) on two real-mass boxes, off by 51 and 9.4 times the modulus of COLLIER's value (COLI and DD agree to 8e-20 and 6e-16): D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929) and D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625)"
   },
   {
    "id": "rn2-int-real-n7-r8-lane1",
-   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+   "reason": "README finding 5, lane 1: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct), off by 4.7 times the modulus of COLLIER's value (COLI and DD agree to 1e-16), on the real-mass box D0(p^2 = 127304, 248388, 26377, -115917; s12 = -95504, s23 = 64791; m^2 = 29929, 6464.16, 100, 6464.16)"
   },
   {
    "id": "rn2-int-real-n7-r8-mu2-lane0",
-   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+   "reason": "README finding 5, lane 0: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct) on two real-mass boxes, off by 51 and 9.4 times the modulus of COLLIER's value (COLI and DD agree to 8e-20 and 6e-16): D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929) and D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625)"
   },
   {
    "id": "rn2-int-real-n7-r8-mu2-lane1",
-   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+   "reason": "README finding 5, lane 1: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct), off by 4.7 times the modulus of COLLIER's value (COLI and DD agree to 1e-16), on the real-mass box D0(p^2 = 127304, 248388, 26377, -115917; s12 = -95504, s23 = 64791; m^2 = 29929, 6464.16, 100, 6464.16)"
   },
   {
    "id": "rn2-int-real-n7-r9-lane0",
-   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+   "reason": "README finding 5, lane 0: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct) on two real-mass boxes, off by 51 and 9.4 times the modulus of COLLIER's value (COLI and DD agree to 8e-20 and 6e-16): D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929) and D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625)"
   },
   {
    "id": "rn2-int-real-n7-r9-lane1",
-   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+   "reason": "README finding 5, lane 1: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct), off by 4.7 times the modulus of COLLIER's value (COLI and DD agree to 1e-16), on the real-mass box D0(p^2 = 127304, 248388, 26377, -115917; s12 = -95504, s23 = 64791; m^2 = 29929, 6464.16, 100, 6464.16)"
   },
   {
    "id": "rn2-int-real-n7-r9-mu2-lane0",
-   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+   "reason": "README finding 5, lane 0: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct) on two real-mass boxes, off by 51 and 9.4 times the modulus of COLLIER's value (COLI and DD agree to 8e-20 and 6e-16): D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929) and D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625)"
   },
   {
    "id": "rn2-int-real-n7-r9-mu2-lane1",
-   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+   "reason": "README finding 5, lane 1: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct), off by 4.7 times the modulus of COLLIER's value (COLI and DD agree to 1e-16), on the real-mass box D0(p^2 = 127304, 248388, 26377, -115917; s12 = -95504, s23 = 64791; m^2 = 29929, 6464.16, 100, 6464.16)"
   },
   {
    "id": "rn2-int-real-n7-r9-muall-lane0",
-   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+   "reason": "README finding 5, lane 0: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct) on two real-mass boxes, off by 51 and 9.4 times the modulus of COLLIER's value (COLI and DD agree to 8e-20 and 6e-16): D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929) and D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625)"
   },
   {
    "id": "rn2-int-real-n7-r9-muall-lane1",
-   "reason": "lanes 0 and 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-16) by factors 9-51 on the real-mass boxes D0(p^2 = 126627, 117904, 4340, -33109; s12 = -38553, s23 = 200750; m^2 = 6464.16, 15625, 100, 29929), D0(200750, 247667, 5480, -73039; -61989, 98035; 15625, 29929, 15625, 15625) (lane 0) and D0(127304, 248388, 26377, -115917; -95504, 64791; 29929, 6464.16, 100, 6464.16) (lane 1); README finding 5"
+   "reason": "README finding 5, lane 1: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct), off by 4.7 times the modulus of COLLIER's value (COLI and DD agree to 1e-16), on the real-mass box D0(p^2 = 127304, 248388, 26377, -115917; s12 = -95504, s23 = 64791; m^2 = 29929, 6464.16, 100, 6464.16)"
   },
   {
    "id": "rn2-shifted-mixed-n7-r6-lane1",
-   "reason": "lane 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-18) by a factor 3.3 on the box D0(103359, 84842, 9291, -10106; -31393, -31173; 100, 100, 0, 6464.16); README finding 5"
+   "reason": "README finding 5, lane 1: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct), off by 3.3 times the modulus of COLLIER's value (COLI and DD agree to 8e-19), on the box D0(p^2 = 103359, 84842, 9291, -10106; s12 = -31393, s23 = -31173; m^2 = 100, 100, 0, 6464.16)"
   },
   {
    "id": "rn2-shifted-mixed-n7-r7-lane1",
-   "reason": "lane 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-18) by a factor 3.3 on the box D0(103359, 84842, 9291, -10106; -31393, -31173; 100, 100, 0, 6464.16); README finding 5"
+   "reason": "README finding 5, lane 1: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct), off by 3.3 times the modulus of COLLIER's value (COLI and DD agree to 8e-19), on the box D0(p^2 = 103359, 84842, 9291, -10106; s12 = -31393, s23 = -31173; m^2 = 100, 100, 0, 6464.16)"
   },
   {
    "id": "rn2-shifted-mixed-n7-r8-lane1",
-   "reason": "lane 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-18) by a factor 3.3 on the box D0(103359, 84842, 9291, -10106; -31393, -31173; 100, 100, 0, 6464.16); README finding 5"
+   "reason": "README finding 5, lane 1: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct), off by 3.3 times the modulus of COLLIER's value (COLI and DD agree to 8e-19), on the box D0(p^2 = 103359, 84842, 9291, -10106; s12 = -31393, s23 = -31173; m^2 = 100, 100, 0, 6464.16)"
   },
   {
    "id": "rn2-shifted-mixed-n7-r8-mu2-lane1",
-   "reason": "lane 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-18) by a factor 3.3 on the box D0(103359, 84842, 9291, -10106; -31393, -31173; 100, 100, 0, 6464.16); README finding 5"
+   "reason": "README finding 5, lane 1: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct), off by 3.3 times the modulus of COLLIER's value (COLI and DD agree to 8e-19), on the box D0(p^2 = 103359, 84842, 9291, -10106; s12 = -31393, s23 = -31173; m^2 = 100, 100, 0, 6464.16)"
   },
   {
    "id": "rn2-shifted-mixed-n7-r9-lane1",
-   "reason": "lane 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-18) by a factor 3.3 on the box D0(103359, 84842, 9291, -10106; -31393, -31173; 100, 100, 0, 6464.16); README finding 5"
+   "reason": "README finding 5, lane 1: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct), off by 3.3 times the modulus of COLLIER's value (COLI and DD agree to 8e-19), on the box D0(p^2 = 103359, 84842, 9291, -10106; s12 = -31393, s23 = -31173; m^2 = 100, 100, 0, 6464.16)"
   },
   {
    "id": "rn2-shifted-mixed-n7-r9-mu2-lane1",
-   "reason": "lane 1: oneloopmaster's D0 disagrees with COLLIER's COLI and DD (which agree to 1e-18) by a factor 3.3 on the box D0(103359, 84842, 9291, -10106; -31393, -31173; 100, 100, 0, 6464.16); README finding 5"
+   "reason": "README finding 5, lane 1: oneloopmaster's exact and native D0 (and OneLOop's) have the wrong real part (imaginary part correct), off by 3.3 times the modulus of COLLIER's value (COLI and DD agree to 8e-19), on the box D0(p^2 = 103359, 84842, 9291, -10106; s12 = -31393, s23 = -31173; m^2 = 100, 100, 0, 6464.16)"
+  }
+ ],
+ "inaccuracies": [
+  {
+   "id": "rn2-phys-real-n6-r7-lane2",
+   "engine": "generic",
+   "precision": "f64",
+   "limit": 0.000001,
+   "reason": "the generic engine in binary64 is off by 4.3e-7, 630 times original Ninja's error (6.7e-10) and 1200 times the fast engine's (3.7e-10), at COLLIER condition 7.2; the same with the shift invariants in place of the snapped S-matrix, so not the input ambiguity, and not cancellation between cut contributions (case-check --stability-test passes); Float(256) agrees with the reference within its uncertainty (1.5e-11). The rank 6 twin is fine (4.1e-10); the rank 8 lane is report-only (its new rank n+2 terms are 5e7 times the lane). Not traced."
   }
  ]
 }
