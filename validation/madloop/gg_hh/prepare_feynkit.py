@@ -51,14 +51,24 @@ def main():
     args=parser.parse_args()
     out=args.output_dir.resolve();out.mkdir(parents=True,exist_ok=True)
     names=['ninjars_graph','feynkit_graph','feynkit_amplitude','feynkit_generator','symbolica','serde_json']
-    libraries={}
+    # Host units (build scripts, proc macros) share deps/ with the target units
+    # and are listed in no fixed order; keep the rlibs with ninjars_graph's profile.
+    candidates={}
     for line in args.cargo_artifacts.read_text().splitlines():
         record=json.loads(line)
         if record.get('reason')!='compiler-artifact': continue
         name=record['target']['name']
         for filename in record['filenames']:
-            if name in names and filename.endswith('.rlib'): libraries[name]=Path(filename)
-    if set(libraries)!=set(names): parser.error(f'missing required artifacts: {set(names)-set(libraries)}')
+            if name in names and filename.endswith('.rlib'):
+                candidates.setdefault(name,[]).append((json.dumps(record['profile'],sort_keys=True),Path(filename)))
+    if set(candidates)!=set(names): parser.error(f'missing required artifacts: {set(names)-set(candidates)}')
+    profiles={profile for profile,_ in candidates['ninjars_graph']}
+    if len(profiles)!=1: parser.error('ninjars_graph must have exactly one profile')
+    libraries={}
+    for name,entries in candidates.items():
+        paths={path for profile,path in entries if profile in profiles}
+        if len(paths)!=1: parser.error(f'{name}: expected one rlib with the ninjars_graph profile, found {len(paths)}')
+        libraries[name]=paths.pop()
     directories={p.parent for name,p in libraries.items() if name!='ninjars_graph'}
     if len(directories)!=1: parser.error('dependency rlibs must share a directory')
     binary=out/'prepare-feynkit'
