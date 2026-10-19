@@ -325,8 +325,10 @@ def lanes_only(args, names, meta, bins, inputs, work, collier_meta):
     env = json.loads(env_path.read_text())
     head = subprocess.run(["git", "-C", str(REPO), "rev-parse", "--short", "HEAD"], capture_output=True,
                           text=True).stdout.strip()
+    # the files that determine the lane values (driver, inputs, build)
     if subprocess.run(["git", "-C", str(REPO), "diff", "--quiet", "HEAD", "--",
-                       "validation/benchmark/collier"]).returncode:
+                       *(f"validation/benchmark/collier/{f}" for f in ("collier_bench.f90", "prepare.py", "build.sh")),
+                       "validation/rank-n2/harness/collier_reference.py"]).returncode:
         head += "+dirty"
     env["collier_lanes"] = {"date": datetime.date.today().isoformat(), "head": head,
                             "note": "lane values of collier.json from run_bench.py --lanes-only "

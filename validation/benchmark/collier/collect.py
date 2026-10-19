@@ -5,7 +5,8 @@ Inputs (validation/benchmark/collier/results/, written by run_bench.py and
 run_accuracy.py):
 - collier.json        COLLIER 1.2.10 per case and build/branch: block-median timings
                       per round, and the binary64 Laurent coefficients, flags and
-                      error estimates of every lane (validation pass);
+                      error estimates of every lane (validation pass; precise COLI
+                      with the global cache is validated only, not timed);
 - ninjars-fast.json   `ninjars case-bench` (fast engine) per case, width 1 and 32, per
                       round;
 - ninjars-generic.json `ninjars case-bench --engines generic` (one round);
@@ -158,7 +159,10 @@ def main():
     accuracy = load(accuracy_path) if accuracy_path.exists() else None
     meta = collier["meta"]
     twins = {pathlib.Path(p).stem for p in env.get("twins", [])}
-    variants = ("precise-coli", "precise-dd", "stock-coli", "stock-dd", "precise-coli-cache")
+    # Timed variants. The global-cache variant (precise-coli-cache) is validated, not
+    # timed: COLLIER's cache returns wrong 7-point rank-9 results (collier_cache_repro.f90),
+    # so its time is no usable speed-up; see the "collier_cache" accuracy entry.
+    variants = ("precise-coli", "precise-dd", "stock-coli", "stock-dd")
 
     # ------------------------------------------------------------ timing --
     cases = []
@@ -191,8 +195,7 @@ def main():
         for label, variant, quantity, width in (
                 ("coli", "precise-coli", "total_finite", "w32"), ("coli_w1", "precise-coli", "total_finite", "w1"),
                 ("coli_laurent", "precise-coli", "total_laurent", "w32"),
-                ("dd", "precise-dd", "total_finite", "w32"), ("stock_coli", "stock-coli", "total_finite", "w32"),
-                ("coli_cache", "precise-coli-cache", "total_finite", "w32")):
+                ("dd", "precise-dd", "total_finite", "w32"), ("stock_coli", "stock-coli", "total_finite", "w32")):
             rs = [ratio(c, variant, quantity, width) for c in cs]
             rs = [r for r in rs if r]
             row[label] = ({"cases": len(rs), "geomean": geomean(rs), "min": min(rs), "max": max(rs)} if rs
@@ -213,12 +216,7 @@ def main():
         laurent = [c["collier"]["precise-coli"]["total_laurent"] / c["collier"]["precise-coli"]["total_finite"]
                    for c in cs if "precise-coli" in c["collier"]]
         row["collier_laurent_over_finite"] = geomean(laurent)
-        cache = [c["collier"]["precise-coli-cache"]["total_finite"] / c["collier"]["precise-coli"]["total_finite"]
-                 for c in cs if "precise-coli-cache" in c["collier"] and "precise-coli" in c["collier"]]
-        row["collier_cache_over_nocache"] = geomean(cache)
         by_n.append(row)
-    cache_gain = [c["collier"]["precise-coli-cache"]["total_finite"] / c["collier"]["precise-coli"]["total_finite"]
-                  for c in suite if "precise-coli-cache" in c["collier"] and "precise-coli" in c["collier"]]
     stock_gain = [c["collier"]["stock-coli"]["total_finite"] / c["collier"]["precise-coli"]["total_finite"]
                   for c in suite if "stock-coli" in c["collier"] and "precise-coli" in c["collier"]]
     overheads = {k: statistics.median([c["collier"]["precise-coli"][k] for c in suite if "precise-coli" in c["collier"]])
@@ -272,7 +270,7 @@ def main():
                    "condition": rl.get("absum_over_scale",
                                        max((rl.get("condition") or {}).values() or [0.0])),
                    "new_terms_over_scale": (rl.get("reduction") or {}).get("new_terms_over_scale")}
-            for v in ("precise-coli", "precise-dd", "stock-coli", "stock-dd"):
+            for v in ("precise-coli", "precise-dd", "stock-coli", "stock-dd", "precise-coli-cache"):
                 runs = collier["lanes"].get(name, {}).get(v)
                 if not runs:
                     continue
@@ -281,6 +279,9 @@ def main():
                 err, scale = scaled_difference(vals, rl)
                 row[v] = {"error": err, "estimate": cl["err_estimate"] / scale, "errflag": cl["errflag"],
                           "accflag": cl["accflag"], "absum_over_scale": cl["absum"] / scale}
+                if v == "precise-coli-cache" and collier["lanes"][name].get("precise-coli"):
+                    nc = collier["lanes"][name]["precise-coli"][i]
+                    row[v]["bitwise_as_nocache"] = vals == nc["eps0"] + nc["eps_m1"] + nc["eps_m2"]
             for label in ("fast", "generic"):
                 nl = ninja_lane.get(lane_id, {}).get(label)
                 if nl:
@@ -291,8 +292,10 @@ def main():
     def err(r, key):
         return r[key]["error"] if key in r and r[key].get("error") is not None else None
 
-    # Binary64 comparison set: tier A and B lanes whose condition (COLLIER's, or the
-    # cancellation of the new rank n+2 terms) is at most 1e6, as case-check judges binary64.
+    # Binary64 comparison set: tier A and B lanes (suite and synthetic) whose condition
+    # (COLLIER's, or the cancellation of the new rank n+2 terms) is at most 1e6. case-check
+    # (fast f64) judges most of them; the others are report-only there (their tolerance
+    # cannot resolve the new rank n+2 term, docs/rank-n2.md section 8.3), counted per n.
     def judged(r):
         cond = max(r["condition"] or 0.0, r["new_terms_over_scale"] or 0.0)
         return r["tier"] in ("A", "B") and cond <= 1e6
@@ -308,7 +311,37 @@ def main():
         both = [r for r in rs if err(r, "fast") is not None and err(r, "precise-coli") is not None]
         row["fast_better_than_coli"] = sum(1 for r in both if err(r, "fast") <= err(r, "precise-coli"))
         row["compared"] = len(both)
+        ill = [r for r in lanes if r["n"] == n and r["tier"] in ("A", "B") and not judged(r)]
+        row["ill_conditioned_one_below_1e-8"] = sum(
+            1 for r in ill if min(err(r, "fast") or math.inf, err(r, "precise-coli") or math.inf) <= 1e-8)
+        row["case_check_judged"] = sum(1 for r in rs if (r.get("fast") or {}).get("verdict") in ("pass", "fail"))
+        row["case_check_report_only"] = sum(1 for r in rs if (r.get("fast") or {}).get("verdict") == "report-only")
         acc_by_n.append(row)
+
+    # COLLIER's global cache (precise COLI, one cache per lane, values from its optimised
+    # mode) against the uncached values (all lanes with a reference) and against the
+    # references (the binary64 comparison set above)
+    cache_check = []
+    for n in sorted({r["n"] for r in lanes}):
+        rs = [r for r in lanes if r["n"] == n and "precise-coli-cache" in r and "precise-coli" in r]
+        if not rs:
+            continue
+        js = [r for r in rs if judged(r)]
+        cache_check.append({
+            "n": n, "ranks": sorted({r["rank"] for r in rs}), "lanes": len(rs),
+            "differ_from_nocache": sum(1 for r in rs if not r["precise-coli-cache"]["bitwise_as_nocache"]),
+            "cache_accflag_-2": sum(1 for r in rs if r["precise-coli-cache"]["accflag"] == -2),
+            "nocache_accflag_-2": sum(1 for r in rs if r["precise-coli"]["accflag"] == -2),
+            "judged": {
+                "lanes": len(js),
+                "cache": stats([err(r, "precise-coli-cache") for r in js]),
+                "nocache": stats([err(r, "precise-coli") for r in js]),
+                "cache_min": min((err(r, "precise-coli-cache") for r in js), default=None),
+                "cache_above_1e-6": sum(1 for r in js if err(r, "precise-coli-cache") > 1e-6),
+                "nocache_above_1e-6": sum(1 for r in js if err(r, "precise-coli") > 1e-6),
+                "cache_accflag_-2": sum(1 for r in js if r["precise-coli-cache"]["accflag"] == -2),
+            },
+        })
 
     # COLLIER's own accuracy information against its actual error (tier A/B lanes)
     flags = {}
@@ -371,6 +404,7 @@ def main():
         fresh["flagged"] = len(unstable)
         fresh["above_1e-6_condition_min"] = min((l["condition"] for l in bad), default=None)
         fresh["above_1e-6_coli"] = stats([l.get("coli") for l in bad])
+        fresh["above_1e-6_coli_below_1e-6"] = sum(1 for l in bad if (l.get("coli") or 0) <= 1e-6)
         fresh["flagged_below_1e-6"] = sum(1 for l in unstable if max(l.get("fast") or 0, l.get("generic") or 0) <= 1e-6)
         fresh["flagged_coli"] = stats([l.get("coli") for l in unstable])
         fresh["flagged_condition_min"] = min((l["condition"] for l in unstable), default=None)
@@ -414,14 +448,12 @@ def main():
         "display": [c for c in DISPLAY if c in index],
         "cases": cases,
         "by_n": by_n,
-        "collier_cache_over_nocache": {"geomean": geomean(cache_gain), "min": min(cache_gain, default=None),
-                                       "max": max(cache_gain, default=None)},
         "collier_stock_over_precise": {"geomean": geomean(stock_gain), "min": min(stock_gain, default=None),
                                        "max": max(stock_gain, default=None)},
         "collier_overheads_us": overheads,
         "twins": twin_rows,
         "accuracy": {"by_n": acc_by_n, "collier_flags": flags, "collier_vs_1.2.9": agreement,
-                     "final_review": fresh},
+                     "final_review": fresh, "collier_cache": cache_check},
         "case_check": verdict_table,
         "instructions": instructions,
     }

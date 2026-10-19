@@ -155,16 +155,15 @@ comparison:
   `precise`, its gfortran Release flags without `-ffast-math`, as every other
   code in this report; and `stock`, the shipped flags with `-ffast-math`. It
   runs with its default target accuracy $10^(-8)$ (`SetReqAcc_cll`), without
-  its global cache, and with the renormalization scale set outside the timed
-  region (`SetMuUV2_cll` costs #fixed(rn2.collier_overheads_us.scale_switch, 1)
-  µs, the $Delta$ changes between the three evaluations
+  its optional global cache, which returns wrong 7-point results at rank 9
+  (see below), and with the renormalization scale set outside the timed
+  region (`SetMuUV2_cll` and `SetMuIR2_cll` together cost
+  #fixed(rn2.collier_overheads_us.scale_switch, 1) µs, the $Delta$ changes
+  between the three evaluations
   #fixed(rn2.collier_overheads_us.delta_switch, 1) µs, both from
   DD's determination of the machine precision at every parameter change). DD
   covers $n <= 4$ at rank $n + 2$ (pentagons up to rank 5, hexagons up to 6).
-  With one integrand per phase-space point, the global cache changes COLLIER's
-  time by ×#fixed(rn2.collier_cache_over_nocache.geomean, 2) on average
-  (×#fixed(rn2.collier_cache_over_nocache.min, 2)–#fixed(rn2.collier_cache_over_nocache.max, 2));
-  the stock build takes ×#fixed(rn2.collier_stock_over_precise.geomean, 2) of
+  The stock build takes ×#fixed(rn2.collier_stock_over_precise.geomean, 2) of
   the precise build's time.
 
 NinjaRS runs the fast engine (`ninjars case-bench`: dense `TensorNumerator`,
@@ -174,16 +173,20 @@ NinjaRS runs the fast engine (`ninjars case-bench`: dense `TensorNumerator`,
 `case-check`'s numerically expanded dense-tensor numerator).
 
 *Measurement.* Every process is single-threaded and pinned to one core
-(CPU #rn2.cpu, idle when chosen; the host has no SMT siblings). The
-#rn2.rounds rounds run NinjaRS and every COLLIER variant on every case in
-turn; each quantity is the best of the rounds' medians over blocks of at
+(CPU #rn2.cpu, idle when chosen; the host has no SMT siblings). The codes
+are interleaved per round, not per case: each of the #rn2.rounds rounds runs
+NinjaRS on every case, then every COLLIER variant on every case. Each
+quantity is the best of the rounds' medians over blocks of at
 least #rn2.blocks.min_block_ms ms (#rn2.blocks.ninjars blocks for NinjaRS,
 #rn2.blocks.collier for COLLIER, #rn2.blocks.generic for the generic engine,
 which runs once). Other processes took
 #calc.round(100 * rn2.foreign_cpu_s / rn2.measured_cpu_s, digits: 1) % of that
 core's time during the measurements. The core clock of this shared host
-varies between 1.8 and 3.1 GHz, so the retired instructions per point
-(@tab:rank-n2-instructions) are given as a clock-independent check. NinjaRS
+varies between 1.8 and 3.1 GHz and can differ between the NinjaRS and the
+COLLIER part of a round, so a per-case wall-clock ratio is uncertain by about
+±20 %; this matters at $n <= 3$, not for the orders of magnitude at
+$n >= 4$. The retired instructions per point (@tab:rank-n2-instructions) are
+given as a clock-independent check. NinjaRS
 at #raw(rn2.ninjars_head) (oneloopmaster #raw(str(rn2.oneloopmaster))), #rn2.date.
 
 #let rn2-table-header = ([Case], [$n$ / $r$], [NinjaRS fast [µs]],
@@ -335,8 +338,8 @@ in the reduction itself. From $n = 4$ on, COLLIER's cost grows much faster
 with the rank: NinjaRS takes #high.map(r => speed(r.coli.geomean)).join([, ], last: [ and ])
 of COLLIER's time for $n = 4, dots, 7$, where COLLIER needs
 #fmt(bn(7).collier_coli_geomean / 1000) ms per point at $n = 7$ against
-NinjaRS's #fmt(bn(7).ninjars_w32_total_geomean / 1000) ms. A `perf` profile
-of COLLIER on `syn-n5-r7` and `syn-n6-r8` attributes 69 % and 57 % of its
+NinjaRS's #fmt(bn(7).ninjars_w32_total_geomean / 1000) ms. `perf` profiles
+of COLLIER on `syn-n5-r7` and `syn-n6-r8` attribute about 60–75 % of its
 time to building the tensor components from the Lorentz-covariant
 coefficients (`addtotensortn` in `BuildTensors.F90`); at rank $n + 2$ the
 number of components and of their covariant structures grows steeply. The
@@ -350,10 +353,6 @@ applies ($n <= 4$), takes
 #by-n.filter(r => r.dd != none).map(r => [×#fixed(r.coli.geomean / r.dd.geomean, 2)]).join([, ], last: [ and ])
 of COLI's time for $n = 1, dots, 4$, and the stock build
 ×#fixed(rn2.collier_stock_over_precise.geomean, 2) of the precise build's.
-COLLIER's global cache, which can only reuse integrals within one
-phase-space point, changes its time by
-#by-n.map(r => [×#fixed(r.collier_cache_over_nocache, 2)]).join([, ], last: [ and ])
-for $n = 1, dots, 7$.
 #let g-total = geo(by-n.map(r => r.generic_over_fast_w32))
 #let g-red = geo(by-n.map(r => r.generic_reduction_over_fast_w32))
 #if g-total != none and g-red != none [
@@ -419,11 +418,14 @@ over the same step.
 #figure(
   kind: table,
   caption: [*Binary64 accuracy against the high-precision references*, on
-    the tier A and B lanes with a condition of at most $10^6$, the lanes on
-    which `case-check` judges binary64 (in brackets: the excluded lanes,
-    tier C, whose published value is COLLIER's own quadruple-precision result
-    or lacks an independent check, and conditions above $10^6$, on which no
-    binary64 code is accurate). Scaled difference as `ninjars case-check` computes
+    the tier A and B lanes (suite and synthetic) with a condition of at most
+    $10^6$; `case-check` judges #acc.map(r => r.case_check_judged).sum() of
+    them in binary64 and reports the other
+    #acc.map(r => r.case_check_report_only).sum() as report-only (in brackets:
+    the excluded lanes, tier C, whose published value is COLLIER's own
+    quadruple-precision result or lacks an independent check, and conditions
+    above $10^6$, on which the binary64 results of at least one of the two
+    codes are not reliable). Scaled difference as `ninjars case-check` computes
     it: the largest $|x - x_"ref"|$ over the three Laurent coefficients,
     divided by the lane's largest reference coefficient. Each cell gives the
     median and, below it, the maximum. NinjaRS fast and generic engines at
@@ -450,9 +452,12 @@ over the same step.
 #let acc-all = acc.map(r => r.compared).sum()
 #let acc-better = acc.map(r => r.fast_better_than_coli).sum()
 
-*Accuracy.* On the #acc.map(r => r.lanes).sum() suite lanes that
-`case-check` judges in binary64 (@tab:rank-n2-accuracy), the fast engine's
-error is at most COLI's on #acc-better of #acc-all lanes. Both lose accuracy
+*Accuracy.* On the #acc.map(r => r.lanes).sum() tier A and B lanes (suite
+and synthetic) with a condition of at most $10^6$ (@tab:rank-n2-accuracy;
+`case-check` judges #acc.map(r => r.case_check_judged).sum() of them in
+binary64 and reports #acc.map(r => r.case_check_report_only).sum(), whose
+tolerance cannot resolve the new rank $n + 2$ term, as report-only), the
+fast engine's error is at most COLI's on #acc-better of #acc-all lanes. Both lose accuracy
 with $n$, for different reasons: NinjaRS through cancellations between the
 cut contributions and in the subtractions, COLLIER through its Gram and
 Cayley expansions and the size of its rank $n + 2$ tensor reduction. The
@@ -463,11 +468,14 @@ fast engine and
 for COLI. On the
 #acc.map(r => r.ill_conditioned).sum() excluded tier A and B lanes with a
 condition above $10^6$ (all at $n >= #acc.find(r => r.ill_conditioned > 0).n$:
-COLLIER's terms or the new rank $n + 2$ terms cancel) neither code is
-accurate in binary64: up to
+COLLIER's contraction terms cancel, which hurts COLI, or the new rank $n + 2$
+terms cancel, which hurts NinjaRS) the binary64 results are not reliable for at least one of
+the two codes: the errors reach
 #sci(calc.max(..acc.map(r => r.at("fast_all_ab").at("max", default: 0)))) for
 the fast engine and
-#sci(calc.max(..acc.map(r => r.at("precise-coli_all_ab").at("max", default: 0)))) for COLI.
+#sci(calc.max(..acc.map(r => r.at("precise-coli_all_ab").at("max", default: 0)))) for COLI,
+while on #acc.map(r => r.ill_conditioned_one_below_1e-8).sum() of them one of
+the two stays below $10^(-8)$.
 
 #let fresh = rn2.accuracy.at("final_review", default: none)
 #let fresh-cell(s) = if s == none or s.lanes == 0 { [—] } else {
@@ -503,9 +511,11 @@ deliberately ill-conditioned light-like kinematics
 (@tab:rank-n2-fresh). There NinjaRS's binary64 error exceeds $10^(-6)$ on
 #fresh.at("ninjars_above_1e-6") lanes, all of whose cut contributions cancel by
 more than #sci(fresh.at("above_1e-6_condition_min"), digits: 0) relative to
-the result: an instability of integrand reduction in fixed precision that a
-tensor-integral code does not share, and COLI is accurate to a median
-#sci(fresh.at("above_1e-6_coli").median) on these lanes. The generic engine's
+the result, an instability of integrand reduction in fixed precision. COLI
+stays below $10^(-6)$ on #fresh.at("above_1e-6_coli_below_1e-6") of these
+#fresh.at("ninjars_above_1e-6") lanes: its error on them has median
+#sci(fresh.at("above_1e-6_coli").median) and reaches
+#sci(fresh.at("above_1e-6_coli").max) on the worst. The generic engine's
 opt-in cancellation test (`--stability-test`) reports
 #fresh.at("ninjars_above_1e-6_flagged") of them as `Unstable`; it leaves
 #fresh.at("ninjars_above_1e-5_unflagged") lanes with an error above
@@ -560,6 +570,33 @@ reports the target as reached, and its error estimate falls short of the
 actual error on #(fc.lanes - fc.estimate_covers_error) lanes, by up to
 ×#sci(fc.worst_underestimate). The quadruple-precision builds showed the
 same in the reference harness (`validation/rank-n2/README.md`, finding 1).
+
+#let cache = rn2.accuracy.at("collier_cache", default: ())
+#let cache7 = cache.find(r => r.n == 7)
+#let cache-low = cache.filter(r => r.n <= 6)
+#if cache7 != none [
+  *COLLIER's global cache returns wrong results at $n = 7$.*
+  COLLIER can reuse integrals across calls through an optional global cache
+  (`InitCacheSystem_cll`, `InitEvent_cll` before every phase-space point).
+  Validated with one cache per lane, in the cache mode its timed loop would
+  use, it returns wrong rank-9 heptagons: all #cache7.lanes $n = 7$ lanes
+  differ from the uncached values, the
+  #cache7.judged.lanes compared ones have scaled errors from
+  #sci(cache7.judged.cache_min) to #sci(cache7.judged.cache.max) (at most
+  #sci(cache7.judged.nocache.max) without the cache), and COLLIER reports
+  accuracy flag $-2$ on #cache7.judged.at("cache_accflag_-2") of them. The
+  manual's usage alone reproduces it
+  (`validation/benchmark/collier/collier_cache_repro.f90`: one cache, one
+  `TNten_cll` call with $N = 7$, $R = 9$ per event, the same point in every
+  event, no parameter change): from the third event on, the tensor is off by
+  3.9 times its largest component, with flag $-2$; at rank 8 the cached
+  tensor is bitwise identical. At $n <= 6$ the cache changes
+  #cache-low.map(r => r.differ_from_nocache).sum() of
+  #cache-low.map(r => r.lanes).sum() lanes at the level of COLLIER's own
+  accuracy. The tables therefore use COLLIER without the cache, its
+  default, and no cached time is reported: a time measured on wrong results
+  is no usable speed-up.
+]
 
 #let cc = rn2.case_check
 #let cc-runs = (
@@ -616,8 +653,10 @@ $10^(-14)$ the ratio of the errors has median
 factor of two are $mu^2$ lanes, whose pieces this harness rounds to binary64
 before the contraction. COLLIER 1.2.10 changes, against 1.2.9, complex-mass
 $C_0$ root prescriptions and two error-estimate guards. Building and running
-COLLIER showed one defect in the reference harness and one cost to know
-about: its driver aggregated COLLIER's accuracy flag with `max` from 0 and so
-never reported a negative flag (the references do not use it), and every
-change of a regulator or scale parameter runs DD's machine-precision loop
+COLLIER showed, besides the cache defect, one defect in the reference
+harness and one cost to know about: the harness combines COLLIER's accuracy
+flag with `max` from 0, in its Fortran driver (`collier_tensor_driver.f90`)
+and again over a lane's pieces (`collier_reference.py`), and so never reports
+a negative flag (no reference value uses it), and every change of a
+regulator or scale parameter runs DD's machine-precision loop
 (`DDsetparam`), also in COLI mode.
