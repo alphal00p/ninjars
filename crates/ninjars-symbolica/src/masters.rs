@@ -9,10 +9,11 @@
 //! symmetrically; before it did, a four-mass D0 lost its real part
 //! (`tests/box_masters.rs`).
 //!
-//! The rank-four bubble coefficient B1111 uses oneloopmaster's native tensor
-//! family (`TensorIntegral::B1111`, OneLOop's `bub1111` with the corrected
-//! mass-swap sign) for every carrier, arbitrary-precision `Float` included.
-//! The exact Passarino-Veltman B1111 divides by `(p²)⁴` and loses about
+//! The bubble tensor coefficients B1, B11, B111 and B1111 use oneloopmaster's
+//! native tensor families (`TensorIntegral::B11`, `B111`, `B1111`; OneLOop's
+//! `bub11`, `bub111` and `bub1111` with the corrected mass-swap sign) for every
+//! carrier, arbitrary-precision `Float` included. The exact Passarino-Veltman
+//! forms divide by powers of `p²`; B1111 divides by `(p²)⁴` and loses about
 //! `5-6 log10(m²/|p²|)` digits at small `|p²|` (relative error 5.5e-6 in
 //! binary64 at `p² = m²/256`, 1.2e-4 in `Float(256)` at `|p²|/m² = 4e-13`),
 //! while its tracked `Float` precision overstates the digits that remain. For
@@ -24,8 +25,8 @@
 //! Otherwise arbitrary-precision `Float` keeps Symbolica's interpreter of the
 //! exact expressions for the scalar families, which tracks the significant
 //! precision of every input component instead of padding inputs to the
-//! working precision. The other tensor families (B1, B11, B111, An) and all
-//! Dual (derivative) evaluations of every family, B1111 included, use the same
+//! working precision. The tensor family An and all Dual (derivative)
+//! evaluations of every family, the bubble tensors included, use the same
 //! exact formulas through the interpreter for every carrier, whose DoubleFloat
 //! products keep their operand-order rounding.
 
@@ -114,7 +115,8 @@ fn strict_status(statuses: &[MasterStatus]) -> Result<()> {
 /// rounded momenta (e.g. `+2^-114` with 2 tracked bits at 128 bits) can make
 /// the four-mass D0 wrong by orders of magnitude while it reports 8 bits.
 ///
-/// B1111 comes from oneloopmaster's native tensor family for every carrier.
+/// B1, B11, B111 and B1111 come from oneloopmaster's native tensor families
+/// for every carrier.
 /// The native code rounds every input to one working precision, so for `Float`
 /// that precision is chosen per row, never above the provider's working
 /// precision: the least, over the row's inputs, of the bits that each input
@@ -135,7 +137,7 @@ pub struct SymbolicaMasters<T: NativeFloat> {
     onshell_threshold: Option<T>,
     evaluators: BTreeMap<MasterIntegral, BatchExpressionEvaluator<Complex<T>>>,
     native: BTreeMap<MasterIntegral, NativeEvaluator<T>>,
-    /// Native tensor families (only B1111), by family and working bits: the
+    /// Native tensor families (the bubble tensors), by family and working bits: the
     /// fixed precision of binary64 and DoubleFloat, or for `Float` each row's
     /// precision ([`Self::tensor_row_bits`]).
     native_tensor: BTreeMap<(MasterIntegral, u32), NativeTensorEvaluator<T>>,
@@ -240,10 +242,15 @@ where
     }
 
     /// The oneloopmaster tensor family serving `integral` natively, and the
-    /// position of `integral` among its coefficients. Only B1111: the exact
-    /// B1, B11 and B111 stay on the interpreter (bitwise unchanged results).
+    /// position of `integral` among its coefficients (`[B0, B1, B11]`,
+    /// `[B0, .., B111]`, `[B0, .., B1111]`). The exact Passarino-Veltman B1,
+    /// B11 and B111 divide by powers of `p²` and lose about 2, 3 and 4 digits
+    /// per decade of `m²/|p²|` (DoubleFloat B111: 3.6e-7 at `p² = 2^-24`).
     fn native_tensor_family(integral: MasterIntegral) -> Option<(TensorIntegral, usize)> {
         match integral {
+            MasterIntegral::B1 => Some((TensorIntegral::B11, 1)),
+            MasterIntegral::B11 => Some((TensorIntegral::B11, 2)),
+            MasterIntegral::B111 => Some((TensorIntegral::B111, 3)),
             MasterIntegral::B1111 => Some((TensorIntegral::B1111, 4)),
             _ => None,
         }
@@ -307,7 +314,7 @@ where
     }
 
     /// Compile a family and reserve its reusable workspace before timing calls.
-    /// For `Float`, B1111 rows below the working precision build their native
+    /// For `Float`, bubble tensor rows below the working precision build their native
     /// evaluator on first use.
     pub fn prepare(&mut self, integral: MasterIntegral, rows: usize) -> Result<()> {
         if self.native_evaluator(integral)?.is_some() {

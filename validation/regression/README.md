@@ -93,3 +93,15 @@ pass it bitwise.
     `gg-hhh-top-pentagon-26`, `syn-n4-r5`, `syn-n6-r7`), by at most 7.8e-72 of
     the lane's largest component;
   - no lane status changed.
+- The bubble tensor coefficients B1, B11 and B111 now come from
+  oneloopmaster's native tensor families for every carrier, as B1111 already
+  did (`crates/ninjars-symbolica/src/masters.rs`). The exact
+  Passarino-Veltman forms lost 2-4 digits per decade of `m²/|p²|`, which made
+  DoubleFloat and `Float(128)` bubbles at small `|p²|` with unequal masses
+  silently wrong (rank n+2 final review, finding 3: relative errors 0.63 and
+  9.9e-8 at rank 2, 1.3e13 and 2.0e6 at rank 4; now 2e-19 and below 1e-20,
+  2.5e-15 and below 1e-20 against `Float(512)`). The fixture was re-blessed in
+  place: only the generic `Float(256)` section moved, 43 decimal components of
+  `syn-n2-r3`, `syn-n3-r4`, `syn-n4-r5` and `syn-n6-r7` in their last printed
+  digit (about 1e-76 relative); the fast engine, generic binary64 and the
+  explicit-`mu²` sections are bitwise unchanged.
