@@ -1,4 +1,5 @@
-//! Conditioned quadruple-cut geometry of the rank n+2 engine.
+//! Conditioned quadruple-cut geometry: always in the rank n+2 engine, and in
+//! the rank <= n+1 engine with [`super::FastOptions::conditioned_cuts`].
 //!
 //! The box rational terms come from the integrand on the d-dimensional cut
 //! `q = q̄ - V_0 + t n`, `mu² = t² n² - beta` (`beta = m_0² - q̄²`), expanded at

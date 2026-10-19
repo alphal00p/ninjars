@@ -3,6 +3,10 @@
 //! `ComplexMasses`), including the rank n+1 path of `Xninja.cc`. Rank n+2
 //! (beyond original Ninja) is a separate engine, [`super::engine_x2`],
 //! selected once in [`FastAmplitude::new`]; nothing below depends on it.
+//! With the opt-in [`FastOptions::conditioned_cuts`] the stages below take
+//! that engine's conditioned cut geometry (`bases_x2.rs`, `box_x2.rs`)
+//! instead of original Ninja's; by default they are original Ninja's,
+//! bitwise.
 //!
 //! Every stage processes one cut for all active lanes: geometry for each lane,
 //! one numerator callback per cut (both orientations of a triangle or of a
@@ -14,6 +18,8 @@
 // Index loops mirror original Ninja's component and lane loops.
 #![allow(clippy::needless_range_loop)]
 
+use super::bases_x2::{TadpoleBasesX2, bubble_basis_x2};
+use super::box_x2::box_geometry_x2;
 use super::complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr};
 use super::engine_x2::{DynMasters, DynNumerator, RankN2Engine, evaluate_x2};
 use super::geometry::{
@@ -56,6 +62,16 @@ pub struct FastOptions {
     /// involve Ninja's fixed irrational reference vectors. `0` restores Ninja's
     /// checks.
     pub relative_tolerance: f64,
+    /// Rank <= n+1 only (opt-in): take the cut geometry of the rank n+2
+    /// engine instead of original Ninja's, per cut and lane: the bubble
+    /// reference and the tadpole basis that best condition the uncut lines
+    /// (`bases_x2.rs`) and the box normal, center and solutions of
+    /// `box_x2.rs`. This trades bitwise agreement with original Ninja (the
+    /// default, `false`) for accuracy on lanes where an uncut line is nearly
+    /// orthogonal to Ninja's fixed reference vectors, e.g. propagator pairs
+    /// whose shift difference has a zero time component. Rank n+2 always
+    /// uses the conditioned geometry.
+    pub conditioned_cuts: bool,
 }
 
 impl Default for FastOptions {
@@ -65,6 +81,7 @@ impl Default for FastOptions {
             infrared_eps: 1.0e-9,
             stability_threshold: 1.0e20 * f64::MIN_POSITIVE,
             relative_tolerance: 1024. * f64::EPSILON,
+            conditioned_cuts: false,
         }
     }
 }
@@ -579,6 +596,9 @@ pub struct FastAmplitude {
     topo: Topology,
     options: FastOptions,
     tadpole_bases: [Basis; 3],
+    /// Original Ninja's tadpole bases and the extra candidates, iff
+    /// [`FastOptions::conditioned_cuts`] (rank <= n+1).
+    conditioned_tadpoles: Option<Box<TadpoleBasesX2>>,
     lanes: usize,
     alive: Vec<bool>,
     lane_status: Vec<FastStatus>,
@@ -634,6 +654,8 @@ impl FastAmplitude {
         Ok(Self {
             topo: Topology::new(n, rank),
             tadpole_bases: tadpole_candidates(options.infrared_eps),
+            conditioned_tadpoles: (options.conditioned_cuts && rank <= n + 1)
+                .then(|| Box::new(TadpoleBasesX2::new(options.infrared_eps))),
             options,
             lanes: 0,
             alive: Vec::new(),
@@ -885,6 +907,29 @@ impl FastAmplitude {
                     continue;
                 }
                 let l = box_solutions(&k3, &k0, &k1, &e, m[c1], m[c2], m[c3], m[c4]);
+                if self.options.conditioned_cuts {
+                    // The rank n+2 engine's geometry (box_x2.rs).
+                    let Some(g) = box_geometry_x2(
+                        &[v[c1], v[c2], v[c3], v[c4]],
+                        &[m[c1], m[c2], m[c3], m[c4]],
+                        &l,
+                    ) else {
+                        fail(&mut self.alive, &mut self.lane_status, lane);
+                        continue;
+                    };
+                    self.box_rows.push(BoxRow {
+                        lane,
+                        vort: g.normal,
+                        q: g.q,
+                        mid: g.mid,
+                    });
+                    for qq in g.q {
+                        self.calls.lanes.push(lane);
+                        self.calls.v0.push(qq);
+                        self.calls.scalar.push(C64::ZERO);
+                    }
+                    continue;
+                }
                 let q = [sub_cr(&l[0], &v[c1]), sub_cr(&l[1], &v[c1])];
                 let mut mid = [C64::ZERO; 4];
                 if x1 {
@@ -1257,7 +1302,13 @@ impl FastAmplitude {
                     continue;
                 }
                 let k = sub(&v[c1], &v[c2]);
-                let e = Basis::from_single(&k, eps);
+                let e = if self.options.conditioned_cuts {
+                    // The reference that best conditions the uncut lines.
+                    let cp = &self.topo.bubble_complements[b * (n - 2)..(b + 1) * (n - 2)];
+                    bubble_basis_x2(&k, v, c1, cp, eps)
+                } else {
+                    Basis::from_single(&k, eps)
+                };
                 let (b0, b1, param) = bubble_solution(&k, &e, m[c1], m[c2]);
                 let e1effl = [b0 * e.e2[0], b0 * e.e2[1], b0 * e.e2[2], b0 * e.e2[3]];
                 let e2eff = [
@@ -1590,12 +1641,16 @@ impl FastAmplitude {
                     continue;
                 }
                 let v = &input.shifts[lane * n..(lane + 1) * n];
-                let basis = (0..2)
+                let mut basis = (0..2)
                     .find(|&i| {
                         let e = &self.tadpole_bases[i];
                         reference_vectors_ok(v, a, &e.e1, &e.e2, eps)
                     })
                     .unwrap_or(2);
+                if let Some(bases) = &self.conditioned_tadpoles {
+                    let uncut = &self.topo.tadpole_complements[a * (n - 1)..(a + 1) * (n - 1)];
+                    basis = bases.choose(basis, v, a, uncut);
+                }
                 self.tad_rows.push(TadpoleRow { lane, basis });
             }
             if self.tad_rows.is_empty() {
@@ -1617,7 +1672,11 @@ impl FastAmplitude {
             for orientation in 0..orientations {
                 for row in &self.tad_rows {
                     let lane = row.lane;
-                    let (ev3, ev4) = vectors(&self.tadpole_bases[row.basis], orientation);
+                    let e = match &self.conditioned_tadpoles {
+                        Some(bases) => &bases.bases[row.basis],
+                        None => &self.tadpole_bases[row.basis],
+                    };
+                    let (ev3, ev4) = vectors(e, orientation);
                     let v0 = input.shifts[lane * n + a];
                     self.calls.lanes.push(lane);
                     self.calls
@@ -1650,7 +1709,10 @@ impl FastAmplitude {
                 let v = &input.shifts[lane * n..(lane + 1) * n];
                 let m = &input.masses_squared[lane * n..(lane + 1) * n];
                 let vsq = &self.vsq[lane * n..(lane + 1) * n];
-                let e = self.tadpole_bases[row.basis];
+                let e = match &self.conditioned_tadpoles {
+                    Some(bases) => bases.bases[row.basis],
+                    None => self.tadpole_bases[row.basis],
+                };
                 let param = m[a];
                 let amu = [-v[a][0], -v[a][1], -v[a][2], -v[a][3]];
                 let mut stable = true;

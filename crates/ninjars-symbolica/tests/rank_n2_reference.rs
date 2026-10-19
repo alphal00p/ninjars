@@ -498,6 +498,22 @@ fn controls_binary64_match_references() {
     }
 }
 
+/// The controls through the fast engine with the opt-in conditioned cut
+/// geometry for rank <= n+1 (`FastOptions::conditioned_cuts`: the bubble
+/// references, tadpole bases and box geometry of the rank n+2 engine),
+/// within the same binary64 policy as the default fast engine.
+#[test]
+fn controls_fast_conditioned_binary64_match_references() {
+    let report = check_set(
+        &controls(7),
+        &rank_n2().join("controls/reference"),
+        Run::FastConditioned,
+        |case| case.rank,
+        &policy(),
+    );
+    report.assert_clean(true);
+}
+
 // ---------------------------------------------------------------------------
 // Rank n+2.
 
