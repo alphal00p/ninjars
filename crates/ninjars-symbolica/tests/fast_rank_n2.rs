@@ -8,18 +8,27 @@
 //!    family Ninja did not call (rank 3 or 4: the coefficients of `B111` and
 //!    `B1111` are then rounding-level), or a family of a stage Ninja skips at
 //!    low rank, the missing entries come from the exact oneloopmaster
-//!    expressions (`SymbolicaMasters` in `Float(256)`). Every lane must
-//!    agree with Ninja within the tolerance of `fast_ninja_reference.rs`,
-//!    statuses must match, and batched evaluations must reproduce the width-1
-//!    results bitwise. Where the validated rank n+1 engine itself, on the same
-//!    numerator declared rank n+1, already differs from Ninja by more than
-//!    that tolerance, the lane must stay within ten times its deviation:
-//!    this happens for ill-conditioned synthetic points (`syn-n5-r6`,
-//!    `syn-n6-r5`, `syn-n6-r7`, `syn-gghhh-ggHHH-n5-r5`: 2e-9 to 5e-6 for
-//!    the rank n+1 engine) and near-lightlike bubble momenta below rank n+1
-//!    (`edge-small-p2`, p² = ±0.01 at p = 200), where rank n+1 arithmetic
-//!    (the tadpole `(e1, e2)` orientation) differs from Ninja's lower-rank
-//!    one by up to 6e-8.
+//!    expressions (`SymbolicaMasters` in `Float(256)`). Every lane's Laurent
+//!    coefficients must agree with Ninja's within the tolerance of
+//!    `fast_ninja_reference.rs`, statuses must match, and batched evaluations
+//!    must reproduce the width-1 results bitwise. The cut-constructible/
+//!    rational split is not compared: it follows the rank n+2 engine's
+//!    bubble references (`fast/bases_x2.rs`), which leave Ninja's fixed one
+//!    where an uncut line makes it ill-conditioned (the generic engine's
+//!    split differs from Ninja's for the same reason). Two exceptions:
+//!    - Where the validated rank n+1 engine itself, on the same numerator
+//!      declared rank n+1, already differs from Ninja by more than that
+//!      tolerance, the lane must stay within ten times its deviation: this
+//!      happens for ill-conditioned synthetic points (`syn-n5-r6`,
+//!      `syn-n6-r5`, `syn-n6-r7`, `syn-gghhh-ggHHH-n5-r5`: 2e-9 to 5e-6 for
+//!      the rank n+1 engine).
+//!    - Where Ninja's own binary64 error exceeds the tolerance, the rank n+2
+//!      engine's conditioned bases round differently: the lane must then be
+//!      within ten times Ninja's error of the exact reduction with Ninja's
+//!      masters (`common/precision.rs`, Float(256)). This happens for
+//!      near-lightlike bubble momenta (`edge-small-p2`, p² = ±0.01 at
+//!      p = 200, where Ninja and the rank n+1 engine are off by up to 3e-8)
+//!      and on `edge-tadpole-bases`.
 //! 2. **High-precision references.** The rank n+2 cases of the review's
 //!    60-digit references (`tools/rank_n2/review/hpref`) and, when present,
 //!    the whole validation suite (`validation/rank-n2/reference`, tier A
@@ -32,6 +41,7 @@
 mod common;
 
 use common::ninja_reference::{MasterCall, NinjaLane, parse_case, parse_ninja, values};
+use common::precision::precision;
 use ninjars::fast::{
     C64, FastAmplitude, FastInput, FastMaster, FastMasters, FastNumerator, FastOptions, FastResult,
     FastStatus, MuTensorNumerator, RMom, TensorNumerator,
@@ -275,6 +285,7 @@ fn fast_rank_n2_padding_reproduces_original_ninja() {
     assert!(pairs.len() >= 60, "missing padding cases ({})", pairs.len());
     let (mut lanes, mut worst, mut completed, mut unstable) = (0, 0f64, 0, 0);
     let (mut excepted, mut worst_excepted, mut worst_ratio) = (0, 0f64, 0f64);
+    let (mut exact_checked, mut worst_exact_ratio, mut worst_split) = (0, 0f64, 0f64);
     for (case_path, ninja_path) in &pairs {
         let case = parse_case(&std::fs::read_to_string(case_path).unwrap()).unwrap();
         let masters_path = ninja_path.with_extension("masters.json");
@@ -317,14 +328,23 @@ fn fast_rank_n2_padding_reproduces_original_ninja() {
             if expected == FastStatus::Success {
                 let want = reference.values;
                 let scale = want.iter().map(|z| z.abs()).fold(0., f64::max).max(1e-300);
+                // Laurent coefficients only: the split depends on the bubble
+                // references (module docs).
                 let scaled = |r: &FastResult| {
-                    values(r)
+                    values(r)[..3]
                         .iter()
                         .zip(&want)
                         .map(|(a, b)| (*a - *b).abs() / scale)
                         .fold(0., f64::max)
                 };
                 let error = scaled(&results[0]);
+                worst_split = worst_split.max(
+                    values(&results[0])[3..]
+                        .iter()
+                        .zip(&want[3..])
+                        .map(|(a, b)| (*a - *b).abs() / scale)
+                        .fold(0., f64::max),
+                );
                 let mut tolerance = NINJA_TOLERANCE;
                 let mut tensor = padded_tensor(&case, &[index], case.n + 1);
                 let mut x1_results = [FastResult::default()];
@@ -344,12 +364,32 @@ fn fast_rank_n2_padding_reproduces_original_ninja() {
                     worst_excepted = worst_excepted.max(error);
                     worst_ratio = worst_ratio.max(error / x1_error);
                 }
-                assert!(
-                    error <= tolerance,
-                    "{name} {} declared rank {declared}: scaled error {error:e} (tolerance {tolerance:e})",
-                    reference.id
-                );
-                if tolerance == NINJA_TOLERANCE {
+                if error > tolerance {
+                    // Ninja's own rounding error exceeds the tolerance: the
+                    // rank n+2 engine must be as accurate within ten times.
+                    let exact = precision(&case, &ninja, 256, Some(&[index]))
+                        .unwrap()
+                        .remove(0);
+                    let exact_error = values(&results[0])[..3]
+                        .iter()
+                        .zip(&exact.exact)
+                        .map(|(a, b)| (*a - *b).abs() / exact.scale)
+                        .fold(0., f64::max);
+                    let bound = NINJA_TOLERANCE.max(10. * exact.ninja_laurent);
+                    assert!(
+                        exact_error <= bound,
+                        "{name} {} declared rank {declared}: scaled error {error:e} (tolerance {tolerance:e}); against the exact reduction {exact_error:e}, Ninja {:e}",
+                        reference.id,
+                        exact.ninja_laurent
+                    );
+                    eprintln!(
+                        "FAST_RANK_N2_PADDING_EXACT {name} {}: against Ninja {error:.1e}, against the exact reduction {exact_error:.1e} (Ninja {:.1e})",
+                        reference.id, exact.ninja_laurent
+                    );
+                    exact_checked += 1;
+                    worst_exact_ratio =
+                        worst_exact_ratio.max(exact_error / exact.ninja_laurent.max(1e-300));
+                } else if tolerance == NINJA_TOLERANCE {
                     worst = worst.max(error);
                 }
             } else {
@@ -399,7 +439,7 @@ fn fast_rank_n2_padding_reproduces_original_ninja() {
     }
     assert!(unstable >= 8, "the edge cases must include unstable points");
     eprintln!(
-        "FAST_RANK_N2_PADDING cases={} lanes={lanes} unstable={unstable} exact_fills={completed} max_scaled_error={worst:e}; lanes where the rank n+1 engine itself deviates (> 1e-11): {excepted}, their max scaled error {worst_excepted:e}, max ratio to the rank n+1 deviation {worst_ratio:.2}",
+        "FAST_RANK_N2_PADDING cases={} lanes={lanes} unstable={unstable} exact_fills={completed} max_scaled_error={worst:e}; lanes where the rank n+1 engine itself deviates (> 1e-11): {excepted}, their max scaled error {worst_excepted:e}, max ratio to the rank n+1 deviation {worst_ratio:.2}; lanes checked against the exact reduction: {exact_checked}, max error ratio to Ninja's {worst_exact_ratio:.2}; max split difference {worst_split:.1e}",
         pairs.len()
     );
 }
@@ -760,6 +800,41 @@ fn fast_rank_n2_matches_high_precision_references() {
             r.get(r.len() / 2).copied().unwrap_or(f64::NAN),
             r.last().copied().unwrap_or(f64::NAN),
             r.len()
+        );
+    }
+}
+
+/// The accuracy tail of the rank n+2 engine with original Ninja's fixed
+/// bubble reference and tadpole bases (`fast/bases_x2.rs`): suite lanes
+/// where the generic engine in binary64 is accurate but Ninja's choices,
+/// amplified by the rank n+2 subtraction terms, lost 6 to 10 digits. Each
+/// entry: case, lane, bound on the scaled error against the reference (with
+/// the error of Ninja's choices and of the generic engine in binary64, both
+/// against Float(256) reductions).
+#[test]
+fn fast_rank_n2_conditioned_bases_close_the_accuracy_tail() {
+    let Some(suite) = suite_dir() else {
+        eprintln!("FAST_RANK_N2_TAIL skipped: no validation/rank-n2/cases");
+        return;
+    };
+    let mut masters = exact_masters();
+    for (name, lane, bound) in [
+        // Ninja's choices 7.4e-7, generic binary64 5.0e-14.
+        ("rn2-shifted-mixed-n3-r5", 2, 1e-12),
+        // Ninja's choices 1.8e-7, generic binary64 5.6e-14.
+        ("rn2-irsoft-real-n5-r7", 2, 1e-11),
+        // Ninja's choices 2.1e-2, generic binary64 1.4e-6.
+        ("rn2-int-complex-n7-r9-mu2", 1, 1e-4),
+    ] {
+        let errors = suite_errors(&suite, name, &mut masters).unwrap();
+        eprintln!(
+            "FAST_RANK_N2_TAIL {name} lane {lane}: scaled error {:.2e}",
+            errors[lane]
+        );
+        assert!(
+            errors[lane] <= bound,
+            "{name} lane {lane}: scaled error {:e} > {bound:e}",
+            errors[lane]
         );
     }
 }

@@ -22,7 +22,7 @@
 //! through separate never-inlined methods with the `JetX2` jets.
 
 use super::complex::{C64, CMom, mp_cc};
-use super::numerator::{FastNumerator, t2_len, t3_len};
+use super::numerator::{FastNumerator, t2_len, t2_len_le3, t3_len};
 use super::tensor::{
     horner_jet, horner_jet_x2, horner_scalar, t2_offset, t2_output, t2_output_k4, t3_len_const,
     t3_output, work_len_x2,
@@ -546,7 +546,7 @@ impl FastNumerator for MuTensorNumerator {
         if mindeg > 3 {
             return Err(Error::Expansion(format!("t2 mindeg {mindeg} > 3")));
         }
-        let width = t2_len(mindeg);
+        let width = t2_len_le3(mindeg);
         Self::check_rows(lanes.len(), out.len(), width)?;
         let (rank, ncoeff) = (self.rank, self.ncoeff);
         // Only mu² itself fits below order four: block 1 enters orders 2 and 3.
@@ -570,7 +570,7 @@ impl FastNumerator for MuTensorNumerator {
             if shifted {
                 let reduced = mindeg - 2;
                 let (block, block_rank) = Self::block(c, rank, 1);
-                let converted = &mut scratch[..t2_len(reduced)];
+                let converted = &mut scratch[..t2_len_le3(reduced)];
                 t2_dispatch(
                     reduced,
                     block,

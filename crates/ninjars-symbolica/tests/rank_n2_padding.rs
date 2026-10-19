@@ -12,7 +12,11 @@
 //!   is the lane's binary64 noise, the change of the unpadded result when the
 //!   propagators are listed in reverse order (as `tests/fast_parity.rs`):
 //!   padding changes the rounding of ill-conditioned lanes (small-p^2 edge
-//!   cases) at that level;
+//!   cases) at that level. At rank n+2 the engine also chooses its own
+//!   bubble references and tadpole bases (`fast/bases_x2.rs`), so where the
+//!   unpadded result (or Ninja's) is less accurate than that tolerance, the
+//!   padded one must instead be within ten times its error of the exact
+//!   reduction (generic engine in Float(256) with exact masters);
 //! - generic engine in Float(256): within 1e-50 of the unpadded result.
 //!
 //! Declared rank n+2 exercises the rank n+2 paths with rank <= n+1
@@ -31,6 +35,7 @@ use rank_n2_reference_support::{
     rank_n2, root,
 };
 use serde_json::Value;
+use symbolica::domains::float::RealLike;
 
 const FAST_TOLERANCE: f64 = 1e-11;
 const FLOAT_TOLERANCE: f64 = 1e-50;
@@ -100,14 +105,54 @@ impl FastMasters for NinjaFirst {
     }
 }
 
+/// Laurent coefficients of the exact reduction of every lane of `case`
+/// (generic engine in Float(256) with exact masters; `None` where it does
+/// not succeed), computed on first use.
+fn exact_laurent<'a>(
+    cache: &'a mut Option<Vec<Option<[C64; 3]>>>,
+    engines: &mut Engines,
+    case: &BenchCase,
+) -> &'a [Option<[C64; 3]>] {
+    cache.get_or_insert_with(|| {
+        let (engine, masters) = engines.float(BITS).unwrap();
+        engine
+            .evaluate(case, case.rank, masters)
+            .unwrap()
+            .iter()
+            .map(|lane| {
+                (lane.status == ninjars::EvaluationStatus::Success).then(|| {
+                    std::array::from_fn(|k| {
+                        C64::new(lane.values[k].re.to_f64(), lane.values[k].im.to_f64())
+                    })
+                })
+            })
+            .collect()
+    })
+}
+
 /// Fast engine, padded to `declared(case)`: against original Ninja with its
 /// master values, and against the unpadded engine with native masters.
 fn fast_padding(entries: &[Entry], declared: impl Fn(&BenchCase) -> usize) {
     let mut native = OneLoopNativeMasters::new().unwrap();
+    let mut engines = Engines::default();
     let (mut worst_ninja, mut worst_self, mut lanes, mut fallbacks) = (0_f64, 0_f64, 0, 0);
-    let mut within_noise = 0;
+    let (mut within_noise, mut exact_checked, mut worst_exact_ratio) = (0, 0, 0_f64);
     for entry in entries {
         let case = &entry.case;
+        let mut exact = None;
+        // Where `d` exceeds `tolerance`: the padded result `a` must be within
+        // ten times the reference's (`b`) error of the exact reduction.
+        let mut check_exact = |lane: usize, a: &[C64], b: &[C64], scale: f64, label: &str| {
+            let e = exact_laurent(&mut exact, &mut engines, case)[lane]
+                .unwrap_or_else(|| panic!("{label}: no exact reduction"));
+            let error = |v: &[C64]| (0..3).map(|k| (v[k] - e[k]).abs()).fold(0., f64::max) / scale;
+            let (padded, reference) = (error(a), error(b));
+            assert!(
+                padded <= FAST_TOLERANCE.max(10. * reference),
+                "{label}: against the exact reduction {padded:e}, the reference {reference:e}"
+            );
+            padded / reference.max(1e-300)
+        };
         let rank = declared(case);
         let name = format!("{} declared rank {rank}", case.name);
         let original = run_fast(case, case.rank, case.lanes.len(), &mut native).unwrap();
@@ -127,12 +172,17 @@ fn fast_padding(entries: &[Entry], declared: impl Fn(&BenchCase) -> usize) {
             let b = fast_values(&original.results[lane]);
             let scale = b.iter().map(|z| z.abs()).fold(0., f64::max).max(1e-300);
             let d = (0..3).map(|k| (a[k] - b[k]).abs()).fold(0., f64::max) / scale;
-            assert!(
-                d <= tolerance(lane),
-                "{name} lane {lane}: padded vs unpadded {d:e} (noise {:e})",
-                noise[lane]
-            );
-            within_noise += usize::from(d > FAST_TOLERANCE);
+            if d > tolerance(lane) {
+                let label = format!(
+                    "{name} lane {lane}: padded vs unpadded {d:e} (noise {:e})",
+                    noise[lane]
+                );
+                let ratio = check_exact(lane, &a, &b, scale, &label);
+                worst_exact_ratio = worst_exact_ratio.max(ratio);
+                exact_checked += 1;
+            } else {
+                within_noise += usize::from(d > FAST_TOLERANCE);
+            }
             worst_self = worst_self.max(d);
             lanes += 1;
         }
@@ -160,16 +210,20 @@ fn fast_padding(entries: &[Entry], declared: impl Fn(&BenchCase) -> usize) {
                 .map(|k| (got[k] - reference.values[k]).abs())
                 .fold(0., f64::max)
                 / scale;
-            assert!(
-                d <= tolerance(lane),
-                "{name} lane {lane}: vs original Ninja {d:e} (noise {:e})",
-                noise[lane]
-            );
+            if d > tolerance(lane) {
+                let label = format!(
+                    "{name} lane {lane}: vs original Ninja {d:e} (noise {:e})",
+                    noise[lane]
+                );
+                let ratio = check_exact(lane, &got, &reference.values, scale, &label);
+                worst_exact_ratio = worst_exact_ratio.max(ratio);
+                exact_checked += 1;
+            }
             worst_ninja = worst_ninja.max(d);
         }
     }
     eprintln!(
-        "V5 fast: {} cases, {lanes} lanes; max scaled difference padded vs unpadded {worst_self:e} ({within_noise} above 1e-11, within 10x noise), vs original Ninja {worst_ninja:e}; {fallbacks} master requests not among Ninja's calls",
+        "V5 fast: {} cases, {lanes} lanes; max scaled difference padded vs unpadded {worst_self:e} ({within_noise} above 1e-11, within 10x noise), vs original Ninja {worst_ninja:e}; {exact_checked} comparisons beyond that checked against the exact reduction (max error ratio to the reference's {worst_exact_ratio:.2}); {fallbacks} master requests not among Ninja's calls",
         entries.len()
     );
 }

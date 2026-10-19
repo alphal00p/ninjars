@@ -5,6 +5,7 @@
 //! rank <= n+1 engine, pinch identities with mu²-dependent numerators,
 //! batching, replay and lane statuses).
 
+use super::bases_x2::with_ninja_choices;
 use super::complex::{C64, CMom, RMom, mp_cc};
 use super::engine_x2::{divide_t2_5, divide_t3_6};
 use super::numerator::{FastNumerator, t2_len, t3_len};
@@ -889,7 +890,13 @@ fn rank_n2_padding_reproduces_the_rank_n1_engine() {
             }
             let mut wide = padded(&tensor, n + 2);
             let (reference, reference_statuses) = evaluate(n, rank, &input, &mut tensor);
-            let (results, statuses) = evaluate(n, n + 2, &input, &mut wide);
+            // With original Ninja's bubble references and tadpole bases, i.e.
+            // the rank <= n+1 engine's conventions. The rank n+2 engine's own
+            // choices (bases_x2.rs) move terms between the bubble and tadpole
+            // coefficients, which only cancel with true master integrals (not
+            // `HashMasters`): ninjars-symbolica's `fast_rank_n2.rs` and
+            // `rank_n2_padding.rs` check them with oneloopmaster's masters.
+            let (results, statuses) = with_ninja_choices(|| evaluate(n, n + 2, &input, &mut wide));
             assert_eq!(statuses, reference_statuses, "n={n} rank={rank}");
             for lane in 0..lanes {
                 assert_eq!(statuses[lane], FastStatus::Success, "n={n} rank={rank}");
@@ -1026,12 +1033,14 @@ fn rank_n2_pinch_identity_with_mu_dependent_numerators() {
     // at rank n+2 that noise reaches the deeper subtraction terms (up to
     // 1/(e.k)^5): rank n+2 may lose at most three more digits (observed:
     // ratios 1..30 typically, 789 at worst, on lanes whose rank n+1 control
-    // is itself already ill-conditioned).
+    // is itself already ill-conditioned). Both sides use original Ninja's
+    // bubble references and tadpole bases: the identity holds for any
+    // choice only with true master integrals (see the padding test).
     let (mut worst, mut worst_ratio) = (0f64, 0f64);
     for n in 2..=6 {
         for j in 0..n {
             let seed = 300 + 10 * n as u64 + j as u64;
-            let x2 = pinch_errors(n, j, n, seed);
+            let x2 = with_ninja_choices(|| pinch_errors(n, j, n, seed));
             let control = pinch_errors(n, j, n - 1, seed);
             for lane in 0..x2.len() {
                 let bound = 1e-10f64.max(1000. * control[lane]);
@@ -1506,9 +1515,11 @@ fn numerator_at(numerator: &mut MuTensorNumerator, cut: &[usize], q: &CMom, mu2:
 
 #[test]
 fn rank_n2_triangle_and_bubble_residues_reconstruct_the_integrand() {
+    use super::bases_x2::bubble_basis_x2;
     use super::geometry::{Basis, bubble_solution, combine_real2, sub, triangle_solution};
     let eps = FastOptions::default().infrared_eps;
     let mut worst = 0f64;
+    let mut replaced = 0;
     for (n, seed) in [(2, 601), (2, 602), (3, 603), (3, 604), (3, 605)] {
         let (amplitude, mut numerator, v, m) = reduced_lane(n, seed);
         let engine = amplitude.x2.as_deref().unwrap();
@@ -1552,7 +1563,10 @@ fn rank_n2_triangle_and_bubble_residues_reconstruct_the_integrand() {
         };
         for (b, &([c1, c2], uncut)) in bubbles.iter().enumerate() {
             let k = sub(&v[c1], &v[c2]);
-            let e = Basis::from_single(&k, eps);
+            // The engine's conditioned reference (bases_x2.rs).
+            let lines: Vec<usize> = uncut.into_iter().collect();
+            let e = bubble_basis_x2(&k, &v, c1, &lines, eps);
+            replaced += usize::from(e.e2 != Basis::from_single(&k, eps).e2);
             let (b0, b1, p) = bubble_solution(&k, &e, m[c1], m[c2]);
             let (e2, e3, e4, c) = engine.bubble_residue(b, 0);
             assert_eq!((e2, e3, e4), (e.e2, e.e3, e.e4));
@@ -1586,7 +1600,15 @@ fn rank_n2_triangle_and_bubble_residues_reconstruct_the_integrand() {
             }
         }
     }
-    eprintln!("RESIDUES_X2 worst relative error {worst:e}");
+    // The conditioned references (bases_x2.rs) are exercised: their residues
+    // reconstruct the integrand like Ninja's.
+    assert!(
+        replaced > 0,
+        "no bubble replaced original Ninja's reference"
+    );
+    eprintln!(
+        "RESIDUES_X2 worst relative error {worst:e}, {replaced} bubbles with a conditioned reference"
+    );
 }
 
 #[test]

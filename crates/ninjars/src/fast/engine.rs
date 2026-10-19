@@ -21,7 +21,7 @@ use super::geometry::{
     reference_vectors_ok, scale, sub, tadpole_candidates, triangle_solution,
 };
 use super::masters::{FastMaster, FastMasters};
-use super::numerator::{FastNumerator, t2_len, t3_len};
+use super::numerator::{FastNumerator, t2_len_le3, t3_len};
 use super::subtractions as subs;
 use super::{FastInput, FastResult, FastStatus};
 use crate::{Error, Result};
@@ -1213,7 +1213,7 @@ impl FastAmplitude {
         let rmn = self.topo.rmn();
         let x1 = self.topo.x1();
         let mindeg = (rmn + 2) as usize;
-        let width = t2_len(mindeg);
+        let width = t2_len_le3(mindeg);
         let nterms = mindeg + 1;
         let (lin, quad) = (rmn >= -1, rmn >= 0);
         // Triangle parents exist only when the triangle stage ran.
@@ -1438,7 +1438,7 @@ impl FastAmplitude {
             }
             // Second orientation (e3 <-> e4) with reduced depth.
             let mindeg2 = mindeg - 1;
-            let width2 = t2_len(mindeg2);
+            let width2 = t2_len_le3(mindeg2);
             self.calls.clear();
             // Rows of lanes that failed in the first orientation never enter
             // `second`, so call row `s` belongs to `bub_rows[second[s]]`.

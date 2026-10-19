@@ -22,7 +22,7 @@
 //! `t2_expansion` keep Ninja's depth limits).
 
 use super::complex::{C64, CMom};
-use super::numerator::{FastNumerator, t2_len, t3_len};
+use super::numerator::{FastNumerator, t2_len, t2_len_le3, t3_len};
 use super::tensor_jets::{self as jets, Jet, JetX2};
 use super::tensor_layout::{block_offset, ncoeff, ncoeff_homogeneous};
 use crate::{Error, Result};
@@ -720,7 +720,7 @@ impl FastNumerator for TensorNumerator {
         if mindeg > 3 {
             return Err(Error::Expansion(format!("t2 mindeg {mindeg} > 3")));
         }
-        Self::check_rows(lanes.len(), out.len(), t2_len(mindeg))?;
+        Self::check_rows(lanes.len(), out.len(), t2_len_le3(mindeg))?;
         match mindeg {
             0 => self.t2_rows::<jets::T2K0, 0, 1>(lanes, a0, a1, e3, e4, param, out),
             1 => self.t2_rows::<jets::T2K1, 1, 3>(lanes, a0, a1, e3, e4, param, out),
