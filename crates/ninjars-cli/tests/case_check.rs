@@ -3,8 +3,10 @@
 //!
 //! - On rank <= n+1 cases its fast-engine reference check is exactly
 //!   `case-bench`'s (same batch, same lanes, same numbers).
-//! - The controls pass with both engines (known failures excepted), also
+//! - The controls pass with both engines (tier-C lanes report-only), also
 //!   declared at a higher rank.
+//! - Failing lanes, stale known failures and the engine and precision scope
+//!   of known-failure entries are reported.
 //! - `--bits B --out-dir DIR` is the `GENERIC_RUNNER` interface of
 //!   `validation/rank-n2/harness/run_suite.sh`.
 //! - A sample of the rank n+2 suite passes with both engines.
@@ -179,7 +181,11 @@ fn verdicts(report: &Value) -> Vec<(String, String, String)> {
 }
 
 /// Both engines (fast; generic in f64 and Float(256)) pass every checked
-/// control lane, declared at the case rank and one rank higher.
+/// control lane, declared at the case rank and one rank higher. The lanes of
+/// `rn2-int-real-n7-r8-mu2` whose references are COLLIER's (tier C, from the
+/// oneloopmaster D0 bug fixed in 09b2c74) are report-only; lane 1 of
+/// `rn2-int-mixed-n6-r7` (the D0 bug of finding 3) passes, in binary64 with
+/// original Ninja's error corrected for OneLOop's D0 (`ninja_unreliable`).
 #[test]
 fn controls_pass_with_both_engines() {
     let cases: Vec<&str> = CASES
@@ -211,34 +217,145 @@ fn controls_pass_with_both_engines() {
         let report = value(run("case-check", &args));
         assert_eq!(report["failed_lanes"], 0);
         for (label, id, verdict) in verdicts(&report) {
-            let expected_failure = id == "rn2-int-mixed-n6-r7-lane1"
-                || id.starts_with("rn2-int-real-n7-r8-mu2-lane0")
-                || id.starts_with("rn2-int-real-n7-r8-mu2-lane1");
-            if expected_failure {
-                assert_eq!(verdict, "known-failure", "{label} {id} ({declare:?})");
-            } else {
-                assert_eq!(verdict, "pass", "{label} {id} ({declare:?})");
-            }
+            let tier_c =
+                id == "rn2-int-real-n7-r8-mu2-lane0" || id == "rn2-int-real-n7-r8-mu2-lane1";
+            let expected = if tier_c { "report-only" } else { "pass" };
+            assert_eq!(verdict, expected, "{label} {id} ({declare:?})");
+        }
+        let corrected = report["cases"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|case| case["case"] == "rn2-int-mixed-n6-r7")
+            .flat_map(|case| case["runs"].as_array().unwrap())
+            .filter(|run| run["precision"] == "f64")
+            .map(|run| &run["lanes"][1])
+            .collect::<Vec<_>>();
+        assert_eq!(corrected.len(), 2);
+        for lane in corrected {
+            assert_eq!(lane["id"], "rn2-int-mixed-n6-r7-lane1");
+            assert!(
+                lane["reason"]
+                    .as_str()
+                    .unwrap()
+                    .contains("without OneLOop's error"),
+                "{}",
+                lane["reason"]
+            );
         }
     }
 }
 
-/// A failing lane makes the command fail (and is reported as `fail`).
+/// A copy of the control reference of `case` with the real finite part of
+/// lane `lane` (and of its COLLIER value) scaled by `1 + 1e-6`, in a fresh
+/// directory.
+fn perturbed_reference(name: &str, case: &str, lane: usize) -> PathBuf {
+    let dir = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(name);
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    let file = format!("{case}.json");
+    let mut reference: Value =
+        serde_json::from_str(&std::fs::read_to_string(root().join(CONTROLS).join(&file)).unwrap())
+            .unwrap();
+    let entry = &mut reference["lanes"][lane];
+    let value = entry["eps0"][0].as_f64().unwrap() * (1. + 1e-6);
+    entry["eps0"][0] = value.into();
+    entry["laurent_decimal"]["eps0"][0] = format!("{value:e}").into();
+    entry["collier_coli_quad_decimal"]["eps0"][0] = format!("{value:e}").into();
+    std::fs::write(dir.join(file), reference.to_string()).unwrap();
+    dir
+}
+
+/// A failing lane makes the command fail (and is reported as `fail`): every
+/// engine and precision misses a reference moved by 1e-6.
 #[test]
 fn failures_are_reported() {
+    let references = perturbed_reference("case-check-fail", "rn2-int-complex-n3-r4", 1);
     let output = run(
         "case-check",
         &[
-            "validation/rank-n2/controls/cases/rn2-int-mixed-n6-r7.json",
+            "validation/rank-n2/controls/cases/rn2-int-complex-n3-r4.json",
+            "--engines",
+            "fast,generic",
+            "--precision",
+            "f64,float:256",
             "--reference-dir",
-            CONTROLS,
+            references.to_str().unwrap(),
         ],
     );
     assert!(!output.status.success());
     let report: Value = serde_json::from_slice(&output.stdout).unwrap();
-    assert_eq!(report["failed_lanes"], 1);
-    let lane = &report["cases"][0]["runs"][0]["lanes"][1];
-    assert_eq!(lane["verdict"], "fail");
+    assert_eq!(report["failed_lanes"], 3);
+    for run in report["cases"][0]["runs"].as_array().unwrap() {
+        let lanes = run["lanes"].as_array().unwrap();
+        assert_eq!(lanes[0]["verdict"], "pass");
+        assert_eq!(lanes[1]["verdict"], "fail");
+        assert_eq!(lanes[2]["verdict"], "pass");
+    }
+}
+
+/// A known failure limited to some engines and precisions (`engines`,
+/// `precisions`) is judged as such only there: elsewhere the lane is judged
+/// as any other, so a lane that fails only in those precisions does not make
+/// the others exit non-zero, and the entry does not go stale in them.
+#[test]
+fn known_failure_scope() {
+    let references = perturbed_reference("case-check-scope", "rn2-int-complex-n3-r4", 1);
+    let dir = references.parent().unwrap().join("case-check-scope-known");
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    let known = dir.join("known-failures.json");
+    // The moved lane differs from the engines' values by 5.8e-7 of its scale,
+    // so it is a known failure at a known-failure tolerance of 1e-8.
+    std::fs::write(
+        &known,
+        r#"{"format": "ninjars-known-failures-v1", "lanes": [{"id": "rn2-int-complex-n3-r4-lane1", "reason": "test entry", "engines": ["generic"], "precisions": ["float:256"]}]}"#,
+    )
+    .unwrap();
+    let check = |engines: &str, precision: &str, references: &PathBuf| {
+        run(
+            "case-check",
+            &[
+                "validation/rank-n2/controls/cases/rn2-int-complex-n3-r4.json",
+                "--engines",
+                engines,
+                "--precision",
+                precision,
+                "--reference-dir",
+                references.to_str().unwrap(),
+                "--known-failures",
+                known.to_str().unwrap(),
+                "--known-failure-tolerance",
+                "1e-8",
+            ],
+        )
+    };
+    let verdict = |output: &Output| {
+        let report: Value = serde_json::from_slice(&output.stdout).unwrap();
+        report["cases"][0]["runs"][0]["lanes"][1]["verdict"]
+            .as_str()
+            .unwrap()
+            .to_string()
+    };
+    // In scope, the moved reference is a known failure (exit 0), and the
+    // correct reference makes the entry stale (exit 1).
+    let output = check("generic", "float:256", &references);
+    assert!(output.status.success());
+    assert_eq!(verdict(&output), "known-failure");
+    let output = check("generic", "float:256", &root().join(CONTROLS));
+    assert!(!output.status.success());
+    assert_eq!(verdict(&output), "stale-known-failure");
+    // Out of scope (the fast engine, the generic engine in f64), the lane is
+    // judged as any other: it passes the correct reference without going
+    // stale, and fails the moved one.
+    for (engines, precision) in [("fast", "f64"), ("generic", "f64")] {
+        let output = check(engines, precision, &root().join(CONTROLS));
+        assert!(output.status.success(), "{engines} {precision}");
+        assert_eq!(verdict(&output), "pass", "{engines} {precision}");
+        let output = check(engines, precision, &references);
+        assert!(!output.status.success(), "{engines} {precision}");
+        assert_eq!(verdict(&output), "fail", "{engines} {precision}");
+    }
 }
 
 /// A known-failure entry whose lane agrees with COLLIER's value (here a

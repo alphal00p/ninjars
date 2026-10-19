@@ -332,9 +332,10 @@ fn policy_semantics() {
         Verdict::Fail
     );
     // Known failures: compared with COLLIER's value at 1e-6.
-    policy
-        .known_failures
-        .insert("a-lane0".into(), "test entry".into());
+    policy.known_failures.insert(
+        "a-lane0".into(),
+        harness::KnownFailure::everywhere("test entry"),
+    );
     let j = judge(&policy, &plain, Engine::Fast, 0.3, Some(0.3));
     assert_eq!(j.verdict, Verdict::KnownFailure);
     let j = judge(&policy, &plain, Engine::Fast, 0.3, Some(1e-7));
@@ -343,16 +344,100 @@ fn policy_semantics() {
     // (No Ninja budget on the kinematics of a known failure: 1e-14 cond.)
     let j = judge(&policy, &plain, Engine::Fast, 1e-14, Some(0.3));
     assert_eq!(j.verdict, Verdict::StaleKnownFailure);
+    // A scoped known failure applies only to its engines and precisions;
+    // elsewhere the lane is judged as any other, with the Ninja budget.
+    policy.known_failures.insert(
+        "a-lane0".into(),
+        harness::KnownFailure {
+            reason: "scoped test entry".into(),
+            scope: harness::Scope {
+                engines: Some(vec![Engine::Generic]),
+                precisions: Some(vec![Precision::Double, Precision::Float(128)]),
+            },
+        },
+    );
+    let generic_at = |precision, d: f64, collier| {
+        policy.judge(
+            Engine::Generic,
+            precision,
+            Some((&plain, ReferenceKind::HighPrecision)),
+            true,
+            Some(d),
+            collier,
+        )
+    };
+    assert_eq!(
+        generic_at(Precision::Double, 0.3, Some(0.3)).verdict,
+        Verdict::KnownFailure
+    );
+    assert_eq!(
+        generic_at(Precision::Float(128), 0.3, Some(1e-7)).verdict,
+        Verdict::StaleKnownFailure
+    );
+    assert_eq!(
+        generic_at(Precision::Float(256), 1e-40, None).verdict,
+        Verdict::Pass
+    );
+    assert_eq!(
+        generic_at(Precision::Float(256), 0.3, Some(0.3)).verdict,
+        Verdict::Fail
+    );
+    assert_eq!(
+        judge(&policy, &plain, Engine::Generic, 0.3, Some(0.3)).verdict,
+        Verdict::Fail
+    );
+    let j = judge(&policy, &plain, Engine::Fast, 1e-11, None);
+    assert_eq!(j.verdict, Verdict::Pass, "{:?}", j.reason);
+    assert_eq!(
+        judge(&policy, &plain, Engine::Fast, 1e-10, None).verdict,
+        Verdict::Fail
+    );
+    // Kinematics listed as `ninja_unreliable`: no Ninja budget without
+    // corrected errors; with them, those errors instead of the lane's own.
+    policy.known_failures.clear();
+    assert_eq!(
+        judge(&policy, &plain, Engine::Fast, 1e-11, None).verdict,
+        Verdict::Pass
+    );
+    policy.ninja_unreliable.insert(
+        harness::kinematics_key("a-lane0"),
+        harness::NinjaOverride {
+            reason: "test entry".into(),
+            errors: Default::default(),
+        },
+    );
+    assert_eq!(
+        judge(&policy, &plain, Engine::Fast, 1e-11, None).verdict,
+        Verdict::Fail
+    );
+    // Corrected errors at excess 0 and 1 (growth 4 per rank): 1.6e-13 at the
+    // lane's excess 2, so a fast budget of 30 x 1.6e-13 = 4.8e-12.
+    policy.ninja_unreliable.insert(
+        harness::kinematics_key("a-lane0"),
+        harness::NinjaOverride {
+            reason: "test entry".into(),
+            errors: [(0, 1e-14), (1, 4e-14)].into(),
+        },
+    );
+    let j = judge(&policy, &plain, Engine::Fast, 4e-12, None);
+    assert_eq!(j.verdict, Verdict::Pass, "{:?}", j.reason);
+    assert!((j.tolerance.unwrap() - 4.8e-12).abs() < 1e-24);
+    assert!((j.ninja_error.unwrap() - 1.6e-13).abs() < 1e-25);
+    assert_eq!(
+        judge(&policy, &plain, Engine::Fast, 1e-11, None).verdict,
+        Verdict::Fail
+    );
+    policy.ninja_unreliable.clear();
     // Known inaccuracies: one engine at one fixed precision, within a limit.
     let inaccurate = lane("b-lane1");
     policy.known_inaccuracies.insert(
         "b-lane1".into(),
-        harness::KnownInaccuracy {
+        vec![harness::KnownInaccuracy {
             engine: Engine::Generic,
             precision: Precision::F64,
             limit: 1e-6,
             reason: "test entry".into(),
-        },
+        }],
     );
     let j = judge(&policy, &inaccurate, Engine::Generic, 4e-7, None);
     assert_eq!(j.verdict, Verdict::KnownFailure, "{:?}", j.reason);
@@ -500,7 +585,14 @@ fn suite_fast_within_ten_times_generic_binary64() {
     let (mut compared, mut skipped, mut worst_ratio) = (0, 0, 0_f64);
     let mut failures = Vec::new();
     for (case, lane) in &fast.lanes {
-        if lane.reference.is_none() || policy.known_failures.contains_key(&lane.id) {
+        if lane.reference.is_none()
+            || policy
+                .known_failure(&lane.id, harness::Engine::Fast, Precision::F64)
+                .is_some()
+            || policy
+                .known_failure(&lane.id, harness::Engine::Generic, Precision::F64)
+                .is_some()
+        {
             continue;
         }
         let Some(e_generic) = generic.get(lane.id.as_str()).and_then(|g| g.difference) else {

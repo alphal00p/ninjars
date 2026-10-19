@@ -72,10 +72,12 @@ pub struct Args {
     #[arg(long)]
     pub reference_dir: Option<PathBuf>,
     /// `ninjars-known-failures-v1` file: lanes failing for an upstream bug
-    /// (`lanes`, compared with COLLIER's value) or for a known fixed-precision
-    /// inaccuracy of one engine (`inaccuracies`) are reported as
-    /// `known-failure`, and as `stale-known-failure` (a failure) once they
-    /// agree.
+    /// (`lanes`, compared with COLLIER's value, optionally only for the
+    /// `engines` and `precisions` an entry lists) or for a known
+    /// fixed-precision inaccuracy of one engine (`inaccuracies`) are reported
+    /// as `known-failure`, and as `stale-known-failure` (a failure) once they
+    /// agree. `ninja_unreliable` lists kinematics whose original-Ninja errors
+    /// give no binary64 budget.
     #[arg(long)]
     pub known_failures: Option<PathBuf>,
     /// Binary64 tolerance floor: `factor max(1, cond)` (scaled to the unit

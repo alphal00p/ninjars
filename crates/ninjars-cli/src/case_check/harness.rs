@@ -585,6 +585,24 @@ pub enum Engine {
     Generic,
 }
 
+impl Engine {
+    /// `fast` or `generic`.
+    pub fn parse(text: &str) -> Result<Self> {
+        match text {
+            "fast" => Ok(Self::Fast),
+            "generic" => Ok(Self::Generic),
+            other => Err(format!("unknown engine {other:?} (fast, generic)").into()),
+        }
+    }
+
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::Fast => "fast",
+            Self::Generic => "generic",
+        }
+    }
+}
+
 /// The kinematics of a lane id: the rank and `mu^2` tags removed
 /// (`rn2-int-real-n4-r6-mu2-lane1` -> `rn2-int-real-n4-lane1`), so that the
 /// rank twins of `validation/rank-n2` share it (`assemble.py`'s `kin_key`).
@@ -643,17 +661,29 @@ pub fn kinematics_key(id: &str) -> String {
 /// Original-Ninja references: `ninja_tolerance` (scaled); lanes Ninja flagged
 /// unstable are report-only.
 ///
-/// Known failures (`known_failures`, oneloopmaster's D0 bug): the lane is
-/// compared with COLLIER's COLI quad value (`collier_coli_quad_decimal`) at
-/// `known_failure_tolerance`, far above COLLIER's error and far below the
-/// D0 bug's effect (at least 3 % of the lane). Within it, or within the
+/// Known failures (`known_failures`, an upstream bug in a master integral):
+/// the lane is compared with COLLIER's COLI quad value
+/// (`collier_coli_quad_decimal`) at `known_failure_tolerance`, far above
+/// COLLIER's error and far below the bug's effect. Within it, or within the
 /// lane's own tolerance, the entry is stale (`stale-known-failure`, a
-/// failure: remove it); otherwise the lane is a `known-failure`.
+/// failure: remove it); otherwise the lane is a `known-failure`. An entry
+/// may be limited to some engines and precisions ([`Scope`]); elsewhere the
+/// lane is judged as any other.
 ///
 /// Known inaccuracies (`known_inaccuracies`): one engine at one fixed
 /// precision misses the lane's budget although the reference is right. The
 /// lane is a `known-failure` while its difference stays within the entry's
 /// `limit`, a failure beyond it, and stale once it is within the tolerance.
+/// A lane may have one entry per engine and precision.
+///
+/// Original Ninja's errors (`ninja_error`) are not used on the kinematics of
+/// a known failure (where it applies), nor on the kinematics listed in
+/// `ninja_unreliable`, where
+/// OneLOop's masters are wrong, so that original Ninja's error measures
+/// OneLOop's error instead of the reduction's binary64 loss. A
+/// `ninja_unreliable` entry may give Ninja's errors with OneLOop's error
+/// removed (by rank excess, [`NinjaOverride`]), which then take the place of
+/// the lane's own and its twins' errors.
 #[derive(Clone, Debug)]
 pub struct Policy {
     pub binary64_factor: f64,
@@ -669,12 +699,110 @@ pub struct Policy {
     /// Scaled tolerance of a known failure against COLLIER's value: within
     /// it the entry is stale.
     pub known_failure_tolerance: f64,
-    /// Lane id -> reason.
-    pub known_failures: BTreeMap<String, String>,
-    /// Lane id -> known inaccuracy of one engine at one fixed precision.
-    pub known_inaccuracies: BTreeMap<String, KnownInaccuracy>,
+    /// Lane id -> known failure (reason and scope).
+    pub known_failures: BTreeMap<String, KnownFailure>,
+    /// Lane id -> known inaccuracies, each of one engine at one fixed
+    /// precision.
+    pub known_inaccuracies: BTreeMap<String, Vec<KnownInaccuracy>>,
+    /// Kinematics keys ([`kinematics_key`]) whose original-Ninja errors are
+    /// no binary64 budget (`ninja_unreliable`).
+    pub ninja_unreliable: BTreeMap<String, NinjaOverride>,
     /// Kinematics key -> rank excess -> largest original-Ninja error.
     pub twins: BTreeMap<String, BTreeMap<i64, f64>>,
+}
+
+/// The engines and precisions a known-failure entry applies to: the
+/// optional `engines` (`fast`, `generic`) and `precisions` (`f64`, `double`,
+/// `float:<bits>`) lists of the entry. A missing list means every engine or
+/// every precision; the fast engine runs in `f64`.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Scope {
+    pub engines: Option<Vec<Engine>>,
+    pub precisions: Option<Vec<Precision>>,
+}
+
+impl Scope {
+    /// Whether the entry applies to `engine` at `precision`.
+    pub fn applies(&self, engine: Engine, precision: Precision) -> bool {
+        self.engines.as_ref().is_none_or(|e| e.contains(&engine))
+            && self
+                .precisions
+                .as_ref()
+                .is_none_or(|p| p.contains(&precision))
+    }
+
+    fn parse(entry: &Value, id: &str) -> Result<Self> {
+        let list = |key: &str| -> Result<Option<Vec<String>>> {
+            match &entry[key] {
+                Value::Null => Ok(None),
+                Value::Array(items) if !items.is_empty() => items
+                    .iter()
+                    .map(|item| {
+                        item.as_str()
+                            .map(str::to_string)
+                            .ok_or_else(|| format!("{id}: {key} must be strings").into())
+                    })
+                    .collect::<Result<Vec<_>>>()
+                    .map(Some),
+                _ => Err(format!("{id}: {key} must be a non-empty list").into()),
+            }
+        };
+        let engines = list("engines")?
+            .map(|names| {
+                names
+                    .iter()
+                    .map(|name| Engine::parse(name).map_err(|e| format!("{id}: {e}").into()))
+                    .collect::<Result<Vec<_>>>()
+            })
+            .transpose()?;
+        let precisions = list("precisions")?
+            .map(|names| {
+                names
+                    .iter()
+                    .map(|name| Precision::parse(name).map_err(|e| format!("{id}: {e}").into()))
+                    .collect::<Result<Vec<_>>>()
+            })
+            .transpose()?;
+        Ok(Self {
+            engines,
+            precisions,
+        })
+    }
+
+    fn describe(&self) -> Value {
+        json!({
+            "engines": self.engines.as_ref().map(|e| e.iter().map(|e| e.label()).collect::<Vec<_>>()),
+            "precisions": self.precisions.as_ref().map(|p| p.iter().map(|p| p.label()).collect::<Vec<_>>()),
+        })
+    }
+}
+
+/// An entry of `known-failures.json`'s `ninja_unreliable`: why original
+/// Ninja's errors on these kinematics are no binary64 budget, and optionally
+/// Ninja's errors with that cause removed, by rank excess (`errors`, e.g.
+/// `{"-1": 1.3e-12, "0": 4.9e-12}`), which replace them. Without `errors`
+/// the kinematics have no Ninja budget.
+#[derive(Clone, Debug, Default)]
+pub struct NinjaOverride {
+    pub reason: String,
+    pub errors: BTreeMap<i64, f64>,
+}
+
+/// An entry of `known-failures.json`'s `lanes`.
+#[derive(Clone, Debug)]
+pub struct KnownFailure {
+    pub reason: String,
+    pub scope: Scope,
+}
+
+impl KnownFailure {
+    /// An entry for every engine and precision.
+    pub fn everywhere(reason: impl Into<String>) -> Self {
+        Self {
+            reason: reason.into(),
+            scope: Scope::default(),
+        }
+    }
 }
 
 /// An entry of `known-failures.json`'s `inaccuracies`: `engine` at
@@ -703,13 +831,17 @@ impl Default for Policy {
             known_failure_tolerance: 1e-6,
             known_failures: BTreeMap::new(),
             known_inaccuracies: BTreeMap::new(),
+            ninja_unreliable: BTreeMap::new(),
             twins: BTreeMap::new(),
         }
     }
 }
 
 impl Policy {
-    /// Read a `ninjars-known-failures-v1` file (`lanes: [{id, reason}]`).
+    /// Read a `ninjars-known-failures-v1` file: `lanes: [{id, reason,
+    /// engines?, precisions?}]`, `inaccuracies: [{id, engine, precision,
+    /// limit, reason}]` and `ninja_unreliable: [{kinematics, reason,
+    /// errors?}]` (the last two optional).
     pub fn load_known_failures(&mut self, path: &Path) -> Result<()> {
         let value: Value = serde_json::from_str(&fs::read_to_string(path)?)?;
         if value["format"] != "ninjars-known-failures-v1" {
@@ -720,16 +852,25 @@ impl Policy {
             let reason = lane["reason"]
                 .as_str()
                 .unwrap_or("listed as a known failure");
-            self.known_failures
-                .insert(id.to_string(), reason.to_string());
+            let scope = Scope::parse(lane, id)?;
+            if self
+                .known_failures
+                .insert(
+                    id.to_string(),
+                    KnownFailure {
+                        reason: reason.to_string(),
+                        scope,
+                    },
+                )
+                .is_some()
+            {
+                return Err(format!("{id}: listed twice as a known failure").into());
+            }
         }
         for entry in value["inaccuracies"].as_array().into_iter().flatten() {
             let id = entry["id"].as_str().ok_or("known-inaccuracy id")?;
-            let engine = match entry["engine"].as_str() {
-                Some("fast") => Engine::Fast,
-                Some("generic") => Engine::Generic,
-                other => return Err(format!("{id}: known-inaccuracy engine {other:?}").into()),
-            };
+            let engine = Engine::parse(entry["engine"].as_str().unwrap_or_default())
+                .map_err(|e| format!("{id}: known-inaccuracy {e}"))?;
             let precision = Precision::parse(
                 entry["precision"]
                     .as_str()
@@ -742,17 +883,78 @@ impl Policy {
             let reason = entry["reason"]
                 .as_str()
                 .unwrap_or("listed as a known inaccuracy");
-            self.known_inaccuracies.insert(
-                id.to_string(),
-                KnownInaccuracy {
-                    engine,
-                    precision,
-                    limit,
+            let entries = self.known_inaccuracies.entry(id.to_string()).or_default();
+            if entries
+                .iter()
+                .any(|k| k.engine == engine && k.precision == precision)
+            {
+                return Err(format!(
+                    "{id}: two known inaccuracies for {} at {}",
+                    engine.label(),
+                    precision.label()
+                )
+                .into());
+            }
+            entries.push(KnownInaccuracy {
+                engine,
+                precision,
+                limit,
+                reason: reason.to_string(),
+            });
+        }
+        for entry in value["ninja_unreliable"].as_array().into_iter().flatten() {
+            let key = entry["kinematics"]
+                .as_str()
+                .ok_or("ninja_unreliable kinematics")?;
+            let reason = entry["reason"]
+                .as_str()
+                .unwrap_or("original Ninja's errors are no binary64 budget here");
+            let mut errors = BTreeMap::new();
+            for (excess, error) in entry["errors"].as_object().into_iter().flatten() {
+                let excess: i64 = excess
+                    .parse()
+                    .map_err(|_| format!("{key}: ninja_unreliable excess {excess:?}"))?;
+                let error = error
+                    .as_f64()
+                    .filter(|e| e.is_finite() && *e >= 0.)
+                    .ok_or_else(|| format!("{key}: ninja_unreliable error at excess {excess}"))?;
+                errors.insert(excess, error);
+            }
+            self.ninja_unreliable.insert(
+                kinematics_key(key),
+                NinjaOverride {
                     reason: reason.to_string(),
+                    errors,
                 },
             );
         }
         Ok(())
+    }
+
+    /// The known failure of lane `id` that applies to `engine` at
+    /// `precision`.
+    pub fn known_failure(
+        &self,
+        id: &str,
+        engine: Engine,
+        precision: Precision,
+    ) -> Option<&KnownFailure> {
+        self.known_failures
+            .get(id)
+            .filter(|k| k.scope.applies(engine, precision))
+    }
+
+    /// The known inaccuracy of lane `id` for `engine` at `precision`.
+    pub fn known_inaccuracy(
+        &self,
+        id: &str,
+        engine: Engine,
+        precision: Precision,
+    ) -> Option<&KnownInaccuracy> {
+        self.known_inaccuracies
+            .get(id)?
+            .iter()
+            .find(|k| k.engine == engine && k.precision == precision)
     }
 
     /// Read original-Ninja errors of rank twins from an `assemble.py` summary
@@ -784,27 +986,45 @@ impl Policy {
     }
 
     /// Original Ninja's binary64 error on this lane, measured or estimated
-    /// from the rank twins, and where it comes from.
-    pub fn ninja_error(&self, lane: &ReferenceLane) -> Option<(f64, String)> {
-        // A known failure shared with original Ninja (the oneloopmaster D0 bug)
-        // is not a conditioning measure: no Ninja budget on its kinematics.
+    /// from the rank twins, and where it comes from, for judging `engine` at
+    /// `precision`.
+    pub fn ninja_error(
+        &self,
+        lane: &ReferenceLane,
+        engine: Engine,
+        precision: Precision,
+    ) -> Option<(f64, String)> {
+        // A known failure that applies here (a master integral wrong, in
+        // OneLOop as well when the entry has no scope): Ninja's error is no
+        // conditioning measure on its kinematics, so no Ninja budget.
+        // Kinematics where OneLOop is wrong: the corrected errors of the
+        // `ninja_unreliable` entry, if any.
         let key = kinematics_key(&lane.id);
         if self
             .known_failures
-            .keys()
-            .any(|id| kinematics_key(id) == key)
+            .iter()
+            .any(|(id, k)| k.scope.applies(engine, precision) && kinematics_key(id) == key)
         {
             return None;
         }
-        if let Some(error) = lane.ninja_error {
-            return Some((error, "original Ninja on this lane".into()));
-        }
-        let twins = self.twins.get(&key)?;
+        let (twins, source) = match self.ninja_unreliable.get(&key) {
+            Some(corrected) if corrected.errors.is_empty() => return None,
+            Some(corrected) => (
+                &corrected.errors,
+                "original Ninja without OneLOop's error (ninja_unreliable)",
+            ),
+            None => {
+                if let Some(error) = lane.ninja_error {
+                    return Some((error, "original Ninja on this lane".into()));
+                }
+                (self.twins.get(&key)?, "original Ninja")
+            }
+        };
         let excess = lane.excess?;
         if let Some(&error) = twins.get(&excess) {
             return Some((
                 error,
-                format!("original Ninja on the rank twins at excess {excess}"),
+                format!("{source} on the rank twins at excess {excess}"),
             ));
         }
         let below: Vec<(i64, f64)> = twins.range(..excess).map(|(&k, &v)| (k, v)).collect();
@@ -813,13 +1033,10 @@ impl Policy {
                 let growth = (e1 / e0).max(1.).powf(1. / (x1 - x0) as f64);
                 Some((
                     e1 * growth.powi((excess - x1) as i32),
-                    format!("original Ninja on the rank twins, extrapolated from excess {x1}"),
+                    format!("{source} on the rank twins, extrapolated from excess {x1}"),
                 ))
             }
-            [.., (x1, e1)] => Some((
-                *e1,
-                format!("original Ninja on the rank twins at excess {x1}"),
-            )),
+            [.., (x1, e1)] => Some((*e1, format!("{source} on the rank twins at excess {x1}"))),
             [] => None,
         }
     }
@@ -837,11 +1054,17 @@ impl Policy {
             "new_terms": "a tolerance >= the smallest new rank n+2 term of the lane cannot detect it: report-only within the tolerance, fail outside",
             "ninja": format!("original-Ninja references: {:e} scaled; Ninja-unstable lanes report-only", self.ninja_tolerance),
             "known_failures": {
-                "lanes": self.known_failures,
+                "lanes": self.known_failures.iter().map(|(id, k)| {
+                    json!({"id": id, "reason": k.reason, "scope": k.scope.describe()})
+                }).collect::<Vec<_>>(),
                 "stale_when": format!("within {:e} of COLLIER's COLI quad value, or within the lane's tolerance", self.known_failure_tolerance),
+                "scope": "an entry applies to the engines and precisions it lists (every one when absent); elsewhere the lane is judged as any other",
             },
-            "known_inaccuracies": self.known_inaccuracies.iter().map(|(id, k)| {
-                json!({"id": id, "engine": format!("{:?}", k.engine).to_lowercase(), "precision": k.precision.label(), "limit": k.limit, "reason": k.reason})
+            "known_inaccuracies": self.known_inaccuracies.iter().flat_map(|(id, entries)| {
+                entries.iter().map(move |k| json!({"id": id, "engine": k.engine.label(), "precision": k.precision.label(), "limit": k.limit, "reason": k.reason}))
+            }).collect::<Vec<_>>(),
+            "ninja_unreliable": self.ninja_unreliable.iter().map(|(key, o)| {
+                json!({"kinematics": key, "reason": o.reason, "errors": o.errors.iter().map(|(x, e)| (x.to_string(), *e)).collect::<BTreeMap<_, _>>()})
             }).collect::<Vec<_>>(),
             "scaled_difference": "max over (eps0, eps_m1, eps_m2) of |x - ref| / max_k |ref_k|",
         })
@@ -929,7 +1152,7 @@ impl Policy {
                             Engine::Generic => self.generic_ninja_factor,
                         };
                         let mut budget = self.binary64_factor * effective;
-                        if let Some((error, origin)) = self.ninja_error(lane) {
+                        if let Some((error, origin)) = self.ninja_error(lane, engine, precision) {
                             budget = budget.max((factor * error).min(self.ninja_budget_cap));
                             estimate = Some(error);
                             basis = Some(origin);
@@ -955,7 +1178,7 @@ impl Policy {
             (true, _, None) => None,
             _ => Some(false),
         };
-        let (verdict, reason) = if let Some(k) = self.known_failures.get(&lane.id) {
+        let (verdict, reason) = if let Some(k) = self.known_failure(&lane.id, engine, precision) {
             let agrees = succeeded
                 && (collier_difference.is_some_and(|d| d <= self.known_failure_tolerance)
                     || within == Some(true));
@@ -968,18 +1191,17 @@ impl Policy {
                 (
                     Verdict::StaleKnownFailure,
                     Some(format!(
-                        "listed as a known failure but agrees ({measured}, limit {:.0e}): remove the entry ({k})",
-                        self.known_failure_tolerance
+                        "listed as a known failure but agrees ({measured}, limit {:.0e}): remove the entry ({})",
+                        self.known_failure_tolerance, k.reason
                     )),
                 )
             } else {
-                (Verdict::KnownFailure, Some(format!("{measured}; {k}")))
+                (
+                    Verdict::KnownFailure,
+                    Some(format!("{measured}; {}", k.reason)),
+                )
             }
-        } else if let Some(k) = self
-            .known_inaccuracies
-            .get(&lane.id)
-            .filter(|k| k.engine == engine && k.precision == precision)
-        {
+        } else if let Some(k) = self.known_inaccuracy(&lane.id, engine, precision) {
             let tolerance = tolerance.map_or_else(|| "none".into(), |t| format!("{t:.2e}"));
             match (within, difference) {
                 (Some(true), Some(d)) => (
@@ -1767,7 +1989,12 @@ pub fn check_fast(
             _ => None,
         };
         let collier_difference = match found {
-            Some((r, _)) if succeeded && policy.known_failures.contains_key(&r.id) => {
+            Some((r, _))
+                if succeeded
+                    && policy
+                        .known_failure(&r.id, Engine::Fast, Precision::F64)
+                        .is_some() =>
+            {
                 collier_values(r, &0_f64)?.map(|c| {
                     scaled_difference_f64(
                         &[values[0], values[1], values[2]],
@@ -1826,7 +2053,12 @@ pub fn check_generic_lanes<T: oneloop::NativeFloat>(
             _ => None,
         };
         let collier_difference = match found {
-            Some((r, _)) if succeeded && policy.known_failures.contains_key(&r.id) => {
+            Some((r, _))
+                if succeeded
+                    && policy
+                        .known_failure(&r.id, Engine::Generic, precision)
+                        .is_some() =>
+            {
                 collier_values(r, prototype)?
                     .map(|c| scaled_difference(&result.values, &c, r.scale))
             }
