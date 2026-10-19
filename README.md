@@ -145,9 +145,10 @@ The new pieces are:
   OneLOop's mass-swap sign corrected.
 
 `ninjars case-check` judges both engines against the high-precision suite in
-`validation/rank-n2` (333 lanes, n = 1..7). No lane fails in the fast
-engine, in generic binary64 or in Float(256). The 9 known failures come from
-oneloopmaster's D0 on some real-mass boxes. See
+`validation/rank-n2` (333 lanes, n = 1..7). No lane fails in the fast engine
+or in the generic engine in binary64, DoubleFloat, Float(128) or Float(256).
+With oneloopmaster 09b2c74 no upstream failure is left; three Float(128) lanes
+are listed as known inaccuracies of the exact masters in `Float`. See
 [rank n+2](docs/rank-n2.md) for the formulas, the validation and the known
 limitations.
 

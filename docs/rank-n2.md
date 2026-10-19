@@ -405,8 +405,10 @@ fe550e3):
   (`B1111 = B0' + 4B1' + 6B11' + 4B111' + B1111'`, primes for swapped masses);
 - B0..B111 inside the family are bitwise those of the B111 family.
 
-NinjaRS pins oneloopmaster at fe550e3 (`Cargo.toml`,
-`dependencies/manifest.json`).
+NinjaRS pins oneloopmaster at 09b2c74, main's pin since d53dd08 (`Cargo.toml`,
+`dependencies/manifest.json`). It contains fe550e3; the tensor family is
+unchanged since, and its later commits fix C0/D0 (among them the real-mass D0 of
+section 9's former known failures).
 
 **OneLOop's sign bug.** OneLOop 3.6 and 3.4 negate the mass-swap sum in all
 three swap branches (p² = 0, m0 = 0 and general p²), not only at p² = 0:
@@ -540,8 +542,8 @@ declared at rank n+2 therefore reproduces the rank <= n+1 engine's Laurent
 coefficients, but not its split.
 
 **Zero overhead for rank <= n+1.** Each check names its source:
-- **Bitwise results.** V0 (`regression_bitwise`, `validation/regression/r-le-n1-dec3d55.json`)
-  passes at the integration head.
+- **Bitwise results.** V0 (`regression_bitwise`, `validation/regression/r-le-n1-d53dd08.json`,
+  generated on a clean checkout of main d53dd08) passes at the integration head.
 - **Independent bitwise dump (S3 verifier).** 7484 lane results over 204 cases
   (n = 1..7, ranks 0..n+1, three widths) are byte-identical in hex bits and
   status.
@@ -624,24 +626,24 @@ measured.
 
 | id | test (`crates/ninjars-symbolica/tests/` unless noted) | result |
 |---|---|---|
-| V0 | `regression_bitwise::rank_up_to_n_plus_one_is_bitwise_unchanged` | bitwise; passes at 8346699 |
-| V0p | `src/plan_fingerprints_tests.rs::exact_plans_for_rank_up_to_n_plus_one_are_unchanged` | 1,239 fingerprints unchanged; passes at 8346699 |
+| V0 | `regression_bitwise::rank_up_to_n_plus_one_is_bitwise_unchanged` | bitwise against main d53dd08 (`r-le-n1-d53dd08.json`); passes at e116813 |
+| V0p | `src/plan_fingerprints_tests.rs::exact_plans_for_rank_up_to_n_plus_one_are_unchanged` | 1,239 fingerprints unchanged; passes at e116813 |
 | V1 | `cargo test --workspace` | 8346699, release: default features 389 passed, 0 failed, 12 ignored (47.6 min); `--all-features` 498, 0, 21 (75.4 min) |
 | V2a | `rank_n2_laurent` | division recovers known quotients, n = 1..6: 8.7e-77 (Float(256)), 1.8e-15 (binary64); new subtraction terms against the sympy closed forms <= 4e-77, swapped-axis control 1.2 (S2) |
 | V2b | `rank_n2_reconstruct` | on-cut reconstruction of every cut size, n = 1..6, with and without mu²: <= 1.1e-73 (Float), <= 5e-13 (binary64); pruned swapped arithmetic identical (S2) |
 | V2c | `rank_n2_boxes` | box modes agree, n = 4..6: <= 1.5e-70 (Float); binary64 <= 3e-14 (coefficients), 5e-10 (integrated, n = 6); beta-offset control (S2) |
 | V2 (fast) | `crates/ninjars/src/fast/tests_x2.rs` | jets against direct expansion, division multiply-back at NT = 6 and 5, on-cut residue reconstruction, box finite-mu fit, rank-3 tadpole integral, pinch identity, batching and replay bitwise (1d5cb5f) |
 | V3 | `tests_x2.rs` (fixtures) | 24 cases, worst 1.24e-15 (series) and 1.26e-15 (closed form); 444 perturbed controls each detected (S3) |
-| V4 | `rank_n2_reference::suite_generic_float_matches_references` | Float(256), exact masters: 284 pass, 40 report-only, 9 known failures, 0 fail; tier A <= 1.3e-36 at n <= 6, <= 5.9e-30 at n = 7 (merge run, S3 verifier) |
-| V4f | `suite_fast_binary64_matches_references`, `suite_generic_binary64_matches_references` | fast 275 pass, 49 report-only, 9 known failures; generic f64 274, 50, 9; 0 fail (merge run) |
+| V4 | `rank_n2_reference::suite_generic_float_matches_references` | Float(256), exact masters: 285 pass, 48 report-only, 0 fail; tier A <= 1.3e-36 at n <= 6, <= 5.9e-30 at n = 7 (integration run, S3 verifier) |
+| V4f | `suite_fast_binary64_matches_references`, `suite_generic_binary64_matches_references` | fast 276 pass, 57 report-only; generic f64 275, 58; 0 fail (integration run) |
 | V5 | `rank_n2_padding` (`fast_`/`generic_padding_to_rank_n_plus_two`), `fast_rank_n2::fast_rank_n2_padding_reproduces_original_ninja` | rank <= n+1 cases declared at n+2 (`padding-manifest.json`, 238 cases): generic Float within 4.9e-55 on 745 lanes (S5b verifier); fast Laurent coefficients against original Ninja, or within 10 times Ninja's own error of the exact reduction where that error exceeds the tolerance (79f306a) |
 | V6 | `rank_n2_identity` | pinch `I_n[D_j M] = I_(n-1)[M]` and constructive decompositions, n = 2..7; Float: rank n+2 sides 5.3e-70 (S5b verifier); binary64 partly ignored (8.4) |
 | V7 | `rank_n2_invariance` | shift (V7a) and relabelling (V7b) at rank n+2 in Float(256): 1.1e-69 (S5b verifier); batch width and lane order bitwise (V7c); V7b binary64 at n = 7 ignored (8.4) |
-| V8 | `fast_parity::parity_rank_n2_n1..n7` | fast against generic f64 with identical native masters, 1e-9 scaled with a noise model; n = 6 enabled at 8346699 |
+| V8 | `fast_parity::parity_rank_n2_n1..n7` | fast against generic f64 with identical native masters, 1e-9 scaled with a noise model; n = 6 enabled at 8346699 (merge run) |
 | V9 | `rank_n2_reference::conditioning_scan_report` | report only (bubble p² ladder, triangle and box Gram ladders) |
 | V10 | `rank_n2_dual` | HyperDual against finite differences, n = 2..4 (stand-in masters) and n = 2 (exact masters incl. B1111): <= 5.5e-48 (S2); the S2 verifier found <= 1.6e-44 against central differences at Float(512) |
 | V11 | `fast_native_masters`, `masters`, `master_status`, `rank_n2_interfaces`, `rank_n2_float_bubbles` | B1111 accuracy and interface identity (section 6) |
-| CLI | `crates/ninjars-cli/tests/case_check.rs` | case-check equals case-bench's reference check; controls with both engines; failures and stale known failures are reported; the GENERIC_RUNNER interface; a rank n+2 sample; `--stability-test` flags exactly the binary64 cancellations of `rn2-phys-{real,complex}-n6-r8` |
+| CLI | `crates/ninjars-cli/tests/case_check.rs` | case-check equals case-bench's reference check; controls with both engines; failures, stale known failures and the engine and precision scope of known-failure entries are reported; the GENERIC_RUNNER interface; a rank n+2 sample; `--stability-test` flags exactly the binary64 cancellations of `rn2-phys-{real,complex}-n6-r8` |
 
 **Independent verification.** Verifier agents re-checked each stream.
 - **Generic engine (S2 verifier).** Compared with the review's `red.py` at 100
@@ -671,25 +673,31 @@ ninjars case-check --engines fast --precision f64 \
   --twins $R/summary/controls.json --twins $R/summary/synthetic-twins.json \
   --twins $R/summary/n7-controls.json -o report.json \
   $R/cases/*.json validation/benchmark/synthetic-rank-n2/*.json
-# and --engines generic --precision f64 | double | float:256
+# and --engines generic --precision f64 | double | float:128 | float:256
 ```
 
-The results at 8346699: 105 suite cases plus 6 synthetic ones, 333 lanes,
-counted as pass / fail / report-only / known failure (merge run). No case
-errors and no unchecked lanes occurred.
+The results at e116813 (oneloopmaster 09b2c74): 105 suite cases plus 6
+synthetic ones, 333 lanes, counted as pass / fail / report-only / known failure
+(integration run). No case errors, no unchecked lanes and no stale known
+failures occurred, and every one of the five runs exits 0.
 
-| n | lanes | fast (f64) | generic f64 | generic DoubleFloat | generic Float(256) |
-|---|---|---|---|---|---|
-| 1 | 36 | 36/0/0/0 | 36/0/0/0 | 36/0/0/0 | 36/0/0/0 |
-| 2 | 57 | 55/0/2/0 | 55/0/2/0 | 57/0/0/0 | 49/0/8/0 |
-| 3 | 45 | 44/0/1/0 | 44/0/1/0 | 45/0/0/0 | 45/0/0/0 |
-| 4 | 57 | 53/0/4/0 | 52/0/5/0 | 57/0/0/0 | 49/0/8/0 |
-| 5 | 57 | 47/0/10/0 | 47/0/10/0 | 52/0/5/0 | 50/0/7/0 |
-| 6 | 57 | 31/0/25/1 | 31/0/25/1 | 40/0/16/0, 1 stale | 40/0/16/1 |
-| 7 | 24 | 9/0/7/8 | 9/0/7/8 | 9/0/7/8 | 15/0/1/8 |
-| **all** | 333 | **275/0/49/9** | **274/0/50/9** | **296/0/28/8, 1 stale** | **284/0/40/9** |
-| largest checked difference | | 4.9e-8 | 5.2e-7 | 1.4e-11 | 7.0e-12 |
-| exit status | | 0 | 0 | 1 | 0 |
+| n | lanes | fast (f64) | generic f64 | generic DoubleFloat | generic Float(128) | generic Float(256) |
+|---|---|---|---|---|---|---|
+| 1 | 36 | 36/0/0/0 | 36/0/0/0 | 36/0/0/0 | 36/0/0/0 | 36/0/0/0 |
+| 2 | 57 | 55/0/2/0 | 55/0/2/0 | 57/0/0/0 | 57/0/0/0 | 49/0/8/0 |
+| 3 | 45 | 44/0/1/0 | 44/0/1/0 | 45/0/0/0 | 45/0/0/0 | 45/0/0/0 |
+| 4 | 57 | 53/0/4/0 | 52/0/5/0 | 57/0/0/0 | 56/0/0/1 | 49/0/8/0 |
+| 5 | 57 | 47/0/10/0 | 47/0/10/0 | 52/0/5/0 | 52/0/5/0 | 50/0/7/0 |
+| 6 | 57 | 32/0/25/0 | 32/0/25/0 | 41/0/16/0 | 40/0/16/1 | 41/0/16/0 |
+| 7 | 24 | 9/0/15/0 | 9/0/15/0 | 9/0/15/0 | 8/0/15/1 | 15/0/9/0 |
+| **all** | 333 | **276/0/57/0** | **275/0/58/0** | **297/0/36/0** | **294/0/36/3** | **285/0/48/0** |
+| largest checked difference | | 5.3e-8 | 5.2e-7 | 1.4e-11 | 1.4e-11 | 7.0e-12 |
+| tier A, n <= 6 / n = 7 | | 9.1e-9 / 5.3e-8 | 6.0e-9 / 3.5e-8 | 1.0e-24 / 1.3e-24 | 7.1e-30 / 1.2e-29 | 1.3e-36 / 5.9e-30 |
+| exit status | | 0 | 0 | 0 | 0 | 0 |
+
+The controls (615 rank <= n+1 lanes, same command with `$R/controls/reference`)
+give 600/0/15/0 (fast), 599/0/15/1 (generic f64), 600/0/15/0 (DoubleFloat),
+588/0/15/12 (Float(128)) and 601/0/14/0 (Float(256)), and also exit 0.
 
 How to read the table:
 - **The largest checked differences** sit on tier-B lanes or at n = 7. On
@@ -697,19 +705,24 @@ How to read the table:
   `syn-n6-r8` lane 2, whose uncertainty is the input ambiguity of a snapped
   S-matrix.
 - **Report-only lanes** have one of four reasons:
-  - tier C;
+  - tier C, among them the 8 n = 7 lanes of the former known failures, whose
+    published values are COLLIER's (section 9);
   - in Float(256), a tier-B uncertainty that comes from the generic engine's
     own rank twins (32 `phys` and `syn` lanes);
-  - in binary64 and DoubleFloat, a condition (COLLIER's, or the new rank n+2
-    terms' cancellation `reduction.new_terms_over_scale`) above 1e6;
+  - in binary64, DoubleFloat and Float(128), a condition (COLLIER's, or the
+    new rank n+2 terms' cancellation `reduction.new_terms_over_scale`) above
+    1e6;
   - a tolerance too wide to resolve the lane's smallest new rank n+2 term.
     This is 23 generic and 22 fast binary64 lanes, mostly B1111 parts of 1e-14
     to 3e-6 of the lane (`validation/rank-n2/README.md`).
-- **Known failures** are oneloopmaster D0 lanes (section 9). The DoubleFloat
-  run reports `rn2-int-mixed-n6-r8` lane 1 as `stale-known-failure`, because
-  there it agrees with COLLIER to 1.2e-14. The known-failure entry applies to
-  every precision, so `--precision double` exits 1; no test runs the suite in
-  DoubleFloat.
+- **Known failures.** There are no upstream failures since oneloopmaster
+  09b2c74. The 3 Float(128) entries are known inaccuracies of the exact masters
+  in `Float` (section 9).
+- **Against the merge run at 8346699** (oneloopmaster fe550e3): the 9 known
+  failures of findings 3 and 5 are gone. `rn2-int-mixed-n6-r8` lane 1 (tier B)
+  now passes in every run; the 8 n = 7 lanes are tier C (COLLIER's values) and
+  report-only. DoubleFloat no longer reports a stale known failure, and
+  Float(128) was not run then.
 - **Before the basis conditioning** the fast engine had 266 pass and 9 fail,
   with the worst at 6.2e-4 on `syn-n6-r8` lane 2. It now has 0 fail.
 
@@ -718,7 +731,10 @@ where:
 - `cond' = max(condition, new_terms_over_scale)`;
 - A = 30 (fast) or 100 (generic f64);
 - `e_ninja` is original Ninja's error on the lane. For rank n+2 lanes it is
-  taken from the rank twins and extrapolated geometrically by one rank.
+  taken from the rank twins and extrapolated geometrically by one rank. Where
+  OneLOop's own D0 was wrong (findings 3 and 5), `known-failures.json`
+  (`ninja_unreliable`) replaces Ninja's errors with its errors against the
+  reduction with the same wrong D0, or drops them.
 
 COLLIER's condition alone does not predict the reduction's binary64 loss.
 Original Ninja's error does: on 531 control lanes the fast engine stays within
@@ -758,29 +774,87 @@ other tests. Regenerating the references is described in
 
 ## 9. Known limitations
 
-**oneloopmaster's real-mass D0.** The exact and native D0 (and OneLOop's) have
-the wrong real part on some real-mass boxes; the imaginary part is right.
-COLLIER's COLI and DD agree with each other on these boxes, and a direct
-Feynman-parameter integration of two of them agrees with COLLIER.
-- **Finding 3:** one box of `rn2-int-mixed-n6-r{5..8}` lane 1, off by 2.1
-  times COLLIER's modulus.
-- **Finding 5:** four more boxes in the n = 7 kinematics, off by 51, 9.4, 4.7
-  and 3.3 times.
-- **Finding 6:** a random V8 point (n = 6, lane 3), whose value depends on the
-  argument order. Reversed, oneloopmaster gives COLLIER's value.
+The two limitations first below are found by the final review of the rank n+2
+work and have fixes in preparation; until those land they are current
+behaviour.
 
-The 24 suite and control lanes of findings 3 and 5 are listed in
-`validation/rank-n2/known-failures.json`. They are compared with COLLIER's
-COLI value at 1e-6, so a fixed oneloopmaster turns them into
-`stale-known-failure`.
-- The finding-3 lane agrees with COLLIER in DoubleFloat (1.2e-14) but not with
-  Float at 53..512 bits, nor with the native binary64 masters (3.07e-2). The
-  error therefore depends on the carrier type. It has not been traced.
-- A per-precision scope for known-failure entries would let
-  `case-check --precision double` pass. That policy decision is open.
+**DoubleFloat and Float(128) bubbles at small |p²| with unequal masses.** They
+return silently wrong results: the status is `Success`, also with
+`--stability-test`. The review's case has p² = 1.86e-9 with m² = 25 and 2025
+(scaled differences against the exact value; main with 09b2c74 behaves the
+same):
 
-On these lanes the reduction is correct and the master is wrong; the bug is
-not specific to rank n+2.
+| rank | f64 | DoubleFloat | Float(128) | Float(256) |
+|---|---|---|---|---|
+| 2 (`repro-smallp2-bubble-r2.json`) | 3e-13 | 0.63 | 9.9e-8 | correct |
+| 4 (`repro-smallp2-bubble-r4.json`) | 4e-8 | 1.3e13 | 2.0e6 | correct |
+
+- The V9 scan cases `rn2-scan-bubp2-*` show it: the review counted 9 of 16
+  lanes failing in DoubleFloat and 11 of 16 in Float(128). The V9 test runs
+  them only in Float(256) and binary64, and the scan is not part of the suite
+  of section 8.3.
+- Cause: only B1111 goes through oneloopmaster's native tensor family
+  (section 6). B1, B11 and B111 still use the exact Passarino-Veltman
+  formulas, which divide by powers of p². Escalating from f64 to DoubleFloat
+  makes the result worse, because binary64 (`OneLoopNativeMasters`, as in the
+  fast engine and `case-check`) uses native families for every bubble
+  coefficient.
+- The bug is older than rank n+2 (rank 2 is affected), but rank n+2 makes it
+  worse (rank 4 above).
+
+**`--stability-test` misses cancellation inside one cut contribution.**
+`cancellation_stable` compares the result with the sum of whole-cut
+magnitudes, so a cut whose cut-constructible and rational parts cancel each
+other passes.
+- Example (`repro-stability-test-miss-n6-r8.json`, `fr-light-zero-n6-r8`
+  lane 2): generic f64 is 24 % wrong and reported `Success`. Its
+  cut-constructible part is -0.086, its rational part +0.086, the total 1e-12.
+- On the review's fresh lanes, 4 of the 20 binary64 lanes with an error above
+  1e-6 go unflagged, and in DoubleFloat 8 of the 13 lanes with an error above
+  1e-20.
+- The rank n+1 twin of that lane (numerator truncated) is 6e-5 wrong and
+  unflagged as well, so the gap predates rank n+2; at rank n+2 the B1111 terms
+  reach 6e15 times the lane value.
+
+**Exact masters in Float(128).** `Float` evaluates C0/D0 with Symbolica's
+precision-tracking interpreter of oneloopmaster's exact expressions, while
+binary64 and DoubleFloat use its native code. At 128 bits that costs up to 10
+bits on boxes: on the 139 boxes of the lanes below, D0 is off by a median 471
+and at most 1.4e5 units in the last place, against 34 and 4670 in binary64
+(C0: at most 4 bits more).
+- 3 suite lanes (`rn2-int-mixed-n4-r6` lane 2, `rn2-int-mixed-n6-r8` lane 0,
+  `rn2-int-mixed-n7-r9` lane 1) and 12 control lanes miss the binary64 budget
+  scaled to 128 bits by 1.0 to 10 times (worst 1.7e-31). They are listed as
+  generic Float(128) known inaccuracies in `known-failures.json`.
+- From 160 bits on, the references' uncertainty hides this loss.
+
+**Former limitation: oneloopmaster's real-mass D0.** Until oneloopmaster
+09b2c74 (main's pin since d53dd08), the exact and native D0 (and OneLOop's)
+had the wrong real part on some real-mass boxes, while COLLIER's COLI and DD
+agreed with each other:
+- finding 3: one box of `rn2-int-mixed-n6-r{5..8}` lane 1, off by 2.1 times
+  COLLIER's modulus;
+- finding 5: four more boxes in the n = 7 kinematics, off by 51, 9.4, 4.7 and
+  3.3 times;
+- the final review's finding 1: further real-mass four-mass boxes of fresh
+  n = 7 and n = 8 lanes, wrong only in Float(256), Float(512) or Float(1024),
+  by up to 51 times (generic Float(256) missed a full lane by 1.14).
+
+With 09b2c74:
+- of the 4692 exact scalar C0/D0 of the suite, exactly these five boxes
+  change, by their old errors, and the others agree with `scalars/` to
+  6.7e-73;
+- the 24 known-failure lanes are gone from `known-failures.json`
+  (`validation/rank-n2/README.md`, "Known failures"). Their references stay
+  COLLIER's (tier B at n = 6, C at n = 7). On `rn2-int-real-n7-r9-muall`
+  lanes 0 and 1, COLLIER (condition 1e18) is off by 0.86 and 0.14, and its
+  two evaluations disagree with each other by 190 and 12, while Float(256)
+  and Float(512) agree to 1e-72;
+- the review's reproducer `repro-d0-real.json` agrees with COLLIER in every
+  precision, f64 to Float(1024) (to 5.1e-16 and 5.2e-25, COLLIER's own
+  spread). The full lanes `fr-phys-real-n7-r9` and `fr8-phys-real-n8-r10`
+  agree with the review's references to <= 6.5e-39 in Float(256) and
+  Float(512).
 
 **Fast-engine conditioning.** The conditioned bases (section 7.2) apply only
 to the rank n+2 engine. The rank <= n+1 path keeps Ninja's choices bitwise.
@@ -792,12 +866,13 @@ to the rank n+2 engine. The rank <= n+1 path keeps Ninja's choices bitwise.
 - Both binary64 engines lose digits on ill-conditioned lanes. On
   `rn2-shifted-mixed-n7-r9-mu2` lane 0 (tier A, condition 7.9e9), the fast
   engine is off by 1.7e-3 and generic f64 by 1.6e-4, against 5.9e-21 in
-  DoubleFloat and 1.7e-30 in Float(256) (merge run). For accuracy-critical
+  DoubleFloat and 1.7e-30 in Float(256) (integration run). For accuracy-critical
   points, use the generic engine in DoubleFloat or `Float`, or the stability
   test.
 
-**Generic binary64.** `rn2-phys-real-n6-r7` lane 2 is off by 4.3e-7, 630 times
-original Ninja's error. It is listed as a known inaccuracy with limit 1e-6.
+**Generic binary64.** `rn2-phys-real-n6-r7` lane 2 is off by 4.3e-7, 640 times
+original Ninja's error (4.26e-7 with oneloopmaster 09b2c74). It is listed as a
+known inaccuracy with limit 1e-6.
 - It is not the snapped S-matrix, and `--stability-test` passes it. It is not
   traced.
 - The new rank n+2 terms can cancel far beyond COLLIER's condition: 5e7 on
@@ -806,9 +881,11 @@ original Ninja's error. It is listed as a known inaccuracy with limit 1e-6.
   `case-check --stability-test` marks both lanes `Unstable` in binary64.
 
 **Master integrals at small `p²`.**
-- `Float` keeps oneloopmaster's exact B0, B1, B11 and B111. They lose about 1,
-  2, 3 and 4 digits per decade of `m²/|p²|`; B111 dominates the rank n+2
-  bubble lanes (91deffa, `rank_n2_float_bubbles`).
+- `Float` and DoubleFloat keep oneloopmaster's exact B1, B11 and B111 (and
+  `Float` its exact B0). They lose about 1, 2, 3 and 4 digits per decade of
+  `m²/|p²|`; B111 dominates the rank n+2 bubble lanes (91deffa,
+  `rank_n2_float_bubbles`). At 128 bits and in DoubleFloat this is the first
+  limitation above.
 - Dual carriers use the exact B1111, with the small-p² loss of section 6.
 - `SymbolicaDualMasters` keeps its existing derivative domains.
 
@@ -829,11 +906,16 @@ triangle-to-bubble correction. Rank n+2 bubbles keep the interpreted plan, and
 **Original-Ninja export.** `export_ninja_cpp` and the CLI's reference export
 reject rank n+2, because original Ninja cannot reduce it.
 
-**Performance guard.** The S3 verifier's interleaved A/B (design §8 a-d) and
-S4's masters timing passed. Neither has been rerun on the integrated head.
-Since then the rank <= n+1 machine code was checked by disassembly (61079d4,
-79f306a). A rank n+2 subsection of `docs/benchmark/benchmark.typ` is not
-written yet.
+**Performance guard.** The final A/B of design §8 against main dec3d55
+(`validation/performance/rank-n2-ab/`, 21a3701, on 8346699 with oneloopmaster
+fe550e3) passes every check but one: the geomean of the reduction and total
+ratios is 0.9975, the generic `bench` at most 1.019, and the absolute gates
+against Ninja hold. `syn-n2-r2` at width 1 (replayed reduction only) is 1.061
+slower with the same instruction count per call, a code-placement effect of
+the rank n+2 modules in the same codegen unit; its total and width-32 ratios
+are 1.003 and 1.007. It was not rerun after the merge of main d53dd08, whose
+oneloopmaster pin changes the masters for both sides. A rank n+2 subsection of
+`docs/benchmark/benchmark.typ` is not written yet.
 
 ## 10. Errata and departures from the design
 
@@ -842,7 +924,7 @@ The design's §10 errata, and how the implementation settled them:
 | # | erratum | status |
 |---|---|---|
 | 1 | OneLOop B1111 sign wrong in every swap branch | corrected in oneloopmaster's native family (fe550e3); swap-identity regression tests in oneloopmaster and NinjaRS (section 6) |
-| 2 | Δ₀ depends on the tadpole basis: with per-tadpole bases it is non-zero already at r = n+1 (n >= 2) | integrals unaffected; reconstruction tests check per cut. The `tools/rank_n2/theory/common.py` docstring ("r-2n") is still stale |
+| 2 | Δ₀ depends on the tadpole basis: with per-tadpole bases it is non-zero already at r = n+1 (n >= 2) | integrals unaffected; reconstruction tests check per cut. The `tools/rank_n2/theory/common.py` docstring now states `decomposition_check.zero_point_bound` (e116813) |
 | 3 | Ninja's `SizeHelper<2>` (`1 + i + i/2 + i/3`) is exact only for i <= 3; level 4 has 9 entries, not 8 | `t2_len = (i/2+1)(i+1-i/2)` (f7e8bad); `t2_len_le3` keeps Ninja's form at the rank <= n+1 call sites (61079d4) |
 | 4 | the phase-1 references preprocess in binary64 (good to 1e-16..1e-13 on `-mu2` and shifted lanes) | regenerated with exact rational preprocessing and exact decimal driver inputs (498432f); the review's `hpref` differs by <= 1.4e-11, explained by its input rounding and COLLIER's error |
 | 5a | native B1111 truncation tables | own rank-four radii 0.0085 and 0.17 (fe550e3; the design proposed 0.009 and 0.17) |
@@ -865,12 +947,17 @@ Departures from the design, each recorded in the commit named:
   (bd2022b).
 - **V0 baseline.** The fixtures were taken at e4c16a7, not 5f35b07 (96b3653).
   Above rank 5 the generic numerators keep a fixed sixteenth of the monomials.
-  The fixture was re-blessed once, for main dec3d55's own changes (PR #3),
-  when main was merged (1524dbd, `validation/regression/README.md`):
-  - the fast engine's `TensorNumerator` and `MuTensorNumerator` bits are
-    unchanged;
-  - generic binary64 rounding moved by <= 2.1e-12 of the lane maximum, and by
-    <= 1.0e-11 with explicit mu².
+  The fixture was re-blessed twice, each time for main's own changes and from
+  a clean checkout of main (`validation/regression/README.md`):
+  - main dec3d55 (PR #3, merged in 1524dbd): the fast engine's
+    `TensorNumerator` and `MuTensorNumerator` bits unchanged; generic binary64
+    rounding moved by <= 2.1e-12 of the lane maximum, and by <= 1.0e-11 with
+    explicit mu²;
+  - main d53dd08 (oneloopmaster 264a6ce → 09b2c74, merged in e53c298): C0/D0
+    changes move 69 of 237 fast width-1 lanes and 71 of 237 generic binary64
+    lanes, median 2e-14, at most 8.8e-5 on the cancelling
+    `syn-gghhh-ggHHH-n5-r5` lane 1 (a D0 next to a Gram determinant of 8.2e-8
+    moved by 4e-11); no status changed.
 - **V4f tolerance.** It is based on original Ninja's error with
   `cond' = max(condition, new_terms_over_scale)`, instead of
   `1e-14 max(1, cond) + 3 unc` (3c6c88c, dda8f8e).
@@ -910,3 +997,5 @@ of the rank n+2 work (2026-10-18/19), which are not in the repository:
 | S0, S2, S3, S4, S5b | stream reports; S2 → c066178, S3 → 1d5cb5f and ebdbc00, S4 → 07395b2, S5b → 3c6c88c |
 | S2, S3, S4, S5b verifiers | independent re-checks of each stream |
 | merge run | the integration head 8346699: workspace tests and `case-check` on the whole suite in four configurations |
+| final review | the review of 8346699 that found the arbitrary-precision D0 bug and the limitations of section 9 (reproducers named there) |
+| integration run | e116813, after merging main d53dd08 (oneloopmaster 09b2c74): V0 regenerated, known failures re-derived, `case-check` on the suite and the controls in five configurations, workspace tests |

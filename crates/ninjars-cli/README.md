@@ -394,7 +394,15 @@ and condition, or original-Ninja results, judged at `--ninja-tolerance`
   - at lower precision (`f64`, `double`, `float` below 160 bits), the
     condition or the cancellation of the new rank n+2 terms is above 1e6;
   - the tolerance is too wide to resolve the lane's new rank n+2 terms;
-- `known-failure` and `stale-known-failure`, from `--known-failures`;
+- `known-failure` and `stale-known-failure`, from `--known-failures` (a
+  `ninjars-known-failures-v1` file):
+  - `lanes`: upstream bugs, judged against COLLIER's value. An entry may name
+    the `engines` and `precisions` it applies to; elsewhere the lane is judged
+    as any other, so a failure of one precision does not fail the others;
+  - `inaccuracies`: one engine at one fixed precision, within a `limit`;
+  - `ninja_unreliable` (no verdict of its own): kinematics whose
+    original-Ninja errors are no binary64 budget, with corrected `errors` per
+    rank excess or none;
 - `unchecked`: no reference lane;
 - `error`: the engine rejects the case.
 

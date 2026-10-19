@@ -2411,3 +2411,53 @@ architecture, validation, limitations and errata.
   - There is no native degree-4 bubble correction.
   - Still to do: the design's §8 A/B timing on the integrated head (last
     passed at S3 and S4) and a rank n+2 section in `docs/benchmark/benchmark.typ`.
+
+### Rank n+2 integrated with main d53dd08 (2026-10-19)
+
+Integration of the rank n+2 work with current main, after the final review of
+8346699 (which found that oneloopmaster fe550e3 gives wrong real-mass D0 in
+Float(256..1024), fixed at 09b2c74).
+
+- **Branch.** `claude/rank-n2-integration`, not pushed: 8346699, then the
+  docs (3be5183, merged ba14aea), the performance guard (21a3701, merged
+  b67f5e2), main d53dd08 (merged e53c298), case-check scopes and known
+  failures (abaa0c0), doc pointers (e116813) and this documentation.
+- **Merge of main.** 11 conflicts: `oneloop_native.rs` keeps the branch's
+  `B1111 => &mut self.b1111`; `masters.rs` module doc merged; pins take
+  main's oneloopmaster 09b2c74 (`TensorIntegral::B1111` unchanged since
+  fe550e3). No manifest references `references/`.
+- **V0.** 09b2c74 changes rank <= n+1 bits, so the fixture was regenerated on a
+  clean clone of main d53dd08 (`validation/regression/r-le-n1-d53dd08.json`,
+  identical to the final review's): 69 of 237 fast width-1 lanes and 71 of 237
+  generic binary64 lanes moved, median 2e-14, at most 8.8e-5 on the cancelling
+  `syn-gghhh-ggHHH-n5-r5` lane 1; Float(256) by <= 7.8e-72; no status. The
+  merge passes V0 bitwise and V0p unchanged.
+- **Known failures.** All 24 lanes of findings 3 and 5 are fixed and removed.
+  With 09b2c74 exactly those five boxes change among the suite's 4692 exact
+  C0/D0. `case-check` entries can now be limited to `engines` and
+  `precisions`; `ninja_unreliable` replaces original Ninja's errors where
+  OneLOop's D0 was wrong (corrected `rn2-int-mixed-n6` lane 1: 1.3e-12,
+  4.9e-12, 1.5e-11 instead of 0.10, 0.30, 0.24). Known inaccuracies:
+  `rn2-phys-real-n6-r7` lane 2 (generic f64) and 15 generic Float(128) lanes
+  (exact C0/D0 in Symbolica's precision-tracking interpreter: up to 10 bits
+  more than the native code).
+- **case-check, suite (333 lanes), pass / report-only / known; 0 fail, 0
+  stale, exit 0 in all five runs:** fast 276/57/0, generic f64 275/58/0,
+  DoubleFloat 297/36/0, Float(128) 294/36/3, Float(256) 285/48/0. Controls
+  (615 lanes): 600/15/0, 599/15/1, 600/15/0, 588/15/12, 601/14/0.
+- **Final review finding 1** is gone: `repro-d0-real.json` agrees with
+  COLLIER in f64..Float(1024), and the full n = 7 and n = 8 lanes agree with
+  the review's references to <= 6.5e-39 in Float(256) and Float(512).
+- **Tests at e116813.** Release workspace suite, default features: 392 passed, 0 failed, 12 ignored; with `--all-features`: 501 passed, 0 failed, 21 ignored. V0 (`regression_bitwise`) and V0p pass; clippy (workspace, all targets, all features) and rustfmt clean.
+- **Open.**
+  - Two fixes in preparation, documented as limitations in `docs/rank-n2.md`
+    section 9: DoubleFloat/Float(128) bubbles at small |p²| with unequal
+    masses (exact B1..B111), and `--stability-test` missing cancellation
+    inside one cut contribution.
+  - The n = 7 lanes of the former known failures keep COLLIER references
+    (tier C); `reduction-exact` with scalars regenerated at 09b2c74 would
+    publish independent values.
+  - Still ignored with "needs fast accuracy fix" (fast binary64 at n = 7, all within 10-100x of generic f64 on ill-conditioned lanes): `pieces_reproduce_the_rank_n2_references_binary64`, `rank_n2_integrals_equal_their_pieces_binary64` (rn2-id-pinch-n7), `relabelling_invariance_rank_n2_binary64` (rn2-exact-mu-n7-r9-perm lane 1) and `suite_fast_within_ten_times_generic_binary64` (rn2-shifted-mixed-n7-r9-mu2 lane 0, cond 7.9e9). The other ignored tests need the C++/Fortran reference builds, are child processes, generators, inventories or microbenchmarks.
+  - The performance guard (21a3701) ran against dec3d55 on 8346699 and was not
+    rerun after this merge; `syn-n2-r2` width 1 reduction stays at 1.061
+    (code placement). No rank n+2 section in `docs/benchmark/benchmark.typ`.

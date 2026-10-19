@@ -17,7 +17,7 @@ the results are in [`docs/rank-n2.md`](../../docs/rank-n2.md).
 | `summary/` | one row per lane and set: source, tier, uncertainty and every cross-check |
 | `provenance/` | the review's `hpref` values and the comparison with them |
 | `harness/` | every script that produced the above, and the COLLIER driver |
-| `known-failures.json` | lanes expected to fail until oneloopmaster's D0 is fixed (findings 3 and 5), and known binary64 inaccuracies of one engine (`inaccuracies`), read by `case-check --known-failures` and the tests |
+| `known-failures.json` | lanes expected to fail for an upstream bug, optionally per engine and precision (`lanes`; empty since oneloopmaster 09b2c74 fixed findings 3 and 5), known fixed-precision inaccuracies of one engine (`inaccuracies`), and kinematics whose original-Ninja errors are no binary64 budget (`ninja_unreliable`), read by `case-check --known-failures` and the tests |
 
 ## Conventions
 
@@ -67,8 +67,8 @@ the results are in [`docs/rank-n2.md`](../../docs/rank-n2.md).
   B lanes; tier C is report only.
   - This tolerance assumes that oneloopmaster's exact C0/D0, which NinjaRS and the reduction
     share, are correct. `verified_to` is the statement that does not depend on those masters.
-  - The lanes of `known-failures.json` (findings 3 and 5) fail until that bug is fixed (see
-    "Known failures" below).
+  - The lanes of findings 3 and 5 failed until oneloopmaster 09b2c74 fixed that D0 (see
+    "Known failures" below); their published values are COLLIER's.
   - Tier-B lanes whose uncertainty comes from `generic_engine_extrapolated` or
     `generic_engine_on_twins` (32 suite lanes: `phys` and `syn`) are report only: that
     uncertainty estimates the input ambiguity from the generic engine's own rank twins and is
@@ -108,8 +108,15 @@ the results are in [`docs/rank-n2.md`](../../docs/rank-n2.md).
   - `e_ninja` is Ninja's error on the lane (`ninja` field), or for lanes without one (rank
     n+2, mu^2 twins) on the rank twins of the same kinematics (`summary/{controls,
     synthetic-twins,n7-controls}.json`), extrapolated geometrically by one rank from the two
-    highest twin ranks. It is not used on the kinematics of a known failure (Ninja shares the
-    D0 bug).
+    highest twin ranks. It is not used on the kinematics of a known failure where that entry
+    applies. On the kinematics listed in `ninja_unreliable` (`known-failures.json`), original
+    Ninja's errors contain OneLOop's own D0 error of findings 3 and 5 (0.10 to 3.4), so they
+    are replaced by Ninja's error against the exact reduction with oneloopmaster fe550e3's
+    identically wrong D0 (`errors`, by rank excess): 1.3e-12, 4.9e-12 and 1.5e-11 at excess
+    -1, 0 and 1 for `rn2-int-mixed-n6` lane 1, instead of 0.10, 0.30 and 0.24. The same
+    comparison reproduces Ninja's published errors on lanes 0 and 2 of those cases to 4
+    digits. `rn2-int-real-n7` lane 0 has no Ninja budget: OneLOop's wrong D0 values differ
+    from fe550e3's there (Ninja against that reduction: 0.41 to 1.5).
   - Generic-engine-derived uncertainties count 100 times; `cond' > 1e6` and tier C are report
     only.
 - **Resolution of the new terms (every precision).** A tolerance at least as large as the
@@ -118,20 +125,56 @@ the results are in [`docs/rank-n2.md`](../../docs/rank-n2.md).
   is within the tolerance, and still fails outside it. In binary64 this concerns 23 suite
   lanes for the generic engine and 22 for the fast engine (mostly `B1111` parts of 1e-14 to
   3e-6 of the lane on `-mu2` and `-muall` lanes); in Float(256) none.
-- **Known failures.** A lane of `known-failures.json` is compared with COLLIER's COLI quad
-  value (`collier_coli_quad_decimal`) at a scaled 1e-6 (`case-check --known-failure-tolerance`):
-  far above COLLIER's error on these lanes, far below the D0 bug's effect (at least 3 % of the
-  lane, 3.1e-2 on `rn2-int-mixed-n6-r8` lane 1). While it differs by more, it is
-  `known-failure` (with the measured difference); once it agrees, or passes its own tolerance,
-  it is `stale-known-failure`, which fails `case-check` and the tests until the entry is
-  removed. A fixed oneloopmaster is therefore detected in every precision where the lane is
-  accurate to 1e-6 (always in Float(256)).
+- **Known failures.** A lane of `known-failures.json` (`lanes`) is compared with COLLIER's COLI
+  quad value (`collier_coli_quad_decimal`) at a scaled 1e-6 (`case-check
+  --known-failure-tolerance`): far above COLLIER's error on such lanes, far below an upstream
+  bug's effect (the D0 bug of findings 3 and 5 moved its lanes by at least 3 %, 3.1e-2 on
+  `rn2-int-mixed-n6-r8` lane 1). While it differs by more, it is `known-failure` (with the
+  measured difference); once it agrees, or passes its own tolerance, it is
+  `stale-known-failure`, which fails `case-check` and the tests until the entry is removed.
+  - **Scope.** An entry may list the `engines` (`fast`, `generic`) and `precisions` (`f64`,
+    `double`, `float:<bits>`) it applies to; without them it applies everywhere. Elsewhere the
+    lane is judged as any other, so an entry for a defect of, say, DoubleFloat and Float(128)
+    neither fails the other precisions nor goes stale in them (`known_failure_scope` in
+    `crates/ninjars-cli/tests/case_check.rs`).
+  - **History.** Until oneloopmaster 09b2c74 (main's pin since d53dd08) the list held the 24
+    suite and control lanes of findings 3 and 5. With 09b2c74 the exact scalar C0/D0 of the
+    suite change only on those five boxes, by 51, 9.4, 4.7, 3.3 and 2.1 times their modulus
+    (exactly the old errors against COLLIER), while the other 4680 of 4692 agree with
+    `scalars/` to 6.7e-73. All 24 entries were removed:
+    - the 15 control lanes agree with COLLIER in all five runs (fast; generic f64, double,
+      float:128, float:256);
+    - of the 9 suite lanes, 7 agree with COLLIER within 1e-6 in DoubleFloat, Float(128) and
+      Float(256) (the 4 without mu^2 to <= 2.5e-14, the mu^2 ones to 1.2e-13..3.6e-7, where
+      COLLIER's two evaluations differ by up to 1.3e-5);
+    - `rn2-int-real-n7-r9-muall` lanes 0 and 1 (COLLIER condition 1.2e18 and 7.6e17) differ
+      from COLLIER by 0.86 and 0.14 in DoubleFloat, Float(128) and Float(256). These agree with
+      Float(512) to 1.2e-14, 5.4e-22 and 7.9e-75 of the lane (lane 1: 4.2e-16, 2.8e-22,
+      1.1e-72), while COLLIER's own second evaluation (`id-coli-quad`) differs from its first by
+      190 and 12. The engines are right and COLLIER is not;
+    - in binary64 the n = 7 mu^2 lanes (condition 5e9..1e18) miss COLLIER by their
+      conditioning (fast up to 1.1e3 on the `-muall` lane 0).
+
+    These lanes keep their COLLIER references: tier B at n = 6 (now passing everywhere) and
+    tier C, report only, at n = 7.
+    Rerunning `reduction-exact` with scalars regenerated at 09b2c74 would publish independent
+    values for them; that is not done yet.
 - **Known inaccuracies.** `known-failures.json` also lists, under `inaccuracies`, lanes on
   which one engine at one fixed precision misses its budget although the reference is right
-  (`id`, `engine`, `precision`, `limit`, `reason`): today only `rn2-phys-real-n6-r7` lane 2
-  for the generic engine in f64 (limit 1e-6). Such a lane is `known-failure` while its
-  difference stays within `limit`, `fail` beyond it, and `stale-known-failure` once it is
-  within its tolerance. Other engines and precisions judge the lane as usual.
+  (`id`, `engine`, `precision`, `limit`, `reason`; one entry per lane, engine and precision).
+  Such a lane is `known-failure` while its difference stays within `limit`, `fail` beyond it,
+  and `stale-known-failure` once it is within its tolerance. Other engines and precisions
+  judge the lane as usual. Today:
+  - `rn2-phys-real-n6-r7` lane 2 for the generic engine in f64 (4.26e-7, limit 1e-6; below);
+  - 15 lanes for the generic engine in Float(128): 3 suite lanes (`rn2-int-mixed-n4-r6` lane 2,
+    `rn2-int-mixed-n6-r8` lane 0, `rn2-int-mixed-n7-r9` lane 1) and 12 control lanes, 1.0 to 10
+    times outside the binary64 budget scaled to 128 bits (limits about 3 times the measured
+    difference). `Float` evaluates C0/D0 with Symbolica's precision-tracking interpreter of
+    oneloopmaster's exact expressions, the fixed-precision carriers with its native code. On
+    the 139 boxes of these lanes D0 is off by a median 471 and at most 1.4e5 units in the last
+    place at 128 bits, against 34 and 4670 in binary64 and 29 and 4120 in DoubleFloat: up to 10
+    bits more (C0: at most 4 bits more). Float(160) and above are limited by the references'
+    uncertainty, so the same loss is invisible in Float(256).
 
 ## How the values are obtained
 
@@ -229,7 +272,8 @@ makes 5 `phys` n = 6 suite lanes and 2 `syn` lanes tier C.
 
    These lanes (all ranks, all mu^2 variants: 20 lanes) fail `scalar_check`, so their source
    is COLLIER's COLI; without DD at n = 7 they have no cross-branch uncertainty and are
-   tier C. They are listed in `known-failures.json`.
+   tier C. They were listed in `known-failures.json` until oneloopmaster 09b2c74 fixed this D0
+   (and finding 3's); see "Known failures".
 6. **The D0 bug depends on the order of D0's arguments (S5b fix-up).** In
    `tests/fast_parity.rs` (V8), lane 3 of `parity_rank_n2_n6` (n = 6, masses alternately zero
    and real) changes by 2.0 and 4.4 relative (with and without mu^2 terms) in both engines
@@ -533,30 +577,28 @@ Tests (`crates/ninjars-symbolica/tests/`, `crates/ninjars-cli/tests/case_check.r
   evaluated alone, after `rn2-int-complex-n1-r2`, and after 40 other control cases gives
   bitwise identical results.
 
-Results on the controls (rank <= n+1, n = 1..7, 615 lanes):
+Results with oneloopmaster 09b2c74 (integration head e116813), as pass / fail / report-only /
+known-failure; no lane is `stale-known-failure`, `unchecked` or `error`, and every run exits 0.
 
-| run | pass | report-only | known-failure | fail | largest checked difference |
-|---|---|---|---|---|---|
-| generic Float(256), exact masters | 598 | 2 | 15 | 0 | 3.2e-10 (tier-B `phys` lanes; tier A <= 1e-36 at n <= 6, up to 1.2e-33 = the uncertainty at n = 7) |
-| fast, native masters | 597 | 3 | 15 | 0 | 2.6e-6 (`rn2-phys-real-n6-r7` lane 1, where original Ninja's error is 3.6e-6) |
-| generic f64, native masters | 596 | 3 | 16 | 0 | 3.5e-7 (`rn2-phys-complex-n6-r7` lane 1); the 16th known failure is the known inaccuracy of `rn2-phys-real-n6-r7` lane 2 (4.3e-7) |
+| run | controls (rank <= n+1, 615 lanes) | suite (rank n+2, 333 lanes) | largest checked difference (controls; suite) |
+|---|---|---|---|
+| fast, native masters | 600 / 0 / 15 / 0 | 276 / 0 / 57 / 0 | 2.6e-6 (`rn2-phys-real-n6-r7` lane 1, original Ninja 3.6e-6); 5.3e-8 (`rn2-int-real-n7-r9` lane 2) |
+| generic f64, native masters | 599 / 0 / 15 / 1 | 275 / 0 / 58 / 0 | 3.5e-7 (`rn2-phys-complex-n6-r7` lane 1); 5.2e-7 (tier B) |
+| generic DoubleFloat, exact masters | 600 / 0 / 15 / 0 | 297 / 0 / 36 / 0 | 3.2e-10; 1.4e-11 (tier B; tier A <= 1.3e-24) |
+| generic Float(128), exact masters | 588 / 0 / 15 / 12 | 294 / 0 / 36 / 3 | 3.2e-10; 1.4e-11 (tier B; tier A <= 1.2e-29) |
+| generic Float(256), exact masters | 601 / 0 / 14 / 0 | 285 / 0 / 48 / 0 | 3.2e-10 (tier-B `phys` lanes; tier A <= 1e-36 at n <= 6, up to 1.2e-33 = the uncertainty at n = 7); 7.0e-12 (tier A <= 1.3e-36 at n <= 6, 5.9e-30 at n = 7) |
 
-Results on the rank n+2 suite (333 lanes, n = 1..7):
-
-| run | pass | report-only | known-failure | fail | largest checked difference |
-|---|---|---|---|---|---|
-| generic Float(256), exact masters | 284 | 40 | 9 | 0 | 7.0e-12 |
-| generic f64, native masters | 274 | 50 | 9 | 0 | 5.2e-7 |
-| generic DoubleFloat, exact masters | 296 | 28 | 8 | 0 | 1.4e-11; plus 1 `stale-known-failure` (below) |
-| fast, native masters | 275 | 49 | 9 | 0 | 4.9e-8 (`rn2-int-real-n7-r9` lane 2); 266 / 49 / 9 / 9 and 6.2e-4 before the rank n+2 basis conditioning |
-
-In DoubleFloat, `rn2-int-mixed-n6-r8` lane 1 (finding 3) agrees with COLLIER's value to
-1.2e-14 and is therefore reported as `stale-known-failure`, while the same exact masters
-with `Float` miss it by 3.07e-2 at every precision tried (53, 64, 106, 128, 256 and 512
-bits), as do the native binary64 masters. So the finding-3 error depends on the carrier
-type, presumably in oneloopmaster's exact D0 for this box (not traced). The entry is not
-precision-specific, so `case-check --precision double` on the suite exits non-zero; no test
-runs the suite in DoubleFloat. The n = 7 known failures (finding 5) fail in DoubleFloat too.
+- The known failures are the known inaccuracies: `rn2-phys-real-n6-r7` lane 2 in generic f64
+  (4.26e-7) and the 15 Float(128) lanes ("Known inaccuracies" above).
+- Against 8346699 (oneloopmaster fe550e3): the 15 control and 9 suite known failures of
+  findings 3 and 5 are gone. `rn2-int-mixed-n6-r{5..8}` lane 1 (tier B) now pass, in binary64
+  with the corrected Ninja budget of `ninja_unreliable`; the n = 7 lanes have tier-C COLLIER
+  references and are report-only. DoubleFloat no longer reports the stale known failure of
+  `rn2-int-mixed-n6-r8` lane 1 (there the merge run's D0 already agreed with COLLIER, while
+  `Float` and native binary64 did not: the bug depended on the carrier).
+- Not part of these runs: the identity cases (`identity/`) have no binary64 budget (no Ninja
+  results; the V6 and V7 tests compare engines instead) and pass in Float(256) (379 pass,
+  3 report-only); the conditioning scan (`scan/`, V9) is report only by design.
 
 ## Regenerating
 
