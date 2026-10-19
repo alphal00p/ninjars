@@ -25,6 +25,13 @@
 //! (`fast/declared_rank.rs`). That default must equal the fast engine with
 //! the numerator declared at that rank bitwise. Declared rank n+1 for the
 //! rank <= n cases exercises the rank n+1 paths with zero top coefficients.
+//!
+//! Every lane of these cases has its case's rank, so they never split a
+//! batch. `fast_mixed_rank_batches_reduce_each_lane_at_its_own_rank` builds
+//! batches declared at rank n+2 from lanes of ranks n-1 to n+2 (plain and
+//! with `mu²` powers, some with a duplicated propagator, which fails), and
+//! checks that the split by rank and the scatter reproduce every lane's
+//! own-rank single-lane result bitwise.
 
 mod common;
 mod rank_n2_reference_support;
@@ -38,7 +45,7 @@ use ninjars::fast::{
 use ninjars_symbolica::OneLoopNativeMasters;
 use rank_n2_reference_support::{
     fast_noise,
-    harness::{BenchCase, Engines, FastRun, fast_values, run_fast, scaled_difference},
+    harness::{BenchCase, BenchLane, Engines, FastRun, fast_values, run_fast, scaled_difference},
     rank_n2, root,
 };
 use serde_json::Value;
@@ -430,4 +437,253 @@ fn fast_padding_to_rank_n_plus_two() {
 #[test]
 fn generic_padding_to_rank_n_plus_two() {
     generic_padding(&entries(1), |case| case.n + 2);
+}
+
+// ------------------------------------------------------- mixed-rank batches
+
+/// Sources of a mixed-rank batch (`validation/rank-n2`, one `n`, ranks n+2
+/// down to n-1): lanes 0 and 1 of each, the second with a duplicated
+/// propagator where marked `true`.
+const MIXED_PLAIN: [(&str, bool); 4] = [
+    ("cases/rn2-int-complex-n3-r5", true),
+    ("controls/cases/rn2-int-complex-n3-r4", false),
+    ("controls/cases/rn2-int-complex-n3-r3", true),
+    ("controls/cases/rn2-int-complex-n3-r2", false),
+];
+
+/// The same with `mu²` powers: rank n+2 lanes with `mu²`, `mu⁴` and `mu⁶`
+/// terms, rank n+1 lanes with `mu²` terms and plain lanes of every rank, in
+/// a numerator with three `mu²` powers.
+const MIXED_MU: [(&str, bool); 6] = [
+    ("cases/rn2-int-complex-n4-r6-muall", false),
+    ("cases/rn2-int-complex-n4-r6", true),
+    ("controls/cases/rn2-int-complex-n4-r5-mu2", true),
+    ("controls/cases/rn2-int-complex-n4-r5", false),
+    ("controls/cases/rn2-int-complex-n4-r4", false),
+    ("controls/cases/rn2-int-complex-n4-r3", true),
+];
+
+/// Lane `lane` of `case` laid out at rank `rank` with `mu_powers` powers of
+/// `mu²` (zero new coefficients and blocks).
+fn relaid(case: &BenchCase, lane: usize, rank: usize, mu_powers: usize) -> BenchLane {
+    assert!(rank >= case.rank && mu_powers >= case.mu_powers);
+    let source = &case.lanes[lane];
+    let mut tensor = vec![C64::ZERO; ncoeff_mu(rank, mu_powers)];
+    for k in 0..=case.mu_powers {
+        let (from, to, size) = (
+            mu_block_offset(case.rank, k),
+            mu_block_offset(rank, k),
+            ncoeff(case.rank - 2 * k),
+        );
+        tensor[to..to + size].copy_from_slice(&source.tensor[from..from + size]);
+    }
+    BenchLane {
+        tensor,
+        ..source.clone()
+    }
+}
+
+/// `lane` with its second propagator replaced by its first (S-matrix
+/// included): every cut through both is singular.
+fn with_duplicated_propagator(lane: &BenchLane, n: usize) -> BenchLane {
+    let mut out = lane.clone();
+    out.id = format!("{}-duplicated", lane.id);
+    out.shifts[1] = out.shifts[0];
+    out.masses[1] = out.masses[0];
+    if let Some(s) = &mut out.s_matrix {
+        let old = s.clone();
+        let line = |i: usize| if i == 1 { 0 } else { i };
+        for i in 0..n {
+            for j in 0..n {
+                s[i * n + j] = old[line(i) * n + line(j)];
+            }
+        }
+    }
+    out
+}
+
+/// The case of rank n+2 with `mu_powers` whose lanes are lanes 0 and 1 of
+/// `sources` in turn (all of lane 0 first), and the rank of every lane's
+/// source.
+fn mixed_case(name: &str, sources: &[(&str, bool)], mu_powers: usize) -> (BenchCase, Vec<usize>) {
+    let sources: Vec<(BenchCase, bool)> = sources
+        .iter()
+        .map(|&(path, duplicated)| {
+            let case = BenchCase::load(&rank_n2().join(format!("{path}.json"))).unwrap();
+            (case, duplicated)
+        })
+        .collect();
+    let n = sources[0].0.n;
+    let rank = n + 2;
+    let (mut lanes, mut ranks) = (Vec::new(), Vec::new());
+    for index in 0..2 {
+        for (source, duplicated) in &sources {
+            assert_eq!(source.n, n, "{}", source.name);
+            let lane = relaid(source, index, rank, mu_powers);
+            lanes.push(if index == 1 && *duplicated {
+                with_duplicated_propagator(&lane, n)
+            } else {
+                lane
+            });
+            ranks.push(source.rank);
+        }
+    }
+    let case = BenchCase {
+        name: name.to_string(),
+        path: Default::default(),
+        n,
+        rank,
+        mu_powers,
+        lanes,
+    };
+    (case, ranks)
+}
+
+/// A result no evaluation produces, which a failed lane must keep.
+fn sentinel(lane: usize) -> FastResult {
+    let z = C64::new(lane as f64 + 0.25, -1.);
+    FastResult {
+        laurent: [z; 3],
+        cut_constructible: z,
+        rational: z,
+    }
+}
+
+/// Lanes `order` of `case` as one batch declared at `case.rank` (the
+/// numerator types and S-matrix rule of `run_fast`), every result preset to
+/// [`sentinel`].
+fn run_lanes(
+    amplitude: &mut FastAmplitude,
+    case: &BenchCase,
+    order: &[usize],
+    masters: &mut OneLoopNativeMasters,
+) -> (Vec<FastResult>, Vec<FastStatus>) {
+    let width = order.len();
+    let lanes: Vec<&BenchLane> = order.iter().map(|&lane| &case.lanes[lane]).collect();
+    let shifts: Vec<RMom> = lanes
+        .iter()
+        .flat_map(|l| l.shifts.iter().copied())
+        .collect();
+    let masses: Vec<C64> = lanes
+        .iter()
+        .flat_map(|l| l.masses.iter().copied())
+        .collect();
+    let scales: Vec<f64> = lanes.iter().map(|l| l.mu2).collect();
+    let s_matrix: Option<Vec<f64>> = lanes
+        .iter()
+        .map(|l| l.s_matrix.clone())
+        .collect::<Option<Vec<_>>>()
+        .map(|rows| rows.concat());
+    let input = FastInput {
+        lanes: width,
+        shifts: &shifts,
+        masses_squared: &masses,
+        scales_squared: &scales,
+        s_matrix: s_matrix.as_deref(),
+    };
+    let coefficients: Vec<C64> = lanes
+        .iter()
+        .flat_map(|l| l.tensor.iter().copied())
+        .collect();
+    let mut results: Vec<FastResult> = (0..width).map(sentinel).collect();
+    let mut statuses = vec![FastStatus::NotEvaluated; width];
+    if case.mu_powers == 0 {
+        let mut tensor = TensorNumerator::new(case.rank, width);
+        tensor.set_coefficients(width, &coefficients).unwrap();
+        amplitude
+            .evaluate(&input, &mut tensor, masters, &mut results, &mut statuses)
+            .unwrap();
+    } else {
+        let mut tensor = MuTensorNumerator::new(case.rank, case.mu_powers, width).unwrap();
+        tensor.set_coefficients(width, &coefficients).unwrap();
+        amplitude
+            .evaluate(&input, &mut tensor, masters, &mut results, &mut statuses)
+            .unwrap();
+    }
+    (results, statuses)
+}
+
+/// Batches declared at rank n+2 whose lanes have ranks n-1 to n+2, plain and
+/// with `mu²` powers, some failing (duplicated propagator), with and without
+/// S-matrices: every lane, alone and in natural, reversed and cyclic batches
+/// of up to 37 lanes, must be bitwise its own-rank single-lane result
+/// (`run_fast` declared at the lane's rank, `mu²` powers up to half that
+/// rank), and a failed lane must keep its previous result. One amplitude
+/// serves every batch of a case, so the lower-rank engines are reused across
+/// widths. Without the dispatch of `fast/declared_rank.rs` (every lane
+/// through the rank n+2 engine) this fails.
+#[test]
+fn fast_mixed_rank_batches_reduce_each_lane_at_its_own_rank() {
+    let mut native = OneLoopNativeMasters::new().unwrap();
+    let (mut checked, mut failed, mut batches) = (0, 0, 0);
+    for (name, sources, mu_powers) in [
+        ("mixed-plain-n3", &MIXED_PLAIN[..], 0),
+        ("mixed-mu-n4", &MIXED_MU[..], 3),
+    ] {
+        let (full, ranks) = mixed_case(name, sources, mu_powers);
+        let n = full.n;
+        // The lanes have the ranks of their sources, n-1 to n+2.
+        assert_eq!(lane_ranks(&full), ranks, "{name}");
+        assert!((n - 1..=n + 2).all(|rank| ranks.contains(&rank)), "{name}");
+        let mut without_s_matrix = full.clone();
+        for lane in &mut without_s_matrix.lanes {
+            lane.s_matrix = None;
+        }
+        for case in [full, without_s_matrix] {
+            let s_matrix = case.lanes[0].s_matrix.is_some();
+            let count = case.lanes.len();
+            let own: Vec<(FastResult, FastStatus)> = (0..count)
+                .map(|lane| {
+                    let single = single_at_rank(&case, lane, ranks[lane]);
+                    let run = run_fast(&single, ranks[lane], 1, &mut native).unwrap();
+                    (run.results[0], run.statuses[0])
+                })
+                .collect();
+            for (lane, (_, status)) in own.iter().enumerate() {
+                let expected = if case.lanes[lane].id.ends_with("-duplicated") {
+                    FastStatus::Unstable
+                } else {
+                    FastStatus::Success
+                };
+                assert_eq!(
+                    *status, expected,
+                    "{name} lane {lane} ({}): own-rank status",
+                    case.lanes[lane].id
+                );
+            }
+            let mut amplitude = FastAmplitude::new(n, n + 2, FastOptions::default()).unwrap();
+            let mut orders: Vec<Vec<usize>> = (0..count).map(|lane| vec![lane]).collect();
+            orders.push((0..count).collect());
+            orders.push((0..count).rev().collect());
+            orders.push((0..37).map(|i| (2 * i + i / count) % count).collect());
+            for order in &orders {
+                let (results, statuses) = run_lanes(&mut amplitude, &case, order, &mut native);
+                for (position, &lane) in order.iter().enumerate() {
+                    let (want, want_status) = own[lane];
+                    let label = format!(
+                        "{name} (S-matrix {s_matrix}) lane {lane} ({}, rank {}) at position {position} of {}",
+                        case.lanes[lane].id,
+                        ranks[lane],
+                        order.len()
+                    );
+                    assert_eq!(statuses[position], want_status, "{label}");
+                    if want_status == FastStatus::Success {
+                        assert_eq!(bits(&results[position]), bits(&want), "{label}");
+                    } else {
+                        assert_eq!(
+                            results[position],
+                            sentinel(position),
+                            "{label}: a failed lane keeps its previous result"
+                        );
+                        failed += 1;
+                    }
+                    checked += 1;
+                }
+                batches += 1;
+            }
+        }
+    }
+    eprintln!(
+        "FAST_MIXED_RANK {batches} batches, {checked} lanes bitwise equal to their own-rank single-lane runs ({failed} of them failed lanes keeping their previous result)"
+    );
 }
