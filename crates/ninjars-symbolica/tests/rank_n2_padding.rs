@@ -32,6 +32,12 @@
 //! with `mu²` powers, some with a duplicated propagator, which fails), and
 //! checks that the split by rank and the scatter reproduce every lane's
 //! own-rank single-lane result bitwise.
+//!
+//! With `FastOptions::conditioned_cuts` the lowered engines inherit the
+//! option: `fast_padding_to_rank_n_plus_two_with_conditioned_cuts` and
+//! `fast_mixed_rank_batches_with_conditioned_cuts_reduce_each_lane_at_its_own_rank`
+//! check the same bitwise equalities against the own-rank runs with the
+//! option.
 
 mod common;
 mod rank_n2_reference_support;
@@ -45,7 +51,10 @@ use ninjars::fast::{
 use ninjars_symbolica::OneLoopNativeMasters;
 use rank_n2_reference_support::{
     fast_noise,
-    harness::{BenchCase, BenchLane, Engines, FastRun, fast_values, run_fast, scaled_difference},
+    harness::{
+        BenchCase, BenchLane, Engines, FastRun, fast_values, run_fast, run_fast_with_options,
+        scaled_difference,
+    },
     rank_n2, root,
 };
 use serde_json::Value;
@@ -614,8 +623,41 @@ fn run_lanes(
 /// through the rank n+2 engine) this fails.
 #[test]
 fn fast_mixed_rank_batches_reduce_each_lane_at_its_own_rank() {
+    mixed_rank_batches(FastOptions::default());
+}
+
+/// [`fast_mixed_rank_batches_reduce_each_lane_at_its_own_rank`] with
+/// [`FastOptions::conditioned_cuts`]: the lowered engines inherit the
+/// caller's options, so every lane must be bitwise its own-rank single-lane
+/// result with the option. The option must change some lowered lanes
+/// against the default geometry; a lowered engine that ignored it (built
+/// with default options, or run through the default stages instead of its
+/// conditioned engine) then fails.
+#[test]
+fn fast_mixed_rank_batches_with_conditioned_cuts_reduce_each_lane_at_its_own_rank() {
+    let differing = mixed_rank_batches(conditioned());
+    assert!(
+        differing > 0,
+        "conditioned_cuts changes none of the lowered lanes: the check cannot tell"
+    );
+}
+
+/// [`FastOptions::conditioned_cuts`] on the default options.
+fn conditioned() -> FastOptions {
+    FastOptions {
+        conditioned_cuts: true,
+        ..FastOptions::default()
+    }
+}
+
+/// The mixed-rank batches of
+/// [`fast_mixed_rank_batches_reduce_each_lane_at_its_own_rank`] with
+/// `options` (the amplitude's and the own-rank runs'). Returns the number of
+/// successful lowered lanes whose own-rank result with `options` differs
+/// bitwise from the default options' one.
+fn mixed_rank_batches(options: FastOptions) -> usize {
     let mut native = OneLoopNativeMasters::new().unwrap();
-    let (mut checked, mut failed, mut batches) = (0, 0, 0);
+    let (mut checked, mut failed, mut batches, mut differing) = (0, 0, 0, 0);
     for (name, sources, mu_powers) in [
         ("mixed-plain-n3", &MIXED_PLAIN[..], 0),
         ("mixed-mu-n4", &MIXED_MU[..], 3),
@@ -635,7 +677,15 @@ fn fast_mixed_rank_batches_reduce_each_lane_at_its_own_rank() {
             let own: Vec<(FastResult, FastStatus)> = (0..count)
                 .map(|lane| {
                     let single = single_at_rank(&case, lane, ranks[lane]);
-                    let run = run_fast(&single, ranks[lane], 1, &mut native).unwrap();
+                    let run = run_fast_with_options(&single, ranks[lane], 1, &mut native, options)
+                        .unwrap();
+                    let default = run_fast(&single, ranks[lane], 1, &mut native).unwrap();
+                    if ranks[lane] < n + 2
+                        && run.statuses[0] == FastStatus::Success
+                        && bits(&run.results[0]) != bits(&default.results[0])
+                    {
+                        differing += 1;
+                    }
                     (run.results[0], run.statuses[0])
                 })
                 .collect();
@@ -651,7 +701,7 @@ fn fast_mixed_rank_batches_reduce_each_lane_at_its_own_rank() {
                     case.lanes[lane].id
                 );
             }
-            let mut amplitude = FastAmplitude::new(n, n + 2, FastOptions::default()).unwrap();
+            let mut amplitude = FastAmplitude::new(n, n + 2, options).unwrap();
             let mut orders: Vec<Vec<usize>> = (0..count).map(|lane| vec![lane]).collect();
             orders.push((0..count).collect());
             orders.push((0..count).rev().collect());
@@ -661,7 +711,7 @@ fn fast_mixed_rank_batches_reduce_each_lane_at_its_own_rank() {
                 for (position, &lane) in order.iter().enumerate() {
                     let (want, want_status) = own[lane];
                     let label = format!(
-                        "{name} (S-matrix {s_matrix}) lane {lane} ({}, rank {}) at position {position} of {}",
+                        "{name} (S-matrix {s_matrix}, {options:?}) lane {lane} ({}, rank {}) at position {position} of {}",
                         case.lanes[lane].id,
                         ranks[lane],
                         order.len()
@@ -684,6 +734,55 @@ fn fast_mixed_rank_batches_reduce_each_lane_at_its_own_rank() {
         }
     }
     eprintln!(
-        "FAST_MIXED_RANK {batches} batches, {checked} lanes bitwise equal to their own-rank single-lane runs ({failed} of them failed lanes keeping their previous result)"
+        "FAST_MIXED_RANK conditioned_cuts={}: {batches} batches, {checked} lanes bitwise equal to their own-rank single-lane runs ({failed} of them failed lanes keeping their previous result); {differing} successful own-rank lowered lanes differ from the default options' result",
+        options.conditioned_cuts
+    );
+    differing
+}
+
+// ------------------------------------------- declared rank n+2, conditioned
+
+/// V5 with [`FastOptions::conditioned_cuts`]: every rank <= n+1 case of the
+/// padding manifest declared at rank n+2 must reduce each lane bitwise as
+/// declared at the lane's own rank with the option (the lowered engines of
+/// `fast/declared_rank.rs` inherit the caller's options and run through
+/// their conditioned engine). The option must change some of those lanes
+/// against the default geometry, or the check could not tell.
+#[test]
+fn fast_padding_to_rank_n_plus_two_with_conditioned_cuts() {
+    let mut native = OneLoopNativeMasters::new().unwrap();
+    let entries = entries(1);
+    let (mut lanes, mut succeeded, mut differing) = (0, 0, 0);
+    for entry in &entries {
+        let case = &entry.case;
+        let declared = case.n + 2;
+        let run =
+            run_fast_with_options(case, declared, case.lanes.len(), &mut native, conditioned())
+                .unwrap();
+        for (lane, lane_rank) in lane_ranks(case).into_iter().enumerate() {
+            let single = single_at_rank(case, lane, lane_rank);
+            let want =
+                run_fast_with_options(&single, lane_rank, 1, &mut native, conditioned()).unwrap();
+            let default = run_fast(&single, lane_rank, 1, &mut native).unwrap();
+            let label = format!(
+                "{} declared rank {declared} with conditioned_cuts, lane {lane} at its rank {lane_rank}",
+                case.name
+            );
+            assert_eq!(run.statuses[lane], want.statuses[0], "{label}");
+            assert_eq!(bits(&run.results[lane]), bits(&want.results[0]), "{label}");
+            if want.statuses[0] == FastStatus::Success {
+                succeeded += 1;
+                differing += usize::from(bits(&want.results[0]) != bits(&default.results[0]));
+            }
+            lanes += 1;
+        }
+    }
+    assert!(
+        differing > 0,
+        "conditioned_cuts changes none of the lanes: the check cannot tell"
+    );
+    eprintln!(
+        "V5 fast n+2 with conditioned_cuts: {} cases, {lanes} lanes ({succeeded} succeeded) bitwise equal to their own-rank conditioned runs; {differing} of them differ from the default geometry",
+        entries.len()
     );
 }
