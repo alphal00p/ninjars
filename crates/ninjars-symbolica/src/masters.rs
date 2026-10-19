@@ -1,7 +1,7 @@
 //! One-loop master integrals from oneloopmaster.
 //!
 //! For the fixed-precision carriers (binary64 and DoubleFloat), scalar
-//! families (A0, B0, dB0, C0, D0) use oneloopmaster's native direct-Rust
+//! families (A0, dB0, C0, D0) use oneloopmaster's native direct-Rust
 //! implementation generated from its exact expressions. Its exact branch
 //! predicates need analytically real products such as `z conj(z)` to be
 //! exactly real. The compensated DoubleFloat product rounds differently in
@@ -9,21 +9,25 @@
 //! symmetrically; before it did, a four-mass D0 lost its real part
 //! (`tests/box_masters.rs`).
 //!
-//! The bubble tensor coefficients B1, B11, B111 and B1111 use oneloopmaster's
+//! The bubble coefficients B0, B1, B11, B111 and B1111 use oneloopmaster's
 //! native tensor families (`TensorIntegral::B11`, `B111`, `B1111`; OneLOop's
-//! `bub11`, `bub111` and `bub1111` with the corrected mass-swap sign) for every
-//! carrier, arbitrary-precision `Float` included. The exact Passarino-Veltman
-//! forms divide by powers of `p²`; B1111 divides by `(p²)⁴` and loses about
+//! `bub0`, `bub11`, `bub111` and `bub1111` with the corrected mass-swap sign)
+//! for every carrier, arbitrary-precision `Float` included, as
+//! `OneLoopNativeMasters` does in binary64. The exact Passarino-Veltman forms
+//! divide by powers of `p²`; B1111 divides by `(p²)⁴` and loses about
 //! `5-6 log10(m²/|p²|)` digits at small `|p²|` (relative error 5.5e-6 in
-//! binary64 at `p² = m²/256`, 1.2e-4 in `Float(256)` at `|p²|/m² = 4e-13`),
-//! while its tracked `Float` precision overstates the digits that remain. For
-//! `Float`, each row is evaluated at the precision that its inputs determine
-//! (at most the working precision, see [`SymbolicaMasters`]), so the native
-//! route does not pad inputs beyond the digits they determine relative to the
-//! row's scale.
+//! binary64 at `p² = m²/256`, 1.2e-4 in `Float(256)` at `|p²|/m² = 4e-13`).
+//! Even the exact scalar B0, whose `(m0²-m1²)/p²` logarithms cancel, loses
+//! about `log10(|m0²-m1²|/|p²|)` digits: in DoubleFloat 2.1e-21 relative at
+//! `p² = 1.86e-9` with `m² = 25, 2025`, which made a rank-4 bubble lane
+//! (condition 1.5e7) 2.2e-15 wrong. The exact forms' tracked `Float` precision
+//! also overstates the digits that remain. For `Float`, each row is evaluated
+//! at the precision that its inputs determine (at most the working precision,
+//! see [`SymbolicaMasters`]), so the native route does not pad inputs beyond
+//! the digits they determine relative to the row's scale.
 //!
 //! Otherwise arbitrary-precision `Float` keeps Symbolica's interpreter of the
-//! exact expressions for the scalar families, which tracks the significant
+//! exact expressions for the other scalar families, which tracks the significant
 //! precision of every input component instead of padding inputs to the
 //! working precision. The tensor family An and all Dual (derivative)
 //! evaluations of every family, the bubble tensors included, use the same
@@ -115,8 +119,8 @@ fn strict_status(statuses: &[MasterStatus]) -> Result<()> {
 /// rounded momenta (e.g. `+2^-114` with 2 tracked bits at 128 bits) can make
 /// the four-mass D0 wrong by orders of magnitude while it reports 8 bits.
 ///
-/// B1, B11, B111 and B1111 come from oneloopmaster's native tensor families
-/// for every carrier.
+/// B0, B1, B11, B111 and B1111 come from oneloopmaster's native tensor
+/// families for every carrier.
 /// The native code rounds every input to one working precision, so for `Float`
 /// that precision is chosen per row, never above the provider's working
 /// precision: the least, over the row's inputs, of the bits that each input
@@ -137,7 +141,7 @@ pub struct SymbolicaMasters<T: NativeFloat> {
     onshell_threshold: Option<T>,
     evaluators: BTreeMap<MasterIntegral, BatchExpressionEvaluator<Complex<T>>>,
     native: BTreeMap<MasterIntegral, NativeEvaluator<T>>,
-    /// Native tensor families (the bubble tensors), by family and working bits: the
+    /// Native tensor families (the bubble coefficients), by family and working bits: the
     /// fixed precision of binary64 and DoubleFloat, or for `Float` each row's
     /// precision ([`Self::tensor_row_bits`]).
     native_tensor: BTreeMap<(MasterIntegral, u32), NativeTensorEvaluator<T>>,
@@ -217,7 +221,6 @@ where
     fn native_family(integral: MasterIntegral) -> Option<ScalarIntegral> {
         match integral {
             MasterIntegral::A0 => Some(ScalarIntegral::A0),
-            MasterIntegral::B0 => Some(ScalarIntegral::B0),
             MasterIntegral::DB0 => Some(ScalarIntegral::DB0),
             MasterIntegral::C0 => Some(ScalarIntegral::C0),
             MasterIntegral::D0 => Some(ScalarIntegral::D0),
@@ -245,9 +248,13 @@ where
     /// position of `integral` among its coefficients (`[B0, B1, B11]`,
     /// `[B0, .., B111]`, `[B0, .., B1111]`). The exact Passarino-Veltman B1,
     /// B11 and B111 divide by powers of `p²` and lose about 2, 3 and 4 digits
-    /// per decade of `m²/|p²|` (DoubleFloat B111: 3.6e-7 at `p² = 2^-24`).
+    /// per decade of `m²/|p²|` (DoubleFloat B111: 3.6e-7 at `p² = 2^-24`), the
+    /// exact B0 about one (DoubleFloat: 2.1e-21 at `p² = 1.86e-9`,
+    /// `m² = 25, 2025`). B0 is the family's `bub0`, as in binary64's
+    /// `OneLoopNativeMasters`.
     fn native_tensor_family(integral: MasterIntegral) -> Option<(TensorIntegral, usize)> {
         match integral {
+            MasterIntegral::B0 => Some((TensorIntegral::B11, 0)),
             MasterIntegral::B1 => Some((TensorIntegral::B11, 1)),
             MasterIntegral::B11 => Some((TensorIntegral::B11, 2)),
             MasterIntegral::B111 => Some((TensorIntegral::B111, 3)),
@@ -314,7 +321,7 @@ where
     }
 
     /// Compile a family and reserve its reusable workspace before timing calls.
-    /// For `Float`, bubble tensor rows below the working precision build their native
+    /// For `Float`, bubble rows below the working precision build their native
     /// evaluator on first use.
     pub fn prepare(&mut self, integral: MasterIntegral, rows: usize) -> Result<()> {
         if self.native_evaluator(integral)?.is_some() {
