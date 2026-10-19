@@ -1,4 +1,6 @@
-//! Conditioned bubble references and tadpole bases of the rank n+2 engine.
+//! Conditioned bubble references and tadpole bases of the rank n+2 engine
+//! (and of the rank <= n+1 engine with
+//! [`super::FastOptions::conditioned_cuts`]).
 //!
 //! Original Ninja fixes the bubble reference vector (`Basis(k)`: the
 //! sign-adapted `r = (±1, ∓1/√3, ∓1/√3, ∓1/√3)`, which keeps `k.r` large) and

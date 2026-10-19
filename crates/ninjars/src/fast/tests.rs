@@ -919,3 +919,92 @@ fn replay_reproduces_recorded_evaluations_bitwise() {
         }
     }
 }
+
+/// `FastOptions::conditioned_cuts` chooses per cut and lane, so a batch is
+/// bitwise identical to its lanes evaluated alone; rank n+2 already uses the
+/// conditioned geometry and ignores the option.
+#[test]
+fn conditioned_cuts_are_per_lane_and_ignored_at_rank_n2() {
+    let conditioned = FastOptions {
+        conditioned_cuts: true,
+        ..FastOptions::default()
+    };
+    for (n, rank) in [(3, 4), (5, 5), (5, 6), (7, 8), (5, 7)] {
+        let mut rng = Rng(200 + (n * 10 + rank) as u64);
+        let lanes = 4;
+        // Sums of future timelike momenta: every cut spans a Minkowski plane.
+        let mut shifts: Vec<RMom> = Vec::new();
+        for _ in 0..lanes {
+            let mut v = [0.; 4];
+            for _ in 0..n {
+                shifts.push(v);
+                let p = rng.rmom(1.);
+                v = [
+                    v[0] + 2. + p[0].abs(),
+                    v[1] + p[1],
+                    v[2] + p[2],
+                    v[3] + p[3],
+                ];
+            }
+        }
+        let masses: Vec<C64> = (0..lanes * n)
+            .map(|_| C64::new(0.5 + rng.uniform().abs(), -0.1 * rng.uniform().abs()))
+            .collect();
+        let scales = vec![1.5; lanes];
+        let coefficients: Vec<C64> = (0..lanes * ncoeff(rank)).map(|_| rng.c()).collect();
+        let run = |options: FastOptions, lanes_run: &[usize]| {
+            let count = lanes_run.len();
+            let shifts: Vec<RMom> = lanes_run
+                .iter()
+                .flat_map(|&l| shifts[l * n..(l + 1) * n].iter().copied())
+                .collect();
+            let masses: Vec<C64> = lanes_run
+                .iter()
+                .flat_map(|&l| masses[l * n..(l + 1) * n].iter().copied())
+                .collect();
+            let mut tensor = TensorNumerator::new(rank, count);
+            let size = ncoeff(rank);
+            for (i, &l) in lanes_run.iter().enumerate() {
+                tensor.coefficients_mut()[i * size..(i + 1) * size]
+                    .copy_from_slice(&coefficients[l * size..(l + 1) * size]);
+            }
+            let input = FastInput {
+                lanes: count,
+                shifts: &shifts,
+                masses_squared: &masses,
+                scales_squared: &scales[..count],
+                s_matrix: None,
+            };
+            let mut amplitude = FastAmplitude::new(n, rank, options).unwrap();
+            let mut results = vec![FastResult::default(); count];
+            let mut statuses = vec![FastStatus::NotEvaluated; count];
+            amplitude
+                .evaluate(
+                    &input,
+                    &mut tensor,
+                    &mut UnitMasters,
+                    &mut results,
+                    &mut statuses,
+                )
+                .unwrap();
+            (results, statuses)
+        };
+        let all: Vec<usize> = (0..lanes).collect();
+        let batch = run(conditioned, &all);
+        for lane in 0..lanes {
+            let alone = run(conditioned, &[lane]);
+            assert_eq!(
+                (alone.0[0], alone.1[0]),
+                (batch.0[lane], batch.1[lane]),
+                "n={n} rank={rank} lane {lane}"
+            );
+        }
+        let default = run(FastOptions::default(), &all);
+        if rank == n + 2 {
+            assert_eq!(default, batch, "n={n} rank={rank}");
+        } else {
+            assert!(batch.1.iter().all(|&s| s == FastStatus::Success));
+            assert_ne!(default.0, batch.0, "n={n} rank={rank}: no cut changed");
+        }
+    }
+}

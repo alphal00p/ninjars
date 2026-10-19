@@ -498,6 +498,22 @@ fn controls_binary64_match_references() {
     }
 }
 
+/// The controls through the fast engine with the opt-in conditioned cut
+/// geometry for rank <= n+1 (`FastOptions::conditioned_cuts`: the bubble
+/// references, tadpole bases and box geometry of the rank n+2 engine),
+/// within the same binary64 policy as the default fast engine.
+#[test]
+fn controls_fast_conditioned_binary64_match_references() {
+    let report = check_set(
+        &controls(7),
+        &rank_n2().join("controls/reference"),
+        Run::FastConditioned,
+        |case| case.rank,
+        &policy(),
+    );
+    report.assert_clean(true);
+}
+
 // ---------------------------------------------------------------------------
 // Rank n+2.
 
@@ -563,7 +579,6 @@ fn suite_generic_binary64_matches_references() {
 /// dominates both errors), as are lanes where the generic engine does not
 /// succeed; the fast engine must succeed wherever the generic one does.
 #[test]
-#[ignore = "needs fast accuracy fix: 1 of 324 lanes, rn2-shifted-mixed-n7-r9-mu2 lane 0 (cond 7.9e9, V4f report-only): fast 1.7e-3 vs generic f64 1.6e-4 (limit 1.6e-3); unchanged by the rank n+2 basis conditioning (79f306a); its rank n+1 twin shows the same ratio (fast 3.2e-9, generic 3.1e-10)"]
 fn suite_fast_within_ten_times_generic_binary64() {
     let policy = policy();
     let files = suite();

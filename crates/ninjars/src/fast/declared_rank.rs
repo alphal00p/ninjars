@@ -30,6 +30,13 @@
 //! of 3.8e-14). [`AtDeclaredRank`] keeps the rank n+2 engine instead, for
 //! instance for its conditioned bases.
 //!
+//! The rank-`r` engines are built with the caller's [`FastOptions`], so with
+//! [`FastOptions::conditioned_cuts`] they take the conditioned cut geometry
+//! of the rank n+2 engine (bubble references, tadpole bases, box geometry):
+//! a lane declared at rank n+2 is then reduced bitwise as declared at its own
+//! rank with the option, at the cost of rank `r`. That keeps the conditioned
+//! bases without [`AtDeclaredRank`]'s cost.
+//!
 //! A batch whose lanes have different ranks is split: each rank's lanes are
 //! reduced as their own sub-batch, and the results are scattered back. Both
 //! engines reduce every lane independently of the others, so every lane's
@@ -39,7 +46,9 @@
 //!
 //! The rank <= n+1 reductions run through the caller's own instance of the
 //! rank <= n+1 body (`evaluate_up_to_n1`), so no second copy of that engine
-//! is compiled. It is called directly rather than through
+//! is compiled, or, with [`FastOptions::conditioned_cuts`], through the
+//! lowered engine's conditioned stages. `FastAmplitude::evaluate_lowered`
+//! chooses between them; it is called rather than
 //! [`super::FastAmplitude::evaluate`]: a call back into the dispatcher would
 //! make it recursive, and LLVM then stops inlining it into its callers. Only
 //! the dispatch below is generic; the rest is compiled once, in this crate,
@@ -48,8 +57,8 @@
 //! stages use).
 
 use super::complex::{C64, CMom, RMom};
-use super::engine::{FastAmplitude, FastOptions};
-use super::engine_x2::{DynMasters, DynNumerator, evaluate_x2};
+use super::engine::{FastAmplitude, FastOptions, Replacement};
+use super::engine_x2::{DynMasters, DynNumerator};
 use super::masters::FastMasters;
 use super::numerator::FastNumerator;
 use super::{FastInput, FastResult, FastStatus};
@@ -65,7 +74,8 @@ use crate::{Error, Result};
 /// engine's conditioned bases for such numerators, which are often more
 /// accurate than the rank <= n+1 engine's (module docs), at about 2 to 9
 /// times the instructions, 4.5 times in geometric mean on padded benchmark
-/// cases.
+/// cases. [`FastOptions::conditioned_cuts`] gives the lowered lanes those
+/// bases at the cost of their own rank.
 pub struct AtDeclaredRank<'a, N: ?Sized>(pub &'a mut N);
 
 impl<N: FastNumerator + ?Sized> FastNumerator for AtDeclaredRank<'_, N> {
@@ -322,8 +332,8 @@ fn check_shapes(n: usize, input: &FastInput, results: usize, statuses: usize) ->
 }
 
 /// [`super::FastAmplitude::evaluate`] at declared rank n+2 (same contract;
-/// see the module docs). `amplitude.lower` holds the lower-rank state once a
-/// lane of a lower rank has occurred.
+/// see the module docs). The `lower` of the rank n+2 replacement holds the
+/// lower-rank state once a lane of a lower rank has occurred.
 #[cold]
 #[inline(never)]
 pub(super) fn evaluate_declared_n2<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
@@ -334,22 +344,25 @@ pub(super) fn evaluate_declared_n2<N: FastNumerator + ?Sized, M: FastMasters + ?
     results: &mut [FastResult],
     statuses: &mut [FastStatus],
 ) -> Result<()> {
+    // The options as given, `conditioned_cuts` included, which the lowered
+    // engines inherit.
+    let options = amplitude.options();
     let FastAmplitude {
-        topo,
-        options,
-        x2,
-        lower,
-        ..
+        topo, replacement, ..
     } = amplitude;
-    let x2 = x2.as_deref_mut().expect("the rank n+2 engine");
+    let Some(Replacement::RankN2 {
+        engine: x2, lower, ..
+    }) = replacement.as_deref_mut()
+    else {
+        unreachable!("the rank n+2 engine")
+    };
     let (n, declared, lanes) = (topo.n, topo.rank, input.lanes);
     // The lane's rank if it is below the declared one.
     let lower_rank =
         |numerator: &mut N, lane: usize| numerator.lane_rank(lane).filter(|&rank| rank < declared);
     if numerator.rank() != declared || !(0..lanes).any(|lane| lower_rank(numerator, lane).is_some())
     {
-        return evaluate_x2(
-            x2,
+        return x2.evaluate(
             topo,
             input,
             &mut DynNumerator(numerator),
@@ -373,10 +386,10 @@ pub(super) fn evaluate_declared_n2<N: FastNumerator + ?Sized, M: FastMasters + ?
     }
     if let Some(rank) = (0..declared).find(|&rank| parts[rank].lanes.len() == lanes) {
         // Every lane of one rank: the batch as it is.
-        let engine = engine(engines, n, rank, *options)?;
+        let engine = engine(engines, n, rank, options)?;
         numerator.lower_rank(parts[rank].lanes.as_flattened(), rank)?;
         let lowered = Lowered(numerator);
-        return engine.evaluate_up_to_n1(input, &mut *lowered.0, masters, results, statuses);
+        return engine.evaluate_lowered(input, &mut *lowered.0, masters, results, statuses);
     }
     let with_s_matrix = input.s_matrix.is_some();
     // Every part is reduced before anything is published, so an error leaves
@@ -386,18 +399,17 @@ pub(super) fn evaluate_declared_n2<N: FastNumerator + ?Sized, M: FastMasters + ?
             continue;
         }
         part.gather(n, input, results);
-        let engine = engine(engines, n, rank, *options)?;
+        let engine = engine(engines, n, rank, options)?;
         let (lanes, part, part_results, part_statuses) = part.split(with_s_matrix);
         numerator.lower_rank(lanes, rank)?;
         let lowered = Lowered(&mut *numerator);
-        engine.evaluate_up_to_n1(&part, &mut *lowered.0, masters, part_results, part_statuses)?;
+        engine.evaluate_lowered(&part, &mut *lowered.0, masters, part_results, part_statuses)?;
     }
     let high = &mut parts[declared];
     if !high.lanes.is_empty() {
         high.gather(n, input, results);
         let (map, part, part_results, part_statuses) = high.split(with_s_matrix);
-        evaluate_x2(
-            x2,
+        x2.evaluate(
             topo,
             &part,
             &mut LaneMap {

@@ -1858,6 +1858,18 @@ pub fn run_fast<M: FastMasters>(
     width: usize,
     masters: &mut M,
 ) -> Result<FastRun> {
+    run_fast_with_options(case, declared_rank, width, masters, FastOptions::default())
+}
+
+/// [`run_fast`] with explicit [`FastOptions`] (e.g. the opt-in
+/// [`FastOptions::conditioned_cuts`] for rank <= n+1).
+pub fn run_fast_with_options<M: FastMasters>(
+    case: &BenchCase,
+    declared_rank: usize,
+    width: usize,
+    masters: &mut M,
+    options: FastOptions,
+) -> Result<FastRun> {
     if width == 0 {
         return Err("the fast-engine width must be positive".into());
     }
@@ -1878,7 +1890,7 @@ pub fn run_fast<M: FastMasters>(
         scales_squared: &scales,
         s_matrix: s_matrix.as_deref(),
     };
-    let mut amplitude = FastAmplitude::new(case.n, declared_rank, FastOptions::default())?;
+    let mut amplitude = FastAmplitude::new(case.n, declared_rank, options)?;
     let mut results = vec![FastResult::default(); width];
     let mut statuses = vec![FastStatus::NotEvaluated; width];
     let size = ncoeff_mu(declared_rank, case.mu_powers);
@@ -1964,11 +1976,32 @@ pub fn check_fast(
     policy: &Policy,
     masters: &mut OneLoopNativeMasters,
 ) -> Result<FastCheck> {
+    check_fast_with_options(
+        case,
+        declared_rank,
+        width,
+        reference,
+        policy,
+        masters,
+        FastOptions::default(),
+    )
+}
+
+/// [`check_fast`] with explicit [`FastOptions`].
+pub fn check_fast_with_options(
+    case: &BenchCase,
+    declared_rank: usize,
+    width: usize,
+    reference: Option<&Reference>,
+    policy: &Policy,
+    masters: &mut OneLoopNativeMasters,
+    options: FastOptions,
+) -> Result<FastCheck> {
     let count = case.lanes.len();
     if width < count {
         return Err(format!("{}: width {width} below the lane count {count}", case.name).into());
     }
-    let run = run_fast(case, declared_rank, width, masters)?;
+    let run = run_fast_with_options(case, declared_rank, width, masters, options)?;
     let bits = |r: &FastResult| fast_values(r).map(|z| (z.re.to_bits(), z.im.to_bits()));
     let repeats_bitwise = (count..width).all(|lane| {
         let first = run.lanes[lane];

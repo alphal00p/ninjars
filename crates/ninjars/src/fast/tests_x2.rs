@@ -2187,7 +2187,7 @@ fn rank_n2_triangle_and_bubble_residues_reconstruct_the_integrand() {
     let mut replaced = 0;
     for (n, seed) in [(2, 601), (2, 602), (3, 603), (3, 604), (3, 605)] {
         let (amplitude, mut numerator, v, m) = reduced_lane(n, seed);
-        let engine = amplitude.x2.as_deref().unwrap();
+        let engine = amplitude.x2().unwrap();
         let mut rng = Rng(seed + 1000);
         // Triangle (n = 3): N = Delta_T on the cut, with mu² dependence.
         let triangle = if n == 3 {
@@ -2287,7 +2287,7 @@ fn rank_n2_box_mu_expansion_matches_finite_mu_samples() {
     let mut worst = 0f64;
     for seed in [701, 702, 703, 704] {
         let (amplitude, mut numerator, v, m) = reduced_lane(4, seed);
-        let engine = amplitude.x2.as_deref().unwrap();
+        let engine = amplitude.x2().unwrap();
         let [c0, c4, c6] = engine.box_coefficients(0, 0);
         let k0 = sub(&v[1], &v[0]);
         let k1 = sub(&v[2], &v[1]);

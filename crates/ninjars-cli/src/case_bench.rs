@@ -15,6 +15,8 @@
 //!
 //! "ninjars-bench-case-v2" files (`export-bench --r2 fdh`) carry explicit
 //! `mu^2` blocks (`mu_powers`) and run with `MuTensorNumerator`.
+//! `--conditioned-cuts` times the opt-in conditioned cut geometry for rank
+//! <= n+1 (`FastOptions::conditioned_cuts`).
 
 use std::{error::Error, fs, hint::black_box, path::PathBuf, time::Duration};
 
@@ -52,6 +54,10 @@ pub struct Args {
     pub reference_dir: Option<PathBuf>,
     #[arg(short, long)]
     pub output: Option<PathBuf>,
+    /// The opt-in conditioned cut geometry for rank <= n+1
+    /// (`FastOptions::conditioned_cuts`); rank n+2 always uses it.
+    #[arg(long)]
+    pub conditioned_cuts: bool,
 }
 
 struct Lane {
@@ -396,13 +402,17 @@ pub fn run(args: Args) -> Result<()> {
     for path in &args.cases {
         let case = load(path)?;
         let (n, rank) = (case.n, case.rank);
-        let mut amplitude = FastAmplitude::new(n, rank, FastOptions::default())?;
+        let options = FastOptions {
+            conditioned_cuts: args.conditioned_cuts,
+            ..FastOptions::default()
+        };
+        let mut amplitude = FastAmplitude::new(n, rank, options)?;
         let widths = if case.mu_powers == 0 {
             time_case::<TensorNumerator>(&args, &case, &mut amplitude, &mut masters, min_block)?
         } else {
             time_case::<MuTensorNumerator>(&args, &case, &mut amplitude, &mut masters, min_block)?
         };
-        reports.push(json!({
+        let mut report = json!({
             "case": case.name,
             "file": path,
             "n": n,
@@ -410,7 +420,11 @@ pub fn run(args: Args) -> Result<()> {
             "mu_powers": case.mu_powers,
             "lanes": case.lanes.len(),
             "per_point_timing": widths,
-        }));
+        });
+        if args.conditioned_cuts {
+            report["conditioned_cuts"] = json!(true);
+        }
+        reports.push(report);
     }
     let report = json!({
         "schema_version": 1,

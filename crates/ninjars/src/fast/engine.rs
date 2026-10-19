@@ -3,6 +3,13 @@
 //! `ComplexMasses`), including the rank n+1 path of `Xninja.cc`. Rank n+2
 //! (beyond original Ninja) is a separate engine, [`super::engine_x2`],
 //! selected once in [`FastAmplitude::new`]; nothing below depends on it.
+//! With the opt-in [`FastOptions::conditioned_cuts`] the box, bubble and
+//! tadpole stages take that engine's conditioned cut geometry
+//! (`bases_x2.rs`, `box_x2.rs`) instead of original Ninja's: a separate
+//! copy of those stages ([`conditioned`], generated from the ones below),
+//! reduced by the [`ConditionedEngine`] that [`FastAmplitude::new`] chooses
+//! once, like the rank n+2 engine. The stages below, and with them the
+//! default engine's machine code, are as before the option existed.
 //!
 //! Every stage processes one cut for all active lanes: geometry for each lane,
 //! one numerator callback per cut (both orientations of a triangle or of a
@@ -14,9 +21,10 @@
 // Index loops mirror original Ninja's component and lane loops.
 #![allow(clippy::needless_range_loop)]
 
+use super::bases_x2::TadpoleBasesX2;
 use super::complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr};
 use super::declared_rank::{LowerRank, evaluate_declared_n2};
-use super::engine_x2::RankN2Engine;
+use super::engine_x2::{DynMasters, DynNumerator, RankN2Engine};
 use super::geometry::{
     Basis, box_solutions, bubble_solution, cmom_from_real, combine_real2, gram_det, mp2,
     reference_vectors_ok, scale, sub, tadpole_candidates, triangle_solution,
@@ -26,6 +34,12 @@ use super::numerator::{FastNumerator, t2_len_le3, t3_len};
 use super::subtractions as subs;
 use super::{FastInput, FastResult, FastStatus};
 use crate::{Error, Result};
+
+/// The rank <= n+1 stages with the conditioned cut geometry, generated from
+/// the default ones below (`tests_conditioned.rs`; not formatted, so that
+/// regeneration is exact).
+#[rustfmt::skip]
+mod conditioned;
 
 /// Options of the fast engine. [`Default`] reproduces original Ninja's
 /// defaults.
@@ -57,6 +71,18 @@ pub struct FastOptions {
     /// involve Ninja's fixed irrational reference vectors. `0` restores Ninja's
     /// checks.
     pub relative_tolerance: f64,
+    /// Rank <= n+1 only (opt-in): take the cut geometry of the rank n+2
+    /// engine instead of original Ninja's, per cut and lane: the bubble
+    /// reference and the tadpole basis that best condition the uncut lines
+    /// (`bases_x2.rs`) and the box normal, center and solutions of
+    /// `box_x2.rs`. This trades bitwise agreement with original Ninja (the
+    /// default, `false`) for accuracy on lanes where an uncut line is nearly
+    /// orthogonal to Ninja's fixed reference vectors, e.g. propagator pairs
+    /// whose shift difference has a zero time component. Rank n+2 always
+    /// uses the conditioned geometry. Read once, by [`FastAmplitude::new`],
+    /// which then chooses the separately compiled [`ConditionedEngine`]; the
+    /// default engine's code does not depend on it.
+    pub conditioned_cuts: bool,
 }
 
 impl Default for FastOptions {
@@ -66,6 +92,42 @@ impl Default for FastOptions {
             infrared_eps: 1.0e-9,
             stability_threshold: 1.0e20 * f64::MIN_POSITIVE,
             relative_tolerance: 1024. * f64::EPSILON,
+            conditioned_cuts: false,
+        }
+    }
+}
+
+/// The [`FastOptions`] that the stages read: all but `conditioned_cuts`,
+/// which [`FastAmplitude::new`] consumes when it chooses the engine. Its
+/// fields are those of [`FastOptions`] before `conditioned_cuts` existed, so
+/// that [`FastAmplitude`] keeps its layout (a larger options field moves the
+/// other fields, and with them every stage's machine code).
+#[derive(Clone, Copy, Debug)]
+pub(super) struct StageOptions {
+    pub(super) cut_stop: usize,
+    pub(super) infrared_eps: f64,
+    pub(super) stability_threshold: f64,
+    pub(super) relative_tolerance: f64,
+}
+
+impl StageOptions {
+    pub(super) fn new(options: &FastOptions) -> Self {
+        Self {
+            cut_stop: options.cut_stop,
+            infrared_eps: options.infrared_eps,
+            stability_threshold: options.stability_threshold,
+            relative_tolerance: options.relative_tolerance,
+        }
+    }
+
+    /// The [`FastOptions`] these come from.
+    fn with_conditioned_cuts(self, conditioned_cuts: bool) -> FastOptions {
+        FastOptions {
+            cut_stop: self.cut_stop,
+            infrared_eps: self.infrared_eps,
+            stability_threshold: self.stability_threshold,
+            relative_tolerance: self.relative_tolerance,
+            conditioned_cuts,
         }
     }
 }
@@ -367,7 +429,7 @@ pub(super) struct Stability {
 }
 
 impl Stability {
-    pub(super) fn new(options: &FastOptions) -> Self {
+    pub(super) fn new(options: &StageOptions) -> Self {
         Self {
             threshold: options.stability_threshold,
             tolerance: options.relative_tolerance,
@@ -578,7 +640,7 @@ type BubbleCorrection = fn(
 /// allocation in the engine itself. See [`super`] for conventions.
 pub struct FastAmplitude {
     pub(super) topo: Topology,
-    pub(super) options: FastOptions,
+    options: StageOptions,
     tadpole_bases: [Basis; 3],
     lanes: usize,
     alive: Vec<bool>,
@@ -604,12 +666,78 @@ pub struct FastAmplitude {
     pairs: Vec<[C64; 4]>,
     masters: [MasterBatch; 5],
     staged: Vec<FastResult>,
-    /// The rank n+2 engine, present iff `rank == n + 2`; it then performs
+    /// The engine that replaces this one's stages, present iff
+    /// `rank == n + 2` or [`FastOptions::conditioned_cuts`]; it then performs
     /// every evaluation and the fields above stay unused.
-    pub(super) x2: Option<Box<RankN2Engine>>,
-    /// At rank n+2, the rank <= n+1 engines for lanes whose numerator has a
-    /// lower rank (`declared_rank.rs`), built on first use.
-    pub(super) lower: Option<Box<LowerRank>>,
+    pub(super) replacement: Option<Box<Replacement>>,
+}
+
+/// An engine chosen once in [`FastAmplitude::new`] in place of the default
+/// rank <= n+1 stages. Both sit behind the one pointer that the rank n+2
+/// engine had alone before, so that [`FastAmplitude`]'s layout and the
+/// default stages are unchanged by the option and by the lower-rank state of
+/// `declared_rank.rs`. (One allocation per engine, so the variants' different
+/// sizes do not matter.)
+#[allow(clippy::large_enum_variant)]
+pub(super) enum Replacement {
+    /// Rank n+2 (beyond original Ninja), which always uses the conditioned
+    /// geometry; `conditioned_cuts` is the option as given.
+    RankN2 {
+        engine: RankN2Engine,
+        conditioned_cuts: bool,
+        /// The rank <= n+1 engines for lanes whose numerator has a lower
+        /// rank (`declared_rank.rs`), built on first use.
+        lower: Option<Box<LowerRank>>,
+    },
+    /// Rank <= n+1 with [`FastOptions::conditioned_cuts`].
+    Conditioned(ConditionedEngine),
+}
+
+/// The rank <= n+1 reduction with the rank n+2 engine's conditioned cut
+/// geometry ([`FastOptions::conditioned_cuts`]): the stages of
+/// [`conditioned`] on workspaces of their own, with type-erased providers
+/// (as for the rank n+2 engine), so that they are compiled once and apart
+/// from the default instances (see [`evaluate_conditioned`]).
+pub(super) struct ConditionedEngine {
+    /// The workspaces; its own `replacement` is `None`.
+    amp: FastAmplitude,
+    /// Original Ninja's tadpole bases and the extra candidates.
+    tadpoles: TadpoleBasesX2,
+}
+
+/// The conditioned branch of [`FastAmplitude::evaluate`] (and of the lowered
+/// engines of `declared_rank.rs`): a cold, never-inlined entry, so the branch
+/// weights (and with them the inlining decisions) of the default rank <= n+1
+/// evaluation stay those of an engine without this branch.
+///
+/// `N` and `M` are [`FastAmplitude::evaluate`]'s, used only to erase the
+/// providers' types: they make this entry, and with it the conditioned stages
+/// it instantiates (for `dyn` providers, once for all), compiled in the crate
+/// that instantiates [`FastAmplitude::evaluate`], next to the default
+/// instances. Compiled in this crate instead, the conditioned stages would
+/// instantiate here the generic functions they share with the default ones
+/// (e.g. `RawVec::grow_one` of the row vectors); thin LTO then keeps one copy
+/// of each, in this crate, and the default instances' direct calls to their
+/// own copies become calls through the GOT.
+#[cold]
+#[inline(never)]
+pub(super) fn evaluate_conditioned<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
+    engine: &mut ConditionedEngine,
+    input: &FastInput,
+    numerator: &mut N,
+    masters: &mut M,
+    results: &mut [FastResult],
+    statuses: &mut [FastStatus],
+) -> Result<()> {
+    let ConditionedEngine { amp, tadpoles } = engine;
+    amp.evaluate_up_to_n1_conditioned::<dyn FastNumerator, dyn FastMasters>(
+        input,
+        &mut DynNumerator(numerator),
+        &mut DynMasters(masters),
+        results,
+        statuses,
+        tadpoles,
+    )
 }
 
 /// Master batches: D0, C0, rank-2 bubbles, rank-3 bubbles, A0.
@@ -624,7 +752,9 @@ const FAMILIES: [FastMaster; 5] = [
 impl FastAmplitude {
     /// A reduction engine for `n >= 1` propagators and `rank <= n + 2`.
     /// Rank n+2 (beyond original Ninja) is reduced by the separate
-    /// [`RankN2Engine`], chosen here once.
+    /// [`RankN2Engine`], and rank <= n+1 with
+    /// [`FastOptions::conditioned_cuts`] by the [`ConditionedEngine`], both
+    /// chosen here once.
     pub fn new(n: usize, rank: usize, options: FastOptions) -> Result<Self> {
         if n == 0 {
             return Err(Error::NoPropagators);
@@ -635,10 +765,30 @@ impl FastAmplitude {
                 propagators: n,
             });
         }
-        Ok(Self {
+        let mut amp = Self::workspaces(n, rank, &options);
+        amp.replacement = if rank == n + 2 {
+            Some(Box::new(Replacement::RankN2 {
+                engine: RankN2Engine::new(n, options),
+                conditioned_cuts: options.conditioned_cuts,
+                lower: None,
+            }))
+        } else if options.conditioned_cuts {
+            Some(Box::new(Replacement::Conditioned(ConditionedEngine {
+                amp: Self::workspaces(n, rank, &options),
+                tadpoles: TadpoleBasesX2::new(options.infrared_eps),
+            })))
+        } else {
+            None
+        };
+        Ok(amp)
+    }
+
+    /// The default engine's state, without a replacement.
+    fn workspaces(n: usize, rank: usize, options: &FastOptions) -> Self {
+        Self {
             topo: Topology::new(n, rank),
             tadpole_bases: tadpole_candidates(options.infrared_eps),
-            options,
+            options: StageOptions::new(options),
             lanes: 0,
             alive: Vec::new(),
             lane_status: Vec::new(),
@@ -660,9 +810,8 @@ impl FastAmplitude {
             pairs: Vec::new(),
             masters: Default::default(),
             staged: Vec::new(),
-            x2: (rank == n + 2).then(|| Box::new(RankN2Engine::new(n, options))),
-            lower: None,
-        })
+            replacement: None,
+        }
     }
 
     pub fn propagators(&self) -> usize {
@@ -671,8 +820,25 @@ impl FastAmplitude {
     pub fn rank(&self) -> usize {
         self.topo.rank
     }
-    pub fn options(&self) -> &FastOptions {
-        &self.options
+    /// The options the engine was built with.
+    pub fn options(&self) -> FastOptions {
+        let conditioned_cuts = match self.replacement.as_deref() {
+            Some(Replacement::RankN2 {
+                conditioned_cuts, ..
+            }) => *conditioned_cuts,
+            Some(Replacement::Conditioned(_)) => true,
+            None => false,
+        };
+        self.options.with_conditioned_cuts(conditioned_cuts)
+    }
+
+    /// Unit tests: the rank n+2 engine, iff `rank == n + 2`.
+    #[cfg(test)]
+    pub(super) fn x2(&self) -> Option<&RankN2Engine> {
+        match self.replacement.as_deref() {
+            Some(Replacement::RankN2 { engine, .. }) => Some(engine),
+            _ => None,
+        }
     }
 
     fn any_box(&self) -> bool {
@@ -710,18 +876,52 @@ impl FastAmplitude {
         results: &mut [FastResult],
         statuses: &mut [FastStatus],
     ) -> Result<()> {
-        if self.x2.is_some() {
-            return evaluate_declared_n2(self, input, numerator, masters, results, statuses);
+        if let Some(replacement) = self.replacement.as_deref_mut() {
+            // Both entries are cold and never inlined.
+            return match replacement {
+                Replacement::RankN2 { .. } => {
+                    evaluate_declared_n2(self, input, numerator, masters, results, statuses)
+                }
+                Replacement::Conditioned(engine) => {
+                    evaluate_conditioned(engine, input, numerator, masters, results, statuses)
+                }
+            };
         }
         self.evaluate_up_to_n1(input, numerator, masters, results, statuses)
     }
 
+    /// [`Self::evaluate`] for the rank <= n+1 engines that `declared_rank.rs`
+    /// builds for the lanes of a declared rank n+2 that it reduces at a lower
+    /// rank: through the [`ConditionedEngine`] if the engine has one
+    /// ([`FastOptions::conditioned_cuts`], inherited from the rank n+2
+    /// engine's options), else through the caller's own instance of
+    /// [`Self::evaluate_up_to_n1`]. Not through [`Self::evaluate`]: the
+    /// dispatch would become recursive, and LLVM then stops inlining it into
+    /// its callers.
+    pub(super) fn evaluate_lowered<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
+        &mut self,
+        input: &FastInput,
+        numerator: &mut N,
+        masters: &mut M,
+        results: &mut [FastResult],
+        statuses: &mut [FastStatus],
+    ) -> Result<()> {
+        match self.replacement.as_deref_mut() {
+            None => self.evaluate_up_to_n1(input, numerator, masters, results, statuses),
+            Some(Replacement::Conditioned(engine)) => {
+                evaluate_conditioned(engine, input, numerator, masters, results, statuses)
+            }
+            Some(Replacement::RankN2 { .. }) => {
+                unreachable!("the lowered engines have rank <= n+1")
+            }
+        }
+    }
+
     /// [`Self::evaluate`] for rank <= n+1. Kept as its own (never-inlined)
     /// function so that the rank n+2 dispatch above leaves its code as it
-    /// was before rank n+2 existed. `declared_rank.rs` calls it for the lanes
-    /// of a declared rank n+2 that it reduces at a lower rank.
+    /// was before rank n+2 existed.
     #[inline(never)]
-    pub(super) fn evaluate_up_to_n1<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
+    fn evaluate_up_to_n1<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
         &mut self,
         input: &FastInput,
         numerator: &mut N,

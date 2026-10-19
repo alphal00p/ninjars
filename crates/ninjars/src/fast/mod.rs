@@ -34,6 +34,7 @@
 
 pub mod adapters;
 mod bases_x2;
+mod box_x2;
 pub mod complex;
 mod declared_rank;
 mod engine;
@@ -52,6 +53,8 @@ pub mod tensor_layout;
 pub mod tensor_mu;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod tests_conditioned;
 #[cfg(test)]
 mod tests_x2;
 

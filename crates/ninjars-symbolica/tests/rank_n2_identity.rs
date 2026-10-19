@@ -11,15 +11,19 @@
 //! The pieces (rank <= n+1) run through the rank <= n+1 engines and must
 //! reproduce the published high-precision values of the rank n+2 left-hand
 //! sides: Float(256) within `max(3 unc, 1e-30)`, the binary64 fast engine
-//! within `max(1e-10 max(1, cond), 10 min(e_generic, 1e-6))` (asserted for
-//! n <= 6; the n = 7 pieces, with zero-time-component bubbles, by an ignored
-//! test until the fast engine's accuracy work lands). The left-hand sides
-//! themselves run through the rank n+2 engines and must equal the sums:
-//! Float(256) (generic engine) within 1e-50, binary64 (fast engine) within
-//! the same binary64 tolerance; the binary64 check is ignored until the
-//! fast engine's accuracy is fixed (mostly the n = 7 pieces above, and
-//! `rn2-id-pinch-n4` lane 3, 1.4 times its tolerance). `e_generic` is the
-//! same difference with the generic engine in binary64 (native masters): an
+//! within `max(1e-10 max(1, cond), 10 min(e_generic, 1e-6))`. With original
+//! Ninja's cut geometry (the default) this is asserted for n <= 6: the n = 7
+//! kinematics have propagator pairs whose shift difference has a zero time
+//! component, where Ninja's fixed bubble reference and tadpole bases lose
+//! up to 1.6e-8 (asserted at n = 7 by the ignored `*_default_geometry`
+//! tests, which keep this gap of the default engine visible). With the
+//! opt-in conditioned geometry (`FastOptions::conditioned_cuts`, the choices
+//! of the rank n+2 engine) it is asserted for every n. The left-hand sides
+//! themselves run through the
+//! rank n+2 engines and must equal the sums: Float(256) (generic engine)
+//! within 1e-50, binary64 (fast engine; pieces with the conditioned
+//! geometry) within the same binary64 tolerance. `e_generic` is the same
+//! difference with the generic engine in binary64 (native masters): an
 //! independent binary64 reduction of the same identity, which measures its
 //! binary64 conditioning where COLLIER's `cond` does not (n = 7).
 
@@ -27,13 +31,16 @@ mod rank_n2_reference_support;
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use ninjars::{Complex, Float, FloatLike, SingleFloat, fast::C64};
+use ninjars::{
+    Complex, Float, FloatLike, SingleFloat,
+    fast::{C64, FastOptions},
+};
 use ninjars_symbolica::OneLoopNativeMasters;
 use rank_n2_reference_support::{
-    generic_f64,
+    conditioned, generic_f64,
     harness::{
-        BenchCase, Engines, Reference, ReferenceLane, fast_values, reference_values, run_fast,
-        scaled_difference, scaled_difference_f64,
+        BenchCase, Engines, Reference, ReferenceLane, fast_values, reference_values,
+        run_fast_with_options, scaled_difference, scaled_difference_f64,
     },
     rank_n2,
 };
@@ -117,12 +124,16 @@ fn float_values(names: &BTreeSet<String>) -> BTreeMap<(String, usize), [Complex<
 }
 
 /// The same with the binary64 fast engine (native masters).
-fn fast_values_of(names: &BTreeSet<String>) -> BTreeMap<(String, usize), [C64; 3]> {
+fn fast_values_of(
+    names: &BTreeSet<String>,
+    options: FastOptions,
+) -> BTreeMap<(String, usize), [C64; 3]> {
     let mut masters = OneLoopNativeMasters::new().unwrap();
     let mut out = BTreeMap::new();
     for name in names {
         let case = load(name);
-        let run = run_fast(&case, case.rank, case.lanes.len(), &mut masters).unwrap();
+        let run = run_fast_with_options(&case, case.rank, case.lanes.len(), &mut masters, options)
+            .unwrap();
         for index in 0..case.lanes.len() {
             assert_eq!(
                 run.statuses[index],
@@ -195,11 +206,11 @@ fn rhs_cases(identities: &[Identity]) -> BTreeSet<String> {
 }
 
 /// The rank <= n+1 pieces reproduce the published rank n+2 values (V6a and
-/// V6b), in Float(256) and in binary64; the binary64 check is asserted for
-/// left-hand sides with `n <= binary64_max_n` and reported above. Every
-/// identity is evaluated before the assertion, so a failure lists all of
-/// them.
-fn check_pieces(binary64_max_n: usize) {
+/// V6b), in Float(256) and in binary64 (fast engine with `options`); the
+/// binary64 check is asserted for left-hand sides with `n <= binary64_max_n`
+/// and reported above. Every identity is evaluated before the assertion, so
+/// a failure lists all of them.
+fn check_pieces(binary64_max_n: usize, options: FastOptions) {
     let identities = identities();
     let names = rhs_cases(&identities);
     for name in &names {
@@ -211,7 +222,7 @@ fn check_pieces(binary64_max_n: usize) {
         );
     }
     let float = float_values(&names);
-    let fast = fast_values_of(&names);
+    let fast = fast_values_of(&names, options);
     let generic = generic_values_of(&names);
     let p = Float::new(BITS);
     let (mut worst_float, mut worst_fast, mut worst_generic) = (0_f64, 0_f64, 0_f64);
@@ -256,22 +267,36 @@ fn check_pieces(binary64_max_n: usize) {
     );
 }
 
-/// V6 pieces: Float(256) for n = 2..7, binary64 for n <= 6 (n = 7 is
-/// reported; see `pieces_reproduce_the_rank_n2_references_binary64`).
+/// V6 pieces: Float(256) for n = 2..7, binary64 with original Ninja's cut
+/// geometry for n <= 6 (n = 7 is reported; see
+/// `pieces_reproduce_the_rank_n2_references_binary64` and
+/// `pieces_reproduce_the_rank_n2_references_binary64_default_geometry`).
 #[test]
 fn pieces_reproduce_the_rank_n2_references() {
-    check_pieces(6);
+    check_pieces(6, FastOptions::default());
 }
 
-/// V6 pieces with the binary64 check asserted for n = 7 too. The n = 7
-/// kinematics have propagator pairs whose shift difference has a zero time
-/// component (`rn2-id-pinch-n7`: pairs (0,3), (1,5), (2,6)), where the fast
-/// engine's rank <= n+1 path, used for the n = 6 rank 7 pieces, loses
-/// accuracy (up to 1.6e-8 against the generic engine's 1e-12).
+/// The default engine's open n = 7 gap: V6 pieces with the binary64 check
+/// asserted for every n with original Ninja's cut geometry
+/// (`FastOptions::default()`). Only the opt-in conditioned geometry
+/// (`pieces_reproduce_the_rank_n2_references_binary64`) closes it.
 #[test]
-#[ignore = "needs fast accuracy fix: rn2-id-pinch-n7 lanes 0, 2, 3, 6 pieces (p^0 = 0 bubbles, rank <= n+1 path) at 5.8e-9..1.6e-8 > max(1e-10 cond, 10 x generic f64 <= 1.5e-12)"]
+#[ignore = "needs fast accuracy fix (default geometry): rn2-id-pinch-n7 lanes 0, 2, 3, 6 pieces (p^0 = 0 bubbles, rank <= n+1 path, original Ninja's bubble reference and tadpole bases) at 5.8e-9..1.6e-8 > max(1e-10 cond, 10 x generic f64 <= 1.5e-12); passes with FastOptions::conditioned_cuts"]
+fn pieces_reproduce_the_rank_n2_references_binary64_default_geometry() {
+    check_pieces(usize::MAX, FastOptions::default());
+}
+
+/// V6 pieces with the binary64 check asserted for every n, through the fast
+/// engine's rank <= n+1 path with the opt-in conditioned cut geometry
+/// (`FastOptions::conditioned_cuts`). The n = 7 kinematics have propagator
+/// pairs whose shift difference has a zero time component
+/// (`rn2-id-pinch-n7`: pairs (0,3), (1,5), (2,6)); with original Ninja's
+/// fixed bubble reference and tadpole bases (the default) the n = 6 rank 7
+/// pieces of lanes 0, 2, 3 and 6 are off by 5.8e-9..1.6e-8, against the
+/// generic engine's <= 1.5e-12.
+#[test]
 fn pieces_reproduce_the_rank_n2_references_binary64() {
-    check_pieces(usize::MAX);
+    check_pieces(usize::MAX, conditioned());
 }
 
 /// The rank n+2 left-hand sides through the generic rank n+2 engine in
@@ -301,17 +326,33 @@ fn rank_n2_integrals_equal_their_pieces_float() {
 
 /// The same through the fast rank n+2 engine in binary64, within
 /// `max(1e-10 max(1, cond), 10 min(e_generic, 1e-6))` (`e_generic`: the
-/// same identity with the generic engine in binary64). Every identity is
-/// evaluated before the assertion, so a failure lists all lanes outside the
-/// tolerance.
+/// same identity with the generic engine in binary64). The rank <= n+1
+/// pieces use the opt-in conditioned cut geometry (see
+/// `pieces_reproduce_the_rank_n2_references_binary64`).
 #[test]
-#[ignore = "needs fast accuracy fix: 5 of 39 V6 identities at rank n+2 in binary64: rn2-id-pinch-n7 lanes 0, 2, 3, 6 at 5.8e-9..1.6e-8 (generic f64 <= 1.4e-10, the pieces' p^0 = 0 bubbles), rn2-id-pinch-n4 lane 3 at 5.3e-9 > 3.7e-9"]
 fn rank_n2_integrals_equal_their_pieces_binary64() {
+    check_sides_against_pieces(conditioned());
+}
+
+/// The same with the rank <= n+1 pieces through original Ninja's cut
+/// geometry (`FastOptions::default()`): the default engine's open n = 7 gap
+/// (see `pieces_reproduce_the_rank_n2_references_binary64_default_geometry`).
+#[test]
+#[ignore = "needs fast accuracy fix (default geometry): rn2-id-pinch-n7 lanes 0, 2, 3, 6 at 5.8e-9..1.6e-8 (the pieces' p^0 = 0 bubbles with original Ninja's bubble reference and tadpole bases); passes with FastOptions::conditioned_cuts"]
+fn rank_n2_integrals_equal_their_pieces_binary64_default_geometry() {
+    check_sides_against_pieces(FastOptions::default());
+}
+
+/// The rank n+2 left-hand sides through the fast rank n+2 engine against the
+/// sums of their rank <= n+1 pieces through the fast engine with
+/// `pieces_options`, in binary64. Every identity is evaluated before the
+/// assertion, so a failure lists all lanes outside the tolerance.
+fn check_sides_against_pieces(pieces_options: FastOptions) {
     let identities = identities();
     let pieces = rhs_cases(&identities);
     let sides: BTreeSet<String> = identities.iter().map(|i| i.lhs.0.clone()).collect();
-    let fast_pieces = fast_values_of(&pieces);
-    let fast_sides = fast_values_of(&sides);
+    let fast_pieces = fast_values_of(&pieces, pieces_options);
+    let fast_sides = fast_values_of(&sides, FastOptions::default());
     let generic_pieces = generic_values_of(&pieces);
     let generic_sides = generic_values_of(&sides);
     let (mut worst, mut worst_generic) = (0_f64, 0_f64);

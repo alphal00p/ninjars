@@ -179,7 +179,18 @@ impl SetReport {
 #[derive(Clone, Copy, Debug)]
 pub enum Run {
     Fast,
+    /// The fast engine with the opt-in conditioned cut geometry for rank <=
+    /// n+1 (`FastOptions::conditioned_cuts`).
+    FastConditioned,
     Generic(Precision),
+}
+
+/// The fast-engine options of the opt-in conditioned cut geometry.
+pub fn conditioned() -> ninjars::fast::FastOptions {
+    ninjars::fast::FastOptions {
+        conditioned_cuts: true,
+        ..ninjars::fast::FastOptions::default()
+    }
 }
 
 /// Reduce every case (declared at `declare(case)`) and judge it against
@@ -193,6 +204,7 @@ pub fn check_set(
 ) -> SetReport {
     let label = match run {
         Run::Fast => "fast/f64".to_string(),
+        Run::FastConditioned => "fast-conditioned/f64".to_string(),
         Run::Generic(p) => format!("generic/{}", p.label()),
     };
     let mut report = SetReport::new(label);
@@ -204,13 +216,17 @@ pub fn check_set(
         let reference = Reference::find(reference_dir, &case.name).unwrap();
         let declared = declare(&case);
         let lanes = match run {
-            Run::Fast => harness::check_fast(
+            Run::Fast | Run::FastConditioned => harness::check_fast_with_options(
                 &case,
                 declared,
                 case.lanes.len(),
                 reference.as_ref(),
                 policy,
                 &mut masters,
+                match run {
+                    Run::FastConditioned => conditioned(),
+                    _ => ninjars::fast::FastOptions::default(),
+                },
             )
             .map(|check| {
                 assert!(check.repeats_bitwise, "{}", case.name);

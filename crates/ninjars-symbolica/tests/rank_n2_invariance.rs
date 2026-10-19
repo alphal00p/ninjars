@@ -28,10 +28,11 @@
 //! their rank n+1 truncations (relabelling commutes with truncation; the
 //! shifted numerator of the truncation is re-expanded exactly here), and the
 //! exact re-expansion is checked against the generator's own shifted cases.
-//! The binary64 relabelling check at rank n+2 asserts n <= 6 by default; n = 7
-//! (`mu^8` numerators, where the fast engine is 16 times noisier than the
-//! generic engine) is asserted by an ignored test until the fast engine's
-//! accuracy work lands.
+//! The binary64 relabelling check at rank n+2 asserts n <= 6 in
+//! `relabelling_invariance_rank_n2` and every n in
+//! `relabelling_invariance_rank_n2_binary64` (`mu^8` numerators at n = 7,
+//! where the fast engine was 16 times noisier than the generic engine before
+//! its box geometry was conditioned, `box_x2.rs`).
 
 mod rank_n2_reference_support;
 
@@ -416,11 +417,12 @@ fn relabelling_invariance_rank_n2() {
     );
 }
 
-/// V7b at rank n+2 with the binary64 check asserted for n = 7 too: the fast
+/// V7b at rank n+2 with the binary64 check asserted for n = 7 too. The fast
 /// engine's relabelling difference on `rn2-exact-mu-n7-r9-perm` lane 1
-/// (`mu^8` numerator) is 8.0e-7, 16 times the generic engine's 5.0e-8.
+/// (`mu^8` numerator) was 8.0e-7, 16 times the generic engine's 5.0e-8,
+/// with original Ninja's spinor-built box normal; the box rational terms now
+/// use the conditioned box geometry (`box_x2.rs`).
 #[test]
-#[ignore = "needs fast accuracy fix: rn2-exact-mu-n7-r9-perm lane 1, fast 8.0e-7 > 10 x generic noise 5.0e-8"]
 fn relabelling_invariance_rank_n2_binary64() {
     check_pairs(
         "V7b",

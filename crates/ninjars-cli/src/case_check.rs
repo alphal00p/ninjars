@@ -16,6 +16,8 @@
 //!   so dense high-rank numerators need no Symbolica preparation.
 //! - `--declare-rank R` (or `n+K`) runs every numerator declared at a higher
 //!   rank with zero top coefficients (design V5).
+//! - `--conditioned-cuts` runs the fast engine with the opt-in conditioned
+//!   cut geometry for rank <= n+1 (`FastOptions::conditioned_cuts`).
 //! - References: `<reference-dir>/<case>.json`, either the high-precision
 //!   `ninjars-reference-collier-v1` files of `validation/rank-n2` (tier,
 //!   uncertainty, condition) or original-Ninja results; tolerances in
@@ -36,6 +38,7 @@ use std::{
 };
 
 use clap::Args as ClapArgs;
+use ninjars::fast::FastOptions;
 use ninjars_symbolica::OneLoopNativeMasters;
 use serde_json::{Value, json};
 
@@ -67,6 +70,12 @@ pub struct Args {
     /// lane count); lanes repeat cyclically.
     #[arg(long)]
     pub width: Option<usize>,
+    /// Fast engine: the opt-in conditioned cut geometry for rank <= n+1
+    /// (`FastOptions::conditioned_cuts`: the bubble references, tadpole bases
+    /// and box geometry of the rank n+2 engine, chosen per cut and lane).
+    /// Rank n+2 always uses it.
+    #[arg(long)]
+    pub conditioned_cuts: bool,
     /// Directory of reference files `<case>.json` (high-precision
     /// `ninjars-reference-collier-v1` or original-Ninja results).
     #[arg(long)]
@@ -259,8 +268,14 @@ fn fast_case(
 ) -> Result<RunOutcome> {
     let count = case.lanes.len();
     let width = args.width.unwrap_or(count);
-    let checked = harness::check_fast(case, declared, width, reference, policy, masters)
-        .map_err(|e| e.to_string())?;
+    let options = FastOptions {
+        conditioned_cuts: args.conditioned_cuts,
+        ..FastOptions::default()
+    };
+    let checked = harness::check_fast_with_options(
+        case, declared, width, reference, policy, masters, options,
+    )
+    .map_err(|e| e.to_string())?;
     let check = crate::case_bench::reference_check(
         &args.reference_dir,
         &case.name,
@@ -269,12 +284,16 @@ fn fast_case(
         &checked.run.results,
         &checked.run.statuses,
     )?;
+    let mut extra = json!({
+        "width": width,
+        "repeats_bitwise": checked.repeats_bitwise,
+        "case_bench_reference_check": check,
+    });
+    if args.conditioned_cuts {
+        extra["conditioned_cuts"] = json!(true);
+    }
     Ok(RunOutcome {
-        extra: json!({
-            "width": width,
-            "repeats_bitwise": checked.repeats_bitwise,
-            "case_bench_reference_check": check,
-        }),
+        extra,
         lanes: checked.lanes,
     })
 }
