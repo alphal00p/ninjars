@@ -167,6 +167,8 @@ impl OneLoopNativeMasters {
             TensorIntegral::An => &mut self.an,
             TensorIntegral::B11 => &mut self.b11,
             TensorIntegral::B111 => &mut self.b111,
+            // Rank-four bubbles (numerator rank n+2) are never requested here.
+            TensorIntegral::B1111 => return false,
         };
         let outputs = family.outputs();
         if evaluator

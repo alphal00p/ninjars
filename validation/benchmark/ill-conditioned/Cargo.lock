@@ -1437,10 +1437,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "ninjars-positional"
+version = "0.1.0"
+dependencies = [
+ "symbolica",
+ "thiserror",
+]
+
+[[package]]
 name = "ninjars-symbolica"
 version = "0.1.0"
 dependencies = [
  "ninjars",
+ "ninjars-positional",
  "oneloop",
  "symbolica",
  "symbolica-utils",
@@ -1579,7 +1588,7 @@ checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
 [[package]]
 name = "oneloop"
 version = "0.1.0"
-source = "git+https://github.com/alphal00p/oneloopmaster.git?rev=264a6ced74e3c7a5de000b93dddf1330826cd3e9#264a6ced74e3c7a5de000b93dddf1330826cd3e9"
+source = "git+https://github.com/alphal00p/oneloopmaster.git?rev=3023fa6bb2b0c8de6834811ddcdd5fdf3ff60aca#3023fa6bb2b0c8de6834811ddcdd5fdf3ff60aca"
 dependencies = [
  "bincode",
  "symbolica",
