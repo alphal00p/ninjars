@@ -16,15 +16,18 @@
 //! - **triangle**: two `t3` expansions at `mindeg` 5 (12 slots,
 //!   [`FastNumerator::t3_expansion_x2`]), divided by
 //!   the uncut denominators, 21 coefficients; no subtractions.
-//! - **bubble**: `t2` at `mindeg` 4 (22 slots, levels of 1, 2, 4, 6, 9;
+//! - **bubble**: in `Basis(k)` with the reference vector that best
+//!   conditions the uncut lines (`bases_x2.rs`; original Ninja fixes it),
+//!   `t2` at `mindeg` 4 (22 slots, levels of 1, 2, 4, 6, 9;
 //!   [`FastNumerator::t2_expansion_x2`]) and,
 //!   for massive lines, the swapped orientation at `mindeg` 3; the parent
 //!   triangles are subtracted by series division
 //!   (`subtractions_series_x2.rs`); 35 coefficients in the canonical layout
 //!   of `tools/rank_n2`.
-//! - **tadpole**: two `t3` orientations at `mindeg` 3 (6 slots); triangle and
-//!   bubble parents subtracted on slots 4 and 5; integrated layout as at
-//!   rank n+1 (`c0`, `c14`, `c15`).
+//! - **tadpole**: in the best conditioned of original Ninja's three bases and
+//!   six more (`bases_x2.rs`), two `t3` orientations at `mindeg` 3 (6 slots);
+//!   triangle and bubble parents subtracted on slots 4 and 5; integrated
+//!   layout as at rank n+1 (`c0`, `c14`, `c15`).
 //! - **integration**: adds the box `mu⁶` rational term, the bubble
 //!   `mu² (q.e2)²` and `mu⁴` rational terms and the rank-four bubble family
 //!   ([`FastMaster::BubbleRank4`], `B1111`) when `c20 ke2⁴` is not exactly 0.
@@ -32,6 +35,7 @@
 // Index loops mirror original Ninja's component and lane loops.
 #![allow(clippy::needless_range_loop)]
 
+use super::bases_x2::{TadpoleBasesX2, bubble_basis_x2};
 use super::complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr};
 use super::engine::{
     FastOptions, MasterBatch, Stability, TadpoleData, Topology, Uncut, den, den_scale,
@@ -40,7 +44,7 @@ use super::engine::{
 };
 use super::geometry::{
     Basis, box_solutions, bubble_solution, cmom_from_real, combine_real2, gram_det, mp2,
-    reference_vectors_ok, scale, sub, tadpole_candidates, triangle_solution,
+    reference_vectors_ok, scale, sub, triangle_solution,
 };
 use super::masters::{FastMaster, FastMasters};
 use super::numerator::{FastNumerator, t2_len, t3_len};
@@ -290,7 +294,9 @@ fn finite_power(z: C64, k: u32) -> bool {
 /// Batched binary64 reduction for rank `n + 2` (see the module docs).
 pub(super) struct RankN2Engine {
     options: FastOptions,
-    tadpole_bases: [Basis; 3],
+    /// Original Ninja's three tadpole bases and the extra candidates
+    /// (`bases_x2.rs`).
+    tadpole_bases: TadpoleBasesX2,
     lanes: usize,
     alive: Vec<bool>,
     lane_status: Vec<FastStatus>,
@@ -323,7 +329,7 @@ pub(super) struct RankN2Engine {
 impl RankN2Engine {
     pub(super) fn new(n: usize, options: FastOptions) -> Self {
         Self {
-            tadpole_bases: tadpole_candidates(options.infrared_eps),
+            tadpole_bases: TadpoleBasesX2::new(options.infrared_eps),
             options,
             lanes: 0,
             alive: Vec::new(),
@@ -849,6 +855,7 @@ impl RankN2Engine {
             }
             let p = topo.bubbles[b];
             let [c1, c2] = p;
+            let cp = &topo.bubble_complements[b * (n - 2)..(b + 1) * (n - 2)];
             self.bub_rows.clear();
             self.calls.clear();
             for ai in 0..self.active.len() {
@@ -861,7 +868,9 @@ impl RankN2Engine {
                     continue;
                 }
                 let k = sub(&v[c1], &v[c2]);
-                let e = Basis::from_single(&k, eps);
+                // Original Ninja's reference unless it is ill conditioned
+                // against the uncut lines (bases_x2.rs).
+                let e = bubble_basis_x2(&k, v, c1, cp, eps);
                 let (b0, b1, param) = bubble_solution(&k, &e, m[c1], m[c2]);
                 let e1effl = [b0 * e.e2[0], b0 * e.e2[1], b0 * e.e2[2], b0 * e.e2[3]];
                 let e2eff = [
@@ -901,7 +910,6 @@ impl RankN2Engine {
                 self.calls.params.as_flattened(),
                 self.calls.out.as_flattened_mut(),
             )?;
-            let cp = &topo.bubble_complements[b * (n - 2)..(b + 1) * (n - 2)];
             let parents = &topo.bubble_parents[b];
             self.second.clear();
             for r in 0..self.bub_rows.len() {
@@ -1200,12 +1208,16 @@ impl RankN2Engine {
                     continue;
                 }
                 let v = &input.shifts[lane * n..(lane + 1) * n];
-                let basis = (0..2)
+                let ninja = (0..2)
                     .find(|&i| {
-                        let e = &self.tadpole_bases[i];
+                        let e = &self.tadpole_bases.bases[i];
                         reference_vectors_ok(v, a, &e.e1, &e.e2, eps)
                     })
                     .unwrap_or(2);
+                // Original Ninja's basis unless it is ill conditioned
+                // against the uncut lines (bases_x2.rs).
+                let uncut = &topo.tadpole_complements[a * (n - 1)..(a + 1) * (n - 1)];
+                let basis = self.tadpole_bases.choose(ninja, v, a, uncut);
                 self.tad_rows.push(TadpoleRowX2 { lane, basis });
             }
             if self.tad_rows.is_empty() {
@@ -1226,7 +1238,7 @@ impl RankN2Engine {
             for orientation in 0..2 {
                 for row in &self.tad_rows {
                     let lane = row.lane;
-                    let (ev3, ev4) = vectors(&self.tadpole_bases[row.basis], orientation);
+                    let (ev3, ev4) = vectors(&self.tadpole_bases.bases[row.basis], orientation);
                     let v0 = input.shifts[lane * n + a];
                     self.calls.lanes.push1(lane);
                     self.calls
@@ -1259,7 +1271,7 @@ impl RankN2Engine {
                 let v = &input.shifts[lane * n..(lane + 1) * n];
                 let m = &input.masses_squared[lane * n..(lane + 1) * n];
                 let vsq = &self.vsq[lane * n..(lane + 1) * n];
-                let e = self.tadpole_bases[row.basis];
+                let e = self.tadpole_bases.bases[row.basis];
                 let param = m[a];
                 let amu = [-v[a][0], -v[a][1], -v[a][2], -v[a][3]];
                 let mut stable = true;

@@ -30,6 +30,7 @@
 //!   to time the pure reduction.
 
 pub mod adapters;
+mod bases_x2;
 pub mod complex;
 mod engine;
 mod engine_x2;
