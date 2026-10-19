@@ -774,47 +774,29 @@ other tests. Regenerating the references is described in
 
 ## 9. Known limitations
 
-The two limitations first below are found by the final review of the rank n+2
-work and have fixes in preparation; until those land they are current
-behaviour.
+Two limitations found by the final review of the rank n+2 work are fixed on
+main:
 
-**DoubleFloat and Float(128) bubbles at small |p²| with unequal masses.** They
-return silently wrong results: the status is `Success`, also with
-`--stability-test`. The review's case has p² = 1.86e-9 with m² = 25 and 2025
-(scaled differences against the exact value; main with 09b2c74 behaves the
-same):
+**DoubleFloat and Float(128) bubbles at small |p²| with unequal masses**
+(fixed in 6487309). B1, B11 and B111 used the exact Passarino-Veltman
+formulas, which divide by powers of p², and returned silently wrong results
+in DoubleFloat and Float(128). They now come from oneloopmaster's native
+tensor families for every carrier, as B1111 (section 6). Scaled differences
+against Float(512) on the review's case (p² = 1.86e-9, m² = 25 and 2025):
 
-| rank | f64 | DoubleFloat | Float(128) | Float(256) |
-|---|---|---|---|---|
-| 2 (`repro-smallp2-bubble-r2.json`) | 3e-13 | 0.63 | 9.9e-8 | correct |
-| 4 (`repro-smallp2-bubble-r4.json`) | 4e-8 | 1.3e13 | 2.0e6 | correct |
+| rank | f64 | DoubleFloat | Float(128) |
+|---|---|---|---|
+| 2 (`repro-smallp2-bubble-r2.json`), before → after | 3e-13 → 6e-13 | 0.63 → 2e-19 | 9.9e-8 → < 1e-20 |
+| 4 (`repro-smallp2-bubble-r4.json`), before → after | 4e-8 → 2e-8 | 1.3e13 → 2.5e-15 | 2.0e6 → < 1e-20 |
 
-- The V9 scan cases `rn2-scan-bubp2-*` show it: the review counted 9 of 16
-  lanes failing in DoubleFloat and 11 of 16 in Float(128). The V9 test runs
-  them only in Float(256) and binary64, and the scan is not part of the suite
-  of section 8.3.
-- Cause: only B1111 goes through oneloopmaster's native tensor family
-  (section 6). B1, B11 and B111 still use the exact Passarino-Veltman
-  formulas, which divide by powers of p². Escalating from f64 to DoubleFloat
-  makes the result worse, because binary64 (`OneLoopNativeMasters`, as in the
-  fast engine and `case-check`) uses native families for every bubble
-  coefficient.
-- The bug is older than rank n+2 (rank 2 is affected), but rank n+2 makes it
-  worse (rank 4 above).
-
-**`--stability-test` misses cancellation inside one cut contribution.**
-`cancellation_stable` compares the result with the sum of whole-cut
-magnitudes, so a cut whose cut-constructible and rational parts cancel each
-other passes.
-- Example (`repro-stability-test-miss-n6-r8.json`, `fr-light-zero-n6-r8`
-  lane 2): generic f64 is 24 % wrong and reported `Success`. Its
-  cut-constructible part is -0.086, its rational part +0.086, the total 1e-12.
-- On the review's fresh lanes, 4 of the 20 binary64 lanes with an error above
-  1e-6 go unflagged, and in DoubleFloat 8 of the 13 lanes with an error above
-  1e-20.
-- The rank n+1 twin of that lane (numerator truncated) is 6e-5 wrong and
-  unflagged as well, so the gap predates rank n+2; at rank n+2 the B1111 terms
-  reach 6e15 times the lane value.
+**`--stability-test` and cancellation inside one cut contribution** (fixed
+on the commit after 6487309). `cancellation_stable` now measures the finite
+part of each cut as |cut-constructible| + |rational|, so a cut whose two parts
+cancel no longer passes. The review's `repro-stability-test-miss-n6-r8.json`
+(`fr-light-zero-n6-r8` lane 2, generic f64 24 % wrong) is `Unstable`, and the
+suite's `rn2-phys-real-n6-r8` lane 1 (generic f64 off by 4.4e-6) is now
+flagged too. Cancellation among the terms of a single cut-constructible part
+is still not measured.
 
 **Exact masters in Float(128).** `Float` evaluates C0/D0 with Symbolica's
 precision-tracking interpreter of oneloopmaster's exact expressions, while

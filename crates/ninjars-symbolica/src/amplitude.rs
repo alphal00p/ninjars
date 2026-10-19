@@ -37,9 +37,11 @@ fn accumulation_rows(rows: usize) -> ExactKernel {
 /// [`ninjars::EvaluationStatus::Unstable`] test on the primal Laurent
 /// coefficients (taxicab moduli, `p` mantissa bits of `prototype`): the sum
 /// is stable while `2^(-p/2) max_k sum_cuts |c_k| <= max_k |sum_cuts c_k|`.
+/// For the finite part, `|c_0|` of a cut is `|cut-constructible| + |rational|`,
+/// whose sum `c_0` can itself cancel (rank n+2 final review, finding 4).
 fn cancellation_stable<'a, T: Real + SingleFloat + 'a>(
     prototype: &T,
-    contributions: impl Iterator<Item = [&'a Complex<T>; 3]>,
+    contributions: impl Iterator<Item = [&'a Complex<T>; 5]>,
 ) -> bool
 where
     Complex<T>: Real,
@@ -48,11 +50,14 @@ where
     let mut sums: [Complex<T>; 3] =
         std::array::from_fn(|_| Complex::new(zero.clone(), zero.clone()));
     let mut magnitudes: [T; 3] = std::array::from_fn(|_| zero.clone());
-    for contribution in contributions {
-        for (k, value) in contribution.into_iter().enumerate() {
-            magnitudes[k] += value.re.norm() + value.im.norm();
-            sums[k] += value;
-        }
+    let norm = |value: &Complex<T>| value.re.norm() + value.im.norm();
+    for [finite, single, double, constructible, rational] in contributions {
+        magnitudes[0] += norm(constructible) + norm(rational);
+        magnitudes[1] += norm(single);
+        magnitudes[2] += norm(double);
+        sums[0] += finite;
+        sums[1] += single;
+        sums[2] += double;
     }
     let largest = |values: [T; 3]| {
         values
@@ -329,7 +334,7 @@ where
         !self.stability_test
             || cancellation_stable(
                 &self.prototype,
-                contributions.map(|c| [&c[0], &c[1], &c[2]]),
+                contributions.map(|c| [&c[0], &c[1], &c[2], &c[3], &c[4]]),
             )
     }
 }
@@ -596,7 +601,7 @@ where
         !self.stability_test
             || cancellation_stable(
                 &self.prototype,
-                contributions.map(|c| [&c[0].values()[0], &c[1].values()[0], &c[2].values()[0]]),
+                contributions.map(|c| std::array::from_fn(|k| &c[k].values()[0])),
             )
     }
 }

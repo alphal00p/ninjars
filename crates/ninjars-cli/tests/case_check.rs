@@ -483,9 +483,10 @@ fn rank_n2_cases_pass() {
 }
 
 /// `--stability-test` (generic engine, opt-in as for `reduce`) flags the rank
-/// n+2 lanes whose new terms cancel in binary64: lane 2 of
-/// rn2-phys-{real,complex}-n6-r8 (scaled differences 1.1e-3 and 5.4e-4) and
-/// lane 1 of the complex case (2.7e-4). DoubleFloat keeps more than half of
+/// n+2 lanes whose new terms cancel in binary64: lanes 1 and 2 of
+/// rn2-phys-{real,complex}-n6-r8 (scaled differences 4.4e-6 and 1.1e-3 real,
+/// 2.7e-4 and 5.4e-4 complex). Real lane 1 cancels between the
+/// cut-constructible and rational parts of single cuts. DoubleFloat keeps more than half of
 /// its bits on the same lanes and passes.
 #[test]
 fn stability_test_flags_rank_n2_cancellations() {
@@ -516,7 +517,7 @@ fn stability_test_flags_rank_n2_cancellations() {
     assert_eq!(
         statuses(&["--precision", "f64", "--stability-test"]),
         [
-            ["Success", "Success", "Unstable"],
+            ["Success", "Unstable", "Unstable"],
             ["Success", "Unstable", "Unstable"]
         ]
     );
