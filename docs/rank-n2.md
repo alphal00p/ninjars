@@ -798,6 +798,56 @@ suite's `rn2-phys-real-n6-r8` lane 1 (generic f64 off by 4.4e-6) is now
 flagged too. Cancellation among the terms of a single cut-constructible part
 is still not measured.
 
+The three limitations below are also from the final review. They are known
+and documented rather than fixed, because each needs more than a local
+change.
+
+**Generic binary64 is less stable than the fast engine on ill-conditioned
+light-like lanes** (final review, finding 5). On 42 fresh lanes with a
+binary64 error above 1e-9, the generic engine is worse on 25 and more than 10
+times worse on 9 (for example `fr-light-zero-n5-r7` lane 2: fast 3.7e-10,
+generic 3.6e-8).
+- Both engines already choose bubble references and tadpole bases per cut and
+  lane with the same geometric score: how close each uncut line comes to the
+  plane of the cut momentum and the reference (`cuts.rs::bubble_reference`,
+  `fast/bases_x2.rs`). The generic engine scores 8 rational references and 6
+  tadpole bases; the fast rank n+2 engine scores Ninja's reference and 24
+  signed permutations of `(3/4, 1/2, 1/2, 1/4)` (the generic 8 among them)
+  and Ninja's 3 tadpole bases plus 6 rational ones.
+- Giving the generic engine the 24 candidates means widening its probe
+  kernels (five columns per candidate). Those kernels are shared by every
+  rank, so this changes rank <= n+1 plans (V0p) and results (V0) as well, and
+  needs its own validation. It is also not established that the candidate
+  count is the whole difference.
+- In practice binary64 production runs use the fast engine; the generic
+  engine is the escalation path, where DoubleFloat recovers these lanes.
+
+**Declaring rank n+2 for a numerator of rank n+1 costs the fast engine
+accuracy** (finding 6). With `case-check --declare-rank n+2` (zero top
+coefficients), 6 of 166 lanes lose more than 10 times, one by 981 times
+(`fr-light-equal-n5-r7` lane 1: 2.6e-6 instead of 2.6e-9); the generic engine
+loses at most 3 times.
+- The rank class, and with it `engine_x2.rs`, is chosen when the amplitude is
+  built, from the declared rank. Falling back to the rank <= n+1 path would
+  need the fast engine to detect vanishing top coefficients per batch at
+  evaluation time and to hold both engines, which is a structural change.
+- The CLI derives the rank from the prepared numerator, so it never
+  over-declares. Library users should declare the numerator's actual rank.
+
+**`syn-n2-r2` at width 1 runs about 6 % slower** (performance guard,
+`validation/performance/rank-n2-ab/`): 1.061 in the A/B and 1.11 when rerun
+alone, against a 1.05 per-key limit. Both builds execute the same
+instructions per call (callgrind: 5038 and 5037). The rank n+2 modules sit
+between the hot rank <= n+1 functions in the same compilation unit, spreading
+them over 475 KiB instead of 136 KiB, with about 10 % more micro-op cache
+misses.
+- Function and loop alignment, allocator settings and stack offsets did not
+  change it.
+- The candidate remedies (a separate crate or codegen unit for the rank n+2
+  engine, cold-marking its entry, linker section ordering) can only be judged
+  by cycle-timed A/B runs on a quiet machine. Every other key, the geomean
+  (0.9975) and the absolute gates against Ninja are within their limits.
+
 **Exact masters in Float(128).** `Float` evaluates C0/D0 with Symbolica's
 precision-tracking interpreter of oneloopmaster's exact expressions, while
 binary64 and DoubleFloat use its native code. At 128 bits that costs up to 10
