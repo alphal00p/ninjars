@@ -18,8 +18,8 @@ execution-diagnostics = []
 ninjars = { path = "../../../crates/ninjars" }
 ninjars-symbolica = { path = "../../../crates/ninjars-symbolica" }
 ninjars-graph = { path = "../../../crates/ninjars-graph", features = ["numerator-jit"] }
-feynkit-graph = { git = "https://github.com/alphal00p/gammaloop.git", rev = "1e8063a763d3aa515749c33616ee59aa827705be", default-features = false, features = ["native"] }
-feynkit-kinematics = { git = "https://github.com/alphal00p/gammaloop.git", rev = "1e8063a763d3aa515749c33616ee59aa827705be" }
+feynkit-graph = { git = "https://github.com/alphal00p/gammaloop.git", rev = "d1904bf2bd5bf4f26969a73b415095e941a55610", default-features = false, features = ["native"] }
+feynkit-kinematics = { git = "https://github.com/alphal00p/gammaloop.git", rev = "d1904bf2bd5bf4f26969a73b415095e941a55610" }
 symbolica = { version = "3.0.1", default-features = false, features = ["integer-gmp", "float-mpfr", "bincode", "serde", "tracing_max_level_info"] }
 
 [patch.crates-io]

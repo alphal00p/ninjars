@@ -62,7 +62,7 @@ The on-shell triangle exposed a bubble-cut Weyl-chart singularity for a lightlik
 
 The historical baseline passes 32 of 36 rows at the scaled `1e-9` gate; four f64 double-longitudinal rows miss only the expected-zero single pole, at `1.066920211437358e-9`. That failed record is retained. The later combined coefficient-alias repair and dependency update passes **all 36 rows**, with maximum error `5.062690174549114e-10`, recorded in `validation/evidence/physical-hgg-cli-coefficient-aliases.json`. The tolerance is unchanged; the combined rerun does not isolate which change reduced cancellation. The double-longitudinal samples are independent numerator-contraction diagnostics; the no-R2 integrated contribution is nonzero. With `--r2 fdh` it vanishes (see [R2 rational terms in FDH](#r2-rational-terms-in-fdh)). Physical performance acceptance and automatic generic helicity preparation remain outstanding.
 
-FeynKit PR [#144](https://github.com/alphal00p/gammaloop/pull/144) makes explicit one-thread generation stay on the calling thread, including numerator/color preparation. It is stacked on shared-type PR #143; the full generator unit suite passes (104 tests), including the caller-thread and two/four-worker regressions, with strict crate Clippy and formatting checks.
+FeynKit PR [#144](https://github.com/alphal00p/gammaloop/pull/144) (merged into `feynkit`, pinned at `d1904bf2`) makes explicit one-thread generation stay on the calling thread, including numerator/color preparation. It was stacked on shared-type PR #143; the full generator unit suite passed (104 tests), including the caller-thread and two/four-worker regressions, with strict crate Clippy and formatting checks.
 
 # R2 rational terms in FDH
 

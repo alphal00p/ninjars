@@ -20,8 +20,8 @@
       "name": "feynkit",
       "path": "references/gammaloop_ninja_shared",
       "url": "https://github.com/alphal00p/gammaloop.git",
-      "revision": "1e8063a763d3aa515749c33616ee59aa827705be",
-      "branch": "ninjars-combined"
+      "revision": "d1904bf2bd5bf4f26969a73b415095e941a55610",
+      "branch": "feynkit"
     },
     {
       "name": "oneloopmaster",
