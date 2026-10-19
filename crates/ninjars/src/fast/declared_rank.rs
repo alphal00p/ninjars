@@ -20,10 +20,15 @@
 //! numerators answer `None` and keep the rank n+2 engine). A lane of rank
 //! `r < n + 2` is reduced by the rank <= n+1 engine built at rank `r`, with
 //! the numerator presented at that rank ([`FastNumerator::lower_rank`]), so
-//! its result is bitwise that of declaring rank `r` (as the CLI does, which
-//! derives the rank), whatever rank was declared, at the cost of rank `r`.
-//! [`AtDeclaredRank`] keeps the rank n+2 engine instead, for instance for
-//! its conditioned bases.
+//! its result is bitwise that of declaring rank `r`, at the cost of rank
+//! `r`. That is the undeclared result (the CLI derives the case's rank) when
+//! the case's rank is the lane's rank. Only declared rank n+2 is lowered:
+//! declaring rank n+1 for a lane of rank <= n still changes its result, as in
+//! original Ninja (the rank n+1 engine stays bitwise Ninja). On the suite
+//! controls declared at n+2, lowering to rank n+1 instead of the lane's rank
+//! failed 4 lanes (`rn2-int-mixed-n2-r2` lane 1: 1.5e-13 against a tolerance
+//! of 3.8e-14). [`AtDeclaredRank`] keeps the rank n+2 engine instead, for
+//! instance for its conditioned bases.
 //!
 //! A batch whose lanes have different ranks is split: each rank's lanes are
 //! reduced as their own sub-batch, and the results are scattered back. Both
@@ -58,8 +63,9 @@ use crate::{Error, Result};
 /// lower rank. Validation uses it to run the rank n+2 engine on numerators of
 /// lower rank with known results (design V5). It also selects the rank n+2
 /// engine's conditioned bases for such numerators, which are often more
-/// accurate than the rank <= n+1 engine's (module docs), at two to three
-/// times the cost.
+/// accurate than the rank <= n+1 engine's (module docs), at about 2 to 9
+/// times the instructions, 4.5 times in geometric mean on padded benchmark
+/// cases.
 pub struct AtDeclaredRank<'a, N: ?Sized>(pub &'a mut N);
 
 impl<N: FastNumerator + ?Sized> FastNumerator for AtDeclaredRank<'_, N> {
