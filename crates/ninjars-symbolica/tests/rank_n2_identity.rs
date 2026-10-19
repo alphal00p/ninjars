@@ -15,9 +15,11 @@
 //! Ninja's cut geometry (the default) this is asserted for n <= 6: the n = 7
 //! kinematics have propagator pairs whose shift difference has a zero time
 //! component, where Ninja's fixed bubble reference and tadpole bases lose
-//! up to 1.6e-8. With the opt-in conditioned geometry
-//! (`FastOptions::conditioned_cuts`, the choices of the rank n+2 engine) it
-//! is asserted for every n. The left-hand sides themselves run through the
+//! up to 1.6e-8 (asserted at n = 7 by the ignored `*_default_geometry`
+//! tests, which keep this gap of the default engine visible). With the
+//! opt-in conditioned geometry (`FastOptions::conditioned_cuts`, the choices
+//! of the rank n+2 engine) it is asserted for every n. The left-hand sides
+//! themselves run through the
 //! rank n+2 engines and must equal the sums: Float(256) (generic engine)
 //! within 1e-50, binary64 (fast engine; pieces with the conditioned
 //! geometry) within the same binary64 tolerance. `e_generic` is the same
@@ -267,10 +269,21 @@ fn check_pieces(binary64_max_n: usize, options: FastOptions) {
 
 /// V6 pieces: Float(256) for n = 2..7, binary64 with original Ninja's cut
 /// geometry for n <= 6 (n = 7 is reported; see
-/// `pieces_reproduce_the_rank_n2_references_binary64`).
+/// `pieces_reproduce_the_rank_n2_references_binary64` and
+/// `pieces_reproduce_the_rank_n2_references_binary64_default_geometry`).
 #[test]
 fn pieces_reproduce_the_rank_n2_references() {
     check_pieces(6, FastOptions::default());
+}
+
+/// The default engine's open n = 7 gap: V6 pieces with the binary64 check
+/// asserted for every n with original Ninja's cut geometry
+/// (`FastOptions::default()`). Only the opt-in conditioned geometry
+/// (`pieces_reproduce_the_rank_n2_references_binary64`) closes it.
+#[test]
+#[ignore = "needs fast accuracy fix (default geometry): rn2-id-pinch-n7 lanes 0, 2, 3, 6 pieces (p^0 = 0 bubbles, rank <= n+1 path, original Ninja's bubble reference and tadpole bases) at 5.8e-9..1.6e-8 > max(1e-10 cond, 10 x generic f64 <= 1.5e-12); passes with FastOptions::conditioned_cuts"]
+fn pieces_reproduce_the_rank_n2_references_binary64_default_geometry() {
+    check_pieces(usize::MAX, FastOptions::default());
 }
 
 /// V6 pieces with the binary64 check asserted for every n, through the fast
@@ -315,15 +328,30 @@ fn rank_n2_integrals_equal_their_pieces_float() {
 /// `max(1e-10 max(1, cond), 10 min(e_generic, 1e-6))` (`e_generic`: the
 /// same identity with the generic engine in binary64). The rank <= n+1
 /// pieces use the opt-in conditioned cut geometry (see
-/// `pieces_reproduce_the_rank_n2_references_binary64`). Every identity is
-/// evaluated before the assertion, so a failure lists all lanes outside the
-/// tolerance.
+/// `pieces_reproduce_the_rank_n2_references_binary64`).
 #[test]
 fn rank_n2_integrals_equal_their_pieces_binary64() {
+    check_sides_against_pieces(conditioned());
+}
+
+/// The same with the rank <= n+1 pieces through original Ninja's cut
+/// geometry (`FastOptions::default()`): the default engine's open n = 7 gap
+/// (see `pieces_reproduce_the_rank_n2_references_binary64_default_geometry`).
+#[test]
+#[ignore = "needs fast accuracy fix (default geometry): rn2-id-pinch-n7 lanes 0, 2, 3, 6 at 5.8e-9..1.6e-8 (the pieces' p^0 = 0 bubbles with original Ninja's bubble reference and tadpole bases); passes with FastOptions::conditioned_cuts"]
+fn rank_n2_integrals_equal_their_pieces_binary64_default_geometry() {
+    check_sides_against_pieces(FastOptions::default());
+}
+
+/// The rank n+2 left-hand sides through the fast rank n+2 engine against the
+/// sums of their rank <= n+1 pieces through the fast engine with
+/// `pieces_options`, in binary64. Every identity is evaluated before the
+/// assertion, so a failure lists all lanes outside the tolerance.
+fn check_sides_against_pieces(pieces_options: FastOptions) {
     let identities = identities();
     let pieces = rhs_cases(&identities);
     let sides: BTreeSet<String> = identities.iter().map(|i| i.lhs.0.clone()).collect();
-    let fast_pieces = fast_values_of(&pieces, conditioned());
+    let fast_pieces = fast_values_of(&pieces, pieces_options);
     let fast_sides = fast_values_of(&sides, FastOptions::default());
     let generic_pieces = generic_values_of(&pieces);
     let generic_sides = generic_values_of(&sides);
