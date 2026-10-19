@@ -139,7 +139,9 @@ and `g=e12`, so `e34=-g`. A new generated tadpole projection kernel extracts:
 | `R=n+1` | `c0 = L[t^0 mu^0]`, `c14 = L[t^0 mu^1]`, `c15 = -2*(T[t^0 mu^1]-c14)/g` |
 
 Here `mu` denotes the variable mu-squared. Keep the reserved higher-rank `c9`
-slot. The formula follows `ninja_implem.cxx:1534-1664`; it is also obtained by
+slot. Rank n+2 uses the same three coefficients and formulas, read from
+deeper expansions with the triangle and bubble parents subtracted on two
+slots; see [rank n+2](rank-n2.md#34-tadpole). The formula follows `ninja_implem.cxx:1534-1664`; it is also obtained by
 substituting the two paths into `polys_implem.cxx:64-71`. The longitudinal path
 has both transverse coordinates zero. Their product on the transverse path is
 `e34*(beta+mu_squared)/2`. Full tadpole reconstruction requires the additional

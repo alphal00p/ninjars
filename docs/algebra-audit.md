@@ -174,3 +174,59 @@ precision conversion, or custom Dual transformation is introduced. Source
 origin and higher/mixed component regressions compare against shared momentum
 operations; quotient selection is checked against every corresponding output
 of the full original exact plan.
+
+## Numerator rank n+2
+
+Rank n+2 (see [rank n+2](rank-n2.md)) adds no symbolic machinery to the
+generic engine. Every new exact plan uses the operations audited above.
+
+1. **Laurent division, projection and subtractions.** `LaurentDivision`,
+   `ResidueProjection`, `TriangleBubbleSubtraction::new_class` and
+   `TadpoleSubtraction::new_class` build the same Atom formulas from a
+   `RankClass`. The only change at excess 2 is the truncation order of
+   Symbolica's `AtomCore::series`: `2 + excess` for triangle-to-bubble and
+   `1 + excess` for tadpole parents. `to_polynomial_in_vars_with_field` then
+   extracts the coefficients. The parent ansatz (`triangle_residue_class`,
+   `bubble_residue_class`) appends the new monomials after the existing ones,
+   so plans of excess 0 and 1 are unchanged. The V0p fingerprints of 1,239
+   exact plans enforce this. The new subtraction terms agree with the
+   theory's independent sympy closed forms to <= 4e-77 in Float(256), and a
+   swapped-axis control gives 1.2 (`tests/rank_n2_laurent.rs`).
+2. **Box mu-expansion on the exact cut.** `ExpansionKind::MuShifted` uses the
+   existing truncated integer-polynomial `CutSubstitution` of
+   `PolynomialNumerator`, with `mu² = t² a.a - beta`. The extra variable
+   `beta` is one more fresh symbol of the same evaluator, and `a.a` stays
+   opaque as for `Mu`.
+   - `truncated_expansion_reproduces_full_expansion_atoms` checks that its
+     atoms, and those of the rank n+2 Laurent divisions, equal Symbolica's
+     full expansion exactly.
+   - `tests/rank_n2_interfaces.rs` checks the expansion against direct
+     substitution in binary64, Float(200) and every HyperDual component.
+   - `DualPolynomialNumerator` dualizes the same graph with Symbolica's
+     `Dualizer`.
+   - The box division (`box_kernels.rs` `mu_division_n2`) is the existing
+     construction: a Symbolica series in `z = 1/t` to order 2, followed by
+     coefficient extraction. The read-off `c4 = n2/(v²)² + 3 beta c6` is an
+     Atom expression in the plan.
+3. **Integrated values.** `MasterContraction::new_class` adds the B1111
+   weight and the rational terms of the bubble (`mu² (q.e2)²`, `mu⁴`) and the
+   box (`mu⁶`) to the existing exact graphs, using the cut's existing
+   invariant and mass parameters. The values come from the dimension shift,
+   checked three ways in `tools/rank_n2/masters/verify_masters.py`.
+   `tests/rank_n2_integration.rs` checks the contraction exactly.
+
+The `native-kernels` catalog has no degree-4 triangle-to-bubble correction.
+Rank n+2 keeps the interpreted Symbolica plan there, so no new emitted code
+exists.
+
+The binary64 fast engine is a port of original Ninja's arithmetic and lies
+outside this Symbolica policy, as its rank <= n+1 path does. Its rank n+2
+subtractions (`fast/subtractions_series_x2.rs`) evaluate the series
+definition in the existing truncated-jet algebra, which
+`tools/fast/generate_jets.py` generates; the new `T3K5`, `T2K4` and `Mu3` jets
+are appended to it, and the existing jets are byte-identical. They are checked
+against fixtures computed independently from the definition
+(`validation/rank-n2/subtraction_fixtures.json`,
+`tools/fast/make_subtraction_fixtures_x2.py`). Original Ninja's FORM routines,
+re-indexed, plus the reviewed CSE terms are kept as a generated closed-form
+test reference (`fast/subtractions_x2.rs`).

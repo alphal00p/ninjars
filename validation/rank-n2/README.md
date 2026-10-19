@@ -3,7 +3,8 @@
 This directory holds reference values, control cases and exact identity data for numerator
 rank r = n+2. It is stream S5a of the rank n+2 design, extended by S5b with n = 7 cases
 (section "n = 7"). Nothing here is Rust: the consumers are `ninjars case-check` and
-`crates/ninjars-symbolica/tests/rank_n2_*.rs` (section "Checking the engines").
+`crates/ninjars-symbolica/tests/rank_n2_*.rs` (section "Checking the engines"). The algorithm and a summary of
+the results are in [`docs/rank-n2.md`](../../docs/rank-n2.md).
 
 | directory | content |
 |---|---|

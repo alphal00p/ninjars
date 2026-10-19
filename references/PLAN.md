@@ -2342,3 +2342,72 @@ Commits so far: `7b57642` (fast-path complex type and provider traits),
 - Arbitrary precision: graph26 at 700 bits agrees with 1000 bits to 208
   digits in ~7.5 s for three points (including preparation);
   double-double 30 digits, binary64 fast engine 14 digits.
+
+### Numerator rank n+2 (2026-10-19)
+
+User requirement: support numerator rank n+2, one beyond original Ninja.
+Keep n general in every precision; the practical range is n <= ~7.
+Stability comes first. Write-up: `docs/rank-n2.md`, covering formulas,
+architecture, validation, limitations and errata.
+
+- **Branch.** `claude/rank-n2-integration`, head 8346699, not pushed. It holds:
+  - S0 interfaces and baselines (96b3653, f7e8bad);
+  - generic engine S2 (c066178);
+  - fast engine S3 (1d5cb5f, ebdbc00);
+  - native B1111 providers S4 (07395b2);
+  - reference suite S5a (498432f);
+  - case-check and V-tests S5b (3c6c88c);
+  - main dec3d55 (1524dbd);
+  - fixes: validation policy (dda8f8e), Float B1111 (bd2022b, 91deffa), fast
+    accuracy (79f306a, 61079d4).
+
+  Docs are on `claude/rank-n2-docs`.
+- **Pins.** oneloopmaster fe550e3 adds `TensorIntegral::B1111`, OneLOop's
+  `bub1111` with the mass-swap sign corrected: OneLOop 3.4 and 3.6 negate it
+  in every swap branch. B0..B111 and the B11/B111 kernels are bitwise
+  unchanged. gammaloop 474478a7 and Symbolica e679e8c1 are unchanged.
+- **Recipe.** Both engines reduce rank n+2, checked exactly in F_p[i] for
+  n = 1..6 by an independent reduction.
+  - The box mu-expansion runs on the exact d-dimensional cut,
+    `mu² = t² v² - beta`: `c6 = n0/(v²)³`, `c4 = n2/(v²)² + 3 beta c6`. Ninja's
+    `mu² = t² v²` gives a wrong c4 for mu²-dependent numerators.
+  - Triangles have 21 coefficients (mindeg 5, A/B average at t⁰), bubbles 35
+    (mindeg 4, 22 slots), and tadpoles keep the 16-entry layout.
+  - New integrated terms: box mu⁶, bubble mu²(q·e2)² and mu⁴, and B1111.
+- **Generic engine.** Plans are built from `RankClass`; the 1,239 rank
+  <= n+1 plan fingerprints (V0p) are unchanged.
+- **Fast engine.** A separate `engine_x2.rs` is selected at construction, and
+  rank <= n+1 stays bitwise unchanged (V0). It uses series-division
+  subtractions and per-lane conditioned bubble references and tadpole bases
+  (`bases_x2.rs`). Rank n+2 costs 2.1-2.9 times its rank n+1 twin in the
+  replayed reduction (ebdbc00), and the basis conditioning added 3.0-5.8%
+  instructions (79f306a).
+- **Validation at 8346699.**
+  - `cargo test --workspace`, release: 389 passed, 0 failed, 12 ignored with
+    default features; 498, 0, 21 with all features. V0 and V0p pass in both.
+  - `ninjars case-check` on the 333-lane suite (n = 1..7; pass / report-only /
+    known failure, 0 fail):
+    - fast: 275 / 49 / 9;
+    - generic f64: 274 / 50 / 9;
+    - Float(256): 284 / 40 / 9, tier A <= 1.3e-36 at n <= 6;
+    - DoubleFloat: 296 / 28 / 8 plus 1 stale known failure.
+- **Known limitations and open items.**
+  - oneloopmaster's real-mass D0 has the wrong real part on several boxes
+    (24 known-failure lanes, findings 3 and 5; also argument-order
+    dependent). It is not fixed.
+  - The finding-3 lane is right in DoubleFloat. A per-precision scope for
+    known-failure entries needs a decision.
+  - Four binary64 fast-engine tests stay ignored (`docs/rank-n2.md` 8.4), on
+    these lanes:
+    - the n = 7 pinch identities, whose p⁰ = 0 bubbles lose 5.8e-9..1.6e-8 on
+      the rank <= n+1 path;
+    - `rn2-id-pinch-n4` lane 3, at 1.4 times its tolerance;
+    - `rn2-exact-mu-n7-r9-perm` lane 1 under relabelling;
+    - `rn2-shifted-mixed-n7-r9-mu2` lane 0, at 1.1 times 10 times the generic
+      f64 error.
+  - Generic f64 misses `rn2-phys-real-n6-r7` lane 2 (4.3e-7, not traced).
+  - `Float` keeps the exact B0..B111, which lose 1-4 digits per decade of
+    `m²/|p²|`.
+  - There is no native degree-4 bubble correction.
+  - Still to do: the design's §8 A/B timing on the integrated head (last
+    passed at S3 and S4) and a rank n+2 section in `docs/benchmark/benchmark.typ`.
