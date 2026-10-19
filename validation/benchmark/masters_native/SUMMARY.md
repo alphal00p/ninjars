@@ -5,17 +5,59 @@ Native: oneloopmaster's direct ahead-of-time Rust backend (`NativeEvaluator<f64>
 NinjaRS release profile (thin LTO, 1 CGU). OneLOop: the same calls (`../ninja/<case>.masters.json`,
 recorded from original Ninja) replayed through `ninja::avh_olo` (build `o3-fortranrules`, OneLOop-3.6,
 gfortran -O3, OneLOop warnings off). Microseconds per phase-space point (one lane's calls),
-median of >=7 blocks >=25 ms. OneLOop replay and olm-264a6ce native pinned to CPU 250 (2026-10-18;
-earlier labels: native on CPU 29, see ../cpu-crosscheck.md). 'OL B' is every bubble call (olo_b11 for
+median of >=7 blocks >=25 ms. OneLOop replay and olm-264a6ce native pinned to CPU 250 (2026-10-18),
+olm-3023fa6 native on CPU 250 (2026-10-19; earlier labels: native on CPU 29, see
+../cpu-crosscheck.md). 'OL B' is every bubble call (olo_b11 for
 Ninja's rank-2 bubbles: B11, B00, B1, B0); 'nat B0 only' evaluates just B0 for those calls
 (less work), 'nat B (tensor)' evaluates NativeTensorEvaluator B11 = [B0, B1, B11] (B111 for
 rank-3 bubbles), i.e. everything Ninja consumes. max diff = largest |native - OneLOop| / max|OneLOop|
 over each call's outputs; relabel = largest deviation of native C0/D0 under the cyclic and
 reflected relabellings of the propagators (a native self-consistency check).
 
+## `olm-3023fa6-sym-e679e8c1-tensor`
+
+oneloopmaster main 3023fa6 (264a6ce plus the B1111 tensor family, conditioned C0 dilogarithm differences, the contour box for real three-mass boxes, exact Kallen edge roots, far-root r1, labelling-independent real four-mass D0, collinear few-mass boxes and commutative DoubleFloat products) + Symbolica e679e8c1; the final benchmark revision
+
+| case | OneLOop all | native all | native/OneLOop | OL D0 | nat D0 | OL C0 | nat C0 | OL B | nat B (tensor) | OL A0 | nat A0 | max diff | relabel |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| four-photon-top-box-0 | 10.13 | 5.38 | 0.53x | 3.79 | 2.42 | 4.78 | 2.31 | 1.33 | 0.26 | 0.16 | 0.14 | 8.3e-14 | 5e-15 |
+| gg-hhh-top-box-8 | 22.49 | 12.67 | 0.56x | 13.42 | 8.81 | 5.43 | 2.90 | 3.17 | 0.35 | 0.16 | 0.14 | 4.1e-15 | 7e-15 |
+| gg-hhh-top-pentagon-26 | 98.22 | 53.62 | 0.55x | 61.85 | 41.08 | 26.28 | 11.80 | 7.28 | 0.64 | 0.20 | 0.18 | 1.1e-14 | 2e-14 |
+| gg-hhh-top-triangle-0 | 1.27 | 0.60 | 0.48x | - | - | 0.67 | 0.36 | 0.50 | 0.13 | 0.13 | 0.11 | 4.6e-16 | 2e-15 |
+| gg-hh-top-box-2 | 27.76 | 13.85 | 0.50x | 16.58 | 9.37 | 6.67 | 3.26 | 3.93 | 0.37 | 0.16 | 0.14 | 1.5e-14 | 4e-15 |
+| gg-hh-top-triangle-0 | 1.90 | 0.70 | 0.37x | - | - | 0.91 | 0.44 | 0.87 | 0.13 | 0.13 | 0.11 | 4.6e-16 | 3e-15 |
+| hgg-top-triangle-0 | 6.53 | 1.61 | 0.25x | - | - | 4.80 | 1.34 | 1.62 | 0.14 | 0.13 | 0.11 | 4.5e-15 | 7e-15 |
+| madloop-four-photon-top-box-0 | 9.13 | 5.17 | 0.57x | 3.85 | 2.37 | 3.66 | 1.95 | 1.36 | 0.27 | 0.17 | 0.14 | 5.0e-15 | 5e-15 |
+| madloop-gg-hhh-top-box-8 | 27.40 | 14.69 | 0.54x | 13.26 | 8.66 | 10.38 | 4.68 | 3.16 | 0.35 | 0.16 | 0.14 | 2.4e-15 | 7e-15 |
+| madloop-gg-hhh-top-pentagon-26 | 107.47 | 55.04 | 0.51x | 63.62 | 40.52 | 33.44 | 14.40 | 7.22 | 0.65 | 0.20 | 0.18 | 1.4e-14 | 2e-14 |
+| madloop-gg-hhh-top-triangle-0 | 1.30 | 0.58 | 0.45x | - | - | 0.68 | 0.35 | 0.49 | 0.13 | 0.13 | 0.11 | 4.6e-16 | 2e-15 |
+| madloop-gg-hh-top-box-2 | 33.21 | 15.32 | 0.46x | 16.48 | 9.24 | 11.43 | 5.00 | 3.94 | 0.37 | 0.17 | 0.14 | 1.5e-14 | 5e-15 |
+| madloop-gg-hh-top-triangle-0 | 1.89 | 0.69 | 0.37x | - | - | 0.90 | 0.43 | 0.86 | 0.13 | 0.13 | 0.10 | 4.6e-16 | 3e-15 |
+| madloop-hgg-top-triangle-0 | 3.24 | 0.86 | 0.27x | - | - | 1.49 | 0.61 | 1.63 | 0.14 | 0.13 | 0.11 | 2.8e-15 | 7e-15 |
+| syn-gghhh-ggHHH-n5-r4 | 117.19 | 60.45 | 0.52x | 69.13 | 42.19 | 36.53 | 14.83 | 8.03 | 0.66 | 0.20 | 0.18 | 1.7e-14 | 2e-14 |
+| syn-gghhh-ggHHH-n5-r5 | 118.36 | 60.62 | 0.51x | 69.96 | 43.47 | 36.25 | 15.18 | 8.09 | 0.66 | 0.21 | 0.17 | 3.6e-11 | 2e-14 |
+| syn-gghhh-gHgHH-n5-r4 | 64.24 | 27.83 | 0.43x | 24.66 | 13.26 | 30.68 | 12.77 | 6.82 | 0.67 | 0.21 | 0.18 | 1.8e-14 | 2e-14 |
+| syn-gghhh-gHgHH-n5-r5 | 62.27 | 28.18 | 0.45x | 23.98 | 13.31 | 29.18 | 12.77 | 6.83 | 0.66 | 0.20 | 0.17 | 1.7e-14 | 3e-14 |
+| syn-gghhh-nosmat-n5-r4 | 117.56 | 58.53 | 0.50x | 67.91 | 43.73 | 37.66 | 14.60 | 8.01 | 0.65 | 0.20 | 0.18 | 1.1e-14 | 1e-14 |
+| syn-n2-r1 | 0.21 | 0.10 | 0.50x | - | - | - | - | 0.16 | 0.07 | 0.06 | 0.04 | 1.9e-14 | 0e+00 |
+| syn-n2-r2 | 0.20 | 0.11 | 0.56x | - | - | - | - | 0.15 | 0.08 | 0.06 | 0.04 | 1.2e-15 | 0e+00 |
+| syn-n2-r3 | 0.30 | 0.11 | 0.36x | - | - | - | - | 0.24 | 0.07 | 0.05 | 0.04 | 5.0e-13 | 0e+00 |
+| syn-n3-r2 | 4.27 | 1.62 | 0.38x | - | - | 2.94 | 1.18 | 1.09 | 0.28 | 0.24 | 0.15 | 1.7e-14 | 2e-16 |
+| syn-n3-r3 | 3.87 | 1.88 | 0.49x | - | - | 2.56 | 1.45 | 1.09 | 0.28 | 0.24 | 0.15 | 1.7e-14 | 2e-16 |
+| syn-n3-r4 | 5.08 | 1.40 | 0.28x | - | - | 3.36 | 0.94 | 1.45 | 0.30 | 0.24 | 0.15 | 1.7e-14 | 2e-16 |
+| syn-n4-r3 | 16.91 | 12.25 | 0.72x | 7.82 | 3.75 | 6.45 | 7.51 | 2.41 | 0.32 | 0.13 | 0.10 | 7.9e-14 | 5e-15 |
+| syn-n4-r4 | 15.86 | 13.25 | 0.84x | 9.18 | 5.25 | 5.08 | 7.26 | 1.40 | 0.35 | 0.13 | 0.10 | 2.4e-14 | 1e-14 |
+| syn-n4-r5 | 12.19 | 10.50 | 0.86x | 5.24 | 3.68 | 4.60 | 6.72 | 2.09 | 0.34 | 0.13 | 0.11 | 1.1e-14 | 4e-15 |
+| syn-n5-r4 | 68.68 | 36.54 | 0.53x | 39.60 | 24.51 | 21.35 | 10.10 | 5.36 | 0.65 | 0.20 | 0.17 | 4.6e-14 | 3e-14 |
+| syn-n5-r5 | 75.41 | 36.01 | 0.48x | 41.81 | 22.73 | 25.61 | 11.77 | 5.53 | 0.61 | 0.21 | 0.18 | 4.5e-13 | 4e-13 |
+| syn-n5-r6 | 91.88 | 45.86 | 0.50x | 49.66 | 31.28 | 31.47 | 13.75 | 7.85 | 0.68 | 0.21 | 0.17 | 1.1e-14 | 3e-14 |
+| syn-n6-r5 | 494.69 | 307.86 | 0.62x | 407.86 | 259.53 | 56.99 | 44.59 | 9.35 | 1.94 | 0.33 | 0.22 | 1.3e-12 | 1e-13 |
+| syn-n6-r6 | 428.05 | 273.43 | 0.64x | 346.35 | 211.76 | 59.77 | 44.48 | 8.95 | 1.73 | 0.33 | 0.21 | 7.3e-13 | 9e-14 |
+| syn-n6-r7 | 540.80 | 323.53 | 0.60x | 439.25 | 262.93 | 72.23 | 45.22 | 12.27 | 2.03 | 0.32 | 0.21 | 2.5e-09 | 1e-13 |
+
 ## `olm-264a6ce-sym-e679e8c1-tensor`
 
-oneloopmaster main 264a6ce (continuation and degenerate-kinematics fixes, hand-written C0/D0 and tensor binary64 kernels) + Symbolica e679e8c1; the final benchmark revision
+oneloopmaster main 264a6ce (continuation and degenerate-kinematics fixes, hand-written C0/D0 and tensor binary64 kernels) + Symbolica e679e8c1; the previous benchmark revision
 
 | case | OneLOop all | native all | native/OneLOop | OL D0 | nat D0 | OL C0 | nat C0 | OL B | nat B (tensor) | OL A0 | nat A0 | max diff | relabel |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -182,6 +224,15 @@ oneloopmaster main c9dd82f + Symbolica 2c06f245 (the NinjaRS workspace pin): MPF
   two massive internal lines above the massive-pair threshold had the wrong imaginary part (e.g.
   C0(0, 0, 490000; 173^2, 0, 173^2; mu^2=1e4)), syn-n4-r3/r4 had O(1) C0/D0 deviations, and
   syn-gghhh-ggHHH-n5-r5 had a D0 near a vanishing Gram determinant at 6.8e-10 (OneLOop: 7.9e-15,
-  checked against 256-bit values). The remaining largest deviations are listed in the table; the
-  native C0 of syn-n6-r6 with nearly coincident roots is at ~2e-13 versus OneLOop's 3e-15 (OneLOop
-  uses a dedicated near-coincident dilogarithm difference).
+  checked against 256-bit values). At 264a6ce the native C0 of syn-n6-r6 with nearly coincident
+  roots was at ~2e-13 versus OneLOop's 3e-15 (OneLOop uses a dedicated near-coincident dilogarithm
+  difference).
+* **Changes in 3023fa6.** 3cbe08d conditions the coincident-root dilogarithm differences (that C0
+  is now at 2.2e-15 against 256-bit values). 9c5490b (contour-box edge roots from exact Kallen
+  functions) moves the D0 of syn-gghhh-ggHHH-n5-r5 near a vanishing Gram determinant from 4.4e-12
+  to 3.6e-11 (OneLOop 7.9e-15) and syn-n5-r5's largest deviation from 6.2e-14 to 4.5e-13; the
+  physical streams keep 8.3e-14. Against the 264a6ce run, native boxes take up to 14 % longer
+  (4-9 % on the physical streams), and families without code changes moved by -10 to +6 %. Run
+  alternately on CPU 250 (best of three, five physical streams), 3023fa6's boxes take 3-5 % longer
+  than 264a6ce's, triangles and bubbles within 2 %, tadpoles 7-9 % less. Native/OneLOop is
+  0.25-0.57x on the physical streams (0.24-0.54x at 264a6ce).

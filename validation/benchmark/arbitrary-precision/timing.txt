@@ -1,3 +1,9 @@
-# Wall time of run.sh on oneloopmaster 264a6ce (AMD EPYC 9754, pinned with taskset -c 251, 2026-10-18)
-700 bits, three points incl. preparation: real 7.504 s, user 6.956 s, sys 0.472 s
-1000 bits, three points incl. preparation: real 8.761 s, user 8.206 s, sys 0.468 s
+# Wall time of run.sh on oneloopmaster 3023fa6 (AMD EPYC 9754, pinned with taskset -c 250, 2026-10-19)
+700 bits, three points incl. preparation: real 11.274 s, user 10.132 s, sys 0.977 s
+1000 bits, three points incl. preparation: real 16.571 s, user 14.904 s, sys 1.380 s
+# Same core and session, 700 bits, three runs each: CLIs on oneloopmaster 264a6ce took 8.4-9.6 s,
+# on 3023fa6 12.3-13.2 s. CLIs built on each intermediate revision put the step at oneloopmaster
+# 3cbe08d (conditioned dilogarithm differences and tiny box invariants): 9.0 s before, 12.4 s after.
+# Previous measurement, oneloopmaster 264a6ce (pinned with taskset -c 251, 2026-10-18):
+# 700 bits, three points incl. preparation: real 7.504 s, user 6.956 s, sys 0.472 s
+# 1000 bits, three points incl. preparation: real 8.761 s, user 8.206 s, sys 0.468 s

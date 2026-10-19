@@ -1,6 +1,6 @@
 {
  "status": "measured",
- "date": "2026-10-18",
+ "date": "2026-10-19",
  "host": "AMD EPYC 9754 (shared host), all timings pinned to one core",
  "batch_width": 32,
  "cases": [
@@ -14,11 +14,11 @@
    "madloop_rank": 3,
    "coefficient_heads": 15,
    "generation_s": {
-    "ninjars": 0.132600523,
+    "ninjars": 0.129467755,
     "ninjars_detail": {
-     "prepare_total": 0.100802624,
-     "planning_total": 0.008059418,
-     "compilation_total": 0.02350064
+     "prepare_total": 0.099136768,
+     "planning_total": 0.007863612,
+     "compilation_total": 0.022243194
     },
     "madloop": 4.261603572027525,
     "madloop_detail": {
@@ -28,18 +28,18 @@
     }
    },
    "ninjars_us": {
-    "numerator": 0.941480697631836,
-    "numerator_preparation": 0.5255002899169922,
-    "tensor_numerator": 0.41598040771484374,
-    "reduction": 1.28902294921875,
-    "masters": 1.8224927978515626,
-    "total": 4.082169677734375
+    "numerator": 0.9654334564208984,
+    "numerator_preparation": 0.532351791381836,
+    "tensor_numerator": 0.4330816650390625,
+    "reduction": 1.2857512817382812,
+    "masters": 1.9174776000976566,
+    "total": 4.2243330078125
    },
    "ninjars_width1_us": {
-    "numerator": 1.3910008239746094,
-    "reduction": 1.7063126220703124,
-    "masters": 1.8787326049804687,
-    "total": 5.222747314453125
+    "numerator": 1.4802449035644532,
+    "reduction": 1.712634765625,
+    "masters": 1.9777293090820314,
+    "total": 5.3931796875
    },
    "madloop_us": {
     "numerator": 15.19791435682933,
@@ -57,13 +57,13 @@
     "total": 10.048895808383232
    },
    "ninjars_identical_us": {
-    "numerator": 0.4420308837890625,
-    "reduction": 1.2711646118164062,
-    "masters": 1.7152359008789062,
-    "total": 3.4381195068359376
+    "numerator": 0.4370721435546875,
+    "reduction": 1.271318603515625,
+    "masters": 1.7744139404296875,
+    "total": 3.5357137451171874
    },
    "max_scaled_difference_vs_ninja": 1.2940475971023792e-14,
-   "max_scaled_difference_end_to_end": 3.494030958336396e-14
+   "max_scaled_difference_end_to_end": 3.434167038212371e-14
   },
   {
    "id": "four-photon-top-box-0",
@@ -75,11 +75,11 @@
    "madloop_rank": 4,
    "coefficient_heads": 70,
    "generation_s": {
-    "ninjars": 5.258650459,
+    "ninjars": 5.354810826,
     "ninjars_detail": {
-     "prepare_total": 0.585785697,
-     "planning_total": 2.733029143,
-     "compilation_total": 1.939582728
+     "prepare_total": 0.627511346,
+     "planning_total": 2.781515571,
+     "compilation_total": 1.9454995080000002
     },
     "madloop": 5.1854330575151835,
     "madloop_detail": {
@@ -89,18 +89,18 @@
     }
    },
    "ninjars_us": {
-    "numerator": 19.507488037109376,
-    "numerator_preparation": 10.09140625,
-    "tensor_numerator": 9.416081787109375,
-    "reduction": 5.310262451171875,
-    "masters": 5.293287109375,
-    "total": 31.0188359375
+    "numerator": 20.10038671875,
+    "numerator_preparation": 10.3330205078125,
+    "tensor_numerator": 9.7673662109375,
+    "reduction": 5.30124951171875,
+    "masters": 5.52929248046875,
+    "total": 32.6938642578125
    },
    "ninjars_width1_us": {
-    "numerator": 21.439192138671874,
-    "reduction": 6.214305908203125,
-    "masters": 7.144643310546875,
-    "total": 35.577533203125
+    "numerator": 21.682333984375,
+    "reduction": 6.1947568359375,
+    "masters": 7.507249755859375,
+    "total": 36.84246484375
    },
    "madloop_us": {
     "numerator": 41.49758265665012,
@@ -118,10 +118,10 @@
     "total": 42.99744845360824
    },
    "ninjars_identical_us": {
-    "numerator": 9.40967822265625,
-    "reduction": 5.24089892578125,
-    "masters": 5.279788330078125,
-    "total": 20.008212890625
+    "numerator": 9.486635009765624,
+    "reduction": 5.238219482421875,
+    "masters": 5.561841552734375,
+    "total": 20.3968984375
    },
    "max_scaled_difference_vs_ninja": 9.725323887876545e-13,
    "max_scaled_difference_end_to_end": 1.7330177143630906e-12
@@ -136,11 +136,11 @@
    "madloop_rank": 3,
    "coefficient_heads": 15,
    "generation_s": {
-    "ninjars": 0.1441251,
+    "ninjars": 0.15003137,
     "ninjars_detail": {
-     "prepare_total": 0.095353255,
-     "planning_total": 0.009786972,
-     "compilation_total": 0.038775983
+     "prepare_total": 0.100584259,
+     "planning_total": 0.009958931,
+     "compilation_total": 0.03927591
     },
     "madloop": 4.574061767023522,
     "madloop_detail": {
@@ -150,18 +150,18 @@
     }
    },
    "ninjars_us": {
-    "numerator": 0.9952313385009766,
-    "numerator_preparation": 0.487992691040039,
-    "tensor_numerator": 0.5072386474609375,
-    "reduction": 1.2954993896484375,
-    "masters": 0.8173318786621093,
-    "total": 3.0677802734375
+    "numerator": 0.9303641967773437,
+    "numerator_preparation": 0.4940550537109375,
+    "tensor_numerator": 0.4363091430664062,
+    "reduction": 1.2768484497070312,
+    "masters": 0.8637684936523438,
+    "total": 3.075088134765625
    },
    "ninjars_width1_us": {
-    "numerator": 1.3505076751708984,
-    "reduction": 1.71365576171875,
-    "masters": 1.0348085327148437,
-    "total": 4.415744995117188
+    "numerator": 1.379236602783203,
+    "reduction": 1.6920991821289062,
+    "masters": 1.1077837524414063,
+    "total": 4.481135131835938
    },
    "madloop_us": {
     "numerator": 13.433519388875391,
@@ -179,10 +179,10 @@
     "total": 5.408759851948617
    },
    "ninjars_identical_us": {
-    "numerator": 0.43858673095703127,
-    "reduction": 1.2815442504882812,
-    "masters": 0.8159912109375,
-    "total": 2.5517738037109376
+    "numerator": 0.4268840942382813,
+    "reduction": 1.2855648803710937,
+    "masters": 0.8627043151855469,
+    "total": 2.590369384765625
    },
    "max_scaled_difference_vs_ninja": 3.371910225887861e-15,
    "max_scaled_difference_end_to_end": 2.687629252435699e-15
@@ -197,11 +197,11 @@
    "madloop_rank": 4,
    "coefficient_heads": 57,
    "generation_s": {
-    "ninjars": 0.682850022,
+    "ninjars": 0.688807474,
     "ninjars_detail": {
-     "prepare_total": 0.162307041,
-     "planning_total": 0.228792879,
-     "compilation_total": 0.291530842
+     "prepare_total": 0.16439165,
+     "planning_total": 0.231195171,
+     "compilation_total": 0.293007232
     },
     "madloop": 4.947575731523102,
     "madloop_detail": {
@@ -211,18 +211,18 @@
     }
    },
    "ninjars_us": {
-    "numerator": 11.223466796875,
-    "numerator_preparation": 1.747738525390625,
-    "tensor_numerator": 9.475728271484375,
-    "reduction": 5.386539306640625,
-    "masters": 12.9022705078125,
-    "total": 29.827279296875
+    "numerator": 11.185217224121093,
+    "numerator_preparation": 1.7596293334960937,
+    "tensor_numerator": 9.425587890625,
+    "reduction": 5.30551708984375,
+    "masters": 13.404341796875,
+    "total": 30.40800390625
    },
    "ninjars_width1_us": {
-    "numerator": 12.605056823730468,
-    "reduction": 6.48667236328125,
-    "masters": 14.31786572265625,
-    "total": 34.037166015625
+    "numerator": 12.903385620117188,
+    "reduction": 6.35275537109375,
+    "masters": 14.81145654296875,
+    "total": 34.6771826171875
    },
    "madloop_us": {
     "numerator": 36.32685656954703,
@@ -240,10 +240,10 @@
     "total": 61.285598039215685
    },
    "ninjars_identical_us": {
-    "numerator": 9.469099609375,
-    "reduction": 5.34778662109375,
-    "masters": 12.89166015625,
-    "total": 27.807515625
+    "numerator": 9.567372802734376,
+    "reduction": 5.497795654296875,
+    "masters": 13.7120576171875,
+    "total": 28.76447265625
    },
    "max_scaled_difference_vs_ninja": 6.945601237026325e-13,
    "max_scaled_difference_end_to_end": 5.828334974481715e-13
@@ -258,11 +258,11 @@
    "madloop_rank": 3,
    "coefficient_heads": 15,
    "generation_s": {
-    "ninjars": 0.145439194,
+    "ninjars": 0.14970449,
     "ninjars_detail": {
-     "prepare_total": 0.09430578,
-     "planning_total": 0.010774527,
-     "compilation_total": 0.040134396
+     "prepare_total": 0.099094634,
+     "planning_total": 0.010898174,
+     "compilation_total": 0.039531451
     },
     "madloop": 5.656509145628661,
     "madloop_detail": {
@@ -272,18 +272,18 @@
     }
    },
    "ninjars_us": {
-    "numerator": 1.0428695373535157,
-    "numerator_preparation": 0.6145624694824219,
-    "tensor_numerator": 0.42830706787109374,
-    "reduction": 1.288279541015625,
-    "masters": 0.7281820983886719,
-    "total": 3.0646148681640626
+    "numerator": 1.0376617584228516,
+    "numerator_preparation": 0.6023584136962891,
+    "tensor_numerator": 0.4353033447265625,
+    "reduction": 1.2837393188476562,
+    "masters": 0.7833057861328125,
+    "total": 3.1136466064453123
    },
    "ninjars_width1_us": {
-    "numerator": 1.4703826904296875,
-    "reduction": 1.6897097778320314,
-    "masters": 0.8759844055175782,
-    "total": 4.379197021484375
+    "numerator": 1.4990094909667968,
+    "reduction": 1.6813294067382814,
+    "masters": 0.9202280578613281,
+    "total": 4.505067138671875
    },
    "madloop_us": {
     "numerator": 13.222167222702991,
@@ -301,10 +301,10 @@
     "total": 4.745139255014326
    },
    "ninjars_identical_us": {
-    "numerator": 0.4326204833984375,
-    "reduction": 1.2718109741210937,
-    "masters": 0.72846044921875,
-    "total": 2.4436209716796875
+    "numerator": 0.42806329345703126,
+    "reduction": 1.2823098754882813,
+    "masters": 0.7706552734375,
+    "total": 2.470549560546875
    },
    "max_scaled_difference_vs_ninja": 9.080639242729261e-16,
    "max_scaled_difference_end_to_end": 1.8251564005683137e-15
@@ -319,11 +319,11 @@
    "madloop_rank": 4,
    "coefficient_heads": 57,
    "generation_s": {
-    "ninjars": 1.494002348,
+    "ninjars": 1.58399318,
     "ninjars_detail": {
-     "prepare_total": 0.16144387,
-     "planning_total": 0.528207665,
-     "compilation_total": 0.804026022
+     "prepare_total": 0.170863575,
+     "planning_total": 0.579898427,
+     "compilation_total": 0.832935116
     },
     "madloop": 6.035218046978116,
     "madloop_detail": {
@@ -333,18 +333,18 @@
     }
    },
    "ninjars_us": {
-    "numerator": 11.074990478515625,
-    "numerator_preparation": 1.62948486328125,
-    "tensor_numerator": 9.445505615234374,
-    "reduction": 5.383514404296875,
-    "masters": 12.18476318359375,
-    "total": 28.79048828125
+    "numerator": 11.245938720703125,
+    "numerator_preparation": 1.6807587890625,
+    "tensor_numerator": 9.565179931640625,
+    "reduction": 5.579153564453125,
+    "masters": 13.16519970703125,
+    "total": 30.6495390625
    },
    "ninjars_width1_us": {
-    "numerator": 12.418323303222657,
-    "reduction": 6.47544921875,
-    "masters": 12.9427880859375,
-    "total": 32.463840820312505
+    "numerator": 13.019192443847656,
+    "reduction": 6.5348408203125,
+    "masters": 13.396216796875,
+    "total": 33.9027548828125
    },
    "madloop_us": {
     "numerator": 36.21371279261578,
@@ -362,13 +362,13 @@
     "total": 55.84870045045045
    },
    "ninjars_identical_us": {
-    "numerator": 9.379069580078125,
-    "reduction": 5.377889404296875,
-    "masters": 12.27915283203125,
-    "total": 27.2361376953125
+    "numerator": 9.340294189453125,
+    "reduction": 5.363520263671875,
+    "masters": 12.71496875,
+    "total": 27.5832958984375
    },
    "max_scaled_difference_vs_ninja": 1.3003206435548253e-14,
-   "max_scaled_difference_end_to_end": 1.4896544830297044e-14
+   "max_scaled_difference_end_to_end": 1.4255596421103902e-14
   },
   {
    "id": "gg-hhh-top-pentagon-26",
@@ -380,11 +380,11 @@
    "madloop_rank": 5,
    "coefficient_heads": 57,
    "generation_s": {
-    "ninjars": 2.840039921,
+    "ninjars": 3.03574571,
     "ninjars_detail": {
-     "prepare_total": 0.65680204,
-     "planning_total": 1.039348818,
-     "compilation_total": 1.143609132
+     "prepare_total": 0.702294715,
+     "planning_total": 1.099857731,
+     "compilation_total": 1.233244603
     },
     "madloop": 6.8256536810076796,
     "madloop_detail": {
@@ -394,18 +394,18 @@
     }
    },
    "ninjars_us": {
-    "numerator": 15.073727905273438,
-    "numerator_preparation": 3.5920604248046875,
-    "tensor_numerator": 11.48166748046875,
-    "reduction": 8.93814794921875,
-    "masters": 52.1704296875,
-    "total": 78.06475390625
+    "numerator": 14.978603271484374,
+    "numerator_preparation": 3.543154052734375,
+    "tensor_numerator": 11.43544921875,
+    "reduction": 8.9924951171875,
+    "masters": 54.344673828125,
+    "total": 79.37821484375
    },
    "ninjars_width1_us": {
-    "numerator": 15.470635864257812,
-    "reduction": 10.1243603515625,
-    "masters": 54.199970703125,
-    "total": 80.757109375
+    "numerator": 15.708336547851562,
+    "reduction": 10.58292919921875,
+    "masters": 57.7873828125,
+    "total": 86.1268359375
    },
    "madloop_us": {
     "numerator": 105.39446126200386,
@@ -423,13 +423,13 @@
     "total": 141.06906214689266
    },
    "ninjars_identical_us": {
-    "numerator": 11.375072998046875,
-    "reduction": 8.961890869140625,
-    "masters": 52.626818359375,
-    "total": 73.18804296875
+    "numerator": 11.360705078125,
+    "reduction": 9.1258330078125,
+    "masters": 55.0328203125,
+    "total": 75.471576171875
    },
-   "max_scaled_difference_vs_ninja": 1.1880545452702352e-14,
-   "max_scaled_difference_end_to_end": 9.688662813417033e-15
+   "max_scaled_difference_vs_ninja": 1.0763493644732998e-14,
+   "max_scaled_difference_end_to_end": 8.711123951497747e-15
   }
  ],
  "synthetic": [
@@ -438,10 +438,10 @@
    "n": 5,
    "rank": 4,
    "ninjars_us": {
-    "numerator": 11.457519775390624,
-    "reduction": 8.887979248046875,
-    "masters": 27.2939794921875,
-    "total": 48.180708984375
+    "numerator": 11.651583251953125,
+    "reduction": 8.997397216796875,
+    "masters": 28.1503681640625,
+    "total": 50.0610234375
    },
    "ninja_us": {
     "numerator": 22.639439446766342,
@@ -450,17 +450,17 @@
     "total": 108.10403896103895
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 1.2647175866066907e-12
+   "max_scaled_difference_vs_ninja": 1.282104301549891e-12
   },
   {
    "id": "syn-gghhh-gHgHH-n5-r5",
    "n": 5,
    "rank": 5,
    "ninjars_us": {
-    "numerator": 36.2650703125,
-    "reduction": 13.08310546875,
-    "masters": 27.077103515625,
-    "total": 76.757681640625
+    "numerator": 36.477701171875,
+    "reduction": 13.1210546875,
+    "masters": 27.657193359375,
+    "total": 78.56176171875
    },
    "ninja_us": {
     "numerator": 81.4115527410547,
@@ -476,10 +476,10 @@
    "n": 5,
    "rank": 4,
    "ninjars_us": {
-    "numerator": 11.44124755859375,
-    "reduction": 8.95572607421875,
-    "masters": 58.437560546875,
-    "total": 79.40784765625
+    "numerator": 11.965641845703125,
+    "reduction": 9.197051513671875,
+    "masters": 62.111267578125,
+    "total": 83.007796875
    },
    "ninja_us": {
     "numerator": 22.663352778819082,
@@ -495,10 +495,10 @@
    "n": 5,
    "rank": 5,
    "ninjars_us": {
-    "numerator": 36.5579072265625,
-    "reduction": 12.9015576171875,
-    "masters": 59.13723046875,
-    "total": 110.04232421875
+    "numerator": 36.560123046875,
+    "reduction": 13.1698828125,
+    "masters": 63.089376953125,
+    "total": 112.939953125
    },
    "ninja_us": {
     "numerator": 81.58466944444444,
@@ -507,17 +507,17 @@
     "total": 227.96156756756758
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 4.25810547573552e-05
+   "max_scaled_difference_vs_ninja": 0.0004971870707155328
   },
   {
    "id": "syn-gghhh-nosmat-n5-r4",
    "n": 5,
    "rank": 4,
    "ninjars_us": {
-    "numerator": 11.369787353515624,
-    "reduction": 9.017635498046875,
-    "masters": 58.43906640625,
-    "total": 79.10620703125
+    "numerator": 11.240083984375,
+    "reduction": 9.113083984375,
+    "masters": 60.975638671875,
+    "total": 81.89630859375
    },
    "ninja_us": {
     "numerator": 22.656619966256716,
@@ -526,17 +526,17 @@
     "total": 161.32323076923078
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 3.654423408837042e-12
+   "max_scaled_difference_vs_ninja": 3.657350180789379e-12
   },
   {
    "id": "syn-n2-r1",
    "n": 2,
    "rank": 1,
    "ninjars_us": {
-    "numerator": 0.037222640991210934,
-    "reduction": 0.25641986083984375,
-    "masters": 0.14716514968872071,
-    "total": 0.4466448974609375
+    "numerator": 0.03300648498535156,
+    "reduction": 0.25805792236328123,
+    "masters": 0.16241764831542968,
+    "total": 0.4547287139892578
    },
    "ninja_us": {
     "numerator": 0.05920931225625458,
@@ -552,10 +552,10 @@
    "n": 2,
    "rank": 2,
    "ninjars_us": {
-    "numerator": 0.20479981231689454,
-    "reduction": 0.28709180450439453,
-    "masters": 0.15491805267333986,
-    "total": 0.6527695617675782
+    "numerator": 0.19855022430419927,
+    "reduction": 0.290126838684082,
+    "masters": 0.16694518280029297,
+    "total": 0.6574535217285157
    },
    "ninja_us": {
     "numerator": 0.42827891113644717,
@@ -571,10 +571,10 @@
    "n": 2,
    "rank": 3,
    "ninjars_us": {
-    "numerator": 1.0295042572021484,
-    "reduction": 0.5111272125244141,
-    "masters": 0.15567008209228517,
-    "total": 1.7081990966796874
+    "numerator": 1.0401590728759766,
+    "reduction": 0.5144260711669922,
+    "masters": 0.16793921661376954,
+    "total": 1.7679227905273438
    },
    "ninja_us": {
     "numerator": 2.733413611950178,
@@ -590,10 +590,10 @@
    "n": 3,
    "rank": 2,
    "ninjars_us": {
-    "numerator": 0.4365902099609375,
-    "reduction": 1.2664166870117188,
-    "masters": 1.7571616821289062,
-    "total": 3.471624267578125
+    "numerator": 0.4615106811523437,
+    "reduction": 1.2706044921875,
+    "masters": 1.8389637451171874,
+    "total": 3.5878526611328123
    },
    "ninja_us": {
     "numerator": 0.9314243190299153,
@@ -609,10 +609,10 @@
    "n": 3,
    "rank": 3,
    "ninjars_us": {
-    "numerator": 1.8484808959960937,
-    "reduction": 1.7125137329101563,
-    "masters": 2.045615478515625,
-    "total": 5.6649970703125
+    "numerator": 1.902787841796875,
+    "reduction": 1.7411563720703125,
+    "masters": 2.138733703613281,
+    "total": 5.640264404296875
    },
    "ninja_us": {
     "numerator": 4.683573544239805,
@@ -628,10 +628,10 @@
    "n": 3,
    "rank": 4,
    "ninjars_us": {
-    "numerator": 8.039354370117188,
-    "reduction": 4.011843383789063,
-    "masters": 1.521966796875,
-    "total": 13.58102734375
+    "numerator": 7.967989013671875,
+    "reduction": 4.018309814453125,
+    "masters": 1.5942508544921874,
+    "total": 13.52535302734375
    },
    "ninja_us": {
     "numerator": 20.421550559247667,
@@ -647,10 +647,10 @@
    "n": 4,
    "rank": 3,
    "ninjars_us": {
-    "numerator": 2.5715028076171875,
-    "reduction": 3.4356585693359376,
-    "masters": 12.01593896484375,
-    "total": 18.1316923828125
+    "numerator": 2.55601611328125,
+    "reduction": 3.49598828125,
+    "masters": 11.8948916015625,
+    "total": 18.0675048828125
    },
    "ninja_us": {
     "numerator": 5.366871025565499,
@@ -659,17 +659,17 @@
     "total": 29.89423095238095
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 2.357370875572468e-12
+   "max_scaled_difference_vs_ninja": 2.42346323091144e-12
   },
   {
    "id": "syn-n4-r4",
    "n": 4,
    "rank": 4,
    "ninjars_us": {
-    "numerator": 9.27075634765625,
-    "reduction": 5.060126953125,
-    "masters": 13.6884736328125,
-    "total": 28.367791015625
+    "numerator": 9.602385498046875,
+    "reduction": 5.093597412109375,
+    "masters": 13.7252802734375,
+    "total": 29.2214658203125
    },
    "ninja_us": {
     "numerator": 22.61440562925639,
@@ -678,17 +678,17 @@
     "total": 48.11093063583815
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 2.660937497370631e-13
+   "max_scaled_difference_vs_ninja": 2.623466990693277e-13
   },
   {
    "id": "syn-n4-r5",
    "n": 4,
    "rank": 5,
    "ninjars_us": {
-    "numerator": 32.92087109375,
-    "reduction": 10.978474609375,
-    "masters": 10.64878125,
-    "total": 54.857783203125
+    "numerator": 33.218162109375,
+    "reduction": 11.081353515625,
+    "masters": 10.646009765625,
+    "total": 54.97764453125
    },
    "ninja_us": {
     "numerator": 80.36681360517287,
@@ -704,10 +704,10 @@
    "n": 5,
    "rank": 4,
    "ninjars_us": {
-    "numerator": 11.435102783203124,
-    "reduction": 9.185182373046874,
-    "masters": 35.631537109375,
-    "total": 56.54790625
+    "numerator": 11.5641083984375,
+    "reduction": 9.08371875,
+    "masters": 36.8729912109375,
+    "total": 57.14589453125
    },
    "ninja_us": {
     "numerator": 22.67650405023387,
@@ -716,17 +716,17 @@
     "total": 112.91606666666667
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 1.9077762354608898e-13
+   "max_scaled_difference_vs_ninja": 2.1397900252829826e-13
   },
   {
    "id": "syn-n5-r5",
    "n": 5,
    "rank": 5,
    "ninjars_us": {
-    "numerator": 36.2522919921875,
-    "reduction": 13.0855126953125,
-    "masters": 36.0025146484375,
-    "total": 85.8810703125
+    "numerator": 36.7192255859375,
+    "reduction": 13.5383994140625,
+    "masters": 38.235,
+    "total": 89.41282421875
    },
    "ninja_us": {
     "numerator": 81.3820964964965,
@@ -735,17 +735,17 @@
     "total": 183.64974637681158
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 5.899339777133679e-12
+   "max_scaled_difference_vs_ninja": 7.413867889234392e-12
   },
   {
    "id": "syn-n5-r6",
    "n": 5,
    "rank": 6,
    "ninjars_us": {
-    "numerator": 111.467515625,
-    "reduction": 28.16725390625,
-    "masters": 45.3346640625,
-    "total": 189.090171875
+    "numerator": 111.0400205078125,
+    "reduction": 29.6328154296875,
+    "masters": 47.607908203125,
+    "total": 192.341484375
    },
    "ninja_us": {
     "numerator": 259.6190791930141,
@@ -761,10 +761,10 @@
    "n": 6,
    "rank": 5,
    "ninjars_us": {
-    "numerator": 40.0054873046875,
-    "reduction": 18.3134990234375,
-    "masters": 303.146421875,
-    "total": 368.944375
+    "numerator": 40.4069501953125,
+    "reduction": 19.0573525390625,
+    "masters": 320.519890625,
+    "total": 384.68578125
    },
    "ninja_us": {
     "numerator": 74.93042024377318,
@@ -773,17 +773,17 @@
     "total": 613.9999047619048
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 3.605241547546524e-08
+   "max_scaled_difference_vs_ninja": 3.6704660058360465e-08
   },
   {
    "id": "syn-n6-r6",
    "n": 6,
    "rank": 6,
    "ninjars_us": {
-    "numerator": 113.6787451171875,
-    "reduction": 27.1843876953125,
-    "masters": 260.884390625,
-    "total": 403.010109375
+    "numerator": 114.839392578125,
+    "reduction": 27.551419921875,
+    "masters": 271.2468828125,
+    "total": 416.440296875
    },
    "ninja_us": {
     "numerator": 240.0467716475096,
@@ -792,17 +792,17 @@
     "total": 731.2241111111111
    },
    "failed_lanes": 0,
-   "max_scaled_difference_vs_ninja": 0.2633441697135343
+   "max_scaled_difference_vs_ninja": 0.036462640335516716
   },
   {
    "id": "syn-n6-r7",
    "n": 6,
    "rank": 7,
    "ninjars_us": {
-    "numerator": 309.797673828125,
-    "reduction": 53.756998046875,
-    "masters": 317.1095,
-    "total": 686.9335625
+    "numerator": 314.54494140625,
+    "reduction": 57.10952734375,
+    "masters": 333.29009375,
+    "total": 742.908
    },
    "ninja_us": {
     "numerator": 694.506725863284,

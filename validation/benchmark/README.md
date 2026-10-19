@@ -161,6 +161,8 @@ passes) costs 112 µs of TensorNumerator vs 31 µs at rank 4.
 
 ```sh
 # exact revisions are exported with `git archive` (the shared checkouts are untouched)
+python3 validation/benchmark/masters_native/build_native.py --label olm-3023fa6-sym-e679e8c1-tensor \
+    --oneloop 3023fa6 --symbolica e679e8c1 --tensor   # the report's revision, timed on CPU 250
 python3 validation/benchmark/masters_native/build_native.py --label olm-a92b148-sym-e679e8c1-tensor \
     --oneloop a92b148 --symbolica e679e8c1 --tensor
 python3 validation/benchmark/masters_native/build_native.py --label olm-c9dd82f-sym-e679e8c1 \
