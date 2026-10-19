@@ -171,7 +171,9 @@ valid JSON.
 
 `reduce` and `bench` accept `--engine generic|fast`. The default `generic`
 engine carries every precision (`f64`, `double-float`, `float`), both box
-mu-extraction modes and the optional native reduction kernels.
+mu-extraction modes and the optional native reduction kernels. Both engines
+reduce numerator rank up to n+2, one beyond original Ninja; see
+[rank n+2](../../docs/rank-n2.md).
 
 Both engines, at every rank up to n+2, apply Ninja's stability checks
 precision-aware: a Gram determinant, uncut denominator or Laurent leading
@@ -220,6 +222,13 @@ nix develop --command cargo run --release -p ninjars-cli --features numerator-ji
   lanes report `cut_failed` (Ninja's stability checks; `cut_index` is null),
   `integration_failed` (a master failed) or `nonfinite_result`. With
   `--diagnostics`, `cut_counts` is null.
+
+Rank n+2, which original Ninja does not support, runs in a separate fast
+engine (`ninjars::fast` `engine_x2.rs`, chosen once at construction). It
+leaves the rank <= n+1 path bitwise unchanged. Per cut and lane it picks the
+bubble reference vector and tadpole basis that best condition the uncut
+lines, so its cut-constructible/rational split need not match original
+Ninja's.
 
 On the synthetic and physical fixtures of `tests/fast_engine.rs` both engines
 agree on the Laurent coefficients within the scaled 1e-9 criterion. The
@@ -321,4 +330,69 @@ taskset -c 201 ./target/perf/ninjars case-bench validation/benchmark/cases/*.jso
 
 Both report medians of `--blocks` blocks of at least `--min-block-ms`;
 `validation/benchmark/collect.py` gathers them for the
-[benchmark report](../../docs/benchmark/benchmark.typ).
+[benchmark report](../../docs/benchmark/benchmark.typ). `case-bench` also
+times rank n+2 cases (`validation/benchmark/synthetic-rank-n2/`,
+`validation/rank-n2/cases/`), for which original Ninja has no reference.
+
+## Checking cases against references (`case-check`)
+
+`case-check` reduces `ninjars-bench-case-v1` and `-v2` files and judges every
+lane against a reference file. It is the checker of the rank n+2 validation
+suite ([rank n+2](../../docs/rank-n2.md),
+[`validation/rank-n2`](../../validation/rank-n2/README.md)).
+
+```console
+R=validation/rank-n2
+nix develop --command cargo run --release -p ninjars-cli -- case-check \
+  $R/cases/*.json --engines fast,generic --precision f64,float:256 \
+  --reference-dir $R/reference --known-failures $R/known-failures.json \
+  --twins $R/summary/controls.json --twins $R/summary/synthetic-twins.json \
+  --twins $R/summary/n7-controls.json -o report.json
+```
+
+**Engines.**
+- `--engines fast` runs the fast engine with `TensorNumerator`
+  (`MuTensorNumerator` for v2 cases) and native masters. Lanes are batched as
+  `case-bench` batches them (`--width`), and repeated lanes must be bitwise
+  identical. On rank <= n+1 cases the report includes `case-bench`'s own
+  reference check of the same batch.
+- `--engines generic` runs the generic engine at each `--precision`:
+  - `f64` with native masters;
+  - `double` (DoubleFloat) and `float:<bits>` with oneloopmaster's exact
+    expressions, and B1111 from its native family.
+
+  The dense tensor is expanded numerically, so a dense rank-9 numerator needs
+  no Symbolica preparation.
+- `--declare-rank R` (or `n+K`) runs every numerator declared at a higher rank
+  with zero top coefficients.
+- `--stability-test` marks generic-engine lanes whose cut contributions
+  cancel below half the carrier's bits as `Unstable`.
+
+**References and verdicts.** `--reference-dir` holds `<case>.json`: either
+the high-precision `ninjars-reference-collier-v1` files, with tier, uncertainty
+and condition, or original-Ninja results, judged at `--ninja-tolerance`
+(default 1e-8). Each lane gets one verdict:
+- `pass` or `fail`;
+- `report-only`, for one of these reasons:
+  - the lane is tier C;
+  - at high precision (`float:<bits>` with at least 160 bits), the lane is
+    tier B and its uncertainty comes from the generic engine's own rank twins;
+  - at lower precision (`f64`, `double`, `float` below 160 bits), the
+    condition or the cancellation of the new rank n+2 terms is above 1e6;
+  - the tolerance is too wide to resolve the lane's new rank n+2 terms;
+- `known-failure` and `stale-known-failure`, from `--known-failures`;
+- `unchecked`: no reference lane;
+- `error`: the engine rejects the case.
+
+The exit status is non-zero if any lane fails or is a stale known failure,
+unless `--no-fail` is given.
+
+**Binary64 budget.** The binary64 tolerance builds on original Ninja's error
+on the lane. For lanes without their own Ninja result, `--twins` supplies it
+from rank twins on the same kinematics. `--fast-ninja-factor` (30),
+`--generic-ninja-factor` (100) and `--binary64-factor` (1e-14) set the budget;
+the full rule is in [rank n+2](../../docs/rank-n2.md#83-ninjars-case-check-on-the-whole-suite).
+
+**Runner mode.** `--bits B --out-dir DIR` writes `DIR/<case>.json` with
+45-digit `lanes[].laurent_decimal`. This is the `GENERIC_RUNNER` interface of
+`validation/rank-n2/harness/run_suite.sh`.

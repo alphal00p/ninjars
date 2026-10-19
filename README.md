@@ -6,9 +6,10 @@ integrals. The intended interface carries batches and generic numerical domains
 through numerator callbacks, reduction, and master integrals.
 
 This is a development version. The library provides reduction stages for any
-number of propagators and rank n+1 in every precision, with batched
-polynomial/Dual callbacks, both box mu-extraction modes, lower-cut subtraction,
-master integrals and lane-local accumulation.
+number of propagators and numerator rank up to n+2 in every precision, with
+batched polynomial/Dual callbacks, both box mu-extraction modes, lower-cut
+subtraction, master integrals and lane-local accumulation. Rank n+2 goes one
+beyond original Ninja, which stops at n+1; see [rank n+2](docs/rank-n2.md).
 Analytic and original Ninja controls validate an initial synthetic suite.
 Independent FeynKit preparation also matches raw MadLoop numerators for both
 top-quark H→gg orientations, six four-photon boxes and eight gg→HH graphs.
@@ -42,6 +43,7 @@ nix develop path:. --command cargo run --release -p ninjars-cli -- reduce exampl
 nix develop path:. --command cargo run --release -p ninjars-cli -- bench examples/graphs/physical/hgg/top-triangle-0-pool.json --engine fast
 nix develop path:. --command cargo run --profile perf -p ninjars-cli --features numerator-jit -- pipeline-bench examples/graphs/physical/gg-hh/top-box-2-pool.json --points validation/benchmark/points/gg-hh.json --feynman-rules
 nix develop path:. --command cargo run --profile perf -p ninjars-cli -- case-bench validation/benchmark/cases/gg-hh-top-box-2.json --reference-dir validation/benchmark/ninja
+nix develop path:. --command cargo run --release -p ninjars-cli -- case-check validation/rank-n2/cases/rn2-int-complex-n4-r6-mu2.json --engines fast,generic --precision f64,float:256 --reference-dir validation/rank-n2/reference --known-failures validation/rank-n2/known-failures.json --twins validation/rank-n2/summary/controls.json --twins validation/rank-n2/summary/synthetic-twins.json --twins validation/rank-n2/summary/n7-controls.json
 nix develop path:. --command cargo run -p ninjars-cli -- reduce examples/graphs/physical/hgg/top-triangle-0.json --precision double-float --batch-size 2
 nix develop path:. --command cargo run -p ninjars-symbolica --example bubble
 ```
@@ -95,7 +97,7 @@ development and reference-validation tools.
 | `ninjars-positional` | Symbolica evaluators whose results do not depend on the symbols a process registered before |
 | `ninjars-symbolica` | Symbolica polynomial/Dual callbacks, arithmetic kernels and masters |
 | `ninjars-graph` | Independent FeynKit graph, model and numerator preparation |
-| `ninjars-cli` | `prepare`, `reduce`, `bench`, optional `compare`, and benchmark-case tools (`export-bench`, `numerator-bench`, `pipeline-bench`, `case-bench`) |
+| `ninjars-cli` | `prepare`, `reduce`, `bench`, optional `compare`, benchmark-case tools (`export-bench`, `numerator-bench`, `pipeline-bench`, `case-bench`) and `case-check` (bench cases against high-precision references) |
 
 Numerical momenta are FeynKit `FourMomentum<T>`, with component order `(E,x,y,z)`
 and the `+---` metric. Laurent results use `[finite, single pole, double pole]`.
@@ -127,6 +129,27 @@ scaled 1e-9 criterion; the cut-constructible/rational split follows original
 Ninja's cut basis. As in original Ninja, points with purely spacelike cut
 planes fail their lanes.
 See the [CLI guide](crates/ninjars-cli/README.md#reduction-engines).
+
+Rank n+2 (beyond original Ninja) is reduced by both engines. The generic
+engine builds every exact plan from a `RankClass`, and its plans for rank
+<= n+1 are byte-identical to before. The fast engine reduces rank n+2 in a
+separate engine selected at construction (`fast/engine_x2.rs`), which leaves
+the rank <= n+1 path bitwise unchanged.
+
+The new pieces are:
+- a three-term box mu-expansion on the exact d-dimensional cut,
+  `mu² = t² v² - beta`, which numerators with explicit mu² need;
+- triangle and bubble residues with 21 and 35 coefficients;
+- the rational terms of box mu⁶, bubble mu²(q·e2)² and bubble mu⁴;
+- the rank-four bubble master B1111, from oneloopmaster's native family with
+  OneLOop's mass-swap sign corrected.
+
+`ninjars case-check` judges both engines against the high-precision suite in
+`validation/rank-n2` (333 lanes, n = 1..7). No lane fails in the fast
+engine, in generic binary64 or in Float(256). The 9 known failures come from
+oneloopmaster's D0 on some real-mass boxes. See
+[rank n+2](docs/rank-n2.md) for the formulas, the validation and the known
+limitations.
 
 `--r2 off|fdh` (on `prepare`, `reduce`, `bench`, `compare`, `export-bench`,
 `numerator-bench` and `pipeline-bench`) selects whether the physical numerator
@@ -172,7 +195,11 @@ uninstrumented total) over a shared phase-space pool; `case-bench` gives the
 same breakdown for the `ninjars-bench-case-v1` files shared with original
 Ninja. Both can check results against original Ninja; see the
 [CLI guide](crates/ninjars-cli/README.md#end-to-end-and-bench-case-timings)
-and the [benchmark report](docs/benchmark/benchmark.typ).
+and the [benchmark report](docs/benchmark/benchmark.typ). `case-check` reduces
+the same files with the fast engine and the generic engine at `f64`, `double`
+or `float:<bits>`, optionally declared at a higher rank, and judges every lane
+against high-precision or original-Ninja references; see the
+[CLI guide](crates/ninjars-cli/README.md#checking-cases-against-references-case-check).
 The [matched reference timing harness](validation/performance/README.md) uses a
 common parameterized numerator, an uncached original-Ninja/OneLOop build, and
 persistent numerical sessions. It records full Laurent checks, compiler/build

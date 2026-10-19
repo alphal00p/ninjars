@@ -7,7 +7,8 @@ conventions (coefficient layouts, Laurent slot layouts, `RankClass`) are fixed
 in `crates/ninjars/src/topology.rs` and `crates/ninjars/src/fast/numerator.rs`.
 
 Where the theory and the review disagree, the review wins (see "Corrections"
-below).
+below). The implementation, its validation and its known limitations are
+summarised in [`docs/rank-n2.md`](../../docs/rank-n2.md).
 
 ## Contents
 

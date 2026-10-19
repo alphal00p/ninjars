@@ -16,6 +16,10 @@ Original `src/cuts.hh`, `src/Xcuts.hh`, and `src/polys_implem.cxx:10` define:
 | Pentagon | 1 coefficient | 1 coefficient | `c0 * mu` |
 | Box | 5 coefficients | 6 coefficients | `c0 + c2*mu + c4*mu² + (c1+c3*mu+c5*mu²)*u`, with `c5=0` at ordinary rank |
 
+Rank n+2, beyond original Ninja, adds `c6*mu³` (seven coefficients) and the
+rational term `c6*(sum m/12 - sum s/60)`. Its mu-expansion runs on the exact
+d-dimensional cut, `mu = t²*Vort² - beta`; see [rank n+2](rank-n2.md#31-box-the-exact-d-dimensional-mu-expansion).
+
 The integrated box contribution is `c0 * D0 - c4/6`, in both rank branches.
 The explicit rational part is `-c4/6`; `c1,c2,c3,c5` are needed for full
 residue reconstruction, but do not add integrated scalar masters. Pentagon

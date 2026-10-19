@@ -37,6 +37,9 @@ coefficient B1111 (rank n+2) comes from oneloopmaster's native tensor family
 for every carrier, since its exact expression loses about 5-6 digits per decade
 of `m²/|p²|`; for `Float`, each row is evaluated at the precision that its
 inputs determine relative to the row's scale (see `SymbolicaMasters`).
+`SymbolicaDualMasters` keeps the exact B1111 expression for derivatives. The
+native family is OneLOop's `bub1111` with the mass-swap sign corrected: OneLOop
+3.4 and 3.6 negate it in every swap branch, so neither is a valid B1111 source.
 
 For arbitrary-precision `Float`, the configured working precision controls
 constant construction. Symbolica tracks significant bits separately in each
@@ -57,8 +60,10 @@ while evaluating all eligible rows through one batched instruction graph.
 
 `SymbolicaAmplitudeKernels::new(n, rank, prototype)?.into_amplitude(lanes)`
 constructs a core `Amplitude` for any number n >= 1 of propagators and rank at
-most n+2 (rank n+2: box mu⁶, 21 triangle, 35 bubble coefficients and the B1111
-master; see `tools/rank_n2/README.md`). Five-cuts are the highest cuts; seven or more propagators only add
+most n+2. Rank n+2 adds the box mu⁶ coefficient, 21 triangle and 35 bubble
+coefficients and the B1111 master; every plan is built from the topology's
+`RankClass`, and the rank <= n+1 plans are byte-identical to before (see
+[rank n+2](../../docs/rank-n2.md)). Five-cuts are the highest cuts; seven or more propagators only add
 uncut denominators, divided out by Laurent kernels generated for each n. Supply
 shared lane-major shifts/masses, one squared scale per lane, a numerator, `SymbolicaCuts` and a master provider to `evaluate_batch`. Successful
 lanes accumulate into `[finite, single pole, double pole, cut-constructible finite,
@@ -78,7 +83,10 @@ the supplied shape because this is an auxiliary sampling choice.
 integrated or full box coefficients, and expansion or finite-mu sampling.
 The default is integrated coefficients with mu expansion; it avoids pentagons.
 Other modes construct pentagons only when needed for subtraction. Box integration
-is `c0*D0-c4/6`; pentagon residues have no direct master contribution. Box requests
+is `c0*D0-c4/6`, plus `c6*(sum m/12 - sum s/60)` at rank n+2; pentagon residues
+have no direct master contribution. At rank n+2 the mu expansion runs on the exact
+d-dimensional cut, `mu² = t² v² - beta` (`ExpansionKind::MuShifted`, three
+orders), and sampling uses the mu² levels 0, s, -s and 2s. Box requests
 to `ResidueIntegrator` use `basis: None`; lower cuts require their extraction basis.
 
 `set_cut_stop(N)` omits cuts smaller than N and preserves accumulated results;
@@ -168,7 +176,9 @@ let amplitude = kernels.into_amplitude(lanes)?;
 
 The same opt-in method is available on `SymbolicaDualAmplitudeKernels`. The
 factory's report lists T2 and T3 denominator expansions separately from other
-reduction, integration and accumulation kernels. Only the two denominator
+reduction, integration and accumulation kernels. At rank n+2 the degree-4
+triangle-to-bubble correction has no native kernel: it keeps the interpreted
+plan, and the report says so. Only the two denominator
 families use emitted Rust. Numerator callbacks, geometry providers and masters
 remain independent; this option neither replaces them nor selects their backend.
 Existing constructors retain the Symbolica interpreter.
