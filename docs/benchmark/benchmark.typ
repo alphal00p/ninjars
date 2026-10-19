@@ -111,7 +111,8 @@
   compared with original Ninja and OneLOop component by component. Green
   cells mean NinjaRS is faster, red slower; white is parity. NinjaRS
   evaluates batches of #data.batch_width phase-space points; times are per
-  point.
+  point. At numerator rank $n + 2$ (@rank-n2), beyond original Ninja, the
+  reference is the tensor-integral library COLLIER, a different method.
 ]
 
 #let range-of(values) = {

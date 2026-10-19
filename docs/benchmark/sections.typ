@@ -311,6 +311,8 @@ Finite part of graph 26 at $sqrt(s) = 450$ GeV to 200 significant digits
   show-number("Im", arb.points.at(0).im)
 })
 
+#include "rank_n2.typ"
+
 = How the numbers are measured <methodology>
 
 *Test cases.* Seven physical one-loop diagrams with a top-quark loop,

@@ -1,0 +1,179 @@
+{
+ "method": "perf stat instructions:u,cycles:u; difference of two fixed-work runs per point",
+ "cases": {
+  "syn-n1-r3": {
+   "ninjars_fast_w1": {
+    "instructions": 10408.006370333853,
+    "cycles": 2492.690066551639,
+    "points": 182565
+   },
+   "ninjars_fast_w32": {
+    "instructions": 8829.846360804304,
+    "cycles": 1816.8050835457377,
+    "points": 225984
+   },
+   "collier_precise_coli": {
+    "instructions": 13112.08351768401,
+    "cycles": 3686.7096545131776,
+    "points": 73230
+   },
+   "collier_precise_dd": {
+    "instructions": 13570.594548150611,
+    "cycles": 3486.15018223645,
+    "points": 72159
+   },
+   "collier_stock_coli": {
+    "instructions": 11277.525977185831,
+    "cycles": 2436.3846873321327,
+    "points": 158235
+   }
+  },
+  "syn-n2-r4": {
+   "ninjars_fast_w1": {
+    "instructions": 74006.05946756655,
+    "cycles": 19236.989276340457,
+    "points": 26670
+   },
+   "ninjars_fast_w32": {
+    "instructions": 71150.37599544937,
+    "cycles": 15091.623435722411,
+    "points": 28128
+   },
+   "collier_precise_coli": {
+    "instructions": 63239.494105785634,
+    "cycles": 17097.767139754924,
+    "points": 25788
+   },
+   "collier_precise_dd": {
+    "instructions": 53240.7228080849,
+    "cycles": 14344.865037517744,
+    "points": 29586
+   },
+   "collier_stock_coli": {
+    "instructions": 52434.95380098055,
+    "cycles": 14010.747589030763,
+    "points": 37122
+   }
+  },
+  "syn-n3-r5": {
+   "ninjars_fast_w1": {
+    "instructions": 530598.8292295473,
+    "cycles": 131306.43685464654,
+    "points": 3777
+   },
+   "ninjars_fast_w32": {
+    "instructions": 525174.1223739496,
+    "cycles": 116828.9293592437,
+    "points": 3808
+   },
+   "collier_precise_coli": {
+    "instructions": 317216.6669983416,
+    "cycles": 80598.815920398,
+    "points": 6030
+   },
+   "collier_precise_dd": {
+    "instructions": 296865.2754975124,
+    "cycles": 73388.72947761194,
+    "points": 6432
+   },
+   "collier_stock_coli": {
+    "instructions": 276911.1363383417,
+    "cycles": 58652.18530884808,
+    "points": 7188
+   }
+  },
+  "syn-n4-r6": {
+   "ninjars_fast_w1": {
+    "instructions": 1884222.916116871,
+    "cycles": 434838.561734213,
+    "points": 1061
+   },
+   "ninjars_fast_w32": {
+    "instructions": 1877683.7386363635,
+    "cycles": 411906.36363636365,
+    "points": 1056
+   },
+   "collier_precise_coli": {
+    "instructions": 4471743.912751677,
+    "cycles": 843966.2348993289,
+    "points": 447
+   },
+   "collier_precise_dd": {
+    "instructions": 4063256.3455284555,
+    "cycles": 1742882.388211382,
+    "points": 492
+   },
+   "collier_stock_coli": {
+    "instructions": 4179487.7232704405,
+    "cycles": 864137.5241090147,
+    "points": 477
+   }
+  },
+  "syn-n5-r7": {
+   "ninjars_fast_w1": {
+    "instructions": 5661529.507082153,
+    "cycles": 1270089.2662889517,
+    "points": 353
+   },
+   "ninjars_fast_w32": {
+    "instructions": 5869673.5227272725,
+    "cycles": 1332627.8721590908,
+    "points": 352
+   },
+   "collier_precise_coli": {
+    "instructions": 111125643.33333333,
+    "cycles": 21369241.444444444,
+    "points": 18
+   },
+   "collier_stock_coli": {
+    "instructions": 106128620.6111111,
+    "cycles": 24475007.111111112,
+    "points": 18
+   }
+  },
+  "syn-n6-r8": {
+   "ninjars_fast_w1": {
+    "instructions": 16413406.49180328,
+    "cycles": 3679965.598360656,
+    "points": 122
+   },
+   "ninjars_fast_w32": {
+    "instructions": 16391813.59375,
+    "cycles": 3665497.4453125,
+    "points": 128
+   },
+   "collier_precise_coli": {
+    "instructions": 740560841.3333334,
+    "cycles": 213745389.66666666,
+    "points": 3
+   },
+   "collier_stock_coli": {
+    "instructions": 691145288.0,
+    "cycles": 174708467.33333334,
+    "points": 3
+   }
+  },
+  "rn2-int-complex-n7-r9": {
+   "ninjars_fast_w1": {
+    "instructions": 41041886.67346939,
+    "cycles": 9729727.367346939,
+    "points": 49
+   },
+   "ninjars_fast_w32": {
+    "instructions": 40991020.203125,
+    "cycles": 10577298.140625,
+    "points": 64
+   },
+   "collier_precise_coli": {
+    "instructions": 3762640346.6666665,
+    "cycles": 725960758.3333334,
+    "points": 3
+   },
+   "collier_stock_coli": {
+    "instructions": 3635924640.3333335,
+    "cycles": 771066687.0,
+    "points": 3
+   }
+  }
+ }
+}

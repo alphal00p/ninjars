@@ -363,6 +363,31 @@ Both report medians of `--blocks` blocks of at least `--min-block-ms`;
 [benchmark report](../../docs/benchmark/benchmark.typ). `case-bench` also
 times rank n+2 cases (`validation/benchmark/synthetic-rank-n2/`,
 `validation/rank-n2/cases/`), for which original Ninja has no reference.
+Two options serve the rank n+2 comparison with COLLIER
+([`validation/benchmark/collier`](../../validation/benchmark/collier/README.md)):
+
+- `--engines generic` (or `fast,generic`; the default is `fast`) adds the same
+  breakdown for the generic engine in binary64 (`SymbolicaAmplitudeKernels`,
+  native masters), reported per width as `generic_per_point_timing`:
+  `reduction` (recorded numerator outputs and master values replayed),
+  `reduction_and_numerator` (live numerator, replayed masters), `masters`
+  (recorded master requests replayed) and `total`. Its numerator is
+  `case-check`'s numerically expanded dense tensor, not the production
+  generic numerator that a graph prepares symbolically (`ninjars bench`).
+- `--total-calls K` makes the fast engine run fixed work for `perf stat`
+  instead of timing: per width, one recording pass (with the reference check)
+  and then exactly `K` live totals. Two runs with different `K` give the
+  instructions per call by difference
+  (`validation/benchmark/collier/count_instructions.py`). The generic engine
+  is still timed as usual.
+
+```console
+taskset -c 201 ./target/perf/ninjars case-bench validation/rank-n2/cases/rn2-int-complex-n5-r7.json \
+  --engines fast,generic --widths 1,32
+perf stat -e instructions:u taskset -c 201 ./target/perf/ninjars case-bench \
+  validation/rank-n2/cases/rn2-int-complex-n5-r7.json --widths 32 --total-calls 2000
+```
+
 `case-bench --conditioned-cuts` times the fast engine's opt-in conditioned
 cut geometry for rank <= n+1 (`FastOptions::conditioned_cuts`, see
 `case-check` below); each case's report then carries

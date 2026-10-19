@@ -16,7 +16,13 @@
 //! "ninjars-bench-case-v2" files (`export-bench --r2 fdh`) carry explicit
 //! `mu^2` blocks (`mu_powers`) and run with `MuTensorNumerator`.
 //! `--conditioned-cuts` times the opt-in conditioned cut geometry for rank
-//! <= n+1 (`FastOptions::conditioned_cuts`).
+//! <= n+1 (`FastOptions::conditioned_cuts`) in the fast engine.
+//!
+//! `--engines generic` (or `fast,generic`) adds the same breakdown for the
+//! generic engine in binary64 with native masters ([`generic`]), reported as
+//! `generic_per_point_timing`.
+
+mod generic;
 
 use std::{error::Error, fs, hint::black_box, path::PathBuf, time::Duration};
 
@@ -55,9 +61,20 @@ pub struct Args {
     #[arg(short, long)]
     pub output: Option<PathBuf>,
     /// The opt-in conditioned cut geometry for rank <= n+1
-    /// (`FastOptions::conditioned_cuts`); rank n+2 always uses it.
+    /// (`FastOptions::conditioned_cuts`) in the fast engine; rank n+2 always
+    /// uses it.
     #[arg(long)]
     pub conditioned_cuts: bool,
+    /// Engines to time: `fast` (`ninjars::fast`, the default) and/or
+    /// `generic` (`SymbolicaAmplitudeKernels` in binary64, native masters).
+    #[arg(long, value_delimiter = ',', default_value = "fast")]
+    pub engines: Vec<String>,
+    /// Fixed work for external instruction counting (`perf stat`): evaluate
+    /// the live fast-engine total exactly this many times per width, after
+    /// one recording pass, and time nothing. Two runs with different counts
+    /// give the instructions per call by difference.
+    #[arg(long, default_value = "0")]
+    pub total_calls: usize,
 }
 
 struct Lane {
@@ -312,6 +329,20 @@ fn time_case<N: DenseNumerator>(
             &results,
             &statuses,
         )?;
+        if args.total_calls > 0 {
+            // Fixed work for external instruction counting: the live total only.
+            for _ in 0..args.total_calls {
+                amplitude.evaluate(&input, &mut tensor, masters, &mut results, &mut statuses)?;
+                black_box(&results);
+            }
+            widths.push(json!({
+                "width": width,
+                "failed_lanes": failed,
+                "total_calls": args.total_calls,
+                "reference_check": check,
+            }));
+            continue;
+        }
         let mut replay_numerator = recording_numerator.replay();
         let mut replay_masters = recorder.inner.replay();
         let master_calls = recorder.calls;
@@ -399,19 +430,16 @@ pub fn run(args: Args) -> Result<()> {
     let min_block = Duration::from_secs_f64(args.min_block_ms * 1e-3);
     let mut masters = OneLoopNativeMasters::new()?;
     let mut reports = Vec::new();
+    for engine in &args.engines {
+        if engine != "fast" && engine != "generic" {
+            return Err(format!("unknown engine {engine:?} (fast, generic)").into());
+        }
+    }
+    let fast = args.engines.iter().any(|e| e == "fast");
+    let generic = args.engines.iter().any(|e| e == "generic");
     for path in &args.cases {
         let case = load(path)?;
         let (n, rank) = (case.n, case.rank);
-        let options = FastOptions {
-            conditioned_cuts: args.conditioned_cuts,
-            ..FastOptions::default()
-        };
-        let mut amplitude = FastAmplitude::new(n, rank, options)?;
-        let widths = if case.mu_powers == 0 {
-            time_case::<TensorNumerator>(&args, &case, &mut amplitude, &mut masters, min_block)?
-        } else {
-            time_case::<MuTensorNumerator>(&args, &case, &mut amplitude, &mut masters, min_block)?
-        };
         let mut report = json!({
             "case": case.name,
             "file": path,
@@ -419,14 +447,36 @@ pub fn run(args: Args) -> Result<()> {
             "rank": rank,
             "mu_powers": case.mu_powers,
             "lanes": case.lanes.len(),
-            "per_point_timing": widths,
         });
-        if args.conditioned_cuts {
-            report["conditioned_cuts"] = json!(true);
+        if fast {
+            let options = FastOptions {
+                conditioned_cuts: args.conditioned_cuts,
+                ..FastOptions::default()
+            };
+            let mut amplitude = FastAmplitude::new(n, rank, options)?;
+            let widths = if case.mu_powers == 0 {
+                time_case::<TensorNumerator>(&args, &case, &mut amplitude, &mut masters, min_block)?
+            } else {
+                time_case::<MuTensorNumerator>(
+                    &args,
+                    &case,
+                    &mut amplitude,
+                    &mut masters,
+                    min_block,
+                )?
+            };
+            report["per_point_timing"] = Value::from(widths);
+            if args.conditioned_cuts {
+                report["conditioned_cuts"] = json!(true);
+            }
+        }
+        if generic {
+            let widths = generic::time_case(&args, &case, &mut masters, min_block)?;
+            report["generic_per_point_timing"] = Value::from(widths);
         }
         reports.push(report);
     }
-    let report = json!({
+    let mut report = json!({
         "schema_version": 1,
         "operation": "case-bench",
         "command": std::env::args().collect::<Vec<_>>(),
@@ -434,6 +484,11 @@ pub fn run(args: Args) -> Result<()> {
         "cpu_affinity": affinity(),
         "boundary": "per point: TensorNumerator (MuTensorNumerator for v2 mu^2-block cases) expansions (tensor_numerator = reduction_and_tensor_numerator - reduction), ninjars::fast reduction (replayed numerator and masters), oneloopmaster native masters (recorded calls replayed); total uninstrumented",
     });
+    if generic {
+        report["generic_boundary"] = Value::from(
+            "per point: generic engine (SymbolicaAmplitudeKernels, binary64) with case-check's dense-tensor numerator (numerator = reduction_and_numerator - reduction), pure reduction (replayed numerator outputs and master values), oneloopmaster native masters (recorded requests replayed); total uninstrumented",
+        );
+    }
     let report = serde_json::to_string_pretty(&report)? + "\n";
     if let Some(path) = args.output {
         fs::write(path, report)?;
