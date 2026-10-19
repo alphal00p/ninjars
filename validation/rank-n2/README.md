@@ -494,23 +494,27 @@ Tests (`crates/ninjars-symbolica/tests/`, `crates/ninjars-cli/tests/case_check.r
     1.0e-8). It keeps the fast engine's own noise, as it compares the fast engine with
     original Ninja, the same algorithm.
   - Shifts (V7a), which keep the propagator order, are unaffected.
-- **Ignored until the fast engine's accuracy work lands** (`needs fast accuracy fix`):
-  - `suite_fast_binary64_matches_references` (V4f, 9 of 333 lanes outside the budget);
+- **Fast engine accuracy (rank n+2 basis conditioning, 79f306a).** With the bubble
+  references and tadpole bases chosen per lane (`crates/ninjars/src/fast/bases_x2.rs`), V4f
+  (`suite_fast_binary64_matches_references`) and V8 at n = 6 rank 8 (`parity_rank_n2_n6`)
+  pass and are no longer ignored. **Still ignored** (`needs fast accuracy fix`):
   - `suite_fast_within_ten_times_generic_binary64`: on every suite lane with a reference
     (known failures excepted), the fast engine's error must be at most `max(10 e_generic,
     tier tolerance)`, the tier tolerance being the lane's V4f binary64 tolerance for the fast
-    engine. 12 of 324 lanes fail, e.g. `rn2-int-complex-n7-r9-mu2` lane 1 (fast 2.1e-2,
-    generic 1.4e-6), `rn2-phys-real-n6-r8` lane 1 (1.9e-3 vs 4.5e-6),
-    `rn2-int-complex-n6-r8` lane 0 (2.3e-11 vs 1.5e-13);
-  - `rank_n2_integrals_equal_their_pieces_binary64` (V6 at rank n+2: `rn2-id-pinch-n7` up to
-    1.3e-5 against generic f64 <= 1.6e-10, `rn2-id-decomp-n5` lane 0 at 1.4e-5 against 3.7e-13,
-    `rn2-id-pinch-n4` lane 3);
+    engine. 1 of 324 lanes fails (before the conditioning: 12):
+    `rn2-shifted-mixed-n7-r9-mu2` lane 0 (condition 7.9e9, report-only in V4f), fast 1.7e-3
+    against generic f64 1.6e-4, 1.1 times the limit. The conditioning does not change this
+    lane, and its rank n+1 twin `rn2-shifted-mixed-n7-r8-mu2` lane 0, on the unchanged
+    rank <= n+1 path, shows the same ratio (fast 3.2e-9, generic f64 3.1e-10);
+  - `rank_n2_integrals_equal_their_pieces_binary64` (V6 at rank n+2, 5 of 39 identities):
+    `rn2-id-pinch-n7` lanes 0, 2, 3, 6 at 5.8e-9..1.6e-8 (generic f64 <= 1.4e-10), which is
+    the error of their pieces below, and `rn2-id-pinch-n4` lane 3 at 5.3e-9 against a
+    tolerance of 3.7e-9;
   - `pieces_reproduce_the_rank_n2_references_binary64` (the V6 pieces at n = 7 through the
-    fast engine's rank <= n+1 path: 5.8e-9..1.6e-8 against generic f64 <= 1.5e-12);
+    fast engine's rank <= n+1 path: `rn2-id-pinch-n7` lanes 0, 2, 3, 6 at 5.8e-9..1.6e-8
+    against generic f64 <= 1.5e-12);
   - `relabelling_invariance_rank_n2_binary64` (V7b at n = 7: `rn2-exact-mu-n7-r9-perm` lane 1,
-    fast 8.0e-7 against generic noise 5.0e-8);
-  - `parity_rank_n2_n6` (V8: n = 6 rank 8, fast-generic differences up to 3.4e-7 against
-    generic noise <= 3e-12).
+    fast 8.0e-7 against generic noise 5.0e-8).
 
   The n = 7 identity kinematics have propagator pairs whose shift difference has a zero time
   component (`rn2-id-pinch-n7`: pairs (0,3), (1,5), (2,6); none at n <= 6): the bubbles where
@@ -542,7 +546,16 @@ Results on the rank n+2 suite (333 lanes, n = 1..7):
 |---|---|---|---|---|---|
 | generic Float(256), exact masters | 284 | 40 | 9 | 0 | 7.0e-12 |
 | generic f64, native masters | 274 | 50 | 9 | 0 | 5.2e-7 |
-| fast, native masters | 266 | 49 | 9 | 9 | 6.2e-4 (`syn-n6-r8` lane 2) |
+| generic DoubleFloat, exact masters | 296 | 28 | 8 | 0 | 1.4e-11; plus 1 `stale-known-failure` (below) |
+| fast, native masters | 275 | 49 | 9 | 0 | 4.9e-8 (`rn2-int-real-n7-r9` lane 2); 266 / 49 / 9 / 9 and 6.2e-4 before the rank n+2 basis conditioning |
+
+In DoubleFloat, `rn2-int-mixed-n6-r8` lane 1 (finding 3) agrees with COLLIER's value to
+1.2e-14 and is therefore reported as `stale-known-failure`, while the same exact masters
+with `Float` miss it by 3.07e-2 at every precision tried (53, 64, 106, 128, 256 and 512
+bits), as do the native binary64 masters. So the finding-3 error depends on the carrier
+type, presumably in oneloopmaster's exact D0 for this box (not traced). The entry is not
+precision-specific, so `case-check --precision double` on the suite exits non-zero; no test
+runs the suite in DoubleFloat. The n = 7 known failures (finding 5) fail in DoubleFloat too.
 
 ## Regenerating
 

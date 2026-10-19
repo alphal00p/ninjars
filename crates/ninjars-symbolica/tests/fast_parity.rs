@@ -574,7 +574,6 @@ fn parity_rank_n2_n5() {
     parity_ranks(5, 7..=7, 0x5eed_0002 + 5);
 }
 #[test]
-#[ignore = "needs fast accuracy fix: n=6 rank=8 lanes 2, 4, 5 (and the permuted lane 2) at 1.6e-7..3.4e-7 against generic noise <= 3e-12 (the old noise model passed them on the fast engine's own noise)"]
 fn parity_rank_n2_n6() {
     parity_ranks(6, 8..=8, 0x5eed_0002 + 6);
 }

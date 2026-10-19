@@ -18,9 +18,9 @@
 //!
 //! The rank <= n+1 controls (the suite kinematics at ranks n-1, n, n+1,
 //! `mu^2` twins, the synthetic benchmark cases; n = 1..7) and the rank n+2
-//! suite run with both engines. The fast engine's binary64 rank n+2 checks
-//! (V4f, and its comparison with the generic engine in binary64) are ignored
-//! until its accuracy work fixes the lanes named in their reasons.
+//! suite run with both engines. The fast engine's comparison with the
+//! generic engine in binary64 on the rank n+2 suite is ignored until its
+//! accuracy work fixes the lane named in its reason.
 //! The numerator is the dense tensor of each case, expanded numerically
 //! (`TensorGenericNumerator`), which is checked first against Symbolica's
 //! `PolynomialNumerator`.
@@ -441,7 +441,6 @@ fn suite_generic_float_matches_references() {
 
 /// V4f: the rank n+2 suite in binary64, fast engine with native masters.
 #[test]
-#[ignore = "needs fast accuracy fix: 9 of 333 lanes outside the V4f budget, e.g. syn-n6-r8 lane 2 6.2e-4 > 1.0e-4, rn2-int-real-n6-r8 lane 2 1.2e-9 > 1.5e-10, rn2-int-complex-n6-r8 lane 0 2.3e-11 > 9.1e-13"]
 fn suite_fast_binary64_matches_references() {
     let report = check_set(
         &suite(),
@@ -479,7 +478,7 @@ fn suite_generic_binary64_matches_references() {
 /// dominates both errors), as are lanes where the generic engine does not
 /// succeed; the fast engine must succeed wherever the generic one does.
 #[test]
-#[ignore = "needs fast accuracy fix: 12 of 324 lanes, e.g. rn2-int-complex-n7-r9-mu2 lane 1 (fast 2.1e-2, generic 1.4e-6), rn2-phys-real-n6-r8 lane 1 (1.9e-3 vs 4.4e-6), rn2-int-complex-n6-r8 lane 0 (2.3e-11 vs 1.6e-13)"]
+#[ignore = "needs fast accuracy fix: 1 of 324 lanes, rn2-shifted-mixed-n7-r9-mu2 lane 0 (cond 7.9e9, V4f report-only): fast 1.7e-3 vs generic f64 1.6e-4 (limit 1.6e-3); unchanged by the rank n+2 basis conditioning (79f306a); its rank n+1 twin shows the same ratio (fast 3.2e-9, generic 3.1e-10)"]
 fn suite_fast_within_ten_times_generic_binary64() {
     let policy = policy();
     let files = suite();

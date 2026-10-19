@@ -17,7 +17,8 @@
 //! themselves run through the rank n+2 engines and must equal the sums:
 //! Float(256) (generic engine) within 1e-50, binary64 (fast engine) within
 //! the same binary64 tolerance; the binary64 check is ignored until the
-//! fast engine's rank n+2 accuracy is fixed. `e_generic` is the
+//! fast engine's accuracy is fixed (mostly the n = 7 pieces above, and
+//! `rn2-id-pinch-n4` lane 3, 1.4 times its tolerance). `e_generic` is the
 //! same difference with the generic engine in binary64 (native masters): an
 //! independent binary64 reduction of the same identity, which measures its
 //! binary64 conditioning where COLLIER's `cond` does not (n = 7).
@@ -268,7 +269,7 @@ fn pieces_reproduce_the_rank_n2_references() {
 /// engine's rank <= n+1 path, used for the n = 6 rank 7 pieces, loses
 /// accuracy (up to 1.6e-8 against the generic engine's 1e-12).
 #[test]
-#[ignore = "needs fast accuracy fix: rn2-id-pinch-n7 pieces (p^0 = 0 bubbles, rank <= n+1 path) at 6e-9..1.6e-8 > max(1e-10 cond, 10 x generic f64 1e-12)"]
+#[ignore = "needs fast accuracy fix: rn2-id-pinch-n7 lanes 0, 2, 3, 6 pieces (p^0 = 0 bubbles, rank <= n+1 path) at 5.8e-9..1.6e-8 > max(1e-10 cond, 10 x generic f64 <= 1.5e-12)"]
 fn pieces_reproduce_the_rank_n2_references_binary64() {
     check_pieces(usize::MAX);
 }
@@ -304,7 +305,7 @@ fn rank_n2_integrals_equal_their_pieces_float() {
 /// evaluated before the assertion, so a failure lists all lanes outside the
 /// tolerance.
 #[test]
-#[ignore = "needs fast accuracy fix: V6 identities at rank n+2 in binary64, e.g. rn2-id-pinch-n7 lanes at 6e-7..1.3e-5, rn2-id-decomp-n5 lane 0 at 1.4e-5"]
+#[ignore = "needs fast accuracy fix: 5 of 39 V6 identities at rank n+2 in binary64: rn2-id-pinch-n7 lanes 0, 2, 3, 6 at 5.8e-9..1.6e-8 (generic f64 <= 1.4e-10, the pieces' p^0 = 0 bubbles), rn2-id-pinch-n4 lane 3 at 5.3e-9 > 3.7e-9"]
 fn rank_n2_integrals_equal_their_pieces_binary64() {
     let identities = identities();
     let pieces = rhs_cases(&identities);
