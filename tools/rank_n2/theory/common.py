@@ -21,8 +21,12 @@ that they have rational generators):
   k=1  tadpole  : { mu2^j (qbar.e1)^a M(qbar_T), mu2^j (qbar.e2)^a M(qbar_T) }
                   e1,e2 null, T={e1,e2}^perp, M any monomial in two transverse
                   coordinates  == monomials not divisible by qe1*qe2
-  k=0  (no cut) : any polynomial of weighted degree <= r-2n  (times prod_all D)
-with weighted degree <= R_k = r - n + k.
+  k=0  (no cut) : c(q, mu2) prod_all D, integrating to zero, with c of weighted
+                  degree <= max(r-2n, r-n-2) for one common tadpole basis
+                  (Ninja's default) and <= max(r-2n, r-n-1) for independent
+                  tadpole bases per cut (decomposition_check.zero_point_bound;
+                  tools/rank_n2/README.md, correction 2)
+with weighted degree <= R_k = r - n + k for the cut residues (k >= 1).
 """
 from fractions import Fraction
 import itertools

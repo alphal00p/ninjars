@@ -5,8 +5,8 @@
 //! engine in `engine.rs` is untouched. Stage order, skip rules (`cut_stop`,
 //! scaleless bubbles, massless tadpoles), stability checks, lane compaction,
 //! publish-on-success and statuses are those of `engine.rs`; the recipe per
-//! cut is the one of `docs` design section 2 (confirmed exactly against an
-//! independent reduction for n = 1..6):
+//! cut is the one of `docs/rank-n2.md` section 3 (confirmed exactly against
+//! an independent reduction for n = 1..6):
 //!
 //! - **box**: `c0` from the two four-dimensional solutions as before; the
 //!   mu-expansion runs on the exact d-dimensional cut, `q = q̄0 - V0 + t v`,

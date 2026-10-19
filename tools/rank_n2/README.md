@@ -21,7 +21,7 @@ summarised in [`docs/rank-n2.md`](../../docs/rank-n2.md).
 | `subtractions_rank_n2_cse.txt` | The same terms as common-subexpression-eliminated code, one block per kind (`tri_to_bub`, `tri_to_tad`, `bub_to_tad`), meant to be ported mechanically. |
 | `subtraction_formulas.py` | The sympy derivation of the subtraction terms (large-`t` series of a parent residue divided by the extra denominators); also validates the rank <= n+1 terms against original Ninja's FORM routines through `ninja_harness/`. |
 | `laurent_prototype.py`, `laurent_lib.py` | A 40-digit numerical prototype of the whole Laurent reduction at any rank. |
-| `common.py`, `decomposition_check.py` | Exact rational decomposition: completeness and uniqueness of the residue spaces for n = 1..6. (The `common.py` docstring's "r-2n" bound for the 0-point term is stale; see Corrections.) |
+| `common.py`, `decomposition_check.py` | Exact rational decomposition: completeness and uniqueness of the residue spaces for n = 1..6. The 0-point term's degree bound is `decomposition_check.zero_point_bound` (see Corrections, item 2). |
 | `integrals_check.py` | End-to-end integral check: Feynman-parameter integral of `N/prod D` against the reduced coefficients times masters. |
 | `check_formulas_vs_series.py`, `check_cse.py` | The closed forms and the CSE code against the series definition. |
 | `build_formulas_json.py` | Rebuilds `formulas_rank_n2.json` and the CSE file. |
