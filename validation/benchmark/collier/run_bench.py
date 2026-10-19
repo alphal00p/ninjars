@@ -3,9 +3,11 @@
 
 Every timed process is single-threaded and pinned with `taskset -c CPU`. A round runs, in
 this order: NinjaRS fast engine (`ninjars case-bench --widths 1,32`) on every case, then
-COLLIER (precise and stock builds, COLI and, where every piece is within its limits, DD;
-precise COLI also with the global cache) on every case. `--rounds` repeats this; collect.py
-takes per quantity the best (smallest) of the rounds' block medians. The NinjaRS generic
+COLLIER (precise and stock builds, COLI and, where every piece is within its limits, DD) on
+every case, so the two codes are interleaved per round. `--rounds` repeats this; collect.py
+takes per quantity the best (smallest) of the rounds' block medians. Precise COLI with the
+global cache is run in the first round for validation only, untimed: the cache returns wrong
+7-point rank-9 results (collier_cache_repro.f90, README.md). The NinjaRS generic
 engine (`case-bench --engines generic`, binary64, native masters) is timed once, after the
 rounds, on GENERIC_CASES (the slow engine; one round). Before every process the CPU's busy
 time is sampled from /proc/stat; the time other processes spent on it during the run
@@ -15,10 +17,16 @@ Outputs (raw, consolidated, committed): OUT/ninjars-fast.json, OUT/ninjars-gener
 OUT/collier.json, OUT/environment.json. COLLIER inputs are prepared into BUILD/inputs
 (prepare.py; deterministic, not committed).
 
+`--lanes-only` re-runs only COLLIER's untimed validation pass of every variant (unpinned, in
+parallel) and replaces the lane values of OUT/collier.json, keeping its timing rounds (and
+dropping the timings of variants that are no longer timed); environment.json records it under
+`collier_lanes`. Use it after a change of the driver's validation pass.
+
 usage: run_bench.py [--cpu CPU] [--rounds 2] [--blocks 9] [--collier-blocks 5] [--min-block-ms 20]
-                    [--cases CASE.json ...] [--skip-generic] [--out DIR]
+                    [--cases CASE.json ...] [--skip-generic] [--out DIR] [--lanes-only [--jobs 8]]
 """
 import argparse
+import concurrent.futures
 import datetime
 import json
 import os
@@ -43,6 +51,22 @@ TWINS = [RN2 / "controls" / "cases" / f"rn2-int-complex-n{n}-r{n + 1}.json" for 
 GENERIC_CASES = ([SYN / f"syn-n{n}-r{n + 2}.json" for n in range(1, 7)]
                  + [RN2 / "cases" / f"rn2-int-complex-n{n}-r{n + 2}.json" for n in range(1, 8)]
                  + [RN2 / "cases" / f"rn2-int-complex-n{n}-r{n + 2}-mu2.json" for n in range(1, 8)])
+
+
+# COLLIER variants: (build, mode 1 = COLI / 2 = DD, global cache, timed). The global cache
+# is validated but not timed: it returns wrong 7-point rank-9 tensor integrals (README.md).
+VARIANTS = [("precise", 1, 0, True), ("precise", 2, 0, True), ("stock", 1, 0, True), ("stock", 2, 0, True),
+            ("precise", 1, 1, False)]
+
+
+def variant_key(build, mode, cache):
+    return f"{build}-{'coli' if mode == 1 else 'dd'}{'-cache' if cache else ''}"
+
+
+def collier_cmd(binary, inp, res, mode, cache, timed, blocks, min_block_ms):
+    """collier_bench IN OUT MODE BLOCKS MIN_BLOCK_MS CACHE [REQACC ONLY]; ONLY=none skips timing."""
+    cmd = [binary, inp, res, mode, blocks, min_block_ms, cache]
+    return cmd if timed else cmd + [-1, "none"]
 
 
 def default_cases():
@@ -160,6 +184,9 @@ def main():
     ap.add_argument("--skip-generic", action="store_true")
     ap.add_argument("--out", type=pathlib.Path, default=HERE / "results")
     ap.add_argument("--ninjars", type=pathlib.Path, default=NINJARS)
+    ap.add_argument("--lanes-only", action="store_true",
+                    help="re-run only COLLIER's validation pass and replace the lanes of OUT/collier.json")
+    ap.add_argument("--jobs", type=int, default=8, help="parallel validation runs with --lanes-only")
     args = ap.parse_args()
     cases = [p.resolve() for p in (args.cases or default_cases())]
     twins = [p for p in TWINS if p.exists()]
@@ -168,8 +195,9 @@ def main():
     work = BUILD / "work"
     work.mkdir(parents=True, exist_ok=True)
     log = work / "run_bench.log"
-    log.write_text("")
-    if args.cpu is None:
+    if not args.lanes_only:
+        log.write_text("")
+    if args.cpu is None and not args.lanes_only:
         args.cpu, busy = pick_cpu()
         print(f"picked cpu {args.cpu} (busy {busy[args.cpu]:.3f} over 5 s)", flush=True)
     rel = lambda p: str(pathlib.Path(p).resolve().relative_to(REPO))  # noqa: E731
@@ -182,7 +210,15 @@ def main():
     names = [json.loads(p.read_text())["name"] for p in cases + twins]
 
     bins = {v: BUILD / "bin" / f"collier_bench-{v}" for v in ("precise", "stock")}
-    variants = [("precise", 1, 0), ("precise", 2, 0), ("stock", 1, 0), ("stock", 2, 0), ("precise", 1, 1)]
+    collier_meta = {name: {k: meta[name][k] for k in ("case_file", "n", "rank", "mu_powers", "nmax", "rmax",
+                                                        "dd_ok")}
+                    | {"pieces": [[{k: p[k] for k in ("n", "rank", "coefficients")} for p in lane["pieces"]]
+                                  for lane in meta[name]["lanes"]],
+                       "lane_ids": [lane["id"] for lane in meta[name]["lanes"]]}
+                    for name in names}
+    if args.lanes_only:
+        lanes_only(args, names, meta, bins, inputs, work, collier_meta)
+        return
     fast = {"rounds": []}
     collier = {"version": "1.2.10", "rounds": [], "lanes": {}}
     head = subprocess.run(["git", "-C", str(REPO), "rev-parse", "--short", "HEAD"], capture_output=True,
@@ -209,30 +245,29 @@ def main():
         fast["rounds"].append(entry)
         # COLLIER
         entry = {}
-        for build, mode, cache in variants:
-            key = f"{build}-{'coli' if mode == 1 else 'dd'}{'-cache' if cache else ''}"
+        for build, mode, cache, timed in VARIANTS:
+            if not timed and rnd > 0:
+                continue
+            key = variant_key(build, mode, cache)
             t_wall, t_foreign = 0.0, 0.0
             for name in names:
                 if mode == 2 and not meta[name]["dd_ok"]:
                     continue
                 res = work / f"{name}.{key}.txt"
-                cmd = [bins[build], inputs / f"{name}.in", res, mode, args.collier_blocks, args.min_block_ms, cache]
+                cmd = collier_cmd(bins[build], inputs / f"{name}.in", res, mode, cache, timed, args.collier_blocks,
+                                  args.min_block_ms)
                 wall, child, foreign = run_pinned(args.cpu, cmd, log)
                 t_wall += wall
                 t_foreign += foreign
                 lanes, times = parse_collier(res)
-                entry.setdefault(name, {})[key] = times
+                if timed:
+                    entry.setdefault(name, {})[key] = times
                 if rnd == 0:
                     collier["lanes"].setdefault(name, {})[key] = lanes
             env["runs"].append({"round": rnd, "what": f"collier-{key}", "wall_s": t_wall, "foreign_s": t_foreign})
             print(f"  collier {key}: {t_wall:.0f} s (foreign {t_foreign:.1f} s)", flush=True)
         collier["rounds"].append(entry)
-    collier["meta"] = {name: {k: meta[name][k] for k in ("case_file", "n", "rank", "mu_powers", "nmax", "rmax",
-                                                           "dd_ok")}
-                       | {"pieces": [[{k: p[k] for k in ("n", "rank", "coefficients")} for p in lane["pieces"]]
-                                     for lane in meta[name]["lanes"]],
-                          "lane_ids": [lane["id"] for lane in meta[name]["lanes"]]}
-                       for name in names}
+    collier["meta"] = collier_meta
     (out / "ninjars-fast.json").write_text(dump(fast))
     (out / "collier.json").write_text(dump(collier))
     if not args.skip_generic:
@@ -253,6 +288,51 @@ def main():
     env["generic_cases"] = [] if args.skip_generic else [rel(p) for p in GENERIC_CASES if p.exists()]
     (out / "environment.json").write_text(dump(env))
     print(f"wrote {out}", flush=True)
+
+
+def lanes_only(args, names, meta, bins, inputs, work, collier_meta):
+    """Re-run COLLIER's validation pass (untimed, unpinned) and replace the lanes of collier.json."""
+    path = args.out / "collier.json"
+    collier = json.loads(path.read_text())
+    jobs = []
+    for build, mode, cache, _ in VARIANTS:
+        key = variant_key(build, mode, cache)
+        for name in names:
+            if mode == 2 and not meta[name]["dd_ok"]:
+                continue
+            res = work / f"{name}.{key}.lanes.txt"
+            jobs.append((name, key, res, collier_cmd(bins[build], inputs / f"{name}.in", res, mode, cache, False, 1,
+                                                     args.min_block_ms)))
+
+    def run(job):
+        name, key, res, cmd = job
+        proc = subprocess.run([str(c) for c in cmd], cwd=work, capture_output=True, text=True)
+        if proc.returncode != 0:
+            raise SystemExit(f"command failed ({proc.returncode}): {' '.join(map(str, cmd))}\n{proc.stderr}")
+        return name, key, parse_collier(res)[0]
+
+    lanes = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
+        for name, key, rows in pool.map(run, jobs):
+            lanes.setdefault(name, {})[key] = rows
+    collier["lanes"] = {name: lanes[name] for name in names if name in lanes}
+    timed = {variant_key(b, m, c) for b, m, c, t in VARIANTS if t}
+    collier["rounds"] = [{name: {k: v for k, v in entry.items() if k in timed} for name, entry in rnd.items()}
+                         for rnd in collier["rounds"]]
+    collier["meta"] = collier_meta
+    path.write_text(dump(collier))
+    env_path = args.out / "environment.json"
+    env = json.loads(env_path.read_text())
+    head = subprocess.run(["git", "-C", str(REPO), "rev-parse", "--short", "HEAD"], capture_output=True,
+                          text=True).stdout.strip()
+    if subprocess.run(["git", "-C", str(REPO), "diff", "--quiet", "HEAD", "--",
+                       "validation/benchmark/collier"]).returncode:
+        head += "+dirty"
+    env["collier_lanes"] = {"date": datetime.date.today().isoformat(), "head": head,
+                            "note": "lane values of collier.json from run_bench.py --lanes-only "
+                                    "(validation pass only); timing rounds from the run recorded above"}
+    env_path.write_text(dump(env))
+    print(f"wrote {path}: lanes of {len(collier['lanes'])} cases, {len(jobs)} runs", flush=True)
 
 
 if __name__ == "__main__":

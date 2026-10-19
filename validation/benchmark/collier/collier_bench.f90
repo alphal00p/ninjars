@@ -8,7 +8,14 @@
 !                 value -R fixes the repetitions per lane and block to R (no calibration:
 !                 fixed work for external instruction counting with perf stat)
 !   CACHE         0 = no global cache (default), 1 = one global cache per lane
-!                 (InitCacheSystem_cll, InitEvent_cll before every lane evaluation)
+!                 (InitCacheSystem_cll, InitEvent_cll before every lane evaluation).
+!                 The validation pass then first evaluates every lane NWARM = 5 times
+!                 with the three Delta sets (15 events of its cache, untimed), so that
+!                 the recorded values come from the cache mode the timed loop runs in:
+!                 COLLIER needs two initialisation events and nopt = 10 optimisation
+!                 events per cache before its fully optimised mode. The cache gives
+!                 wrong 7-point rank-9 results (collier_cache_repro.f90, README.md);
+!                 run_bench.py runs this mode for validation only, untimed
 !   REQACC        SetReqAcc_cll (default: COLLIER's 1d-8); <= 0 keeps the default
 !   ONLY          time only this quantity (e.g. total_finite); default all
 !
@@ -37,8 +44,9 @@
 ! OUT: one line per lane (validation pass, untimed), then timing lines:
 !   LANE l errflag accflag eps0re eps0im em1re em1im em2re em2im errest absum0
 !     errflag/accflag: the most negative over the three sets and all pieces; errest:
-!     sum over pieces and coefficients of |c| TNerr(rank of c) (set 1, COLLIER's own
-!     absolute error estimate of the tensor components); absum0: sum |c| |T| (set 1)
+!     sum over pieces and coefficients of |c| TNerr(rank of c) (Delta set 1, COLLIER's
+!     own absolute error estimate of the tensor components, kept from the set-1 call);
+!     absum0: sum |c| |T| (set 1)
 !   TIME quantity median_ns_per_point min_ns_per_point max_ns_per_point blocks reps
 !     quantity: calls_finite      COLLIER calls of every piece, Delta set 1 only
 !               contraction       contraction of stored components with the coefficients
@@ -63,7 +71,8 @@ program collier_bench
     double complex, allocatable :: coef(:)
     double complex, allocatable :: T(:,:,:,:,:)    ! (0:R)^4 x 3 Delta sets
     double complex, allocatable :: Tuv(:,:,:,:)
-    double precision, allocatable :: Terr(:)
+    double precision, allocatable :: Terr(:)       ! TNerr of the latest call
+    double precision, allocatable :: Terr1(:)      ! TNerr of Delta set 1 (validation)
   end type piece_t
   type lane_t
     integer :: npieces
@@ -73,7 +82,8 @@ program collier_bench
 
   type(lane_t), allocatable :: lanes(:)
   integer :: nlanes, nmax, rmax, mode, nblocks, gcache, nargs, unit_in, unit_out, ios
-  integer :: l, j, k, iset, errflag, accflag, errmin, accmin, ncache
+  integer :: l, j, k, iset, errflag, accflag, errmin, accmin, ncache, ipass
+  integer, parameter :: nwarm = 5
   double precision :: min_block_ms, reqacc, pi2o6, d_uv(3), d_ir1(3), d_ir2(3)
   double precision :: re, im, errest, absum, p4(0:3)
   double complex :: acc(3), sink
@@ -139,10 +149,11 @@ program collier_bench
           pc%coef(k) = dcmplx(re, im)
         end do
         allocate(pc%T(0:pc%R, 0:pc%R, 0:pc%R, 0:pc%R, 3), pc%Tuv(0:pc%R, 0:pc%R, 0:pc%R, 0:pc%R), &
-                 pc%Terr(0:pc%R))
+                 pc%Terr(0:pc%R), pc%Terr1(0:pc%R))
         pc%T = (0d0, 0d0)
         pc%Tuv = (0d0, 0d0)
         pc%Terr = 0d0
+        pc%Terr1 = 0d0
       end associate
     end do
   end do
@@ -161,6 +172,16 @@ program collier_bench
   ! ------------------------------------------- validation pass (untimed) --
   do l = 1, nlanes
     call set_scale(l)
+    if (gcache /= 0) then
+      ! bring this lane's cache to the mode of the timed loop (see CACHE above)
+      do ipass = 1, nwarm
+        do iset = 1, 3
+          call SetDeltaUV_cll(d_uv(iset))
+          call SetDeltaIR_cll(d_ir1(iset), d_ir2(iset))
+          call lane_calls(l, iset)
+        end do
+      end do
+    end if
     errmin = 0
     accmin = 0
     do iset = 1, 3
@@ -169,6 +190,11 @@ program collier_bench
       call InitErrFlag_cll()
       call InitAccFlag_cll()
       call lane_calls(l, iset)
+      if (iset == 1) then
+        do j = 1, lanes(l)%npieces
+          lanes(l)%p(j)%Terr1 = lanes(l)%p(j)%Terr
+        end do
+      end if
       call GetErrFlag_cll(errflag)
       call GetAccFlag_cll(accflag)
       errmin = min(errmin, errflag)
@@ -183,7 +209,7 @@ program collier_bench
           acc(iset) = acc(iset) + contract(pc, iset)
         end do
         do k = 1, pc%ncoef
-          errest = errest + abs(pc%coef(k))*pc%Terr(sum(pc%idx(:, k)))
+          errest = errest + abs(pc%coef(k))*pc%Terr1(sum(pc%idx(:, k)))
           absum = absum + abs(pc%coef(k))*abs(pc%T(pc%idx(1,k), pc%idx(2,k), pc%idx(3,k), pc%idx(4,k), 1))
         end do
       end associate

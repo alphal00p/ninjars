@@ -12,8 +12,9 @@
 #            (-O2 -funroll-loops; the benchmark's headline, as no code in the
 #            benchmark report uses -ffast-math)
 #   stock    the shipped Release flags (-O2 -funroll-loops -ffast-math)
-# Each variant gets BUILD_DIR/bin/collier_bench-<variant>, compiled with the variant's
-# flags and linked statically against its libcollier.a.
+# Each variant gets BUILD_DIR/bin/collier_bench-<variant> and the global-cache reproducer
+# BUILD_DIR/bin/collier_cache_repro-<variant> (collier_cache_repro.f90), compiled with the
+# variant's flags and linked statically against its libcollier.a.
 #
 # Requirements: curl, sha256sum, gfortran (the repository dev shell) and cmake (taken
 # from `nix shell nixpkgs#cmake` when not on PATH).
@@ -60,5 +61,6 @@ for v in precise stock; do
   mods="$d/build/modules"; [ -d "$mods" ] || mods="$d/modules"
   # shellcheck disable=SC2086
   gfortran $flags -I"$mods" "$HERE/collier_bench.f90" "$lib" -o "$OUT/bin/collier_bench-$v"
-  echo "built $OUT/bin/collier_bench-$v ($flags)"
+  gfortran $flags -I"$mods" "$HERE/collier_cache_repro.f90" "$lib" -o "$OUT/bin/collier_cache_repro-$v"
+  echo "built $OUT/bin/collier_bench-$v and collier_cache_repro-$v ($flags)"
 done
