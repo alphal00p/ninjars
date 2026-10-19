@@ -24,8 +24,8 @@
 use super::complex::{C64, CMom, mp_cc};
 use super::numerator::{FastNumerator, t2_len, t2_len_le3, t3_len};
 use super::tensor::{
-    horner_jet, horner_jet_x2, horner_scalar, t2_offset, t2_output, t2_output_k4, t3_len_const,
-    t3_output, work_len_x2,
+    Declared, horner_jet, horner_jet_x2, horner_scalar, lane_rank_of, lower_lanes, t2_offset,
+    t2_output, t2_output_k4, t3_len_const, t3_output, work_len_x2,
 };
 use super::tensor_jets::{self as jets, Jet};
 use super::tensor_layout::{mu_block_offset, ncoeff, ncoeff_homogeneous, ncoeff_mu};
@@ -40,6 +40,12 @@ pub struct MuTensorNumerator {
     lanes: usize,
     coefficients: Vec<C64>,
     work: Vec<C64>,
+    /// The coefficients at the declared rank while the numerator is presented
+    /// at a lower one ([`FastNumerator::lower_rank`]); otherwise spare
+    /// capacity for the next lowering.
+    spare: Vec<C64>,
+    /// The declared shape while lowered.
+    declared: Option<Declared>,
 }
 
 /// One block's converted jet: at most `t3_len(4) = 9` or `t2_len(3) = 13` entries.
@@ -68,6 +74,8 @@ impl MuTensorNumerator {
             lanes,
             coefficients: vec![C64::ZERO; lanes * ncoeff],
             work: vec![C64::ZERO; 2 * 13 * level],
+            spare: Vec::new(),
+            declared: None,
         })
     }
 
@@ -589,5 +597,67 @@ impl FastNumerator for MuTensorNumerator {
             }
         }
         Ok(())
+    }
+
+    /// The lane's rank from its coefficients (`None` for an unknown lane).
+    fn lane_rank(&mut self, lane: usize) -> Option<usize> {
+        if lane >= self.lanes {
+            return None;
+        }
+        let c = &self.coefficients[lane * self.ncoeff..(lane + 1) * self.ncoeff];
+        Some(lane_rank_of(c, self.rank, self.mu_powers))
+    }
+
+    /// Becomes the rank-`rank` numerator of `lanes` with `mu²` powers up to
+    /// `min(mu_powers, rank / 2)`: each block `T_k` truncated to rank
+    /// `rank - 2k`, so every method then runs exactly as on a numerator built
+    /// at that rank. The declared coefficients wait in `spare`.
+    #[cold]
+    fn lower_rank(&mut self, lanes: &[usize], rank: usize) -> Result<()> {
+        if self.declared.is_some() || rank >= self.rank {
+            return Err(Error::Unsupported(format!(
+                "cannot lower the rank-{} mu tensor numerator to rank {rank}",
+                self.rank
+            )));
+        }
+        for &lane in lanes {
+            if self.lane_rank(lane).is_none_or(|r| r > rank) {
+                return Err(Error::Unsupported(format!(
+                    "lane {lane} of the rank-{} mu tensor numerator exceeds rank {rank}",
+                    self.rank
+                )));
+            }
+        }
+        let (mu_powers, ncoeff) = lower_lanes(
+            &self.coefficients,
+            self.rank,
+            self.mu_powers,
+            lanes,
+            rank,
+            &mut self.spare,
+        );
+        std::mem::swap(&mut self.coefficients, &mut self.spare);
+        self.declared = Some(Declared {
+            rank: self.rank,
+            mu_powers: self.mu_powers,
+            ncoeff: self.ncoeff,
+            lanes: self.lanes,
+        });
+        self.rank = rank;
+        self.mu_powers = mu_powers;
+        self.ncoeff = ncoeff;
+        self.lanes = lanes.len();
+        Ok(())
+    }
+
+    #[cold]
+    fn restore_rank(&mut self) {
+        if let Some(declared) = self.declared.take() {
+            std::mem::swap(&mut self.coefficients, &mut self.spare);
+            self.rank = declared.rank;
+            self.mu_powers = declared.mu_powers;
+            self.ncoeff = declared.ncoeff;
+            self.lanes = declared.lanes;
+        }
     }
 }

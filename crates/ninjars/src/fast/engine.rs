@@ -15,7 +15,8 @@
 #![allow(clippy::needless_range_loop)]
 
 use super::complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr};
-use super::engine_x2::{DynMasters, DynNumerator, RankN2Engine, evaluate_x2};
+use super::declared_rank::{LowerRank, evaluate_declared_n2};
+use super::engine_x2::RankN2Engine;
 use super::geometry::{
     Basis, box_solutions, bubble_solution, cmom_from_real, combine_real2, gram_det, mp2,
     reference_vectors_ok, scale, sub, tadpole_candidates, triangle_solution,
@@ -576,8 +577,8 @@ type BubbleCorrection = fn(
 /// warmed evaluation with an unchanged number of lanes performs no heap
 /// allocation in the engine itself. See [`super`] for conventions.
 pub struct FastAmplitude {
-    topo: Topology,
-    options: FastOptions,
+    pub(super) topo: Topology,
+    pub(super) options: FastOptions,
     tadpole_bases: [Basis; 3],
     lanes: usize,
     alive: Vec<bool>,
@@ -606,6 +607,9 @@ pub struct FastAmplitude {
     /// The rank n+2 engine, present iff `rank == n + 2`; it then performs
     /// every evaluation and the fields above stay unused.
     pub(super) x2: Option<Box<RankN2Engine>>,
+    /// At rank n+2, the rank <= n+1 engines for lanes whose numerator has a
+    /// lower rank (`declared_rank.rs`), built on first use.
+    pub(super) lower: Option<Box<LowerRank>>,
 }
 
 /// Master batches: D0, C0, rank-2 bubbles, rank-3 bubbles, A0.
@@ -657,6 +661,7 @@ impl FastAmplitude {
             masters: Default::default(),
             staged: Vec::new(),
             x2: (rank == n + 2).then(|| Box::new(RankN2Engine::new(n, options))),
+            lower: None,
         })
     }
 
@@ -693,6 +698,10 @@ impl FastAmplitude {
     /// Successful lanes overwrite `results[lane]`; failed lanes keep their
     /// previous result and receive a failure status. Structural errors (bad
     /// shapes, provider errors) return `Err` and leave results unchanged.
+    ///
+    /// At rank n+2, a lane whose numerator reports a lower rank `r`
+    /// ([`FastNumerator::lane_rank`]) is reduced bitwise as if declared at
+    /// rank `r`; [`super::AtDeclaredRank`] prevents it.
     pub fn evaluate<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
         &mut self,
         input: &FastInput,
@@ -701,25 +710,18 @@ impl FastAmplitude {
         results: &mut [FastResult],
         statuses: &mut [FastStatus],
     ) -> Result<()> {
-        if let Some(x2) = self.x2.as_deref_mut() {
-            return evaluate_x2(
-                x2,
-                &self.topo,
-                input,
-                &mut DynNumerator(numerator),
-                &mut DynMasters(masters),
-                results,
-                statuses,
-            );
+        if self.x2.is_some() {
+            return evaluate_declared_n2(self, input, numerator, masters, results, statuses);
         }
         self.evaluate_up_to_n1(input, numerator, masters, results, statuses)
     }
 
     /// [`Self::evaluate`] for rank <= n+1. Kept as its own (never-inlined)
     /// function so that the rank n+2 dispatch above leaves its code as it
-    /// was before rank n+2 existed.
+    /// was before rank n+2 existed. `declared_rank.rs` calls it for the lanes
+    /// of a declared rank n+2 that it reduces at a lower rank.
     #[inline(never)]
-    fn evaluate_up_to_n1<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
+    pub(super) fn evaluate_up_to_n1<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
         &mut self,
         input: &FastInput,
         numerator: &mut N,

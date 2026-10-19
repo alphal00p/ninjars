@@ -11,11 +11,13 @@ use super::masters::{FastMaster, FastMasters};
 use super::numerator::FastNumerator;
 use crate::{Error, Result};
 
-/// Records every numerator output of a wrapped [`FastNumerator`].
+/// Records every numerator output of a wrapped [`FastNumerator`], and its
+/// latest answer to [`FastNumerator::lane_rank`] per lane.
 pub struct RecordingNumerator<N> {
     inner: N,
     values: Vec<C64>,
     calls: Vec<usize>,
+    lane_ranks: Vec<Option<usize>>,
 }
 
 impl<N: FastNumerator> RecordingNumerator<N> {
@@ -24,6 +26,7 @@ impl<N: FastNumerator> RecordingNumerator<N> {
             inner,
             values: Vec::new(),
             calls: Vec::new(),
+            lane_ranks: Vec::new(),
         }
     }
     pub fn inner(&self) -> &N {
@@ -39,6 +42,7 @@ impl<N: FastNumerator> RecordingNumerator<N> {
     pub fn clear(&mut self) {
         self.values.clear();
         self.calls.clear();
+        self.lane_ranks.clear();
     }
     /// Number of recorded callbacks.
     pub fn calls(&self) -> usize {
@@ -56,6 +60,8 @@ impl<N: FastNumerator> RecordingNumerator<N> {
             calls: self.calls.clone(),
             call: 0,
             cursor: 0,
+            lane_ranks: self.lane_ranks.clone(),
+            declared: None,
         }
     }
     fn record(&mut self, out: &[C64]) {
@@ -169,9 +175,25 @@ impl<N: FastNumerator> FastNumerator for RecordingNumerator<N> {
         self.record(out);
         Ok(())
     }
+    fn lane_rank(&mut self, lane: usize) -> Option<usize> {
+        let answer = self.inner.lane_rank(lane);
+        if self.lane_ranks.len() <= lane {
+            self.lane_ranks.resize(lane + 1, None);
+        }
+        self.lane_ranks[lane] = answer;
+        answer
+    }
+    fn lower_rank(&mut self, lanes: &[usize], rank: usize) -> Result<()> {
+        self.inner.lower_rank(lanes, rank)
+    }
+    fn restore_rank(&mut self) {
+        self.inner.restore_rank();
+    }
 }
 
-/// Returns recorded numerator outputs in call order at O(1) cost per call.
+/// Returns recorded numerator outputs in call order at O(1) cost per call,
+/// and the recorded [`FastNumerator::lane_rank`] answers, so that the engine
+/// takes the recorded path.
 #[derive(Clone, Debug)]
 pub struct ReplayNumerator {
     rank: usize,
@@ -179,6 +201,9 @@ pub struct ReplayNumerator {
     calls: Vec<usize>,
     call: usize,
     cursor: usize,
+    lane_ranks: Vec<Option<usize>>,
+    /// The recorded rank while lowered.
+    declared: Option<usize>,
 }
 
 impl ReplayNumerator {
@@ -269,6 +294,27 @@ impl FastNumerator for ReplayNumerator {
         out: &mut [C64],
     ) -> Result<()> {
         self.next(out)
+    }
+    fn lane_rank(&mut self, lane: usize) -> Option<usize> {
+        self.lane_ranks.get(lane).copied().flatten()
+    }
+    /// Reports rank `rank` until [`FastNumerator::restore_rank`]; the
+    /// recorded outputs already are those of the lowered numerator.
+    fn lower_rank(&mut self, _: &[usize], rank: usize) -> Result<()> {
+        if self.declared.is_some() || rank >= self.rank {
+            return Err(Error::Unsupported(format!(
+                "cannot lower the replayed rank-{} numerator to rank {rank}",
+                self.rank
+            )));
+        }
+        self.declared = Some(self.rank);
+        self.rank = rank;
+        Ok(())
+    }
+    fn restore_rank(&mut self) {
+        if let Some(rank) = self.declared.take() {
+            self.rank = rank;
+        }
     }
 }
 

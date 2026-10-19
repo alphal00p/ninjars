@@ -24,7 +24,7 @@
 use super::complex::{C64, CMom};
 use super::numerator::{FastNumerator, t2_len, t2_len_le3, t3_len};
 use super::tensor_jets::{self as jets, Jet, JetX2};
-use super::tensor_layout::{block_offset, ncoeff, ncoeff_homogeneous};
+use super::tensor_layout::{block_offset, mu_block_offset, ncoeff, ncoeff_homogeneous, ncoeff_mu};
 use crate::{Error, Result};
 
 /// Batched Ninja/MadLoop tensor numerator with per-lane coefficients.
@@ -35,6 +35,96 @@ pub struct TensorNumerator {
     lanes: usize,
     coefficients: Vec<C64>,
     work: Vec<C64>,
+    /// The coefficients at the declared rank while the numerator is presented
+    /// at a lower one ([`FastNumerator::lower_rank`]); otherwise spare
+    /// capacity for the next lowering.
+    spare: Vec<C64>,
+    /// The declared shape while lowered.
+    declared: Option<Declared>,
+}
+
+/// Shape of a [`TensorNumerator`] or [`super::MuTensorNumerator`] saved by
+/// [`FastNumerator::lower_rank`].
+#[derive(Clone, Copy, Debug)]
+pub(super) struct Declared {
+    pub(super) rank: usize,
+    pub(super) mu_powers: usize,
+    pub(super) ncoeff: usize,
+    pub(super) lanes: usize,
+}
+
+/// The rank of one lane of the [`ncoeff_mu`] layout (`mu_powers = 0`: a
+/// plain tensor): the highest `d + 2k` over the non-zero coefficients of
+/// degree `d` in the `mu^(2k)` block `T_k` (rank `rank - 2k`), or 0. A lane of
+/// full rank usually has a non-zero coefficient at the start of the top
+/// homogeneous block of `T_0`, which is tested first.
+pub(super) fn lane_rank_of(c: &[C64], rank: usize, mu_powers: usize) -> usize {
+    if c[block_offset(rank)..ncoeff(rank)]
+        .iter()
+        .any(|z| *z != C64::ZERO)
+    {
+        return rank;
+    }
+    lane_rank_below_top(c, rank, mu_powers)
+}
+
+/// [`lane_rank_of`] once the top block of `T_0` is zero: each block is
+/// scanned from its top degree down to the first non-zero coefficient.
+#[cold]
+fn lane_rank_below_top(c: &[C64], rank: usize, mu_powers: usize) -> usize {
+    let mut found = 0;
+    for k in 0..=mu_powers {
+        let start = mu_block_offset(rank, k);
+        for degree in (0..=rank - 2 * k).rev() {
+            if degree + 2 * k <= found {
+                break;
+            }
+            let block = start + block_offset(degree)..start + ncoeff(degree);
+            if c[block].iter().any(|z| *z != C64::ZERO) {
+                found = degree + 2 * k;
+                break;
+            }
+        }
+        if found == rank {
+            break;
+        }
+    }
+    found
+}
+
+/// The [`FastNumerator::lower_rank`] layout change, a plain copy: lanes
+/// `lanes` of the lane-major `coefficients` (`ncoeff_mu(rank, mu_powers)` per
+/// lane), each truncated to rank `lower`, written lane after lane to `out`.
+/// Returns the lower shape `(mu_powers, ncoeff)`: the `mu²` blocks that keep
+/// a rank `>= 0` and their coefficient count. The caller has checked that
+/// the dropped coefficients (of degree above `lower`) are zero.
+#[cold]
+pub(super) fn lower_lanes(
+    coefficients: &[C64],
+    rank: usize,
+    mu_powers: usize,
+    lanes: &[usize],
+    lower: usize,
+    out: &mut Vec<C64>,
+) -> (usize, usize) {
+    let stride = ncoeff_mu(rank, mu_powers);
+    let lower_mu = mu_powers.min(lower / 2);
+    let lower_stride = ncoeff_mu(lower, lower_mu);
+    out.clear();
+    out.resize(lanes.len() * lower_stride, C64::ZERO);
+    for (row, &lane) in lanes.iter().enumerate() {
+        let source = &coefficients[lane * stride..(lane + 1) * stride];
+        let target = &mut out[row * lower_stride..(row + 1) * lower_stride];
+        for k in 0..=lower_mu {
+            let (from, to, len) = (
+                mu_block_offset(rank, k),
+                mu_block_offset(lower, k),
+                ncoeff(lower - 2 * k),
+            );
+            target[to..to + len].copy_from_slice(&source[from..from + len]);
+        }
+    }
+    (lower_mu, lower_stride)
 }
 
 impl TensorNumerator {
@@ -54,6 +144,8 @@ impl TensorNumerator {
             lanes,
             coefficients: vec![C64::ZERO; lanes * ncoeff],
             work: vec![C64::ZERO; 2 * 13 * level],
+            spare: Vec::new(),
+            declared: None,
         }
     }
 
@@ -726,6 +818,66 @@ impl FastNumerator for TensorNumerator {
             1 => self.t2_rows::<jets::T2K1, 1, 3>(lanes, a0, a1, e3, e4, param, out),
             2 => self.t2_rows::<jets::T2K2, 2, 7>(lanes, a0, a1, e3, e4, param, out),
             _ => self.t2_rows::<jets::T2K3, 3, 13>(lanes, a0, a1, e3, e4, param, out),
+        }
+    }
+
+    /// The lane's rank from its coefficients (`None` for an unknown lane).
+    fn lane_rank(&mut self, lane: usize) -> Option<usize> {
+        if lane >= self.lanes {
+            return None;
+        }
+        let c = &self.coefficients[lane * self.ncoeff..(lane + 1) * self.ncoeff];
+        Some(lane_rank_of(c, self.rank, 0))
+    }
+
+    /// Becomes the rank-`rank` tensor numerator of `lanes`: the first
+    /// `ncoeff(rank)` coefficients of each lane, copied lane after lane, so
+    /// every method then runs exactly as on a numerator built at that rank.
+    /// The declared coefficients wait in `spare`.
+    #[cold]
+    fn lower_rank(&mut self, lanes: &[usize], rank: usize) -> Result<()> {
+        if self.declared.is_some() || rank >= self.rank {
+            return Err(Error::Unsupported(format!(
+                "cannot lower the rank-{} tensor numerator to rank {rank}",
+                self.rank
+            )));
+        }
+        for &lane in lanes {
+            if self.lane_rank(lane).is_none_or(|r| r > rank) {
+                return Err(Error::Unsupported(format!(
+                    "lane {lane} of the rank-{} tensor numerator exceeds rank {rank}",
+                    self.rank
+                )));
+            }
+        }
+        let (_, ncoeff) = lower_lanes(
+            &self.coefficients,
+            self.rank,
+            0,
+            lanes,
+            rank,
+            &mut self.spare,
+        );
+        std::mem::swap(&mut self.coefficients, &mut self.spare);
+        self.declared = Some(Declared {
+            rank: self.rank,
+            mu_powers: 0,
+            ncoeff: self.ncoeff,
+            lanes: self.lanes,
+        });
+        self.rank = rank;
+        self.ncoeff = ncoeff;
+        self.lanes = lanes.len();
+        Ok(())
+    }
+
+    #[cold]
+    fn restore_rank(&mut self) {
+        if let Some(declared) = self.declared.take() {
+            std::mem::swap(&mut self.coefficients, &mut self.spare);
+            self.rank = declared.rank;
+            self.ncoeff = declared.ncoeff;
+            self.lanes = declared.lanes;
         }
     }
 }

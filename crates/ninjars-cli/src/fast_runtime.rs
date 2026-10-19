@@ -629,6 +629,18 @@ impl<N: FastNumerator + ?Sized> FastNumerator for TimedNumerator<'_, N> {
         self.expansion.record(start, lanes.len());
         result
     }
+
+    fn lane_rank(&mut self, lane: usize) -> Option<usize> {
+        self.inner.lane_rank(lane)
+    }
+
+    fn lower_rank(&mut self, lanes: &[usize], rank: usize) -> ninjars::Result<()> {
+        self.inner.lower_rank(lanes, rank)
+    }
+
+    fn restore_rank(&mut self) {
+        self.inner.restore_rank();
+    }
 }
 
 struct TimedMasters<'a, M> {

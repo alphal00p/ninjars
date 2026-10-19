@@ -20,18 +20,25 @@
 //! - generic engine in Float(256): within 1e-50 of the unpadded result.
 //!
 //! Declared rank n+2 exercises the rank n+2 paths with rank <= n+1
-//! numerators. Declared rank n+1 for the rank <= n cases exercises the rank
-//! n+1 paths with zero top coefficients.
+//! numerators: the fast engine runs them through `AtDeclaredRank`, because by
+//! default it reduces every lane declared at rank n+2 at the lane's own rank
+//! (`fast/declared_rank.rs`). That default must equal the fast engine with
+//! the numerator declared at that rank bitwise. Declared rank n+1 for the
+//! rank <= n cases exercises the rank n+1 paths with zero top coefficients.
 
 mod common;
 mod rank_n2_reference_support;
 
 use common::ninja_reference::{NinjaLane, NinjaMasters, parse_ninja};
-use ninjars::fast::{C64, FastMaster, FastMasters, FastStatus};
+use ninjars::fast::{
+    AtDeclaredRank, C64, FastAmplitude, FastInput, FastMaster, FastMasters, FastNumerator,
+    FastOptions, FastResult, FastStatus, MuTensorNumerator, RMom, TensorNumerator,
+    tensor_layout::{mu_block_offset, ncoeff, ncoeff_mu},
+};
 use ninjars_symbolica::OneLoopNativeMasters;
 use rank_n2_reference_support::{
     fast_noise,
-    harness::{BenchCase, Engines, fast_values, run_fast, scaled_difference},
+    harness::{BenchCase, Engines, FastRun, fast_values, run_fast, scaled_difference},
     rank_n2, root,
 };
 use serde_json::Value;
@@ -105,6 +112,114 @@ impl FastMasters for NinjaFirst {
     }
 }
 
+/// `run_fast` (one batch of the case's lanes) with the numerator wrapped in
+/// `AtDeclaredRank`: the fast engine reduces it at the declared rank even
+/// where its top coefficients vanish.
+fn run_fast_at_declared_rank<M: FastMasters>(
+    case: &BenchCase,
+    declared_rank: usize,
+    masters: &mut M,
+) -> FastRun {
+    let width = case.lanes.len();
+    let (n, lanes) = (case.n, &case.lanes);
+    let shifts: Vec<RMom> = lanes
+        .iter()
+        .flat_map(|l| l.shifts.iter().copied())
+        .collect();
+    let masses: Vec<C64> = lanes
+        .iter()
+        .flat_map(|l| l.masses.iter().copied())
+        .collect();
+    let scales: Vec<f64> = lanes.iter().map(|l| l.mu2).collect();
+    let s_matrix: Option<Vec<f64>> = lanes
+        .iter()
+        .map(|l| l.s_matrix.clone())
+        .collect::<Option<Vec<_>>>()
+        .map(|rows| rows.concat());
+    let input = FastInput {
+        lanes: width,
+        shifts: &shifts,
+        masses_squared: &masses,
+        scales_squared: &scales,
+        s_matrix: s_matrix.as_deref(),
+    };
+    let mut amplitude = FastAmplitude::new(n, declared_rank, FastOptions::default()).unwrap();
+    let mut results = vec![FastResult::default(); width];
+    let mut statuses = vec![FastStatus::NotEvaluated; width];
+    let size = ncoeff_mu(declared_rank, case.mu_powers);
+    let coefficients: Vec<C64> = (0..width)
+        .flat_map(|lane| case.padded_tensor(lane, declared_rank))
+        .collect();
+    assert_eq!(coefficients.len(), width * size);
+    if case.mu_powers == 0 {
+        let mut tensor = TensorNumerator::new(declared_rank, width);
+        tensor.set_coefficients(width, &coefficients).unwrap();
+        let mut numerator = AtDeclaredRank(&mut tensor);
+        amplitude
+            .evaluate(&input, &mut numerator, masters, &mut results, &mut statuses)
+            .unwrap();
+    } else {
+        let mut tensor = MuTensorNumerator::new(declared_rank, case.mu_powers, width).unwrap();
+        tensor.set_coefficients(width, &coefficients).unwrap();
+        let mut numerator = AtDeclaredRank(&mut tensor);
+        amplitude
+            .evaluate(&input, &mut numerator, masters, &mut results, &mut statuses)
+            .unwrap();
+    }
+    FastRun {
+        ids: lanes.iter().map(|l| l.id.clone()).collect(),
+        lanes: (0..width).collect(),
+        results,
+        statuses,
+    }
+}
+
+/// The bits of the five values of a lane.
+fn bits(result: &FastResult) -> [(u64, u64); 5] {
+    fast_values(result).map(|z| (z.re.to_bits(), z.im.to_bits()))
+}
+
+/// The rank of every lane of `case` (`lane_rank` of the case's own
+/// numerator type).
+fn lane_ranks(case: &BenchCase) -> Vec<usize> {
+    let lanes = case.lanes.len();
+    let coefficients: Vec<C64> = case.lanes.iter().flat_map(|l| l.tensor.clone()).collect();
+    let mut numerator: Box<dyn FastNumerator> = if case.mu_powers == 0 {
+        let mut tensor = TensorNumerator::new(case.rank, lanes);
+        tensor.set_coefficients(lanes, &coefficients).unwrap();
+        Box::new(tensor)
+    } else {
+        let mut tensor = MuTensorNumerator::new(case.rank, case.mu_powers, lanes).unwrap();
+        tensor.set_coefficients(lanes, &coefficients).unwrap();
+        Box::new(tensor)
+    };
+    (0..lanes)
+        .map(|lane| numerator.lane_rank(lane).unwrap())
+        .collect()
+}
+
+/// Lane `lane` of `case` alone, declared at its rank `rank <= case.rank`
+/// (the coefficients above `rank` are zero).
+fn single_at_rank(case: &BenchCase, lane: usize, rank: usize) -> BenchCase {
+    let mu_powers = case.mu_powers.min(rank / 2);
+    let source = &case.lanes[lane].tensor;
+    let mut tensor = vec![C64::ZERO; ncoeff_mu(rank, mu_powers)];
+    for k in 0..=mu_powers {
+        let (from, to, size) = (
+            mu_block_offset(case.rank, k),
+            mu_block_offset(rank, k),
+            ncoeff(rank - 2 * k),
+        );
+        tensor[to..to + size].copy_from_slice(&source[from..from + size]);
+    }
+    let mut single = case.clone();
+    single.rank = rank;
+    single.mu_powers = mu_powers;
+    single.lanes = vec![case.lanes[lane].clone()];
+    single.lanes[0].tensor = tensor;
+    single
+}
+
 /// Laurent coefficients of the exact reduction of every lane of `case`
 /// (generic engine in Float(256) with exact masters; `None` where it does
 /// not succeed), computed on first use.
@@ -130,13 +245,17 @@ fn exact_laurent<'a>(
     })
 }
 
-/// Fast engine, padded to `declared(case)`: against original Ninja with its
-/// master values, and against the unpadded engine with native masters.
+/// Fast engine, padded to `declared(case)` and reduced at that rank
+/// (`AtDeclaredRank`): against original Ninja with its master values, and
+/// against the unpadded engine with native masters. By default (without
+/// `AtDeclaredRank`) a numerator padded to rank n+2 must reduce every lane
+/// bitwise as declared at the lane's own rank.
 fn fast_padding(entries: &[Entry], declared: impl Fn(&BenchCase) -> usize) {
     let mut native = OneLoopNativeMasters::new().unwrap();
     let mut engines = Engines::default();
     let (mut worst_ninja, mut worst_self, mut lanes, mut fallbacks) = (0_f64, 0_f64, 0, 0);
     let (mut within_noise, mut exact_checked, mut worst_exact_ratio) = (0, 0, 0_f64);
+    let mut lowered_bitwise = 0;
     for entry in entries {
         let case = &entry.case;
         let mut exact = None;
@@ -156,7 +275,22 @@ fn fast_padding(entries: &[Entry], declared: impl Fn(&BenchCase) -> usize) {
         let rank = declared(case);
         let name = format!("{} declared rank {rank}", case.name);
         let original = run_fast(case, case.rank, case.lanes.len(), &mut native).unwrap();
-        let padded = run_fast(case, rank, case.lanes.len(), &mut native).unwrap();
+        let padded = run_fast_at_declared_rank(case, rank, &mut native);
+        if rank == case.n + 2 {
+            let lowered = run_fast(case, rank, case.lanes.len(), &mut native).unwrap();
+            for (lane, lane_rank) in lane_ranks(case).into_iter().enumerate() {
+                let single = single_at_rank(case, lane, lane_rank);
+                let want = run_fast(&single, lane_rank, 1, &mut native).unwrap();
+                let label = format!("{name} lane {lane} at its rank {lane_rank}");
+                assert_eq!(lowered.statuses[lane], want.statuses[0], "{label}");
+                assert_eq!(
+                    bits(&lowered.results[lane]),
+                    bits(&want.results[0]),
+                    "{label}"
+                );
+            }
+            lowered_bitwise += case.lanes.len();
+        }
         let noise = fast_noise(case, case.rank, &mut native);
         let tolerance = |lane: usize| FAST_TOLERANCE.max(10. * noise[lane]);
         #[allow(clippy::needless_range_loop)]
@@ -192,7 +326,7 @@ fn fast_padding(entries: &[Entry], declared: impl Fn(&BenchCase) -> usize) {
             native: OneLoopNativeMasters::new().unwrap(),
             fallbacks: 0,
         };
-        let run = run_fast(case, rank, case.lanes.len(), &mut masters).unwrap();
+        let run = run_fast_at_declared_rank(case, rank, &mut masters);
         let (results, statuses) = (run.results, run.statuses);
         fallbacks += masters.fallbacks;
         for (lane, reference) in ninja.iter().enumerate() {
@@ -223,7 +357,7 @@ fn fast_padding(entries: &[Entry], declared: impl Fn(&BenchCase) -> usize) {
         }
     }
     eprintln!(
-        "V5 fast: {} cases, {lanes} lanes; max scaled difference padded vs unpadded {worst_self:e} ({within_noise} above 1e-11, within 10x noise), vs original Ninja {worst_ninja:e}; {exact_checked} comparisons beyond that checked against the exact reduction (max error ratio to the reference's {worst_exact_ratio:.2}); {fallbacks} master requests not among Ninja's calls",
+        "V5 fast: {} cases, {lanes} lanes; max scaled difference padded vs unpadded {worst_self:e} ({within_noise} above 1e-11, within 10x noise), vs original Ninja {worst_ninja:e}; {exact_checked} comparisons beyond that checked against the exact reduction (max error ratio to the reference's {worst_exact_ratio:.2}); {fallbacks} master requests not among Ninja's calls; {lowered_bitwise} lanes reduced at their own rank, bitwise, by default",
         entries.len()
     );
 }

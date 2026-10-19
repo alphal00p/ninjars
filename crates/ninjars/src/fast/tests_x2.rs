@@ -20,7 +20,8 @@ use super::tests::{
     reference_numerator, unit_tensor,
 };
 use super::{
-    FastAmplitude, FastInput, FastMaster, FastMasters, FastOptions, FastResult, FastStatus,
+    AtDeclaredRank, FastAmplitude, FastInput, FastMaster, FastMasters, FastOptions, FastResult,
+    FastStatus,
 };
 use crate::{Error, Result};
 
@@ -896,7 +897,11 @@ fn rank_n2_padding_reproduces_the_rank_n1_engine() {
             // coefficients, which only cancel with true master integrals (not
             // `HashMasters`): ninjars-symbolica's `fast_rank_n2.rs` and
             // `rank_n2_padding.rs` check them with oneloopmaster's masters.
-            let (results, statuses) = with_ninja_choices(|| evaluate(n, n + 2, &input, &mut wide));
+            // `AtDeclaredRank` keeps the rank n+2 engine for these numerators
+            // of lower rank (`declared_rank.rs` would reduce them at their
+            // rank).
+            let (results, statuses) =
+                with_ninja_choices(|| evaluate(n, n + 2, &input, &mut AtDeclaredRank(&mut wide)));
             assert_eq!(statuses, reference_statuses, "n={n} rank={rank}");
             for lane in 0..lanes {
                 assert_eq!(statuses[lane], FastStatus::Success, "n={n} rank={rank}");
@@ -910,6 +915,666 @@ fn rank_n2_padding_reproduces_the_rank_n1_engine() {
         }
     }
     eprintln!("PADDING_X2 worst scaled error vs rank <= n+1 engine: {worst:e}");
+}
+
+// --------------------------------------- declared rank n+2, lower lane rank
+
+/// The bits of a result, so that comparisons see signed zeros and NaNs.
+fn bits(r: &FastResult) -> [(u64, u64); 5] {
+    values(r).map(|z| (z.re.to_bits(), z.im.to_bits()))
+}
+
+fn assert_bitwise(
+    got: &[FastResult],
+    got_statuses: &[FastStatus],
+    want: &[FastResult],
+    want_statuses: &[FastStatus],
+    label: &str,
+) {
+    assert_eq!(got_statuses, want_statuses, "{label}: statuses");
+    for (lane, (a, b)) in got.iter().zip(want).enumerate() {
+        assert_eq!(bits(a), bits(b), "{label}: lane {lane}");
+    }
+}
+
+/// A mu tensor with `mu_powers` blocks stored at rank `declared >= rank`:
+/// each block's leading part is the source block (zero where the source has
+/// fewer blocks).
+fn padded_mu(tensor: &MuTensorNumerator, declared: usize, mu_powers: usize) -> MuTensorNumerator {
+    let lanes = tensor.lanes();
+    let mut out = MuTensorNumerator::new(declared, mu_powers, lanes).unwrap();
+    for lane in 0..lanes {
+        for k in 0..=tensor.mu_powers().min(mu_powers) {
+            let (from, to) = (tensor.block_range(k), out.block_range(k));
+            out.lane_coefficients_mut(lane)[to.start..to.start + from.len()]
+                .copy_from_slice(&tensor.lane_coefficients(lane)[from]);
+        }
+    }
+    out
+}
+
+fn random_input(rng: &mut Rng, n: usize, lanes: usize) -> (Vec<RMom>, Vec<C64>, Vec<f64>) {
+    let (shifts, masses) = kinematics(rng, n, lanes);
+    let scales = (0..lanes).map(|lane| 1.3 + 0.4 * lane as f64).collect();
+    (shifts, masses, scales)
+}
+
+/// The rank of a tensor lane computed directly: the highest degree with a
+/// non-zero monomial coefficient.
+fn rank_by_monomials(c: &[C64], rank: usize) -> usize {
+    monomials(rank)
+        .iter()
+        .zip(c)
+        .filter(|(_, z)| **z != C64::ZERO)
+        .map(|(m, _)| m.iter().sum::<u32>() as usize)
+        .max()
+        .unwrap_or(0)
+}
+
+/// `lane_rank` of both tensor numerators against the monomial degrees.
+#[test]
+fn tensor_numerators_report_their_lane_ranks() {
+    let mut rng = Rng(880);
+    for rank in 0..=9 {
+        for true_rank in 0..=rank {
+            let lanes = 2;
+            let mut tensor = TensorNumerator::new(rank, lanes);
+            // Lane 0 dense up to `true_rank`; lane 1 one monomial of that degree.
+            for (i, c) in tensor.lane_coefficients_mut(0)[..ncoeff(true_rank)]
+                .iter_mut()
+                .enumerate()
+            {
+                *c = if i % 3 == 0 { rng.c() } else { C64::ZERO };
+            }
+            let one = ncoeff(true_rank) - 1;
+            tensor.lane_coefficients_mut(1)[one] = C64::new(0., -1e-300);
+            for lane in 0..lanes {
+                let want = rank_by_monomials(tensor.lane_coefficients(lane), rank);
+                assert_eq!(
+                    tensor.lane_rank(lane),
+                    Some(want),
+                    "{rank} {true_rank} {lane}"
+                );
+            }
+            assert_eq!(tensor.lane_rank(1), Some(true_rank));
+            assert_eq!(tensor.lane_rank(lanes), None);
+            // Every mu² block that fits, one of them carrying the top degree.
+            for mu_powers in 0..=rank / 2 {
+                for top in 0..=mu_powers {
+                    if 2 * top > true_rank {
+                        continue;
+                    }
+                    let mut mu = MuTensorNumerator::new(rank, mu_powers, 1).unwrap();
+                    let range = mu.block_range(top);
+                    let degree = true_rank - 2 * top;
+                    mu.lane_coefficients_mut(0)[range.start + ncoeff(degree) - 1] = rng.c();
+                    if top > 0 && degree >= 1 {
+                        let lower = mu.block_range(0).start + ncoeff(degree + 1) - 1;
+                        mu.lane_coefficients_mut(0)[lower] = rng.c();
+                    }
+                    assert_eq!(
+                        mu.lane_rank(0),
+                        Some(true_rank),
+                        "rank {rank} mu^{mu_powers} block {top} degree {degree}"
+                    );
+                }
+            }
+        }
+    }
+}
+
+/// Numerators of rank `r < n + 2` declared at rank n+2 (zero coefficients
+/// above degree `r`) are reduced exactly as when declared at rank `r`:
+/// `TensorNumerator` and `MuTensorNumerator` (every mu² block count, and a
+/// zero block more), with and without S-matrix, down to rank 0 and a zero
+/// numerator; the numerator is unchanged afterwards.
+#[test]
+fn lower_rank_lanes_are_reduced_at_their_rank_bitwise() {
+    for n in 1..=7_usize {
+        for rank in [0, n.saturating_sub(1), n, n + 1] {
+            let mut rng = Rng(900 + 10 * n as u64 + rank as u64);
+            let lanes = 3;
+            let (shifts, masses, scales) = random_input(&mut rng, n, lanes);
+            let s_matrix: Vec<f64> = (0..lanes)
+                .flat_map(|lane| {
+                    let v = &shifts[lane * n..(lane + 1) * n];
+                    (0..n * n).map(move |ij| {
+                        let d = super::geometry::sub(&v[ij / n], &v[ij % n]);
+                        super::geometry::mp2(&d)
+                    })
+                })
+                .collect();
+            for with_s_matrix in [false, true] {
+                let input = FastInput {
+                    lanes,
+                    shifts: &shifts,
+                    masses_squared: &masses,
+                    scales_squared: &scales,
+                    s_matrix: with_s_matrix.then_some(&s_matrix[..]),
+                };
+                let label = format!("n={n} rank={rank} s_matrix={with_s_matrix}");
+                let mut tensor = TensorNumerator::new(rank, lanes);
+                for c in tensor.coefficients_mut() {
+                    *c = rng.c();
+                }
+                let (want, want_statuses) = evaluate(n, rank, &input, &mut tensor.clone());
+                let mut wide = padded(&tensor, n + 2);
+                let before: Vec<(u64, u64)> = wide
+                    .coefficients()
+                    .iter()
+                    .map(|z| (z.re.to_bits(), z.im.to_bits()))
+                    .collect();
+                let (got, statuses) = evaluate(n, n + 2, &input, &mut wide);
+                assert_bitwise(&got, &statuses, &want, &want_statuses, &label);
+                assert_eq!((FastNumerator::rank(&wide), wide.lanes()), (n + 2, lanes));
+                let after: Vec<(u64, u64)> = wide
+                    .coefficients()
+                    .iter()
+                    .map(|z| (z.re.to_bits(), z.im.to_bits()))
+                    .collect();
+                assert_eq!(after, before, "{label}: numerator restored");
+                // With mu² blocks: every block count of the rank, and one
+                // more (zero) block where it still fits at rank n+2.
+                for mu_powers in 1..=rank / 2 {
+                    let mut mu = MuTensorNumerator::new(rank, mu_powers, lanes).unwrap();
+                    for c in mu.coefficients_mut() {
+                        *c = rng.c();
+                    }
+                    for declared_mu in [mu_powers, mu_powers + 1] {
+                        if 2 * declared_mu > n + 2 {
+                            continue;
+                        }
+                        // Declared at rank `rank`, the blocks that fit.
+                        let twin_mu = declared_mu.min(rank / 2);
+                        let (want, want_statuses) =
+                            evaluate(n, rank, &input, &mut padded_mu(&mu, rank, twin_mu));
+                        let mut wide = padded_mu(&mu, n + 2, declared_mu);
+                        let (got, statuses) = evaluate(n, n + 2, &input, &mut wide);
+                        assert_bitwise(
+                            &got,
+                            &statuses,
+                            &want,
+                            &want_statuses,
+                            &format!("{label} mu^{mu_powers} declared mu^{declared_mu}"),
+                        );
+                        assert_eq!((wide.rank(), wide.mu_powers()), (n + 2, declared_mu));
+                    }
+                }
+            }
+        }
+        // A zero numerator is reduced at rank 0.
+        let mut rng = Rng(990 + n as u64);
+        let (shifts, masses, scales) = random_input(&mut rng, n, 2);
+        let input = FastInput {
+            lanes: 2,
+            shifts: &shifts,
+            masses_squared: &masses,
+            scales_squared: &scales,
+            s_matrix: None,
+        };
+        let (want, want_statuses) = evaluate(n, 0, &input, &mut TensorNumerator::new(0, 2));
+        let (got, statuses) = evaluate(n, n + 2, &input, &mut TensorNumerator::new(n + 2, 2));
+        assert_bitwise(
+            &got,
+            &statuses,
+            &want,
+            &want_statuses,
+            &format!("n={n} zero"),
+        );
+    }
+}
+
+/// The rank of lane `lane` in [`mixed_tensor`].
+fn mixed_rank(n: usize, lane: usize) -> usize {
+    [n + 2, n + 1, n, n + 2, n.saturating_sub(1), n + 1, 0][lane % 7]
+}
+
+/// A rank n+2 tensor whose lane `i` has rank [`mixed_rank`]`(n, i)`, dense
+/// below it.
+fn mixed_tensor(rng: &mut Rng, n: usize, lanes: usize) -> TensorNumerator {
+    let mut tensor = TensorNumerator::new(n + 2, lanes);
+    for lane in 0..lanes {
+        let filled = ncoeff(mixed_rank(n, lane));
+        for (i, c) in tensor.lane_coefficients_mut(lane).iter_mut().enumerate() {
+            *c = if i < filled { rng.c() } else { C64::ZERO };
+        }
+    }
+    tensor
+}
+
+/// Lane `lane` of a batch on its own (width 1).
+fn single_lane<N: FastNumerator + ?Sized>(
+    amplitude: &mut FastAmplitude,
+    n: usize,
+    input: &FastInput,
+    lane: usize,
+    numerator: &mut N,
+) -> (FastResult, FastStatus) {
+    let one = FastInput {
+        lanes: 1,
+        shifts: &input.shifts[lane * n..(lane + 1) * n],
+        masses_squared: &input.masses_squared[lane * n..(lane + 1) * n],
+        scales_squared: &input.scales_squared[lane..lane + 1],
+        s_matrix: input.s_matrix.map(|m| &m[lane * n * n..(lane + 1) * n * n]),
+    };
+    let mut results = [FastResult::default()];
+    let mut statuses = [FastStatus::NotEvaluated];
+    amplitude
+        .evaluate(
+            &one,
+            numerator,
+            &mut HashMasters,
+            &mut results,
+            &mut statuses,
+        )
+        .unwrap();
+    (results[0], statuses[0])
+}
+
+/// A batch whose lanes have ranks n+2, n+1, n, n-1 and 0 is split by rank:
+/// every lane equals its width-1 run bitwise, and a lane of rank `r < n + 2`
+/// equals the rank-`r` declaration; recording and replay take the same path,
+/// and so does the reversed batch.
+#[test]
+fn mixed_batches_split_and_stay_bitwise() {
+    for n in 1..=7 {
+        let mut rng = Rng(950 + n as u64);
+        let lanes = 7;
+        let (shifts, masses, scales) = random_input(&mut rng, n, lanes);
+        let input = FastInput {
+            lanes,
+            shifts: &shifts,
+            masses_squared: &masses,
+            scales_squared: &scales,
+            s_matrix: None,
+        };
+        let tensor = mixed_tensor(&mut rng, n, lanes);
+        let mut amplitude = FastAmplitude::new(n, n + 2, FastOptions::default()).unwrap();
+        let (mut single, mut single_statuses) = (Vec::new(), Vec::new());
+        for lane in 0..lanes {
+            let mut one = TensorNumerator::new(n + 2, 1);
+            one.lane_coefficients_mut(0)
+                .copy_from_slice(tensor.lane_coefficients(lane));
+            let (result, status) = single_lane(&mut amplitude, n, &input, lane, &mut one);
+            let rank = mixed_rank(n, lane);
+            if rank < n + 2 {
+                let mut low = TensorNumerator::new(rank, 1);
+                low.lane_coefficients_mut(0)
+                    .copy_from_slice(&tensor.lane_coefficients(lane)[..ncoeff(rank)]);
+                let mut at_rank = FastAmplitude::new(n, rank, FastOptions::default()).unwrap();
+                let (want, want_status) = single_lane(&mut at_rank, n, &input, lane, &mut low);
+                assert_eq!(status, want_status, "n={n} lane {lane}");
+                assert_eq!(bits(&result), bits(&want), "n={n} lane {lane}");
+            }
+            single.push(result);
+            single_statuses.push(status);
+        }
+        let sentinel = FastResult {
+            laurent: [C64::real(42.); 3],
+            cut_constructible: C64::real(42.),
+            rational: C64::real(42.),
+        };
+        // The batch, recorded, then replayed twice; then reversed.
+        let mut recording = RecordingNumerator::new(tensor.clone());
+        let mut masters = RecordingMasters::new(HashMasters);
+        let mut results = vec![sentinel; lanes];
+        let mut statuses = vec![FastStatus::NotEvaluated; lanes];
+        amplitude
+            .evaluate(
+                &input,
+                &mut recording,
+                &mut masters,
+                &mut results,
+                &mut statuses,
+            )
+            .unwrap();
+        assert_bitwise(
+            &results,
+            &statuses,
+            &single,
+            &single_statuses,
+            &format!("n={n}"),
+        );
+        let mut replay_numerator = recording.replay();
+        let mut replay_masters = masters.replay();
+        for _ in 0..2 {
+            let mut replayed = vec![sentinel; lanes];
+            amplitude
+                .evaluate(
+                    &input,
+                    &mut replay_numerator,
+                    &mut replay_masters,
+                    &mut replayed,
+                    &mut statuses,
+                )
+                .unwrap();
+            assert_bitwise(&replayed, &statuses, &single, &single_statuses, "replay");
+        }
+        assert_eq!(replay_numerator.rank(), n + 2);
+        let order: Vec<usize> = (0..lanes).rev().collect();
+        let rshifts: Vec<RMom> = order
+            .iter()
+            .flat_map(|&l| shifts[l * n..(l + 1) * n].to_vec())
+            .collect();
+        let rmasses: Vec<C64> = order
+            .iter()
+            .flat_map(|&l| masses[l * n..(l + 1) * n].to_vec())
+            .collect();
+        let rscales: Vec<f64> = order.iter().map(|&l| scales[l]).collect();
+        let mut reversed = TensorNumerator::new(n + 2, lanes);
+        for (row, &lane) in order.iter().enumerate() {
+            reversed
+                .lane_coefficients_mut(row)
+                .copy_from_slice(tensor.lane_coefficients(lane));
+        }
+        let mut results = vec![sentinel; lanes];
+        amplitude
+            .evaluate(
+                &FastInput {
+                    lanes,
+                    shifts: &rshifts,
+                    masses_squared: &rmasses,
+                    scales_squared: &rscales,
+                    s_matrix: None,
+                },
+                &mut reversed,
+                &mut HashMasters,
+                &mut results,
+                &mut statuses,
+            )
+            .unwrap();
+        for (row, &lane) in order.iter().enumerate() {
+            assert_eq!(statuses[row], single_statuses[lane], "n={n} reversed {row}");
+            assert_eq!(
+                bits(&results[row]),
+                bits(&single[lane]),
+                "n={n} reversed {row}"
+            );
+        }
+    }
+}
+
+/// Masters that fail structurally on call `fail_at` (counting from 0).
+struct FailingMasters {
+    calls: usize,
+    fail_at: usize,
+}
+
+impl FastMasters for FailingMasters {
+    fn evaluate(
+        &mut self,
+        family: FastMaster,
+        args: &[C64],
+        out: &mut [[C64; 3]],
+        ok: &mut [bool],
+    ) -> Result<()> {
+        self.calls += 1;
+        if self.calls - 1 == self.fail_at {
+            return Err(Error::Unsupported("failing masters".into()));
+        }
+        HashMasters.evaluate(family, args, out, ok)
+    }
+}
+
+/// Counts the rank n+2 expansions it is asked for and forwards everything,
+/// including the lane-rank methods.
+struct CountX2(TensorNumerator, usize);
+
+impl FastNumerator for CountX2 {
+    fn rank(&self) -> usize {
+        FastNumerator::rank(&self.0)
+    }
+    fn evaluate(
+        &mut self,
+        cut: &[usize],
+        lanes: &[usize],
+        q: &[CMom],
+        mu_squared: &[C64],
+        out: &mut [C64],
+    ) -> Result<()> {
+        self.0.evaluate(cut, lanes, q, mu_squared, out)
+    }
+    fn mu_expansion(
+        &mut self,
+        cut: &[usize],
+        lanes: &[usize],
+        v0: &[CMom],
+        v1: Option<&[CMom]>,
+        out: &mut [C64],
+    ) -> Result<()> {
+        self.0.mu_expansion(cut, lanes, v0, v1, out)
+    }
+    fn mu_expansion_x2(
+        &mut self,
+        cut: &[usize],
+        lanes: &[usize],
+        v0: &[CMom],
+        v1: &[CMom],
+        beta: &[C64],
+        out: &mut [C64],
+    ) -> Result<()> {
+        self.1 += 1;
+        self.0.mu_expansion_x2(cut, lanes, v0, v1, beta, out)
+    }
+    fn t3_expansion(
+        &mut self,
+        cut: &[usize],
+        lanes: &[usize],
+        a: &[CMom],
+        e3: &[CMom],
+        e4: &[CMom],
+        param: &[C64],
+        mindeg: usize,
+        out: &mut [C64],
+    ) -> Result<()> {
+        self.0
+            .t3_expansion(cut, lanes, a, e3, e4, param, mindeg, out)
+    }
+    fn t2_expansion(
+        &mut self,
+        cut: &[usize],
+        lanes: &[usize],
+        a0: &[CMom],
+        a1: &[CMom],
+        e3: &[CMom],
+        e4: &[CMom],
+        param: &[[C64; 3]],
+        mindeg: usize,
+        out: &mut [C64],
+    ) -> Result<()> {
+        self.0
+            .t2_expansion(cut, lanes, a0, a1, e3, e4, param, mindeg, out)
+    }
+    fn t3_expansion_x2(
+        &mut self,
+        cut: &[usize],
+        lanes: &[usize],
+        a: &[CMom],
+        e3: &[CMom],
+        e4: &[CMom],
+        param: &[C64],
+        out: &mut [C64],
+    ) -> Result<()> {
+        self.1 += 1;
+        self.0.t3_expansion_x2(cut, lanes, a, e3, e4, param, out)
+    }
+    fn t2_expansion_x2(
+        &mut self,
+        cut: &[usize],
+        lanes: &[usize],
+        a0: &[CMom],
+        a1: &[CMom],
+        e3: &[CMom],
+        e4: &[CMom],
+        param: &[[C64; 3]],
+        out: &mut [C64],
+    ) -> Result<()> {
+        self.1 += 1;
+        self.0
+            .t2_expansion_x2(cut, lanes, a0, a1, e3, e4, param, out)
+    }
+    fn lane_rank(&mut self, lane: usize) -> Option<usize> {
+        self.0.lane_rank(lane)
+    }
+    fn lower_rank(&mut self, lanes: &[usize], rank: usize) -> Result<()> {
+        self.0.lower_rank(lanes, rank)
+    }
+    fn restore_rank(&mut self) {
+        self.0.restore_rank();
+    }
+}
+
+/// Which engine runs (`AtDeclaredRank` keeps the rank n+2 one); structural
+/// errors in any part of a split batch leave results, statuses and the
+/// numerator unchanged; `lower_rank` checks its lanes.
+#[test]
+fn declared_rank_dispatch_and_errors() {
+    let n = 4;
+    let lanes = 7;
+    let mut rng = Rng(990);
+    let (shifts, masses, scales) = random_input(&mut rng, n, lanes);
+    let input = FastInput {
+        lanes,
+        shifts: &shifts,
+        masses_squared: &masses,
+        scales_squared: &scales,
+        s_matrix: None,
+    };
+    let mut amplitude = FastAmplitude::new(n, n + 2, FastOptions::default()).unwrap();
+    let mut wide = TensorNumerator::new(n + 2, lanes);
+    for lane in 0..lanes {
+        for c in &mut wide.lane_coefficients_mut(lane)[..ncoeff(n + 1)] {
+            *c = rng.c();
+        }
+    }
+    let mut results = vec![FastResult::default(); lanes];
+    let mut statuses = vec![FastStatus::NotEvaluated; lanes];
+    // Every lane of rank n+1: no rank n+2 expansion at all.
+    let mut counting = CountX2(wide.clone(), 0);
+    amplitude
+        .evaluate(
+            &input,
+            &mut counting,
+            &mut HashMasters,
+            &mut results,
+            &mut statuses,
+        )
+        .unwrap();
+    assert_eq!(counting.1, 0);
+    // Kept at the declared rank.
+    amplitude
+        .evaluate(
+            &input,
+            &mut AtDeclaredRank(&mut counting),
+            &mut HashMasters,
+            &mut results,
+            &mut statuses,
+        )
+        .unwrap();
+    assert!(counting.1 > 0);
+    // Mixed ranks.
+    let mixed = mixed_tensor(&mut rng, n, lanes);
+    let mut counting = CountX2(mixed.clone(), 0);
+    amplitude
+        .evaluate(
+            &input,
+            &mut counting,
+            &mut HashMasters,
+            &mut results,
+            &mut statuses,
+        )
+        .unwrap();
+    assert!(counting.1 > 0);
+    let good = results.clone();
+    let mut total = FailingMasters {
+        calls: 0,
+        fail_at: usize::MAX,
+    };
+    let mut numerator = mixed.clone();
+    amplitude
+        .evaluate(
+            &input,
+            &mut numerator,
+            &mut total,
+            &mut results,
+            &mut statuses,
+        )
+        .unwrap();
+    assert_eq!(results, good);
+    let sentinel = FastResult {
+        laurent: [C64::real(42.); 3],
+        cut_constructible: C64::real(42.),
+        rational: C64::real(42.),
+    };
+    // A structural error in every master call: in each lower-rank part and in
+    // the rank n+2 part.
+    for fail_at in 0..total.calls {
+        let mut results = vec![sentinel; lanes];
+        let mut statuses = vec![FastStatus::NotEvaluated; lanes];
+        let mut masters = FailingMasters { calls: 0, fail_at };
+        let outcome = amplitude.evaluate(
+            &input,
+            &mut numerator,
+            &mut masters,
+            &mut results,
+            &mut statuses,
+        );
+        assert!(matches!(outcome, Err(Error::Unsupported(_))), "{fail_at}");
+        assert_eq!(results, vec![sentinel; lanes], "fail at {fail_at}");
+        assert_eq!(statuses, vec![FastStatus::NotEvaluated; lanes]);
+        assert_eq!(FastNumerator::rank(&numerator), n + 2);
+        assert_eq!(numerator.lanes(), lanes);
+        assert_eq!(numerator.coefficients(), mixed.coefficients());
+    }
+    // And the next evaluation is unaffected.
+    amplitude
+        .evaluate(
+            &input,
+            &mut numerator,
+            &mut HashMasters,
+            &mut results,
+            &mut statuses,
+        )
+        .unwrap();
+    assert_eq!(
+        results.iter().map(bits).collect::<Vec<_>>(),
+        good.iter().map(bits).collect::<Vec<_>>()
+    );
+    // Bad shapes are reported before a batch is split.
+    let before = results.clone();
+    assert!(matches!(
+        amplitude.evaluate(
+            &FastInput {
+                scales_squared: &scales[..lanes - 1],
+                ..input
+            },
+            &mut numerator,
+            &mut HashMasters,
+            &mut results,
+            &mut statuses,
+        ),
+        Err(Error::Shape { .. })
+    ));
+    assert_eq!(results, before);
+    // `lower_rank` checks its lanes and its rank.
+    let mut copy = mixed.clone();
+    assert!(copy.lower_rank(&[0], n + 1).is_err());
+    assert!(copy.lower_rank(&[1, 2], n).is_err());
+    assert!(copy.lower_rank(&[1], n + 2).is_err());
+    assert!(copy.lower_rank(&[2, 4, 6], n).is_ok());
+    assert!(copy.lower_rank(&[1], n + 1).is_err());
+    assert_eq!((FastNumerator::rank(&copy), copy.lanes()), (n, 3));
+    assert_eq!(
+        copy.lane_coefficients(1),
+        &mixed.lane_coefficients(4)[..ncoeff(n)]
+    );
+    copy.restore_rank();
+    assert_eq!(copy.coefficients(), mixed.coefficients());
+    assert_eq!((FastNumerator::rank(&copy), copy.lanes()), (n + 2, lanes));
+    assert_eq!(copy.lane_rank(lanes), None);
+    for lane in 0..lanes {
+        assert_eq!(copy.lane_rank(lane), Some(mixed_rank(n, lane)));
+    }
 }
 
 /// `sum_k mu^(2k) T_k` with the blocks of `m` multiplied by
