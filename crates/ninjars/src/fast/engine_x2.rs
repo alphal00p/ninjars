@@ -42,9 +42,9 @@ use super::bases_x2::{TadpoleBasesX2, bubble_basis_x2};
 use super::box_x2::box_geometry_x2;
 use super::complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr};
 use super::engine::{
-    FastOptions, MasterBatch, Stability, TadpoleData, Topology, Uncut, den, den_scale,
-    difference_scale, divide_t2, divide_t3, dot_scale, fail, gram_scale, is_zero, scale_c, sub_cr,
-    taxicab_sum,
+    FastOptions, MasterBatch, Stability, StageOptions, TadpoleData, Topology, Uncut, den,
+    den_scale, difference_scale, divide_t2, divide_t3, dot_scale, fail, gram_scale, is_zero,
+    scale_c, sub_cr, taxicab_sum,
 };
 use super::geometry::{
     Basis, box_solutions, bubble_solution, cmom_from_real, combine_real2, gram_det, mp2,
@@ -299,7 +299,7 @@ fn finite_power(z: C64, k: u32) -> bool {
 
 /// Batched binary64 reduction for rank `n + 2` (see the module docs).
 pub(super) struct RankN2Engine {
-    options: FastOptions,
+    options: StageOptions,
     /// Original Ninja's three tadpole bases and the extra candidates
     /// (`bases_x2.rs`).
     tadpole_bases: TadpoleBasesX2,
@@ -336,7 +336,7 @@ impl RankN2Engine {
     pub(super) fn new(n: usize, options: FastOptions) -> Self {
         Self {
             tadpole_bases: TadpoleBasesX2::new(options.infrared_eps),
-            options,
+            options: StageOptions::new(&options),
             lanes: 0,
             alive: Vec::new(),
             lane_status: Vec::new(),

@@ -50,6 +50,8 @@ pub mod tensor_mu;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
+mod tests_conditioned;
+#[cfg(test)]
 mod tests_x2;
 
 pub use adapters::{GenericMasters, GenericNumerator};
