@@ -352,7 +352,14 @@ impl<T: SingleFloat + RealLike> MasterProvider<Complex<T>> for Widened {
     }
 }
 
-fn cancelling_lane<T>(prototype: T, stability_test: bool) -> (EvaluationStatus, Complex<T>)
+/// The cancelling lane evaluated `evaluations` times into one amplitude:
+/// its status, finite part, and the binary64 cancellation measurement
+/// (summed contribution moduli per Laurent coefficient and result moduli).
+fn cancelling_evaluations<T>(
+    prototype: T,
+    stability_test: bool,
+    evaluations: usize,
+) -> (EvaluationStatus, Complex<T>, [f64; 3], [f64; 3])
 where
     T: Real + SingleFloat + RealLike,
     Complex<T>: Real + EvaluationDomain,
@@ -374,22 +381,47 @@ where
         kernels
     };
     let mut amplitude = kernels.into_amplitude(1).unwrap();
-    amplitude
-        .evaluate_batch_with_inputs(
-            AmplitudeInput {
-                shifts: &shifts,
-                masses_squared: &masses,
-                scales_squared: &[value(cancelling::SCALE)],
-                sampling_scales: &[value(cancelling::SAMPLING)],
-                s_matrix: None,
-            },
-            &mut numerator,
-            &mut SymbolicaCuts::new(p.clone()).unwrap(),
-            &mut SymbolicaHighCuts::new(p.clone()).unwrap(),
-            &mut Widened(OneLoopNativeMasters::new().unwrap()),
-        )
-        .unwrap();
-    (amplitude.statuses()[0], amplitude.results()[0][0].clone())
+    for _ in 0..evaluations {
+        amplitude
+            .evaluate_batch_with_inputs(
+                AmplitudeInput {
+                    shifts: &shifts,
+                    masses_squared: &masses,
+                    scales_squared: &[value(cancelling::SCALE)],
+                    sampling_scales: &[value(cancelling::SAMPLING)],
+                    s_matrix: None,
+                },
+                &mut numerator,
+                &mut SymbolicaCuts::new(p.clone()).unwrap(),
+                &mut SymbolicaHighCuts::new(p.clone()).unwrap(),
+                &mut Widened(OneLoopNativeMasters::new().unwrap()),
+            )
+            .unwrap();
+    }
+    let binary64 = |moduli: &Laurent<Complex<T>>| moduli.each_ref().map(|m| m.re.to_f64());
+    let outcome = (
+        amplitude.statuses()[0],
+        amplitude.results()[0][0].clone(),
+        binary64(&amplitude.contribution_moduli()[0]),
+        binary64(&amplitude.result_moduli(0).unwrap()),
+    );
+    amplitude.reset();
+    assert!(
+        amplitude.contribution_moduli()[0]
+            .iter()
+            .all(|m| m.re.is_zero()),
+        "reset clears the measurement"
+    );
+    outcome
+}
+
+fn cancelling_lane<T>(prototype: T, stability_test: bool) -> (EvaluationStatus, Complex<T>)
+where
+    T: Real + SingleFloat + RealLike,
+    Complex<T>: Real + EvaluationDomain,
+{
+    let (status, value, _, _) = cancelling_evaluations(prototype, stability_test, 1);
+    (status, value)
 }
 
 #[test]
@@ -406,6 +438,36 @@ fn opt_in_cancellation_test_flags_lost_binary64_digits() {
     let error = (f64_value.re - reference.re).hypot(f64_value.im - reference.im)
         / reference.re.hypot(reference.im);
     assert!(error > 1., "binary64 relative error {error:e}");
+}
+
+/// The cancellation measurement is reported without the opt-in test. It
+/// agrees with the test's verdict (a ratio above `2^(p/2)` in binary64, below
+/// it in DoubleFloat), and it accumulates and resets with the results.
+#[test]
+fn cancellation_is_measured_without_the_stability_test() {
+    let largest = |moduli: [f64; 3]| moduli.into_iter().fold(0., f64::max);
+    let (status, _, contributions, result) = cancelling_evaluations(0_f64, false, 1);
+    assert_eq!(status, EvaluationStatus::Success);
+    let ratio = largest(contributions) / largest(result);
+    assert!(ratio > 2_f64.powf(26.5), "binary64 ratio {ratio:e}");
+    let (status, _, double_contributions, double_result) =
+        cancelling_evaluations(DoubleFloat::from(0.), false, 1);
+    assert_eq!(status, EvaluationStatus::Success);
+    let ratio = largest(double_contributions) / largest(double_result);
+    assert!(ratio < 2_f64.powi(53), "DoubleFloat ratio {ratio:e}");
+    for (binary64, double) in contributions.iter().zip(&double_contributions) {
+        assert!(
+            (binary64 - double).abs() <= 1e-10 * double,
+            "{binary64:e} {double:e}"
+        );
+    }
+    let (_, _, twice, _) = cancelling_evaluations(0_f64, false, 2);
+    for (twice, once) in twice.iter().zip(&contributions) {
+        assert!(
+            (twice - 2. * once).abs() <= 1e-14 * twice,
+            "{twice:e} {once:e}"
+        );
+    }
 }
 
 /// Fast and generic binary64 engines on a constant numerator with native

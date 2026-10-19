@@ -2,7 +2,12 @@
 //!
 //! For the fixed-precision carriers (binary64 and DoubleFloat), scalar
 //! families (A0, B0, dB0, C0, D0) use oneloopmaster's native direct-Rust
-//! implementation generated from its exact expressions.
+//! implementation generated from its exact expressions. Its exact branch
+//! predicates need analytically real products such as `z conj(z)` to be
+//! exactly real. The compensated DoubleFloat product rounds differently in
+//! each operand order, so oneloopmaster forms its native DoubleFloat products
+//! symmetrically; before it did, a four-mass D0 lost its real part
+//! (`tests/box_masters.rs`).
 //!
 //! The rank-four bubble coefficient B1111 uses oneloopmaster's native tensor
 //! family (`TensorIntegral::B1111`, OneLOop's `bub1111` with the corrected
@@ -16,11 +21,13 @@
 //! route does not pad inputs beyond the digits they determine relative to the
 //! row's scale.
 //!
-//! Otherwise `Float` keeps Symbolica's interpreter of the exact expressions,
-//! which tracks the significant precision of every input component instead of
-//! padding inputs to the working precision: the scalar families, the other
-//! tensor families (B1, B11, B111, An), and all Dual (derivative) evaluations
-//! of every family, B1111 included.
+//! Otherwise arbitrary-precision `Float` keeps Symbolica's interpreter of the
+//! exact expressions for the scalar families, which tracks the significant
+//! precision of every input component instead of padding inputs to the
+//! working precision. The other tensor families (B1, B11, B111, An) and all
+//! Dual (derivative) evaluations of every family, B1111 included, use the same
+//! exact formulas through the interpreter for every carrier, whose DoubleFloat
+//! products keep their operand-order rounding.
 
 use std::collections::{BTreeMap, btree_map::Entry};
 

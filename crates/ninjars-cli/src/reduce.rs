@@ -14,7 +14,7 @@ use serde_json::{Value, json};
 use std::{error::Error, fs, num::NonZeroUsize, path::PathBuf};
 use symbolica::{
     atom::AtomCore,
-    domains::float::{DoubleFloat, Float},
+    domains::float::{DoubleFloat, Float, RealLike},
     evaluate::EvaluationDomain,
 };
 
@@ -310,6 +310,30 @@ fn status_json(status: EvaluationStatus) -> Value {
     }
 }
 
+/// Cancellation between one lane's cut contributions, in binary64: the moduli
+/// `|Re| + |Im|` of the contributions summed per Laurent coefficient
+/// (`Amplitude::contribution_moduli`), their largest over the result's
+/// largest modulus (null for a vanishing result), and the rounding error of
+/// that sum alone, `2^-p` times the moduli (`p` mantissa bits, also reported
+/// as `precision_bits`: the binary64 estimate underflows to zero once
+/// `2^-p` times a modulus leaves the binary64 range, e.g. above 1074 bits).
+fn cancellation_json<T: RealLike>(
+    contributions: &ninjars::Laurent<Complex<T>>,
+    result: &ninjars::Laurent<Complex<T>>,
+    bits: u32,
+) -> Value {
+    let contributions = contributions.each_ref().map(|modulus| modulus.re.to_f64());
+    let largest = |values: [f64; 3]| values.into_iter().fold(0., f64::max);
+    let result = largest(result.each_ref().map(|modulus| modulus.re.to_f64()));
+    let epsilon = (-f64::from(bits)).exp2();
+    json!({
+        "contribution_moduli": contributions,
+        "ratio": (result > 0.).then(|| largest(contributions) / result),
+        "rounding_estimate": contributions.map(|modulus| modulus * epsilon),
+        "precision_bits": bits,
+    })
+}
+
 fn evaluate<T: CoefficientScalar>(
     prepared: &mut PreparedDocument,
     args: &Args,
@@ -397,6 +421,15 @@ where
                 )
             } else {
                 Value::Null
+            };
+            // Measured whether or not --stability-test is set.
+            row["cancellation"] = match amplitude.result_moduli(local) {
+                Some(result) if valid => cancellation_json(
+                    &amplitude.contribution_moduli()[local],
+                    &result,
+                    prototype.get_precision(),
+                ),
+                _ => Value::Null,
             };
             if args.diagnostics {
                 row["cut_counts"] = json!({"pentagons":amplitude.pentagons().len()/chunk.len(),"boxes":amplitude.boxes().len()/chunk.len(),"triangles":amplitude.triangles().len()/chunk.len(),"bubbles":amplitude.bubbles().len()/chunk.len(),"tadpoles":amplitude.tadpoles().len()/chunk.len()});

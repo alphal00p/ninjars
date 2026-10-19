@@ -16,9 +16,15 @@ NINJA = HERE.parent / "ninja"
 BUILD = "o3-fortranrules"
 PRIMARY = "olm-a92b148-sym-e679e8c1-tensor"
 LABELS = {
+    "olm-3023fa6-sym-e679e8c1-tensor":
+        "oneloopmaster main 3023fa6 (264a6ce plus the B1111 tensor family, conditioned C0 dilogarithm "
+        "differences, the contour box for real three-mass boxes, exact Kallen edge roots, far-root r1, "
+        "labelling-independent real four-mass D0, collinear few-mass boxes and commutative DoubleFloat "
+        "products) + Symbolica e679e8c1; the final benchmark revision (149ddff and the pinned 09b2c74 return "
+        "the same bits on every call)",
     "olm-264a6ce-sym-e679e8c1-tensor":
         "oneloopmaster main 264a6ce (continuation and degenerate-kinematics fixes, hand-written C0/D0 "
-        "and tensor binary64 kernels) + Symbolica e679e8c1; the final benchmark revision",
+        "and tensor binary64 kernels) + Symbolica e679e8c1; the previous benchmark revision",
     "olm-a92b148-sym-e679e8c1-tensor":
         "oneloopmaster `claude/native-masters` a92b148 (direct `dilog_complex_f64`, NativeTensorEvaluator "
         "B11/B111 for Ninja's rank-2/3 bubble calls) + Symbolica e679e8c1 (2c06f245 + binary64 dilogarithm)",
@@ -92,8 +98,9 @@ def main():
         "NinjaRS release profile (thin LTO, 1 CGU). OneLOop: the same calls (`../ninja/<case>.masters.json`,",
         f"recorded from original Ninja) replayed through `ninja::avh_olo` (build `{BUILD}`, OneLOop-3.6,",
         "gfortran -O3, OneLOop warnings off). Microseconds per phase-space point (one lane's calls),",
-        "median of >=7 blocks >=25 ms. OneLOop replay and olm-264a6ce native pinned to CPU 250 (2026-10-18;",
-        "earlier labels: native on CPU 29, see ../cpu-crosscheck.md). 'OL B' is every bubble call (olo_b11 for",
+        "median of >=7 blocks >=25 ms. OneLOop replay and olm-264a6ce native pinned to CPU 250 (2026-10-18),",
+        "olm-3023fa6 native on CPU 250 (2026-10-19; earlier labels: native on CPU 29, see",
+        "../cpu-crosscheck.md). 'OL B' is every bubble call (olo_b11 for",
         "Ninja's rank-2 bubbles: B11, B00, B1, B0); 'nat B0 only' evaluates just B0 for those calls",
         "(less work), 'nat B (tensor)' evaluates NativeTensorEvaluator B11 = [B0, B1, B11] (B111 for",
         "rank-3 bubbles), i.e. everything Ninja consumes. max diff = largest |native - OneLOop| / max|OneLOop|",
@@ -116,9 +123,18 @@ def main():
         "  two massive internal lines above the massive-pair threshold had the wrong imaginary part (e.g.",
         "  C0(0, 0, 490000; 173^2, 0, 173^2; mu^2=1e4)), syn-n4-r3/r4 had O(1) C0/D0 deviations, and",
         "  syn-gghhh-ggHHH-n5-r5 had a D0 near a vanishing Gram determinant at 6.8e-10 (OneLOop: 7.9e-15,",
-        "  checked against 256-bit values). The remaining largest deviations are listed in the table; the",
-        "  native C0 of syn-n6-r6 with nearly coincident roots is at ~2e-13 versus OneLOop's 3e-15 (OneLOop",
-        "  uses a dedicated near-coincident dilogarithm difference).",
+        "  checked against 256-bit values). At 264a6ce the native C0 of syn-n6-r6 with nearly coincident",
+        "  roots was at ~2e-13 versus OneLOop's 3e-15 (OneLOop uses a dedicated near-coincident dilogarithm",
+        "  difference).",
+        "* **Changes in 3023fa6.** 3cbe08d conditions the coincident-root dilogarithm differences (that C0",
+        "  is now at 2.2e-15 against 256-bit values). 9c5490b (contour-box edge roots from exact Kallen",
+        "  functions) moves the D0 of syn-gghhh-ggHHH-n5-r5 near a vanishing Gram determinant from 4.4e-12",
+        "  to 3.6e-11 (OneLOop 7.9e-15) and syn-n5-r5's largest deviation from 6.2e-14 to 4.5e-13; the",
+        "  physical streams keep 8.3e-14. Against the 264a6ce run, native boxes take up to 14 % longer",
+        "  (4-9 % on the physical streams), and families without code changes moved by -10 to +6 %. Run",
+        "  alternately on CPU 250 (best of three, five physical streams), 3023fa6's boxes take 3-5 % longer",
+        "  than 264a6ce's, triangles and bubbles within 2 %, tadpoles 7-9 % less. Native/OneLOop is",
+        "  0.25-0.57x on the physical streams (0.24-0.54x at 264a6ce).",
         "",
     ]
     (HERE / "SUMMARY.md").write_text("\n".join(lines))

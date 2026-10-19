@@ -316,6 +316,9 @@ where
     fn values_equal(&self, left: &Complex<T>, right: &Complex<T>) -> bool {
         left == right
     }
+    fn modulus(&self, value: &Complex<T>) -> Complex<T> {
+        Complex::new(value.re.norm() + value.im.norm(), value.re.zero())
+    }
     fn cancellation_stable<'a>(
         &self,
         contributions: impl Iterator<Item = &'a IntegratedContribution<Complex<T>>>,
@@ -572,6 +575,16 @@ where
     }
     fn values_equal(&self, left: &D, right: &D) -> bool {
         left.get_shape() == right.get_shape() && left.values() == right.values()
+    }
+    fn modulus(&self, value: &D) -> D {
+        let primal = &value.values()[0];
+        let zero = primal.re.zero();
+        let mut modulus = value.clone();
+        for component in modulus.values_mut() {
+            *component = Complex::new(zero.clone(), zero.clone());
+        }
+        modulus.values_mut()[0] = Complex::new(primal.re.norm() + primal.im.norm(), zero);
+        modulus
     }
     fn cancellation_stable<'a>(
         &self,

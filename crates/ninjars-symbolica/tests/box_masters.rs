@@ -9,7 +9,10 @@ use oneloop::NativeFloat;
 use serde_json::Value;
 use symbolica::{
     atom::{Atom, AtomCore},
-    domains::float::{Real, RealLike},
+    domains::{
+        float::{Real, RealLike},
+        rational::Rational,
+    },
     evaluate::EvaluationDomain,
     parser::ParseSettings,
 };
@@ -262,4 +265,81 @@ fn d0_double_float_and_arbitrary_precision_converge_beyond_binary64() {
         saw_binary64_roundoff,
         "fixture must distinguish the numerical carriers"
     );
+}
+
+/// Equal-mass four-mass D0 (`m² = mu² = 1`) from n12r12genericm1 lane 2,
+/// `[p1², p2², p3², p4², s12, s23]`. DoubleFloat once returned the real part
+/// +0.37226 instead of -0.063421 in one relabelling and at the rounded
+/// invariants the reduction forms from its momenta: its non-commutative
+/// product left an imaginary residue in `1 - z conj(z)`, and an exact sign
+/// test inverted a dilogarithm argument (oneloopmaster
+/// `tests/native_double_float_d0.rs`).
+const EQUAL_MASS_BOX: [(i64, i64); 6] = [
+    (2171, 144),
+    (211, 16),
+    (-5, 4),
+    (-587, 72),
+    (-311, 72),
+    (27, 16),
+];
+/// The rounded DoubleFloat invariants of the reduction (exact decimal values).
+const EQUAL_MASS_BOX_ROUNDED: [&str; 6] = [
+    "1.507638888888888888888888888888891080169e1",
+    "1.318750000000000000000000000000001232595e1",
+    "-1.249999999999999999999999999999981511073e0",
+    "-8.152777777777777777777777777777821603384e0",
+    "-4.319444444444444444444444444444430748943e0",
+    "1.687499999999999999999999999999996918512e0",
+];
+/// The finite part from native Float and the interpreter at 256 bits.
+const EQUAL_MASS_BOX_FINITE: [&str; 2] = [
+    "-6.342090417471351697878784160261216715137e-2",
+    "2.110820888749008107801505116588042554555e-2",
+];
+
+#[test]
+fn d0_double_float_equal_mass_box_matches_float_in_every_labelling() {
+    let exact = EQUAL_MASS_BOX.map(|(n, d)| DoubleFloat::from(&Rational::from((n, d))));
+    let rounded =
+        EQUAL_MASS_BOX_ROUNDED.map(|v| Float::parse(v, Some(256)).unwrap().to_double_float());
+    // The box symmetries: cyclic shifts and the reflection of the propagators.
+    let shift = |p: &[DoubleFloat; 6]| [1, 2, 3, 0, 5, 4].map(|i| p[i]);
+    let reflect = |p: &[DoubleFloat; 6]| [2, 1, 0, 3, 5, 4].map(|i| p[i]);
+    let mut invariants = Vec::new();
+    for start in [exact, rounded] {
+        let mut current = start;
+        for _ in 0..4 {
+            for labelling in [current, reflect(&current)] {
+                invariants.extend(labelling.map(|p| Complex::new(p, DoubleFloat::default())));
+            }
+            current = shift(&current);
+        }
+    }
+    let rows = invariants.len() / 6;
+    let one = Complex::new(DoubleFloat::from(1.), DoubleFloat::default());
+    let zero = Complex::new(DoubleFloat::default(), DoubleFloat::default());
+    let mut output = vec![[zero; 3]; rows];
+    SymbolicaMasters::new(DoubleFloat::default())
+        .evaluate(
+            MasterRequest {
+                integral: MasterIntegral::D0,
+                invariants: &invariants,
+                masses_squared: &vec![one; 4 * rows],
+                scales_squared: &vec![one; rows],
+            },
+            &mut output,
+        )
+        .unwrap();
+    let expected = EQUAL_MASS_BOX_FINITE.map(|v| Float::parse(v, Some(320)).unwrap());
+    let bound = Float::parse("1e-29", Some(320)).unwrap();
+    for (row, value) in output.iter().enumerate() {
+        for (actual, expected) in [(&value[0].re, &expected[0]), (&value[0].im, &expected[1])] {
+            let error = relative_difference(&Float::from(*actual), expected);
+            assert!(
+                error < bound,
+                "row {row}: {actual:?} vs {expected} ({error})"
+            );
+        }
+        assert!(value[1] == zero && value[2] == zero, "row {row}: poles");
+    }
 }

@@ -24,7 +24,7 @@ feynkit-amplitude = { git = "https://github.com/alphal00p/gammaloop.git", rev = 
 spenso = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a80bc9f9f21bead0e1cde6acbcffbe93", default-features = false, features = ["native", "shadowing"] }
 idenso = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a80bc9f9f21bead0e1cde6acbcffbe93", default-features = false, features = ["native"] }
 symbolica-utils = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a80bc9f9f21bead0e1cde6acbcffbe93", default-features = false, features = ["native"] }
-oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "fe550e3db45c6830e741e1d11fcf1ac193655539", default-features = false }
+oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "09b2c7497743db875ed446da95123175dd00b1c8", default-features = false }
 linnet = { git = "https://github.com/alphal00p/gammaloop.git", rev = "474478a7a80bc9f9f21bead0e1cde6acbcffbe93", default-features = false, features = ["serde"] }
 thiserror = "2"
 serde = { version = "1", features = ["derive"] }

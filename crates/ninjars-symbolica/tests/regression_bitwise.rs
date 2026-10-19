@@ -19,10 +19,10 @@
 //! - the generic engine in `Float(256)` with `SymbolicaMasters` (exact
 //!   oneloopmaster expressions) on six cases: decimal strings.
 //!
-//! The expected values in `validation/regression/r-le-n1-dec3d55.json` are those
-//! of NinjaRS main dec3d55, before any rank n+2 change (first generated at
-//! e4c16a7; see `validation/regression/README.md` for the one reviewed
-//! re-bless). Any difference fails.
+//! The expected values in `validation/regression/r-le-n1-d53dd08.json` are those
+//! of NinjaRS main d53dd08 with oneloopmaster 09b2c74, without any rank n+2
+//! change (first generated at e4c16a7; see `validation/regression/README.md`
+//! for the two reviewed re-blesses). Any difference fails.
 //! `NINJARS_BLESS=1` rewrites the file (only ever on a reviewed baseline).
 //! Everything runs sequentially in one test so Symbolica symbols are always
 //! registered in the same order.
@@ -44,7 +44,7 @@ use serde_json::{Map, Value, json};
 use std::path::{Path, PathBuf};
 use symbolica::{atom::Atom, domains::rational::Rational, parser::ParseSettings};
 
-const FIXTURE: &str = "validation/regression/r-le-n1-dec3d55.json";
+const FIXTURE: &str = "validation/regression/r-le-n1-d53dd08.json";
 const NAMESPACE: &str = "ninjars_regression";
 const WIDE: usize = 32;
 const FLOAT_BITS: u32 = 256;
@@ -555,7 +555,7 @@ fn compute() -> Value {
     eprintln!("V0 total {:.1}s", started.elapsed().as_secs_f64());
     json!({
         "format": "ninjars-regression-bitwise-v1",
-        "baseline": "dec3d55 (NinjaRS main before rank n+2; first generated at e4c16a7), oneloopmaster 264a6ce",
+        "baseline": "d53dd08 (NinjaRS main without rank n+2; first generated at e4c16a7), oneloopmaster 09b2c74",
         "description": "Bitwise outputs for numerator rank <= n+1: fast engine (TensorNumerator + OneLoopNativeMasters, widths 1 and 32; entries 'status:hex' of [laurent0..2, cut_constructible, rational] as (re,im) f64 bits, '=k' repeats width-1 entry k), generic f64 (PolynomialNumerator + OneLoopNativeMasters), explicit mu^2 numerators (fast via GenericNumerator and MuTensorNumerator, generic f64), generic Float(256) with SymbolicaMasters (decimal strings). Test: crates/ninjars-symbolica/tests/regression_bitwise.rs.",
         "fast_tensor": fast,
         "generic_f64": generic_f64,
