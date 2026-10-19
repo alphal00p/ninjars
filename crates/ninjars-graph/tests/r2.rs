@@ -210,20 +210,24 @@ fn fdh_rejects_four_dimensional_only_structures() {
         modified.diagram = modified
             .diagram
             .clone()
-            .with_projector(modified.diagram.projector() * extra);
+            .with_projector(
+                feynkit_graph::NumeratorInterface::admit(feynkit_graph::NumeratorInterface::export(modified.diagram.projector()).0 * extra, None)
+                    .unwrap(),
+            );
         modified
     };
     let minkowski = LibraryRep::from(Minkowski {}).symbol();
     let mink = |index: i64| function!(minkowski, Atom::num(4), Atom::num(index));
-    let (one, two) = (Atom::num(1), Atom::num(2));
+    let bispinor = LibraryRep::from(idenso::representations::Bispinor {}).symbol();
+    let bis = |index: i64| function!(bispinor, Atom::num(4), Atom::num(index));
     for (extra, reason) in [
-        (function!(AGS.gamma5, one, two), "gamma5"),
-        (function!(AGS.projm, one, two), "gamma5"),
+        (function!(AGS.gamma5, bis(1), bis(2)), "gamma5"),
+        (function!(AGS.projm, bis(1), bis(2)), "gamma5"),
         (
-            function!(*EPSILON_SYMBOL, one, two, Atom::num(3), Atom::num(4)),
+            function!(*EPSILON_SYMBOL, mink(1), mink(2), mink(3), mink(4)),
             "Levi-Civita",
         ),
-        (function!(symbols::ubar(), Atom::num(7), one), "spinor"),
+        (function!(symbols::ubar(), Atom::num(7), bis(1)), "spinor"),
         (function!(ETS.metric, mink(11), mink(12)), "metric"),
     ] {
         let modified = with_projector(extra);

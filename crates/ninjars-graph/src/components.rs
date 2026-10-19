@@ -174,9 +174,9 @@ impl PreparedIntegrand {
         let diagram = &self.diagram;
         let mut reason = None;
         for (index, expression) in [
-            diagram.numerator(),
-            diagram.numerator_prefactor(),
-            diagram.projector(),
+            feynkit_graph::NumeratorInterface::export(diagram.numerator()).0,
+            feynkit_graph::NumeratorInterface::export(diagram.numerator_prefactor()).0,
+            feynkit_graph::NumeratorInterface::export(diagram.projector()).0,
         ]
         .into_iter()
         .enumerate()

@@ -204,7 +204,7 @@ fn prepare(
     let start = Instant::now();
     if options.numerator == NumeratorMode::FeynmanRules {
         diagram = diagram.apply_feynman_rules()?;
-        if diagram.projector().is_one() {
+        if diagram.projector().expression().is_one() {
             let projector = diagram.external_state_projector()?;
             diagram = diagram.with_projector(projector);
         }

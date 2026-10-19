@@ -199,8 +199,12 @@ pub fn prepare_top_higgs_gluons(
             if gluons.len() != 2 {
                 return Err(PhysicalPreparationError::ExternalStates);
             }
-            let projector = diagram.projector()
-                * color.expression([gluons[0].index_atom(), gluons[1].index_atom()]);
+            let projector = feynkit_graph::NumeratorInterface::admit(
+                feynkit_graph::NumeratorInterface::export(diagram.projector()).0
+                    * color.expression([gluons[0].index_atom(), gluons[1].index_atom()]),
+                None,
+            )
+            .map_err(|error| Box::new(PreparationError::from(error)))?;
             prepare_diagram(
                 diagram.with_projector(projector),
                 kinematics,
@@ -299,8 +303,12 @@ pub fn prepare_gluon_self_energy(
             if gluons.len() != 2 {
                 return Err(PhysicalPreparationError::ExternalStates);
             }
-            let projector = diagram.projector()
-                * color.expression([gluons[0].index_atom(), gluons[1].index_atom()]);
+            let projector = feynkit_graph::NumeratorInterface::admit(
+                feynkit_graph::NumeratorInterface::export(diagram.projector()).0
+                    * color.expression([gluons[0].index_atom(), gluons[1].index_atom()]),
+                None,
+            )
+            .map_err(|error| Box::new(PreparationError::from(error)))?;
             prepare_diagram(
                 diagram.with_projector(projector),
                 kinematics,

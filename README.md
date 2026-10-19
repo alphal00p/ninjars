@@ -53,7 +53,7 @@ Dependencies are pinned in `Cargo.toml` and recorded with their provenance in
 
 | Dependency | Repository | Revision |
 | --- | --- | --- |
-| FeynKit, Spenso, Idenso (gammaloop) | `https://github.com/alphal00p/gammaloop` | `474478a7` |
+| FeynKit, Spenso, Idenso (gammaloop) | `https://github.com/alphal00p/gammaloop` | `1e8063a7` (branch `ninjars-combined`: feynkit 8959f063 + PRs #142-#144, #149-#151) |
 | oneloopmaster (`oneloop`) | `https://github.com/alphal00p/oneloopmaster` | `09b2c749` |
 | Symbolica, Numerica, Graphica | `https://github.com/alphal00p/symbolica` (branch `ninjars-pin`) | `e679e8c1` |
 

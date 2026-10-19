@@ -58,7 +58,9 @@ pub fn contract_numerator_with_color(
     diagram: &FeynmanDiagram,
     kinematics: &Kinematics,
 ) -> Result<(Atom, Option<Atom>), PreparationError> {
-    let numerator = diagram.numerator() * diagram.numerator_prefactor() * diagram.projector();
+    let numerator = feynkit_graph::NumeratorInterface::export(diagram.numerator()).0
+        * feynkit_graph::NumeratorInterface::export(diagram.numerator_prefactor()).0
+        * feynkit_graph::NumeratorInterface::export(diagram.projector()).0;
     let basis = diagram.loop_momentum_basis();
     let routed = basis.route_expression(&dependent_externals_as_edges(basis, numerator));
     let contracted = contract(routed.clone())?;

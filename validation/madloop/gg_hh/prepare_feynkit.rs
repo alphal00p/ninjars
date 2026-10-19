@@ -63,8 +63,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             .filter(|l| l.particle == gluon)
             .collect::<Vec<_>>();
         assert_eq!(gluons.len(), 2);
-        let projector = diagram.projector()
-            * color.expression([gluons[0].index_atom(), gluons[1].index_atom()]);
+        let projector = feynkit_graph::NumeratorInterface::admit(
+            feynkit_graph::NumeratorInterface::export(diagram.projector()).0
+                * color.expression([gluons[0].index_atom(), gluons[1].index_atom()]),
+            None,
+        )?;
         let prepared = prepare_diagram(
             diagram.with_projector(projector),
             &kinematics,

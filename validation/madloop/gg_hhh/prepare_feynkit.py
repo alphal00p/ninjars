@@ -51,7 +51,7 @@ def main():
     parser.add_argument('--rustc',default='rustc')
     args=parser.parse_args()
     out=args.output_dir.resolve();out.mkdir(parents=True,exist_ok=True)
-    names=['ninjars_graph','feynkit_amplitude','feynkit_generator','symbolica','serde_json']
+    names=['ninjars_graph','feynkit_graph','feynkit_amplitude','feynkit_generator','symbolica','serde_json']
     libraries={}
     for line in args.cargo_artifacts.read_text().splitlines():
         record=json.loads(line)
