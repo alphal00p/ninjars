@@ -11,7 +11,10 @@ run_accuracy.py):
 - ninjars-generic.json `ninjars case-bench --engines generic` (one round);
 - accuracy.json       `ninjars case-check` verdicts and scaled differences (fast and
                       generic f64, generic DoubleFloat, Float(128), Float(256));
-- environment.json    CPU, date, rounds, blocks, foreign CPU time per run.
+- environment.json    CPU, date, rounds, blocks, foreign CPU time per run;
+- instructions.json   retired instructions per point (count_instructions.py), optional;
+- accuracy-final-review.json  NinjaRS and COLLIER on the final review's fresh cases
+                      (run_final_review.py), optional.
 The high-precision references are validation/rank-n2/reference (suite, synthetic) and
 validation/rank-n2/controls/reference (rank n+1 twins).
 
@@ -28,10 +31,13 @@ import math
 import pathlib
 import re
 import statistics
+import sys
 from decimal import Decimal, getcontext
 
 getcontext().prec = 80
 HERE = pathlib.Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+from run_bench import dump  # noqa: E402  (compact JSON, one line per case or lane)
 REPO = HERE.parents[2]
 RN2 = REPO / "validation" / "rank-n2"
 KEYS = ("eps0", "eps_m1", "eps_m2")
@@ -185,7 +191,8 @@ def main():
         for label, variant, quantity, width in (
                 ("coli", "precise-coli", "total_finite", "w32"), ("coli_w1", "precise-coli", "total_finite", "w1"),
                 ("coli_laurent", "precise-coli", "total_laurent", "w32"),
-                ("dd", "precise-dd", "total_finite", "w32"), ("stock_coli", "stock-coli", "total_finite", "w32")):
+                ("dd", "precise-dd", "total_finite", "w32"), ("stock_coli", "stock-coli", "total_finite", "w32"),
+                ("coli_cache", "precise-coli-cache", "total_finite", "w32")):
             rs = [ratio(c, variant, quantity, width) for c in cs]
             rs = [r for r in rs if r]
             row[label] = ({"cases": len(rs), "geomean": geomean(rs), "min": min(rs), "max": max(rs)} if rs
@@ -196,6 +203,19 @@ def main():
         gs = [c["generic"]["w32"]["total"] / c["ninjars"]["w32"]["total"] for c in cs
               if c["generic"] and c["ninjars"]]
         row["generic_over_fast_w32"] = geomean(gs)
+        row["generic_reduction_over_fast_w32"] = geomean(
+            [c["generic"]["w32"]["reduction"] / c["ninjars"]["w32"]["reduction"] for c in cs
+             if c["generic"] and c["ninjars"]])
+        shares = [c["ninjars"]["w32"]["numerator"] / c["ninjars"]["w32"]["total"] for c in cs if c["ninjars"]]
+        row["numerator_share_w32"] = {"median": statistics.median(shares), "min": min(shares), "max": max(shares)}
+        shares = [c["ninjars"]["w32"]["reduction"] / c["ninjars"]["w32"]["total"] for c in cs if c["ninjars"]]
+        row["reduction_share_w32"] = {"median": statistics.median(shares), "min": min(shares), "max": max(shares)}
+        laurent = [c["collier"]["precise-coli"]["total_laurent"] / c["collier"]["precise-coli"]["total_finite"]
+                   for c in cs if "precise-coli" in c["collier"]]
+        row["collier_laurent_over_finite"] = geomean(laurent)
+        cache = [c["collier"]["precise-coli-cache"]["total_finite"] / c["collier"]["precise-coli"]["total_finite"]
+                 for c in cs if "precise-coli-cache" in c["collier"] and "precise-coli" in c["collier"]]
+        row["collier_cache_over_nocache"] = geomean(cache)
         by_n.append(row)
     cache_gain = [c["collier"]["precise-coli-cache"]["total_finite"] / c["collier"]["precise-coli"]["total_finite"]
                   for c in suite if "precise-coli-cache" in c["collier"] and "precise-coli" in c["collier"]]
@@ -203,6 +223,14 @@ def main():
                   for c in suite if "stock-coli" in c["collier"] and "precise-coli" in c["collier"]]
     overheads = {k: statistics.median([c["collier"]["precise-coli"][k] for c in suite if "precise-coli" in c["collier"]])
                  for k in ("delta_switch", "scale_switch")}
+
+    # retired instructions per point (count_instructions.py), when measured
+    instructions = None
+    if (res / "instructions.json").exists():
+        raw = load(res / "instructions.json")["cases"]
+        instructions = [{"case": name, "n": meta[name]["n"] if name in meta else None, **row}
+                        for name, row in raw.items()]
+        instructions.sort(key=lambda r: (r["n"] or 0, r["case"]))
 
     # ------------------------------------------------- rank n+1 twins --
     index = {c["case"]: c for c in cases}
@@ -240,7 +268,9 @@ def main():
                 continue
             row = {"case": name, "id": lane_id, "n": m["n"], "rank": m["rank"], "mu_powers": m["mu_powers"],
                    "tier": rl.get("tier"), "uncertainty": rl.get("uncertainty"),
-                   "condition": max((rl.get("condition") or {}).values() or [0.0]),
+                   # COLLIER's contraction condition, as case-check reads it
+                   "condition": rl.get("absum_over_scale",
+                                       max((rl.get("condition") or {}).values() or [0.0])),
                    "new_terms_over_scale": (rl.get("reduction") or {}).get("new_terms_over_scale")}
             for v in ("precise-coli", "precise-dd", "stock-coli", "stock-dd"):
                 runs = collier["lanes"].get(name, {}).get(v)
@@ -261,12 +291,20 @@ def main():
     def err(r, key):
         return r[key]["error"] if key in r and r[key].get("error") is not None else None
 
+    # Binary64 comparison set: tier A and B lanes whose condition (COLLIER's, or the
+    # cancellation of the new rank n+2 terms) is at most 1e6, as case-check judges binary64.
+    def judged(r):
+        cond = max(r["condition"] or 0.0, r["new_terms_over_scale"] or 0.0)
+        return r["tier"] in ("A", "B") and cond <= 1e6
+
     acc_by_n = []
     for n in sorted({r["n"] for r in lanes}):
-        rs = [r for r in lanes if r["n"] == n and r["tier"] in ("A", "B")]
-        row = {"n": n, "lanes": len(rs), "tier_c": sum(1 for r in lanes if r["n"] == n and r["tier"] == "C")}
+        rs = [r for r in lanes if r["n"] == n and judged(r)]
+        row = {"n": n, "lanes": len(rs), "tier_c": sum(1 for r in lanes if r["n"] == n and r["tier"] == "C"),
+               "ill_conditioned": sum(1 for r in lanes if r["n"] == n and r["tier"] in ("A", "B") and not judged(r))}
         for key in ("fast", "generic", "precise-coli", "precise-dd", "stock-coli"):
             row[key] = stats([err(r, key) for r in rs])
+            row[f"{key}_all_ab"] = stats([err(r, key) for r in lanes if r["n"] == n and r["tier"] in ("A", "B")])
         both = [r for r in rs if err(r, "fast") is not None and err(r, "precise-coli") is not None]
         row["fast_better_than_coli"] = sum(1 for r in both if err(r, "fast") <= err(r, "precise-coli"))
         row["compared"] = len(both)
@@ -285,7 +323,8 @@ def main():
             "error_above_1e-8_with_accflag_0": sum(1 for r in rs if r[v]["error"] > 1e-8 and r[v]["accflag"] == 0),
             "accflag_negative_error_below_1e-8": sum(1 for r in rs if r[v]["error"] <= 1e-8 and r[v]["accflag"] < 0),
             "estimate_covers_error": len(est_ok),
-            "worst_underestimate": max((r[v]["error"] / max(r[v]["estimate"], 1e-300) for r in rs), default=None),
+            "worst_underestimate": max((r[v]["error"] / max(r[v]["estimate"], 1e-15) for r in rs), default=None),
+            "estimate_zero": sum(1 for r in rs if r[v]["estimate"] == 0),
             "median_estimate_over_error": statistics.median(
                 [r[v]["estimate"] / r[v]["error"] for r in rs if r[v]["error"] > 0]) if rs else None,
         }
@@ -310,6 +349,35 @@ def main():
                         else None,
                         "differ_2x": [{"id": i, "error_1.2.10": a, "error_1.2.9": b} for i, a, b in differ]}
 
+    # the final review's fresh cases (run_final_review.py), when measured
+    fresh = None
+    if (res / "accuracy-final-review.json").exists():
+        fr = load(res / "accuracy-final-review.json")["lanes"]
+        fresh = {"lanes": len(fr), "cases": len({l["case"] for l in fr}), "by_n": []}
+        for n in sorted({l["n"] for l in fr}):
+            rs = [l for l in fr if l["n"] == n]
+            row = {"n": n, "lanes": len(rs)}
+            for key in ("fast", "generic", "coli", "dd"):
+                row[key] = stats([l.get(key) for l in rs])
+                row[key]["above_1e-6"] = sum(1 for l in rs if (l.get(key) or 0) > 1e-6)
+            fresh["by_n"].append(row)
+        bad = [l for l in fr if max(l.get("fast") or 0, l.get("generic") or 0) > 1e-6]
+        unstable = [l for l in fr if l.get("generic_stability_test") == "Unstable"]
+        fresh["ninjars_above_1e-6"] = len(bad)
+        fresh["ninjars_above_1e-6_flagged"] = sum(1 for l in bad if l.get("generic_stability_test") == "Unstable")
+        fresh["ninjars_above_1e-5_unflagged"] = sum(
+            1 for l in bad if max(l.get("fast") or 0, l.get("generic") or 0) > 1e-5
+            and l.get("generic_stability_test") != "Unstable")
+        fresh["flagged"] = len(unstable)
+        fresh["above_1e-6_condition_min"] = min((l["condition"] for l in bad), default=None)
+        fresh["above_1e-6_coli"] = stats([l.get("coli") for l in bad])
+        fresh["flagged_below_1e-6"] = sum(1 for l in unstable if max(l.get("fast") or 0, l.get("generic") or 0) <= 1e-6)
+        fresh["flagged_coli"] = stats([l.get("coli") for l in unstable])
+        fresh["flagged_condition_min"] = min((l["condition"] for l in unstable), default=None)
+        fresh["coli_above_1e-6"] = [{"id": l["id"], "coli": l["coli"], "fast": l.get("fast"),
+                                     "generic": l.get("generic"), "flags": l.get("coli_flags")}
+                                    for l in fr if (l.get("coli") or 0) > 1e-6]
+
     # case-check verdict table (docs/rank-n2.md section 8.3), per n and run
     verdict_table = {}
     for key, rows in acc_runs.items():
@@ -332,6 +400,7 @@ def main():
         "host": env.get("processor", ""),
         "cpu": env["cpu"],
         "ninjars_head": env.get("ninjars_head"),
+        "oneloopmaster": env.get("oneloopmaster"),
         "accuracy_head": (accuracy or {}).get("ninjars_head"),
         "rounds": env["rounds"],
         "blocks": {"ninjars": env["blocks"], "collier": env.get("collier_blocks"),
@@ -351,10 +420,12 @@ def main():
                                        "max": max(stock_gain, default=None)},
         "collier_overheads_us": overheads,
         "twins": twin_rows,
-        "accuracy": {"by_n": acc_by_n, "collier_flags": flags, "collier_vs_1.2.9": agreement, "lanes": lanes},
+        "accuracy": {"by_n": acc_by_n, "collier_flags": flags, "collier_vs_1.2.9": agreement,
+                     "final_review": fresh},
         "case_check": verdict_table,
+        "instructions": instructions,
     }
-    args.output.write_text(json.dumps(out, indent=1) + "\n")
+    args.output.write_text(dump(out))
     print(f"wrote {args.output}: {len(cases)} cases, {len(lanes)} lanes")
 
 

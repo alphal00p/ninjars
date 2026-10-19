@@ -17,8 +17,9 @@ not like for like (see "What is compared").
 source <devenv>                                     # gfortran, python3; cmake via nix if absent
 validation/benchmark/collier/build.sh               # COLLIER 1.2.10 (precise, stock) + collier_bench
 cargo build --profile perf --locked -p ninjars-cli --features numerator-jit   # target/perf/ninjars
-python3 validation/benchmark/collier/run_bench.py --rounds 2     # timings (pinned, interleaved), ~1 h
+python3 validation/benchmark/collier/run_bench.py --rounds 2     # timings (pinned, interleaved), ~1.5 h
 python3 validation/benchmark/collier/run_accuracy.py            # case-check verdicts, ~10 min
+python3 validation/benchmark/collier/run_final_review.py        # fresh cases of the final review, ~1 min
 python3 validation/benchmark/collier/count_instructions.py      # perf stat instruction counts
 python3 validation/benchmark/collier/collect.py                 # -> docs/benchmark/data/rank_n2.json
 cd docs/benchmark && nix shell nixpkgs#typst -c typst compile benchmark.typ benchmark.pdf
@@ -31,9 +32,10 @@ cd docs/benchmark && nix shell nixpkgs#typst -c typst compile benchmark.typ benc
 | `collier_bench.f90` | the binary64 driver: validation pass (three Delta settings, Laurent coefficients, flags, error estimates), then timed quantities (below) |
 | `run_bench.py` | runs NinjaRS (`case-bench`, fast engine) and COLLIER, interleaved per round on one CPU; the generic engine once at the end |
 | `run_accuracy.py` | `ninjars case-check` on the suite and synthetic cases: fast and generic f64, generic DoubleFloat, Float(128), Float(256) |
+| `run_final_review.py` | NinjaRS (fast, generic f64, and the generic engine's `--stability-test` status) and COLLIER (COLI, DD) on the final review's 58 fresh cases with 60-100 digit references (`/shared/external/ninja/references/final-review`, outside the repository) |
 | `count_instructions.py` | retired user-space instructions per point (`perf stat`, difference of two fixed-work runs) |
 | `collect.py` | the data file of the report |
-| `results/` | the raw, consolidated measurements (`collier.json`, `ninjars-fast.json`, `ninjars-generic.json`, `accuracy.json`, `instructions.json`, `environment.json`) |
+| `results/` | the raw, consolidated measurements (`collier.json`, `ninjars-fast.json`, `ninjars-generic.json`, `accuracy.json`, `accuracy-final-review.json`, `instructions.json`, `environment.json`) |
 
 ## What is compared
 
@@ -101,3 +103,14 @@ rank 0 (`reductionC.F90`).
   runs `DDsetparam`, which recomputes the machine precision (about 1 µs, precise build), even
   in COLI mode. Changing mu_R^2 per point, or Delta between the three Laurent evaluations,
   costs a few µs per point.
+- **Where COLLIER's time goes at rank n+2.** A `perf` profile of the precise build on
+  `syn-n5-r7` and `syn-n6-r8` attributes 69 % and 57 % of the time to `addtotensortn`
+  (`BuildTensors.F90`), the construction of the tensor components from the Lorentz-covariant
+  coefficients, whose number grows steeply with the rank. The global cache, although it can only
+  reuse integrals within one phase-space point, roughly halves the time at n = 7
+  (`precise-coli-cache`), with bitwise identical results.
+- **Fresh cases.** On the final review's cases (`run_final_review.py`), the 21 of 166 lanes on which
+  NinjaRS's binary64 error exceeds 1e-6 are lanes whose cut contributions cancel by 3e6 to 4e22
+  relative to the result; COLLIER, which has no such cancellation, stays accurate on most of them
+  (median 5e-9). The generic engine's opt-in `--stability-test` flags 18 of them, every one above
+  1e-5, and no lane below 1e-6.

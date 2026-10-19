@@ -24,6 +24,7 @@ import json
 import os
 import pathlib
 import platform
+import re
 import resource
 import subprocess
 import sys
@@ -100,8 +101,8 @@ def trim_case_bench(report, key):
     for case in report["cases"]:
         widths = []
         for w in case.get(key, []):
-            entry = {k: w[k] for k in ("width", "failed_lanes", "failure_kinds", "summary_ns_per_point",
-                                       "master_rows_per_batch") if k in w}
+            entry = {k: w[k] for k in ("width", "failed_lanes", "failure_kinds", "replay_bitwise",
+                                       "summary_ns_per_point", "master_rows_per_batch") if k in w}
             if "reference_check" in w:
                 entry["reference_check"] = w["reference_check"]
             for q in ("reduction", "reduction_and_tensor_numerator", "reduction_and_numerator", "masters", "total"):
@@ -112,6 +113,23 @@ def trim_case_bench(report, key):
         out[case["case"]] = {"file": case["file"], "n": case["n"], "rank": case["rank"],
                              "mu_powers": case["mu_powers"], "lanes": case["lanes"], "widths": widths}
     return out
+
+
+def dump(doc, depth=3):
+    """Compact JSON for the committed results: containers are expanded one entry per line
+    down to `depth` levels (one line per case), everything deeper is written compactly."""
+    def node(value, indent):
+        pad = " " * indent
+        nested = isinstance(value, (dict, list)) and any(
+            isinstance(v, (dict, list)) for v in (value.values() if isinstance(value, dict) else value))
+        if indent < depth and nested and value:
+            if isinstance(value, dict):
+                items = [f"{pad} {json.dumps(k)}: {node(v, indent + 1)}" for k, v in value.items()]
+                return "{\n" + ",\n".join(items) + "\n" + pad + "}"
+            items = [f"{pad} {node(v, indent + 1)}" for v in value]
+            return "[\n" + ",\n".join(items) + "\n" + pad + "]"
+        return json.dumps(value, separators=(",", ":"))
+    return node(doc, 0) + "\n"
 
 
 def parse_collier(path):
@@ -167,9 +185,14 @@ def main():
     variants = [("precise", 1, 0), ("precise", 2, 0), ("stock", 1, 0), ("stock", 2, 0), ("precise", 1, 1)]
     fast = {"rounds": []}
     collier = {"version": "1.2.10", "rounds": [], "lanes": {}}
+    head = subprocess.run(["git", "-C", str(REPO), "rev-parse", "--short", "HEAD"], capture_output=True,
+                          text=True).stdout.strip()  # the measured tree (a dirty tree is recorded as such)
+    if subprocess.run(["git", "-C", str(REPO), "diff", "--quiet", "HEAD", "--", "crates"]).returncode:
+        head += "+dirty"
     env = {"cpu": args.cpu, "date": datetime.date.today().isoformat(), "host": platform.node(),
            "processor": open("/proc/cpuinfo").read().split("model name")[1].split("\n")[0].strip(": \t"),
-           "blocks": args.blocks, "collier_blocks": args.collier_blocks, "generic_blocks": args.generic_blocks, "min_block_ms": args.min_block_ms, "rounds": args.rounds, "runs": []}
+           "blocks": args.blocks, "collier_blocks": args.collier_blocks, "generic_blocks": args.generic_blocks,
+           "min_block_ms": args.min_block_ms, "rounds": args.rounds, "runs": []}
     for rnd in range(args.rounds):
         print(f"round {rnd + 1}/{args.rounds}", flush=True)
         # NinjaRS fast engine: suite and synthetic cases, then the twins (their own references)
@@ -210,8 +233,8 @@ def main():
                                      for lane in meta[name]["lanes"]],
                           "lane_ids": [lane["id"] for lane in meta[name]["lanes"]]}
                        for name in names}
-    (out / "ninjars-fast.json").write_text(json.dumps(fast, indent=1) + "\n")
-    (out / "collier.json").write_text(json.dumps(collier, indent=1) + "\n")
+    (out / "ninjars-fast.json").write_text(dump(fast))
+    (out / "collier.json").write_text(dump(collier))
     if not args.skip_generic:
         files = [p for p in GENERIC_CASES if p.exists()]
         raw = work / "ninjars-generic.json"
@@ -221,15 +244,14 @@ def main():
         env["runs"].append({"what": "ninjars-generic", "wall_s": wall, "cpu_s": child, "foreign_s": foreign})
         print(f"ninjars generic: {wall:.0f} s (foreign {foreign:.1f} s)", flush=True)
         (out / "ninjars-generic.json").write_text(
-            json.dumps({"rounds": [trim_case_bench(json.loads(raw.read_text()), "generic_per_point_timing")]},
-                       indent=1) + "\n")
-    rev = subprocess.run(["git", "-C", str(REPO), "rev-parse", "--short", "HEAD"], capture_output=True,
-                         text=True).stdout.strip()
-    env["ninjars_head"] = rev
+            dump({"rounds": [trim_case_bench(json.loads(raw.read_text()), "generic_per_point_timing")]}))
+    env["ninjars_head"] = head
+    pin = re.search(r'oneloop = \{[^}]*rev = "([0-9a-f]{7})', (REPO / "Cargo.toml").read_text())
+    env["oneloopmaster"] = pin[1] if pin else None
     env["cases"] = [rel(p) for p in cases]
     env["twins"] = [rel(p) for p in twins]
     env["generic_cases"] = [] if args.skip_generic else [rel(p) for p in GENERIC_CASES if p.exists()]
-    (out / "environment.json").write_text(json.dumps(env, indent=1) + "\n")
+    (out / "environment.json").write_text(dump(env))
     print(f"wrote {out}", flush=True)
 
 

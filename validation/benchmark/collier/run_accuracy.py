@@ -5,7 +5,7 @@ Engines and precisions: the fast engine and the generic engine in binary64 (nati
 masters), and the generic engine in DoubleFloat, Float(128) and Float(256) (exact
 masters), with the tolerance policy of docs/rank-n2.md section 8.3. The runs are
 untimed and run in parallel. Output: OUT/accuracy.json with, per run and lane, the
-verdict, scaled difference, tolerance, tier and status.
+verdict, scaled difference, tolerance, reference tier and status.
 
 usage: run_accuracy.py [--out DIR] [--ninjars PATH] [--runs f64,double,float:128,float:256]
 """
@@ -42,13 +42,25 @@ def trim(report):
             lanes = runs.setdefault(key, [])
             for lane in r["lanes"]:
                 ref = lane.get("reference") or {}
-                lanes.append({"case": case["case"], "n": case["n"], "rank": case["rank"],
-                              "mu_powers": case["mu_powers"], "id": lane["id"], "verdict": lane["verdict"],
+                lanes.append({"case": case["case"], "n": case["n"], "id": lane["id"], "verdict": lane["verdict"],
                               "scaled_difference": lane.get("scaled_difference"), "tolerance": lane.get("tolerance"),
-                              "status": lane.get("status"), "tier": ref.get("tier"),
-                              "uncertainty": ref.get("uncertainty"), "condition": ref.get("condition"),
-                              "new_terms": ref.get("new_terms"), "reason": lane.get("reason")})
+                              "status": lane.get("status"), "tier": ref.get("tier")})
     return runs
+
+
+def dump(result):
+    """One lane per line (the file is committed)."""
+    lines = ["{"]
+    for key in ("ninjars_head", "exit_status", "summary"):
+        lines.append(f" {json.dumps(key)}: {json.dumps(result[key])},")
+    lines.append(' "runs": {')
+    runs = list(result["runs"].items())
+    for i, (key, lanes) in enumerate(runs):
+        lines.append(f"  {json.dumps(key)}: [")
+        lines += [f"   {json.dumps(lane)}{',' if j + 1 < len(lanes) else ''}" for j, lane in enumerate(lanes)]
+        lines.append("  ]" + ("," if i + 1 < len(runs) else ""))
+    lines += [" }", "}"]
+    return "\n".join(lines) + "\n"
 
 
 def main():
@@ -71,7 +83,7 @@ def main():
     rev = subprocess.run(["git", "-C", str(REPO), "rev-parse", "--short", "HEAD"], capture_output=True,
                          text=True).stdout.strip()
     result["ninjars_head"] = rev
-    (args.out / "accuracy.json").write_text(json.dumps(result, indent=1) + "\n")
+    (args.out / "accuracy.json").write_text(dump(result))
     print(f"wrote {args.out / 'accuracy.json'}")
 
 
