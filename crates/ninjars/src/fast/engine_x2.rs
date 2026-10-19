@@ -12,7 +12,10 @@
 //!   mu-expansion runs on the exact d-dimensional cut, `q = q̄0 - V0 + t v`,
 //!   `mu² = t² v² - beta` with `beta = m0² - q̄0²`
 //!   ([`FastNumerator::mu_expansion_x2`]), keeping three orders:
-//!   `c6 = n0/(v²)³` and `c4 = n2/(v²)² + 3 beta c6`.
+//!   `c6 = n0/(v²)³` and `c4 = n2/(v²)² + 3 beta c6`. The normal `v`, the
+//!   center `q̄0` and the two solutions come from the conditioned geometry of
+//!   `box_x2.rs` (original Ninja's spinor-built normal is too far from
+//!   orthogonal for the deeper expansion).
 //! - **triangle**: two `t3` expansions at `mindeg` 5 (12 slots,
 //!   [`FastNumerator::t3_expansion_x2`]), divided by
 //!   the uncut denominators, 21 coefficients; no subtractions.
@@ -36,6 +39,7 @@
 #![allow(clippy::needless_range_loop)]
 
 use super::bases_x2::{TadpoleBasesX2, bubble_basis_x2};
+use super::box_x2::box_geometry_x2;
 use super::complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr};
 use super::engine::{
     FastOptions, MasterBatch, Stability, TadpoleData, Topology, Uncut, den, den_scale,
@@ -93,9 +97,11 @@ impl Default for BubbleDataX2 {
 #[derive(Clone, Copy, Debug, Default)]
 struct BoxRowX2 {
     lane: usize,
+    /// The normal `v` of the cut momenta (`box_x2.rs`).
     vort: CMom,
+    /// The two four-dimensional solutions.
     q: [CMom; 2],
-    /// `q̄0 - V0` with `q̄0 = (l+ + l-)/2`.
+    /// `q̄0 - V0`, the center of the solutions.
     mid: CMom,
     /// `m0² - q̄0²`: `mu² = t² v² - beta` on the d-dimensional cut.
     beta: C64,
@@ -542,22 +548,26 @@ impl RankN2Engine {
                     continue;
                 }
                 let l = box_solutions(&k3, &k0, &k1, &e, m[c1], m[c2], m[c3], m[c4]);
-                let q = [sub_cr(&l[0], &v[c1]), sub_cr(&l[1], &v[c1])];
-                let mut lmid = [C64::ZERO; 4];
-                let mut mid = [C64::ZERO; 4];
-                for mu in 0..4 {
-                    lmid[mu] = (l[0][mu] + l[1][mu]) * 0.5;
-                    mid[mu] = lmid[mu] - v[c1][mu];
-                }
-                let beta = m[c1] - mp_cc(&lmid, &lmid);
+                // Ninja's solutions only seed the center: the normal, the
+                // center and both solutions come from the conditioned
+                // geometry (box_x2.rs), which keeps the d-dimensional cut
+                // exact to rounding.
+                let Some(g) = box_geometry_x2(
+                    &[v[c1], v[c2], v[c3], v[c4]],
+                    &[m[c1], m[c2], m[c3], m[c4]],
+                    &l,
+                ) else {
+                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    continue;
+                };
                 self.box_rows.push(BoxRowX2 {
                     lane,
-                    vort,
-                    q,
-                    mid,
-                    beta,
+                    vort: g.normal,
+                    q: g.q,
+                    mid: g.mid,
+                    beta: g.beta,
                 });
-                for qq in q {
+                for qq in g.q {
                     self.calls.lanes.push1(lane);
                     self.calls.v0.push1(qq);
                     self.calls.scalar.push1(C64::ZERO);

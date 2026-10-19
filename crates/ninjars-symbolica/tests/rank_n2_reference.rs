@@ -563,7 +563,6 @@ fn suite_generic_binary64_matches_references() {
 /// dominates both errors), as are lanes where the generic engine does not
 /// succeed; the fast engine must succeed wherever the generic one does.
 #[test]
-#[ignore = "needs fast accuracy fix: 1 of 324 lanes, rn2-shifted-mixed-n7-r9-mu2 lane 0 (cond 7.9e9, V4f report-only): fast 1.7e-3 vs generic f64 1.6e-4 (limit 1.6e-3); unchanged by the rank n+2 basis conditioning (79f306a); its rank n+1 twin shows the same ratio (fast 3.2e-9, generic 3.1e-10)"]
 fn suite_fast_within_ten_times_generic_binary64() {
     let policy = policy();
     let files = suite();
