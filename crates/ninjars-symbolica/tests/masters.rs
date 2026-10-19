@@ -2,11 +2,13 @@ use ninjars::{
     Complex, DoubleFloat, Float, FloatLike, MasterIntegral, MasterProvider, MasterRequest,
 };
 use ninjars_symbolica::{SymbolicaDualMasters, SymbolicaMasters};
-use oneloop::{EvaluationBackend, NativeFloat, ScalarIntegral};
+use oneloop::{
+    EvaluationBackend, NativeFloat, NativeTensorEvaluator, ScalarIntegral, TensorIntegral,
+};
 use symbolica::{
     domains::{
         dual::HyperDual,
-        float::{RealLike, SingleFloat},
+        float::{Real, RealLike, SingleFloat},
         rational::Rational,
     },
     evaluate::EvaluationDomain,
@@ -555,20 +557,94 @@ fn empty_invalid_and_nonfinite_requests_preserve_output() {
         assert_eq!(output, [[real(17.0); 3]]);
     }
 }
-
 // ---------------------------------------------------------------------------
-// B1111 (rank n+2 bubbles). Fixed-precision carriers take oneloopmaster's
-// native `TensorIntegral::B1111`; `Float` keeps the exact expression.
+// B1111 (rank n+2 bubbles): every carrier takes oneloopmaster's native
+// `TensorIntegral::B1111`, arbitrary-precision `Float` at the precision of
+// each row.
 
-const B1111_REFERENCE_BITS: u32 = 320;
+/// Precision of the parsed Feynman-parameter references (160 digits).
+const FEYNMAN_BITS: u32 = 600;
+
+/// One row of `tests/rank_n2_data/b_family_feynman.txt`, written by
+/// `tools/rank_n2/masters/b_family_reference.py`: `[p², m0², m1², mu²]`
+/// (binary64 values, which every carrier represents exactly) and the
+/// 200-digit Feynman-parameter finite parts of B0, B1, B11, B111 and B1111,
+/// rounded to 160 digits. The poles are `(-1)^k/(k+1)` and 0 (all zero for
+/// the scaleless bubble).
+struct FeynmanRow {
+    label: String,
+    input: [Complex<f64>; 4],
+    finite: [Complex<Float>; 5],
+}
+
+impl FeynmanRow {
+    fn scaleless(&self) -> bool {
+        self.input[..3].iter().all(|z| z.re == 0. && z.im == 0.)
+    }
+
+    /// The row's largest Laurent coefficient of B0..B1111 (at least the B0
+    /// pole, 1): errors are relative to it, because after a mass swap
+    /// `B1111 = B0' + 4B1' + 6B11' + 4B111' + B1111'` cancels below its terms.
+    fn scale(&self) -> f64 {
+        let largest = self.finite.iter().map(float_abs).fold(0., f64::max);
+        if self.scaleless() {
+            1.
+        } else {
+            largest.max(1.)
+        }
+    }
+
+    /// The exact B1111 Laurent triple `[finite, 1/5, 0]` at `bits`.
+    fn b1111(&self, bits: u32) -> [Complex<Float>; 3] {
+        let zero = Float::new(bits);
+        let pole = if self.scaleless() {
+            zero.clone()
+        } else {
+            zero.from_rational(&Rational::from((1, 5)))
+        };
+        [
+            self.finite[4].clone(),
+            Complex::new(pole, zero.clone()),
+            Complex::new(zero.clone(), zero),
+        ]
+    }
+}
+
+fn feynman_rows() -> Vec<FeynmanRow> {
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/rank_n2_data/b_family_feynman.txt"
+    );
+    let text = std::fs::read_to_string(path).unwrap();
+    let float = |text: &str| Float::parse(text, Some(FEYNMAN_BITS)).unwrap();
+    text.lines()
+        .map(|line| {
+            let words: Vec<&str> = line.split_whitespace().collect();
+            assert_eq!(words.len(), 17, "{line}");
+            let bits = |i: usize| f64::from_bits(u64::from_str_radix(words[i], 16).unwrap());
+            FeynmanRow {
+                label: words[0].to_string(),
+                input: [
+                    real(bits(1)),
+                    Complex::new(bits(2), bits(3)),
+                    Complex::new(bits(4), bits(5)),
+                    real(bits(6)),
+                ],
+                finite: std::array::from_fn(|k| {
+                    Complex::new(float(words[7 + 2 * k]), float(words[8 + 2 * k]))
+                }),
+            }
+        })
+        .collect()
+}
 
 /// `[p², m0², m1², mu²]` over the sectors of the rank-four bubble: zero
 /// momentum in both mass orders and with equal masses, massless lines,
 /// on-shell, real masses below and above threshold, spacelike, large `p²`,
 /// complex masses, and the dyadic small-momentum ladder `p² = ±2^-k`, where
-/// the exact Passarino-Veltman B1111 loses about `4 log10(m²/p²)` digits in
-/// fixed precision. Every input is a binary64 value, so all carriers see it
-/// exactly.
+/// the exact Passarino-Veltman B1111 loses about `5-6 log10(m²/|p²|)` digits.
+/// Every input is a binary64 value, so all carriers see it exactly; all rows
+/// are in the Feynman-parameter fixture (`masters:*`).
 fn b1111_rows() -> Vec<[Complex<f64>; 4]> {
     let mut rows = vec![
         [real(0.), real(2.), real(5.), real(1.)],
@@ -603,60 +679,20 @@ fn float_of(z: Complex<f64>, bits: u32) -> Complex<Float> {
     Complex::new(Float::with_val(bits, z.re), Float::with_val(bits, z.im))
 }
 
-/// The exact `[B0, B1, B11, B111, B1111]` Laurent triples at 320 bits.
-fn exact_bubble_family(
-    provider: &mut SymbolicaMasters<Float>,
-    row: &[Complex<f64>; 4],
-) -> Vec<[Complex<Float>; 3]> {
-    let bits = B1111_REFERENCE_BITS;
-    [
-        MasterIntegral::B0,
-        MasterIntegral::B1,
-        MasterIntegral::B11,
-        MasterIntegral::B111,
-        MasterIntegral::B1111,
-    ]
-    .into_iter()
-    .map(|integral| {
-        let zero = float_of(real(0.), bits);
-        let mut output = vec![[zero.clone(), zero.clone(), zero]];
-        provider
-            .evaluate(
-                MasterRequest {
-                    integral,
-                    invariants: &[float_of(row[0], bits)],
-                    masses_squared: &[float_of(row[1], bits), float_of(row[2], bits)],
-                    scales_squared: &[float_of(row[3], bits)],
-                },
-                &mut output,
-            )
-            .unwrap();
-        output.pop().unwrap()
-    })
-    .collect()
-}
-
 fn float_abs(z: &Complex<Float>) -> f64 {
     z.re.to_f64().hypot(z.im.to_f64())
 }
 
-/// Largest error of B1111 from `SymbolicaMasters<T>` against 320 bits, relative
-/// to the largest exact coefficient of its row (after a mass swap
-/// `B1111 = B0' + 4B1' + 6B11' + 4B111' + B1111'` cancels below its terms).
-/// Returns the error (largest over the Laurent coefficients) per row;
-/// `exact_poles` also requires the exact poles `[1/5, 0]` of the native family.
-fn b1111_errors<T: NativeFloat>(
+/// B1111 of every row through one strict `SymbolicaMasters<T>` batch.
+fn b1111_batch<T: NativeFloat>(
     representative: T,
     lift: impl Fn(f64) -> T,
-    to_float: impl Fn(&T) -> Float,
-    reference: &mut SymbolicaMasters<Float>,
-    exact_poles: bool,
-) -> Vec<f64>
+    rows: &[[Complex<f64>; 4]],
+) -> Vec<[Complex<T>; 3]>
 where
     Complex<T>: EvaluationDomain,
 {
-    let rows = b1111_rows();
-    let mut provider = SymbolicaMasters::new(representative.clone());
+    let mut provider = SymbolicaMasters::new(representative);
     let complex = |z: Complex<f64>| Complex::new(lift(z.re), lift(z.im));
     let zero = complex(real(0.));
     let mut output = vec![std::array::from_fn(|_| zero.clone()); rows.len()];
@@ -677,25 +713,52 @@ where
             &mut output,
         )
         .unwrap();
+    output
+}
+
+/// Largest error of the B1111 Laurent triple against the Feynman-parameter
+/// reference, relative to the row's scale ([`FeynmanRow::scale`]).
+fn b1111_error(value: &[Complex<Float>; 3], reference: &FeynmanRow) -> f64 {
+    value
+        .iter()
+        .zip(&reference.b1111(FEYNMAN_BITS))
+        .map(|(value, exact)| {
+            float_abs(&Complex::new(
+                value.re.clone() - &exact.re,
+                value.im.clone() - &exact.im,
+            ))
+        })
+        .fold(0., f64::max)
+        / reference.scale()
+}
+
+/// Errors of `SymbolicaMasters<T>` on `b1111_rows()` against the
+/// Feynman-parameter references; the native family's poles are exactly
+/// `[1/5, 0]`.
+fn b1111_errors<T: NativeFloat>(
+    representative: T,
+    lift: impl Fn(f64) -> T,
+    to_float: impl Fn(&T) -> Float,
+) -> Vec<f64>
+where
+    Complex<T>: EvaluationDomain,
+{
+    let references = feynman_rows();
+    let rows = b1111_rows();
+    let output = b1111_batch(representative, lift, &rows);
     rows.iter()
         .zip(&output)
         .map(|(row, value)| {
-            let exact = exact_bubble_family(reference, row);
-            let scale = exact.iter().flatten().map(float_abs).fold(1e-300, f64::max);
-            if exact_poles {
-                // The native family's pole is exactly 1/5; no double pole.
-                assert_eq!(to_float(&value[1].re).to_f64(), 0.2, "{row:?}");
-                assert!(value[1].im.is_fully_zero() && value[2].is_fully_zero());
-            }
-            value
+            let reference = references
                 .iter()
-                .zip(&exact[4])
-                .map(|(value, exact)| {
-                    let value = Complex::new(to_float(&value.re), to_float(&value.im));
-                    float_abs(&Complex::new(value.re - &exact.re, value.im - &exact.im))
-                })
-                .fold(0., f64::max)
-                / scale
+                .find(|reference| reference.input == *row)
+                .unwrap_or_else(|| panic!("{row:?} is not in the fixture"));
+            assert_eq!(to_float(&value[1].re).to_f64(), 0.2, "{row:?}");
+            assert!(value[1].im.is_fully_zero() && value[2].is_fully_zero());
+            let value = value
+                .clone()
+                .map(|z| Complex::new(to_float(&z.re), to_float(&z.im)));
+            b1111_error(&value, reference)
         })
         .collect()
 }
@@ -706,63 +769,97 @@ where
 /// expression in binary64 has a relative error of 5.5e-6 at `p² = m²/256` and
 /// 1.89 at `m²/4096`.
 #[test]
-fn fixed_precision_b1111_is_native_and_matches_320_bits() {
-    let mut reference = SymbolicaMasters::new(Float::new(B1111_REFERENCE_BITS));
-    let bits = B1111_REFERENCE_BITS;
-    let binary64 = b1111_errors(
-        0f64,
-        |x| x,
-        |x| Float::with_val(bits, *x),
-        &mut reference,
-        true,
-    );
-    let double = b1111_errors(
-        DoubleFloat::default(),
-        DoubleFloat::from,
-        |x| {
-            let x = (*x).into_inner();
-            Float::with_val(bits, x.hi()) + Float::with_val(bits, x.lo())
-        },
-        &mut reference,
-        true,
-    );
+fn fixed_precision_b1111_is_native_and_matches_feynman_parameters() {
+    let bits = FEYNMAN_BITS;
+    let binary64 = b1111_errors(0f64, |x| x, |x| Float::with_val(bits, *x));
+    let double = b1111_errors(DoubleFloat::default(), DoubleFloat::from, |x| {
+        let x = (*x).into_inner();
+        Float::with_val(bits, x.hi()) + Float::with_val(bits, x.lo())
+    });
     for ((row, binary64), double) in b1111_rows().iter().zip(&binary64).zip(&double) {
         assert!(*binary64 <= 5e-14, "binary64 B1111{row:?}: {binary64:e}");
         assert!(*double <= 1e-28, "DoubleFloat B1111{row:?}: {double:e}");
     }
     let worst = |errors: &[f64]| errors.iter().copied().fold(0., f64::max);
     eprintln!(
-        "B1111 over {} rows vs 320 bits (relative to max_k |B_k|): binary64 {:e}, DoubleFloat {:e}",
+        "B1111 over {} rows vs Feynman parameters (relative to max_k |B_k|): binary64 {:e}, DoubleFloat {:e}",
         binary64.len(),
         worst(&binary64),
         worst(&double)
     );
 }
 
-/// `Float` keeps the exact expression (interpreter): at 256 bits it agrees
-/// with 320 bits far beyond any fixed precision. Its Passarino-Veltman form
-/// still loses about `4 log10(m²/p²)` digits on the small-momentum ladder
-/// (about 3e-44 at `p² = 2^-24`), which arbitrary precision absorbs.
+/// `Float` takes the native family too, at the working precision for these
+/// exact inputs: bitwise the native evaluator at that precision, poles
+/// exactly `[1/5, 0]`, and Feynman-parameter accuracy on every row of the
+/// fixture (p² = 0, |p²|/m² down to 1e-14 with real, equal, complex and
+/// massless lines, thresholds and pseudo-thresholds within 2^-40, complex
+/// masses, the scaleless bubble). The exact Passarino-Veltman B1111 that
+/// `Float` used before loses about 5-6 digits per decade of `m²/|p²|`: in
+/// `Float(256)` 1.1e-7 at `|p²|/m² = 4e-13` and 2.4e-18 at 1e-12; in
+/// `Float(512)` 1.9e-84 at 4e-13.
+///
+/// Numerica's tracked precision of the results is not a bound: it overstates
+/// the accuracy of some components by up to 2^19 (the exact expression by up
+/// to 2^17), the most on finite parts far below the row's scale (equal masses
+/// with `mu² = m²` at small `p²`, where they are `O(p²/m²)`), so this checks
+/// only that it is not off by more than 2^24.
 #[test]
-fn arbitrary_precision_b1111_keeps_the_exact_expression() {
-    let mut reference = SymbolicaMasters::new(Float::new(B1111_REFERENCE_BITS));
-    let errors = b1111_errors(
-        Float::new(256),
-        |x| Float::with_val(256, x),
-        |x| x.clone(),
-        &mut reference,
-        false,
-    );
-    for (row, error) in b1111_rows().iter().zip(&errors) {
-        let tolerance = if row[0].re.abs() < 1e-3 && row[0].re != 0. {
-            1e-40
-        } else {
-            1e-60
-        };
-        assert!(*error <= tolerance, "Float(256) B1111{row:?}: {error:e}");
+fn arbitrary_precision_b1111_is_native_and_matches_feynman_parameters() {
+    let references = feynman_rows();
+    let rows: Vec<_> = references.iter().map(|row| row.input).collect();
+    // Worst measured: 2.3e-33 (128 bits), 2.6e-72 (256 bits) and 2.3e-149
+    // (512 bits), at the thresholds within 2^-40.
+    for (bits, tolerance) in [(128, 1e-31), (256, 1e-69), (512, 1e-146)] {
+        let output = b1111_batch(Float::new(bits), |x| Float::with_val(bits, x), &rows);
+        let mut native =
+            NativeTensorEvaluator::<Float>::with_binary_precision(TensorIntegral::B1111, bits)
+                .unwrap();
+        let mut worst = (0., "");
+        let mut slack = (f64::NEG_INFINITY, String::new());
+        for (reference, value) in references.iter().zip(&output) {
+            let label = reference.label.as_str();
+            // Bitwise (and in tracked precision) the native family's B1111.
+            let point = reference.input.map(|z| float_of(z, bits));
+            let zero = float_of(real(0.), bits);
+            let mut family = vec![zero; TensorIntegral::B1111.outputs()];
+            native.evaluate(&point, &mut family).unwrap();
+            for (value, native) in value.iter().zip(&family[12..]) {
+                assert_eq!(value, native, "{label}");
+                assert_eq!(value.re.get_precision(), native.re.get_precision());
+                assert_eq!(value.im.get_precision(), native.im.get_precision());
+            }
+            let exact = reference.b1111(bits);
+            assert_eq!(value[1], exact[1], "{label}: pole");
+            assert!(value[2].is_fully_zero(), "{label}: double pole");
+            let error = b1111_error(value, reference);
+            assert!(error <= tolerance, "Float({bits}) B1111 {label}: {error:e}");
+            if error > worst.0 {
+                worst = (error, label);
+            }
+            for (component, exact) in [
+                (&value[0].re, &reference.finite[4].re),
+                (&value[0].im, &reference.finite[4].im),
+            ] {
+                if component.is_fully_zero() {
+                    continue;
+                }
+                let relative =
+                    (component.clone() - exact).norm().to_f64() / component.norm().to_f64();
+                let excess = relative.log2() + f64::from(component.get_precision());
+                if excess > slack.0 {
+                    slack = (excess, format!("{label} at {}", component.get_precision()));
+                }
+            }
+        }
+        assert!(slack.0 <= 24., "Float({bits}) tracked precision: {slack:?}");
+        eprintln!(
+            "B1111 Float({bits}) over {} rows vs Feynman parameters: max {:e} ({}); tracked precision overstates by at most 2^{:.1} ({})",
+            references.len(),
+            worst.0,
+            worst.1,
+            slack.0,
+            slack.1
+        );
     }
-    eprintln!(
-        "B1111 Float(256) vs 320 bits: max {:e}",
-        errors.iter().copied().fold(0., f64::max)
-    );
 }

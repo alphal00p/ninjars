@@ -32,7 +32,11 @@ corresponding derivative divided by the product of the component factorials.
 exact expressions for A0, B0, DB0, C0, D0, B1, B11, B111 and the available tadpole
 tensor coefficients. It maps constants directly at the working precision and
 uses Symbolica's batch interpreter through shared helper calls and lazy branches.
-Results are `[finite, single pole, double pole]`.
+Results are `[finite, single pole, double pole]`. The rank-four bubble
+coefficient B1111 (rank n+2) comes from oneloopmaster's native tensor family
+for every carrier, since its exact expression loses about 5-6 digits per decade
+of `m²/|p²|`; for `Float`, each row is evaluated at the precision that its
+inputs determine relative to the row's scale (see `SymbolicaMasters`).
 
 For arbitrary-precision `Float`, the configured working precision controls
 constant construction. Symbolica tracks significant bits separately in each

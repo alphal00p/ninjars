@@ -3,7 +3,7 @@ use ninjars::{
     MasterRequest, MasterStatus,
 };
 use ninjars_symbolica::{OneLoopNativeMasters, SymbolicaDualMasters, SymbolicaMasters};
-use oneloop::NativeFloat;
+use oneloop::{NativeFloat, NativeTensorEvaluator, TensorIntegral};
 use symbolica::{
     domains::{
         dual::{DualNumber, DualNumberStructure, HyperDual},
@@ -718,6 +718,166 @@ fn rank_four_bubble_batches_keep_failed_rows_and_bitwise_lane_values() {
             close(binary64[0], to_f64(&double[0]));
             assert_eq!(binary64[1], c(0.2));
             assert_eq!(to_f64(&double[1]), c(0.2));
+        }
+    }
+}
+
+/// `SymbolicaMasters<Float>` serves B1111 from the native family as well:
+/// the same statuses, untouched failed rows and bitwise batch/single-row
+/// values, and the binary64 values to binary64 accuracy.
+#[test]
+fn arbitrary_precision_rank_four_bubble_batches_keep_failed_rows() {
+    let binary64 = b1111_batches(&mut SymbolicaMasters::new(0f64), |x| x);
+    let float = b1111_batches(&mut SymbolicaMasters::new(Float::new(256)), |x| {
+        Float::with_val(256, x)
+    });
+    for (binary64, float) in binary64.iter().zip(&float) {
+        assert_eq!(binary64.is_some(), float.is_some());
+        if let (Some(binary64), Some(float)) = (binary64, float) {
+            let to_f64 = |z: &Complex<Float>| Complex::new(z.re.to_f64(), z.im.to_f64());
+            close(binary64[0], to_f64(&float[0]));
+            assert_eq!(to_f64(&float[1]), c(0.2));
+            assert!(float[2].is_fully_zero());
+        }
+    }
+}
+
+/// The native B1111 of `[p², m0², m1², mu²]` at `bits` working bits.
+fn native_b1111(point: &[Complex<Float>; 4], bits: u32) -> [Complex<Float>; 3] {
+    let mut native =
+        NativeTensorEvaluator::<Float>::with_binary_precision(TensorIntegral::B1111, bits).unwrap();
+    let zero = Complex::new(Float::new(bits), Float::new(bits));
+    let mut family = vec![zero; TensorIntegral::B1111.outputs()];
+    native.evaluate(point, &mut family).unwrap();
+    std::array::from_fn(|k| family[12 + k].clone())
+}
+
+fn assert_bitwise(actual: &[Complex<Float>; 3], expected: &[Complex<Float>; 3], what: &str) {
+    for (actual, expected) in actual.iter().zip(expected) {
+        assert_eq!(actual, expected, "{what}");
+        assert_eq!(
+            actual.re.get_precision(),
+            expected.re.get_precision(),
+            "{what}"
+        );
+        assert_eq!(
+            actual.im.get_precision(),
+            expected.im.get_precision(),
+            "{what}"
+        );
+    }
+}
+
+/// B1111 rows of a `Float(256)` provider through one strict batch.
+fn float_b1111(
+    provider: &mut SymbolicaMasters<Float>,
+    rows: &[[Complex<Float>; 4]],
+) -> Vec<[Complex<Float>; 3]> {
+    let zero = Complex::new(Float::new(256), Float::new(256));
+    let mut output = vec![std::array::from_fn(|_| zero.clone()); rows.len()];
+    let masses: Vec<_> = rows
+        .iter()
+        .flat_map(|row| [row[1].clone(), row[2].clone()])
+        .collect();
+    provider
+        .evaluate(
+            MasterRequest {
+                integral: MasterIntegral::B1111,
+                invariants: &rows.iter().map(|row| row[0].clone()).collect::<Vec<_>>(),
+                masses_squared: &masses,
+                scales_squared: &rows.iter().map(|row| row[3].clone()).collect::<Vec<_>>(),
+            },
+            &mut output,
+        )
+        .unwrap();
+    output
+}
+
+/// The native family rounds every input to one working precision, so
+/// `SymbolicaMasters<Float>` picks it per row: never above the working
+/// precision, and never above the bits that an input determines relative to
+/// the row's scale (its tracked precision plus `log2(S/|x|)` for invariants
+/// and masses, its own tracked precision for `mu²`). Each row is bitwise the
+/// native family at that precision, in a batch or alone, also after the
+/// evaluator cache has been cleared for too many precisions.
+#[test]
+fn float_b1111_rows_take_the_precision_their_inputs_determine() {
+    let at = |bits: u32, x: f64| Float::with_val(bits, x);
+    let real = |x: Float| {
+        let zero = Float::new(x.get_precision());
+        Complex::new(x, zero)
+    };
+    let row =
+        |p2: Complex<Float>, mu2: Float| [p2, real(at(256, 1.)), real(at(256, 1.5)), real(mu2)];
+    let seventh = Float::new(53).from_rational(&Rational::from((-1, 7)));
+    let rows = [
+        // Exact inputs at the working precision.
+        (row(real(at(256, -1.)), at(256, 1.)), 256),
+        // A 53-bit invariant of the row's size: 53 + floor(log2(1.5 * 7)).
+        (row(real(seventh.clone()), at(256, 1.)), 56),
+        // A tiny 8-bit invariant determines 8 + floor(log2(1.5 * 2^100)).
+        (row(real(at(8, 0.5f64.powi(100))), at(256, 1.)), 108),
+        // Inputs above the working precision are rounded to it.
+        (
+            [
+                real(at(512, -1.)),
+                real(at(512, 1.)),
+                real(at(512, 1.5)),
+                real(at(512, 1.)),
+            ],
+            256,
+        ),
+        // mu² limits the row by its own tracked precision.
+        (row(real(at(256, -1.)), at(64, 1.)), 64),
+        // A tiny, weakly determined width: 4 + floor(log2(1.5 * 2^200)).
+        (
+            [
+                real(at(256, -1.)),
+                real(at(256, 1.)),
+                Complex::new(at(256, 1.5), at(4, -(0.5f64.powi(200)))),
+                real(at(256, 1.)),
+            ],
+            204,
+        ),
+    ];
+    let points: Vec<_> = rows.iter().map(|(point, _)| point.clone()).collect();
+    let mut provider = SymbolicaMasters::new(Float::new(256));
+    let batch = float_b1111(&mut provider, &points);
+    for (index, ((point, bits), value)) in rows.iter().zip(&batch).enumerate() {
+        let expected = native_b1111(point, *bits);
+        assert_bitwise(value, &expected, &format!("row {index} at {bits} bits"));
+        assert_bitwise(
+            &float_b1111(&mut provider, std::slice::from_ref(point))[0],
+            &expected,
+            &format!("single row {index}"),
+        );
+        assert!(value[0].re.get_precision() <= *bits, "row {index}");
+    }
+    // The rounded 1/7 cannot recover the exact invariant's value.
+    let exact = native_b1111(
+        &row(
+            real(Float::new(256).from_rational(&Rational::from((-1, 7)))),
+            at(256, 1.),
+        ),
+        256,
+    );
+    let difference = (batch[1][0].re.clone() - &exact[0].re).norm().to_f64();
+    assert!(difference > 1e-20, "{difference:e}");
+    assert!(batch[1][0].re.get_precision() < 100);
+    // Equal values give equal results at equal precision.
+    assert_bitwise(&batch[3], &batch[0], "rounded 512-bit inputs");
+
+    // More row precisions than the evaluator cache keeps, twice.
+    for _ in 0..2 {
+        let points: Vec<_> = (40..64)
+            .map(|bits| row(real(at(bits, -1.)), at(256, 1.)))
+            .collect();
+        for ((point, bits), value) in points
+            .iter()
+            .zip(40..)
+            .zip(float_b1111(&mut provider, &points))
+        {
+            assert_bitwise(&value, &native_b1111(point, bits), &format!("{bits} bits"));
         }
     }
 }

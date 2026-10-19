@@ -1855,8 +1855,9 @@ pub fn check_generic_lanes<T: oneloop::NativeFloat>(
 }
 
 /// Generic engines and their master providers, one per precision: `f64`
-/// with oneloopmaster's native masters, `DoubleFloat` and `Float` with its
-/// exact expressions.
+/// with oneloopmaster's native masters, `DoubleFloat` and `Float` with
+/// `SymbolicaMasters` (its exact expressions; B1111 from its native tensor
+/// family).
 #[derive(Default)]
 pub struct Engines {
     f64: Option<(GenericEngine<f64>, OneLoopNativeMasters)>,
