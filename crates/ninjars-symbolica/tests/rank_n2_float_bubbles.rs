@@ -14,22 +14,27 @@
 //!   limits the accuracy at small `p²`. The exact B1111 that `Float` used
 //!   before limited the same lanes to 1.3e-11 (with the S-matrix) and
 //!   O(100) relative errors (without) at `|p²|/m² = 1.4e-14`.
-//! - With the provider alone, the existing exact Passarino-Veltman B0, B1,
-//!   B11 and B111 still lose digits at small `p²`: about 1, 2, 3 and 4
-//!   digits per decade of `m²/|p²|` against the Feynman-parameter values of
-//!   `rank_n2_data/b_family_feynman.txt`, in `Float(256)` and `Float(512)`
-//!   alike (their tracked precision follows the loss to within 2^15). The
-//!   lanes reach 1e-60 for k <= 12 (`|p²|/m² >= 2^-12`, asserted) and lose
-//!   about 4-5 digits per decade below (reported; at k = 47, 7e-24 for
-//!   n = 2, where B111 alone from 512 bits gives 3e-37, and 2e-10 for n = 3,
-//!   whose `p²` enters the interpreter with fewer tracked bits).
+//! - The provider alone now agrees as well (1e-68 asserted on every lane,
+//!   measured <= 1.4e-73), because B0, B1, B11 and B111 also come from
+//!   oneloopmaster's native families. The exact Passarino-Veltman forms it
+//!   used before lose about 1, 2, 3 and 4 digits per decade of `m²/|p²|`
+//!   against the Feynman-parameter values of
+//!   `rank_n2_data/b_family_feynman.txt` (`tests/masters.rs`), in
+//!   `Float(256)` and `Float(512)` alike: with all four exact, the lanes
+//!   reached only 7e-24 for n = 2 at k = 47 and 2e-10 for n = 3, whose `p²`
+//!   enters the interpreter with fewer tracked bits.
+//! - [`small_momentum_bubble_reproducers_in_double_and_float128`]: the final
+//!   review's DoubleFloat and `Float(128)` reproducers against 50-digit
+//!   references.
 //!
 //! Run with `cargo test --release -p ninjars-symbolica --test rank_n2_float_bubbles`.
 
 #[path = "../../ninjars-cli/src/case_check/harness.rs"]
 mod harness;
 
-use harness::{BenchCase, BenchLane, GenericEngine, GenericLane};
+use harness::{
+    BenchCase, BenchLane, Engines, GenericEngine, GenericLane, Policy, Precision, Reference,
+};
 use ninjars::{
     Complex, Float, FloatLike, Laurent, MasterIntegral, MasterProvider, MasterRequest,
     MasterStatus, Result,
@@ -40,9 +45,6 @@ use symbolica::domains::float::RealLike;
 
 /// Exponents `k` of `p² = 2^(1-k) + 2^-2k` (the shift `(1 + 2^-k, 0, 0, 1)`).
 const LADDER: [i32; 7] = [8, 12, 16, 24, 32, 40, 47];
-
-/// The shipped provider must reach 1e-60 for `k <= ASSERTED_K`.
-const ASSERTED_K: i32 = 12;
 
 struct Rng(u64);
 impl Rng {
@@ -214,6 +216,7 @@ fn rank_n2_bubbles_with_small_momentum_in_float256() {
             )
             .unwrap();
         let mut worst = (0f64, String::new());
+        let mut worst_shipped = (0f64, String::new());
         for (((lane, k), reference), (provider, accurate_lower)) in case
             .lanes
             .iter()
@@ -232,27 +235,72 @@ fn rank_n2_bubbles_with_small_momentum_in_float256() {
             let isolated = scaled_difference(accurate_lower, reference);
             let shipped = scaled_difference(provider, reference);
             assert!(isolated <= 1e-68, "{}: {isolated:e}", lane.id);
-            if *k <= ASSERTED_K {
-                assert!(shipped <= 1e-60, "{}: {shipped:e}", lane.id);
-            }
+            assert!(shipped <= 1e-68, "{}: {shipped:e}", lane.id);
             if isolated > worst.0 {
                 worst = (isolated, lane.id.clone());
             }
+            if shipped > worst_shipped.0 {
+                worst_shipped = (shipped, lane.id.clone());
+            }
             eprintln!(
-                "{:14} |p2|/m2 ~ {:.1e}: native B1111, B0..B111 from 512 bits {isolated:.1e}; provider alone {shipped:.1e}{} (eps0 tracked at {} bits)",
+                "{:14} |p2|/m2 ~ {:.1e}: native B1111, B0..B111 from 512 bits {isolated:.1e}; provider alone {shipped:.1e} (eps0 tracked at {} bits)",
                 lane.id,
                 0.5f64.powi(k - 1) / lane.masses.iter().map(|m| m.abs()).fold(0., f64::max),
-                if *k <= ASSERTED_K {
-                    ""
-                } else {
-                    " (report only)"
-                },
                 provider.values[0].re.get_precision(),
             );
         }
         eprintln!(
-            "n = {n}: worst with accurate B0..B111 {:.1e} ({})",
-            worst.0, worst.1
+            "n = {n}: worst with accurate B0..B111 {:.1e} ({}); provider alone {:.1e} ({})",
+            worst.0, worst.1, worst_shipped.0, worst_shipped.1
         );
+    }
+}
+
+/// The rank n+2 final review's small-`|p²|` bubble reproducers (finding 3,
+/// `rank_n2_data/repro-smallp2-bubble-r{4,2}.json`: `p² = 1.86e-9` with
+/// `m² = 25` and `2025`, numerator ranks 4 and 2) in DoubleFloat and
+/// `Float(128)`, against the review's 50-digit references
+/// (`rank_n2_data/ref-repro-smallp2-bubble-r{4,2}.json`). Each must be
+/// within `case-check`'s fixed-precision budget, `3 u_ref + (eps/eps_53)
+/// 1e-14 max(1, cond)` with the reference reduction's condition (1.5e7 and
+/// 3.2e3), including the rank-four lane that `case-check` only reports for
+/// its condition.
+///
+/// The exact scalar B0 (oneloopmaster's generated code in DoubleFloat, its
+/// interpreted expression in `Float`) lost about `log10(|m0²-m1²|/|p²|)` = 12
+/// digits here: rank 4 was 2.2e-15 (DoubleFloat) and 5.4e-22 (`Float(128)`)
+/// wrong, rank 2 1.6e-18 and 3.3e-25. With B0 from the native family:
+/// 2.8e-24, 8.3e-31, 8.3e-29 and 7.8e-36. The rank-four DoubleFloat floor is
+/// the reduction's own cancellation: the tadpole coefficient `c0` of the
+/// heavy line (4e5) is the difference of bubble terms of order 1e9, and the
+/// cut contributions (2.7e9) cancel to the lane's 2.6e3.
+#[test]
+fn small_momentum_bubble_reproducers_in_double_and_float128() {
+    let data = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/rank_n2_data");
+    let policy = Policy::default();
+    let mut engines = Engines::default();
+    for name in ["repro-smallp2-bubble-r4", "repro-smallp2-bubble-r2"] {
+        let case = BenchCase::load(&data.join(format!("{name}.json"))).unwrap();
+        let reference = Reference::load(&data.join(format!("ref-{name}.json"))).unwrap();
+        for precision in [Precision::Double, Precision::Float(128)] {
+            let lanes = engines
+                .check(precision, &case, case.rank, Some(&reference), &policy)
+                .unwrap();
+            assert_eq!(lanes.len(), 1);
+            for lane in lanes {
+                assert!(lane.succeeded, "{name} {precision:?}: {}", lane.status);
+                let difference = lane.difference.unwrap();
+                let tolerance = lane.judgement.tolerance.unwrap();
+                eprintln!(
+                    "{name} {precision:?}: {difference:.2e} (budget {tolerance:.2e}, {:?})",
+                    lane.judgement.verdict
+                );
+                assert_eq!(
+                    lane.judgement.within_tolerance,
+                    Some(true),
+                    "{name} {precision:?}: {difference:e} > {tolerance:e}"
+                );
+            }
+        }
     }
 }

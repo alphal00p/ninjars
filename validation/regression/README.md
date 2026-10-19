@@ -105,3 +105,20 @@ pass it bitwise.
   `syn-n2-r3`, `syn-n3-r4`, `syn-n4-r5` and `syn-n6-r7` in their last printed
   digit (about 1e-76 relative); the fast engine, generic binary64 and the
   explicit-`mu²` sections are bitwise unchanged.
+- B0 now comes from oneloopmaster's native tensor family as well (OneLOop's
+  `bub0`, slot 0 of `TensorIntegral::B11`, as `OneLoopNativeMasters` already
+  does in binary64), for every carrier of `SymbolicaMasters`
+  (`crates/ninjars-symbolica/src/masters.rs`). The exact scalar B0
+  (oneloopmaster's generated code in DoubleFloat, its interpreted expression
+  in `Float`) loses about `log10(|m0²-m1²|/|p²|)` digits at small `|p²|`:
+  DoubleFloat 2.1e-21 relative at `p² = 1.86e-9` with `m² = 25, 2025`, which
+  left the review's rank-4 small-`p²` reproducer 2.2e-15 wrong (now 2.8e-24;
+  `Float(128)` 5.4e-22 -> 8.3e-31). The fixture was re-blessed in place: only
+  the generic `Float(256)` section moved, 37 of 170 decimal components in 12
+  of 17 lanes, by at most 2.4e-69 of the lane's largest component
+  (`syn-n6-r7` lane 1). Against the same engine in `Float(512)` the changed
+  lanes stay at their error level (4 closer, 3 farther, 5 with the same
+  largest error; e.g.
+  `syn-n6-r7` lane 1 4.3e-67 -> 4.2e-67, `syn-n3-r4` lane 2 3.8e-76 ->
+  4.1e-76); the fast engine, generic binary64 and the explicit-`mu²` sections
+  are bitwise unchanged.

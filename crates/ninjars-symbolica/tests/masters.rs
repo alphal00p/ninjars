@@ -1,7 +1,7 @@
 use ninjars::{
     Complex, DoubleFloat, Float, FloatLike, MasterIntegral, MasterProvider, MasterRequest,
 };
-use ninjars_symbolica::{SymbolicaDualMasters, SymbolicaMasters};
+use ninjars_symbolica::{OneLoopNativeMasters, SymbolicaDualMasters, SymbolicaMasters};
 use oneloop::{
     EvaluationBackend, NativeFloat, NativeTensorEvaluator, ScalarIntegral, TensorIntegral,
 };
@@ -861,5 +861,212 @@ fn arbitrary_precision_b1111_is_native_and_matches_feynman_parameters() {
             slack.0,
             slack.1
         );
+    }
+}
+
+// ---------------------------------------------------------------------------
+// B0, B1, B11 and B111: every carrier takes them from oneloopmaster's native
+// tensor families too (B0 is OneLOop's `bub0`, slot 0 of `TensorIntegral::B11`,
+// as in binary64's `OneLoopNativeMasters`).
+
+/// The lower bubble coefficients `[B0, B1, B11, B111]`.
+const LOWER_BUBBLES: [MasterIntegral; 4] = [
+    MasterIntegral::B0,
+    MasterIntegral::B1,
+    MasterIntegral::B11,
+    MasterIntegral::B111,
+];
+
+/// Largest error of each of B0, B1, B11 and B111 (Laurent triples, through
+/// one strict `SymbolicaMasters<T>` batch per coefficient) against the
+/// Feynman-parameter references on `rows` (indices into the fixture),
+/// relative to the row's scale ([`FeynmanRow::scale`]). The poles are
+/// `(-1)^k/(k+1)` and 0, all zero for the scaleless bubble.
+fn lower_bubble_errors<T: NativeFloat>(
+    representative: T,
+    lift: impl Fn(f64) -> T,
+    to_float: impl Fn(&T) -> Float,
+    references: &[&FeynmanRow],
+) -> Vec<[f64; 4]>
+where
+    Complex<T>: EvaluationDomain,
+{
+    let mut provider = SymbolicaMasters::new(representative);
+    let complex = |z: Complex<f64>| Complex::new(lift(z.re), lift(z.im));
+    let zero = complex(real(0.));
+    let invariants: Vec<_> = references.iter().map(|r| complex(r.input[0])).collect();
+    let masses: Vec<_> = references
+        .iter()
+        .flat_map(|r| [complex(r.input[1]), complex(r.input[2])])
+        .collect();
+    let scales: Vec<_> = references.iter().map(|r| complex(r.input[3])).collect();
+    let mut errors = vec![[0.; 4]; references.len()];
+    for (k, integral) in LOWER_BUBBLES.into_iter().enumerate() {
+        let mut output = vec![std::array::from_fn(|_| zero.clone()); references.len()];
+        provider
+            .evaluate(
+                MasterRequest {
+                    integral,
+                    invariants: &invariants,
+                    masses_squared: &masses,
+                    scales_squared: &scales,
+                },
+                &mut output,
+            )
+            .unwrap();
+        for ((reference, value), errors) in references.iter().zip(&output).zip(&mut errors) {
+            let exact = Float::new(FEYNMAN_BITS);
+            let pole = if reference.scaleless() {
+                exact.clone()
+            } else {
+                let sign = if k % 2 == 0 { 1 } else { -1 };
+                exact.from_rational(&Rational::from((sign, k as i64 + 1)))
+            };
+            let expected = [
+                reference.finite[k].clone(),
+                Complex::new(pole, exact.clone()),
+                Complex::new(exact.clone(), exact),
+            ];
+            errors[k] = value
+                .iter()
+                .zip(&expected)
+                .map(|(value, expected)| {
+                    float_abs(&Complex::new(
+                        to_float(&value.re) - &expected.re,
+                        to_float(&value.im) - &expected.im,
+                    ))
+                })
+                .fold(0., f64::max)
+                / reference.scale();
+        }
+    }
+    errors
+}
+
+/// Check `lower_bubble_errors` against `tolerance` and report the worst row
+/// of each coefficient.
+fn assert_lower_bubbles(
+    carrier: &str,
+    references: &[&FeynmanRow],
+    errors: &[[f64; 4]],
+    tolerance: f64,
+) {
+    let mut worst = [(0f64, ""); 4];
+    for (reference, errors) in references.iter().zip(errors) {
+        for (k, &error) in errors.iter().enumerate() {
+            assert!(
+                error <= tolerance,
+                "{carrier} {:?} {}: {error:e}",
+                LOWER_BUBBLES[k],
+                reference.label
+            );
+            if error > worst[k].0 {
+                worst[k] = (error, reference.label.as_str());
+            }
+        }
+    }
+    eprintln!(
+        "{carrier} B0, B1, B11, B111 over {} rows vs Feynman parameters (relative to the row scale): {worst:?}",
+        references.len()
+    );
+}
+
+/// B0..B111 of the fixed-precision carriers against the Feynman-parameter
+/// fixture (DoubleFloat worst 7.8e-32). Before B0 came from the family, both
+/// took the exact scalar B0 (oneloopmaster's generated native code), whose
+/// `(m0²-m1²)/p²` logarithms cancel at small `|p²|`: DoubleFloat 1.2e-18 at
+/// `p² = 1.4e-14` (complex masses of order one) and binary64 4.1e-5 at
+/// `p² = 1.2e-8` (`m² = 30276, 29929`); the rank-four bubble lane of
+/// `rank_n2_data/repro-smallp2-bubble-r4.json` was 2.2e-15 wrong in
+/// DoubleFloat for it. Binary64 skips the rows that OneLOop's on-shell
+/// threshold (`|p²| < 1e-9`, Ninja's `INFRARED_EPS`) evaluates at `p² = 0`
+/// by design.
+#[test]
+fn fixed_precision_lower_bubbles_are_native_and_match_feynman_parameters() {
+    let bits = FEYNMAN_BITS;
+    let rows = feynman_rows();
+    let all: Vec<&FeynmanRow> = rows.iter().collect();
+    let double = lower_bubble_errors(
+        DoubleFloat::default(),
+        DoubleFloat::from,
+        |x| {
+            let x = (*x).into_inner();
+            Float::with_val(bits, x.hi()) + Float::with_val(bits, x.lo())
+        },
+        &all,
+    );
+    assert_lower_bubbles("DoubleFloat", &all, &double, 1e-30);
+    let unsnapped: Vec<&FeynmanRow> = rows
+        .iter()
+        .filter(|row| row.input[0].re == 0. || row.input[0].re.abs() >= 1e-9)
+        .collect();
+    // Binary64 keeps 1e-15 of the row scale except within 2^-29 (relative)
+    // of a threshold or pseudo-threshold `(m0 ± m1)²` of real masses, where the
+    // bubble family's binary64 code reaches 7.2e-14 (`thr:166`, `thr:168`,
+    // pseudo-threshold `p² = 1 ± 2^-40` with masses 1 and 4).
+    let near_threshold = |row: &FeynmanRow| {
+        let [p2, m0, m1, _] = row.input;
+        let real = m0.im == 0. && m1.im == 0. && p2.re != 0.;
+        [1., -1.].into_iter().any(|sign: f64| {
+            let edge = (m0.re.sqrt() + sign * m1.re.sqrt()).powi(2);
+            let distance = (p2.re - edge).abs() / p2.re.abs();
+            real && distance > 0. && distance <= 2f64.powi(-29)
+        })
+    };
+    let (near, regular): (Vec<&FeynmanRow>, Vec<&FeynmanRow>) =
+        unsnapped.into_iter().partition(|row| near_threshold(row));
+    for (rows, tolerance) in [(regular, 4e-15), (near, 1e-13)] {
+        let binary64 = lower_bubble_errors(0f64, |x| x, |x| Float::with_val(bits, *x), &rows);
+        assert_lower_bubbles("binary64", &rows, &binary64, tolerance);
+    }
+}
+
+/// `SymbolicaMasters<f64>` serves B0..B111 bitwise as binary64's
+/// `OneLoopNativeMasters` does (the same native families and on-shell
+/// threshold), on every row of the fixture.
+#[test]
+fn binary64_lower_bubbles_equal_the_native_provider() {
+    let rows = feynman_rows();
+    let invariants: Vec<_> = rows.iter().map(|r| r.input[0]).collect();
+    let masses: Vec<_> = rows.iter().flat_map(|r| [r.input[1], r.input[2]]).collect();
+    let scales: Vec<_> = rows.iter().map(|r| r.input[3]).collect();
+    let mut symbolica = SymbolicaMasters::new(0f64);
+    let mut native = OneLoopNativeMasters::new().unwrap();
+    for integral in LOWER_BUBBLES {
+        let request = || MasterRequest {
+            integral,
+            invariants: &invariants,
+            masses_squared: &masses,
+            scales_squared: &scales,
+        };
+        let mut expected = vec![[real(0.); 3]; rows.len()];
+        let mut actual = vec![[real(17.); 3]; rows.len()];
+        native.evaluate(request(), &mut expected).unwrap();
+        symbolica.evaluate(request(), &mut actual).unwrap();
+        for ((row, actual), expected) in rows.iter().zip(&actual).zip(&expected) {
+            let bits =
+                |values: &[Complex<f64>; 3]| values.map(|z| (z.re.to_bits(), z.im.to_bits()));
+            assert_eq!(bits(actual), bits(expected), "{integral:?} {}", row.label);
+        }
+    }
+}
+
+/// The same for `Float` at 128, 256 and 512 bits (rows at the working
+/// precision: the fixture's inputs are exact; worst 1.5e-33, 4.3e-72 and
+/// 2.7e-149, within 2^-40 of a threshold). The exact B0 that `Float`
+/// interpreted before reached 1.7e-15, 5.3e-55 and 2.4e-127 at `|p²|`
+/// between 1.4e-14 and 1.4e-12 (complex masses of order one).
+#[test]
+fn arbitrary_precision_lower_bubbles_are_native_and_match_feynman_parameters() {
+    let rows = feynman_rows();
+    let all: Vec<&FeynmanRow> = rows.iter().collect();
+    for (bits, tolerance) in [(128, 1e-31), (256, 1e-69), (512, 1e-146)] {
+        let errors = lower_bubble_errors(
+            Float::new(bits),
+            |x| Float::with_val(bits, x),
+            Float::clone,
+            &all,
+        );
+        assert_lower_bubbles(&format!("Float({bits})"), &all, &errors, tolerance);
     }
 }
