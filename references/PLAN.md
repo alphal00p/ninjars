@@ -2580,3 +2580,31 @@ Float(256..1024), fixed at 09b2c74).
   bitwise identical before and after the re-pin. The re-pin moves 44 of the 85
   Float(256) complex values by at most 8.7e-71 of their lane's largest
   coefficient; no status changes. V0p passes before and after.
+
+### Pruning harness on the integration pins (2026-10-20)
+
+`codex/pruned-validation-harness` (6db5602) merged into
+`claude/todo-next-integration`, checked on the integration branch with Symbolica
+`9cdc2949`, oneloopmaster `09b2c74` and FeynKit `d1904bf2` (scratch evidence,
+not retained in the repository).
+
+- **Build.** `validation/performance/shared_provider` builds `--locked --release`
+  against these pins with no warning and no source change.
+- **Physical control** (`run_physical.py --release --maximum-integrated-batch 32`,
+  interpreted selection, graph26, integrated widths 0/1/3/8/31/32): passes
+  without and with `--prune-swapped-arithmetic`, with identical raw (3.8e-15),
+  coefficient-oracle (2.4e-15), integrated (1.3e-16) and MadLoop (6.2e-17)
+  scaled errors. The pruned run's same-artifact full/pruned parity checks 375
+  complex components per row: largest `|pruned - full| / max(1, |full|)` is
+  7.7e-34, numerator call/row deltas equal. Between the two runs, the primary
+  session's 15 Laurent/CC/R1 components are bitwise identical except one
+  analytically vanishing single pole (6.4e-18) that moves by one ulp
+  (1.2e-16 relative, 1.5e-31 of the lane's largest coefficient).
+- **Cost** (in-process `instructions:u` around the timed blocks of
+  `physical_timing.cc`, a scratch copy with counters, scope shared-reduction
+  with frozen masters, 4 trials x 30 rounds, two repetitions; spread <= 1.6e-4):
+  the Rust reduction (with its interpreted numerator callbacks and master
+  lookups) costs 4.54M/4.03M/3.97M instructions per row at widths 1/8/32
+  without pruning and 2.2 %/2.5 %/2.6 % fewer with it (about 0.10M per row);
+  original Ninja's blocks are unchanged (1.26M per row). No wall-clock timing
+  was taken.
