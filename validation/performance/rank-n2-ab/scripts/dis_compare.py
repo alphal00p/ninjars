@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Compare the machine code of the rank <= n+1 hot functions of two binaries.
 
-usage: dis_compare.py BIN_A BIN_B [REGEX]
+usage: dis_compare.py [--no-alias] BIN_A BIN_B [REGEX]
 
 Functions are matched by demangled name (generic instances included) among
 the symbols whose name matches REGEX (default: the fast engine, its geometry,
@@ -11,14 +11,22 @@ rank n+2 modules. Each body is disassembled with objdump and normalised
 (addresses, immediates that are addresses, and jump targets removed), then
 compared. Prints identical/different counts and, for every differing
 function, the instruction counts of both sides.
+
+By default B's `FastAmplitude::evaluate_up_to_n1` is matched with A's
+`evaluate` (for a base from before the rank n+2 split). `--no-alias` compares
+the names as they are, for two binaries that both have `evaluate_up_to_n1`
+(main 0d0d7e7 or later).
 """
 import collections
 import re
 import subprocess
 import sys
 
+# The CLI package `ninjars-cli` builds the binary crate `ninjars` ([[bin]] name),
+# so its modules demangle as `ninjars::case_bench::...`; the library crate
+# `ninjars` has no modules of these names.
 DEFAULT = (r"ninjars::fast::|ninjars_symbolica::oneloop_native|oneloop::native::|"
-           r"ninjars_cli::case_bench|ninjars_cli::pipeline_bench|ninjars_cli::fast_runtime")
+           r"ninjars::case_bench::|ninjars::pipeline_bench::|ninjars::fast_runtime::")
 EXCLUDE = re.compile(r"engine_x2|bases_x2|subtractions_x2|subtractions_series_x2|_x2\b|x2::|RankN2|B1111|BubbleRank4|bubble::<2, 4, 5>")
 
 
@@ -70,9 +78,12 @@ def body(binary, addr, size):
 
 
 def main():
-    a_bin, b_bin = sys.argv[1], sys.argv[2]
-    pattern = re.compile(sys.argv[3] if len(sys.argv) > 3 else DEFAULT)
-    a, b = symbols(a_bin, pattern), symbols(b_bin, pattern, alias=True)
+    args = sys.argv[1:]
+    alias = "--no-alias" not in args
+    args = [arg for arg in args if arg != "--no-alias"]
+    a_bin, b_bin = args[0], args[1]
+    pattern = re.compile(args[2] if len(args) > 2 else DEFAULT)
+    a, b = symbols(a_bin, pattern), symbols(b_bin, pattern, alias=alias)
     common = sorted(set(a) & set(b))
     same, diff = 0, []
     for name in common:
