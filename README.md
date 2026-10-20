@@ -55,11 +55,13 @@ Dependencies are pinned in `Cargo.toml` and recorded with their provenance in
 | --- | --- | --- |
 | FeynKit, Spenso, Idenso (gammaloop) | `https://github.com/alphal00p/gammaloop` | `d1904bf2` (branch `feynkit`, with PRs #142-#144 and #149-#152 merged) |
 | oneloopmaster (`oneloop`) | `https://github.com/alphal00p/oneloopmaster` | `09b2c749` |
-| Symbolica, Numerica, Graphica | `https://github.com/alphal00p/symbolica` (branch `ninjars-pin`) | `e679e8c1` |
+| Symbolica, Numerica, Graphica | `https://github.com/alphal00p/symbolica` (branch `ninjars-pin`) | `9cdc2949` |
 
-Symbolica `e679e8c1` is upstream `c78cffc2` plus the patches in
-`dependencies/patches` and the binary64 dilogarithm of symbolica-dev/symbolica#89,
-whose pull requests are pending. NinjaRS replaces the crates.io `symbolica`,
+Symbolica `9cdc2949` is upstream `c78cffc2` plus the patches in
+`dependencies/patches`, among them the binary64 dilogarithm of
+symbolica-dev/symbolica#89 and the once-rounded `Float` products with exact ±1
+factors of symbolica-dev/symbolica#97, whose pull requests are pending.
+NinjaRS replaces the crates.io `symbolica`,
 `numerica` and `graphica` through `[patch.crates-io]`; Cargo applies `[patch]`
 only in the root workspace, so a project that depends on NinjaRS crates through
 git must repeat that block in its own root `Cargo.toml`:
@@ -69,9 +71,9 @@ git must repeat that block in its own root `Cargo.toml`:
 ninjars-symbolica = { git = "https://github.com/alphal00p/ninjars", rev = "<revision>" }
 
 [patch.crates-io]
-symbolica = { git = "https://github.com/alphal00p/symbolica.git", rev = "e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8" }
-numerica = { git = "https://github.com/alphal00p/symbolica.git", rev = "e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8" }
-graphica = { git = "https://github.com/alphal00p/symbolica.git", rev = "e679e8c129ce15ec50c46ffb4ff4b59aeb7813b8" }
+symbolica = { git = "https://github.com/alphal00p/symbolica.git", rev = "9cdc2949cdb153478c1eca0d40690dc0abfc616e" }
+numerica = { git = "https://github.com/alphal00p/symbolica.git", rev = "9cdc2949cdb153478c1eca0d40690dc0abfc616e" }
+graphica = { git = "https://github.com/alphal00p/symbolica.git", rev = "9cdc2949cdb153478c1eca0d40690dc0abfc616e" }
 symbolica-typst-plugin = { git = "https://github.com/symbolica-dev/symbolica-typst-plugin", rev = "57b7455b37c30f4f87353c0073e49f5225e937ab" }
 ```
 

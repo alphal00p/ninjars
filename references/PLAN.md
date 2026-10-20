@@ -2552,3 +2552,31 @@ Float(256..1024), fixed at 09b2c74).
   no timing, pruning speedup or performance acceptance is claimed. The fixed
   physical control is binary64 graph26; broader physical, precision and original
   rational-component gates remain in the overall plan.
+
+### Symbolica pin 9cdc2949: Float products rounded once (2026-10-20)
+
+- **Pin.** `alphal00p/symbolica` `ninjars-pin` `9cdc2949cdb153478c1eca0d40690dc0abfc616e`
+  = `e679e8c1` plus [Symbolica PR #97](https://github.com/symbolica-dev/symbolica/pull/97)
+  ("Round Float products once and keep factors of ±1 exact"; open). numerica's
+  `Float * &Float` rounded twice (so `a*b != b*a`) and `a - b` re-rounded `b`
+  through a working-precision `-1`; one-bit residues flipped exact sign tests
+  in oneloopmaster's C0/D0 at 128..1024 bits. Binary64 and DoubleFloat are
+  unchanged.
+- **Manifests.** The root, `validation/performance/shared_provider`,
+  `validation/benchmark/ill-conditioned` and `validation/benchmark/masters_native`
+  `[patch.crates-io]` blocks and lockfiles (only the three `source` lines move;
+  `cargo metadata --locked` passes in each root). `dependencies/patches/symbolica-batch-dual.patch`
+  is regenerated as `git diff c78cffc2 9cdc2949` (sha256 `c8f55f66…b348`);
+  `patched_revisions` now lists `9cdc2949` instead of `e679e8c1`, because
+  bootstrap accepts exactly the checkouts that already contain the
+  consolidated patch, and `e679e8c1` no longer does. `tools/bootstrap.py`
+  applies the patch to a clean `c78cffc2` checkout and yields the tree of
+  `9cdc2949` exactly, recognizes the applied patch on a second run and accepts
+  a `9cdc2949` checkout unchanged.
+- **Effect on V0/V0p** (fixture `r-le-n1-d53dd08.json` not re-blessed; it
+  already differs on this branch, HANDOFF.md §2 "Integration pass 1"). Before
+  the re-pin 43 entries differ, all in `generic_float256`; after it 87, all in
+  `generic_float256`. `fast_tensor`, `generic_f64` and `mu_numerators` are
+  bitwise identical before and after the re-pin. The re-pin moves 44 of the 85
+  Float(256) complex values by at most 8.7e-71 of their lane's largest
+  coefficient; no status changes. V0p passes before and after.
