@@ -44,7 +44,9 @@ A later [source-only follow-up](reduction-algorithm-followup.md) prioritizes
 preserving the one-line Laurent recurrence at higher rank and sharing leading
 denominator reciprocals across parent corrections. Neither experiment has been
 implemented or run; the already prepared paired-orientation and master-weight
-inventories remain first.
+inventories remain first. The [paired-orientation inventory](paired-orientation-inventory.md)
+has since completed symbolically (294 to 216 instructions for the two paired
+graphs, no numerical or timing validation).
 
 The [immutable interpreted baseline](../../validation/evidence/shared-reduction-timing-0c77597.json)
 measures graph26, n=5/rank4, with the same numerator callback provider and frozen

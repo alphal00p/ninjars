@@ -1,0 +1,44 @@
+{
+  "original_executable": "/common/build-cache/external/b4/f0447ab46499fc/debug/deps/ninjars_symbolica-bfa72ee958dcd1ce",
+  "retained_executable": "/tmp/ninjars-paired-orientation/test-executable",
+  "executable_sha256": "ed4058519f777954dd0ea2ceb3f13c476275a026e830ade832fd52e817b2c06c",
+  "executable_bytes": 483399536,
+  "cargo_artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///shared/external/ninja/references/ninjars_paired_orientation_audit/crates/ninjars-symbolica#0.1.0",
+    "manifest_path": "/shared/external/ninja/references/ninjars_paired_orientation_audit/crates/ninjars-symbolica/Cargo.toml",
+    "target": {
+      "kind": [
+        "lib"
+      ],
+      "crate_types": [
+        "lib"
+      ],
+      "name": "ninjars_symbolica",
+      "src_path": "/shared/external/ninja/references/ninjars_paired_orientation_audit/crates/ninjars-symbolica/src/lib.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": true,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [
+      "rust-codegen"
+    ],
+    "filenames": [
+      "/common/build-cache/external/b4/f0447ab46499fc/debug/deps/ninjars_symbolica-bfa72ee958dcd1ce"
+    ],
+    "executable": "/common/build-cache/external/b4/f0447ab46499fc/debug/deps/ninjars_symbolica-bfa72ee958dcd1ce",
+    "fresh": false
+  },
+  "feature": "rust-codegen",
+  "test": "paired_orientation_probe::inventory_paired_orientations",
+  "timeout_seconds": 180,
+  "expression_byte_budget": 8388608
+}

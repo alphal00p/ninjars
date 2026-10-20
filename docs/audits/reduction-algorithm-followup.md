@@ -7,6 +7,17 @@ numerical control, profile, or timing was performed. The paired-orientation and
 master-weight inventories are still pending; no additional runtime implementation
 is introduced. Historical timings do not identify the current dominant cost.
 
+Later status of the first-ranked candidate: the
+[paired-orientation inventory](paired-orientation-inventory.md) has since been
+completed (frozen source `fda9047`, on `archive/codex/paired-orientation-audit`).
+Pairing the two bubble orientations' existing T2-denominator and source-projection
+graphs reduces their summed inventory from 294 to 216 instructions (358 to 258
+scalar-carrier operations), with all 30 exact parameter/head roundtrip identities
+passing and all 30 outputs retained. It has no numerical or timing validation;
+the counts justify only a bounded numerical prototype. The
+[staged master-weight inventory](integrated-weight-fusion.md) is likewise
+symbolic only.
+
 ## Ranked decision
 
 | Priority | Candidate | Feasibility and stopping criterion |

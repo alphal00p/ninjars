@@ -1,0 +1,207 @@
+{
+  "status": "complete_symbolic_inventory",
+  "exact_roundtrip_identities": 30,
+  "retained_expression_text_bytes": 4984,
+  "families": {
+    "denominator": {
+      "canonical_inputs": 37,
+      "retained_outputs": 14,
+      "shared_head_indices": [
+        1,
+        2
+      ],
+      "inventories": {
+        "original_single": {
+          "inputs": 29,
+          "outputs": 7,
+          "instructions": 87,
+          "additions": 47,
+          "multiplications": 64,
+          "inversions": 0,
+          "function_calls": 0,
+          "arithmetic_operations": 111,
+          "temporary_slots": 14,
+          "constants": 3,
+          "expression_text_bytes": 692
+        },
+        "original_two_evaluations": {
+          "outputs": 14,
+          "instructions": 174,
+          "additions": 94,
+          "multiplications": 128,
+          "inversions": 0,
+          "function_calls": 0,
+          "arithmetic_operations": 222,
+          "temporary_slots": 28,
+          "constants": 6,
+          "expression_text_bytes": 1384
+        },
+        "separate_first": {
+          "inputs": 37,
+          "outputs": 7,
+          "instructions": 87,
+          "additions": 47,
+          "multiplications": 64,
+          "inversions": 0,
+          "function_calls": 0,
+          "arithmetic_operations": 111,
+          "temporary_slots": 14,
+          "constants": 3,
+          "expression_text_bytes": 1448
+        },
+        "separate_swapped": {
+          "inputs": 37,
+          "outputs": 7,
+          "instructions": 87,
+          "additions": 47,
+          "multiplications": 64,
+          "inversions": 0,
+          "function_calls": 0,
+          "arithmetic_operations": 111,
+          "temporary_slots": 14,
+          "constants": 3,
+          "expression_text_bytes": 1448
+        },
+        "separated": {
+          "outputs": 14,
+          "instructions": 174,
+          "additions": 94,
+          "multiplications": 128,
+          "inversions": 0,
+          "function_calls": 0,
+          "arithmetic_operations": 222,
+          "temporary_slots": 28,
+          "constants": 6,
+          "expression_text_bytes": 2896
+        },
+        "merged_cpe_0": {
+          "inputs": 37,
+          "outputs": 14,
+          "instructions": 124,
+          "additions": 67,
+          "multiplications": 91,
+          "inversions": 0,
+          "function_calls": 0,
+          "arithmetic_operations": 158,
+          "temporary_slots": 19,
+          "constants": 3,
+          "expression_text_bytes": 2896
+        },
+        "merged_cpe_2": {
+          "inputs": 37,
+          "outputs": 14,
+          "instructions": 124,
+          "additions": 67,
+          "multiplications": 91,
+          "inversions": 0,
+          "function_calls": 0,
+          "arithmetic_operations": 158,
+          "temporary_slots": 19,
+          "constants": 3,
+          "expression_text_bytes": 2896
+        }
+      }
+    },
+    "source_projection": {
+      "canonical_inputs": 36,
+      "retained_outputs": 16,
+      "shared_head_indices": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "inventories": {
+        "original_single": {
+          "inputs": 28,
+          "outputs": 8,
+          "instructions": 60,
+          "additions": 28,
+          "multiplications": 40,
+          "inversions": 0,
+          "function_calls": 0,
+          "arithmetic_operations": 68,
+          "temporary_slots": 12,
+          "constants": 1,
+          "expression_text_bytes": 292
+        },
+        "original_two_evaluations": {
+          "outputs": 16,
+          "instructions": 120,
+          "additions": 56,
+          "multiplications": 80,
+          "inversions": 0,
+          "function_calls": 0,
+          "arithmetic_operations": 136,
+          "temporary_slots": 24,
+          "constants": 2,
+          "expression_text_bytes": 584
+        },
+        "separate_first": {
+          "inputs": 36,
+          "outputs": 8,
+          "instructions": 60,
+          "additions": 28,
+          "multiplications": 40,
+          "inversions": 0,
+          "function_calls": 0,
+          "arithmetic_operations": 68,
+          "temporary_slots": 12,
+          "constants": 1,
+          "expression_text_bytes": 552
+        },
+        "separate_swapped": {
+          "inputs": 36,
+          "outputs": 8,
+          "instructions": 60,
+          "additions": 28,
+          "multiplications": 40,
+          "inversions": 0,
+          "function_calls": 0,
+          "arithmetic_operations": 68,
+          "temporary_slots": 12,
+          "constants": 1,
+          "expression_text_bytes": 552
+        },
+        "separated": {
+          "outputs": 16,
+          "instructions": 120,
+          "additions": 56,
+          "multiplications": 80,
+          "inversions": 0,
+          "function_calls": 0,
+          "arithmetic_operations": 136,
+          "temporary_slots": 24,
+          "constants": 2,
+          "expression_text_bytes": 1104
+        },
+        "merged_cpe_0": {
+          "inputs": 36,
+          "outputs": 16,
+          "instructions": 92,
+          "additions": 40,
+          "multiplications": 60,
+          "inversions": 0,
+          "function_calls": 0,
+          "arithmetic_operations": 100,
+          "temporary_slots": 16,
+          "constants": 1,
+          "expression_text_bytes": 1104
+        },
+        "merged_cpe_2": {
+          "inputs": 36,
+          "outputs": 16,
+          "instructions": 92,
+          "additions": 40,
+          "multiplications": 60,
+          "inversions": 0,
+          "function_calls": 0,
+          "arithmetic_operations": 100,
+          "temporary_slots": 16,
+          "constants": 1,
+          "expression_text_bytes": 1104
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "command": [
+    "flock",
+    "/tmp/ninjars-symbolica-tests.lock",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "180s",
+    "/tmp/ninjars-paired-orientation/test-executable",
+    "--ignored",
+    "--exact",
+    "paired_orientation_probe::inventory_paired_orientations",
+    "--test-threads=1",
+    "--nocapture"
+  ],
+  "cwd": "/shared/external/ninja/references/ninjars_paired_orientation_audit",
+  "start_utc": "2026-10-17T02:25:09.116439+00:00",
+  "environment": {
+    "CC": "gcc",
+    "CXX": "g++",
+    "PKG_CONFIG": "pkg-config",
+    "CARGO_TARGET_DIR": "/common/build-cache/external/b4/f0447ab46499fc",
+    "CARGO_BUILD_BUILD_DIR": "/common/build-cache/external/b4/f0447ab46499fc",
+    "CARGO_BUILD_JOBS": "4",
+    "RUST_MIN_STACK": "134217728",
+    "RAYON_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "RUSTFLAGS": null,
+    "CARGO_ENCODED_RUSTFLAGS": null,
+    "NINJARS_PAIRED_ORIENTATION_OUTPUT": "/tmp/ninjars-paired-orientation/attempt2-inventory.json"
+  },
+  "exit_code": 0,
+  "elapsed_seconds": 59.21813991299132,
+  "end_utc": "2026-10-17T02:26:08.334613+00:00"
+}
