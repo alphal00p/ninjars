@@ -116,13 +116,13 @@ struct CutEngine<T> {
     /// `(1 + |z1|^2)^2` and `(1 + |z1|^2)(1 + |z2|^2)`: twice the squared
     /// Euclidean norms of `e1` and `e3` of each tadpole basis.
     tadpole_norms: [[T; 2]; 6],
+    /// The uncut-line probe ([`bubble_line_probe`]) of all 24 references.
     bubble_complement_probe: Kernel<T>,
-    /// Per probe row, its first row in both uncut-line probes.
+    /// Per probe row, its first row in the uncut-line probe.
     bubble_complement_starts: Vec<usize>,
     /// The 16 further bubble references ([`further_bubble_references`]),
-    /// probed row for row with the first probe and its uncut-line probe.
+    /// probed row for row with the first probe.
     further_bubble_probe: Kernel<T>,
-    further_bubble_complement_probe: Kernel<T>,
     samplers: [Kernel<T>; 2],
     active: Vec<usize>,
     seeded: Vec<usize>,
@@ -210,20 +210,15 @@ fn further_bubble_references() -> Vec<FourMomentum<Atom>> {
     references
 }
 
-/// The probes of the bubble references `references`:
-/// - `[V_first, V_second]` gives `k = V_first - V_second`, then `k.r` and `r`
-///   per reference (five columns each), and `k.k` last with `invariant`;
-/// - the uncut-line probe `[V_first, V_second, V_uncut]` gives `v = V_uncut -
-///   V_first` and, per reference r, the Gram determinant of (k, r, v). With
-///   e1.e2 = k.r it equals 2 (k.r) (e3.v)(e4.v): it vanishes exactly when the
-///   uncut denominator loses its leading Laurent coefficient in either
-///   orientation, independently of the spinor chart normalization.
-fn bubble_probes<T: Real + SingleFloat>(
+/// The probe of the bubble references `references`: `[V_first, V_second]`
+/// gives `k = V_first - V_second`, then `k.r` and `r` per reference (five
+/// columns each), and `k.k` last with `invariant`.
+fn bubble_reference_probe<T: Real + SingleFloat>(
     references: &[FourMomentum<Atom>],
     invariant: bool,
     prototype: &T,
     shape: Option<&[Vec<usize>]>,
-) -> Result<(Kernel<T>, Kernel<T>)>
+) -> Result<Kernel<T>>
 where
     Complex<T>: Real + EvaluationDomain,
 {
@@ -238,28 +233,43 @@ where
     if invariant {
         expressions.push(k.dot(&k));
     }
-    let probe = Kernel::new(&expressions, &p, prototype, shape)?;
+    Kernel::new(&expressions, &p, prototype, shape)
+}
+
+/// The uncut-line probe of the bubble references `references`:
+/// `[V_first, V_second, V_uncut]` gives `v = V_uncut - V_first`, then `v.v`,
+/// `k.v` and `r.v` per reference, with `k = V_first - V_second`. With the
+/// probes' `k.k` and `k.r` these give the Gram determinant of (k, r, v),
+/// `G = 2 (k.r)(r.v)(k.v) - k² (r.v)² - (k.r)² v²` for a null `r`
+/// ([`CutEngine::bubble_reference`]). It vanishes exactly when the uncut
+/// denominator loses its leading Laurent coefficient in either orientation,
+/// independently of the spinor chart normalization (with e1.e2 = k.r it
+/// equals 2 (k.r)(e3.v)(e4.v)). For the 24 references the probe has 138
+/// evaluator instructions, the 24 determinants 494.
+fn bubble_line_probe<T: Real + SingleFloat>(
+    references: &[FourMomentum<Atom>],
+    prototype: &T,
+    shape: Option<&[Vec<usize>]>,
+) -> Result<Kernel<T>>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
+    if references.iter().any(|r| r.dot(r) != Atom::Zero) {
+        return Err(Error::Symbolic(
+            "the bubble references must be exactly null".into(),
+        ));
+    }
     let p = variables(12);
     let k = vector(&p, 0) - vector(&p, 4);
     let v = vector(&p, 8) - vector(&p, 0);
     let mut expressions = Vec::new();
     append_vector(&mut expressions, &v);
+    expressions.push(v.dot(&v));
+    expressions.push(k.dot(&v));
     for reference in references {
-        let rows = [&k, reference, &v];
-        let gram: Vec<Vec<Atom>> = rows
-            .iter()
-            .map(|a| rows.iter().map(|b| a.dot(b)).collect())
-            .collect();
-        let minor = |i: usize, j: usize, k: usize, l: usize| {
-            &gram[i][k] * &gram[j][l] - &gram[i][l] * &gram[j][k]
-        };
-        expressions.push(
-            &gram[0][0] * minor(1, 2, 1, 2) - &gram[0][1] * minor(1, 2, 0, 2)
-                + &gram[0][2] * minor(1, 2, 0, 1),
-        );
+        expressions.push(reference.dot(&v));
     }
-    let complement = Kernel::new(&expressions, &p, prototype, shape)?;
-    Ok((probe, complement))
+    Kernel::new(&expressions, &p, prototype, shape)
 }
 
 fn tadpole_kernels<T: Real + SingleFloat>(
@@ -318,10 +328,12 @@ where
         append_vector(&mut expressions, &k2);
         expressions.extend([&s + &root, &s - &root, delta]);
         let triangle_probe = Kernel::new(&expressions, &p, &prototype, shape)?;
-        let (bubble_probe, bubble_complement_probe) =
-            bubble_probes(&bubble_references(), false, &prototype, shape)?;
-        let (further_bubble_probe, further_bubble_complement_probe) =
-            bubble_probes(&further_bubble_references(), true, &prototype, shape)?;
+        let bubble_probe = bubble_reference_probe(&bubble_references(), false, &prototype, shape)?;
+        let further_bubble_probe =
+            bubble_reference_probe(&further_bubble_references(), true, &prototype, shape)?;
+        let mut references = bubble_references();
+        references.extend(further_bubble_references());
+        let bubble_complement_probe = bubble_line_probe(&references, &prototype, shape)?;
 
         let mut seeds = Vec::new();
         for mode in 0..2 {
@@ -465,7 +477,6 @@ where
             bubble_complement_probe,
             bubble_complement_starts: Vec::new(),
             further_bubble_probe,
-            further_bubble_complement_probe,
             samplers: [triangle_sampler, bubble_sampler],
             active: Vec::new(),
             seeded: Vec::new(),
@@ -495,10 +506,18 @@ where
     /// read-off by powers of `k.r` (up to the fourth). As the fast engine
     /// (`ninjars::fast` `bases_x2.rs`), a reference therefore scores
     /// `|k.r|/(|k| |r⁰|) · min_v |e3.v|/(|e3| |v|)` (Euclidean norms of the
-    /// components), here squared: `|e3.v|² = |G(k, r, v)|/(2 |k.r|)` from the
-    /// probe's Gram determinant and `|e3|² = 2 |e1⁰ r⁰|` with
+    /// components), here squared: `|e3.v|² = |G(k, r, v)|/(2 |k.r|)` with the
+    /// Gram determinant `G` of (k, r, v) and `|e3|² = 2 |e1⁰ r⁰|` with
     /// `e1 = k - k²/(2 k.r) r`. Both factors are scale free and at most 1, and
     /// the line factor is 1 without uncut lines.
+    ///
+    /// The probes give the invariants `k.k`, `k.r`, `v.v`, `k.v` and `r.v`;
+    /// for a null `r`, `G = (r.v) (2 (k.r)(k.v) - k² (r.v)) - (k.r)² v²` and
+    /// `4 |k.r| |e1⁰ r⁰| = 2 |2 (k.r) k⁰ r⁰ - k² (r⁰)²|`. Evaluating the 24
+    /// determinants per uncut line in Symbolica's interpreter instead (as
+    /// 5ed3b22 did, with the same choices) cost 14 % more binary64
+    /// instructions per point on the phi3 box and 16 % on the pentagon
+    /// (`ninjars bench --engine generic`).
     ///
     /// This replaced `min((|k.r|/|k|)², min_v |G(k, r, v)|/((k.r)² |v|²))`
     /// over the first eight references, whose line term grows as `|k.r|`
@@ -530,7 +549,6 @@ where
         let probe = &self.probes[1];
         let further = &self.further_bubble_probe;
         let uncut = &self.bubble_complement_probe;
-        let further_uncut = &self.further_bubble_complement_probe;
         let zero = self.prototype.zero();
         let one = self.prototype.one();
         let source = |candidate: usize| {
@@ -544,41 +562,62 @@ where
         let kk = &further.component(probe_row, 4 + 5 * FURTHER)[0];
         let mut k_norm = zero.clone();
         for component in k {
-            let value = Self::magnitude(component);
-            k_norm += value.clone() * value;
+            k_norm += component.norm_squared();
         }
         let two = self.prototype.from_i64(2);
         let mut leading: [T; FIRST + FURTHER] = std::array::from_fn(|_| zero.clone());
         let mut weights: [T; FIRST + FURTHER] = std::array::from_fn(|_| zero.clone());
+        // Per reference, (k.r)² and 2 k.r for the Gram determinants.
+        let complex_zero = Complex::new(zero.clone(), zero.clone());
+        let mut kr_squared: [Complex<T>; FIRST + FURTHER] =
+            std::array::from_fn(|_| complex_zero.clone());
+        let mut kr_doubled: [Complex<T>; FIRST + FURTHER] =
+            std::array::from_fn(|_| complex_zero.clone());
         for candidate in 0..FIRST + FURTHER {
             let (kernel, column) = source(candidate);
             let kr = &kernel.component(probe_row, column)[0];
             let r0 = &kernel.component(probe_row, column + 1)[0];
-            let (kr_modulus, r0_modulus) = (Self::magnitude(kr), Self::magnitude(r0));
-            leading[candidate] =
-                kr_modulus.clone() * &kr_modulus / (k_norm.clone() * &r0_modulus * &r0_modulus);
-            // e1⁰ r⁰ with e1 = k - k²/(2 k.r) r.
-            let e1 = (k[0].clone() - kk.clone() / (kr.clone() * &two) * r0) * r0;
-            weights[candidate] = self.prototype.from_i64(4) * kr_modulus * Self::magnitude(&e1);
+            leading[candidate] = kr.norm_squared() / (k_norm.clone() * r0.norm_squared());
+            kr_squared[candidate] = kr.clone() * kr;
+            kr_doubled[candidate] = kr.clone() * &two;
+            // 2 (k.r) e1⁰ r⁰ with e1 = k - k²/(2 k.r) r, without dividing by k.r.
+            let e1_r0 = (kr_doubled[candidate].clone() * k[0] - kk.clone() * r0) * r0;
+            weights[candidate] = two.clone() * Self::magnitude(&e1_r0);
         }
+        // With real kinematics (imaginary parts exactly zero) the Gram
+        // determinants are evaluated in real arithmetic: complex products of
+        // real factors have the same real parts, so the scores are unchanged.
+        let real_row = kk.im.is_zero() && kr_doubled.iter().all(|kr| kr.im.is_zero());
         let mut lines: [T; FIRST + FURTHER] = std::array::from_fn(|_| one.clone());
         let start = self.bubble_complement_starts[probe_row];
         for line in start..self.bubble_complement_starts[probe_row + 1] {
             let mut norm = zero.clone();
             for i in 0..4 {
-                let value = Self::magnitude(&uncut.component(line, i)[0]);
-                norm += value.clone() * value;
+                norm += uncut.component(line, i)[0].norm_squared();
             }
             if !norm.is_finite() || norm.is_fully_zero() {
                 return None;
             }
+            let vv = &uncut.component(line, 4)[0];
+            let kv = &uncut.component(line, 5)[0];
+            let real = real_row
+                && vv.im.is_zero()
+                && kv.im.is_zero()
+                && (0..FIRST + FURTHER).all(|c| uncut.component(line, 6 + c)[0].im.is_zero());
             for (candidate, factor) in lines.iter_mut().enumerate() {
-                let gram = if candidate < FIRST {
-                    &uncut.component(line, 4 + candidate)[0]
+                // G(k, r, v) = (r.v) (2 (k.r)(k.v) - k² (r.v)) - (k.r)² v².
+                let rv = &uncut.component(line, 6 + candidate)[0];
+                let gram = if real {
+                    ((kr_doubled[candidate].re.clone() * &kv.re - kk.re.clone() * &rv.re) * &rv.re
+                        - kr_squared[candidate].re.clone() * &vv.re)
+                        .norm()
                 } else {
-                    &further_uncut.component(line, 4 + candidate - FIRST)[0]
+                    Self::magnitude(
+                        &((kr_doubled[candidate].clone() * kv - kk.clone() * rv) * rv
+                            - kr_squared[candidate].clone() * vv),
+                    )
                 };
-                let mut ratio = Self::magnitude(gram) / (weights[candidate].clone() * &norm);
+                let mut ratio = gram / (weights[candidate].clone() * &norm);
                 if !ratio.is_finite() {
                     ratio = zero.clone();
                 }
@@ -902,7 +941,6 @@ where
         self.bubble_complement_probe.inputs.clear();
         self.bubble_complement_starts.clear();
         self.further_bubble_probe.inputs.clear();
-        self.further_bubble_complement_probe.inputs.clear();
         let mut complement_rows = 0;
         for row in 0..rows {
             let mut failure = None;
@@ -955,11 +993,9 @@ where
                     .chain(shift(row, 1).components())
                     .chain(line.components())
                 {
-                    let value = components(value);
-                    self.bubble_complement_probe.inputs.extend_from_slice(value);
-                    self.further_bubble_complement_probe
+                    self.bubble_complement_probe
                         .inputs
-                        .extend_from_slice(value);
+                        .extend_from_slice(components(value));
                 }
             }
         }
@@ -968,8 +1004,6 @@ where
         if mode == 1 {
             self.further_bubble_probe.evaluate(self.active.len())?;
             self.bubble_complement_probe.evaluate(complement_rows)?;
-            self.further_bubble_complement_probe
-                .evaluate(complement_rows)?;
         }
         for (probe_row, &row) in self.active.iter().enumerate() {
             let probe = &self.probes[mode];
