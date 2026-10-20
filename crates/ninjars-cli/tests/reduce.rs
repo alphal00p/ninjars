@@ -265,23 +265,27 @@ fn arbitrary_precision_light_like_invariants_are_exact_at_every_working_precisio
     // similar noise at 140 bits, which oneloopmaster's four-mass D0 evaluated as
     // an O(1) wrong value with 8 claimed bits (finite -4.91 instead of -8.26e-4).
     // Expected finite and cut-constructible parts from a 400-bit evaluation.
+    // The cut-constructible part follows the bubble references of
+    // `cuts.rs::bubble_reference` (the 24 references; with the earlier eight,
+    // lane 0 was 2.29e-2); the finite part is reference independent and
+    // unchanged to all 36 digits.
     let expected = [
         [
             "-8.26343963451607199327232131951182815e-4",
             "0",
-            "2.29373690232880160538221151266970926e-2",
+            "1.41144158693215729021810970982725451e-2",
             "0",
         ],
         [
             "-9.91094989096783794136374014407567277e-3",
             "4.97389490220958867010833792423716985e-4",
-            "-4.29270331561046487337059330930346585e-3",
+            "-8.43898256601705670329088593041431745e-3",
             "4.97389490220958867010833792423716985e-4",
         ],
         [
             "-1.27555267800816381919520138064847241e-2",
             "-4.72886849400088475610167227847162747e-3",
-            "-1.25747183247289297700359623790057446e-2",
+            "-1.40752259042990550552289274438339093e-2",
             "-4.72886849400088475610167227847162747e-3",
         ],
     ];
@@ -319,19 +323,23 @@ fn tied_bubble_references_keep_the_rational_split_at_every_working_precision() {
     // cut_constructible_finite and rational at 68, 80, 88, 92, 100, 104,
     // 116, 128, 140, 148, ... bits while the finite part stayed right.
     // Expected lane-3 finite, cut-constructible and rational parts from a
-    // 400-bit evaluation (identical for both routings).
+    // 400-bit evaluation (identical for both routings). The split follows
+    // the provider's reference choice: with the 24 references of
+    // `cuts.rs::bubble_reference` it is 551.05-614.01i; the earlier choice
+    // among eight references gave 526.62-589.55i, with the same finite part
+    // to all 36 digits.
     let expected = [
         [
             "-1.71910721957404256939336081182328086e-1",
             "5.48242285239929453402606817224109084e-2",
         ],
         [
-            "5.26619768189329847649199775374183929e2",
-            "-5.89552044813902443475672873641628372e2",
+            "5.51050312620711515316771276277634820e2",
+            "-6.14012296565171337661420569148598968e2",
         ],
         [
-            "-5.26791678911287251906139111455366257e2",
-            "5.89606869042426436421013134323350783e2",
+            "-5.51222223342668919573710612358817148e2",
+            "6.14067120793695330606760829830321379e2",
         ],
     ];
     let parse = |text: &str| Float::parse(text, Some(320)).unwrap();

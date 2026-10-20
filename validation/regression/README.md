@@ -6,7 +6,13 @@ current oneloopmaster pin (main d53dd08 with oneloopmaster 09b2c74, which
 contains fe550e3's rank-four bubble `B1111`), and must never be re-blessed to
 absorb a change of results for rank <= n+1 made by rank n+2 work. They are
 regenerated only from a clean checkout of main, when merging main brings
-results that main itself changed (History).
+results that main itself changed (History). The one exception is a deliberate
+accuracy change of the generic engine (the escalation path, whose bitwise
+identity at rank <= n+1 is a regression convention, not a compatibility
+contract): it is re-blessed in place, in its own commit, with a written
+justification in History that quotes a symmetric error statistic against a
+high-precision truth, including the lanes that get worse. The fast engine's
+sections never move for such a change.
 
 | file | test | content |
 |---|---|---|
@@ -122,3 +128,86 @@ pass it bitwise.
   `syn-n6-r7` lane 1 4.3e-67 -> 4.2e-67, `syn-n3-r4` lane 2 3.8e-76 ->
   4.1e-76); the fast engine, generic binary64 and the explicit-`mu²` sections
   are bitwise unchanged.
+- The generic cut provider (`crates/ninjars-symbolica/src/cuts.rs`) now
+  chooses bubble references and tadpole bases with the fast engine's scores
+  at every rank class: 24 bubble references (the signed permutations of
+  `(1, 2/3, 2/3, 1/3)`) scored by `|k.r|/(|k| |r⁰|) min_v |e3.v|/(|e3| |v|)`,
+  and the six tadpole bases scored by `min_v min(|e1.v|/|e1|, |e3.v|/|e3|)/|v|`.
+  86b378b had adopted them for rank n+2 only (final review, finding 5); below
+  it the provider kept its eight references and its earlier scores so that
+  this fixture stayed bitwise. The V0 fixture was re-blessed in place (commit
+  "cuts: one bubble and tadpole selection for every rank class"); V0p is
+  unchanged (no exact plan changed).
+  - **Justification: a symmetric statistic.** Generic binary64 against
+    `Float(256)` of the same build, before (86b378b, at rank <= n+1 bitwise
+    equal to main 0d0d7e7) and after, as scaled differences (largest
+    `|x - t|` over the three Laurent coefficients over the largest `|t|`).
+    The new build's `Float(256)` agrees with its `Float(512)` to 5.0e-36 or
+    better on all 2109 lanes. On the twins the two builds' `Float(256)` agree
+    to 1.5e-40. On the controls they differ above 1e-30 on 130 lanes, all
+    with a snapped S-matrix and a recorded `input_ambiguity`, by up to 4.3e-6
+    (`syn-n6-r6` lane 0): the input ambiguity of
+    `validation/rank-n2/README.md` (at most 1.23 times the recorded value), so
+    each build is judged against its own `Float(256)`.
+    Errors are clamped at 1e-16; "selected" lanes have an error above 1e-13
+    before or after; ratios are after/before.
+
+    | set | lanes | selected | geomean ratio (selected) | more than 10x better / worse (selected) | median before -> after (all) | p99 before -> after (all) |
+    |---|---|---|---|---|---|---|
+    | controls (`validation/rank-n2/controls` and `syn-n{2..6}-r{n,n+1}`) | 615 | 192 | 0.715 | 8 / 0 | 8.3e-15 -> 7.5e-15 | 9.1e-9 -> 3.2e-9 |
+    | final-review twins (`references/final-review/twins`) | 166 | 79 | 0.605 | 4 / 0 | 5.7e-14 -> 4.4e-14 | 2.6e3 -> 2.6e3 |
+    | fresh twins, review generator seeds 301-303 | 498 | 243 | 0.699 | 18 / 6 | 5.7e-14 -> 5.4e-14 | 1.7e4 -> 7.9e2 |
+    | fresh twins, review generator seeds 101-105 | 830 | 396 | 0.649 | 32 / 5 | 5.3e-14 -> 3.4e-14 | 2.5e2 -> 1.3e2 |
+    | all twins | 1494 | 718 | 0.661 | 54 / 11 | 5.6e-14 -> 4.4e-14 | 1.3e3 -> 3.0e2 |
+
+    Over all lanes (clamped, no selection) the geometric means are 0.878
+    (controls) and 0.841 (twins), with 9 / 0 and 62 / 23 lanes more than 10
+    times better / worse; the 12 extra worse ones stay below 1e-13 (e.g.
+    1.8e-16 -> 2.6e-15). Against the stored control references, as
+    `case-check` judges them, the controls give the same picture (192
+    selected lanes, geometric mean 0.716, 8 / 0).
+  - **Single lanes can lose.** The 11 selected twin lanes more than 10 times
+    worse: `fr-light-mixed-n4-r6-mu2-s301` lane 1 2.1e-3 -> 7.1 (3.3e3 times;
+    fast engine 1.5e-4), then at most 26 times, e.g. `fr-phys-complex-n7-r9-mu2-s303`
+    lane 0 1.1e-11 -> 2.9e-10 (fast 2.2e-10) and `fr-light-equal-n5-r7-s301`
+    lane 0 1.3e-7 -> 2.3e-6 (fast 2.8e-8). The largest gains:
+    `fr-light-equal-n7-r9-s102` lane 1 6.9e-4 -> 5.2e-8,
+    `fr-light-equal-n7-r9-s301` lane 1 1.2e5 -> 1.0e2.
+  - **The controls' outliers** of `validation/rank-n2/README.md`: `rn2-phys-real-n6-r7`
+    lane 2 4.26e-7 -> 1.37e-8 (its `inaccuracies` entry in `known-failures.json`
+    went stale and was removed), `syn-n2-r3` lane 1 3.0e-10 -> 2.0e-12,
+    `rn2-phys-complex-n6-r7` lane 2 1.03e-7 -> 7.3e-10. The `Float(128)`
+    inaccuracy of `rn2-irml-zero-n5-r6` lane 1 went stale as well
+    (4.3e-32 -> 1.2e-32, tolerance 2.7e-32) and was removed.
+  - **Fixture changes**, as scaled differences against the previous fixture:
+    - fast engine (`TensorNumerator`, widths 1 and 32, 2349 entries) and the
+      explicit-`mu²` fast sections (`GenericNumerator`, `MuTensorNumerator`):
+      unchanged;
+    - generic engine in binary64: 203 of 237 lanes (58 of 66 cases), median
+      2.8e-15. The largest is 0.33 on `syn-n6-r6` lane 0, a lane that
+      binary64 cannot resolve (with the full tensor, as in the controls,
+      generic f64 is off by 1.4e-2 before and 7.3e-3 after; V0 keeps a
+      sixteenth of its monomials), then 8.8e-6 on `syn-gghhh-ggHHH-n5-r5`
+      lane 1 (both copies; the cancelling lane next to a box with
+      normalised Gram determinant 8.2e-8) and 4.9e-8 on `syn-n6-r7` lane 1.
+      The cut-constructible/rational split moves with the bubble reference
+      (only the sum is reference independent): median 5.1e-13, up to 1.6e13
+      of the lane on `syn-n6-r6` lane 0, whose two parts cancel;
+    - explicit-`mu²` numerators, generic binary64: 23 of 26 lanes, at most
+      4.6e-8 (`syn-n6-r7` lane 1);
+    - generic `Float(256)`: 91 of 170 decimal components (14 of 17 lanes).
+      The Laurent coefficients move only on the snapped-S-matrix `syn`
+      lanes, by at most 1.3e-11 (`syn-n6-r7` lane 1, recorded
+      `input_ambiguity` 2.1e-10), always within the recorded
+      `input_ambiguity`; `gg-hhh-top-pentagon-26` moves by 5e-76;
+    - generic binary64 against these `Float(256)` values: `syn-n2-r3` lane 1
+      8.7e-11 -> 3.9e-12, `syn-n4-r5` lane 0 4.3e-12 -> 2.1e-12, `syn-n6-r7`
+      lanes 1 and 2 4.8e-8 -> 2.9e-8 and 1.1e-8 -> 9.2e-9; the other lanes
+      stay at 1e-15 to 4e-14 (largest change 1.2e-15 -> 6.4e-15, `syn-n2-r3`
+      lane 0);
+    - no lane status changed.
+  - **Regenerating after a merge.** Another branch re-blessed the generic
+    `Float(256)` section for its own change. After merging, bless on the
+    merged tree and check that the fast sections are unchanged and that the
+    generic sections differ from either branch's fixture only by the other
+    branch's change.

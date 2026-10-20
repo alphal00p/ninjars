@@ -578,8 +578,23 @@ pub fn triangle_value<T: Real>(
     c.iter()
         .zip(TRIANGLE_MONOMIALS)
         .fold(u.zero(), |sum, (c, (a, b, j))| {
-            sum + c.clone() * &power(u, a) * &power(v, b) * &power(mu, j)
+            sum + monomial(c, &[(u, a), (v, b), (mu, j)])
         })
+}
+
+/// `c` times `z^k` over the factors, starting from `c`. numerica's `Float`
+/// tracks the precision of a cancellation: a projection that vanishes on the
+/// point (e.g. `q̄·e2` of a bubble whose reference is a tadpole basis vector,
+/// on that tadpole's transverse family) keeps only a few bits, and
+/// `z.one()` (as `power(z, 0)`) would round `c` to them.
+fn monomial<T: Real>(c: &Complex<T>, factors: &[(&Complex<T>, u32)]) -> Complex<T> {
+    let mut term = c.clone();
+    for &(z, k) in factors {
+        for _ in 0..k {
+            term *= z;
+        }
+    }
+    term
 }
 
 pub fn bubble_value<T: Real>(
@@ -592,7 +607,7 @@ pub fn bubble_value<T: Real>(
     c.iter()
         .zip(BUBBLE_MONOMIALS)
         .fold(u.zero(), |sum, (c, (a, b, d, j))| {
-            sum + c.clone() * &power(w, a) * &power(u, b) * &power(v, d) * &power(mu, j)
+            sum + monomial(c, &[(w, a), (u, b), (v, d), (mu, j)])
         })
 }
 
