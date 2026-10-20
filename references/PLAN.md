@@ -2508,3 +2508,47 @@ Float(256..1024), fixed at 09b2c74).
   numerators are gamma5-scheme dependent (Shao, Zhang, Chao,
   arXiv:1106.5030) and are not computed; no reading-point prescription is
   needed for these four-dimensional numerators.
+
+### Pruning validation harness source draft (2026-10-17)
+
+- From `38f8569`, added a validation-only, default-off pruning flag independent
+  of kernel selection and native row policy. Existing constructors and query
+  widths remain supported; the additive constructor/query expose configured
+  interpreted selected heads without changing raw callbacks or production CLI.
+- The physical control prepares each width once for full/pruned sessions and
+  checks all five result heads with a common frozen master union. It compares
+  callback call/row counts separately; those counters are not complete identity
+  traces. Existing original Ninja/MadLoop convention limitations remain stated.
+- Source tests cover ABI output sentinels, defaults, all quotient degrees,
+  inactive bubbles, rank/native policy independence, exact metadata, malformed
+  parity and enabled-only timing preflight. The latter requires matching current
+  runtime sources and full/pruned physical controls covering each requested
+  timing width before building.
+- Only source review, Python syntax parsing, targeted Rust formatting and diff
+  whitespace checking were performed during the independent timing hold. All
+  builds, test execution, numerical controls and pruning timings remain pending;
+  the frozen measured worktree and its evidence are unchanged.
+
+### Pruning validation harness correctness checkpoint (2026-10-17)
+
+- Frozen source `8a33a59` passes all nine ABI tests with native kernels disabled
+  and all nine enabled, plus 18 Python metadata/preflight tests, formatting and
+  strict Clippy in both configurations. No source fixes were required. The prior
+  87 core pruning tests remain separate and were not repeated.
+- A single preserved optimized native executable/library passes full/pruned
+  `native-rank` Whole and fixed32 controls at widths
+  0/1/3/8/31/32/128/1024, all five selectors with pruning, and the default-off
+  positional invocation. The controls compare 79,755 complex parity components:
+  full/pruned differs by at most 1.54e-33, Whole/fixed32 agrees exactly, and
+  all-selector differences are at most 4.00e-18. Call/row deltas remain equal at
+  each width. Original Ninja and MadLoop Laurent checks also pass.
+- `validation/evidence/pruned-swapped-harness.json` indexes all commands, 73
+  retained record/log files, exact binary identities and all 1,975 runtime source
+  hashes. Read-only copies retain the test and physical binaries, compile-only
+  timing launcher, reference libraries, input protocol and full runtime-source
+  archive. Source maps match before/after, and all dependency trees are clean.
+- The timing launcher compiles with strict warnings and the enabled preflight
+  validates the actual reports and every requested width. It was not executed:
+  no timing, pruning speedup or performance acceptance is claimed. The fixed
+  physical control is binary64 graph26; broader physical, precision and original
+  rational-component gates remain in the overall plan.

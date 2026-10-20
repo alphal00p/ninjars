@@ -149,3 +149,30 @@ metadata do not establish that parity. The preselected performance bound is
 32; the bound 7 used by development correctness tests stresses tails and is
 not evidence for bound 32. Release correctness must validate the selected bound
 on the immutable artifact used for the subsequent comparison.
+
+## Optional swapped arithmetic configuration
+
+The validation runner accepts `--prune-swapped-arithmetic` independently of
+`--reduction-kernels` and `--native-block-rows`. It defaults off and is passed
+only when constructing the retained session. The timing loops and scopes are
+unchanged: preparation, frozen-master reduction, shared live complete
+evaluation, and production complete evaluation remain separate; diagnostic
+master timing stays separate from primary wall time. Selected swapped graphs
+remain interpreted under every native selection and policy. Their JSON field
+reports configured coverage, not execution counts; existing family metadata
+continues to describe full-head paths.
+
+The matching `run_physical.py --prune-swapped-arithmetic` control must pass
+before timing this option. Its full/pruned comparison uses the same executable,
+prepared numerator and frozen masters and checks all five result heads.
+When pruning is enabled, the runner rejects physical controls with missing or
+mismatched full/pruned rows, selection, native policy, feature state or runtime
+source map before building. Every requested timing width must have been checked
+by those physical controls. Fixed-row requests additionally require both native
+policy controls. Historical default-off control handling remains unchanged.
+The optimized physical controls and actual-report preflight pass at frozen
+`8a33a59`; see
+[`pruned-swapped-harness.json`](../../evidence/pruned-swapped-harness.json).
+The timing launcher also compiles with strict C++ warnings, but was never run.
+Pruning timings remain pending. Existing archived timing evidence is unchanged
+and cannot be attributed to pruning.
