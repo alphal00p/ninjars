@@ -600,6 +600,8 @@ impl FastNumerator for MuTensorNumerator {
     }
 
     /// The lane's rank from its coefficients (`None` for an unknown lane).
+    /// Always inlined (see `tensor::lane_rank_of`).
+    #[inline(always)]
     fn lane_rank(&mut self, lane: usize) -> Option<usize> {
         if lane >= self.lanes {
             return None;

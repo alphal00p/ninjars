@@ -58,6 +58,13 @@ pub(super) struct Declared {
 /// degree `d` in the `mu^(2k)` block `T_k` (rank `rank - 2k`), or 0. A lane of
 /// full rank usually has a non-zero coefficient at the start of the top
 /// homogeneous block of `T_0`, which is tested first.
+///
+/// Always inlined, with the numerators' `lane_rank`, into the lane loops of
+/// `declared_rank.rs`, which then compute the block bounds once per batch.
+/// Called out of line (as LLVM chose after the replacement engines were
+/// merged) it cost about 35 more instructions per lane on the live rank n+2
+/// path (`ab_icount.rs`, width 32).
+#[inline(always)]
 pub(super) fn lane_rank_of(c: &[C64], rank: usize, mu_powers: usize) -> usize {
     if c[block_offset(rank)..ncoeff(rank)]
         .iter()
@@ -822,6 +829,8 @@ impl FastNumerator for TensorNumerator {
     }
 
     /// The lane's rank from its coefficients (`None` for an unknown lane).
+    /// Always inlined (see [`lane_rank_of`]).
+    #[inline(always)]
     fn lane_rank(&mut self, lane: usize) -> Option<usize> {
         if lane >= self.lanes {
             return None;
