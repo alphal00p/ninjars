@@ -366,9 +366,8 @@ where
         let (Some(family), Some(_)) = (Self::native_family(integral), T::FIXED_BITS) else {
             return Ok(None);
         };
-        if !self.native.contains_key(&integral) {
-            let evaluator = NativeEvaluator::new(family).map_err(Error::Symbolic)?;
-            self.native.insert(integral, evaluator);
+        if let Entry::Vacant(entry) = self.native.entry(integral) {
+            entry.insert(NativeEvaluator::new(family).map_err(Error::Symbolic)?);
         }
         Ok(self.native.get_mut(&integral))
     }
