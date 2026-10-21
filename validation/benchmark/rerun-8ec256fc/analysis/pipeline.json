@@ -1,0 +1,1640 @@
+{
+ "four-photon-top-box-0": {
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "pipeline/four-photon-top-box-0/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0533,
+     "accepted": true,
+     "cpu": 9,
+     "attempts": 1
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/four-photon-top-box-0/round1/attempt1/new-pipeline-four-photon-top-box-0.json",
+     "w32": {
+      "numerator": 19.413962890625,
+      "numerator_preparation": 10.05478271484375,
+      "tensor_numerator": 9.35918017578125,
+      "reduction": 5.198314453125,
+      "masters": 5.604057861328125,
+      "total": 30.649271484374996
+     },
+     "w1": {
+      "numerator": 21.111125732421876,
+      "numerator_preparation": 10.2327568359375,
+      "tensor_numerator": 10.878368896484375,
+      "reduction": 6.691262939453125,
+      "masters": 7.7277109374999995,
+      "total": 36.61498046875
+     },
+     "generation_s": 5.420746109,
+     "check": 1.7330177143630906e-12
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/four-photon-top-box-0/round1/attempt1/old-pipeline-four-photon-top-box-0.json",
+     "w32": {
+      "numerator": 19.4145400390625,
+      "numerator_preparation": 10.0424443359375,
+      "tensor_numerator": 9.372095703125,
+      "reduction": 5.18596142578125,
+      "masters": 5.487583251953125,
+      "total": 30.568207031250004
+     },
+     "w1": {
+      "numerator": 21.5230634765625,
+      "numerator_preparation": 10.25692236328125,
+      "tensor_numerator": 11.26614111328125,
+      "reduction": 6.0377333984375,
+      "masters": 7.38205859375,
+      "total": 36.4390927734375
+     },
+     "generation_s": 5.353521542,
+     "check": 1.7330177143630906e-12
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "pipeline/four-photon-top-box-0/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0228,
+     "accepted": true,
+     "cpu": 4,
+     "attempts": 1
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/four-photon-top-box-0/round2/attempt1/new-pipeline-four-photon-top-box-0.json",
+     "w32": {
+      "numerator": 19.500042724609376,
+      "numerator_preparation": 10.13981884765625,
+      "tensor_numerator": 9.360223876953125,
+      "reduction": 5.165319580078125,
+      "masters": 5.619735107421875,
+      "total": 30.637966796874995
+     },
+     "w1": {
+      "numerator": 21.217527587890626,
+      "numerator_preparation": 10.33683056640625,
+      "tensor_numerator": 10.880697021484375,
+      "reduction": 6.233369384765625,
+      "masters": 7.609711181640625,
+      "total": 36.1666923828125
+     },
+     "generation_s": 5.291532902,
+     "check": 1.7330177143630906e-12
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/four-photon-top-box-0/round2/attempt1/old-pipeline-four-photon-top-box-0.json",
+     "w32": {
+      "numerator": 19.494538818359374,
+      "numerator_preparation": 10.11415380859375,
+      "tensor_numerator": 9.380385009765625,
+      "reduction": 5.228615478515625,
+      "masters": 5.50807421875,
+      "total": 30.7695869140625
+     },
+     "w1": {
+      "numerator": 21.493474853515625,
+      "numerator_preparation": 10.200970703125,
+      "tensor_numerator": 11.292504150390625,
+      "reduction": 6.117314208984375,
+      "masters": 7.391077392578125,
+      "total": 36.2014580078125
+     },
+     "generation_s": 5.395168105,
+     "check": 1.7330177143630906e-12
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "pipeline/four-photon-top-box-0/round3",
+     "attempt": 2,
+     "worst_sibling_busy": 0.0594,
+     "accepted": true,
+     "cpu": 45,
+     "attempts": 2
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/four-photon-top-box-0/round3/attempt2/new-pipeline-four-photon-top-box-0.json",
+     "w32": {
+      "numerator": 19.46583984375,
+      "numerator_preparation": 10.01001904296875,
+      "tensor_numerator": 9.45582080078125,
+      "reduction": 5.2093486328125,
+      "masters": 5.5889931640625,
+      "total": 30.5092685546875
+     },
+     "w1": {
+      "numerator": 21.445962890625,
+      "numerator_preparation": 10.119033203125,
+      "tensor_numerator": 11.3269296875,
+      "reduction": 6.280201171875,
+      "masters": 7.585983642578125,
+      "total": 36.4318916015625
+     },
+     "generation_s": 5.273102041,
+     "check": 1.7330177143630906e-12
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/four-photon-top-box-0/round3/attempt2/old-pipeline-four-photon-top-box-0.json",
+     "w32": {
+      "numerator": 19.3401201171875,
+      "numerator_preparation": 10.08407763671875,
+      "tensor_numerator": 9.25604248046875,
+      "reduction": 5.349634765625,
+      "masters": 5.5157314453125,
+      "total": 30.965412109375
+     },
+     "w1": {
+      "numerator": 21.422808837890624,
+      "numerator_preparation": 10.14353515625,
+      "tensor_numerator": 11.279273681640625,
+      "reduction": 6.045639892578125,
+      "masters": 7.37893017578125,
+      "total": 36.854443359375
+     },
+     "generation_s": 5.282707172,
+     "check": 1.7330177143630906e-12
+    }
+   }
+  ],
+  "median": {
+   "new": {
+    "w32": {
+     "numerator": 19.46583984375,
+     "numerator_preparation": 10.05478271484375,
+     "tensor_numerator": 9.360223876953125,
+     "reduction": 5.198314453125,
+     "masters": 5.604057861328125,
+     "total": 30.637966796874995
+    },
+    "w1": {
+     "numerator": 21.217527587890626,
+     "numerator_preparation": 10.2327568359375,
+     "tensor_numerator": 10.880697021484375,
+     "reduction": 6.280201171875,
+     "masters": 7.609711181640625,
+     "total": 36.4318916015625
+    },
+    "generation_s": 5.291532902
+   },
+   "old": {
+    "w32": {
+     "numerator": 19.4145400390625,
+     "numerator_preparation": 10.08407763671875,
+     "tensor_numerator": 9.372095703125,
+     "reduction": 5.228615478515625,
+     "masters": 5.50807421875,
+     "total": 30.7695869140625
+    },
+    "w1": {
+     "numerator": 21.493474853515625,
+     "numerator_preparation": 10.200970703125,
+     "tensor_numerator": 11.279273681640625,
+     "reduction": 6.045639892578125,
+     "masters": 7.38205859375,
+     "total": 36.4390927734375
+    },
+    "generation_s": 5.353521542
+   }
+  },
+  "new_over_old": {
+   "w32": {
+    "numerator": 1.0026423394313893,
+    "numerator_preparation": 0.9970949329298766,
+    "tensor_numerator": 0.9987332794555314,
+    "reduction": 0.9942047707437787,
+    "masters": 1.0174259893324218,
+    "total": 0.9957223957034226
+   },
+   "w1": {
+    "numerator": 0.9871613469899277,
+    "numerator_preparation": 1.0031159909912066,
+    "tensor_numerator": 0.9646629143501486,
+    "reduction": 1.03879842059148,
+    "masters": 1.030838631934372,
+    "total": 0.9998023778495316
+   }
+  },
+  "chosen_new": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/four-photon-top-box-0/round3/attempt2/new-pipeline-four-photon-top-box-0.json",
+  "checks": {
+   "new": [
+    1.7330177143630906e-12,
+    1.7330177143630906e-12,
+    1.7330177143630906e-12
+   ],
+   "old": [
+    1.7330177143630906e-12,
+    1.7330177143630906e-12,
+    1.7330177143630906e-12
+   ]
+  }
+ },
+ "gg-hh-top-box-2": {
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "pipeline/gg-hh-top-box-2/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0876,
+     "accepted": true,
+     "cpu": 93,
+     "attempts": 1
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hh-top-box-2/round1/attempt1/new-pipeline-gg-hh-top-box-2.json",
+     "w32": {
+      "numerator": 11.142790344238282,
+      "numerator_preparation": 1.7487310180664062,
+      "tensor_numerator": 9.394059326171876,
+      "reduction": 5.313345458984375,
+      "masters": 14.0770654296875,
+      "total": 30.786777343749996
+     },
+     "w1": {
+      "numerator": 12.581687133789062,
+      "numerator_preparation": 1.8318319091796875,
+      "tensor_numerator": 10.749855224609375,
+      "reduction": 6.511465087890625,
+      "masters": 15.550059082031252,
+      "total": 35.108033203125
+     },
+     "generation_s": 0.874193382,
+     "check": 5.828334974481715e-13
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hh-top-box-2/round1/attempt1/old-pipeline-gg-hh-top-box-2.json",
+     "w32": {
+      "numerator": 11.180222045898438,
+      "numerator_preparation": 1.7572149658203124,
+      "tensor_numerator": 9.423007080078126,
+      "reduction": 5.306243408203125,
+      "masters": 13.21443017578125,
+      "total": 29.9609052734375
+     },
+     "w1": {
+      "numerator": 12.943549255371094,
+      "numerator_preparation": 1.8430209350585938,
+      "tensor_numerator": 11.1005283203125,
+      "reduction": 6.276662109375,
+      "masters": 14.61364453125,
+      "total": 34.68452734375
+     },
+     "generation_s": 0.696896748,
+     "check": 5.828334974481715e-13
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "pipeline/gg-hh-top-box-2/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0623,
+     "accepted": true,
+     "cpu": 9,
+     "attempts": 1
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hh-top-box-2/round2/attempt1/new-pipeline-gg-hh-top-box-2.json",
+     "w32": {
+      "numerator": 11.153356201171874,
+      "numerator_preparation": 1.76123291015625,
+      "tensor_numerator": 9.392123291015626,
+      "reduction": 5.326966064453125,
+      "masters": 13.99271435546875,
+      "total": 30.8721103515625
+     },
+     "w1": {
+      "numerator": 12.7932216796875,
+      "numerator_preparation": 1.874855224609375,
+      "tensor_numerator": 10.918366455078125,
+      "reduction": 6.333871826171875,
+      "masters": 15.80164208984375,
+      "total": 35.731650390625
+     },
+     "generation_s": 0.686839586,
+     "check": 5.828334974481715e-13
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hh-top-box-2/round2/attempt1/old-pipeline-gg-hh-top-box-2.json",
+     "w32": {
+      "numerator": 11.111583129882813,
+      "numerator_preparation": 1.7492523193359375,
+      "tensor_numerator": 9.362330810546876,
+      "reduction": 5.320293701171875,
+      "masters": 13.20782861328125,
+      "total": 29.836451171875
+     },
+     "w1": {
+      "numerator": 11.264665588378906,
+      "numerator_preparation": 1.8690733032226563,
+      "tensor_numerator": 9.39559228515625,
+      "reduction": 8.022491699218751,
+      "masters": 14.73209228515625,
+      "total": 34.912203125
+     },
+     "generation_s": 0.745325786,
+     "check": 5.828334974481715e-13
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "pipeline/gg-hh-top-box-2/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0459,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hh-top-box-2/round3/attempt1/new-pipeline-gg-hh-top-box-2.json",
+     "w32": {
+      "numerator": 11.087757568359375,
+      "numerator_preparation": 1.7502978515625,
+      "tensor_numerator": 9.337459716796875,
+      "reduction": 5.381112060546875,
+      "masters": 14.0028564453125,
+      "total": 30.7792392578125
+     },
+     "w1": {
+      "numerator": 12.72122979736328,
+      "numerator_preparation": 1.8299746704101563,
+      "tensor_numerator": 10.891255126953125,
+      "reduction": 6.328522705078125,
+      "masters": 15.54894140625,
+      "total": 35.1030830078125
+     },
+     "generation_s": 0.70865914,
+     "check": 5.828334974481715e-13
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hh-top-box-2/round3/attempt1/old-pipeline-gg-hh-top-box-2.json",
+     "w32": {
+      "numerator": 11.090607482910157,
+      "numerator_preparation": 1.7420342407226563,
+      "tensor_numerator": 9.3485732421875,
+      "reduction": 5.33106787109375,
+      "masters": 13.272521484375,
+      "total": 29.8342646484375
+     },
+     "w1": {
+      "numerator": 13.01638623046875,
+      "numerator_preparation": 1.8453037109375,
+      "tensor_numerator": 11.17108251953125,
+      "reduction": 6.20941845703125,
+      "masters": 14.69449951171875,
+      "total": 34.3843017578125
+     },
+     "generation_s": 0.68436612,
+     "check": 5.828334974481715e-13
+    }
+   }
+  ],
+  "median": {
+   "new": {
+    "w32": {
+     "numerator": 11.142790344238282,
+     "numerator_preparation": 1.7502978515625,
+     "tensor_numerator": 9.392123291015626,
+     "reduction": 5.326966064453125,
+     "masters": 14.0028564453125,
+     "total": 30.786777343749996
+    },
+    "w1": {
+     "numerator": 12.72122979736328,
+     "numerator_preparation": 1.8318319091796875,
+     "tensor_numerator": 10.891255126953125,
+     "reduction": 6.333871826171875,
+     "masters": 15.550059082031252,
+     "total": 35.108033203125
+    },
+    "generation_s": 0.70865914
+   },
+   "old": {
+    "w32": {
+     "numerator": 11.111583129882813,
+     "numerator_preparation": 1.7492523193359375,
+     "tensor_numerator": 9.362330810546876,
+     "reduction": 5.320293701171875,
+     "masters": 13.21443017578125,
+     "total": 29.836451171875
+    },
+    "w1": {
+     "numerator": 12.943549255371094,
+     "numerator_preparation": 1.8453037109375,
+     "tensor_numerator": 11.1005283203125,
+     "reduction": 6.276662109375,
+     "masters": 14.69449951171875,
+     "total": 34.68452734375
+    },
+    "generation_s": 0.696896748
+   }
+  },
+  "new_over_old": {
+   "w32": {
+    "numerator": 1.0028085299808938,
+    "numerator_preparation": 1.0005977023526025,
+    "tensor_numerator": 1.0031821648979962,
+    "reduction": 1.001254134387314,
+    "masters": 1.0596640384067593,
+    "total": 1.0318511798337064
+   },
+   "w1": {
+    "numerator": 0.9828239184151473,
+    "numerator_preparation": 0.9926994122008415,
+    "tensor_numerator": 0.9811474564704786,
+    "reduction": 1.009114672066133,
+    "masters": 1.058223117407313,
+    "total": 1.0122102243221518
+   }
+  },
+  "chosen_new": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hh-top-box-2/round3/attempt1/new-pipeline-gg-hh-top-box-2.json",
+  "checks": {
+   "new": [
+    5.828334974481715e-13,
+    5.828334974481715e-13,
+    5.828334974481715e-13
+   ],
+   "old": [
+    5.828334974481715e-13,
+    5.828334974481715e-13,
+    5.828334974481715e-13
+   ]
+  }
+ },
+ "gg-hh-top-triangle-0": {
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "pipeline/gg-hh-top-triangle-0/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0093,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hh-top-triangle-0/round1/attempt1/new-pipeline-gg-hh-top-triangle-0.json",
+     "w32": {
+      "numerator": 0.9346287231445313,
+      "numerator_preparation": 0.487615234375,
+      "tensor_numerator": 0.44701348876953123,
+      "reduction": 1.282850341796875,
+      "masters": 0.8560802612304688,
+      "total": 3.0990194091796877
+     },
+     "w1": {
+      "numerator": 1.3615794677734374,
+      "numerator_preparation": 0.5477909545898437,
+      "tensor_numerator": 0.8137885131835938,
+      "reduction": 1.7297149047851563,
+      "masters": 1.0999718627929687,
+      "total": 4.4378685302734375
+     },
+     "generation_s": 0.150120535,
+     "check": 2.687629252435699e-15
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hh-top-triangle-0/round1/attempt1/old-pipeline-gg-hh-top-triangle-0.json",
+     "w32": {
+      "numerator": 0.9185641632080078,
+      "numerator_preparation": 0.485857437133789,
+      "tensor_numerator": 0.43270672607421873,
+      "reduction": 1.2716717529296875,
+      "masters": 0.8677059631347657,
+      "total": 3.070659912109375
+     },
+     "w1": {
+      "numerator": 1.3344042663574218,
+      "numerator_preparation": 0.5512212829589844,
+      "tensor_numerator": 0.7831829833984375,
+      "reduction": 1.6977982177734374,
+      "masters": 1.1165570068359374,
+      "total": 4.401044677734375
+     },
+     "generation_s": 0.147408157,
+     "check": 2.687629252435699e-15
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "pipeline/gg-hh-top-triangle-0/round2",
+     "attempt": 2,
+     "worst_sibling_busy": 0.0424,
+     "accepted": true,
+     "cpu": 43,
+     "attempts": 2
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hh-top-triangle-0/round2/attempt2/new-pipeline-gg-hh-top-triangle-0.json",
+     "w32": {
+      "numerator": 0.9093159637451171,
+      "numerator_preparation": 0.48540074157714846,
+      "tensor_numerator": 0.42391522216796873,
+      "reduction": 1.2838269653320313,
+      "masters": 0.8607589416503906,
+      "total": 3.0764339599609376
+     },
+     "w1": {
+      "numerator": 1.2850961761474609,
+      "numerator_preparation": 0.5519634857177734,
+      "tensor_numerator": 0.7331326904296875,
+      "reduction": 1.77362744140625,
+      "masters": 1.1015499267578126,
+      "total": 4.439478637695313
+     },
+     "generation_s": 0.150926981,
+     "check": 2.687629252435699e-15
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hh-top-triangle-0/round2/attempt2/old-pipeline-gg-hh-top-triangle-0.json",
+     "w32": {
+      "numerator": 0.9109278411865235,
+      "numerator_preparation": 0.4901712493896485,
+      "tensor_numerator": 0.420756591796875,
+      "reduction": 1.2639068603515624,
+      "masters": 0.8628792724609375,
+      "total": 3.04386181640625
+     },
+     "w1": {
+      "numerator": 1.3219189300537109,
+      "numerator_preparation": 0.550794662475586,
+      "tensor_numerator": 0.771124267578125,
+      "reduction": 1.699189208984375,
+      "masters": 1.1080291748046875,
+      "total": 4.697822021484375
+     },
+     "generation_s": 0.1456815,
+     "check": 2.687629252435699e-15
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "pipeline/gg-hh-top-triangle-0/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0242,
+     "accepted": true,
+     "cpu": 70,
+     "attempts": 1
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hh-top-triangle-0/round3/attempt1/new-pipeline-gg-hh-top-triangle-0.json",
+     "w32": {
+      "numerator": 0.9457133331298828,
+      "numerator_preparation": 0.4863683013916016,
+      "tensor_numerator": 0.45934503173828123,
+      "reduction": 1.2786810913085938,
+      "masters": 0.8659765625,
+      "total": 3.0541353759765624
+     },
+     "w1": {
+      "numerator": 1.3760403900146485,
+      "numerator_preparation": 0.5508260955810547,
+      "tensor_numerator": 0.8252142944335937,
+      "reduction": 1.6917985229492187,
+      "masters": 1.0949047241210939,
+      "total": 4.425706665039063
+     },
+     "generation_s": 0.161444131,
+     "check": 2.687629252435699e-15
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hh-top-triangle-0/round3/attempt1/old-pipeline-gg-hh-top-triangle-0.json",
+     "w32": {
+      "numerator": 0.9333585968017578,
+      "numerator_preparation": 0.5005767364501953,
+      "tensor_numerator": 0.4327818603515625,
+      "reduction": 1.27569091796875,
+      "masters": 0.8620019226074219,
+      "total": 3.080810302734375
+     },
+     "w1": {
+      "numerator": 1.3329375915527344,
+      "numerator_preparation": 0.5475634460449219,
+      "tensor_numerator": 0.7853741455078125,
+      "reduction": 1.696097900390625,
+      "masters": 1.1092636108398437,
+      "total": 4.387895385742188
+     },
+     "generation_s": 0.144651948,
+     "check": 2.687629252435699e-15
+    }
+   }
+  ],
+  "median": {
+   "new": {
+    "w32": {
+     "numerator": 0.9346287231445313,
+     "numerator_preparation": 0.4863683013916016,
+     "tensor_numerator": 0.44701348876953123,
+     "reduction": 1.282850341796875,
+     "masters": 0.8607589416503906,
+     "total": 3.0764339599609376
+    },
+    "w1": {
+     "numerator": 1.3615794677734374,
+     "numerator_preparation": 0.5508260955810547,
+     "tensor_numerator": 0.8137885131835938,
+     "reduction": 1.7297149047851563,
+     "masters": 1.0999718627929687,
+     "total": 4.4378685302734375
+    },
+    "generation_s": 0.150926981
+   },
+   "old": {
+    "w32": {
+     "numerator": 0.9185641632080078,
+     "numerator_preparation": 0.4901712493896485,
+     "tensor_numerator": 0.43270672607421873,
+     "reduction": 1.2716717529296875,
+     "masters": 0.8628792724609375,
+     "total": 3.070659912109375
+    },
+    "w1": {
+     "numerator": 1.3329375915527344,
+     "numerator_preparation": 0.550794662475586,
+     "tensor_numerator": 0.7831829833984375,
+     "reduction": 1.6977982177734374,
+     "masters": 1.1092636108398437,
+     "total": 4.401044677734375
+    },
+    "generation_s": 0.1456815
+   }
+  },
+  "new_over_old": {
+   "w32": {
+    "numerator": 1.0174887727825341,
+    "numerator_preparation": 0.9922415931110152,
+    "tensor_numerator": 1.0330634164740453,
+    "reduction": 1.008790467226652,
+    "masters": 0.9975427259893499,
+    "total": 1.0018803931457183
+   },
+   "w1": {
+    "numerator": 1.0214877848762134,
+    "numerator_preparation": 1.0000570686457408,
+    "tensor_numerator": 1.0390783896406315,
+    "reduction": 1.0187988694284151,
+    "masters": 0.9916234987282778,
+    "total": 1.0083670708287422
+   }
+  },
+  "chosen_new": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hh-top-triangle-0/round1/attempt1/new-pipeline-gg-hh-top-triangle-0.json",
+  "checks": {
+   "new": [
+    2.687629252435699e-15,
+    2.687629252435699e-15,
+    2.687629252435699e-15
+   ],
+   "old": [
+    2.687629252435699e-15,
+    2.687629252435699e-15,
+    2.687629252435699e-15
+   ]
+  }
+ },
+ "gg-hhh-top-box-8": {
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "pipeline/gg-hhh-top-box-8/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0652,
+     "accepted": true,
+     "cpu": 9,
+     "attempts": 1
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-box-8/round1/attempt1/new-pipeline-gg-hhh-top-box-8.json",
+     "w32": {
+      "numerator": 10.966287963867188,
+      "numerator_preparation": 1.6217271728515625,
+      "tensor_numerator": 9.344560791015626,
+      "reduction": 5.351024169921875,
+      "masters": 13.27259765625,
+      "total": 29.741015625
+     },
+     "w1": {
+      "numerator": 11.797128051757813,
+      "numerator_preparation": 1.7178480224609376,
+      "tensor_numerator": 10.079280029296875,
+      "reduction": 7.183915283203125,
+      "masters": 14.12046142578125,
+      "total": 33.790275390625
+     },
+     "generation_s": 1.5632036870000003,
+     "check": 1.4255596421103902e-14
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-box-8/round1/attempt1/old-pipeline-gg-hhh-top-box-8.json",
+     "w32": {
+      "numerator": 10.963059997558593,
+      "numerator_preparation": 1.6237206420898438,
+      "tensor_numerator": 9.33933935546875,
+      "reduction": 5.3097080078125,
+      "masters": 12.42886474609375,
+      "total": 28.886638671875
+     },
+     "w1": {
+      "numerator": 12.952385009765624,
+      "numerator_preparation": 1.715744873046875,
+      "tensor_numerator": 11.23664013671875,
+      "reduction": 6.14067236328125,
+      "masters": 13.25418505859375,
+      "total": 33.3437021484375
+     },
+     "generation_s": 1.626642401,
+     "check": 1.4255596421103902e-14
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "pipeline/gg-hhh-top-box-8/round2",
+     "attempt": 2,
+     "worst_sibling_busy": 0.0281,
+     "accepted": true,
+     "cpu": 84,
+     "attempts": 2
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-box-8/round2/attempt2/new-pipeline-gg-hhh-top-box-8.json",
+     "w32": {
+      "numerator": 11.15190283203125,
+      "numerator_preparation": 1.624785888671875,
+      "tensor_numerator": 9.527116943359376,
+      "reduction": 5.350009033203125,
+      "masters": 13.3111689453125,
+      "total": 29.7617802734375
+     },
+     "w1": {
+      "numerator": 12.624004455566407,
+      "numerator_preparation": 1.7085562133789063,
+      "tensor_numerator": 10.9154482421875,
+      "reduction": 6.38671875,
+      "masters": 14.14437451171875,
+      "total": 33.89245703125
+     },
+     "generation_s": 1.5057989090000001,
+     "check": 1.4255596421103902e-14
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-box-8/round2/attempt2/old-pipeline-gg-hhh-top-box-8.json",
+     "w32": {
+      "numerator": 11.031826538085937,
+      "numerator_preparation": 1.6311170654296876,
+      "tensor_numerator": 9.40070947265625,
+      "reduction": 5.298119140625,
+      "masters": 12.4752333984375,
+      "total": 28.9545703125
+     },
+     "w1": {
+      "numerator": 12.973649291992187,
+      "numerator_preparation": 1.7130216064453125,
+      "tensor_numerator": 11.260627685546876,
+      "reduction": 6.155538818359375,
+      "masters": 13.24449853515625,
+      "total": 32.9954814453125
+     },
+     "generation_s": 1.480886414,
+     "check": 1.4255596421103902e-14
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "pipeline/gg-hhh-top-box-8/round3",
+     "attempt": 2,
+     "worst_sibling_busy": 0.035,
+     "accepted": true,
+     "cpu": 45,
+     "attempts": 2
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-box-8/round3/attempt2/new-pipeline-gg-hhh-top-box-8.json",
+     "w32": {
+      "numerator": 11.095401916503906,
+      "numerator_preparation": 1.7374627075195312,
+      "tensor_numerator": 9.357939208984375,
+      "reduction": 5.351442626953125,
+      "masters": 13.2598408203125,
+      "total": 29.9111669921875
+     },
+     "w1": {
+      "numerator": 12.656859985351563,
+      "numerator_preparation": 1.7174779052734375,
+      "tensor_numerator": 10.939382080078126,
+      "reduction": 6.417493408203125,
+      "masters": 14.06228515625,
+      "total": 33.694919921875
+     },
+     "generation_s": 1.497831461,
+     "check": 1.4255596421103902e-14
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-box-8/round3/attempt2/old-pipeline-gg-hhh-top-box-8.json",
+     "w32": {
+      "numerator": 10.914410278320313,
+      "numerator_preparation": 1.6238314208984375,
+      "tensor_numerator": 9.290578857421876,
+      "reduction": 5.364487060546875,
+      "masters": 12.44404296875,
+      "total": 28.9267216796875
+     },
+     "w1": {
+      "numerator": 13.030693237304687,
+      "numerator_preparation": 1.7087950439453126,
+      "tensor_numerator": 11.321898193359376,
+      "reduction": 6.271970458984375,
+      "masters": 13.28863525390625,
+      "total": 33.2934541015625
+     },
+     "generation_s": 1.5063447,
+     "check": 1.4255596421103902e-14
+    }
+   }
+  ],
+  "median": {
+   "new": {
+    "w32": {
+     "numerator": 11.095401916503906,
+     "numerator_preparation": 1.624785888671875,
+     "tensor_numerator": 9.357939208984375,
+     "reduction": 5.351024169921875,
+     "masters": 13.27259765625,
+     "total": 29.7617802734375
+    },
+    "w1": {
+     "numerator": 12.624004455566407,
+     "numerator_preparation": 1.7174779052734375,
+     "tensor_numerator": 10.9154482421875,
+     "reduction": 6.417493408203125,
+     "masters": 14.12046142578125,
+     "total": 33.790275390625
+    },
+    "generation_s": 1.5057989090000001
+   },
+   "old": {
+    "w32": {
+     "numerator": 10.963059997558593,
+     "numerator_preparation": 1.6238314208984375,
+     "tensor_numerator": 9.33933935546875,
+     "reduction": 5.3097080078125,
+     "masters": 12.44404296875,
+     "total": 28.9267216796875
+    },
+    "w1": {
+     "numerator": 12.973649291992187,
+     "numerator_preparation": 1.7130216064453125,
+     "tensor_numerator": 11.260627685546876,
+     "reduction": 6.155538818359375,
+     "masters": 13.25418505859375,
+     "total": 33.2934541015625
+    },
+    "generation_s": 1.5063447
+   }
+  },
+  "new_over_old": {
+   "w32": {
+    "numerator": 1.012071622245503,
+    "numerator_preparation": 1.0005877874766762,
+    "tensor_numerator": 1.0019915598746,
+    "reduction": 1.0077812493735219,
+    "masters": 1.0665824354336206,
+    "total": 1.0288680688740606
+   },
+   "w1": {
+    "numerator": 0.973049615527869,
+    "numerator_preparation": 1.0026014259314406,
+    "tensor_numerator": 0.9693463408081223,
+    "reduction": 1.0425559155053088,
+    "masters": 1.065358704692736,
+    "total": 1.0149224915969046
+   }
+  },
+  "chosen_new": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-box-8/round2/attempt2/new-pipeline-gg-hhh-top-box-8.json",
+  "checks": {
+   "new": [
+    1.4255596421103902e-14,
+    1.4255596421103902e-14,
+    1.4255596421103902e-14
+   ],
+   "old": [
+    1.4255596421103902e-14,
+    1.4255596421103902e-14,
+    1.4255596421103902e-14
+   ]
+  }
+ },
+ "gg-hhh-top-pentagon-26": {
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "pipeline/gg-hhh-top-pentagon-26/round1",
+     "attempt": 2,
+     "worst_sibling_busy": 0.0188,
+     "accepted": true,
+     "cpu": 9,
+     "attempts": 2
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-pentagon-26/round1/attempt2/new-pipeline-gg-hhh-top-pentagon-26.json",
+     "w32": {
+      "numerator": 15.385907104492187,
+      "numerator_preparation": 3.5325296630859375,
+      "tensor_numerator": 11.85337744140625,
+      "reduction": 9.03686474609375,
+      "masters": 56.03012109375,
+      "total": 82.2649140625
+     },
+     "w1": {
+      "numerator": 15.843056518554688,
+      "numerator_preparation": 3.6121722412109376,
+      "tensor_numerator": 12.23088427734375,
+      "reduction": 10.20392431640625,
+      "masters": 60.237927734375,
+      "total": 86.25754296875
+     },
+     "generation_s": 2.877390696,
+     "check": 9.36994220584625e-15
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-pentagon-26/round1/attempt2/old-pipeline-gg-hhh-top-pentagon-26.json",
+     "w32": {
+      "numerator": 15.041338012695313,
+      "numerator_preparation": 3.5392105712890625,
+      "tensor_numerator": 11.50212744140625,
+      "reduction": 8.92581005859375,
+      "masters": 52.555775390625,
+      "total": 78.248140625
+     },
+     "w1": {
+      "numerator": 15.620443481445312,
+      "numerator_preparation": 3.6801558837890624,
+      "tensor_numerator": 11.94028759765625,
+      "reduction": 10.25188330078125,
+      "masters": 55.530392578125,
+      "total": 83.97726171875
+     },
+     "generation_s": 2.9033978620000003,
+     "check": 8.711123951497747e-15
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "pipeline/gg-hhh-top-pentagon-26/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0599,
+     "accepted": true,
+     "cpu": 9,
+     "attempts": 1
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-pentagon-26/round2/attempt1/new-pipeline-gg-hhh-top-pentagon-26.json",
+     "w32": {
+      "numerator": 15.1115693359375,
+      "numerator_preparation": 3.5329326171875,
+      "tensor_numerator": 11.57863671875,
+      "reduction": 8.9531201171875,
+      "masters": 55.663599609375,
+      "total": 80.47975390625
+     },
+     "w1": {
+      "numerator": 15.489436767578125,
+      "numerator_preparation": 3.613347900390625,
+      "tensor_numerator": 11.8760888671875,
+      "reduction": 10.3003994140625,
+      "masters": 58.709017578125,
+      "total": 85.29246484375
+     },
+     "generation_s": 2.8943207749999997,
+     "check": 9.36994220584625e-15
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-pentagon-26/round2/attempt1/old-pipeline-gg-hhh-top-pentagon-26.json",
+     "w32": {
+      "numerator": 14.883649658203124,
+      "numerator_preparation": 3.523729736328125,
+      "tensor_numerator": 11.359919921875,
+      "reduction": 9.032216796875,
+      "masters": 52.516380859375,
+      "total": 77.06581640625
+     },
+     "w1": {
+      "numerator": 15.48751123046875,
+      "numerator_preparation": 3.6372138671875,
+      "tensor_numerator": 11.85029736328125,
+      "reduction": 10.22289892578125,
+      "masters": 55.557171875,
+      "total": 82.114953125
+     },
+     "generation_s": 2.884729174,
+     "check": 8.711123951497747e-15
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "pipeline/gg-hhh-top-pentagon-26/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0739,
+     "accepted": true,
+     "cpu": 9,
+     "attempts": 1
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-pentagon-26/round3/attempt1/new-pipeline-gg-hhh-top-pentagon-26.json",
+     "w32": {
+      "numerator": 15.191525024414062,
+      "numerator_preparation": 3.5442523193359374,
+      "tensor_numerator": 11.647272705078125,
+      "reduction": 8.983996826171875,
+      "masters": 56.089697265625,
+      "total": 80.6789765625
+     },
+     "w1": {
+      "numerator": 15.612576293945313,
+      "numerator_preparation": 3.6151339111328125,
+      "tensor_numerator": 11.9974423828125,
+      "reduction": 10.10836328125,
+      "masters": 58.588279296875,
+      "total": 85.12473046875
+     },
+     "generation_s": 2.871856663,
+     "check": 9.36994220584625e-15
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-pentagon-26/round3/attempt1/old-pipeline-gg-hhh-top-pentagon-26.json",
+     "w32": {
+      "numerator": 14.942183959960937,
+      "numerator_preparation": 3.5340362548828126,
+      "tensor_numerator": 11.408147705078125,
+      "reduction": 8.872114013671874,
+      "masters": 53.28193359375,
+      "total": 77.0669921875
+     },
+     "w1": {
+      "numerator": 15.49602880859375,
+      "numerator_preparation": 3.63234228515625,
+      "tensor_numerator": 11.8636865234375,
+      "reduction": 10.0790517578125,
+      "masters": 56.490400390625,
+      "total": 82.23765625
+     },
+     "generation_s": 2.912701847,
+     "check": 8.711123951497747e-15
+    }
+   }
+  ],
+  "median": {
+   "new": {
+    "w32": {
+     "numerator": 15.191525024414062,
+     "numerator_preparation": 3.5329326171875,
+     "tensor_numerator": 11.647272705078125,
+     "reduction": 8.983996826171875,
+     "masters": 56.03012109375,
+     "total": 80.6789765625
+    },
+    "w1": {
+     "numerator": 15.612576293945313,
+     "numerator_preparation": 3.613347900390625,
+     "tensor_numerator": 11.9974423828125,
+     "reduction": 10.20392431640625,
+     "masters": 58.709017578125,
+     "total": 85.29246484375
+    },
+    "generation_s": 2.877390696
+   },
+   "old": {
+    "w32": {
+     "numerator": 14.942183959960937,
+     "numerator_preparation": 3.5340362548828126,
+     "tensor_numerator": 11.408147705078125,
+     "reduction": 8.92581005859375,
+     "masters": 52.555775390625,
+     "total": 77.0669921875
+    },
+    "w1": {
+     "numerator": 15.49602880859375,
+     "numerator_preparation": 3.6372138671875,
+     "tensor_numerator": 11.8636865234375,
+     "reduction": 10.22289892578125,
+     "masters": 55.557171875,
+     "total": 82.23765625
+    },
+    "generation_s": 2.9033978620000003
+   }
+  },
+  "new_over_old": {
+   "w32": {
+    "numerator": 1.0166870562644161,
+    "numerator_preparation": 0.9996877118355003,
+    "tensor_numerator": 1.0209608962104828,
+    "reduction": 1.0065189341019085,
+    "masters": 1.066107781253376,
+    "total": 1.0468681113986156
+   },
+   "w1": {
+    "numerator": 1.007521119558511,
+    "numerator_preparation": 0.9934383933229283,
+    "tensor_numerator": 1.01127439258537,
+    "reduction": 0.9981439110850301,
+    "masters": 1.0567315721220736,
+    "total": 1.0371461047535628
+   }
+  },
+  "chosen_new": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-pentagon-26/round3/attempt1/new-pipeline-gg-hhh-top-pentagon-26.json",
+  "checks": {
+   "new": [
+    9.36994220584625e-15,
+    9.36994220584625e-15,
+    9.36994220584625e-15
+   ],
+   "old": [
+    8.711123951497747e-15,
+    8.711123951497747e-15,
+    8.711123951497747e-15
+   ]
+  }
+ },
+ "gg-hhh-top-triangle-0": {
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "pipeline/gg-hhh-top-triangle-0/round1",
+     "attempt": 3,
+     "worst_sibling_busy": 0.0484,
+     "accepted": true,
+     "cpu": 93,
+     "attempts": 3
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-triangle-0/round1/attempt3/new-pipeline-gg-hhh-top-triangle-0.json",
+     "w32": {
+      "numerator": 1.0170890808105468,
+      "numerator_preparation": 0.5956882019042968,
+      "tensor_numerator": 0.42140087890625,
+      "reduction": 1.288159912109375,
+      "masters": 0.7706013488769531,
+      "total": 3.09144482421875
+     },
+     "w1": {
+      "numerator": 1.3753586120605468,
+      "numerator_preparation": 0.6535801086425781,
+      "tensor_numerator": 0.7217785034179688,
+      "reduction": 1.7898290405273438,
+      "masters": 0.9165021057128906,
+      "total": 4.359692504882813
+     },
+     "generation_s": 0.152602775,
+     "check": 1.8251564005683137e-15
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-triangle-0/round1/attempt3/old-pipeline-gg-hhh-top-triangle-0.json",
+     "w32": {
+      "numerator": 1.0356077880859376,
+      "numerator_preparation": 0.5963307495117187,
+      "tensor_numerator": 0.43927703857421874,
+      "reduction": 1.2750012817382812,
+      "masters": 0.7691679382324219,
+      "total": 3.08065380859375
+     },
+     "w1": {
+      "numerator": 1.445803466796875,
+      "numerator_preparation": 0.6648017578125,
+      "tensor_numerator": 0.781001708984375,
+      "reduction": 1.696731201171875,
+      "masters": 0.9405595092773438,
+      "total": 4.363903930664063
+     },
+     "generation_s": 0.147121409,
+     "check": 1.8251564005683137e-15
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "pipeline/gg-hhh-top-triangle-0/round2",
+     "attempt": 5,
+     "worst_sibling_busy": 0.1889,
+     "accepted": false,
+     "cpu": 67,
+     "attempts": 5
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-triangle-0/round2/attempt5/new-pipeline-gg-hhh-top-triangle-0.json",
+     "w32": {
+      "numerator": 1.1319883117675782,
+      "numerator_preparation": 0.5961593322753906,
+      "tensor_numerator": 0.5358289794921876,
+      "reduction": 1.28337890625,
+      "masters": 0.7710237121582031,
+      "total": 3.074773681640625
+     },
+     "w1": {
+      "numerator": 1.4593042297363281,
+      "numerator_preparation": 0.6548205871582031,
+      "tensor_numerator": 0.804483642578125,
+      "reduction": 1.71390234375,
+      "masters": 0.9186671142578124,
+      "total": 4.391095825195313
+     },
+     "generation_s": 0.153447481,
+     "check": 1.8251564005683137e-15
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-triangle-0/round2/attempt5/old-pipeline-gg-hhh-top-triangle-0.json",
+     "w32": {
+      "numerator": 1.005630386352539,
+      "numerator_preparation": 0.601746353149414,
+      "tensor_numerator": 0.403884033203125,
+      "reduction": 1.3099860229492188,
+      "masters": 0.7735481567382813,
+      "total": 3.10070751953125
+     },
+     "w1": {
+      "numerator": 1.686225555419922,
+      "numerator_preparation": 0.9154157409667969,
+      "tensor_numerator": 0.770809814453125,
+      "reduction": 1.7079178466796876,
+      "masters": 1.5555900268554688,
+      "total": 6.751851806640625
+     },
+     "generation_s": 0.163803381,
+     "check": 1.8251564005683137e-15
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "pipeline/gg-hhh-top-triangle-0/round3",
+     "attempt": 2,
+     "worst_sibling_busy": 0.0997,
+     "accepted": true,
+     "cpu": 9,
+     "attempts": 2
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-triangle-0/round3/attempt2/new-pipeline-gg-hhh-top-triangle-0.json",
+     "w32": {
+      "numerator": 1.0194988555908202,
+      "numerator_preparation": 0.5968903961181641,
+      "tensor_numerator": 0.42260845947265624,
+      "reduction": 1.28640625,
+      "masters": 0.7780254211425781,
+      "total": 3.094273193359375
+     },
+     "w1": {
+      "numerator": 1.4687793579101562,
+      "numerator_preparation": 0.6539887084960937,
+      "tensor_numerator": 0.8147906494140625,
+      "reduction": 1.7701177978515625,
+      "masters": 0.9175584106445313,
+      "total": 4.461827392578125
+     },
+     "generation_s": 0.153209164,
+     "check": 1.8251564005683137e-15
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-triangle-0/round3/attempt2/old-pipeline-gg-hhh-top-triangle-0.json",
+     "w32": {
+      "numerator": 1.3018424682617187,
+      "numerator_preparation": 0.8670769653320313,
+      "tensor_numerator": 0.4347655029296875,
+      "reduction": 1.2861614990234376,
+      "masters": 0.7715944213867187,
+      "total": 3.123886474609375
+     },
+     "w1": {
+      "numerator": 1.429137908935547,
+      "numerator_preparation": 0.6661252746582031,
+      "tensor_numerator": 0.7630126342773438,
+      "reduction": 1.7526940307617187,
+      "masters": 0.9523778991699219,
+      "total": 4.409380859375
+     },
+     "generation_s": 0.149744039,
+     "check": 1.8251564005683137e-15
+    }
+   }
+  ],
+  "median": {
+   "new": {
+    "w32": {
+     "numerator": 1.0194988555908202,
+     "numerator_preparation": 0.5961593322753906,
+     "tensor_numerator": 0.42260845947265624,
+     "reduction": 1.28640625,
+     "masters": 0.7710237121582031,
+     "total": 3.09144482421875
+    },
+    "w1": {
+     "numerator": 1.4593042297363281,
+     "numerator_preparation": 0.6539887084960937,
+     "tensor_numerator": 0.804483642578125,
+     "reduction": 1.7701177978515625,
+     "masters": 0.9175584106445313,
+     "total": 4.391095825195313
+    },
+    "generation_s": 0.153209164
+   },
+   "old": {
+    "w32": {
+     "numerator": 1.0356077880859376,
+     "numerator_preparation": 0.601746353149414,
+     "tensor_numerator": 0.4347655029296875,
+     "reduction": 1.2861614990234376,
+     "masters": 0.7715944213867187,
+     "total": 3.10070751953125
+    },
+    "w1": {
+     "numerator": 1.445803466796875,
+     "numerator_preparation": 0.6661252746582031,
+     "tensor_numerator": 0.770809814453125,
+     "reduction": 1.7079178466796876,
+     "masters": 0.9523778991699219,
+     "total": 4.409380859375
+    },
+    "generation_s": 0.149744039
+   }
+  },
+  "new_over_old": {
+   "w32": {
+    "numerator": 0.984444948482967,
+    "numerator_preparation": 0.9907153224198499,
+    "tensor_numerator": 0.9720376999207377,
+    "reduction": 1.0001902956796236,
+    "masters": 0.9992603507585113,
+    "total": 0.9970127155643819
+   },
+   "w1": {
+    "numerator": 1.0093378963666226,
+    "numerator_preparation": 0.9817803548013745,
+    "tensor_numerator": 1.0436862991280034,
+    "reduction": 1.036418584941188,
+    "masters": 0.9634394198398148,
+    "total": 0.9958531515505605
+   }
+  },
+  "chosen_new": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/gg-hhh-top-triangle-0/round1/attempt3/new-pipeline-gg-hhh-top-triangle-0.json",
+  "checks": {
+   "new": [
+    1.8251564005683137e-15,
+    1.8251564005683137e-15,
+    1.8251564005683137e-15
+   ],
+   "old": [
+    1.8251564005683137e-15,
+    1.8251564005683137e-15,
+    1.8251564005683137e-15
+   ]
+  }
+ },
+ "hgg-top-triangle-0": {
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "pipeline/hgg-top-triangle-0/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0497,
+     "accepted": true,
+     "cpu": 53,
+     "attempts": 1
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/hgg-top-triangle-0/round1/attempt1/new-pipeline-hgg-top-triangle-0.json",
+     "w32": {
+      "numerator": 0.9906353454589844,
+      "numerator_preparation": 0.5229846496582031,
+      "tensor_numerator": 0.4676506958007812,
+      "reduction": 1.2842023315429687,
+      "masters": 1.868884765625,
+      "total": 4.15591455078125
+     },
+     "w1": {
+      "numerator": 1.2973527374267577,
+      "numerator_preparation": 0.5873835601806641,
+      "tensor_numerator": 0.7099691772460938,
+      "reduction": 1.8400407104492187,
+      "masters": 1.9442549438476562,
+      "total": 5.344205078125
+     },
+     "generation_s": 0.136359316,
+     "check": 3.434167038212371e-14
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/hgg-top-triangle-0/round1/attempt1/old-pipeline-hgg-top-triangle-0.json",
+     "w32": {
+      "numerator": 0.9695791015625,
+      "numerator_preparation": 0.5287991943359375,
+      "tensor_numerator": 0.4407799072265625,
+      "reduction": 1.2820636596679686,
+      "masters": 1.8741435546875,
+      "total": 4.125106201171875
+     },
+     "w1": {
+      "numerator": 1.3814116668701173,
+      "numerator_preparation": 0.5927599945068359,
+      "tensor_numerator": 0.7886516723632813,
+      "reduction": 1.7165093383789063,
+      "masters": 1.95264306640625,
+      "total": 5.328175048828125
+     },
+     "generation_s": 0.126343259,
+     "check": 3.434167038212371e-14
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "pipeline/hgg-top-triangle-0/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.025,
+     "accepted": true,
+     "cpu": 53,
+     "attempts": 1
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/hgg-top-triangle-0/round2/attempt1/new-pipeline-hgg-top-triangle-0.json",
+     "w32": {
+      "numerator": 0.935775146484375,
+      "numerator_preparation": 0.5223805541992188,
+      "tensor_numerator": 0.41339459228515624,
+      "reduction": 1.2771405639648437,
+      "masters": 1.8662658081054688,
+      "total": 4.110706787109375
+     },
+     "w1": {
+      "numerator": 1.3792531127929688,
+      "numerator_preparation": 0.5828931884765625,
+      "tensor_numerator": 0.7963599243164062,
+      "reduction": 1.7275060424804687,
+      "masters": 1.9286561279296872,
+      "total": 5.29624609375
+     },
+     "generation_s": 0.130264534,
+     "check": 3.434167038212371e-14
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/hgg-top-triangle-0/round2/attempt1/old-pipeline-hgg-top-triangle-0.json",
+     "w32": {
+      "numerator": 0.9610047149658203,
+      "numerator_preparation": 0.5239339141845704,
+      "tensor_numerator": 0.43707080078125,
+      "reduction": 1.2805377807617186,
+      "masters": 1.866482421875,
+      "total": 4.123604858398438
+     },
+     "w1": {
+      "numerator": 1.3826112976074219,
+      "numerator_preparation": 0.5949330139160156,
+      "tensor_numerator": 0.7876782836914062,
+      "reduction": 1.7148815307617187,
+      "masters": 1.9556893310546875,
+      "total": 5.256499755859375
+     },
+     "generation_s": 0.126013574,
+     "check": 3.434167038212371e-14
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "pipeline/hgg-top-triangle-0/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.038,
+     "accepted": true,
+     "cpu": 70,
+     "attempts": 1
+    },
+    "new": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/hgg-top-triangle-0/round3/attempt1/new-pipeline-hgg-top-triangle-0.json",
+     "w32": {
+      "numerator": 0.9607968444824219,
+      "numerator_preparation": 0.5294609680175781,
+      "tensor_numerator": 0.4313358764648437,
+      "reduction": 1.2934681396484375,
+      "masters": 1.889754638671875,
+      "total": 4.148774536132812
+     },
+     "w1": {
+      "numerator": 1.418664260864258,
+      "numerator_preparation": 0.5855830230712891,
+      "tensor_numerator": 0.8330812377929687,
+      "reduction": 1.6904221801757813,
+      "masters": 1.9317549438476564,
+      "total": 5.33176611328125
+     },
+     "generation_s": 0.129679512,
+     "check": 3.434167038212371e-14
+    },
+    "old": {
+     "path": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/hgg-top-triangle-0/round3/attempt1/old-pipeline-hgg-top-triangle-0.json",
+     "w32": {
+      "numerator": 0.960577133178711,
+      "numerator_preparation": 0.5311522674560547,
+      "tensor_numerator": 0.42942486572265626,
+      "reduction": 1.267388916015625,
+      "masters": 1.8759166870117188,
+      "total": 4.125329711914063
+     },
+     "w1": {
+      "numerator": 1.3891870422363282,
+      "numerator_preparation": 0.5997943420410157,
+      "tensor_numerator": 0.7893927001953125,
+      "reduction": 1.704763671875,
+      "masters": 1.9409401855468749,
+      "total": 5.262793701171875
+     },
+     "generation_s": 0.126590431,
+     "check": 3.434167038212371e-14
+    }
+   }
+  ],
+  "median": {
+   "new": {
+    "w32": {
+     "numerator": 0.9607968444824219,
+     "numerator_preparation": 0.5229846496582031,
+     "tensor_numerator": 0.4313358764648437,
+     "reduction": 1.2842023315429687,
+     "masters": 1.868884765625,
+     "total": 4.148774536132812
+    },
+    "w1": {
+     "numerator": 1.3792531127929688,
+     "numerator_preparation": 0.5855830230712891,
+     "tensor_numerator": 0.7963599243164062,
+     "reduction": 1.7275060424804687,
+     "masters": 1.9317549438476564,
+     "total": 5.33176611328125
+    },
+    "generation_s": 0.130264534
+   },
+   "old": {
+    "w32": {
+     "numerator": 0.9610047149658203,
+     "numerator_preparation": 0.5287991943359375,
+     "tensor_numerator": 0.43707080078125,
+     "reduction": 1.2805377807617186,
+     "masters": 1.8741435546875,
+     "total": 4.125106201171875
+    },
+    "w1": {
+     "numerator": 1.3826112976074219,
+     "numerator_preparation": 0.5949330139160156,
+     "tensor_numerator": 0.7886516723632813,
+     "reduction": 1.7148815307617187,
+     "masters": 1.95264306640625,
+     "total": 5.262793701171875
+    },
+    "generation_s": 0.126343259
+   }
+  },
+  "new_over_old": {
+   "w32": {
+    "numerator": 0.9997836946269241,
+    "numerator_preparation": 0.989004248228789,
+    "tensor_numerator": 0.9868787292444261,
+    "reduction": 1.0028617279679715,
+    "masters": 0.9971940308151171,
+    "total": 1.0057376304528143
+   },
+   "w1": {
+    "numerator": 0.9975711287617393,
+    "numerator_preparation": 0.9842839603349925,
+    "tensor_numerator": 1.0097739626038278,
+    "reduction": 1.0073617398591623,
+    "masters": 0.9893026416768339,
+    "total": 1.013105665170576
+   }
+  },
+  "chosen_new": "/shared/external/ninja/references/session-2026-10-20b/bench-main/rounds/pipeline/hgg-top-triangle-0/round3/attempt1/new-pipeline-hgg-top-triangle-0.json",
+  "checks": {
+   "new": [
+    3.434167038212371e-14,
+    3.434167038212371e-14,
+    3.434167038212371e-14
+   ],
+   "old": [
+    3.434167038212371e-14,
+    3.434167038212371e-14,
+    3.434167038212371e-14
+   ]
+  }
+ }
+}

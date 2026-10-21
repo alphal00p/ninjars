@@ -1,0 +1,555 @@
+{
+ "four-photon-top-box-0": {
+  "median_ns": {
+   "pure_reduction_ns": 9219.651531930602,
+   "numerator_part_ns": 22636.115270314927,
+   "masters_ns": 10088.617710888891,
+   "full_ns": 42607.91156462585
+  },
+  "committed_ns": {
+   "pure_reduction_ns": 9186.202420242023,
+   "numerator_part_ns": 22848.528103385055,
+   "masters_ns": 10128.302588996763,
+   "full_ns": 42997.448453608245
+  },
+  "ratio": {
+   "pure_reduction_ns": 1.0036412339025833,
+   "numerator_part_ns": 0.9907034347197771,
+   "masters_ns": 0.9960817839159954,
+   "full_ns": 0.9909404650045064
+  },
+  "rounds": [
+   {
+    "derived": {
+     "full_ns": 42460.551546391755,
+     "pure_reduction_ns": 9201.513533555802,
+     "numerator_part_ns": 22601.034812500176,
+     "numerator_only_ns": 21272.009353741498,
+     "masters_ns": 10106.894417475729,
+     "sum_pure_numerator_masters_ns": 41909.442763531704,
+     "sum_over_full": 0.9870206871369083
+    },
+    "cpu": 25,
+    "sib": 0.0036,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 42645.51530612245,
+     "pure_reduction_ns": 9234.419175027871,
+     "numerator_part_ns": 22661.88374005451,
+     "numerator_only_ns": 21285.762510602206,
+     "masters_ns": 10087.4041013269,
+     "sum_pure_numerator_masters_ns": 41983.70701640928,
+     "sum_over_full": 0.9844811749849308
+    },
+    "cpu": 25,
+    "sib": 0.0831,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 42701.43760683761,
+     "pure_reduction_ns": 9223.887412329274,
+     "numerator_part_ns": 22675.351773421364,
+     "numerator_only_ns": 21333.928753180662,
+     "masters_ns": 10089.831320450885,
+     "sum_pure_numerator_masters_ns": 41989.07050620152,
+     "sum_over_full": 0.9833174913876431
+    },
+    "cpu": 25,
+    "sib": 0.0071,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 42570.30782312925,
+     "pure_reduction_ns": 9215.41565153193,
+     "numerator_part_ns": 22610.34680057535,
+     "numerator_only_ns": 21259.58418367347,
+     "masters_ns": 10079.189265536723,
+     "sum_pure_numerator_masters_ns": 41904.951717644,
+     "sum_over_full": 0.9843704182678296
+    },
+    "cpu": 25,
+    "sib": 0.0036,
+    "same_results": true
+   }
+  ],
+  "committed_cpu": 250
+ },
+ "gg-hh-top-box-2": {
+  "median_ns": {
+   "pure_reduction_ns": 9546.597936054368,
+   "numerator_part_ns": 23218.974767357704,
+   "masters_ns": 27821.42737775155,
+   "full_ns": 61691.5058412051
+  },
+  "committed_ns": {
+   "pure_reduction_ns": 9284.722470238095,
+   "numerator_part_ns": 22971.62383326385,
+   "masters_ns": 27756.63626126126,
+   "full_ns": 61285.598039215685
+  },
+  "ratio": {
+   "pure_reduction_ns": 1.0282049858416022,
+   "numerator_part_ns": 1.0107676730164665,
+   "masters_ns": 1.002334256783871,
+   "full_ns": 1.0066232167911566
+  },
+  "rounds": [
+   {
+    "derived": {
+     "full_ns": 65079.34126984127,
+     "pure_reduction_ns": 9918.704230921312,
+     "numerator_part_ns": 24353.26351101417,
+     "numerator_only_ns": 22505.89893617021,
+     "masters_ns": 29445.935153583618,
+     "sum_pure_numerator_masters_ns": 63717.9028955191,
+     "sum_over_full": 0.9790803295215116
+    },
+    "cpu": 84,
+    "sib": 0.0598,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 62947.26715686275,
+     "pure_reduction_ns": 9757.764367816091,
+     "numerator_part_ns": 23624.81437234139,
+     "numerator_only_ns": 22101.309834638818,
+     "masters_ns": 28399.26978818283,
+     "sum_pure_numerator_masters_ns": 61781.84852834031,
+     "sum_over_full": 0.9814857946792472
+    },
+    "cpu": 17,
+    "sib": 0.04,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 60435.744525547445,
+     "pure_reduction_ns": 9335.431504292646,
+     "numerator_part_ns": 22813.13516237402,
+     "numerator_only_ns": 21321.982993197278,
+     "masters_ns": 27243.58496732026,
+     "sum_pure_numerator_masters_ns": 59392.15163398693,
+     "sum_over_full": 0.9827321910277887
+    },
+    "cpu": 25,
+    "sib": 0.0071,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 60326.09592326139,
+     "pure_reduction_ns": 9313.367713004483,
+     "numerator_part_ns": 22745.98350027776,
+     "numerator_only_ns": 21289.636054421768,
+     "masters_ns": 27124.274002157497,
+     "sum_pure_numerator_masters_ns": 59183.62521543974,
+     "sum_over_full": 0.9810617496402395
+    },
+    "cpu": 43,
+    "sib": 0.0,
+    "same_results": true
+   }
+  ],
+  "committed_cpu": 250
+ },
+ "gg-hh-top-triangle-0": {
+  "median_ns": {
+   "pure_reduction_ns": 2613.0521640521883,
+   "numerator_part_ns": 976.9275481580805,
+   "masters_ns": 1967.207159099688,
+   "full_ns": 5569.02953848594
+  },
+  "committed_ns": {
+   "pure_reduction_ns": 2538.0845816773667,
+   "numerator_part_ns": 931.438593454468,
+   "masters_ns": 1901.240476729275,
+   "full_ns": 5408.759851948617
+  },
+  "ratio": {
+   "pure_reduction_ns": 1.0295370701654383,
+   "numerator_part_ns": 1.0488373093226744,
+   "masters_ns": 1.0346966536731304,
+   "full_ns": 1.0296315035099186
+  },
+  "rounds": [
+   {
+    "derived": {
+     "full_ns": 5686.821420619016,
+     "pure_reduction_ns": 2678.137865311309,
+     "numerator_part_ns": 991.755791674676,
+     "numerator_only_ns": 909.6279904731435,
+     "masters_ns": 2021.273871322951,
+     "sum_pure_numerator_masters_ns": 5691.167528308935,
+     "sum_over_full": 1.000764241984839
+    },
+    "cpu": 25,
+    "sib": 0.0996,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 5775.8971876440755,
+     "pure_reduction_ns": 2707.302268871925,
+     "numerator_part_ns": 1019.3427163788124,
+     "numerator_only_ns": 902.6687339606501,
+     "masters_ns": 2032.7237123190125,
+     "sum_pure_numerator_masters_ns": 5759.36869756975,
+     "sum_over_full": 0.9971383683716387
+    },
+    "cpu": 45,
+    "sib": 0.0925,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 5421.367231638418,
+     "pure_reduction_ns": 2547.9664627930683,
+     "numerator_part_ns": 939.0391370949337,
+     "numerator_only_ns": 856.0947534354545,
+     "masters_ns": 1906.5390672782876,
+     "sum_pure_numerator_masters_ns": 5393.544667166289,
+     "sum_over_full": 0.9948679801084568
+    },
+    "cpu": 53,
+    "sib": 0.0038,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 5451.237656352864,
+     "pure_reduction_ns": 2538.259529602595,
+     "numerator_part_ns": 962.0993046414851,
+     "numerator_only_ns": 845.9087416943522,
+     "masters_ns": 1913.140446876425,
+     "sum_pure_numerator_masters_ns": 5413.499281120505,
+     "sum_over_full": 0.9930770996218851
+    },
+    "cpu": 93,
+    "sib": 0.0115,
+    "same_results": true
+   }
+  ],
+  "committed_cpu": 250
+ },
+ "gg-hhh-top-box-8": {
+  "median_ns": {
+   "pure_reduction_ns": 9433.28229904812,
+   "numerator_part_ns": 22683.546865101573,
+   "masters_ns": 22104.636713629046,
+   "full_ns": 54966.803728070176
+  },
+  "committed_ns": {
+   "pure_reduction_ns": 9450.178935447339,
+   "numerator_part_ns": 22734.832647564246,
+   "masters_ns": 22490.84677419355,
+   "full_ns": 55848.70045045045
+  },
+  "ratio": {
+   "pure_reduction_ns": 0.9982120300033854,
+   "numerator_part_ns": 0.9977441759410458,
+   "masters_ns": 0.9828281227273467,
+   "full_ns": 0.9842091809609302
+  },
+  "rounds": [
+   {
+    "derived": {
+     "full_ns": 55222.49333333333,
+     "pure_reduction_ns": 9417.205915813425,
+     "numerator_part_ns": 22740.18101229115,
+     "numerator_only_ns": 21310.683937823833,
+     "masters_ns": 22142.911949685535,
+     "sum_pure_numerator_masters_ns": 54300.298877790105,
+     "sum_over_full": 0.9833003835959255
+    },
+    "cpu": 25,
+    "sib": 0.0036,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 54998.42763157895,
+     "pure_reduction_ns": 9433.750662126371,
+     "numerator_part_ns": 22670.778825053116,
+     "numerator_only_ns": 21299.20323129252,
+     "masters_ns": 22066.36147757256,
+     "sum_pure_numerator_masters_ns": 54170.89096475205,
+     "sum_over_full": 0.9849534486263796
+    },
+    "cpu": 9,
+    "sib": 0.0036,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 54935.179824561405,
+     "pure_reduction_ns": 9440.223103057757,
+     "numerator_part_ns": 22691.470486685834,
+     "numerator_only_ns": 21237.96522476675,
+     "masters_ns": 22055.629727352683,
+     "sum_pure_numerator_masters_ns": 54187.32331709628,
+     "sum_over_full": 0.98638656485965
+    },
+    "cpu": 93,
+    "sib": 0.0,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 54792.129385964916,
+     "pure_reduction_ns": 9432.813935969869,
+     "numerator_part_ns": 22675.62324351731,
+     "numerator_only_ns": 21254.65818490246,
+     "masters_ns": 22145.37754199823,
+     "sum_pure_numerator_masters_ns": 54253.81472148541,
+     "sum_over_full": 0.9901753286373025
+    },
+    "cpu": 25,
+    "sib": 0.0,
+    "same_results": true
+   }
+  ],
+  "committed_cpu": 250
+ },
+ "gg-hhh-top-pentagon-26": {
+  "median_ns": {
+   "pure_reduction_ns": 18719.849391566677,
+   "numerator_part_ns": 22403.08967822829,
+   "masters_ns": 91982.8424908425,
+   "full_ns": 135037.96774193548
+  },
+  "committed_ns": {
+   "pure_reduction_ns": 18643.134082397002,
+   "numerator_part_ns": 22608.64535375557,
+   "masters_ns": 98217.18992248063,
+   "full_ns": 141069.06214689265
+  },
+  "ratio": {
+   "pure_reduction_ns": 1.0041149362993698,
+   "numerator_part_ns": 0.9909080941245719,
+   "masters_ns": 0.9365248849355323,
+   "full_ns": 0.9572472212321288
+  },
+  "rounds": [
+   {
+    "derived": {
+     "full_ns": 134742.08465608465,
+     "pure_reduction_ns": 18772.984304932736,
+     "numerator_part_ns": 22379.800008792754,
+     "numerator_only_ns": 21728.461471861472,
+     "masters_ns": 92103.01831501831,
+     "sum_pure_numerator_masters_ns": 133255.8026287438,
+     "sum_over_full": 0.9889694297729293
+    },
+    "cpu": 9,
+    "sib": 0.0071,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 135710.66666666666,
+     "pure_reduction_ns": 18692.294382022472,
+     "numerator_part_ns": 22848.40895131086,
+     "numerator_only_ns": 21775.63359442994,
+     "masters_ns": 92113.05494505494,
+     "sum_pure_numerator_masters_ns": 133653.75827838827,
+     "sum_over_full": 0.9848434287532418
+    },
+    "cpu": 9,
+    "sib": 0.0301,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 135129.04301075268,
+     "pure_reduction_ns": 18703.26696495153,
+     "numerator_part_ns": 22350.020616747817,
+     "numerator_only_ns": 21706.11341991342,
+     "masters_ns": 91466.19413919414,
+     "sum_pure_numerator_masters_ns": 132519.48172089347,
+     "sum_over_full": 0.9806883758538011
+    },
+    "cpu": 93,
+    "sib": 0.0,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 134946.8924731183,
+     "pure_reduction_ns": 18736.43181818182,
+     "numerator_part_ns": 22426.379347663828,
+     "numerator_only_ns": 21758.57354221062,
+     "masters_ns": 91862.66666666667,
+     "sum_pure_numerator_masters_ns": 133025.47783251232,
+     "sum_over_full": 0.9857616977657435
+    },
+    "cpu": 9,
+    "sib": 0.0036,
+    "same_results": true
+   }
+  ],
+  "committed_cpu": 250
+ },
+ "gg-hhh-top-triangle-0": {
+  "median_ns": {
+   "pure_reduction_ns": 2533.479376000155,
+   "numerator_part_ns": 945.230045806567,
+   "masters_ns": 1258.4821298189436,
+   "full_ns": 4736.99374158649
+  },
+  "committed_ns": {
+   "pure_reduction_ns": 2542.3633027522937,
+   "numerator_part_ns": 920.9261599715715,
+   "masters_ns": 1267.8163824604142,
+   "full_ns": 4745.139255014326
+  },
+  "ratio": {
+   "pure_reduction_ns": 0.9965056423122056,
+   "numerator_part_ns": 1.0263906998100105,
+   "masters_ns": 0.992637535868281,
+   "full_ns": 0.9982833984441597
+  },
+  "rounds": [
+   {
+    "derived": {
+     "full_ns": 4732.06875,
+     "pure_reduction_ns": 2536.9360341151387,
+     "numerator_part_ns": 944.5320836468259,
+     "numerator_only_ns": 849.4313043478261,
+     "masters_ns": 1258.733544526575,
+     "sum_pure_numerator_masters_ns": 4740.201662288539,
+     "sum_over_full": 1.0017186800780398
+    },
+    "cpu": 25,
+    "sib": 0.0115,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 4736.043420553659,
+     "pure_reduction_ns": 2515.985095669688,
+     "numerator_part_ns": 965.4930922497751,
+     "numerator_only_ns": 852.8266173245614,
+     "masters_ns": 1258.230715111312,
+     "sum_pure_numerator_masters_ns": 4739.708903030775,
+     "sum_over_full": 1.0007739545759247
+    },
+    "cpu": 25,
+    "sib": 0.0,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 4737.94406261932,
+     "pure_reduction_ns": 2530.0227178851715,
+     "numerator_part_ns": 945.9280079663081,
+     "numerator_only_ns": 844.5910760624137,
+     "masters_ns": 1258.064746019712,
+     "sum_pure_numerator_masters_ns": 4734.015471871191,
+     "sum_over_full": 0.9991708237378478
+    },
+    "cpu": 93,
+    "sib": 0.0,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 4754.742242528079,
+     "pure_reduction_ns": 2556.213333333333,
+     "numerator_part_ns": 930.2970789657584,
+     "numerator_only_ns": 859.0274461369562,
+     "masters_ns": 1262.9664106040066,
+     "sum_pure_numerator_masters_ns": 4749.476822903098,
+     "sum_over_full": 0.9988925962005079
+    },
+    "cpu": 93,
+    "sib": 0.0,
+    "same_results": true
+   }
+  ],
+  "committed_cpu": 250
+ },
+ "hgg-top-triangle-0": {
+  "median_ns": {
+   "pure_reduction_ns": 2619.526876815478,
+   "numerator_part_ns": 915.75812856119,
+   "masters_ns": 6411.177206355185,
+   "full_ns": 10087.633925468124
+  },
+  "committed_ns": {
+   "pure_reduction_ns": 2600.641641025641,
+   "numerator_part_ns": 934.3597565983982,
+   "masters_ns": 6525.215640426085,
+   "full_ns": 10048.895808383233
+  },
+  "ratio": {
+   "pure_reduction_ns": 1.0072617601333143,
+   "numerator_part_ns": 0.9800915783178326,
+   "masters_ns": 0.9825234229250004,
+   "full_ns": 1.0038549625574358
+  },
+  "rounds": [
+   {
+    "derived": {
+     "full_ns": 10077.349475383373,
+     "pure_reduction_ns": 2620.681751976696,
+     "numerator_part_ns": 913.6009899358023,
+     "numerator_only_ns": 843.5426225464284,
+     "masters_ns": 6385.989053948397,
+     "sum_pure_numerator_masters_ns": 9920.271795860896,
+     "sum_over_full": 0.9844127982356689
+    },
+    "cpu": 53,
+    "sib": 0.0077,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 10097.918375552876,
+     "pure_reduction_ns": 2618.3720016542597,
+     "numerator_part_ns": 933.0694056908483,
+     "numerator_only_ns": 848.3595789899807,
+     "masters_ns": 6409.934555640438,
+     "sum_pure_numerator_masters_ns": 9961.375962985545,
+     "sum_over_full": 0.9864781623806842
+    },
+    "cpu": 70,
+    "sib": 0.0231,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 10065.074969770254,
+     "pure_reduction_ns": 2617.5602023957044,
+     "numerator_part_ns": 917.9152671865777,
+     "numerator_only_ns": 848.1894177746202,
+     "masters_ns": 6414.749043611324,
+     "sum_pure_numerator_masters_ns": 9950.224513193607,
+     "sum_over_full": 0.9885892100236121
+    },
+    "cpu": 93,
+    "sib": 0.0,
+    "same_results": true
+   },
+   {
+    "derived": {
+     "full_ns": 10146.334536702767,
+     "pure_reduction_ns": 2738.74682367524,
+     "numerator_part_ns": 891.7300650274551,
+     "numerator_only_ns": 853.3721689451132,
+     "masters_ns": 6412.419857069934,
+     "sum_pure_numerator_masters_ns": 10042.896745772628,
+     "sum_over_full": 0.9898054030688651
+    },
+    "cpu": 4,
+    "sib": 0.0154,
+    "same_results": true
+   }
+  ],
+  "committed_cpu": 250
+ }
+}
