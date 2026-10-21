@@ -1125,7 +1125,7 @@ measured.
 |---|---|---|
 | V0 | `regression_bitwise::rank_up_to_n_plus_one_is_bitwise_unchanged` | against `r-le-n1-d53dd08.json` (file name kept): main d53dd08's bits, re-blessed for main's own changes and in place for the generic selection (5ed3b22), the native B0 (c3a6aba) and the oneloopmaster 8ec256f and Symbolica 9cdc2949 re-pins (c24f976; `validation/regression/README.md`, section 10). Fast and binary64 sections bitwise; blessed at c24f976. Since cb6b4d1 the generic Float(256) section is compared within 2^-200 of each lane's largest component, with exact statuses (section 10); passes at cb6b4d1 (on 115fb46) |
 | V0p | `src/plan_fingerprints_tests.rs::exact_plans_for_rank_up_to_n_plus_one_are_unchanged` | 1,239 fingerprints unchanged; passes at c24f976; 115fb46 and the pass-2 commits cb6b4d1, 27844af and 1a1eea4 change no code it covers |
-| V1 | `cargo test --workspace` | 8346699, release: default features 389 passed, 0 failed, 12 ignored (47.6 min); `--all-features` 498, 0, 21 (75.4 min) <!-- PASS2: missing the ninjars-tests counts at the pass-2 head (115fb46 and the pass-2 commits): passed / failed / ignored and minutes for each command run (-p ninjars, -p ninjars-symbolica --features native-masters, -p ninjars-graph, -p ninjars-cli, and --workspace --all-features if run). --> |
+| V1 | `cargo test --workspace` | integration pass 2 (74add3c), release: -p ninjars 44 passed, 0 failed, 0 ignored; -p ninjars-symbolica --features native-masters 284, 0, 8 (64 targets, 11.7 min with --test-threads=8, V0 alone); -p ninjars-graph 31, 0, 1; -p ninjars-cli 90, 0, 1 (export_bench after its fix: committed tensor coefficients within 2^-200 of the lane); `--all-features` 540, 1, 19 (48.5 min build, 13.7 min run; the one failure was that export_bench test). Earlier, 8346699, release: default features 389 passed, 0 failed, 12 ignored (47.6 min); `--all-features` 498, 0, 21 (75.4 min) |
 | V2a | `rank_n2_laurent` | division recovers known quotients, n = 1..6: 8.7e-77 (Float(256)), 1.8e-15 (binary64); new subtraction terms against the sympy closed forms <= 4e-77, swapped-axis control 1.2 (S2) |
 | V2b | `rank_n2_reconstruct` | on-cut reconstruction of every cut size, n = 1..6, with and without mu²: <= 1.1e-73 (Float), <= 5e-13 (binary64); pruned swapped arithmetic identical (S2) |
 | V2c | `rank_n2_boxes` | box modes agree, n = 4..6: <= 1.5e-70 (Float); binary64 <= 3e-14 (coefficients), 5e-10 (integrated, n = 6); beta-offset control (S2) |
@@ -1140,7 +1140,7 @@ measured.
 | V9 | `rank_n2_reference::conditioning_scan_report` | report only (bubble p² ladder, triangle and box Gram ladders) |
 | V10 | `rank_n2_dual` | HyperDual against finite differences, n = 2..4 (stand-in masters) and n = 2 (exact masters incl. B1111): <= 5.5e-48 (S2); the S2 verifier found <= 1.6e-44 against central differences at Float(512) |
 | V11 | `fast_native_masters`, `masters`, `master_status`, `rank_n2_interfaces`, `rank_n2_float_bubbles`, `soft_box_labelling` | B1111 accuracy and interface identity; B0..B111 from the native families for every carrier; soft D0 boxes in all 24 labellings for every carrier; `Float` results with too few tracked bits fail and are rescued at higher precision (section 6) |
-| CLI | `crates/ninjars-cli/tests/case_check.rs` | case-check equals case-bench's reference check; controls with both engines; failures, stale known failures and the engine and precision scope of known-failure entries are reported; the GENERIC_RUNNER interface; a rank n+2 sample; `--stability-test` flags exactly lane 1 of `rn2-phys-{real,complex}-n6-r8` in binary64 (real lane 2 is a false negative, section 9), and the cancellation inside cut contributions of the review's reproducer (`crates/ninjars-cli/tests/data/repro-stability-test-miss-n6-r8.json`) and of `rn2-phys-complex-n6-r7` lane 1 |
+| CLI | `crates/ninjars-cli/tests/case_check.rs` | case-check equals case-bench's reference check; controls with both engines; failures, stale known failures and the engine and precision scope of known-failure entries are reported; the GENERIC_RUNNER interface; a rank n+2 sample; `--stability-test` flags exactly lanes 1 and 2 of `rn2-phys-{real,complex}-n6-r8` in binary64 (1a3c97c; section 9.1), and the cancellation inside cut contributions of the review's reproducer (`crates/ninjars-cli/tests/data/repro-stability-test-miss-n6-r8.json`) and of `rn2-phys-complex-n6-r7` lane 1 |
 | stability | `stability.rs`; `integration.rs::term_moduli_count_every_master_and_rational_term` | the any-n cancelling lane is flagged in binary64 and in DoubleFloat (off by 6.9e-16 > 2^-53 against Float(256)) and passes in Float(256); the term moduli count every master and rational term (9ff3d0a) |
 
 **Independent verification.** Verifier agents re-checked each stream.
@@ -1324,7 +1324,10 @@ like original Ninja, loses accuracy. The new
 `controls_fast_conditioned_binary64_match_references` checks the option on
 the controls: 600 pass and 15 are report-only, as by default.
 
-<!-- PASS2: missing the ninjars-tests results at the pass-2 head (115fb46 and the pass-2 commits): that these four tests pass, that the two *_default_geometry variants are the only ignored tests of the rank_n2_* files, and the ignored-test count of the workspace run (8.2, V1). -->
+At integration pass 2 (74add3c) these four tests pass (`rank_n2_reference` 11/0/0,
+`rank_n2_identity` 4 passed and 2 ignored, `rank_n2_invariance` 8/0/0); the two
+`*_default_geometry` variants are the only ignored tests of the `rank_n2_*` files,
+and the `--all-features` workspace run ignores 19 tests (V1).
 
 ### 8.5 Reproducing
 
@@ -1411,14 +1414,13 @@ means an error above 2^-(p/2).
   example `fr-mixed-complex-n4-r6` lane 1: 6.1e-6, with terms cancelling by
   4.6e7), which no measure of the summation can detect. A threshold factor or
   an a-posteriori test such as Ninja's N=N test would be the next step.
-- **A false negative: `rn2-phys-real-n6-r8` lane 2.** With the generic
+- **Formerly a false negative: `rn2-phys-real-n6-r8` lane 2.** With the generic
   selection (86b378b) its generic f64 error is 1.3e-6, above its binary64
-  budget of 5.9e-7, yet it keeps more than half the bits between cuts.
-  `case_check.rs::stability_test_flags_rank_n2_cancellations` expects lane 1
-  of `rn2-phys-{real,complex}-n6-r8` to be the only `Unstable` lanes. If it
-  passes with the per-term measure merged, the loss is not in the summation
-  that the test measures; the 5ed3b22 stream expected the per-term measure
-  to flag the lane. <!-- PASS2: missing the ninjars-tests result at the pass-2 head (115fb46 and the pass-2 commits): whether case_check.rs stability_test_flags_rank_n2_cancellations and stability_test_flags_cancellation_inside_cut_contributions pass. Neither has run on the generic selection merged with the per-term measure of 9ff3d0a. If the first fails, rewrite this bullet, 9.2 "Generic binary64" and TODO_NEXT_PLAN.md section 5. -->
+  budget of 5.9e-7. With the per-term measure of 9ff3d0a merged, `--stability-test`
+  flags it (and lane 2 of `rn2-phys-complex-n6-r8`, 6.0e-6 against 6.9e-8):
+  `case_check.rs::stability_test_flags_rank_n2_cancellations` expects lanes 1 and 2
+  of both cases `Unstable` (1a3c97c), and it and
+  `stability_test_flags_cancellation_inside_cut_contributions` pass at 74add3c.
 - The fast engine has no equivalent test.
 
 **Generic binary64 on ill-conditioned light-like lanes** (final review,
@@ -1572,9 +1574,8 @@ bases and box geometry. With `FastOptions::conditioned_cuts`
   `rn2-phys-real-n6-r8` lane 2 and 1.4e6 on `rn2-phys-complex-n6-r8` lane 2.
   - There, generic f64 is off by 1.3e-6 and 6.0e-6 (1.1e-3 and 5.4e-4 before
     86b378b), and Float(256) by about 5e-9.
-  - `case-check --stability-test` marks lane 1 of both cases `Unstable` in
-    binary64. Lane 2 keeps more than half the bits between cuts and passes;
-    on the real case that is the false negative of 9.1.
+  - `case-check --stability-test` marks lanes 1 and 2 of both cases `Unstable`
+    in binary64 (lane 2 only since the per-term measure of 9ff3d0a; 9.1).
 
 **Bubbles with a small momentum in every component and unequal masses** (V9
 `rn2-scan-bubp2-complex-n2-r4`: p = (5a, 0, 0, 3a), m² = 29929 − 259.5i and

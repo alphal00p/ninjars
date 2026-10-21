@@ -179,10 +179,17 @@ track the tail"; `STATUS.md`, "Adversarial sweeps and the remaining tail
   2^-200 of the lane scale, statuses exact, the other sections bitwise
   (`cb6b4d1`); `known-failures.json` re-derived (`27844af`); machine-code and
   instruction-count evidence (`1a1eea4`); the documentation.
-  <!-- PASS2: missing the commits of the ninjars-tests stream, if it made any
-  (for example the batched-against-unbatched test of section 5, "Requests
-  from pyAmpliCol"), and its test-suite outcome (docs/rank-n2.md 8.2 V1,
-  8.4). -->
+  The tests stream: `b1db88b` (format `crates/ninjars-graph/tests/r2.rs`),
+  `1a3c97c` (the case-check stability test expects lane 2 of
+  `rn2-phys-{real,complex}-n6-r8` `Unstable` too), `d501595`
+  (`crates/ninjars-symbolica/tests/fast_batch_families.rs`: batches of lanes
+  from unrelated loop families are bitwise their lanes alone), `74add3c`
+  (clippy), and the export-bench test comparing the committed tensor
+  coefficients within 2^-200 of the lane (Symbolica #97 moved rounding
+  residues of exactly zero parts). Release test runs: ninjars 44/0/0,
+  ninjars-symbolica (native-masters) 284/0/8, ninjars-graph 31/0/1,
+  ninjars-cli 90/0/1 with the export-bench fix, `--workspace --all-features`
+  540 passed, 19 ignored and the one export-bench failure fixed since.
 - Outcome of the pass-2 checks at `115fb46` (docs/rank-n2.md 7.2, 8.2, 8.3):
   `case-check` in five modes plus `--conditioned-cuts` exits 0 on the suite
   and the controls, every lane `Success` (the tracked-precision check flags
@@ -229,9 +236,8 @@ track the tail"; `STATUS.md`, "Adversarial sweeps and the remaining tail
   error sits there, where no basis is chosen.
 - **`--stability-test` misses**: binary64 25 of 84 wrong lanes. Options: a
   threshold factor (2^5 catches 77 of 84 with 11 false alarms) or an
-  N=N-style test. `rn2-phys-real-n6-r8` lane 2 is a false negative (1.3e-6
-  against a budget of 5.9e-7).
-<!-- PASS2: keep only if case_check.rs stability_test_flags_rank_n2_cancellations ([Success, Unstable, Success]) passes at the pass-2 head with the per-term measure merged. -->
+  N=N-style test. `rn2-phys-real-n6-r8` lane 2 (1.3e-6 against a budget of
+  5.9e-7) is now flagged with the per-term measure (`1a3c97c`).
 - **Remaining cost of the 24-reference selection**: box +1.4 %,
   pentagon-rank4 +1.0 % per point; dropping the constant reference columns
   would save about 0.25 %.
@@ -346,14 +352,8 @@ track the tail"; `STATUS.md`, "Adversarial sweeps and the remaining tail
 
 From pyLoopAmpliCol (loop engine v2), received 2026-10-20; none blocks.
 
-- **Batched against unbatched across unrelated families**: a test that lanes
-  of unrelated families (different kinematics, masses and numerators, the
-  same n and rank) give bitwise the same result batched as unbatched, at
-  rank <= n+1 and at declared n+2 with per-lane lowering (`lane_rank`).
-  First check what V7c and the `tests_x2.rs` batching tests already cover,
-  and add only the missing case.
-  <!-- PASS2: missing the ninjars-tests outcome: if that stream lands this
-  test, replace this bullet by the test's name in section 4. -->
+- **Batched against unbatched across unrelated families**: done,
+  `crates/ninjars-symbolica/tests/fast_batch_families.rs` (`d501595`).
 - **Finite-only mode**: what can be skipped when only the finite part is
   needed (pole-only Laurent terms, master pole parts, mu²/eps expansions
   feeding only poles); a cheap option or API if worthwhile (measure first).
