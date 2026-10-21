@@ -16,11 +16,17 @@ NINJA = HERE.parent / "ninja"
 BUILD = "o3-fortranrules"
 PRIMARY = "olm-a92b148-sym-e679e8c1-tensor"
 LABELS = {
+    "olm-8ec256fc-sym-9cdc2949-tensor":
+        "oneloopmaster main 8ec256fc (09b2c74 plus the contour box near vanishing Gram determinants with "
+        "Vieta pole-zero offsets and a second contour, Denner-Dittmaier sheets for one- and two-mass boxes "
+        "with complex masses, two-mass mass-pair complements from the channels and the soft-box "
+        "relabelling at the numerical D0 entry points) + Symbolica 9cdc2949 (e679e8c1 plus "
+        "symbolica-dev/symbolica#97, Float products rounded once); the current benchmark revision",
     "olm-3023fa6-sym-e679e8c1-tensor":
         "oneloopmaster main 3023fa6 (264a6ce plus the B1111 tensor family, conditioned C0 dilogarithm "
         "differences, the contour box for real three-mass boxes, exact Kallen edge roots, far-root r1, "
         "labelling-independent real four-mass D0, collinear few-mass boxes and commutative DoubleFloat "
-        "products) + Symbolica e679e8c1; the final benchmark revision (149ddff and the pinned 09b2c74 return "
+        "products) + Symbolica e679e8c1; the previous benchmark revision (149ddff and 09b2c74 return "
         "the same bits on every call)",
     "olm-264a6ce-sym-e679e8c1-tensor":
         "oneloopmaster main 264a6ce (continuation and degenerate-kinematics fixes, hand-written C0/D0 "
@@ -100,7 +106,9 @@ def main():
         "gfortran -O3, OneLOop warnings off). Microseconds per phase-space point (one lane's calls),",
         "median of >=7 blocks >=25 ms. OneLOop replay and olm-264a6ce native pinned to CPU 250 (2026-10-18),",
         "olm-3023fa6 native on CPU 250 (2026-10-19; earlier labels: native on CPU 29, see",
-        "../cpu-crosscheck.md). 'OL B' is every bubble call (olo_b11 for",
+        "../cpu-crosscheck.md); olm-8ec256fc native one call stream per process, each pinned to one CPU of",
+        "4-93 whose SMT sibling was at most 5 % busy (2026-10-21; per stream the most representative of three",
+        "rounds, see `runs` in its results file). 'OL B' is every bubble call (olo_b11 for",
         "Ninja's rank-2 bubbles: B11, B00, B1, B0); 'nat B0 only' evaluates just B0 for those calls",
         "(less work), 'nat B (tensor)' evaluates NativeTensorEvaluator B11 = [B0, B1, B11] (B111 for",
         "rank-3 bubbles), i.e. everything Ninja consumes. max diff = largest |native - OneLOop| / max|OneLOop|",
@@ -135,6 +143,16 @@ def main():
         "  alternately on CPU 250 (best of three, five physical streams), 3023fa6's boxes take 3-5 % longer",
         "  than 264a6ce's, triangles and bubbles within 2 %, tadpoles 7-9 % less. Native/OneLOop is",
         "  0.25-0.57x on the physical streams (0.24-0.54x at 264a6ce).",
+        "* **Changes in 8ec256fc (with Symbolica 9cdc2949).** The vanishing-Gram contour box (Vieta pole-zero",
+        "  offsets, second contour) brings the D0 of syn-gghhh-ggHHH-n5-r5 from 3.6e-11 to 3.0e-14 against",
+        "  OneLOop (2.6e-14 against 256-bit values, OneLOop 7.9e-15) and syn-n6-r5's largest deviation from",
+        "  1.3e-12 to 4.0e-13; gg-hh-top-box-2 (both call streams) moves from 1.5e-14 to 1.7e-14 and",
+        "  syn-gghhh-ggHHH-n5-r4 from 1.7e-14 to 1.8e-14, every other stream keeps its largest deviation (to",
+        "  two digits). Run alternately with a rebuilt 3023fa6 bench on the same core (one stream per",
+        "  process, three rounds, medians): boxes take 1.7-4.3 % longer on the physical streams (-2.4 to",
+        "  +3.9 % on the synthetic ones), triangles within 1 % (up to +5.8 % on syn-n4/n6), bubbles and",
+        "  tadpoles within 3 %; instructions per cycle of each process within -3.1 to +0.8 %. The OneLOop column",
+        "  is the committed CPU-250 replay; native/OneLOop is 0.24-0.55x on the physical streams.",
         "",
     ]
     (HERE / "SUMMARY.md").write_text("\n".join(lines))

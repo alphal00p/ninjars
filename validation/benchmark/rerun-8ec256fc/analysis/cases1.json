@@ -1,0 +1,5132 @@
+{
+ "four-photon-top-box-0": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 10.869486328125,
+     "reduction": 6.215730224609375,
+     "masters": 7.59856982421875,
+     "total": 24.8683017578125
+    },
+    "w32": {
+     "tensor_numerator": 9.337300048828125,
+     "reduction": 5.206888427734375,
+     "masters": 5.615483642578125,
+     "total": 20.2262421875
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 11.357408203125,
+     "reduction": 6.139858154296875,
+     "masters": 7.4231884765625,
+     "total": 25.0204892578125
+    },
+    "w32": {
+     "tensor_numerator": 9.344389892578125,
+     "reduction": 5.157830322265625,
+     "masters": 5.486977294921875,
+     "total": 20.0895908203125
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 0.9570393291960969,
+    "reduction": 1.0123573001860642,
+    "masters": 1.023626147740959,
+    "total": 0.9939174850486794
+   },
+   "w32": {
+    "tensor_numerator": 0.9992412726960771,
+    "reduction": 1.0095113841292864,
+    "masters": 1.0234202441069296,
+    "total": 1.006802098082024
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/four-photon-top-box-0/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0125,
+     "accepted": true,
+     "cpu": 4,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 10.908575439453125,
+      "reduction": 6.231555419921875,
+      "masters": 7.59856982421875,
+      "total": 25.0077744140625,
+      "check": 9.725323887876545e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.366550537109376,
+      "reduction": 5.233834228515625,
+      "masters": 5.615483642578125,
+      "total": 20.230587890625,
+      "check": 9.725323887876545e-13,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.420318603515625,
+      "reduction": 6.139858154296875,
+      "masters": 7.4231884765625,
+      "total": 25.0204892578125,
+      "check": 9.725323887876545e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.33246875,
+      "reduction": 5.169830078125,
+      "masters": 5.486977294921875,
+      "total": 20.0895908203125,
+      "check": 9.725323887876545e-13,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/four-photon-top-box-0/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0375,
+     "accepted": true,
+     "cpu": 70,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 10.869486328125,
+      "reduction": 6.2087841796875,
+      "masters": 7.59680224609375,
+      "total": 24.758564453125,
+      "check": 9.725323887876545e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.337300048828125,
+      "reduction": 5.206888427734375,
+      "masters": 5.583837890625,
+      "total": 20.208673828125,
+      "check": 9.725323887876545e-13,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.357408203125,
+      "reduction": 6.1537353515625,
+      "masters": 7.39622314453125,
+      "total": 25.9214111328125,
+      "check": 9.725323887876545e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.344389892578125,
+      "reduction": 5.157830322265625,
+      "masters": 5.47953564453125,
+      "total": 20.0561240234375,
+      "check": 9.725323887876545e-13,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/four-photon-top-box-0/round3",
+     "attempt": 2,
+     "worst_sibling_busy": 0.0041,
+     "accepted": true,
+     "cpu": 53,
+     "attempts": 2
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 10.868746826171876,
+      "reduction": 6.215730224609375,
+      "masters": 7.62568212890625,
+      "total": 24.8683017578125,
+      "check": 9.725323887876545e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.3223759765625,
+      "reduction": 5.1921298828125,
+      "masters": 5.651198974609375,
+      "total": 20.2262421875,
+      "check": 9.725323887876545e-13,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.270869384765625,
+      "reduction": 6.087040771484375,
+      "masters": 7.444988037109375,
+      "total": 24.877333984375,
+      "check": 9.725323887876545e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.364925048828125,
+      "reduction": 5.141851318359375,
+      "masters": 5.5289599609375,
+      "total": 20.11565625,
+      "check": 9.725323887876545e-13,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round3"
+ },
+ "gg-hhh-top-box-8": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 10.922108642578126,
+     "reduction": 6.370879638671875,
+     "masters": 14.02394677734375,
+     "total": 31.584861328125005
+    },
+    "w32": {
+     "tensor_numerator": 9.318244873046876,
+     "reduction": 5.343356201171875,
+     "masters": 13.18062841796875,
+     "total": 27.952826171875
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 11.3028984375,
+     "reduction": 6.16207275390625,
+     "masters": 13.30843603515625,
+     "total": 31.068169921875
+    },
+    "w32": {
+     "tensor_numerator": 9.33929248046875,
+     "reduction": 5.335548583984375,
+     "masters": 12.43521044921875,
+     "total": 27.2179599609375
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 0.9663104293976035,
+    "reduction": 1.033885819448214,
+    "masters": 1.053763698476468,
+    "total": 1.0166308928897096
+   },
+   "w32": {
+    "tensor_numerator": 0.9977463381229477,
+    "reduction": 1.0014633204186232,
+    "masters": 1.0599441378008065,
+    "total": 1.026999312659441
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/gg-hhh-top-box-8/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0038,
+     "accepted": true,
+     "cpu": 53,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 10.922108642578126,
+      "reduction": 6.370879638671875,
+      "masters": 14.02888330078125,
+      "total": 31.584861328125005,
+      "check": 1.3003206435548253e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.3104228515625,
+      "reduction": 5.32901513671875,
+      "masters": 13.1848564453125,
+      "total": 27.9364189453125,
+      "check": 1.3003206435548253e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.3028984375,
+      "reduction": 6.16207275390625,
+      "masters": 13.321322265625,
+      "total": 31.174361328125002,
+      "check": 1.3003206435548253e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.36988818359375,
+      "reduction": 5.3314052734375,
+      "masters": 12.43521044921875,
+      "total": 27.241533203125,
+      "check": 1.3003206435548253e-14,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/gg-hhh-top-box-8/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0496,
+     "accepted": true,
+     "cpu": 53,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 10.963671142578125,
+      "reduction": 6.359678466796875,
+      "masters": 13.94556787109375,
+      "total": 31.528043945312497,
+      "check": 1.3003206435548253e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.351074462890624,
+      "reduction": 5.391600830078125,
+      "masters": 13.16959814453125,
+      "total": 27.9777568359375,
+      "check": 1.3003206435548253e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.398406494140625,
+      "reduction": 6.144147705078125,
+      "masters": 13.30843603515625,
+      "total": 31.068169921875,
+      "check": 1.3003206435548253e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.311721435546875,
+      "reduction": 5.335548583984375,
+      "masters": 12.44780322265625,
+      "total": 27.2179599609375,
+      "check": 1.3003206435548253e-14,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/gg-hhh-top-box-8/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0231,
+     "accepted": true,
+     "cpu": 53,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 10.8389296875,
+      "reduction": 6.46538671875,
+      "masters": 14.02394677734375,
+      "total": 31.9575283203125,
+      "check": 1.3003206435548253e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.318244873046876,
+      "reduction": 5.343356201171875,
+      "masters": 13.18062841796875,
+      "total": 27.952826171875,
+      "check": 1.3003206435548253e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.1979130859375,
+      "reduction": 6.16731201171875,
+      "masters": 13.28245947265625,
+      "total": 31.0373876953125,
+      "check": 1.3003206435548253e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.33929248046875,
+      "reduction": 5.34160546875,
+      "masters": 12.421650390625,
+      "total": 27.2070703125,
+      "check": 1.3003206435548253e-14,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round1"
+ },
+ "gg-hhh-top-pentagon-26": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 12.00799169921875,
+     "reduction": 10.16600244140625,
+     "masters": 58.639060546875,
+     "total": 81.069265625
+    },
+    "w32": {
+     "tensor_numerator": 11.485968505859375,
+     "reduction": 9.037635986328125,
+     "masters": 55.53957421875,
+     "total": 76.27483203125
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 11.97960302734375,
+     "reduction": 10.1834677734375,
+     "masters": 55.363109375,
+     "total": 77.97683203125
+    },
+    "w32": {
+     "tensor_numerator": 11.419583251953124,
+     "reduction": 8.902674560546876,
+     "masters": 52.35868359375,
+     "total": 72.9106015625
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 1.002369750634491,
+    "reduction": 0.9982849327537713,
+    "masters": 1.059172095080236,
+    "total": 1.0396583640703776
+   },
+   "w32": {
+    "tensor_numerator": 1.0058132816619991,
+    "reduction": 1.0151596494809936,
+    "masters": 1.0607519212988712,
+    "total": 1.046141855870797
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/gg-hhh-top-pentagon-26/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0038,
+     "accepted": true,
+     "cpu": 4,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 12.01998388671875,
+      "reduction": 10.03278857421875,
+      "masters": 58.53140234375,
+      "total": 80.7621953125,
+      "check": 3.064836529667215e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.485968505859375,
+      "reduction": 8.914561767578125,
+      "masters": 55.2811171875,
+      "total": 76.27483203125,
+      "check": 1.0898628426576073e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.9869609375,
+      "reduction": 10.1110361328125,
+      "masters": 55.363109375,
+      "total": 77.97683203125,
+      "check": 3.1447674545931135e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.419583251953124,
+      "reduction": 8.902674560546876,
+      "masters": 52.358177734375,
+      "total": 72.85790625,
+      "check": 1.0763493644732998e-14,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/gg-hhh-top-pentagon-26/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0268,
+     "accepted": true,
+     "cpu": 53,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 11.80118896484375,
+      "reduction": 10.26461083984375,
+      "masters": 58.639060546875,
+      "total": 81.069265625,
+      "check": 3.064836529667215e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.443822021484374,
+      "reduction": 9.037635986328125,
+      "masters": 55.53957421875,
+      "total": 76.22033984375,
+      "check": 1.0898628426576073e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.97960302734375,
+      "reduction": 10.42628662109375,
+      "masters": 55.33590234375,
+      "total": 78.47276953125,
+      "check": 3.1447674545931135e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.474694091796875,
+      "reduction": 8.942291259765625,
+      "masters": 52.394171875,
+      "total": 72.99366796875,
+      "check": 1.0763493644732998e-14,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/gg-hhh-top-pentagon-26/round3",
+     "attempt": 2,
+     "worst_sibling_busy": 0.0038,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 2
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 12.00799169921875,
+      "reduction": 10.16600244140625,
+      "masters": 59.551349609375,
+      "total": 81.4274296875,
+      "check": 3.064836529667215e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.523744384765624,
+      "reduction": 9.171620849609376,
+      "masters": 55.971255859375,
+      "total": 76.72567578125,
+      "check": 1.0898628426576073e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.821267578125,
+      "reduction": 10.1834677734375,
+      "masters": 55.460357421875,
+      "total": 77.83468359375,
+      "check": 3.1447674545931135e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.36245703125,
+      "reduction": 8.894205078125,
+      "masters": 52.35868359375,
+      "total": 72.9106015625,
+      "check": 1.0763493644732998e-14,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round2"
+ },
+ "gg-hhh-top-triangle-0": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 0.817154052734375,
+     "reduction": 1.6966241455078126,
+     "masters": 0.9183126525878906,
+     "total": 3.5528265380859376
+    },
+    "w32": {
+     "tensor_numerator": 0.42187847900390624,
+     "reduction": 1.2758521728515626,
+     "masters": 0.767962646484375,
+     "total": 2.468697509765625
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 0.781162109375,
+     "reduction": 1.7111646728515626,
+     "masters": 0.9292361755371094,
+     "total": 3.5563250732421876
+    },
+    "w32": {
+     "tensor_numerator": 0.4265574951171875,
+     "reduction": 1.2832216186523437,
+     "masters": 0.7700064086914062,
+     "total": 2.4854505615234377
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 1.046074870922979,
+    "reduction": 0.9915025552043925,
+    "masters": 0.9882446215108825,
+    "total": 0.99901624989724
+   },
+   "w32": {
+    "tensor_numerator": 0.9890307492733288,
+    "reduction": 0.9942570747767477,
+    "masters": 0.9973457854584554,
+    "total": 0.9932595513999908
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/gg-hhh-top-triangle-0/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0207,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.816819091796875,
+      "reduction": 1.69795654296875,
+      "masters": 0.9183126525878906,
+      "total": 3.5423773193359374,
+      "check": 7.255420055537039e-16,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.42027154541015627,
+      "reduction": 1.2758521728515626,
+      "masters": 0.7685577087402343,
+      "total": 2.468697509765625,
+      "check": 9.080639242729261e-16,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.7693115234375,
+      "reduction": 1.7111646728515626,
+      "masters": 0.9274063110351562,
+      "total": 3.5563250732421876,
+      "check": 7.255420055537039e-16,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.428602783203125,
+      "reduction": 1.262771728515625,
+      "masters": 0.7690560913085938,
+      "total": 2.458294677734375,
+      "check": 9.080639242729261e-16,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/gg-hhh-top-triangle-0/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0083,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.817154052734375,
+      "reduction": 1.6966241455078126,
+      "masters": 0.9172720336914062,
+      "total": 3.5528265380859376,
+      "check": 7.255420055537039e-16,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.42187847900390624,
+      "reduction": 1.2752705688476562,
+      "masters": 0.7666671447753907,
+      "total": 2.468287353515625,
+      "check": 9.080639242729261e-16,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.781162109375,
+      "reduction": 1.7016357421875,
+      "masters": 0.9305530090332031,
+      "total": 3.55156689453125,
+      "check": 7.255420055537039e-16,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.42521771240234374,
+      "reduction": 1.2832216186523437,
+      "masters": 0.7700064086914062,
+      "total": 2.4854505615234377,
+      "check": 9.080639242729261e-16,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/gg-hhh-top-triangle-0/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0208,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.8261611328125,
+      "reduction": 1.693385009765625,
+      "masters": 0.9198818664550781,
+      "total": 3.589279296875,
+      "check": 7.255420055537039e-16,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.42893115234375,
+      "reduction": 1.2789442749023439,
+      "masters": 0.767962646484375,
+      "total": 2.473997802734375,
+      "check": 9.080639242729261e-16,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.7929317016601563,
+      "reduction": 1.7754354858398438,
+      "masters": 0.9292361755371094,
+      "total": 3.6999183349609375,
+      "check": 7.255420055537039e-16,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.4265574951171875,
+      "reduction": 1.2935579833984374,
+      "masters": 0.7781735534667968,
+      "total": 2.4932691650390626,
+      "check": 9.080639242729261e-16,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round2"
+ },
+ "gg-hh-top-box-2": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 10.827870361328126,
+     "reduction": 6.349058349609375,
+     "masters": 15.505603515624998,
+     "total": 33.1619375
+    },
+    "w32": {
+     "tensor_numerator": 9.37875537109375,
+     "reduction": 5.41372021484375,
+     "masters": 14.0407783203125,
+     "total": 29.6713876953125
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 11.154365234375,
+     "reduction": 6.21140673828125,
+     "masters": 14.6241552734375,
+     "total": 32.49188671875
+    },
+    "w32": {
+     "tensor_numerator": 9.33877978515625,
+     "reduction": 5.321693359375,
+     "masters": 13.17009130859375,
+     "total": 27.913783203125
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 0.9707294080670142,
+    "reduction": 1.0221611008790923,
+    "masters": 1.0602734466166748,
+    "total": 1.0206220952033338
+   },
+   "w32": {
+    "tensor_numerator": 1.004280600555657,
+    "reduction": 1.0172927768013222,
+    "masters": 1.0661109320594162,
+    "total": 1.0629654704773495
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/gg-hh-top-box-2/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0463,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 10.858177978515625,
+      "reduction": 6.341851318359375,
+      "masters": 15.602049316406248,
+      "total": 33.2402890625,
+      "check": 6.945601237026325e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.37875537109375,
+      "reduction": 5.41372021484375,
+      "masters": 14.12043212890625,
+      "total": 30.719741210937496,
+      "check": 6.945601237026325e-13,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.08305419921875,
+      "reduction": 6.41635595703125,
+      "masters": 14.6241552734375,
+      "total": 32.516134765625004,
+      "check": 6.945601237026325e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.36974462890625,
+      "reduction": 5.32053857421875,
+      "masters": 13.16516943359375,
+      "total": 28.13066796875,
+      "check": 6.945601237026325e-13,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/gg-hh-top-box-2/round2",
+     "attempt": 3,
+     "worst_sibling_busy": 0.0115,
+     "accepted": true,
+     "cpu": 4,
+     "attempts": 3
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 10.818214599609375,
+      "reduction": 6.427635498046875,
+      "masters": 15.491384765624998,
+      "total": 33.0860498046875,
+      "check": 6.945601237026325e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.469498046875,
+      "reduction": 5.44771435546875,
+      "masters": 13.9877998046875,
+      "total": 29.015115234375,
+      "check": 6.945601237026325e-13,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.22879443359375,
+      "reduction": 6.15841796875,
+      "masters": 14.6429833984375,
+      "total": 32.49188671875,
+      "check": 6.945601237026325e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.33877978515625,
+      "reduction": 5.321693359375,
+      "masters": 13.18060888671875,
+      "total": 27.913783203125,
+      "check": 6.945601237026325e-13,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/gg-hh-top-box-2/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0347,
+     "accepted": true,
+     "cpu": 53,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 10.827870361328126,
+      "reduction": 6.349058349609375,
+      "masters": 15.505603515624998,
+      "total": 33.1619375,
+      "check": 6.945601237026325e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.348428466796875,
+      "reduction": 5.326605712890625,
+      "masters": 14.0407783203125,
+      "total": 29.6713876953125,
+      "check": 6.945601237026325e-13,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.154365234375,
+      "reduction": 6.21140673828125,
+      "masters": 14.59675244140625,
+      "total": 32.49067578125,
+      "check": 6.945601237026325e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.330207763671876,
+      "reduction": 5.323234130859375,
+      "masters": 13.17009130859375,
+      "total": 27.90055078125,
+      "check": 6.945601237026325e-13,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round3"
+ },
+ "gg-hh-top-triangle-0": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 0.7807659912109375,
+     "reduction": 1.7323579711914063,
+     "masters": 1.098633514404297,
+     "total": 3.7237171630859374
+    },
+    "w32": {
+     "tensor_numerator": 0.42169049072265624,
+     "reduction": 1.2911068115234374,
+     "masters": 0.8518838806152343,
+     "total": 2.5828642578125
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 0.796006591796875,
+     "reduction": 1.6945465087890625,
+     "masters": 1.1045768432617187,
+     "total": 3.7560146484375
+    },
+    "w32": {
+     "tensor_numerator": 0.4147935791015625,
+     "reduction": 1.2728748779296875,
+     "masters": 0.8603156127929688,
+     "total": 2.5508670654296877
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 0.9808536754054586,
+    "reduction": 1.0223136173638363,
+    "masters": 0.9946193613475802,
+    "total": 0.991401129022487
+   },
+   "w32": {
+    "tensor_numerator": 1.0166273345793644,
+    "reduction": 1.0143234295136723,
+    "masters": 0.9901992570489785,
+    "total": 1.0125436534174792
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/gg-hh-top-triangle-0/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0167,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.811980224609375,
+      "reduction": 1.693580322265625,
+      "masters": 1.098633514404297,
+      "total": 3.7210499267578125,
+      "check": 3.371910225887861e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.4245335693359375,
+      "reduction": 1.2911068115234374,
+      "masters": 0.8514520263671875,
+      "total": 2.586752197265625,
+      "check": 3.371910225887861e-15,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.8211580810546875,
+      "reduction": 1.6945465087890625,
+      "masters": 1.1045768432617187,
+      "total": 3.7560146484375,
+      "check": 3.371910225887861e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.4067081909179687,
+      "reduction": 1.2863814086914063,
+      "masters": 0.8621170654296875,
+      "total": 2.5519632568359376,
+      "check": 3.371910225887861e-15,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/gg-hh-top-triangle-0/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.7703179321289062,
+      "reduction": 1.7323579711914063,
+      "masters": 1.1588370056152344,
+      "total": 3.7237171630859374,
+      "check": 3.371910225887861e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.42169049072265624,
+      "reduction": 1.2919344482421875,
+      "masters": 0.8518838806152343,
+      "total": 2.578468505859375,
+      "check": 3.371910225887861e-15,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.7778778686523438,
+      "reduction": 1.7045819702148437,
+      "masters": 1.1065574340820312,
+      "total": 3.773330322265625,
+      "check": 3.371910225887861e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.4147935791015625,
+      "reduction": 1.2728748779296875,
+      "masters": 0.8603156127929688,
+      "total": 2.5485758056640626,
+      "check": 3.371910225887861e-15,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/gg-hh-top-triangle-0/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0125,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.7807659912109375,
+      "reduction": 1.7398177490234374,
+      "masters": 1.0918509521484374,
+      "total": 3.731811767578125,
+      "check": 3.371910225887861e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.4073599853515625,
+      "reduction": 1.2896474609375,
+      "masters": 0.8536697692871094,
+      "total": 2.5828642578125,
+      "check": 3.371910225887861e-15,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.796006591796875,
+      "reduction": 1.6916094970703126,
+      "masters": 1.10388623046875,
+      "total": 3.740757080078125,
+      "check": 3.371910225887861e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.41744793701171873,
+      "reduction": 1.2712922973632812,
+      "masters": 0.8600293579101562,
+      "total": 2.5508670654296877,
+      "check": 3.371910225887861e-15,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round2"
+ },
+ "hgg-top-triangle-0": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 0.8226077270507812,
+     "reduction": 1.7404042358398437,
+     "masters": 1.94093359375,
+     "total": 4.609301879882812
+    },
+    "w32": {
+     "tensor_numerator": 0.4236265869140625,
+     "reduction": 1.279267822265625,
+     "masters": 1.759248291015625,
+     "total": 3.486049072265625
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 0.7909888305664062,
+     "reduction": 1.7113995971679687,
+     "masters": 1.9523692016601564,
+     "total": 4.624475219726563
+    },
+    "w32": {
+     "tensor_numerator": 0.426473876953125,
+     "reduction": 1.2797719116210937,
+     "masters": 1.775561279296875,
+     "total": 3.489579345703125
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 1.039973884917861,
+    "reduction": 1.0169479055153876,
+    "masters": 0.994142702158776,
+    "total": 0.9967189055789454
+   },
+   "w32": {
+    "tensor_numerator": 0.9933236472550101,
+    "reduction": 0.9996061100021877,
+    "masters": 0.9908124892835521,
+    "total": 0.998988338396189
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/hgg-top-triangle-0/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0268,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.8226077270507812,
+      "reduction": 1.7404042358398437,
+      "masters": 1.9432626953125,
+      "total": 4.636413696289062,
+      "check": 7.74844784695271e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.42574871826171873,
+      "reduction": 1.288044677734375,
+      "masters": 1.7642013549804687,
+      "total": 3.6710850830078123,
+      "check": 1.2940475971023792e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.7881354370117187,
+      "reduction": 1.7128046264648438,
+      "masters": 1.9523692016601564,
+      "total": 4.627449951171875,
+      "check": 7.74844784695271e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.42351068115234375,
+      "reduction": 1.2797719116210937,
+      "masters": 1.784054931640625,
+      "total": 3.498912841796875,
+      "check": 1.2940475971023792e-14,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/hgg-top-triangle-0/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0077,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.7140598754882812,
+      "reduction": 1.8377861938476563,
+      "masters": 1.94093359375,
+      "total": 4.605645751953125,
+      "check": 7.74844784695271e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.41392987060546876,
+      "reduction": 1.279267822265625,
+      "masters": 1.7554171142578125,
+      "total": 3.4731986083984374,
+      "check": 1.2940475971023792e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.7909888305664062,
+      "reduction": 1.7079700317382813,
+      "masters": 1.955594909667969,
+      "total": 4.591322021484375,
+      "check": 7.74844784695271e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.426473876953125,
+      "reduction": 1.2672669677734374,
+      "masters": 1.775561279296875,
+      "total": 3.4613345947265626,
+      "check": 1.2940475971023792e-14,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/hgg-top-triangle-0/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0114,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.8264755859375,
+      "reduction": 1.7287666015625,
+      "masters": 1.928638671875,
+      "total": 4.609301879882812,
+      "check": 7.74844784695271e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.4236265869140625,
+      "reduction": 1.2735371704101563,
+      "masters": 1.759248291015625,
+      "total": 3.486049072265625,
+      "check": 1.2940475971023792e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.8029780883789063,
+      "reduction": 1.7113995971679687,
+      "masters": 1.951039245605469,
+      "total": 4.624475219726563,
+      "check": 7.74844784695271e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.4350755615234375,
+      "reduction": 1.283528076171875,
+      "masters": 1.7613186645507812,
+      "total": 3.489579345703125,
+      "check": 1.2940475971023792e-14,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round3"
+ },
+ "syn-gghhh-ggHHH-n5-r4": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 12.01873876953125,
+     "reduction": 10.126275390625,
+     "masters": 61.814796875,
+     "total": 84.597328125
+    },
+    "w32": {
+     "tensor_numerator": 11.63598876953125,
+     "reduction": 8.9605947265625,
+     "masters": 61.084619140625,
+     "total": 82.1149375
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 11.904109375,
+     "reduction": 10.01056201171875,
+     "masters": 58.22233984375,
+     "total": 80.4654375
+    },
+    "w32": {
+     "tensor_numerator": 11.416373291015624,
+     "reduction": 8.764820068359375,
+     "masters": 57.576908203125,
+     "total": 78.21109375
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 1.0096293969519454,
+    "reduction": 1.0115591291248973,
+    "masters": 1.0617023816097222,
+    "total": 1.0513498808106276
+   },
+   "w32": {
+    "tensor_numerator": 1.019236886611658,
+    "reduction": 1.0223364149721523,
+    "masters": 1.0609221829891453,
+    "total": 1.0499141945575974
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-gghhh-ggHHH-n5-r4/round1",
+     "attempt": 2,
+     "worst_sibling_busy": 0.0082,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 2
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 12.0094287109375,
+      "reduction": 10.126275390625,
+      "masters": 61.63749023437501,
+      "total": 84.597328125,
+      "check": 5.880946710055261e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.5502802734375,
+      "reduction": 8.838716796875,
+      "masters": 60.896375,
+      "total": 81.34594921875,
+      "check": 2.852754288267999e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.90792333984375,
+      "reduction": 9.94557177734375,
+      "masters": 58.22233984375,
+      "total": 80.4654375,
+      "check": 5.285409377697693e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.402501220703124,
+      "reduction": 8.787256591796876,
+      "masters": 57.508529296875,
+      "total": 78.0768515625,
+      "check": 2.852754288267999e-12,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-gghhh-ggHHH-n5-r4/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0292,
+     "accepted": true,
+     "cpu": 17,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 12.4951513671875,
+      "reduction": 10.060982421875,
+      "masters": 63.565818359374994,
+      "total": 85.0488515625,
+      "check": 5.880946710055261e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.6763818359375,
+      "reduction": 8.9605947265625,
+      "masters": 62.610347656250006,
+      "total": 83.2571640625,
+      "check": 2.852754288267999e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.87603857421875,
+      "reduction": 10.01056201171875,
+      "masters": 58.21530859375,
+      "total": 80.35402734375,
+      "check": 5.285409377697693e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.470346435546874,
+      "reduction": 8.753386962890625,
+      "masters": 58.80017578125,
+      "total": 78.21109375,
+      "check": 2.852754288267999e-12,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-gghhh-ggHHH-n5-r4/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0166,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 12.01873876953125,
+      "reduction": 10.20621240234375,
+      "masters": 61.814796875,
+      "total": 84.36600390625,
+      "check": 5.880946710055261e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.63598876953125,
+      "reduction": 8.98334130859375,
+      "masters": 61.084619140625,
+      "total": 82.1149375,
+      "check": 2.852754288267999e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.904109375,
+      "reduction": 10.0955087890625,
+      "masters": 58.3252890625,
+      "total": 80.66040234375,
+      "check": 5.285409377697693e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.416373291015624,
+      "reduction": 8.764820068359375,
+      "masters": 57.576908203125,
+      "total": 78.35515625,
+      "check": 2.852754288267999e-12,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round3"
+ },
+ "syn-gghhh-ggHHH-n5-r5": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 38.50359521484375,
+     "reduction": 14.4986123046875,
+     "masters": 62.0127265625,
+     "total": 116.60898046875
+    },
+    "w32": {
+     "tensor_numerator": 36.07043212890625,
+     "reduction": 12.92228271484375,
+     "masters": 61.86833203125,
+     "total": 111.94275
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 39.09189892578125,
+     "reduction": 14.36399755859375,
+     "masters": 58.5648046875,
+     "total": 112.93123046875
+    },
+    "w32": {
+     "tensor_numerator": 36.042939453125,
+     "reduction": 12.92858203125,
+     "masters": 57.9081015625,
+     "total": 107.8891796875
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 0.9849507512527228,
+    "reduction": 1.0093716770379992,
+    "masters": 1.0588736169000819,
+    "total": 1.0325662793607628
+   },
+   "w32": {
+    "tensor_numerator": 1.0007627756281365,
+    "reduction": 0.9995127604565586,
+    "masters": 1.0683881937396227,
+    "total": 1.0375716112055084
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-gghhh-ggHHH-n5-r5/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0115,
+     "accepted": true,
+     "cpu": 4,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 38.6051015625,
+      "reduction": 14.456126953125,
+      "masters": 61.89895898437501,
+      "total": 116.60898046875,
+      "check": 4.820434637742801e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 36.07043212890625,
+      "reduction": 12.92228271484375,
+      "masters": 61.74632031249999,
+      "total": 110.91270703125,
+      "check": 2.9634459659486087e-05,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 38.708880859375,
+      "reduction": 14.456078125,
+      "masters": 58.3829453125,
+      "total": 112.93123046875,
+      "check": 4.820434637742801e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 36.042939453125,
+      "reduction": 12.92858203125,
+      "masters": 57.9081015625,
+      "total": 107.06441015625,
+      "check": 0.0004971870707155328,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-gghhh-ggHHH-n5-r5/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0154,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 38.2491376953125,
+      "reduction": 14.4986123046875,
+      "masters": 62.0127265625,
+      "total": 116.51433203125,
+      "check": 4.820434637742801e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 36.8141064453125,
+      "reduction": 12.8257783203125,
+      "masters": 61.93221874999999,
+      "total": 112.2618125,
+      "check": 2.9634459659486087e-05,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 39.09189892578125,
+      "reduction": 14.36399755859375,
+      "masters": 58.5648046875,
+      "total": 113.12826171875,
+      "check": 4.820434637742801e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 36.0380634765625,
+      "reduction": 12.9379716796875,
+      "masters": 57.869078125,
+      "total": 107.8891796875,
+      "check": 0.0004971870707155328,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-gghhh-ggHHH-n5-r5/round3",
+     "attempt": 4,
+     "worst_sibling_busy": 0.0154,
+     "accepted": true,
+     "cpu": 53,
+     "attempts": 4
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 38.50359521484375,
+      "reduction": 14.61110791015625,
+      "masters": 62.17712109375,
+      "total": 116.87241796875,
+      "check": 4.820434637742801e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 35.955353515625,
+      "reduction": 12.945017578125,
+      "masters": 61.86833203125,
+      "total": 111.94275,
+      "check": 2.9634459659486087e-05,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 39.2030126953125,
+      "reduction": 14.3001884765625,
+      "masters": 58.85966796875,
+      "total": 112.78873046875,
+      "check": 4.820434637742801e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 36.386896484375,
+      "reduction": 12.895818359375,
+      "masters": 57.9480625,
+      "total": 108.18305078125,
+      "check": 0.0004971870707155328,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round3"
+ },
+ "syn-gghhh-gHgHH-n5-r4": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 12.16161083984375,
+     "reduction": 10.024693359375,
+     "masters": 28.1307470703125,
+     "total": 50.65287890625
+    },
+    "w32": {
+     "tensor_numerator": 11.5167958984375,
+     "reduction": 8.90320703125,
+     "masters": 27.638048828125,
+     "total": 48.358669921875
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 11.9080595703125,
+     "reduction": 10.0485703125,
+     "masters": 27.877396484375,
+     "total": 50.129125
+    },
+    "w32": {
+     "tensor_numerator": 11.43834423828125,
+     "reduction": 8.858712158203126,
+     "masters": 27.2240634765625,
+     "total": 47.748685546875
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 1.0212924085602804,
+    "reduction": 0.9976238457429811,
+    "masters": 1.009088028936974,
+    "total": 1.0104480959172937
+   },
+   "w32": {
+    "tensor_numerator": 1.0068586552845378,
+    "reduction": 1.005022724776724,
+    "masters": 1.0152065966169563,
+    "total": 1.0127748935497118
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-gghhh-gHgHH-n5-r4/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0453,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 12.34191015625,
+      "reduction": 10.0554453125,
+      "masters": 28.1560107421875,
+      "total": 51.017275390625,
+      "check": 1.2230927575120096e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.5167958984375,
+      "reduction": 8.90320703125,
+      "masters": 27.7416630859375,
+      "total": 48.491013671875,
+      "check": 1.282104301549891e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.81148291015625,
+      "reduction": 10.16074365234375,
+      "masters": 28.935369140625,
+      "total": 50.22840234375,
+      "check": 1.2230927575120096e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.453229248046876,
+      "reduction": 8.864801025390625,
+      "masters": 27.2435849609375,
+      "total": 47.748685546875,
+      "check": 1.282104301549891e-12,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-gghhh-gHgHH-n5-r4/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.025,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 12.152494140625,
+      "reduction": 10.024693359375,
+      "masters": 28.1307470703125,
+      "total": 50.65287890625,
+      "check": 1.2230927575120096e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.49457421875,
+      "reduction": 8.9563759765625,
+      "masters": 27.638048828125,
+      "total": 48.230251953125,
+      "check": 1.282104301549891e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.931986328125,
+      "reduction": 10.019986328125,
+      "masters": 27.877396484375,
+      "total": 50.129125,
+      "check": 1.2230927575120096e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.43834423828125,
+      "reduction": 8.84481298828125,
+      "masters": 27.2240634765625,
+      "total": 47.78288671875,
+      "check": 1.282104301549891e-12,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-gghhh-gHgHH-n5-r4/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0166,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 12.16161083984375,
+      "reduction": 9.94669970703125,
+      "masters": 28.0560986328125,
+      "total": 50.522916015625,
+      "check": 1.2230927575120096e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.547502685546876,
+      "reduction": 8.879034423828125,
+      "masters": 27.536818359375,
+      "total": 48.358669921875,
+      "check": 1.282104301549891e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.9080595703125,
+      "reduction": 10.0485703125,
+      "masters": 27.7565556640625,
+      "total": 50.111078125,
+      "check": 1.2230927575120096e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.416075927734376,
+      "reduction": 8.858712158203126,
+      "masters": 27.2200693359375,
+      "total": 47.666595703125,
+      "check": 1.282104301549891e-12,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round3"
+ },
+ "syn-gghhh-gHgHH-n5-r5": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 38.4084404296875,
+     "reduction": 14.626943359375,
+     "masters": 28.3925068359375,
+     "total": 82.43935546875
+    },
+    "w32": {
+     "tensor_numerator": 36.2683564453125,
+     "reduction": 12.9889873046875,
+     "masters": 27.50247265625,
+     "total": 76.819466796875
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 39.00581396484375,
+     "reduction": 14.49449609375,
+     "masters": 28.09146875,
+     "total": 82.547984375
+    },
+    "w32": {
+     "tensor_numerator": 35.985216796875,
+     "reduction": 12.91903564453125,
+     "masters": 27.09568359375,
+     "total": 76.18501171875
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 0.984685012965127,
+    "reduction": 1.0091377626906335,
+    "masters": 1.0107163526626746,
+    "total": 0.9986840513784501
+   },
+   "w32": {
+    "tensor_numerator": 1.0078682212764127,
+    "reduction": 1.005414619332354,
+    "masters": 1.0150130577474648,
+    "total": 1.008327820181576
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-gghhh-gHgHH-n5-r5/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0386,
+     "accepted": true,
+     "cpu": 9,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 38.4366875,
+      "reduction": 14.626943359375,
+      "masters": 28.671599609375,
+      "total": 82.43935546875,
+      "check": 2.046570760277381e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 36.2683564453125,
+      "reduction": 12.9039873046875,
+      "masters": 27.455353515625,
+      "total": 76.782630859375,
+      "check": 1.4206601095646777e-11,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 38.8401015625,
+      "reduction": 14.482552734375,
+      "masters": 27.945013671875,
+      "total": 82.46611328125,
+      "check": 2.046570760277381e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 35.95985595703125,
+      "reduction": 12.86655029296875,
+      "masters": 27.09568359375,
+      "total": 76.1639765625,
+      "check": 1.4206601095646777e-11,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-gghhh-gHgHH-n5-r5/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.027,
+     "accepted": true,
+     "cpu": 93,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 38.23421533203125,
+      "reduction": 14.53574169921875,
+      "masters": 28.3925068359375,
+      "total": 82.1847421875,
+      "check": 2.046570760277381e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 36.35410546875,
+      "reduction": 13.039880859375,
+      "masters": 27.561798828125,
+      "total": 76.819466796875,
+      "check": 1.4206601095646777e-11,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 39.295130859375,
+      "reduction": 14.49449609375,
+      "masters": 29.2632314453125,
+      "total": 84.1451015625,
+      "check": 2.046570760277381e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 36.77964013671875,
+      "reduction": 12.91903564453125,
+      "masters": 28.5583857421875,
+      "total": 76.18501171875,
+      "check": 1.4206601095646777e-11,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-gghhh-gHgHH-n5-r5/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0077,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 38.4084404296875,
+      "reduction": 14.7530615234375,
+      "masters": 28.315474609375,
+      "total": 82.57048828125,
+      "check": 2.046570760277381e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 36.2676728515625,
+      "reduction": 12.9889873046875,
+      "masters": 27.50247265625,
+      "total": 77.04925390625,
+      "check": 1.4206601095646777e-11,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 39.00581396484375,
+      "reduction": 14.57131298828125,
+      "masters": 28.09146875,
+      "total": 82.547984375,
+      "check": 2.046570760277381e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 35.985216796875,
+      "reduction": 12.982087890625,
+      "masters": 27.077197265625,
+      "total": 76.34606640625,
+      "check": 1.4206601095646777e-11,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round3"
+ },
+ "syn-gghhh-nosmat-n5-r4": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 11.9771474609375,
+     "reduction": 10.1022568359375,
+     "masters": 61.55036132812501,
+     "total": 83.9284609375
+    },
+    "w32": {
+     "tensor_numerator": 11.4548779296875,
+     "reduction": 8.905804443359376,
+     "masters": 61.13051757812501,
+     "total": 81.74501171875
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 11.82820556640625,
+     "reduction": 10.10629541015625,
+     "masters": 57.971169921875,
+     "total": 80.2176640625
+    },
+    "w32": {
+     "tensor_numerator": 11.46286572265625,
+     "reduction": 8.841387939453124,
+     "masters": 57.559681640625,
+     "total": 77.93673828125
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 1.0125920955376584,
+    "reduction": 0.9996003902463912,
+    "masters": 1.0617408862210909,
+    "total": 1.046259099144408
+   },
+   "w32": {
+    "tensor_numerator": 0.9993031591608927,
+    "reduction": 1.0072857909128503,
+    "masters": 1.062037103676052,
+    "total": 1.0488636491786083
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-gghhh-nosmat-n5-r4/round1",
+     "attempt": 2,
+     "worst_sibling_busy": 0.0,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 2
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 11.9771474609375,
+      "reduction": 10.1022568359375,
+      "masters": 61.55036132812501,
+      "total": 83.88037109375,
+      "check": 1.8425262621742886e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.4548779296875,
+      "reduction": 8.9370107421875,
+      "masters": 61.179990234375,
+      "total": 81.42079296875,
+      "check": 3.659511380031752e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.82820556640625,
+      "reduction": 10.10629541015625,
+      "masters": 57.8773984375,
+      "total": 80.2176640625,
+      "check": 1.8425262621742886e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.3589345703125,
+      "reduction": 8.893333984375,
+      "masters": 57.416986328125,
+      "total": 78.337599609375,
+      "check": 3.657350180789379e-12,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-gghhh-nosmat-n5-r4/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0041,
+     "accepted": true,
+     "cpu": 53,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 11.9147587890625,
+      "reduction": 10.1844990234375,
+      "masters": 61.63188671875,
+      "total": 84.07271875,
+      "check": 1.8425262621742886e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.444081298828126,
+      "reduction": 8.905804443359376,
+      "masters": 61.13051757812501,
+      "total": 81.74501171875,
+      "check": 3.659511380031752e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.85142333984375,
+      "reduction": 10.09746240234375,
+      "masters": 58.042341796875,
+      "total": 80.359890625,
+      "check": 1.8425262621742886e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.46286572265625,
+      "reduction": 8.78776220703125,
+      "masters": 57.559681640625,
+      "total": 77.93673828125,
+      "check": 3.657350180789379e-12,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-gghhh-nosmat-n5-r4/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0042,
+     "accepted": true,
+     "cpu": 9,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 12.09719189453125,
+      "reduction": 9.96416552734375,
+      "masters": 61.360224609375,
+      "total": 83.9284609375,
+      "check": 1.8425262621742886e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.479520751953125,
+      "reduction": 8.864652099609375,
+      "masters": 60.977470703125,
+      "total": 81.7554453125,
+      "check": 3.659511380031752e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.78284423828125,
+      "reduction": 10.12080712890625,
+      "masters": 57.971169921875,
+      "total": 80.09121875,
+      "check": 1.8425262621742886e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.638976318359376,
+      "reduction": 8.841387939453124,
+      "masters": 58.133865234375,
+      "total": 77.8321875,
+      "check": 3.657350180789379e-12,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round2"
+ },
+ "syn-n2-r1": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 0.05054568481445312,
+     "reduction": 0.4612693328857422,
+     "masters": 0.23295648193359375,
+     "total": 0.8465234375
+    },
+    "w32": {
+     "tensor_numerator": 0.031217628479003907,
+     "reduction": 0.2613731918334961,
+     "masters": 0.15902422332763672,
+     "total": 0.4568874969482422
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 0.08103901672363281,
+     "reduction": 0.4337844696044922,
+     "masters": 0.23852626800537113,
+     "total": 0.8276412353515625
+    },
+    "w32": {
+     "tensor_numerator": 0.03116101837158203,
+     "reduction": 0.2568798370361328,
+     "masters": 0.1583353576660156,
+     "total": 0.4500112457275391
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 0.6237203615985244,
+    "reduction": 1.0633606438384242,
+    "masters": 0.9766491711023964,
+    "total": 1.022814477266127
+   },
+   "w32": {
+    "tensor_numerator": 1.0018166963206023,
+    "reduction": 1.0174920493924606,
+    "masters": 1.0043506748699438,
+    "total": 1.0152801764088943
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-n2-r1/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0036,
+     "accepted": true,
+     "cpu": 9,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.05054568481445312,
+      "reduction": 0.4599702606201172,
+      "masters": 0.23295648193359375,
+      "total": 0.8465216369628906,
+      "check": 7.000750005758879e-16,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.031217628479003907,
+      "reduction": 0.2613731918334961,
+      "masters": 0.15808046722412109,
+      "total": 0.4568874969482422,
+      "check": 4.0092002255153444e-15,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.07519851684570313,
+      "reduction": 0.4392864227294922,
+      "masters": 0.23852626800537113,
+      "total": 0.8276412353515625,
+      "check": 7.000750005758879e-16,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.03116101837158203,
+      "reduction": 0.26090748596191404,
+      "masters": 0.1583353576660156,
+      "total": 0.45338316345214846,
+      "check": 4.0092002255153444e-15,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-n2-r1/round2",
+     "attempt": 3,
+     "worst_sibling_busy": 0.025,
+     "accepted": true,
+     "cpu": 45,
+     "attempts": 3
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.04737582397460938,
+      "reduction": 0.4671602172851563,
+      "masters": 0.2324784927368164,
+      "total": 0.8465234375,
+      "check": 7.000750005758879e-16,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.028525428771972658,
+      "reduction": 0.2592952423095703,
+      "masters": 0.15902422332763672,
+      "total": 0.4499244384765625,
+      "check": 4.0092002255153444e-15,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.08764073181152343,
+      "reduction": 0.42654620361328127,
+      "masters": 0.2403877716064453,
+      "total": 0.82880517578125,
+      "check": 7.000750005758879e-16,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.03074040222167969,
+      "reduction": 0.2568798370361328,
+      "masters": 0.15838808441162108,
+      "total": 0.4500112457275391,
+      "check": 4.0092002255153444e-15,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-n2-r1/round3",
+     "attempt": 4,
+     "worst_sibling_busy": 0.0036,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 4
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.08633428955078125,
+      "reduction": 0.4612693328857422,
+      "masters": 0.23361685180664063,
+      "total": 0.8567131958007812,
+      "check": 7.000750005758879e-16,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.03469892883300781,
+      "reduction": 0.26188648223876954,
+      "masters": 0.15904104614257814,
+      "total": 0.45723748779296874,
+      "check": 4.0092002255153444e-15,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.08103901672363281,
+      "reduction": 0.4337844696044922,
+      "masters": 0.2383171920776367,
+      "total": 0.8194895324707031,
+      "check": 7.000750005758879e-16,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.033699104309082004,
+      "reduction": 0.25387107086181643,
+      "masters": 0.15824979400634764,
+      "total": 0.4467940216064453,
+      "check": 4.0092002255153444e-15,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round1"
+ },
+ "syn-n2-r2": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 0.363441162109375,
+     "reduction": 0.4637984924316406,
+     "masters": 0.2417963638305664,
+     "total": 1.1646224975585937
+    },
+    "w32": {
+     "tensor_numerator": 0.20519326782226557,
+     "reduction": 0.2858187713623047,
+     "masters": 0.16602661895751952,
+     "total": 0.6623969116210937
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 0.3616493225097656,
+     "reduction": 0.4669418182373047,
+     "masters": 0.2516530532836914,
+     "total": 1.1703296508789063
+    },
+    "w32": {
+     "tensor_numerator": 0.2055315551757812,
+     "reduction": 0.28031703186035156,
+     "masters": 0.1662740478515625,
+     "total": 0.6514254760742187
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 1.0049546328116266,
+    "reduction": 0.9932682709431979,
+    "masters": 0.9608322278450028,
+    "total": 0.9951234651569952
+   },
+   "w32": {
+    "tensor_numerator": 0.9983540855649815,
+    "reduction": 1.0196268470218892,
+    "masters": 0.9985119211492111,
+    "total": 1.0168421959991398
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-n2-r2/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0179,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.363441162109375,
+      "reduction": 0.46298779296875,
+      "masters": 0.2417963638305664,
+      "total": 1.1663016052246094,
+      "check": 3.422370363938951e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.20519326782226557,
+      "reduction": 0.2858187713623047,
+      "masters": 0.16544213104248046,
+      "total": 0.6613208312988281,
+      "check": 1.9445906782406196e-13,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.3616493225097656,
+      "reduction": 0.46493954467773435,
+      "masters": 0.25191214752197266,
+      "total": 1.1681085510253906,
+      "check": 3.422370363938951e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.20304056549072266,
+      "reduction": 0.2840989456176758,
+      "masters": 0.17093165588378906,
+      "total": 0.6543301696777344,
+      "check": 1.9445906782406196e-13,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-n2-r2/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0071,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.35097819519042966,
+      "reduction": 0.4806085662841797,
+      "masters": 0.23976075744628908,
+      "total": 1.158904083251953,
+      "check": 3.422370363938951e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.2036181869506836,
+      "reduction": 0.2903229446411133,
+      "masters": 0.16602661895751952,
+      "total": 0.6623969116210937,
+      "check": 1.9445906782406196e-13,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.3603983917236328,
+      "reduction": 0.4669418182373047,
+      "masters": 0.2515638656616211,
+      "total": 1.1703296508789063,
+      "check": 3.422370363938951e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.2055315551757812,
+      "reduction": 0.28031703186035156,
+      "masters": 0.1662740478515625,
+      "total": 0.6505682373046875,
+      "check": 1.9445906782406196e-13,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-n2-r2/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0286,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.3793871154785156,
+      "reduction": 0.4637984924316406,
+      "masters": 0.2613159484863281,
+      "total": 1.1646224975585937,
+      "check": 3.422370363938951e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.20595789337158202,
+      "reduction": 0.28525907135009765,
+      "masters": 0.16709649658203124,
+      "total": 0.6627154846191406,
+      "check": 1.9445906782406196e-13,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.3632900848388672,
+      "reduction": 0.4882302093505859,
+      "masters": 0.2516530532836914,
+      "total": 1.1841913757324218,
+      "check": 3.422370363938951e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.21817070007324219,
+      "reduction": 0.2802183837890625,
+      "masters": 0.16604684448242188,
+      "total": 0.6514254760742187,
+      "check": 1.9445906782406196e-13,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round1"
+ },
+ "syn-n2-r3": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 1.4628924865722657,
+     "reduction": 0.8679137878417968,
+     "masters": 0.25353919982910156,
+     "total": 2.60793212890625
+    },
+    "w32": {
+     "tensor_numerator": 1.024453567504883,
+     "reduction": 0.512045150756836,
+     "masters": 0.16584076690673827,
+     "total": 1.7004472045898438
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 1.5393439025878906,
+     "reduction": 0.7928670959472657,
+     "masters": 0.26362659454345705,
+     "total": 2.639605712890625
+    },
+    "w32": {
+     "tensor_numerator": 1.0419713745117187,
+     "reduction": 0.5111645507812499,
+     "masters": 0.1662972412109375,
+     "total": 1.7239287109375
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 0.9503350642523107,
+    "reduction": 1.094652297059787,
+    "masters": 0.9617360504473207,
+    "total": 0.9880006381901297
+   },
+   "w32": {
+    "tensor_numerator": 0.9831878231635252,
+    "reduction": 1.0017227328738665,
+    "masters": 0.997255069892469,
+    "total": 0.9863790734508466
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-n2-r3/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0038,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 1.4623013305664063,
+      "reduction": 0.8701303100585938,
+      "masters": 0.25337196350097657,
+      "total": 2.613084716796875,
+      "check": 1.1948627618718718e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 1.0309855041503906,
+      "reduction": 0.5148144836425781,
+      "masters": 0.16584076690673827,
+      "total": 1.7104215698242187,
+      "check": 3.482322837484838e-11,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 1.5393439025878906,
+      "reduction": 0.7923840026855469,
+      "masters": 0.26351727294921873,
+      "total": 2.63708984375,
+      "check": 1.1948627618718718e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 1.0419713745117187,
+      "reduction": 0.5147508544921875,
+      "masters": 0.1674621810913086,
+      "total": 1.7239287109375,
+      "check": 3.482322837484838e-11,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-n2-r3/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0077,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 1.4698710021972656,
+      "reduction": 0.8651412658691406,
+      "masters": 0.25353919982910156,
+      "total": 2.60392822265625,
+      "check": 1.1948627618718718e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 1.024453567504883,
+      "reduction": 0.512045150756836,
+      "masters": 0.16632042694091798,
+      "total": 1.7004472045898438,
+      "check": 3.482322837484838e-11,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 1.5653111877441406,
+      "reduction": 0.7928670959472657,
+      "masters": 0.26362659454345705,
+      "total": 2.670495849609375,
+      "check": 1.1948627618718718e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 1.1382079010009765,
+      "reduction": 0.5051815643310547,
+      "masters": 0.16608216857910157,
+      "total": 1.8117001342773438,
+      "check": 3.482322837484838e-11,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-n2-r3/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0115,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 1.4628924865722657,
+      "reduction": 0.8679137878417968,
+      "masters": 0.2536136627197265,
+      "total": 2.60793212890625,
+      "check": 1.1948627618718718e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 1.0236854400634765,
+      "reduction": 0.5098127899169921,
+      "masters": 0.16534638214111327,
+      "total": 1.698267578125,
+      "check": 3.482322837484838e-11,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 1.5246100158691407,
+      "reduction": 0.7961651306152344,
+      "masters": 0.2681323013305664,
+      "total": 2.639605712890625,
+      "check": 1.1948627618718718e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 1.0256436157226563,
+      "reduction": 0.5111645507812499,
+      "masters": 0.1662972412109375,
+      "total": 1.7073209838867187,
+      "check": 3.482322837484838e-11,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round2"
+ },
+ "syn-n3-r2": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 0.8005081176757812,
+     "reduction": 1.7193119506835937,
+     "masters": 1.7063956909179687,
+     "total": 4.369523803710938
+    },
+    "w32": {
+     "tensor_numerator": 0.417789794921875,
+     "reduction": 1.2794908447265625,
+     "masters": 1.7977138061523437,
+     "total": 3.5125599365234375
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 0.7961140747070312,
+     "reduction": 1.7074540405273437,
+     "masters": 1.6924027099609376,
+     "total": 4.3185458984375
+    },
+    "w32": {
+     "tensor_numerator": 0.43140985107421875,
+     "reduction": 1.2712369995117188,
+     "masters": 1.794717041015625,
+     "total": 3.496143798828125
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 1.0055193635037378,
+    "reduction": 1.0069447902402033,
+    "masters": 1.0082681154282447,
+    "total": 1.0118044143728755
+   },
+   "w32": {
+    "tensor_numerator": 0.9684289635055168,
+    "reduction": 1.006492766665865,
+    "masters": 1.0016697702580586,
+    "total": 1.0046954984233816
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-n3-r2/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0038,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.7863741455078125,
+      "reduction": 1.7180089111328125,
+      "masters": 1.7020457153320312,
+      "total": 4.379648559570312,
+      "check": 8.313544066372516e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.417789794921875,
+      "reduction": 1.2794908447265625,
+      "masters": 1.8064974365234374,
+      "total": 3.5198487548828123,
+      "check": 8.313544066372516e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.7961140747070312,
+      "reduction": 1.7028587036132812,
+      "masters": 1.6924027099609376,
+      "total": 4.308383544921875,
+      "check": 8.313544066372516e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.43140985107421875,
+      "reduction": 1.2727763671875,
+      "masters": 1.7934144897460937,
+      "total": 3.49463134765625,
+      "check": 8.313544066372516e-14,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-n3-r2/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0077,
+     "accepted": true,
+     "cpu": 45,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.8005081176757812,
+      "reduction": 1.7193119506835937,
+      "masters": 1.7175615234375,
+      "total": 4.312287353515625,
+      "check": 8.313544066372516e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.4217900390625,
+      "reduction": 1.281342041015625,
+      "masters": 1.7977138061523437,
+      "total": 3.5125599365234375,
+      "check": 8.313544066372516e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.7367792358398437,
+      "reduction": 1.7600488891601562,
+      "masters": 1.690080322265625,
+      "total": 4.348734008789062,
+      "check": 8.313544066372516e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.4347674560546875,
+      "reduction": 1.2712369995117188,
+      "masters": 1.8061385498046876,
+      "total": 3.5106995849609377,
+      "check": 8.313544066372516e-14,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-n3-r2/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0077,
+     "accepted": true,
+     "cpu": 93,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 0.8133994140625,
+      "reduction": 1.7246947021484376,
+      "masters": 1.7063956909179687,
+      "total": 4.369523803710938,
+      "check": 8.313544066372516e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.40929974365234373,
+      "reduction": 1.274550048828125,
+      "masters": 1.7933888549804688,
+      "total": 3.504525146484375,
+      "check": 8.313544066372516e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 0.8107669067382812,
+      "reduction": 1.7074540405273437,
+      "masters": 1.7043619995117187,
+      "total": 4.3185458984375,
+      "check": 8.313544066372516e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 0.4266099853515625,
+      "reduction": 1.270721923828125,
+      "masters": 1.794717041015625,
+      "total": 3.496143798828125,
+      "check": 8.313544066372516e-14,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round1"
+ },
+ "syn-n3-r3": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 2.408306640625,
+     "reduction": 2.244687744140625,
+     "masters": 2.5222578125,
+     "total": 7.280130615234375
+    },
+    "w32": {
+     "tensor_numerator": 1.8222232666015625,
+     "reduction": 1.7165892333984376,
+     "masters": 2.069892150878906,
+     "total": 5.645184814453125
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 2.3878120727539063,
+     "reduction": 2.283704040527344,
+     "masters": 2.52770947265625,
+     "total": 7.356595703125
+    },
+    "w32": {
+     "tensor_numerator": 1.8286661987304687,
+     "reduction": 1.7145042114257814,
+     "masters": 2.0763343505859373,
+     "total": 5.62234765625
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 1.0085829903052033,
+    "reduction": 0.9829153446793791,
+    "masters": 0.9978432409993222,
+    "total": 0.9896059140699898
+   },
+   "w32": {
+    "tensor_numerator": 0.9964767040953789,
+    "reduction": 1.0012161078163362,
+    "masters": 0.9968973206529993,
+    "total": 1.0040618545133435
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-n3-r3/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0143,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 2.408306640625,
+      "reduction": 2.244687744140625,
+      "masters": 2.5222578125,
+      "total": 7.280130615234375,
+      "check": 2.062522095204486e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 1.8531973876953125,
+      "reduction": 1.7165892333984376,
+      "masters": 2.069892150878906,
+      "total": 5.65976708984375,
+      "check": 5.52816987137098e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 2.3863240966796875,
+      "reduction": 2.31112841796875,
+      "masters": 2.52433544921875,
+      "total": 7.283794921875,
+      "check": 2.062522095204486e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 1.8280411376953125,
+      "reduction": 1.7236546630859375,
+      "masters": 2.0763343505859373,
+      "total": 5.62234765625,
+      "check": 5.52816987137098e-14,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-n3-r3/round2",
+     "attempt": 2,
+     "worst_sibling_busy": 0.0036,
+     "accepted": true,
+     "cpu": 93,
+     "attempts": 2
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 2.401014709472656,
+      "reduction": 2.2631356811523435,
+      "masters": 2.52126904296875,
+      "total": 7.2623056640625,
+      "check": 2.062522095204486e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 1.821283203125,
+      "reduction": 1.7164415283203125,
+      "masters": 2.072639892578125,
+      "total": 5.6324453125,
+      "check": 5.52816987137098e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 2.4150119018554688,
+      "reduction": 2.271698303222656,
+      "masters": 2.5285762939453127,
+      "total": 7.356595703125,
+      "check": 2.062522095204486e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 1.8576238403320313,
+      "reduction": 1.7145042114257814,
+      "masters": 2.0913576049804687,
+      "total": 5.680331298828125,
+      "check": 5.52816987137098e-14,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-n3-r3/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0036,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 2.4755921020507814,
+      "reduction": 2.2442982788085937,
+      "masters": 2.5301033935546875,
+      "total": 7.336727294921875,
+      "check": 2.062522095204486e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 1.8222232666015625,
+      "reduction": 1.7276829833984375,
+      "masters": 2.0663507690429688,
+      "total": 5.645184814453125,
+      "check": 5.52816987137098e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 2.3878120727539063,
+      "reduction": 2.283704040527344,
+      "masters": 2.52770947265625,
+      "total": 7.3657314453125,
+      "check": 2.062522095204486e-15,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 1.8286661987304687,
+      "reduction": 1.6893136596679688,
+      "masters": 2.0757691650390626,
+      "total": 5.602269287109375,
+      "check": 5.52816987137098e-14,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round2"
+ },
+ "syn-n3-r4": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 9.0229599609375,
+     "reduction": 5.18041455078125,
+     "masters": 1.732242919921875,
+     "total": 15.99229345703125
+    },
+    "w32": {
+     "tensor_numerator": 7.727042358398437,
+     "reduction": 4.010223022460938,
+     "masters": 1.5693253784179688,
+     "total": 13.33885986328125
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 8.86235107421875,
+     "reduction": 5.147833984375,
+     "masters": 1.7294896850585937,
+     "total": 15.82450927734375
+    },
+    "w32": {
+     "tensor_numerator": 7.556181274414063,
+     "reduction": 4.183152221679688,
+     "masters": 1.5691215209960938,
+     "total": 13.32328759765625
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 1.0181226048679084,
+    "reduction": 1.0063289854539095,
+    "masters": 1.0015919348274043,
+    "total": 1.0106028045955093
+   },
+   "w32": {
+    "tensor_numerator": 1.022612094360802,
+    "reduction": 0.9586605530818306,
+    "masters": 1.0001299181861616,
+    "total": 1.001168800531465
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-n3-r4/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 9.0229599609375,
+      "reduction": 5.18041455078125,
+      "masters": 1.732242919921875,
+      "total": 16.19567333984375,
+      "check": 2.3935694612642688e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 7.727042358398437,
+      "reduction": 4.041097290039063,
+      "masters": 1.5693253784179688,
+      "total": 13.34131591796875,
+      "check": 7.172375599926447e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 8.835591064453125,
+      "reduction": 5.163237060546875,
+      "masters": 1.7294896850585937,
+      "total": 15.82450927734375,
+      "check": 2.3935694612642688e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 7.556181274414063,
+      "reduction": 4.182637084960938,
+      "masters": 1.5691215209960938,
+      "total": 13.32328759765625,
+      "check": 7.172375599926447e-14,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-n3-r4/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0192,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 9.02083154296875,
+      "reduction": 5.18452099609375,
+      "masters": 1.7317571411132813,
+      "total": 15.99229345703125,
+      "check": 2.3935694612642688e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 7.717585083007813,
+      "reduction": 4.010223022460938,
+      "masters": 1.5673344116210937,
+      "total": 13.3158564453125,
+      "check": 7.172375599926447e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 8.89713427734375,
+      "reduction": 5.10445263671875,
+      "masters": 1.7338109741210936,
+      "total": 15.8210625,
+      "check": 2.3935694612642688e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 7.557824829101563,
+      "reduction": 4.183152221679688,
+      "masters": 1.5797154541015626,
+      "total": 13.48368896484375,
+      "check": 7.172375599926447e-14,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-n3-r4/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0308,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 9.0237119140625,
+      "reduction": 5.16768505859375,
+      "masters": 1.752410888671875,
+      "total": 15.952322265624998,
+      "check": 2.3935694612642688e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 7.756078247070312,
+      "reduction": 4.002369018554687,
+      "masters": 1.5719981689453124,
+      "total": 13.33885986328125,
+      "check": 7.172375599926447e-14,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 8.86235107421875,
+      "reduction": 5.147833984375,
+      "masters": 1.72521044921875,
+      "total": 15.877874023437501,
+      "check": 2.3935694612642688e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 7.527711303710937,
+      "reduction": 4.1884610595703125,
+      "masters": 1.5662870483398437,
+      "total": 13.30977734375,
+      "check": 7.172375599926447e-14,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round2"
+ },
+ "syn-n4-r3": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 3.1838524169921874,
+     "reduction": 4.173848022460938,
+     "masters": 11.94549951171875,
+     "total": 19.36155029296875
+    },
+    "w32": {
+     "tensor_numerator": 2.6031724853515623,
+     "reduction": 3.4316329345703127,
+     "masters": 11.9163974609375,
+     "total": 18.0204365234375
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 3.1055535888671875,
+     "reduction": 4.191471313476563,
+     "masters": 11.65782666015625,
+     "total": 19.03414697265625
+    },
+    "w32": {
+     "tensor_numerator": 2.5544053955078123,
+     "reduction": 3.4196907958984375,
+     "masters": 11.7014599609375,
+     "total": 17.80452734375
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 1.025212518761771,
+    "reduction": 0.9957954403841529,
+    "masters": 1.024676370643398,
+    "total": 1.0172008401943538
+   },
+   "w32": {
+    "tensor_numerator": 1.0190913665972958,
+    "reduction": 1.0034921691417829,
+    "masters": 1.0183684344276285,
+    "total": 1.012126644842571
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-n4-r3/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0107,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 3.1616087646484377,
+      "reduction": 4.213297485351562,
+      "masters": 11.94549951171875,
+      "total": 19.36155029296875,
+      "check": 9.229053386197124e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 2.624989013671875,
+      "reduction": 3.41148388671875,
+      "masters": 11.9163974609375,
+      "total": 18.0432490234375,
+      "check": 2.42346323091144e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 3.1055535888671875,
+      "reduction": 4.1824014892578125,
+      "masters": 11.68058544921875,
+      "total": 19.03414697265625,
+      "check": 9.229053386197124e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 2.5544053955078123,
+      "reduction": 3.4380611572265627,
+      "masters": 11.72599609375,
+      "total": 17.80452734375,
+      "check": 2.42346323091144e-12,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-n4-r3/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0038,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 3.1838524169921874,
+      "reduction": 4.171166137695312,
+      "masters": 11.9945712890625,
+      "total": 19.4624736328125,
+      "check": 9.229053386197124e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 2.54865673828125,
+      "reduction": 3.45657568359375,
+      "masters": 11.92835595703125,
+      "total": 18.0114814453125,
+      "check": 2.42346323091144e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 3.075237548828125,
+      "reduction": 4.216697265625,
+      "masters": 11.65782666015625,
+      "total": 18.98821923828125,
+      "check": 9.229053386197124e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 2.551795166015625,
+      "reduction": 3.39540966796875,
+      "masters": 11.6848291015625,
+      "total": 17.70556201171875,
+      "check": 2.42346323091144e-12,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-n4-r3/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 3.1885067138671874,
+      "reduction": 4.173848022460938,
+      "masters": 11.9117880859375,
+      "total": 19.31384521484375,
+      "check": 9.229053386197124e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 2.6031724853515623,
+      "reduction": 3.4316329345703127,
+      "masters": 11.8888193359375,
+      "total": 18.0204365234375,
+      "check": 2.42346323091144e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 3.1271700439453123,
+      "reduction": 4.191471313476563,
+      "masters": 11.65174267578125,
+      "total": 19.06364404296875,
+      "check": 9.229053386197124e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 2.5589132080078123,
+      "reduction": 3.4196907958984375,
+      "masters": 11.7014599609375,
+      "total": 17.8197421875,
+      "check": 2.42346323091144e-12,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round3"
+ },
+ "syn-n4-r4": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 10.555995849609374,
+     "reduction": 6.19996728515625,
+     "masters": 18.7569287109375,
+     "total": 35.571125
+    },
+    "w32": {
+     "tensor_numerator": 9.171039306640624,
+     "reduction": 4.99992333984375,
+     "masters": 13.55966552734375,
+     "total": 27.850623046875
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 11.03761669921875,
+     "reduction": 5.903235107421875,
+     "masters": 17.8809970703125,
+     "total": 35.1001064453125
+    },
+    "w32": {
+     "tensor_numerator": 9.196156494140626,
+     "reduction": 4.978297119140625,
+     "masters": 13.24549951171875,
+     "total": 27.58487109375
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 0.9563655032844667,
+    "reduction": 1.0502660274128852,
+    "masters": 1.0489867336357488,
+    "total": 1.0134192913466338
+   },
+   "w32": {
+    "tensor_numerator": 0.9972687298747032,
+    "reduction": 1.004344100037737,
+    "masters": 1.0237186989699443,
+    "total": 1.0096339748053131
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-n4-r4/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0036,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 10.4195205078125,
+      "reduction": 6.21429345703125,
+      "masters": 18.60126416015625,
+      "total": 35.42930859375,
+      "check": 2.952495696449897e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.192426025390626,
+      "reduction": 4.987740478515625,
+      "masters": 13.47874267578125,
+      "total": 27.8086318359375,
+      "check": 2.623466990693277e-13,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.044345458984376,
+      "reduction": 5.903235107421875,
+      "masters": 17.870953125,
+      "total": 35.097373046875,
+      "check": 2.952495696449897e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.213116943359376,
+      "reduction": 4.966527099609375,
+      "masters": 13.22723779296875,
+      "total": 27.5115595703125,
+      "check": 2.623466990693277e-13,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-n4-r4/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0035,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 10.6000390625,
+      "reduction": 6.19996728515625,
+      "masters": 18.9733701171875,
+      "total": 35.585626953125,
+      "check": 2.952495696449897e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.171039306640624,
+      "reduction": 5.001553955078125,
+      "masters": 13.55966552734375,
+      "total": 27.850623046875,
+      "check": 2.623466990693277e-13,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.03761669921875,
+      "reduction": 5.86664306640625,
+      "masters": 17.8809970703125,
+      "total": 35.1001064453125,
+      "check": 2.952495696449897e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.196156494140626,
+      "reduction": 4.978297119140625,
+      "masters": 13.24549951171875,
+      "total": 27.7762392578125,
+      "check": 2.623466990693277e-13,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-n4-r4/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 10.555995849609374,
+      "reduction": 6.106998291015625,
+      "masters": 18.7569287109375,
+      "total": 35.571125,
+      "check": 2.952495696449897e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.13379248046875,
+      "reduction": 4.99992333984375,
+      "masters": 13.61052587890625,
+      "total": 27.9049794921875,
+      "check": 2.623466990693277e-13,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.014364990234375,
+      "reduction": 5.979016357421875,
+      "masters": 17.93166650390625,
+      "total": 35.2174130859375,
+      "check": 2.952495696449897e-14,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 9.183768798828124,
+      "reduction": 5.033121337890625,
+      "masters": 13.25367822265625,
+      "total": 27.58487109375,
+      "check": 2.623466990693277e-13,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round2"
+ },
+ "syn-n4-r5": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 34.1924228515625,
+     "reduction": 14.0762744140625,
+     "masters": 10.786001953125,
+     "total": 60.19347265625
+    },
+    "w32": {
+     "tensor_numerator": 32.46866650390625,
+     "reduction": 10.92836572265625,
+     "masters": 10.62501953125,
+     "total": 54.5439765625
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 34.74460302734375,
+     "reduction": 13.98161572265625,
+     "masters": 10.56096240234375,
+     "total": 60.197673828125
+    },
+    "w32": {
+     "tensor_numerator": 31.64043017578125,
+     "reduction": 11.0412861328125,
+     "masters": 10.43489208984375,
+     "total": 53.317740234375
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 0.9841074547506935,
+    "reduction": 1.0067702255078332,
+    "masters": 1.0213086215259424,
+    "total": 0.9999302103950563
+   },
+   "w32": {
+    "tensor_numerator": 1.0261765192041845,
+    "reduction": 0.9897728934113326,
+    "masters": 1.0182203553011633,
+    "total": 1.0229986552831138
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-n4-r5/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0083,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 34.1924228515625,
+      "reduction": 14.0762744140625,
+      "masters": 10.786001953125,
+      "total": 60.0696640625,
+      "check": 4.024485562570993e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 32.62970654296875,
+      "reduction": 10.92836572265625,
+      "masters": 10.68626513671875,
+      "total": 54.5439765625,
+      "check": 4.024485562570993e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 34.74460302734375,
+      "reduction": 13.98161572265625,
+      "masters": 10.5867431640625,
+      "total": 60.197673828125,
+      "check": 4.024485562570993e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 31.5865673828125,
+      "reduction": 11.0412861328125,
+      "masters": 10.44049267578125,
+      "total": 53.313111328125,
+      "check": 4.024485562570993e-12,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-n4-r5/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0042,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 34.78172216796875,
+      "reduction": 14.01439892578125,
+      "masters": 10.69157763671875,
+      "total": 60.809412109375,
+      "check": 4.024485562570993e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 32.314171875,
+      "reduction": 10.99005078125,
+      "masters": 10.51876953125,
+      "total": 54.0597578125,
+      "check": 4.024485562570993e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 34.86221533203125,
+      "reduction": 14.01658154296875,
+      "masters": 10.56096240234375,
+      "total": 60.3066953125,
+      "check": 4.024485562570993e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 32.0038447265625,
+      "reduction": 11.0975654296875,
+      "masters": 10.42957470703125,
+      "total": 53.32496875,
+      "check": 4.024485562570993e-12,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-n4-r5/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0124,
+     "accepted": true,
+     "cpu": 84,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 34.03087451171875,
+      "reduction": 14.30891650390625,
+      "masters": 10.90252099609375,
+      "total": 60.19347265625,
+      "check": 4.024485562570993e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 32.46866650390625,
+      "reduction": 10.92725732421875,
+      "masters": 10.62501953125,
+      "total": 55.005580078125,
+      "check": 4.024485562570993e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 34.730509765625,
+      "reduction": 13.8591640625,
+      "masters": 10.556025390625,
+      "total": 60.14853125,
+      "check": 4.024485562570993e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 31.64043017578125,
+      "reduction": 10.94720849609375,
+      "masters": 10.43489208984375,
+      "total": 53.317740234375,
+      "check": 4.024485562570993e-12,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round1"
+ },
+ "syn-n5-r4": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 12.0416123046875,
+     "reduction": 10.1412138671875,
+     "masters": 21.81625390625,
+     "total": 44.607314453125
+    },
+    "w32": {
+     "tensor_numerator": 11.395349609375,
+     "reduction": 8.942517578125,
+     "masters": 36.8517841796875,
+     "total": 57.451529296875
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 11.85012744140625,
+     "reduction": 10.0082060546875,
+     "masters": 21.9124638671875,
+     "total": 44.299248046875
+    },
+    "w32": {
+     "tensor_numerator": 11.4212763671875,
+     "reduction": 8.763427734375,
+     "masters": 35.397021484375,
+     "total": 55.934236328125
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 1.016158886410974,
+    "reduction": 1.013289875505481,
+    "masters": 0.9956093499334153,
+    "total": 1.0069542129907942
+   },
+   "w32": {
+    "tensor_numerator": 0.9977299596841044,
+    "reduction": 1.0204360495890794,
+    "masters": 1.041098449369664,
+    "total": 1.0271263731902793
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-n5-r4/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 12.595716796875,
+      "reduction": 10.1412138671875,
+      "masters": 22.09152734375,
+      "total": 45.437416015625,
+      "check": 1.274962282821121e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.395349609375,
+      "reduction": 8.942517578125,
+      "masters": 36.8501142578125,
+      "total": 57.34371484375,
+      "check": 2.1397900252829826e-13,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.827763671875,
+      "reduction": 10.0082060546875,
+      "masters": 21.8867705078125,
+      "total": 44.16846484375,
+      "check": 1.274962282821121e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.4212763671875,
+      "reduction": 8.763427734375,
+      "masters": 35.3413583984375,
+      "total": 55.757654296875,
+      "check": 2.1397900252829826e-13,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-n5-r4/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0083,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 12.0416123046875,
+      "reduction": 10.0900322265625,
+      "masters": 21.81625390625,
+      "total": 44.25746875,
+      "check": 1.274962282821121e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.55588232421875,
+      "reduction": 8.79083251953125,
+      "masters": 36.8557490234375,
+      "total": 57.477015625,
+      "check": 2.1397900252829826e-13,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.87355517578125,
+      "reduction": 9.99635986328125,
+      "masters": 21.9529921875,
+      "total": 44.30623828125,
+      "check": 1.274962282821121e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.410470458984374,
+      "reduction": 8.875073486328125,
+      "masters": 35.4117685546875,
+      "total": 55.986345703125,
+      "check": 2.1397900252829826e-13,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-n5-r4/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0042,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 11.3173857421875,
+      "reduction": 11.115451171875,
+      "masters": 21.8097197265625,
+      "total": 44.607314453125,
+      "check": 1.274962282821121e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.32691748046875,
+      "reduction": 9.04260107421875,
+      "masters": 36.8517841796875,
+      "total": 57.451529296875,
+      "check": 2.1397900252829826e-13,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 11.85012744140625,
+      "reduction": 10.01709228515625,
+      "masters": 21.9124638671875,
+      "total": 44.299248046875,
+      "check": 1.274962282821121e-13,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 11.43310888671875,
+      "reduction": 8.76334228515625,
+      "masters": 35.397021484375,
+      "total": 55.934236328125,
+      "check": 2.1397900252829826e-13,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round3"
+ },
+ "syn-n5-r5": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 37.87526953125,
+     "reduction": 14.71090625,
+     "masters": 24.2199345703125,
+     "total": 78.19610546875
+    },
+    "w32": {
+     "tensor_numerator": 35.96440283203125,
+     "reduction": 12.81786572265625,
+     "masters": 38.030060546875,
+     "total": 87.12231640625
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 38.96174853515625,
+     "reduction": 14.25549853515625,
+     "masters": 23.931037109375,
+     "total": 78.30993359375
+    },
+    "w32": {
+     "tensor_numerator": 36.00277587890625,
+     "reduction": 12.9125537109375,
+     "masters": 36.4320849609375,
+     "total": 85.56613671875
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 0.972114213433571,
+    "reduction": 1.0319461093360325,
+    "masters": 1.012072082777571,
+    "total": 0.9985464407926776
+   },
+   "w32": {
+    "tensor_numerator": 0.9989341642154463,
+    "reduction": 0.9926669820392658,
+    "masters": 1.043861766013415,
+    "total": 1.0181868639531435
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-n5-r5/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0036,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 37.87526953125,
+      "reduction": 14.71090625,
+      "masters": 24.1426103515625,
+      "total": 77.930478515625,
+      "check": 1.9314827136766e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 35.96440283203125,
+      "reduction": 12.80195263671875,
+      "masters": 37.896681640625,
+      "total": 86.975984375,
+      "check": 7.284408112793125e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 38.82046044921875,
+      "reduction": 14.39085595703125,
+      "masters": 23.931037109375,
+      "total": 78.30993359375,
+      "check": 1.9314827136766e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 36.00277587890625,
+      "reduction": 12.93939990234375,
+      "masters": 36.5013134765625,
+      "total": 85.56613671875,
+      "check": 7.413867889234392e-12,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-n5-r5/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0083,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 38.2230244140625,
+      "reduction": 14.5320185546875,
+      "masters": 24.2199345703125,
+      "total": 78.35395703125,
+      "check": 1.9314827136766e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 35.94947119140625,
+      "reduction": 12.82700146484375,
+      "masters": 38.24688671875,
+      "total": 87.12231640625,
+      "check": 7.284408112793125e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 39.39710693359375,
+      "reduction": 14.25549853515625,
+      "masters": 24.178783203125,
+      "total": 79.47775390625,
+      "check": 1.9314827136766e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 36.1557177734375,
+      "reduction": 12.9125537109375,
+      "masters": 36.4320849609375,
+      "total": 85.61851953125,
+      "check": 7.413867889234392e-12,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-n5-r5/round3",
+     "attempt": 2,
+     "worst_sibling_busy": 0.0042,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 2
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 37.7664755859375,
+      "reduction": 14.8637041015625,
+      "masters": 24.2802275390625,
+      "total": 78.19610546875,
+      "check": 1.9314827136766e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 36.25827490234375,
+      "reduction": 12.81786572265625,
+      "masters": 38.030060546875,
+      "total": 87.30079296875,
+      "check": 7.284408112793125e-12,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 38.96174853515625,
+      "reduction": 14.22048388671875,
+      "masters": 23.928439453125,
+      "total": 78.1707578125,
+      "check": 1.9314827136766e-12,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 36.002462890625,
+      "reduction": 12.7885,
+      "masters": 36.4117431640625,
+      "total": 85.467265625,
+      "check": 7.413867889234392e-12,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round1"
+ },
+ "syn-n5-r6": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 114.3653583984375,
+     "reduction": 34.1885986328125,
+     "masters": 25.978623046875,
+     "total": 176.2846328125
+    },
+    "w32": {
+     "tensor_numerator": 111.2203828125,
+     "reduction": 28.3967587890625,
+     "masters": 47.459357421875,
+     "total": 187.4868671875
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 115.292068359375,
+     "reduction": 33.860990234375,
+     "masters": 25.7061328125,
+     "total": 176.62034375
+    },
+    "w32": {
+     "tensor_numerator": 109.6326796875,
+     "reduction": 28.3234375,
+     "masters": 45.366087890625,
+     "total": 185.334203125
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 0.9919620666527651,
+    "reduction": 1.0096750979865,
+    "masters": 1.0106002033196724,
+    "total": 0.9980992510241337
+   },
+   "w32": {
+    "tensor_numerator": 1.014482024242458,
+    "reduction": 1.0025887143487615,
+    "masters": 1.0461417245475684,
+    "total": 1.0116150393516308
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-n5-r6/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0107,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 114.3653583984375,
+      "reduction": 34.1229931640625,
+      "masters": 25.9871484375,
+      "total": 176.2846328125,
+      "check": 2.58610073318317e-09,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 111.2203828125,
+      "reduction": 28.3684375,
+      "masters": 47.459357421875,
+      "total": 187.4868671875,
+      "check": 2.58610073318317e-09,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 115.292068359375,
+      "reduction": 33.876986328125,
+      "masters": 25.7328896484375,
+      "total": 176.630265625,
+      "check": 2.58610073318317e-09,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 109.702087890625,
+      "reduction": 28.192939453125,
+      "masters": 45.682689453125,
+      "total": 186.5198359375,
+      "check": 2.58610073318317e-09,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-n5-r6/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0071,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 114.215416015625,
+      "reduction": 34.268912109375,
+      "masters": 25.978623046875,
+      "total": 177.270578125,
+      "check": 2.58610073318317e-09,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 111.4952646484375,
+      "reduction": 28.3967587890625,
+      "masters": 47.720294921875,
+      "total": 187.53390625,
+      "check": 2.58610073318317e-09,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 114.94803515625,
+      "reduction": 33.82516015625,
+      "masters": 25.7061328125,
+      "total": 176.0863515625,
+      "check": 2.58610073318317e-09,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 109.5974453125,
+      "reduction": 28.3234375,
+      "masters": 45.329779296875,
+      "total": 183.8230234375,
+      "check": 2.58610073318317e-09,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-n5-r6/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0036,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 114.4056904296875,
+      "reduction": 34.1885986328125,
+      "masters": 25.96744140625,
+      "total": 176.2037734375,
+      "check": 2.58610073318317e-09,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 111.0645712890625,
+      "reduction": 28.4878818359375,
+      "masters": 47.26400390625,
+      "total": 187.203359375,
+      "check": 2.58610073318317e-09,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 115.473103515625,
+      "reduction": 33.860990234375,
+      "masters": 25.6981337890625,
+      "total": 176.62034375,
+      "check": 2.58610073318317e-09,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 109.6326796875,
+      "reduction": 28.3483203125,
+      "masters": 45.366087890625,
+      "total": 185.334203125,
+      "check": 2.58610073318317e-09,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round1"
+ },
+ "syn-n6-r5": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 39.8168720703125,
+     "reduction": 20.0656884765625,
+     "masters": 277.2720078125,
+     "total": 342.2178125
+    },
+    "w32": {
+     "tensor_numerator": 39.26308349609375,
+     "reduction": 18.45049658203125,
+     "masters": 321.516953125,
+     "total": 380.374234375
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 39.527322265625,
+     "reduction": 20.1808251953125,
+     "masters": 252.54135937499998,
+     "total": 313.99753125
+    },
+    "w32": {
+     "tensor_numerator": 39.01636328125,
+     "reduction": 18.3942265625,
+     "masters": 292.248015625,
+     "total": 352.745359375
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 1.007325307865322,
+    "reduction": 0.994294746739259,
+    "masters": 1.097927121714655,
+    "total": 1.089874213780144
+   },
+   "w32": {
+    "tensor_numerator": 1.0063235061931648,
+    "reduction": 1.0030591131048678,
+    "masters": 1.1001510221973811,
+    "total": 1.078325268542025
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-n6-r5/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0071,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 39.8012490234375,
+      "reduction": 19.9991943359375,
+      "masters": 278.3656015625,
+      "total": 344.293921875,
+      "check": 3.667797794035156e-08,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 39.2404326171875,
+      "reduction": 18.4027373046875,
+      "masters": 323.39165625,
+      "total": 383.42440625,
+      "check": 3.667797794035156e-08,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 39.527322265625,
+      "reduction": 20.1555234375,
+      "masters": 252.54135937499998,
+      "total": 313.679109375,
+      "check": 3.6704660058360465e-08,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 39.0490341796875,
+      "reduction": 18.3419072265625,
+      "masters": 291.7110546875,
+      "total": 353.308484375,
+      "check": 3.6704660058360465e-08,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-n6-r5/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0071,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 39.8676455078125,
+      "reduction": 20.0656884765625,
+      "masters": 277.2720078125,
+      "total": 342.2178125,
+      "check": 3.667797794035156e-08,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 39.26308349609375,
+      "reduction": 18.45049658203125,
+      "masters": 320.359453125,
+      "total": 380.374234375,
+      "check": 3.667797794035156e-08,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 40.893841796875,
+      "reduction": 20.250943359375,
+      "masters": 252.46948437499998,
+      "total": 315.023796875,
+      "check": 3.6704660058360465e-08,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 39.01636328125,
+      "reduction": 18.3942265625,
+      "masters": 292.248015625,
+      "total": 351.536296875,
+      "check": 3.6704660058360465e-08,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-n6-r5/round3",
+     "attempt": 3,
+     "worst_sibling_busy": 0.0496,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 3
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 39.8168720703125,
+      "reduction": 20.0937646484375,
+      "masters": 277.1695078125,
+      "total": 338.977796875,
+      "check": 3.667797794035156e-08,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 39.3428720703125,
+      "reduction": 18.4554912109375,
+      "masters": 321.516953125,
+      "total": 378.29890625,
+      "check": 3.667797794035156e-08,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 39.4614501953125,
+      "reduction": 20.1808251953125,
+      "masters": 257.81496875,
+      "total": 313.99753125,
+      "check": 3.6704660058360465e-08,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 38.9021767578125,
+      "reduction": 18.4587041015625,
+      "masters": 295.48590625,
+      "total": 352.745359375,
+      "check": 3.6704660058360465e-08,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round2"
+ },
+ "syn-n6-r6": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 115.4011201171875,
+     "reduction": 29.5127197265625,
+     "masters": 253.73221875,
+     "total": 403.869796875
+    },
+    "w32": {
+     "tensor_numerator": 112.145591796875,
+     "reduction": 26.651583984375,
+     "masters": 270.7556484375,
+     "total": 414.01171875
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 117.2201611328125,
+     "reduction": 28.7446982421875,
+     "masters": 234.341046875,
+     "total": 381.360015625
+    },
+    "w32": {
+     "tensor_numerator": 112.50937109375,
+     "reduction": 26.5635859375,
+     "masters": 244.54265625000002,
+     "total": 387.839734375
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 0.9844818417067009,
+    "reduction": 1.0267187179320534,
+    "masters": 1.0827476540434824,
+    "total": 1.059025016592548
+   },
+   "w32": {
+    "tensor_numerator": 0.9967666755814333,
+    "reduction": 1.0033127322147712,
+    "masters": 1.1071919009528628,
+    "total": 1.0674814415732208
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-n6-r6/round1",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0199,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 113.58099609375,
+      "reduction": 31.13878125,
+      "masters": 259.09715625,
+      "total": 410.978890625,
+      "check": 0.036462640335516716,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 113.882830078125,
+      "reduction": 26.897123046875,
+      "masters": 279.8731875,
+      "total": 415.744671875,
+      "check": 0.036462640335516716,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 116.748478515625,
+      "reduction": 28.461181640625,
+      "masters": 235.283546875,
+      "total": 380.88,
+      "check": 0.036462640335516716,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 114.22359375,
+      "reduction": 26.5635859375,
+      "masters": 246.004140625,
+      "total": 387.839734375,
+      "check": 0.036462640335516716,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-n6-r6/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0214,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 115.4011201171875,
+      "reduction": 29.5127197265625,
+      "masters": 253.61346875,
+      "total": 400.7493125,
+      "check": 0.036462640335516716,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 112.131212890625,
+      "reduction": 26.651583984375,
+      "masters": 270.7556484375,
+      "total": 412.787171875,
+      "check": 0.036462640335516716,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 117.2201611328125,
+      "reduction": 28.7446982421875,
+      "masters": 234.341046875,
+      "total": 381.9828125,
+      "check": 0.036462640335516716,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 112.50937109375,
+      "reduction": 26.538234375,
+      "masters": 243.232796875,
+      "total": 385.74175,
+      "check": 0.036462640335516716,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-n6-r6/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0143,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 115.8130556640625,
+      "reduction": 29.1405888671875,
+      "masters": 253.73221875,
+      "total": 403.869796875,
+      "check": 0.036462640335516716,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 112.145591796875,
+      "reduction": 26.639865234375,
+      "masters": 267.523921875,
+      "total": 414.01171875,
+      "check": 0.036462640335516716,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 118.6012783203125,
+      "reduction": 29.6986279296875,
+      "masters": 232.8663515625,
+      "total": 381.360015625,
+      "check": 0.036462640335516716,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 112.4909228515625,
+      "reduction": 26.7891435546875,
+      "masters": 244.54265625000002,
+      "total": 389.433484375,
+      "check": 0.036462640335516716,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round2"
+ },
+ "syn-n6-r7": {
+  "median": {
+   "new": {
+    "w1": {
+     "tensor_numerator": 315.20107421875,
+     "reduction": 62.363966796875005,
+     "masters": 310.3243203125,
+     "total": 698.6750625
+    },
+    "w32": {
+     "tensor_numerator": 310.07359375,
+     "reduction": 54.307841796875,
+     "masters": 339.066078125,
+     "total": 708.255125
+    }
+   },
+   "old": {
+    "w1": {
+     "tensor_numerator": 316.280974609375,
+     "reduction": 61.763244140625005,
+     "masters": 278.5436484375,
+     "total": 659.67053125
+    },
+    "w32": {
+     "tensor_numerator": 307.06688671875,
+     "reduction": 53.99803515625,
+     "masters": 308.9961953125,
+     "total": 672.53059375
+    }
+   }
+  },
+  "new_over_old": {
+   "w1": {
+    "tensor_numerator": 0.9965856296226521,
+    "reduction": 1.0097262160465899,
+    "masters": 1.1140958411842263,
+    "total": 1.0591272906735594
+   },
+   "w32": {
+    "tensor_numerator": 1.0097917006401407,
+    "reduction": 1.0057373687714477,
+    "masters": 1.0973147348370718,
+    "total": 1.0531195630087276
+   }
+  },
+  "rounds": [
+   {
+    "round": "round1",
+    "accepted": {
+     "label": "cases1/syn-n6-r7/round1",
+     "attempt": 2,
+     "worst_sibling_busy": 0.0153,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 2
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 316.414470703125,
+      "reduction": 62.363966796875005,
+      "masters": 310.3243203125,
+      "total": 700.96384375,
+      "check": 1.3022486284698036e-11,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 310.390220703125,
+      "reduction": 54.307841796875,
+      "masters": 339.066078125,
+      "total": 708.255125,
+      "check": 1.7138699455226035e-07,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 318.38861328125,
+      "reduction": 61.62763671875,
+      "masters": 277.8034140625,
+      "total": 659.67053125,
+      "check": 1.3018556140752475e-11,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 306.981048828125,
+      "reduction": 53.907623046875,
+      "masters": 307.7977578125,
+      "total": 673.94184375,
+      "check": 1.7138699455226035e-07,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round2",
+    "accepted": {
+     "label": "cases1/syn-n6-r7/round2",
+     "attempt": 1,
+     "worst_sibling_busy": 0.025,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 315.163373046875,
+      "reduction": 63.446314453125,
+      "masters": 313.043953125,
+      "total": 698.6750625,
+      "check": 1.3022486284698036e-11,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 310.07359375,
+      "reduction": 55.818375,
+      "masters": 343.18703125,
+      "total": 713.0160625,
+      "check": 1.7138699455226035e-07,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 316.280974609375,
+      "reduction": 61.763244140625005,
+      "masters": 278.6275546875,
+      "total": 660.70209375,
+      "check": 1.3018556140752475e-11,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 310.4486015625,
+      "reduction": 54.1528984375,
+      "masters": 308.9961953125,
+      "total": 670.38934375,
+      "check": 1.7138699455226035e-07,
+      "failed": 0
+     }
+    }
+   },
+   {
+    "round": "round3",
+    "accepted": {
+     "label": "cases1/syn-n6-r7/round3",
+     "attempt": 1,
+     "worst_sibling_busy": 0.0041,
+     "accepted": true,
+     "cpu": 25,
+     "attempts": 1
+    },
+    "new": {
+     "w1": {
+      "tensor_numerator": 315.20107421875,
+      "reduction": 62.20297265625,
+      "masters": 307.4799375,
+      "total": 691.07128125,
+      "check": 1.3022486284698036e-11,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 309.9178984375,
+      "reduction": 53.8684453125,
+      "masters": 334.77934375,
+      "total": 703.0735,
+      "check": 1.7138699455226035e-07,
+      "failed": 0
+     }
+    },
+    "old": {
+     "w1": {
+      "tensor_numerator": 315.138109375,
+      "reduction": 62.05640625000001,
+      "masters": 278.5436484375,
+      "total": 658.74834375,
+      "check": 1.3018556140752475e-11,
+      "failed": 0
+     },
+     "w32": {
+      "tensor_numerator": 307.06688671875,
+      "reduction": 53.99803515625,
+      "masters": 310.057984375,
+      "total": 672.53059375,
+      "check": 1.7138699455226035e-07,
+      "failed": 0
+     }
+    }
+   }
+  ],
+  "chosen": "round1"
+ }
+}

@@ -1,0 +1,176 @@
+{
+ "gg-hh-top-box-2": {
+  "O3": {
+   "median": {
+    "numerator_coefficients": 13.566378700000001,
+    "tensor_numerator": 25.149814782163887,
+    "ninja_reduction": 11.9167857275989,
+    "masters": 37.50155256459956,
+    "full": 87.34234470000001
+   },
+   "committed": {
+    "numerator_coefficients": 12.3122597,
+    "tensor_numerator": 22.653714076796387,
+    "ninja_reduction": 10.83829726392328,
+    "masters": 33.942260766529685,
+    "full": 80.7757639
+   },
+   "ratio": {
+    "numerator_coefficients": 1.1018593686746228,
+    "tensor_numerator": 1.1101850538461677,
+    "ninja_reduction": 1.0995071861763297,
+    "masters": 1.104863132793431,
+    "full": 1.0812939486171793
+   },
+   "rounds_full": [
+    78.54623255000001,
+    87.8701291,
+    87.34234470000001
+   ]
+  },
+  "default": {
+   "median": {
+    "numerator_coefficients": 16.69323975,
+    "tensor_numerator": 22.627302349620376,
+    "ninja_reduction": 10.77567032192372,
+    "masters": 32.79258728375478,
+    "full": 84.92640835
+   },
+   "committed": {
+    "numerator_coefficients": 16.85978405,
+    "tensor_numerator": 22.68582362964948,
+    "ninja_reduction": 10.7989492994069,
+    "masters": 33.875246670170725,
+    "full": 86.58373490000001
+   },
+   "ratio": {
+    "numerator_coefficients": 0.9901218011152404,
+    "tensor_numerator": 0.9974203590319454,
+    "ninja_reduction": 0.9978443294030042,
+    "masters": 0.9680398080357213,
+    "full": 0.9808586849260529
+   },
+   "rounds_full": [
+    84.92640835,
+    95.06026215,
+    83.71054860000001
+   ]
+  }
+ },
+ "gg-hhh-top-pentagon-26": {
+  "O3": {
+   "median": {
+    "numerator_coefficients": 24.1901125,
+    "tensor_numerator": 80.7473246650544,
+    "ninja_reduction": 26.222679857362593,
+    "masters": 105.31026511826103,
+    "full": 235.624595
+   },
+   "committed": {
+    "numerator_coefficients": 23.7803419,
+    "tensor_numerator": 80.67428005540228,
+    "ninja_reduction": 26.51198987368595,
+    "masters": 110.4637608643102,
+    "full": 241.364248
+   },
+   "ratio": {
+    "numerator_coefficients": 1.0172314848004773,
+    "tensor_numerator": 1.0009054262350028,
+    "ninja_reduction": 0.9890875781975722,
+    "masters": 0.953346729228425,
+    "full": 0.9762199536693603
+   },
+   "rounds_full": [
+    234.58856849999998,
+    371.9888245,
+    235.624595
+   ]
+  },
+  "default": {
+   "median": {
+    "numerator_coefficients": 25.5237503,
+    "tensor_numerator": 80.84354642285427,
+    "ninja_reduction": 26.150321471788118,
+    "masters": 105.11882704729953,
+    "full": 241.88078699999997
+   },
+   "committed": {
+    "numerator_coefficients": 25.63926915,
+    "tensor_numerator": 80.61025883541807,
+    "ninja_reduction": 26.375602065454103,
+    "masters": 110.89546825018843,
+    "full": 248.259131
+   },
+   "ratio": {
+    "numerator_coefficients": 0.9954944562060576,
+    "tensor_numerator": 1.0028940185877893,
+    "ninja_reduction": 0.991458750662566,
+    "masters": 0.9479091319596905,
+    "full": 0.9743077163997644
+   },
+   "rounds_full": [
+    243.367049,
+    241.88078699999997,
+    240.364642
+   ]
+  }
+ },
+ "hgg-top-triangle-0": {
+  "O3": {
+   "median": {
+    "numerator_coefficients": 9.468135499999999,
+    "tensor_numerator": 4.773728072767096,
+    "ninja_reduction": 3.3830203999945088,
+    "masters": 3.2268562105796095,
+    "full": 21.369599
+   },
+   "committed": {
+    "numerator_coefficients": 9.528935440000001,
+    "tensor_numerator": 4.849697077147707,
+    "ninja_reduction": 3.415293850411076,
+    "masters": 3.3295585927595948,
+    "full": 21.71597475
+   },
+   "ratio": {
+    "numerator_coefficients": 0.9936194404524161,
+    "tensor_numerator": 0.9843353093663137,
+    "ninja_reduction": 0.9905503151909806,
+    "masters": 0.9691543550537539,
+    "full": 0.9840497258820952
+   },
+   "rounds_full": [
+    21.7598117,
+    21.369599,
+    21.3577846
+   ]
+  },
+  "default": {
+   "median": {
+    "numerator_coefficients": 13.10689665,
+    "tensor_numerator": 4.771208769098795,
+    "ninja_reduction": 3.405230417572875,
+    "masters": 3.2870924718086694,
+    "full": 25.6125566
+   },
+   "committed": {
+    "numerator_coefficients": 13.174953350000001,
+    "tensor_numerator": 4.86210541169354,
+    "ninja_reduction": 3.445508658013876,
+    "masters": 3.3505815340420386,
+    "full": 26.1544909
+   },
+   "ratio": {
+    "numerator_coefficients": 0.9948343877817221,
+    "tensor_numerator": 0.9813050859867959,
+    "ninja_reduction": 0.9883099291167595,
+    "masters": 0.9810513304665719,
+    "full": 0.9792794934502053
+   },
+   "rounds_full": [
+    25.606813449999997,
+    25.66698425,
+    25.6125566
+   ]
+  }
+ }
+}

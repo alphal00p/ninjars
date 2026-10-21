@@ -1,0 +1,227 @@
+{
+ "gg-hh-top-box-2": {
+  "cpus": [
+   [
+    60,
+    0.013,
+    true
+   ],
+   [
+    60,
+    0.0318,
+    true
+   ],
+   [
+    78,
+    0.0108,
+    true
+   ]
+  ],
+  "O3": {
+   "median": {
+    "numerator_coefficients": 12.1785879,
+    "tensor_numerator": 22.65783618570599,
+    "ninja_reduction": 10.610417975733043,
+    "masters": 32.298850853362765,
+    "full": 78.34794114999998
+   },
+   "committed": {
+    "numerator_coefficients": 12.3122597,
+    "tensor_numerator": 22.653714076796387,
+    "ninja_reduction": 10.83829726392328,
+    "masters": 33.942260766529685,
+    "full": 80.7757639
+   },
+   "ratio": {
+    "numerator_coefficients": 0.9891431952170404,
+    "tensor_numerator": 1.000181961725818,
+    "ninja_reduction": 0.9789746227990291,
+    "masters": 0.9515821905773737,
+    "full": 0.9699436732903491
+   },
+   "rounds_full": [
+    78.3502476,
+    78.23448440000001,
+    78.34794114999998
+   ]
+  },
+  "default": {
+   "median": {
+    "numerator_coefficients": 16.565539599999997,
+    "tensor_numerator": 22.601341731229393,
+    "ninja_reduction": 10.787649906290632,
+    "masters": 32.452119102115596,
+    "full": 83.46671545
+   },
+   "committed": {
+    "numerator_coefficients": 16.85978405,
+    "tensor_numerator": 22.68582362964948,
+    "ninja_reduction": 10.7989492994069,
+    "masters": 33.875246670170725,
+    "full": 86.58373490000001
+   },
+   "ratio": {
+    "numerator_coefficients": 0.982547555228028,
+    "tensor_numerator": 0.9962760047949208,
+    "ninja_reduction": 0.9989536581010814,
+    "masters": 0.9579891599930908,
+    "full": 0.9639999423263501
+   },
+   "rounds_full": [
+    83.46671545,
+    84.2221327,
+    83.4284242
+   ]
+  }
+ },
+ "gg-hhh-top-pentagon-26": {
+  "cpus": [
+   [
+    36,
+    0.0124,
+    true
+   ],
+   [
+    39,
+    0.0,
+    true
+   ],
+   [
+    36,
+    0.005,
+    true
+   ]
+  ],
+  "O3": {
+   "median": {
+    "numerator_coefficients": 24.001889150000004,
+    "tensor_numerator": 80.71939874828789,
+    "ninja_reduction": 26.208507657761146,
+    "masters": 105.16113839958703,
+    "full": 234.87823550000002
+   },
+   "committed": {
+    "numerator_coefficients": 23.7803419,
+    "tensor_numerator": 80.67428005540228,
+    "ninja_reduction": 26.51198987368595,
+    "masters": 110.4637608643102,
+    "full": 241.364248
+   },
+   "ratio": {
+    "numerator_coefficients": 1.0093164030581077,
+    "tensor_numerator": 1.0005592698547123,
+    "ninja_reduction": 0.9885530200724005,
+    "masters": 0.9519967234210256,
+    "full": 0.9731276999234784
+   },
+   "rounds_full": [
+    234.57451899999998,
+    234.899427,
+    234.87823550000002
+   ]
+  },
+  "default": {
+   "median": {
+    "numerator_coefficients": 25.525983749999998,
+    "tensor_numerator": 80.63347103978255,
+    "ninja_reduction": 26.240430785829744,
+    "masters": 105.79987128974369,
+    "full": 240.7353425
+   },
+   "committed": {
+    "numerator_coefficients": 25.63926915,
+    "tensor_numerator": 80.61025883541807,
+    "ninja_reduction": 26.375602065454103,
+    "masters": 110.89546825018843,
+    "full": 248.259131
+   },
+   "ratio": {
+    "numerator_coefficients": 0.9955815667234024,
+    "tensor_numerator": 1.000287955958706,
+    "ninja_reduction": 0.9948751395593202,
+    "masters": 0.9540504491225134,
+    "full": 0.9696938095702913
+   },
+   "rounds_full": [
+    241.28320100000002,
+    240.7353425,
+    240.405193
+   ]
+  }
+ },
+ "hgg-top-triangle-0": {
+  "cpus": [
+   [
+    36,
+    0.0353,
+    true
+   ],
+   [
+    36,
+    0.0021,
+    true
+   ],
+   [
+    36,
+    0.0021,
+    true
+   ]
+  ],
+  "O3": {
+   "median": {
+    "numerator_coefficients": 9.470462025000002,
+    "tensor_numerator": 4.755087828711838,
+    "ninja_reduction": 3.3810782394143417,
+    "masters": 3.2215592017958397,
+    "full": 21.4306693
+   },
+   "committed": {
+    "numerator_coefficients": 9.528935440000001,
+    "tensor_numerator": 4.849697077147707,
+    "ninja_reduction": 3.415293850411076,
+    "masters": 3.3295585927595948,
+    "full": 21.71597475
+   },
+   "ratio": {
+    "numerator_coefficients": 0.9938635941687102,
+    "tensor_numerator": 0.9804917200124359,
+    "ninja_reduction": 0.9899816494581818,
+    "masters": 0.9675634508434214,
+    "full": 0.9868619551604517
+   },
+   "rounds_full": [
+    21.43596765,
+    21.39414645,
+    21.4306693
+   ]
+  },
+  "default": {
+   "median": {
+    "numerator_coefficients": 13.1140601,
+    "tensor_numerator": 4.760586954023545,
+    "ninja_reduction": 3.374117964481734,
+    "masters": 3.325566215563086,
+    "full": 25.5957127
+   },
+   "committed": {
+    "numerator_coefficients": 13.174953350000001,
+    "tensor_numerator": 4.86210541169354,
+    "ninja_reduction": 3.445508658013876,
+    "masters": 3.3505815340420386,
+    "full": 26.1544909
+   },
+   "ratio": {
+    "numerator_coefficients": 0.9953781050769336,
+    "tensor_numerator": 0.9791204737301993,
+    "ninja_reduction": 0.979280071357216,
+    "masters": 0.9925340367859142,
+    "full": 0.9786354778559273
+   },
+   "rounds_full": [
+    25.648021,
+    25.520844599999997,
+    25.5957127
+   ]
+  }
+ }
+}
