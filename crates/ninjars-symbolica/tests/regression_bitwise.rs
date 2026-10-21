@@ -19,13 +19,16 @@
 //! - the generic engine in `Float(256)` with `SymbolicaMasters` (exact
 //!   oneloopmaster expressions) on six cases: decimal strings.
 //!
-//! The expected values in `validation/regression/r-le-n1-d53dd08.json` are those
-//! of NinjaRS main d53dd08 with oneloopmaster 09b2c74, without any rank n+2
-//! change (first generated at e4c16a7), except the generic engine's sections,
-//! re-blessed in place for the native bubble tensor coefficients and for the
-//! generic cut provider's bubble-reference and tadpole-basis selection; see
-//! `validation/regression/README.md` (History) for every reviewed re-bless.
-//! Any difference fails.
+//! The expected values in `validation/regression/r-le-n1-d53dd08.json` (named
+//! after its baseline main d53dd08) are those of NinjaRS main without any rank
+//! n+2 change (first generated at e4c16a7), at oneloopmaster 8ec256fc and
+//! Symbolica 9cdc2949, except the generic engine's sections, re-blessed in
+//! place for the native bubble tensor coefficients and for the generic cut
+//! provider's bubble-reference and tadpole-basis selection. The last re-bless,
+//! on the rank n+2 integration branch, took the two dependency re-pins as
+//! well; its fast sections equal those of main 0d0d7e7 with the same pins.
+//! See `validation/regression/README.md` (History) for every reviewed
+//! re-bless. Any difference fails.
 //! `NINJARS_BLESS=1` rewrites the file (only ever on a reviewed baseline).
 //! Everything runs sequentially in one test so Symbolica symbols are always
 //! registered in the same order.
@@ -558,7 +561,7 @@ fn compute() -> Value {
     eprintln!("V0 total {:.1}s", started.elapsed().as_secs_f64());
     json!({
         "format": "ninjars-regression-bitwise-v1",
-        "baseline": "d53dd08 (NinjaRS main without rank n+2; first generated at e4c16a7), oneloopmaster 09b2c74",
+        "baseline": "claude/todo-next-integration 2a7df0d (NinjaRS main 0d0d7e7 at rank <= n+1 with the generic engine's native B0 and bubble/tadpole selection; first generated at e4c16a7, from main d53dd08), oneloopmaster 8ec256fc, Symbolica 9cdc2949",
         "description": "Bitwise outputs for numerator rank <= n+1: fast engine (TensorNumerator + OneLoopNativeMasters, widths 1 and 32; entries 'status:hex' of [laurent0..2, cut_constructible, rational] as (re,im) f64 bits, '=k' repeats width-1 entry k), generic f64 (PolynomialNumerator + OneLoopNativeMasters), explicit mu^2 numerators (fast via GenericNumerator and MuTensorNumerator, generic f64), generic Float(256) with SymbolicaMasters (decimal strings). Test: crates/ninjars-symbolica/tests/regression_bitwise.rs.",
         "fast_tensor": fast,
         "generic_f64": generic_f64,

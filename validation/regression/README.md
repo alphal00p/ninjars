@@ -1,12 +1,17 @@
 # Regression fixtures for numerator rank <= n+1
 
 Rank n+2 support must leave every existing rank bitwise unchanged. These
-fixtures hold the results of NinjaRS main without any rank n+2 change, at its
-current oneloopmaster pin (main d53dd08 with oneloopmaster 09b2c74, which
-contains fe550e3's rank-four bubble `B1111`), and must never be re-blessed to
-absorb a change of results for rank <= n+1 made by rank n+2 work. They are
-regenerated only from a clean checkout of main, when merging main brings
-results that main itself changed (History). The one exception is a deliberate
+fixtures hold the results of NinjaRS main without any rank n+2 change, at the
+current dependency pins (first main d53dd08 with oneloopmaster 09b2c74, which
+contains fe550e3's rank-four bubble `B1111`; now oneloopmaster 8ec256fc and
+Symbolica 9cdc2949, whose fast sections equal main 0d0d7e7's with these pins),
+and must never be re-blessed to absorb a change of results for rank <= n+1
+made by rank n+2 work. They are regenerated only from a clean checkout of
+main, when merging main brings results that main itself changed (History).
+Dependency re-pins carried by a branch before main has them are re-blessed
+in place on that branch, with the fast sections checked bitwise against a
+fixture blessed on main with only the same re-pins applied (History, the
+oneloopmaster 8ec256fc entry). The one exception is a deliberate
 accuracy change of the generic engine (the escalation path, whose bitwise
 identity at rank <= n+1 is a regression convention, not a compatibility
 contract): it is re-blessed in place, in its own commit, with a written
@@ -211,3 +216,76 @@ pass it bitwise.
     merged tree and check that the fast sections are unchanged and that the
     generic sections differ from either branch's fixture only by the other
     branch's change.
+
+- The fixture was re-blessed in place on the rank n+2 integration branch
+  (`claude/todo-next-integration` at 2a7df0d, commit "regression: re-bless V0
+  for the oneloopmaster and Symbolica re-pins"), once, for four causes
+  together; V0p is unchanged. The convention above re-blesses dependency
+  moves from a clean checkout of main. Here the two re-pins (oneloopmaster
+  09b2c74 → 8ec256fc, Symbolica e679e8c1 → 9cdc2949) are carried by the
+  integration branch, main's code is unchanged, and the previous fixture came
+  from the generic-selection branch without the B0 change, so the re-bless is
+  done in place and its fast part is attributed by a second fixture: blessed
+  on main 0d0d7e7 with only the two re-pins applied (uncommitted) and this
+  `regression_bitwise.rs`, its fast sections (`TensorNumerator` widths 1 and
+  32, `GenericNumerator` and `MuTensorNumerator`: 2349 and 52 entries) are
+  bitwise identical to the new fixture's. So the fast engine moves only
+  through cause (c), and the generic sections differ from that main fixture
+  only by causes (a) and (b). Against the previous fixture, as scaled
+  differences (largest change of the three Laurent coefficients over the
+  lane's largest one); no lane status changed:
+
+  | section | changed | median | largest |
+  |---|---|---|---|
+  | fast `TensorNumerator`, width 1 | 62 of 237 lanes (31 of 66 cases) | 4.5e-15 | 4.8e-4, `syn-gghhh-ggHHH-n5-r5` lane 1 (both copies) |
+  | fast `TensorNumerator`, width 32 | 607 of 2112 entries | 3.7e-15 | 4.8e-4, the same lane |
+  | fast `MuTensorNumerator` / `GenericNumerator` | 6 / 6 of 26 lanes (5 of 9 cases) | 2.5e-14 / 3.0e-14 | 6.0e-9, `syn-n6-r7` lane 1 |
+  | generic binary64 | 60 of 237 lanes (32 cases) | 4.3e-15 | 4.8e-4, `syn-gghhh-ggHHH-n5-r5` lane 1 |
+  | generic binary64, explicit `mu²` | 8 of 26 lanes | 2.6e-14 | 6.1e-9, `syn-n6-r7` lane 1 |
+  | generic `Float(256)` | 87 of 170 decimal components (15 of 17 lanes) | | 3.6e-67, `syn-n6-r7` lane 1 |
+
+  The causes, each counted against the output before it:
+  - **(a) B0 from oneloopmaster's native bubble family** (the B0 entry
+    above, re-blessed on its own branch but not in the fixture taken from the
+    generic branch): `Float(256)` only, 43 of 170 components (14 lanes), at
+    most 1.8e-70.
+  - **(b) the generic engine's bubble and tadpole selection at every rank
+    class** (the entry above): already in the previous fixture. Against
+    main's fixture it moves generic binary64 on 203 of 237 lanes,
+    explicit-`mu²` generic binary64 on 23 of 26 and `Float(256)` on 91 of
+    170 components, and no fast entry.
+  - **(c) oneloopmaster 09b2c74 → 8ec256fc** (main; its code is that of the
+    verified candidate 3a322d0, 8ec256fc adds documentation): the contour box
+    next to vanishing Gram determinants, Denner and Dittmaier's sheets for
+    one- and two-mass boxes with complex masses, two-mass mass-pair
+    complements, the soft-box relabelling at the numerical D0 entry points.
+    D0 changes in binary64 and DoubleFloat; C0 keeps its bits on the 534 and
+    4,134 C0 calls recorded from NinjaRS runs. Of the 309 distinct recorded
+    D0 calls, the binary64 bits move on 99 (hand-written native), 191
+    (generated native), 191 (interpreted) and 219 (SymJIT) calls and the
+    DoubleFloat bits on 200; on the 3,510 rank n+2 D0 calls on 1,666 /
+    2,737 / 2,711 / 2,786 (DoubleFloat 2,735). The worst D0 error of the 309
+    against COLLIER in quadruple precision goes from 3.6e-11 to 1.4e-12, and
+    no call is more than ten times worse (oneloopmaster finisher's report).
+    In V0 (integration 759abc2 → 8a8bc55) it moves every changed fast and
+    binary64 entry of the table and 23 `Float(256)` components (8 lanes, at
+    most 1.8e-67). The largest change, 4.8e-4 on `syn-gghhh-ggHHH-n5-r5`
+    lane 1, is the D0 next to the box with normalized Gram determinant 8.2e-8
+    (`validation/benchmark/ill-conditioned/README.md`): against the exact
+    value the lane goes from 4.6e-4 to 3.1e-4 in the fast engine, the error of
+    exact masters rounded to binary64 (3.09e-4: the 9c5490b regression of the
+    d53dd08 entry is gone), and from 4.7e-4 to 7.8e-6 in the generic engine.
+    The next largest are 7.0e-9 (fast) and 6.6e-9 (generic) on `syn-n6-r7`
+    lane 1. The 44 complex two-mass sub-boxes of the six edge cases
+    (`edge-low-rank-n5-r0` to `-r3`, `edge-many-n7-r6`, `-r7`) take the new
+    sheets and stay within 7.0e-15 of COLLIER (09b2c74: 8.2e-15).
+  - **(d) Symbolica e679e8c1 → 9cdc2949** (symbolica-dev/symbolica#97,
+    `Float` products rounded once): `Float(256)` only, 82 of 170 components
+    (14 lanes), at most 5.4e-67 (`syn-n6-r7` lane 1); binary64 and DoubleFloat
+    bitwise unchanged.
+
+  The branch's own changes in the same pass, the relabelling of soft D0 boxes
+  on `SymbolicaMasters`' `Float` route and the tracked-precision check of
+  `Float` master results (`MasterFailure::ImpreciseResult`), change nothing
+  in V0: its output at 2a7df0d equals the re-pin's (8a8bc55) bitwise, with no
+  status change in `Float(256)`.
