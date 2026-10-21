@@ -17,7 +17,8 @@
 //!   fast engine through `GenericNumerator` and `MuTensorNumerator`, and the
 //!   generic engine in binary64: bits;
 //! - the generic engine in `Float(256)` with `SymbolicaMasters` (exact
-//!   oneloopmaster expressions) on six cases: decimal strings.
+//!   oneloopmaster expressions) on six cases: decimal strings, compared within
+//!   a precision bound (below), with exact statuses.
 //!
 //! The expected values in `validation/regression/r-le-n1-d53dd08.json` (named
 //! after its baseline main d53dd08) are those of NinjaRS main without any rank
@@ -28,10 +29,19 @@
 //! on the rank n+2 integration branch, took the two dependency re-pins as
 //! well; its fast sections equal those of main 0d0d7e7 with the same pins.
 //! See `validation/regression/README.md` (History) for every reviewed
-//! re-bless. Any difference fails.
+//! re-bless. The fast-engine, generic binary64 and explicit-`mu²` sections are
+//! deterministic (native masters, NinjaRS's positional evaluators) and are
+//! compared bitwise: any difference fails. The generic `Float(256)` section
+//! goes through oneloopmaster's interpreted expressions, whose Symbolica
+//! evaluators still depend on the order in which the process registered its
+//! symbols; its values are compared within 2^-200 of each lane's largest
+//! component ([`FLOAT_AGREEMENT_BITS`]), 56 bits above the working precision's
+//! rounding, while every status must match exactly. Dependency changes that
+//! only move the rounding of the 256-bit results (the oneloopmaster and
+//! Symbolica re-pins moved them by at most 3.6e-67 of the lane scale, about
+//! 2^-221; the Symbolica re-pin alone 8.7e-71) then need no re-bless; a
+//! real change of the result still fails.
 //! `NINJARS_BLESS=1` rewrites the file (only ever on a reviewed baseline).
-//! Everything runs sequentially in one test so Symbolica symbols are always
-//! registered in the same order.
 
 mod common;
 
@@ -42,6 +52,7 @@ use ninjars::fast::{
     tensor_layout::{monomials, mu_block_offset, ncoeff},
 };
 use ninjars::{AmplitudeInput, Complex, Float, FourMomentum};
+use symbolica::domains::float::RealLike;
 use ninjars_symbolica::{
     OneLoopNativeMasters, PolynomialNumerator, SymbolicaAmplitudeKernels, SymbolicaCuts,
     SymbolicaHighCuts, SymbolicaMasters,
@@ -570,6 +581,82 @@ fn compute() -> Value {
     })
 }
 
+/// Bits of agreement required of the generic `Float(256)` section, relative
+/// to each lane's largest component (see the module documentation).
+const FLOAT_AGREEMENT_BITS: i32 = 200;
+
+/// [`differences`] for the generic `Float(256)` section: statuses and the
+/// structure exactly, values within 2^-[`FLOAT_AGREEMENT_BITS`] of the lane's
+/// largest expected component. Non-finite or unparsable values, and lanes
+/// whose expected values are all zero, are compared as strings.
+fn float_differences(path: &str, expected: &Value, actual: &Value, out: &mut Vec<String>) {
+    if out.len() >= 20 {
+        return;
+    }
+    let parse = |v: &Value| -> Option<Vec<[Float; 2]>> {
+        v.as_array()?
+            .iter()
+            .map(|z| {
+                let z = z.as_array()?;
+                let part = |k: usize| Float::parse(z.get(k)?.as_str()?, Some(FLOAT_BITS)).ok();
+                Some([part(0)?, part(1)?])
+            })
+            .collect()
+    };
+    match (expected, actual) {
+        (Value::Object(a), Value::Object(b)) if a.contains_key("values") => {
+            if a.get("status") != b.get("status") {
+                out.push(format!(
+                    "{path}/status: expected {}, got {}",
+                    a.get("status").unwrap_or(&Value::Null),
+                    b.get("status").unwrap_or(&Value::Null)
+                ));
+                return;
+            }
+            let (Some(e), Some(g)) = (parse(&a["values"]), parse(&b["values"])) else {
+                return differences(path, expected, actual, out);
+            };
+            let scale = e
+                .iter()
+                .flatten()
+                .map(|x| x.to_f64().abs())
+                .fold(0f64, f64::max);
+            let finite = e.iter().chain(&g).flatten().all(|x| x.to_f64().is_finite());
+            if e.len() != g.len() || scale == 0. || !finite {
+                return differences(path, expected, actual, out);
+            }
+            let bound = scale * 2f64.powi(-FLOAT_AGREEMENT_BITS);
+            for (k, (x, y)) in e.iter().zip(&g).enumerate() {
+                for part in 0..2 {
+                    let change = (x[part].clone() - &y[part]).to_f64().abs();
+                    if change > bound {
+                        out.push(format!(
+                            "{path}/values[{k}][{part}]: expected {}, got {} (change {:.2e} of the lane scale, bound 2^-{FLOAT_AGREEMENT_BITS})",
+                            x[part], y[part], change / scale
+                        ));
+                    }
+                }
+            }
+        }
+        (Value::Object(a), Value::Object(b)) => {
+            for key in a.keys().chain(b.keys().filter(|k| !a.contains_key(*k))) {
+                float_differences(
+                    &format!("{path}/{key}"),
+                    a.get(key).unwrap_or(&Value::Null),
+                    b.get(key).unwrap_or(&Value::Null),
+                    out,
+                );
+            }
+        }
+        (Value::Array(a), Value::Array(b)) if a.len() == b.len() => {
+            for (i, (x, y)) in a.iter().zip(b).enumerate() {
+                float_differences(&format!("{path}[{i}]"), x, y, out);
+            }
+        }
+        _ => differences(path, expected, actual, out),
+    }
+}
+
 /// First differing JSON paths, for a readable failure.
 fn differences(path: &str, expected: &Value, actual: &Value, out: &mut Vec<String>) {
     if out.len() >= 20 {
@@ -614,14 +701,15 @@ fn rank_up_to_n_plus_one_is_bitwise_unchanged() {
     )
     .unwrap();
     let mut diffs = Vec::new();
-    for key in [
-        "fast_tensor",
-        "generic_f64",
-        "mu_numerators",
-        "generic_float256",
-    ] {
+    for key in ["fast_tensor", "generic_f64", "mu_numerators"] {
         differences(key, &expected[key], &actual[key], &mut diffs);
     }
+    float_differences(
+        "generic_float256",
+        &expected["generic_float256"],
+        &actual["generic_float256"],
+        &mut diffs,
+    );
     assert!(
         diffs.is_empty(),
         "rank <= n+1 results changed:\n{}",

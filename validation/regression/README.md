@@ -24,6 +24,18 @@ sections never move for such a change.
 | `r-le-n1-d53dd08.json` | `crates/ninjars-symbolica/tests/regression_bitwise.rs` (V0) | Bits of the fast engine (`TensorNumerator` + `OneLoopNativeMasters`, widths 1 and 32) on every case of `validation/fast/ninja_reference/{cases,conditioning/cases}` and `validation/benchmark/{cases,synthetic}`; the generic engine in binary64 on the same cases; explicit-`mu²` numerators through `GenericNumerator`, `MuTensorNumerator` and the generic engine; the generic engine in `Float(256)` on six cases (decimal strings). |
 | `plan-fingerprints-e4c16a7.json` | `crates/ninjars-symbolica/src/plan_fingerprints_tests.rs` (V0p) | SHA-256 of the canonical strings of every exact Symbolica plan for n <= 6 and rank <= n+1: standalone plans and the ordered list of plans compiled while constructing each generic-engine stage. |
 
+Comparison: the fast-engine, generic binary64 and explicit-`mu²` sections are
+deterministic (native masters, NinjaRS's positional evaluators) and are compared
+bitwise. The generic `Float(256)` section goes through oneloopmaster's
+interpreted expressions, whose Symbolica evaluators depend on the order in which
+the process registered its symbols, so it is compared within 2^-200 of each
+lane's largest component, with every status exact (`FLOAT_AGREEMENT_BITS` in the
+test). Rounding-level moves of the 256-bit results (the oneloopmaster and
+Symbolica re-pins moved them by at most 3.6e-67 of the lane scale, about 2^-221;
+the Symbolica re-pin alone 8.7e-71) then need no
+re-bless; a value moved by 1e-50 of its lane scale fails (checked by mutating the
+fixture, 2026-10-21).
+
 Run (release; `--features native-masters` as for the other fast tests):
 
 ```sh
