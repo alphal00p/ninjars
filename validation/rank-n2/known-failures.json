@@ -4,102 +4,11 @@
  "lanes": [],
  "inaccuracies": [
   {
-   "id": "rn2-int-mixed-n4-r6-lane2",
-   "engine": "generic",
-   "precision": "float:128",
-   "limit": 2e-32,
-   "reason": "the generic engine in Float(128) is off by 4.0e-33, 1.5 times its tolerance (2.7e-33: the binary64 budget scaled to 128 bits); binary64 1.4e-12, DoubleFloat 1.8e-28, Float(256) 3.3e-41 (within the reference's uncertainty). Float evaluates C0/D0 with Symbolica's precision-tracking interpreter of oneloopmaster's exact expressions, the fixed-precision carriers with its native code: on the boxes of the 15 Float(128) lanes first listed here, D0 is off by a median 471 and at most 1.4e5 units in the last place at 128 bits, against 34 and 4670 in binary64, up to 10 bits more (C0: at most 4 bits more) (README \"Known inaccuracies\")."
-  },
-  {
-   "id": "rn2-int-mixed-n6-r8-lane0",
+   "id": "rn2-int-mixed-n6-r6-lane2",
    "engine": "generic",
    "precision": "float:128",
    "limit": 1e-30,
-   "reason": "the generic engine in Float(128) is off by 1.7e-31, 4.2 times its tolerance (4.2e-32: the binary64 budget scaled to 128 bits); binary64 3.8e-11, DoubleFloat 3.0e-27, Float(256) 9.6e-41 (within the reference's uncertainty). Float evaluates C0/D0 with Symbolica's precision-tracking interpreter of oneloopmaster's exact expressions, the fixed-precision carriers with its native code: on the boxes of the 15 Float(128) lanes first listed here, D0 is off by a median 471 and at most 1.4e5 units in the last place at 128 bits, against 34 and 4670 in binary64, up to 10 bits more (C0: at most 4 bits more) (README \"Known inaccuracies\")."
-  },
-  {
-   "id": "rn2-int-mixed-n7-r9-lane1",
-   "engine": "generic",
-   "precision": "float:128",
-   "limit": 5e-34,
-   "reason": "the generic engine in Float(128) is off by 1.1e-34, 1.0 times its tolerance (1.1e-34: the binary64 budget scaled to 128 bits); binary64 1.1e-12, DoubleFloat 5.8e-29, Float(256) 1.9e-39 (within the reference's uncertainty). Float evaluates C0/D0 with Symbolica's precision-tracking interpreter of oneloopmaster's exact expressions, the fixed-precision carriers with its native code: on the boxes of the 15 Float(128) lanes first listed here, D0 is off by a median 471 and at most 1.4e5 units in the last place at 128 bits, against 34 and 4670 in binary64, up to 10 bits more (C0: at most 4 bits more) (README \"Known inaccuracies\")."
-  },
-  {
-   "id": "rn2-int-mixed-n4-r3-lane2",
-   "engine": "generic",
-   "precision": "float:128",
-   "limit": 2e-33,
-   "reason": "the generic engine in Float(128) is off by 4.5e-34, 10.4 times its tolerance (4.3e-35: the binary64 budget scaled to 128 bits); binary64 3.6e-14, DoubleFloat 2.4e-30, Float(256) 1.3e-40 (within the reference's uncertainty). Float evaluates C0/D0 with Symbolica's precision-tracking interpreter of oneloopmaster's exact expressions, the fixed-precision carriers with its native code: on the boxes of the 15 Float(128) lanes first listed here, D0 is off by a median 471 and at most 1.4e5 units in the last place at 128 bits, against 34 and 4670 in binary64, up to 10 bits more (C0: at most 4 bits more) (README \"Known inaccuracies\")."
-  },
-  {
-   "id": "rn2-int-mixed-n4-r4-lane2",
-   "engine": "generic",
-   "precision": "float:128",
-   "limit": 2e-33,
-   "reason": "the generic engine in Float(128) is off by 5.9e-34, 3.1 times its tolerance (1.9e-34: the binary64 budget scaled to 128 bits); binary64 7.8e-14, DoubleFloat 4.4e-30, Float(256) 2.1e-41 (within the reference's uncertainty). Float evaluates C0/D0 with Symbolica's precision-tracking interpreter of oneloopmaster's exact expressions, the fixed-precision carriers with its native code: on the boxes of the 15 Float(128) lanes first listed here, D0 is off by a median 471 and at most 1.4e5 units in the last place at 128 bits, against 34 and 4670 in binary64, up to 10 bits more (C0: at most 4 bits more) (README \"Known inaccuracies\")."
-  },
-  {
-   "id": "rn2-int-mixed-n4-r5-lane2",
-   "engine": "generic",
-   "precision": "float:128",
-   "limit": 1e-32,
-   "reason": "the generic engine in Float(128) is off by 2.1e-33, 3.0 times its tolerance (7.2e-34: the binary64 budget scaled to 128 bits); binary64 1.2e-13, DoubleFloat 2.3e-29, Float(256) 1.1e-41 (within the reference's uncertainty). Float evaluates C0/D0 with Symbolica's precision-tracking interpreter of oneloopmaster's exact expressions, the fixed-precision carriers with its native code: on the boxes of the 15 Float(128) lanes first listed here, D0 is off by a median 471 and at most 1.4e5 units in the last place at 128 bits, against 34 and 4670 in binary64, up to 10 bits more (C0: at most 4 bits more) (README \"Known inaccuracies\")."
-  },
-  {
-   "id": "rn2-int-mixed-n5-r4-lane1",
-   "engine": "generic",
-   "precision": "float:128",
-   "limit": 2e-32,
-   "reason": "the generic engine in Float(128) is off by 6.7e-33, 8.7 times its tolerance (7.6e-34: the binary64 budget scaled to 128 bits); binary64 7.3e-13, DoubleFloat 2.5e-28, Float(256) 4.6e-41 (within the reference's uncertainty). Float evaluates C0/D0 with Symbolica's precision-tracking interpreter of oneloopmaster's exact expressions, the fixed-precision carriers with its native code: on the boxes of the 15 Float(128) lanes first listed here, D0 is off by a median 471 and at most 1.4e5 units in the last place at 128 bits, against 34 and 4670 in binary64, up to 10 bits more (C0: at most 4 bits more) (README \"Known inaccuracies\")."
-  },
-  {
-   "id": "rn2-int-mixed-n6-r5-lane0",
-   "engine": "generic",
-   "precision": "float:128",
-   "limit": 2e-31,
-   "reason": "the generic engine in Float(128) is off by 5.2e-32, 3.1 times its tolerance (1.7e-32: the binary64 budget scaled to 128 bits); binary64 4.4e-12, DoubleFloat 4.5e-28, Float(256) 2.8e-41 (within the reference's uncertainty). Float evaluates C0/D0 with Symbolica's precision-tracking interpreter of oneloopmaster's exact expressions, the fixed-precision carriers with its native code: on the boxes of the 15 Float(128) lanes first listed here, D0 is off by a median 471 and at most 1.4e5 units in the last place at 128 bits, against 34 and 4670 in binary64, up to 10 bits more (C0: at most 4 bits more) (README \"Known inaccuracies\")."
-  },
-  {
-   "id": "rn2-int-mixed-n6-r6-lane0",
-   "engine": "generic",
-   "precision": "float:128",
-   "limit": 5e-31,
-   "reason": "the generic engine in Float(128) is off by 9.2e-32, 9.0 times its tolerance (1.0e-32: the binary64 budget scaled to 128 bits); binary64 8.6e-12, DoubleFloat 6.3e-28, Float(256) 9.2e-41 (within the reference's uncertainty). Float evaluates C0/D0 with Symbolica's precision-tracking interpreter of oneloopmaster's exact expressions, the fixed-precision carriers with its native code: on the boxes of the 15 Float(128) lanes first listed here, D0 is off by a median 471 and at most 1.4e5 units in the last place at 128 bits, against 34 and 4670 in binary64, up to 10 bits more (C0: at most 4 bits more) (README \"Known inaccuracies\")."
-  },
-  {
-   "id": "rn2-int-mixed-n6-r7-lane0",
-   "engine": "generic",
-   "precision": "float:128",
-   "limit": 5e-31,
-   "reason": "the generic engine in Float(128) is off by 1.6e-31, 7.8 times its tolerance (2.1e-32: the binary64 budget scaled to 128 bits); binary64 9.6e-12, DoubleFloat 2.8e-28, Float(256) 4.3e-41 (within the reference's uncertainty). Float evaluates C0/D0 with Symbolica's precision-tracking interpreter of oneloopmaster's exact expressions, the fixed-precision carriers with its native code: on the boxes of the 15 Float(128) lanes first listed here, D0 is off by a median 471 and at most 1.4e5 units in the last place at 128 bits, against 34 and 4670 in binary64, up to 10 bits more (C0: at most 4 bits more) (README \"Known inaccuracies\")."
-  },
-  {
-   "id": "rn2-irsoft-real-n6-r5-lane2",
-   "engine": "generic",
-   "precision": "float:128",
-   "limit": 1e-34,
-   "reason": "the generic engine in Float(128) is off by 2.5e-35, 1.1 times its tolerance (2.2e-35: the binary64 budget scaled to 128 bits); binary64 7.2e-15, DoubleFloat 2.5e-30, Float(256) 2.2e-40 (within the reference's uncertainty). Float evaluates C0/D0 with Symbolica's precision-tracking interpreter of oneloopmaster's exact expressions, the fixed-precision carriers with its native code: on the boxes of the 15 Float(128) lanes first listed here, D0 is off by a median 471 and at most 1.4e5 units in the last place at 128 bits, against 34 and 4670 in binary64, up to 10 bits more (C0: at most 4 bits more) (README \"Known inaccuracies\")."
-  },
-  {
-   "id": "rn2-shifted-mixed-n5-r4-lane0",
-   "engine": "generic",
-   "precision": "float:128",
-   "limit": 5e-32,
-   "reason": "the generic engine in Float(128) is off by 1.5e-32, 1.1 times its tolerance (1.4e-32: the binary64 budget scaled to 128 bits); binary64 3.0e-12, DoubleFloat 6.5e-28, Float(256) 1.5e-40 (within the reference's uncertainty). Float evaluates C0/D0 with Symbolica's precision-tracking interpreter of oneloopmaster's exact expressions, the fixed-precision carriers with its native code: on the boxes of the 15 Float(128) lanes first listed here, D0 is off by a median 471 and at most 1.4e5 units in the last place at 128 bits, against 34 and 4670 in binary64, up to 10 bits more (C0: at most 4 bits more) (README \"Known inaccuracies\")."
-  },
-  {
-   "id": "rn2-shifted-mixed-n5-r4-lane1",
-   "engine": "generic",
-   "precision": "float:128",
-   "limit": 5e-32,
-   "reason": "the generic engine in Float(128) is off by 1.5e-32, 1.9 times its tolerance (8.1e-33: the binary64 budget scaled to 128 bits); binary64 4.7e-12, DoubleFloat 1.5e-28, Float(256) 2.8e-41 (within the reference's uncertainty). Float evaluates C0/D0 with Symbolica's precision-tracking interpreter of oneloopmaster's exact expressions, the fixed-precision carriers with its native code: on the boxes of the 15 Float(128) lanes first listed here, D0 is off by a median 471 and at most 1.4e5 units in the last place at 128 bits, against 34 and 4670 in binary64, up to 10 bits more (C0: at most 4 bits more) (README \"Known inaccuracies\")."
-  },
-  {
-   "id": "rn2-shifted-mixed-n5-r5-lane0",
-   "engine": "generic",
-   "precision": "float:128",
-   "limit": 5e-31,
-   "reason": "the generic engine in Float(128) is off by 9.2e-32, 1.3 times its tolerance (7.0e-32: the binary64 budget scaled to 128 bits); binary64 2.6e-11, DoubleFloat 4.3e-27, Float(256) 2.4e-40 (within the reference's uncertainty). Float evaluates C0/D0 with Symbolica's precision-tracking interpreter of oneloopmaster's exact expressions, the fixed-precision carriers with its native code: on the boxes of the 15 Float(128) lanes first listed here, D0 is off by a median 471 and at most 1.4e5 units in the last place at 128 bits, against 34 and 4670 in binary64, up to 10 bits more (C0: at most 4 bits more) (README \"Known inaccuracies\")."
+   "reason": "the generic engine in Float(128) is off by 2.6e-31, 1.4 times its tolerance (1.8e-31: the binary64 budget scaled to 128 bits); binary64 2.6e-11, DoubleFloat 1.2e-26, Float(256) 6.3e-41 (within the reference's uncertainty). All but 1.1e-32 of it is the D0 of propagators 0, 1, 2, 5 (masses^2 100 - 0.1i, 0, 6464.16 - 168.84i, 29929), whose term is 7.8e3 times the lane: oneloopmaster's D0 in Float at 128 bits is off by 1.0e4 units of 2^-128 on Symbolica's interpreter (the route of SymbolicaMasters; 7.1e3 on its native Float code; 119.7 tracked bits, so the tracked-precision check passes it), against 7.8 units of 2^-53 in binary64 and 20 of 2^-106 in DoubleFloat; Float(256), Float(1024) and scalars/ agree on the exact value to 45 digits, and COLLIER's quad C0/D0 of the lane agree with it to 1.5e-17 (scalar_check). Symbolica 9cdc2949 (symbolica-dev/symbolica#97) moved this D0 from 1.5e3 units and the lane from 3.5e-32, a pass (README \"Known inaccuracies\")."
   }
  ],
  "ninja_unreliable": [

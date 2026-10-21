@@ -79,12 +79,16 @@ the results are in [`docs/rank-n2.md`](../../docs/rank-n2.md).
 - **Binary64 (V4f).** The design's `1e-14 max(1, condition) + 3 uncertainty` does not hold:
   COLLIER's contraction condition does not predict the reduction's binary64 loss (on the
   controls the fast engine needs up to 1e5 times that at n = 6, e.g. 2.6e-6 on
-  `rn2-phys-real-n6-r7` lane 1, condition 1.7). Original Ninja's own error does. On the 531
-  control lanes with their own Ninja result (known failures excluded):
-  - the fast engine is within 12.6 times Ninja's error;
-  - the generic engine in f64 is within 12.6 times it, apart from three `phys`/`syn` lanes:
-    632 times on `rn2-phys-real-n6-r7` lane 2, 42 on `syn-n2-r3` lane 1, 17 on
-    `rn2-phys-complex-n6-r7` lane 2;
+  `rn2-phys-real-n6-r7` lane 1, condition 1.7). Original Ninja's own error does. On the 543
+  control lanes with their own Ninja result (115fb46: oneloopmaster 8ec256fc, Symbolica
+  9cdc2949; no known failure among them):
+  - the fast engine is within 12.5 times Ninja's error, with or without `--conditioned-cuts`;
+  - the generic engine in f64 is within 12.7 times it, apart from `rn2-phys-real-n6-r7` lane 2
+    at 20 times (1.4e-8 against 6.7e-10). Before the generic engine took the fast engine's
+    bubble and tadpole selection (5ed3b22), on the 531 lanes of the time (known failures
+    excluded), both engines were within 12.6 times it, apart from three `phys`/`syn` lanes for
+    the generic engine: 632 times on `rn2-phys-real-n6-r7` lane 2, 42 on `syn-n2-r3` lane 1, 17
+    on `rn2-phys-complex-n6-r7` lane 2;
   - with Ninja's error estimated from the rank twins (the mu^2 twins, and the suite), the
     generic engine is within 56 times it on the checked control lanes and 63 times on the
     checked suite lanes (`rn2-int-complex-n6-r8` lane 1).
@@ -98,13 +102,14 @@ the results are in [`docs/rank-n2.md`](../../docs/rank-n2.md).
     marks both `Unstable` in binary64, and lane 1 of the complex case (tier C, new terms
     9e10 times the lane).
   - `A` = 30 for the fast engine and 100 for the generic engine, for every lane. The one lane
-    that the generic engine misses by more, `rn2-phys-real-n6-r7` lane 2 (4.3e-7, against
-    6.7e-10 for original Ninja and 3.7e-10 for the fast engine), is listed individually in
+    that the generic engine missed by more, `rn2-phys-real-n6-r7` lane 2 (4.3e-7, against
+    6.7e-10 for original Ninja and 3.7e-10 for the fast engine), was listed individually in
     `known-failures.json` (`inaccuracies`, below) instead of widening `A` for every lane.
-    Its loss is not the snapped S-matrix (the generic engine gives the same 4.3e-7 with the
+    Its loss was not the snapped S-matrix (the generic engine gave the same 4.3e-7 with the
     shift invariants) nor cancellation between cut contributions (`--stability-test` passes
-    it); it is not traced. (Before, `A` was 1000 for the generic engine, set by this lane
-    alone.)
+    it). The generic engine's bubble and tadpole selection (5ed3b22) brought it to 1.4e-8,
+    within its tolerance (6.7e-8), and the entry was removed. (Before that entry, `A` was 1000
+    for the generic engine, set by this lane alone.)
   - `e_ninja` is Ninja's error on the lane (`ninja` field), or for lanes without one (rank
     n+2, mu^2 twins) on the rank twins of the same kinematics (`summary/{controls,
     synthetic-twins,n7-controls}.json`), extrapolated geometrically by one rank from the two
@@ -164,17 +169,46 @@ the results are in [`docs/rank-n2.md`](../../docs/rank-n2.md).
   (`id`, `engine`, `precision`, `limit`, `reason`; one entry per lane, engine and precision).
   Such a lane is `known-failure` while its difference stays within `limit`, `fail` beyond it,
   and `stale-known-failure` once it is within its tolerance. Other engines and precisions
-  judge the lane as usual. Today:
-  - `rn2-phys-real-n6-r7` lane 2 for the generic engine in f64 (4.26e-7, limit 1e-6; below);
-  - 15 lanes for the generic engine in Float(128): 3 suite lanes (`rn2-int-mixed-n4-r6` lane 2,
-    `rn2-int-mixed-n6-r8` lane 0, `rn2-int-mixed-n7-r9` lane 1) and 12 control lanes, 1.0 to 10
-    times outside the binary64 budget scaled to 128 bits (limits about 3 times the measured
-    difference). `Float` evaluates C0/D0 with Symbolica's precision-tracking interpreter of
-    oneloopmaster's exact expressions, the fixed-precision carriers with its native code. On
-    the 139 boxes of these lanes D0 is off by a median 471 and at most 1.4e5 units in the last
-    place at 128 bits, against 34 and 4670 in binary64 and 29 and 4120 in DoubleFloat: up to 10
-    bits more (C0: at most 4 bits more). Float(160) and above are limited by the references'
-    uncertainty, so the same loss is invisible in Float(256).
+  judge the lane as usual. Limits are about 3 times the measured difference. `Float`
+  evaluates C0/D0 with Symbolica's precision-tracking interpreter of oneloopmaster's exact
+  expressions, the fixed-precision carriers with its native code. Float(160) and above are
+  limited by the references' uncertainty, so the losses below are invisible in Float(256).
+  Today (115fb46: oneloopmaster 8ec256fc, Symbolica 9cdc2949) there is one entry:
+  - `rn2-int-mixed-n6-r6` lane 2 (a control) for the generic engine in Float(128): 2.6e-31,
+    1.4 times its tolerance (1.8e-31, the binary64 budget scaled to 128 bits), limit 1e-30.
+    - **The D0.** All but 1.1e-32 of it is the D0 of propagators 0, 1, 2, 5 (masses² 100 - 0.1i,
+      0, 6464.16 - 168.84i, 29929), whose term is 7.8e3 times the lane. oneloopmaster's D0 in
+      `Float` at 128 bits is 1.0e4 units of 2^-128 off there on Symbolica's interpreter (the
+      route of `SymbolicaMasters`), 7.1e3 on its native `Float` code, in all 24 labellings of
+      the box. Binary64 is 7.8 units of 2^-53 off and DoubleFloat 20 units of 2^-106.
+    - **Not flagged.** The value keeps 119.7 tracked bits, so the tracked-precision check
+      (`MasterFailure::ImpreciseResult`, below max(53, bits/4)) passes it.
+    - **The exact value.** Float(256), Float(1024) and `scalars/` agree on the D0 to 45 digits,
+      and COLLIER's quad C0/D0 of the lane agree with the exact ones to 1.5e-17
+      (`scalar_check`).
+    - **Cause of the new failure.** Symbolica 9cdc2949 (symbolica-dev/symbolica#97, `Float`
+      products rounded once) moved this D0 from 1.5e3 units and the lane from 3.5e-32, a pass.
+      Bisected with release CLIs: 2de63f9 and 72a273c, which differ only in that pin, give
+      3.5e-32 and 2.5e-31; oneloopmaster 8ec256fc changes it to 2.6e-31.
+    - **Other precisions.** Binary64 (2.6e-11), DoubleFloat (1.2e-26) and Float(256) (6.3e-41)
+      pass.
+
+  History of the entries:
+  - **5ed3b22.** The generic engine's bubble and tadpole selection removed two: the generic f64
+    entry of `rn2-phys-real-n6-r7` lane 2 (4.26e-7, limit 1e-6; now 1.4e-8) and the Float(128)
+    entry of `rn2-irml-zero-n5-r6` lane 1 (4.3e-32; now 3.5e-33).
+  - **Symbolica 9cdc2949.** The other 14 Float(128) entries went stale and were removed after
+    115fb46: 3 suite lanes (`rn2-int-mixed-n4-r6` lane 2, `rn2-int-mixed-n6-r8` lane 0,
+    `rn2-int-mixed-n7-r9` lane 1) and 11 control lanes. They were 1.0 to 10 times outside the
+    binary64 budget scaled to 128 bits. They now differ by 2.4e-36 to 3.0e-33, at most 0.35 of
+    their tolerances; the same bisection makes all 14 stale at 72a273c.
+  - **The D0 on those lanes.** On the 139 boxes of the 15 lanes listed until 5ed3b22,
+    Float(128)'s D0 (Symbolica's interpreter) was off by a median 471 and at most 1.4e5 units
+    in the last place at 128 bits with Symbolica e679e8c1 and oneloopmaster 09b2c74, against
+    34 and 4670 in binary64 and 29 and 4120 in DoubleFloat: up to 10 bits more (C0: at most 4
+    bits more). With 9cdc2949 and 8ec256fc it is off by a median 80 and at most 2.4e4 units
+    (binary64 28 and 4.6e3, DoubleFloat 30 and 3.7e3); C0 by a median 7.3 and at most 383
+    units (before: 8.4 and 811).
 
 ## How the values are obtained
 
@@ -577,19 +611,44 @@ Tests (`crates/ninjars-symbolica/tests/`, `crates/ninjars-cli/tests/case_check.r
   evaluated alone, after `rn2-int-complex-n1-r2`, and after 40 other control cases gives
   bitwise identical results.
 
-Results with oneloopmaster 09b2c74 (integration head e116813), as pass / fail / report-only /
-known-failure; no lane is `stale-known-failure`, `unchecked` or `error`, and every run exits 0.
+Results at 115fb46 (oneloopmaster 8ec256fc, Symbolica 9cdc2949) with this `known-failures.json`,
+as pass / fail / report-only / known-failure; no lane is `stale-known-failure`, `unchecked` or
+`error`, every lane's status is `Success` (so the tracked-precision check of the `Float` masters
+flags none), and every run exits 0.
 
 | run | controls (rank <= n+1, 615 lanes) | suite (rank n+2, 333 lanes) | largest checked difference (controls; suite) |
 |---|---|---|---|
-| fast, native masters | 600 / 0 / 15 / 0 | 276 / 0 / 57 / 0 | 2.6e-6 (`rn2-phys-real-n6-r7` lane 1, original Ninja 3.6e-6); 5.3e-8 (`rn2-int-real-n7-r9` lane 2) |
-| generic f64, native masters | 599 / 0 / 15 / 1 | 275 / 0 / 58 / 0 | 3.5e-7 (`rn2-phys-complex-n6-r7` lane 1); 5.2e-7 (tier B) |
-| generic DoubleFloat, exact masters | 600 / 0 / 15 / 0 | 297 / 0 / 36 / 0 | 3.2e-10; 1.4e-11 (tier B; tier A <= 1.3e-24) |
-| generic Float(128), exact masters | 588 / 0 / 15 / 12 | 294 / 0 / 36 / 3 | 3.2e-10; 1.4e-11 (tier B; tier A <= 1.2e-29) |
-| generic Float(256), exact masters | 601 / 0 / 14 / 0 | 285 / 0 / 48 / 0 | 3.2e-10 (tier-B `phys` lanes; tier A <= 1e-36 at n <= 6, up to 1.2e-33 = the uncertainty at n = 7); 7.0e-12 (tier A <= 1.3e-36 at n <= 6, 5.9e-30 at n = 7) |
+| fast, native masters | 600 / 0 / 15 / 0 | 276 / 0 / 57 / 0 | 2.6e-6 (`rn2-phys-real-n6-r7` lane 1, tier B, original Ninja 3.6e-6); 2.6e-8 (`rn2-int-real-n7-r9` lane 2) |
+| fast, `--conditioned-cuts` | 600 / 0 / 15 / 0 | 276 / 0 / 57 / 0 | 2.4e-7 (`rn2-phys-complex-n6-r7` lane 1, tier B); 2.6e-8 (the suite's rank n+2 engine is the same) |
+| generic f64, native masters | 600 / 0 / 15 / 0 | 275 / 0 / 58 / 0 | 1.6e-7 (`rn2-phys-complex-n6-r7` lane 1, tier B); 3.3e-8 (`rn2-int-real-n7-r9` lane 2) |
+| generic DoubleFloat, exact masters | 600 / 0 / 15 / 0 | 297 / 0 / 36 / 0 | 1.4e-10 (`syn-n6-r7` lane 1, tier B; tier A <= 9.8e-26 at n <= 6, 2.3e-25 at n = 7); 7.5e-12 (`rn2-phys-real-n6-r8` lane 0, tier B; tier A <= 9.6e-25 at n <= 6, 1.0e-24 at n = 7) |
+| generic Float(128), exact masters | 599 / 0 / 15 / 1 | 297 / 0 / 36 / 0 | 1.4e-10 (tier B; tier A <= 1.3e-30 at n <= 6, 1.0e-30 at n = 7); 7.5e-12 (tier B; tier A <= 5.3e-29 at n <= 6, 7.3e-30 at n = 7) |
+| generic Float(256), exact masters | 601 / 0 / 14 / 0 | 285 / 0 / 48 / 0 | 1.4e-10 (tier B; tier A <= 1.7e-38 at n <= 6, up to 1.2e-33 = the uncertainty at n = 7); 7.1e-12 (`syn-n6-r8` lane 2, tier B; tier A <= 1.3e-36 at n <= 6, 5.9e-30 at n = 7) |
 
-- The known failures are the known inaccuracies: `rn2-phys-real-n6-r7` lane 2 in generic f64
-  (4.26e-7) and the 15 Float(128) lanes ("Known inaccuracies" above).
+- The known failure is the known inaccuracy of `rn2-int-mixed-n6-r6` lane 2 in Float(128)
+  ("Known inaccuracies" above). Its rank twins on the same kinematics pass but moved with the
+  same D0: `rn2-int-mixed-n6-r{5,7}` lane 2 4.8e-33 -> 8.5e-33 and 2.9e-31 -> 1.3e-30 (0.25 and
+  0.27 of their tolerances), and in the suite `rn2-int-mixed-n6-r8` lane 2 7.1e-30 -> 5.3e-29
+  (0.42), which sets the Float(128) tier-A maximum at n <= 6.
+- Against the generic engine's selection at f9a8b16 (oneloopmaster 09b2c74, Symbolica e679e8c1)
+  and integration pass 1's fast runs (f33ff8d), lane by lane: no verdict changes in the
+  fast, conditioned, generic f64, DoubleFloat and Float(256) runs. Values move at rounding level
+  with the masters:
+  - fast: 121 suite and 221 control lanes, scaled differences 0.95 times before in geometric
+    mean, none more than 3.6 times;
+  - generic f64: 127 and 231 lanes, 0.94 and 0.92 times;
+  - DoubleFloat: 249 and 461 lanes, 0.98 and 0.96 times;
+  - Float(256): 24 and 190 lanes, by at most 1.3e-71 and 5.6e-61 of the lane (the latter on
+    `syn-n6-r6` lane 0, which cancels by 1e12);
+  - Float(128): 295 and 535 lanes, 0.84 and 0.59 times; the 14 known inaccuracies went stale
+    (above) and `rn2-int-mixed-n6-r6` lane 2 failed.
+- Compared with integration head e116813 (oneloopmaster 09b2c74, the previous version of this
+  table): the generic f64 known failure of `rn2-phys-real-n6-r7` lane 2 and the Float(128)
+  one of `rn2-irml-zero-n5-r6` lane 1 went with 5ed3b22, the other 14 Float(128) ones with
+  Symbolica 9cdc2949. The largest checked differences moved with the fast engine's conditioned
+  rank n+2 box geometry (a0e7b50: suite 5.3e-8 -> 2.6e-8) and the generic engine's selection
+  (5ed3b22: generic f64 suite 5.2e-7 -> 3.3e-8, controls 3.5e-7 -> 1.6e-7; DoubleFloat and
+  Float(128) suite 1.4e-11 -> 7.5e-12; the high-precision controls 3.2e-10 -> 1.4e-10).
 - Against 8346699 (oneloopmaster fe550e3): the 15 control and 9 suite known failures of
   findings 3 and 5 are gone. `rn2-int-mixed-n6-r{5..8}` lane 1 (tier B) now pass, in binary64
   with the corrected Ninja budget of `ninja_unreliable`; the n = 7 lanes have tier-C COLLIER
