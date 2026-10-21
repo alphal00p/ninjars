@@ -1,16 +1,17 @@
 # Next plan
 
-State after the landing of `claude/todo-next-integration` (`115fb46` and the
-pass-2 commits of section 4) on NinjaRS main (2026-10-21).
+State after the landing of `claude/todo-next-integration` on NinjaRS main
+`aa6a630` (2026-10-21), followed by the benchmark refresh and the COLLIER
+validation of rank n+2 (`docs/benchmark/benchmark.pdf`, 2026-10-21).
 Pins: oneloopmaster `8ec256fc` (main), gammaloop `d1904bf2` (branch
 `feynkit`, with PRs #142-#144 and #149-#152 merged), Symbolica `9cdc2949`
 (alphal00p/symbolica `ninjars-pin`: upstream `c78cffc2` plus the patches of
 `dependencies/patches`, among them symbolica-dev/symbolica#89 and #97).
 Details of the NinjaRS items are in `docs/rank-n2.md` (known limitations),
 `validation/rank-n2/README.md` and `validation/regression/README.md`; those
-of oneloopmaster in its `STATUS.md`. `HANDOFF.md` (decisions D2-D4, section
-3.F) is the session handoff in the workspace root, not part of the
-repository.
+of oneloopmaster in its `STATUS.md`. The session handoff (`HANDOFF.md`,
+decisions D2-D4) is kept outside the repository, in
+`references/handoff-2026-10-20/`.
 
 Sections 1 to 4 are the plan of 2026-10-19 (NinjaRS main `fc1700e`), done.
 Section 5 is the open work.
@@ -199,9 +200,19 @@ track the tail"; `STATUS.md`, "Adversarial sweeps and the remaining tail
   bound. Every rank <= n+1 stage instance is identical to main `0d0d7e7`;
   instructions per point on rank <= n+1: replayed −0.001 %, live +0.305 %,
   all of it in oneloopmaster `8ec256fc`'s native masters. The cycle-timed
-  guard and the COLLIER benchmark were not rerun.
-- The coordinator deletes the stale branches and worktrees of D2 and this
-  effort's worktrees at landing (HANDOFF.md 3.F).
+  guard was not rerun.
+- After the landing: the benchmark data and `benchmark.pdf` were refreshed
+  (the three gates pass: reduction x0.49-0.57 of Ninja, native masters
+  x0.27-0.61 of OneLOop, end to end x0.17-0.50 of MadLoop), and the rank n+2
+  section became a validation against COLLIER (accuracy only; NinjaRS agrees
+  with binary64 COLI on 323 of 333 lanes and with DD on all 195, with no
+  surprise on NinjaRS's side). The COLLIER timing comparison is no longer
+  maintained.
+- Done at landing: the stale branches and worktrees of D2 and this effort's
+  worktrees were deleted in NinjaRS, oneloopmaster and gammaloop;
+  `archive/codex/paired-orientation-audit` (NinjaRS), `archive/olm-*`
+  (oneloopmaster) and `archive/ninjars-combined` (gammaloop) keep the cited
+  commits reachable.
 
 ## 5. Follow-ups
 

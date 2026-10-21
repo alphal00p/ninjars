@@ -101,7 +101,7 @@ case's own batch width.
 
 *Provenance.* NinjaRS #raw(rn2.accuracy_head) (oneloopmaster
 #raw(rn2.accuracy_oneloopmaster), Symbolica #raw(rn2.accuracy_symbolica)),
-#rn2.accuracy_date; two complete `case-check` runs gave bitwise identical
+#rn2.accuracy_date. Two complete `case-check` runs gave bitwise identical
 lanes in all five modes. COLLIER's binary64 values are those of its uncached
 validation pass, which a fresh build reproduced bitwise on all 1,122 lanes
 (precise and stock, COLI and DD) on #rn2.accuracy_date. The previous
@@ -423,7 +423,13 @@ gone with Symbolica's corrected `Float` products.
   each code's own claim as its tolerance, NinjaRS agrees with binary64 COLI
   on #v64.coli.agree of #v64.coli.compared lanes in every run, and with DD
   on all #v64.dd.compared lanes DD can evaluate, by at most
-  #sci(v64.dd.largest_difference). Besides the
+  #sci(v64.dd.largest_difference). COLLIER's binary64 claim is loose: it
+  exceeds $10^(-6)$ on #v64.coli.at("collier_claim_above_1e-6") of the
+  #v64.coli.compared COLI lanes and #v64.dd.at("collier_claim_above_1e-6") of
+  the #v64.dd.compared DD lanes. At a fixed threshold the fast engine and COLI
+  differ by at most #sci(v64.coli.comparison_set.largest_difference) on the
+  #v64.coli.comparison_set.lanes lanes of @tab:rank-n2-accuracy, and by at
+  most $10^(-8)$ on #v64.coli.comparison_set.at("within_1e-8") of them. Besides the
   #v64.coli.no_ninjars_tolerance tier C lanes, the
   #v64.coli.disagree COLI disagreements are COLLIER errors with accuracy
   flag 0:
@@ -437,7 +443,8 @@ gone with Symbolica's corrected `Float` products.
     right.
 
   Against COLI quad, binary64 NinjaRS is the one off only on three
-  report-only lanes with a condition above $10^6$: the lane above, and with
+  report-only lanes with a cancellation above $10^6$ (the condition, or for the
+  lane above the new rank $n + 2$ terms' $5 times 10^7$): the lane above, and with
   the generic engine `rn2-int-real-n7-r9-mu2` lane 2 ($2.3 times 10^(-4)$)
   and `rn2-shifted-mixed-n7-r9-mu2` lane 0 ($1.6 times 10^(-4)$). From
   DoubleFloat on, NinjaRS is within $10^(-12)$ of COLI quad on
@@ -469,9 +476,7 @@ factor of two are $mu^2$ lanes, whose pieces this harness rounds to binary64
 before the contraction. COLLIER 1.2.10 changes, against 1.2.9, complex-mass
 $C_0$ root prescriptions and two error-estimate guards. Building and running
 COLLIER showed, besides the cache defect, one defect in the reference
-harness and one cost to know about: the harness combines COLLIER's accuracy
-flag with `max` from 0, in its Fortran driver (`collier_tensor_driver.f90`)
-and again over a lane's pieces (`collier_reference.py`), and so never reports
-a negative flag (no reference value uses it), and every change of a
-regulator or scale parameter runs DD's machine-precision loop
-(`DDsetparam`), also in COLI mode.
+harness: the harness combines COLLIER's accuracy flag with `max` from 0, in
+its Fortran driver (`collier_tensor_driver.f90`) and again over a lane's
+pieces (`collier_reference.py`), and so never reports a negative flag (no
+reference value uses it).

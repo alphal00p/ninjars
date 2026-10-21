@@ -215,10 +215,12 @@ defects.
     of the value), and two-mass boxes with complex masses in the same way
     (0.4 % to 2.8 % of random such boxes); they now take Denner and
     Dittmaier's sheets;
-  - two-mass boxes with both massive lines at or next to their shells, whose
-    dilogarithm arguments' complements, formed from the rounded arguments,
-    lost up to 0.16 of the value in binary64; they now come from the
-    channels' complements;
+  - two-mass boxes with both massive lines at or next to their shells, on
+    which the complex-mass sheets of the previous item, as first implemented,
+    lost up to 0.16 of the value in binary64 (the mass pairs' complements were
+    formed from the rounded arguments; OneLOop's sheets at 09b2c74 lost at most
+    $2 times 10^(-10)$ there); the complements now come from the channels'
+    complements, so this never reached a pinned oneloopmaster;
   - soft boxes, wrong or non-finite in many labellings of their propagators
     (on oneloopmaster's adversarial sweeps, 59 % of the binary64
     evaluations of 14,400 soft-box relabellings at 09b2c74); they are now
@@ -246,7 +248,7 @@ accuracy of the physical benchmark diagrams in binary64; the dilogarithm
 affected only their speed. Since the previous revision of this report
 (oneloopmaster 3023fa6), the binary64 results of the physical diagrams have
 moved by at most $4 times 10^(-15)$. oneloopmaster's own adversarial $D_0$
-sweeps (three sweeps, 99,119 referenced rows each) still find a tail that
+sweeps (three sweeps, 99,119 referenced rows in all) still find a tail that
 its `STATUS.md` lists as open work. Over them the four binary64 routes return
 2,798 finite but wrong values, against 18,377 at 09b2c74; but on the two
 sweeps generated after the fixes, 28 binary64 boxes that 09b2c74 got right
@@ -276,7 +278,7 @@ subtractions at 700 bits) and evaluates oneloopmaster's exact master
 expressions at the same precision. All three points take 7.9 seconds in
 total at 700 bits and 9.1 seconds at 1000 bits (CPU 60), including the
 one-time preparation, and 7.8–8.2 and 9.2–9.4 seconds in three further
-rounds on other cores. Run alternately on the same cores with the CLI of the
+rounds (CPUs 39, 60 and 75 at 700 bits; 78, 60 and 60 at 1000 bits). Run alternately on the same cores with the CLI of the
 previous revision (oneloopmaster 09b2c74, Symbolica e679e8c1), the current
 one executes 0.7 % (700 bits) and 0.9 % (1000 bits) more instructions. The 700-bit results
 agree with a 1000-bit run to
@@ -369,7 +371,7 @@ outputs and master values of the same evaluation replayed at O(1) cost); the
 tensor-numerator expansions (live tensor numerator minus pure reduction); the
 master integrals (the recorded calls replayed through oneloopmaster's native
 code); and the uninstrumented total. At the tabulated batch width the
-components add up to the total within 1 %. `ninjars case-bench` performs the same breakdown on the shared
+components add up to the total within 1 % (`case-bench`, @tab:identical: within 3.3 %). `ninjars case-bench` performs the same breakdown on the shared
 bench-case files, which contain exactly the propagators and tensor
 coefficients given to original Ninja.
 
@@ -409,19 +411,19 @@ interleaved with the previous revision on the same core
 CPU 29 agreed within about 1 %, except OneLOop on the $n = 5$ cases, 5–8 %
 faster there (`validation/benchmark/cpu-crosscheck.md`). Re-timed on the
 cores used now, with the same executables, original Ninja's replay lies
-within −6.3 to +3.5 % of them (pure reduction −0.3 to +3.0 %, OneLOop −6.3
-to +3.5 %), and the MadLoop pipeline, rebuilt for three diagrams, within −3
+within −6.3 to +4.9 % of them (pure reduction −0.3 to +3.0 %, tensor numerator
+−2.0 to +4.9 %, OneLOop −6.3 to +3.5 %), and the MadLoop pipeline, rebuilt for three diagrams, within −3
 to −1 %. This moves no gate: against these re-timed references the gates are
 (a) ×0.48–0.56, (b) ×0.27–0.61 and (c) ×0.19–0.39 (three diagrams). Against
 the previous revision on the same core, the reduction is unchanged
-(×0.99–1.02; instructions within 0.25 %), and oneloopmaster 8ec256fc's
+(×0.99–1.02 on the physical diagrams; instructions within 0.25 %), and oneloopmaster 8ec256fc's
 master integrals take 6–7 % longer on the gg → HH(H) box and pentagon
 diagrams (+1.4–1.6 % instructions). The arbitrary-precision runs of
 @arbprec used CPU 60, whose other hardware thread was 2.4 % busy. Rust 1.98
 (`--profile perf`: opt-level 3, one codegen unit for the hot crates), GCC and
 gfortran 15.3, no `-march`/`-ffast-math` on either side. Timings are medians
 of nine blocks of at least 20 ms; the three rounds agree within 6 %
-(pipeline totals within 2 %), components below 1.5 µs within 22 %.
+(pipeline totals within 2.2 %; generation, timed once per round, varied by up to 27 %), components below 1.5 µs within 22 %.
 
 = What is new in NinjaRS <innovations>
 
