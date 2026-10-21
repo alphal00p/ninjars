@@ -1,14 +1,16 @@
 # Next plan
 
-State after the landing of `claude/todo-next-integration` on NinjaRS main
-(2026-10-21). <!-- PASS2: NinjaRS main hash after the landing push. -->
+State after the landing of `claude/todo-next-integration` (`115fb46` and the
+pass-2 commits of section 4) on NinjaRS main (2026-10-21).
 Pins: oneloopmaster `8ec256fc` (main), gammaloop `d1904bf2` (branch
 `feynkit`, with PRs #142-#144 and #149-#152 merged), Symbolica `9cdc2949`
 (alphal00p/symbolica `ninjars-pin`: upstream `c78cffc2` plus the patches of
 `dependencies/patches`, among them symbolica-dev/symbolica#89 and #97).
 Details of the NinjaRS items are in `docs/rank-n2.md` (known limitations),
 `validation/rank-n2/README.md` and `validation/regression/README.md`; those
-of oneloopmaster in its `STATUS.md`.
+of oneloopmaster in its `STATUS.md`. `HANDOFF.md` (decisions D2-D4, section
+3.F) is the session handoff in the workspace root, not part of the
+repository.
 
 Sections 1 to 4 are the plan of 2026-10-19 (NinjaRS main `fc1700e`), done.
 Section 5 is the open work.
@@ -148,10 +150,12 @@ track the tail"; `STATUS.md`, "Adversarial sweeps and the remaining tail
      interpreted, SymJIT). On the 3,510 rank n+2 D0 calls it is 7.53e-11,
      7.48e-11, 7.51e-11, 2.58e-11 (SymJIT 1.66e-11 at 09b2c74). No call is
      more than ten times worse.
-   - Against OneLOop 3.6 and COLLIER 1.2.10 on the same sweeps
-     (`references/session-2026-10-20b/oneloop-compare/out/final_tables.md`):
-     OneLOop's double and quadruple precision share 09b2c74's soft-box
-     failure in non-cyclic labellings and 105 wrong complex-mass values;
+   - Against OneLOop 3.6 and COLLIER 1.2.9 (quad, COLI and DD) on the same
+     sweeps (session scratch, not in the repository:
+     `references/session-2026-10-20b/oneloop-compare/out/final_tables.md`):
+     OneLOop in double and quadruple precision shares 09b2c74's soft-box
+     failure in non-cyclic labellings, and on 105 rows quad OneLOop returns
+     09b2c74's wrong value (3a322d0 is right on all 105);
      COLLIER COLI is the most accurate on D0 (0 to 0.13 % of the rows wrong),
      but wrong on 14 to 16 % of the ns and ns2 C0 rows, mostly with a
      vanishing Källén function and flagged; COLLIER DD is wrong on 4 to 9 % of
@@ -167,14 +171,28 @@ track the tail"; `STATUS.md`, "Adversarial sweeps and the remaining tail
 - Integrated from HANDOFF.md D2: the paired-orientation docs (`725dbec`;
   the frozen probe stays on `archive/codex/paired-orientation-audit`), the
   pruned-validation harness (`4091986`, its control on the integration pins
-  `d06503e`) and `examples/n5r5_exact.rs` (`2de63f9`).
+  `d06503e`) and `crates/ninjars-symbolica/examples/n5r5_exact.rs` (`2de63f9`).
   `COLLIER_CACHE_BUG.md` is committed (`fa7a789`).
 - Also in the landing: Symbolica `9cdc2949` (`72a273c`), `dis_compare.py`
   matching the CLI binary's symbols (`759abc2`), the plan record (`115fb46`).
-  <!-- PASS2: list the pass-2 commits (V0 Float(256) tolerance, known-failures
-  re-derivation, tests) and one line with the outcome of the pass-2 checks
-  (case-check in five modes, test suites, machine code and instruction
-  counts; docs/rank-n2.md 7.2, 8.2, 8.3). -->
+- Pass 2, on `115fb46`: V0 compares its generic Float(256) section within
+  2^-200 of the lane scale, statuses exact, the other sections bitwise
+  (`cb6b4d1`); `known-failures.json` re-derived (`27844af`); machine-code and
+  instruction-count evidence (`1a1eea4`); the documentation.
+  <!-- PASS2: missing the commits of the ninjars-tests stream, if it made any
+  (for example the batched-against-unbatched test of section 5, "Requests
+  from pyAmpliCol"), and its test-suite outcome (docs/rank-n2.md 8.2 V1,
+  8.4). -->
+- Outcome of the pass-2 checks at `115fb46` (docs/rank-n2.md 7.2, 8.2, 8.3):
+  `case-check` in five modes plus `--conditioned-cuts` exits 0 on the suite
+  and the controls, every lane `Success` (the tracked-precision check flags
+  none); the suite has no known failure, the controls one Float(128) known
+  inaccuracy (`rn2-int-mixed-n6-r6` lane 2, from Symbolica #97; the 14
+  former Float(128) entries went stale with it). V0 passes with the 2^-200
+  bound. Every rank <= n+1 stage instance is identical to main `0d0d7e7`;
+  instructions per point on rank <= n+1: replayed −0.001 %, live +0.305 %,
+  all of it in oneloopmaster `8ec256fc`'s native masters. The cycle-timed
+  guard and the COLLIER benchmark were not rerun.
 - The coordinator deletes the stale branches and worktrees of D2 and this
   effort's worktrees at landing (HANDOFF.md 3.F).
 
@@ -213,6 +231,7 @@ track the tail"; `STATUS.md`, "Adversarial sweeps and the remaining tail
   threshold factor (2^5 catches 77 of 84 with 11 false alarms) or an
   N=N-style test. `rn2-phys-real-n6-r8` lane 2 is a false negative (1.3e-6
   against a budget of 5.9e-7).
+<!-- PASS2: keep only if case_check.rs stability_test_flags_rank_n2_cancellations ([Success, Unstable, Success]) passes at the pass-2 head with the per-term measure merged. -->
 - **Remaining cost of the 24-reference selection**: box +1.4 %,
   pentagon-rank4 +1.0 % per point; dropping the constant reference columns
   would save about 0.25 %.
@@ -224,6 +243,13 @@ track the tail"; `STATUS.md`, "Adversarial sweeps and the remaining tail
 - **Generic bench last digits**: representative results differ between
   d53dd08 and 0d0d7e7 on pentagon-rank4, heptagon-rank8 and gg-hh top-box-2;
   bisect, starting with `bc03412` and `6487309`.
+- **`n5r5_exact`** (`crates/ninjars-symbolica/examples/n5r5_exact.rs`), run
+  with Symbolica e679e8c1 and oneloopmaster 09b2c74: its Float(512) eps0
+  moved by 7.2e-18, 1.7e-16 and 1.3e-17 relative (lanes 0-2) against the
+  committed `validation/benchmark/ill-conditioned/n5r5-olm3023fa6.jsonl`,
+  while Float(256) and Float(512) agree within the run. Unexplained
+  (suspected: the masters' pin 3023fa6 → 09b2c74, or the generic
+  selection); rerun at the landing pins.
 
 ### Masters and precision rescue (NinjaRS)
 
@@ -231,13 +257,24 @@ track the tail"; `STATUS.md`, "Adversarial sweeps and the remaining tail
   (`oneloop-compare/out/ladder.txt`): the binary64 failures of `3a322d0` are
   rescued by DoubleFloat in 90-98 % and by `Float` 256 or 512 bits in
   95-99.6 % (09b2c74: 15-33 %). 47 of the 100,680 rows are rescued at no
-  level (exact-zero-Gram planar light-like boxes, mostly NaN at every level;
-  OneLOop quad is NaN on most). On exact-zero-Gram planar rows higher
-  precision can be worse (298 ns and 179 ns2 rows), which the tracked-precision
-  check of `2a7df0d` addresses.
+  level (42 exact-zero-Gram planar dyadic boxes, 4 with a vanishing channel,
+  1 other; 45 are NaN at every level, and OneLOop quad is NaN on 43). A
+  higher level can be wrong where a lower one was right within 1e-10 (298 ns,
+  179 ns2 and 1 fs rows; mostly Float(128) after a right DoubleFloat), which
+  the tracked-precision check of `2a7df0d` addresses where such values track
+  few bits.
 - **What the tracked-precision check misses**: 6 sweep rows report 81 to
   1023 tracked bits while wrong (ns 9210, 10378, 10965, 11620, ns2 5278,
   11326); ns 9210 tracks 253 of 256 bits and is wrong by 4.46.
+- **The Float(128) D0 of `rn2-int-mixed-n6-r6` lane 2** (its known
+  inaccuracy, `27844af`): a regular complex-mass box whose 128-bit D0 is off
+  by 1.0e4 units of 2^-128 on Symbolica's interpreter and 7.1e3 on
+  oneloopmaster's native `Float` code (about 13 bits), in all 24 labellings,
+  while it keeps 119.7 tracked bits; binary64 is 7.8 units of 2^-53 off,
+  DoubleFloat 20 units of 2^-106. Symbolica #97 moved it from 1.5e3 units,
+  although it improved Float(128)'s D0 on the 139 boxes of the former
+  entries 5.9 times in the median. Forward to oneloopmaster; a fix makes the
+  entry stale.
 
 ### oneloopmaster
 
@@ -269,6 +306,14 @@ track the tail"; `STATUS.md`, "Adversarial sweeps and the remaining tail
   bits; C0 with equal masses, on-shell legs and a vanishing invariant
   (`Float`); C0(0,0,0; m_complex, 0, m_real) wrong on every route, binary64
   included; interpreted `Float` C0 at 112–224 bits.
+- **D0 instructions in NinjaRS's live path**: with `8ec256fc` the binary64
+  D0 rows cost +1.58 % instructions per row on rank <= n+1 keys (+0.68 % to
+  +3.29 % per key) and +1.67 % on rank n+2 keys (+0.30 % to +4.94 %) against
+  09b2c74; C0 −0.54 % and −0.32 %, A0 +0.6 % (NinjaRS `1a1eea4`).
+  Attribute the cost to one of its changes
+  (`validation/performance/rank-n2-ab/scripts/ab_masters_family.rs`) and
+  check the masters gates (per D0 call within 0.5 % of 09b2c74; native
+  masters <= 1.3× OneLOop).
 - **Debugging hooks** `ZZ_GEN_LOG` and `ZZ_GEN_DD` in `src/sheet_exact.rs`
   should go.
 - **History-independent evaluators**: build oneloopmaster's Symbolica
@@ -300,10 +345,15 @@ track the tail"; `STATUS.md`, "Adversarial sweeps and the remaining tail
 ### Requests from pyAmpliCol
 
 From pyLoopAmpliCol (loop engine v2), received 2026-10-20; none blocks.
-<!-- PASS2: if the pass-2 test that lanes of unrelated families (same n and
-rank) give bitwise the same result batched as unbatched did not land, add it
-here as a follow-up; otherwise name its test. -->
 
+- **Batched against unbatched across unrelated families**: a test that lanes
+  of unrelated families (different kinematics, masses and numerators, the
+  same n and rank) give bitwise the same result batched as unbatched, at
+  rank <= n+1 and at declared n+2 with per-lane lowering (`lane_rank`).
+  First check what V7c and the `tests_x2.rs` batching tests already cover,
+  and add only the missing case.
+  <!-- PASS2: missing the ninjars-tests outcome: if that stream lands this
+  test, replace this bullet by the test's name in section 4. -->
 - **Finite-only mode**: what can be skipped when only the finite part is
   needed (pole-only Laurent terms, master pole parts, mu²/eps expansions
   feeding only poles); a cheap option or API if worthwhile (measure first).

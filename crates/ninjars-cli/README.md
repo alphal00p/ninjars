@@ -442,10 +442,11 @@ nix develop --command cargo run --release -p ninjars-cli -- case-check \
   lane, the bubble reference and tadpole basis that best condition the uncut
   lines and the box geometry of the rank n+2 engine, instead of original
   Ninja's fixed choices. It is more accurate on lanes where an uncut line is
-  nearly orthogonal to Ninja's reference vectors, gives up bitwise agreement
-  with original Ninja and costs about +29 % instructions in the replayed
-  reduction ([rank n+2](../../docs/rank-n2.md), section 7.2). Rank n+2
-  always uses that geometry. The fast run's report then carries
+  nearly orthogonal to Ninja's reference vectors, changes the results and the
+  cut-constructible/rational split against the default (and so against
+  original Ninja's), and costs +29.8 % instructions in the replayed
+  reduction in geometric mean ([rank n+2](../../docs/rank-n2.md), section
+  7.2). Rank n+2 always uses that geometry. The fast run's report then carries
   `"conditioned_cuts": true`.
 - `--stability-test` marks generic-engine lanes whose cut contributions,
   term by term, cancel below half the carrier's bits as `Unstable`.

@@ -118,9 +118,10 @@ independent of the renormalization scale. The default mu-expansion mode obtains
 the integrated rational coefficient directly from the numerator expansion.
 Conditioning diagnostics and precision rescue remain under development.
 Master integrals in `Float` are checked against numerica's tracked precision:
-a result that keeps fewer than max(53, bits/4) bits (at most bits/2) fails its
-lane with `MasterFailure::ImpreciseResult`, as a non-finite one does, so that a
-rescue at higher precision retries the lane instead of accepting it (2a7df0d).
+a result that keeps fewer than max(53, bits/4) tracked bits (a requirement
+capped at bits/2) fails its lane with `MasterFailure::ImpreciseResult`, as a
+non-finite one does, so that a rescue at higher precision retries the lane
+instead of accepting it (2a7df0d).
 
 `reduce --engine fast` (also `bench`) selects `ninjars::fast`, a batched
 binary64 port of original Ninja's reduction with oneloopmaster's native
@@ -162,12 +163,10 @@ The new pieces are:
 `ninjars case-check` judges both engines against the high-precision suite in
 `validation/rank-n2` (333 lanes, n = 1..7). No lane fails in the fast engine
 or in the generic engine in binary64, DoubleFloat, Float(128) or Float(256).
-With oneloopmaster 09b2c74 no upstream failure is left; three Float(128) lanes
-are listed as known inaccuracies of the exact masters in `Float`.
-<!-- PASS2: replace "09b2c74" by "8ec256fc" (with Symbolica 9cdc2949 and the
-tracked-precision check of 2a7df0d) and confirm "no lane fails" and the count
-of suite Float(128) known inaccuracies (3) from the pass-2 re-derivation of
-validation/rank-n2/known-failures.json (docs/rank-n2.md 8.3 case-check). -->
+With oneloopmaster 8ec256fc and Symbolica 9cdc2949 no upstream failure is
+left, no suite lane is listed as a known inaccuracy, and the tracked-precision
+check of 2a7df0d flags no lane; one rank <= n+1 control lane is listed as a
+Float(128) known inaccuracy of the exact masters in `Float`.
 See
 [rank n+2](docs/rank-n2.md) for the formulas, the validation and the known
 limitations.
