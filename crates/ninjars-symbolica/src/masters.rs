@@ -119,6 +119,17 @@ fn strict_status(statuses: &[MasterStatus]) -> Result<()> {
 /// rounded momenta (e.g. `+2^-114` with 2 tracked bits at 128 bits) can make
 /// the four-mass D0 wrong by orders of magnitude while it reports 8 bits.
 ///
+/// D0 rows are relabelled with `oneloop::regular_d0_labelling` before
+/// evaluation. The box depends only on its set of propagators, but the D0
+/// expressions find a soft line's pole on the four external invariants only;
+/// a labelling that puts its on-shell pair, with a massive partner, on a
+/// channel (`s12` or `s23`) reaches the finite formulas and misses the pole.
+/// Such a point is evaluated in the labelling of the same box, of the two that
+/// exchange the channel pair, that keeps the pair off the channels; every
+/// other point keeps its labelling. oneloopmaster's native entry points (the
+/// fixed-precision carriers) do the same, so there it changes nothing; the
+/// interpreted `Float` route needs it (`tests/soft_box_labelling.rs`).
+///
 /// B0, B1, B11, B111 and B1111 come from oneloopmaster's native tensor
 /// families for every carrier.
 /// The native code rounds every input to one working precision, so for `Float`
@@ -462,6 +473,14 @@ where
                             &mut self.arguments[start..],
                             request.integral.invariant_count(),
                         );
+                    }
+                    // oneloopmaster's symbolic D0 expressions (the Float route
+                    // below) keep the labelling: relabel a soft box whose
+                    // on-shell pair sits on a channel, as its native entry
+                    // points do (idempotent there). After the on-shell
+                    // threshold, whose snapped values the exact tests see.
+                    if request.integral == MasterIntegral::D0 {
+                        oneloop::regular_d0_labelling(&mut self.arguments[start..]);
                     }
                 }
             }
