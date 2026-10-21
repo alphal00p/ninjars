@@ -519,6 +519,7 @@ Tests (`crates/ninjars-symbolica/tests/`, `crates/ninjars-cli/tests/case_check.r
 | `rank_n2_identity.rs` | V6, n = 2..7 | `max(1e-10 max(1, cond), 10 min(e_generic, 1e-6))`, `e_generic` the same identity with the generic engine in f64 |
 | `rank_n2_invariance.rs` | V7a, V7b, V7c, n = 1..7, at rank n+2 and on the rank n+1 truncations | `max(1e-11, 10 noise)`, `noise = min(max(generic noise, min(fast noise, 1e-9)), 1e-6)` |
 | `rank_n2_padding.rs` | V5 | `max(1e-11, 10 fast noise)` |
+| `fast_batch_families.rs` | batches of lanes from unrelated cases (all bench cases of one n): rank <= n+1 per (n, rank), and declared rank n+2 by default (each lane at its own rank) and through `AtDeclaredRank`; plain and mu² numerators, with and without S-matrices, a failing lane in each pool for n >= 2; widths 1, 3, 8, 32 in two orders | bitwise against every lane alone (and, lowered, against the lane declared at its own rank) |
 | `fast_parity.rs` | V8, n = 1..7 | 1e-9, or `10 noise`, `noise = min(max(generic noise, min(fast noise, 1e-8)), 1e-6)` |
 
 - **Noise.** An engine's noise is the change of its binary64 result when the propagators
