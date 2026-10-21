@@ -19,11 +19,16 @@ validation/benchmark/collier/build.sh               # COLLIER 1.2.10 (precise, s
 cargo build --profile perf --locked -p ninjars-cli --features numerator-jit   # target/perf/ninjars
 python3 validation/benchmark/collier/run_bench.py --rounds 2     # timings (pinned, interleaved per round), ~1.5 h
 python3 validation/benchmark/collier/run_accuracy.py            # case-check verdicts, ~10 min
-python3 validation/benchmark/collier/run_final_review.py        # fresh cases of the final review, ~1 min
+python3 validation/benchmark/collier/run_final_review.py        # fresh cases of the final review, ~4 min
 python3 validation/benchmark/collier/count_instructions.py      # perf stat instruction counts
 python3 validation/benchmark/collier/collect.py                 # -> docs/benchmark/data/rank_n2.json
 cd docs/benchmark && nix shell nixpkgs#typst -c typst compile benchmark.typ benchmark.pdf
 ```
+
+An accuracy-only refresh (validating NinjaRS against the references and COLLIER, with no
+timing) runs `build.sh` if the binaries are missing, the cargo build, `run_accuracy.py`,
+`run_final_review.py` and `collect.py`; `collect.py` then keeps the committed timing files
+and marks them with `timings.from_previous_run` (see "Provenance of `results/`").
 
 | file | role |
 |---|---|
@@ -32,10 +37,10 @@ cd docs/benchmark && nix shell nixpkgs#typst -c typst compile benchmark.typ benc
 | `collier_bench.f90` | the binary64 driver: validation pass (three Delta settings, Laurent coefficients, flags, error estimates), then timed quantities (below) |
 | `collier_cache_repro.f90` | standalone reproducer of the COLLIER global-cache defect (see Findings); `build.sh` builds it as `bin/collier_cache_repro-<variant>` |
 | `run_bench.py` | runs NinjaRS (`case-bench`, fast engine) and COLLIER, interleaved per round on one CPU; the generic engine once at the end; precise COLI with the global cache for validation only (untimed); `--lanes-only` re-runs only COLLIER's validation pass and replaces the lane values of `results/collier.json` |
-| `run_accuracy.py` | `ninjars case-check` on the suite and synthetic cases: fast and generic f64, generic DoubleFloat, Float(128), Float(256) |
-| `run_final_review.py` | NinjaRS (fast, generic f64, and the generic engine's `--stability-test` status) and COLLIER (COLI, DD) on the final review's 58 fresh cases with 60-100 digit references (`/shared/external/ninja/references/final-review`, outside the repository) |
+| `run_accuracy.py` | `ninjars case-check` on the suite and synthetic cases: fast and generic f64, generic DoubleFloat, Float(128), Float(256); per lane also the scaled difference to COLLIER's values (`collier`: COLI and DD 1.2.10 binary64 from `results/collier.json`, COLI quad 1.2.9 from the references) |
+| `run_final_review.py` | NinjaRS (fast, generic f64, the generic engine's `--stability-test` status, and the generic engine in DoubleFloat, Float(128) and Float(256) with its lane status) and COLLIER (COLI, DD) on the final review's 58 fresh cases with 60-100 digit references (`/shared/external/ninja/references/final-review`, outside the repository); per lane also NinjaRS's binary64 values against COLLIER's (`fast_vs_coli`, ...) |
 | `count_instructions.py` | retired user-space instructions per point (`perf stat`, difference of two fixed-work runs) |
-| `collect.py` | the data file of the report |
+| `collect.py` | the data file of the report, including `accuracy.ninjars_vs_collier` (see "NinjaRS against COLLIER") |
 | `results/` | the raw, consolidated measurements (`collier.json`, `ninjars-fast.json`, `ninjars-generic.json`, `accuracy.json`, `accuracy-final-review.json`, `instructions.json`, `environment.json`) |
 
 ## What is compared
@@ -112,6 +117,73 @@ commit recorded under `environment.json` `collier_lanes`, after two driver chang
   not a usable speed-up because the cached 7-point results are wrong (Findings), and it is
   no longer recorded.
 
+The accuracy files were refreshed on 2026-10-21 at NinjaRS aa6a630 (oneloopmaster 8ec256fc,
+Symbolica 9cdc2949; `accuracy.json` `ninjars_head`, `accuracy-final-review.json`), without
+re-timing: `run_accuracy.py`, `run_final_review.py` and `collect.py` only. `environment.json`,
+`collier.json`, `ninjars-*.json` and `instructions.json` are those described above, and
+`rank_n2.json` records this as `timings.from_previous_run` (timed tree 0d0d7e7, oneloopmaster
+09b2c74) next to `accuracy_head`. Before the refresh, COLLIER's uncached validation pass was
+re-run with a fresh `build.sh` (same tarball and flags) on every case: all 1122 lanes of
+`collier.json` (precise and stock, COLI and DD) were bitwise identical, so COLLIER's lane
+values were kept. Two `case-check` runs of the refresh gave bitwise identical lanes in all
+five modes.
+
+## NinjaRS against COLLIER
+
+`collect.py` compares NinjaRS's lane values with COLLIER's directly, per `case-check` run
+(`accuracy.ninjars_vs_collier`), against three COLLIER evaluations: COLI and DD in binary64
+(1.2.10, precise build, no global cache) and COLI in quad (1.2.9, `SetReqAcc_cll(1e-20)`, the
+references' `collier_coli_quad_decimal`).
+
+- **Agreement.** A lane agrees when |x_NinjaRS - x_COLLIER| / scale is at most the sum of the
+  two codes' own claims: `case-check`'s tolerance of the lane (`docs/rank-n2.md` section 8.3)
+  and COLLIER's, max(1e-8 * max(1, absum / scale), estimate / scale) in binary64 (1e-8 is
+  COLLIER's default target, absum the sum of the contraction terms' magnitudes, estimate its
+  error estimate) and 1e-20 * max(1, condition) in quad. COLLIER's binary64 claim exceeds 1e-6
+  on 141 of 333 COLI and 50 of 195 DD lanes (mostly `mu2`/`muall` lanes, whose pinched pieces
+  cancel), so the counts at fixed thresholds (`within`) and the binary64 comparison set of the
+  accuracy table (`comparison_set`) are given too.
+- **Disagreements** are decided by the reference: NinjaRS is right when it is within its
+  tolerance, COLLIER when it is within its claim plus the reference's uncertainty.
+  `disagreements` lists in full every one where NinjaRS is not right, `collier_misses` the
+  others. Lanes without a `case-check` tolerance (8 tier-C n = 7 lanes whose reference is
+  COLLIER's quad value) are listed under `untolerated`.
+- **Fresh cases** (`accuracy.final_review.ninjars_vs_collier`): the same with NinjaRS's
+  tolerance set to the report's 1e-6, decided by the 60-100 digit references.
+
+Results at aa6a630 (suite and synthetic, 333 lanes; the previous run's raw `case-check`
+reports at 4dec120 give the old values in brackets):
+- **Binary64 COLI**: 323 of 333 lanes agree in every run (fast f64 [323], generic f64 [320],
+  DoubleFloat, Float(128), Float(256) [323 each]); the other 10 are 8 untolerated lanes and 2
+  disagreements. `rn2-irml-zero-n5-r7-mu2` lane 1: COLI is off by 0.23 with accuracy flag 0
+  (its estimate 6.0e-2), NinjaRS by 5.2e-10 (fast) and 5.0e-10 (generic). `rn2-phys-real-n6-r8`
+  lane 2: COLI is off by 5.0e-4 with accuracy flag 0 (claim 7.7e-8); in binary64 NinjaRS is
+  off too, by 1.1e-5 (fast) and 1.3e-6 (generic [1.1e-3]) against a budget of 5.9e-7 (a
+  report-only lane, now flagged by `--stability-test`), and right from DoubleFloat on (3.4e-10).
+  On the comparison set (298 lanes) fast and COLI differ by at most 2.0e-6
+  (`rn2-phys-complex-n6-r8-mu2` lane 2) and by at most 1e-8 on 269.
+- **Binary64 DD**: all 195 lanes agree in every run, by at most 9.7e-9.
+- **Quad COLI**: fast f64 323 [320], generic f64 321 [319], DoubleFloat and Float(128) 209
+  [209], Float(256) 205 [203]. In binary64 NinjaRS is the one off on 3 lanes, all report-only:
+  `rn2-phys-real-n6-r8` lane 2 (above), and with the generic engine `rn2-int-real-n7-r9-mu2`
+  lane 2 (2.3e-4 against 7.8e-5) and `rn2-shifted-mixed-n7-r9-mu2` lane 0 (1.6e-4 against
+  7.9e-5); the fast engine is within budget on both (2.8e-5 [8.7e-4], 1.3e-5 [1.7e-3]). At high
+  precision the 116 to 119 disagreements are COLLIER quad missing its 1e-20 target (finding 1
+  of `validation/rank-n2/README.md`; NinjaRS within 1e-12 of it on 299 lanes), except
+  `rn2-phys-real-n6-r8` lane 0 in Float(256): 7.5e-12 [1.35e-11] from the reference against a
+  tolerance of 2.8e-12, report-only, while COLLIER quad is within 1.3e-13. DoubleFloat,
+  Float(128) and Float(512) agree with that Float(256) value to 3e-25, so this is the input
+  ambiguity of the snapped S-matrix (`docs/rank-n2.md` section 8.3), not a precision loss.
+- **Untolerated**: on `rn2-int-real-n7-r9-muall` lanes 0 and 1 NinjaRS's DoubleFloat,
+  Float(128) and Float(256) values differ from COLLIER quad (their reference) by 0.86 and 0.14
+  and agree with Float(512) to 1.2e-14, 2.6e-21 and 4e-74 (lane 1: 4.2e-16, 2.3e-22, 5e-75);
+  binary64 COLI is off by 2.4e4 and 2.3e3. COLLIER is wrong there, as
+  `validation/rank-n2/README.md` ("Known failures") found. On the other 6 untolerated lanes
+  NinjaRS at high precision is within 3.6e-7 of COLLIER quad.
+- **Statuses**: every lane is `Success` in all five runs: the tracked-precision check of the
+  `Float` masters (2a7df0d) fails no lane in Float(128) or Float(256), here and on the 166
+  fresh lanes.
+
 ## Validation of the driver
 
 Against the high-precision references of `validation/rank-n2/reference`, the binary64 COLI
@@ -166,8 +238,23 @@ rank 0 (`reductionC.F90`).
   (`BuildTensors.F90`; 69 % and 57 % in one profile, 72.5 % and 65.0 % in the verification's),
   the construction of the tensor components from the Lorentz-covariant coefficients, whose
   number grows steeply with the rank.
-- **Fresh cases.** On the final review's cases (`run_final_review.py`), the 21 of 166 lanes on which
-  NinjaRS's binary64 error exceeds 1e-6 are lanes whose cut contributions cancel by 3e6 to 4e22
-  relative to the result. COLI stays below 1e-6 on 16 of the 21 (median 4.8e-9); on the other
-  5 its error is 4.2e-6 to 1.2. The generic engine's opt-in `--stability-test` flags 18 of the
-  21, every one above 1e-5, and no lane below 1e-6.
+- **Fresh cases.** On the final review's cases (`run_final_review.py`, aa6a630), the 20 of 166
+  lanes on which NinjaRS's binary64 error exceeds 1e-6 (21 at 4dec120:
+  `fr-mixed-complex-n5-r7` lane 2 went from 6.2e-7 and 1.2e-6 to 4.1e-7 and 4.0e-7, fast and
+  generic) are lanes whose cut contributions cancel by 4e7 to 4e22 relative to the result.
+  COLI stays below 1e-6 on 15 of the 20 (median 1.0e-8); on the other 5 its error is 4.2e-6
+  to 1.2. The generic engine's
+  opt-in `--stability-test` flags 18 of the 20, every one above 1e-5, and no lane below 1e-6;
+  the two it misses are `fr-light-mixed-n4-r6-mu2` lane 1 (fast 6.5e-6, generic 4.2e-7) and
+  `fr-mixed-complex-n4-r6` lane 1 (6.1e-6, 6.2e-6), on which COLI is within 1.7e-10 and DD
+  within 2.5e-9. Against COLLIER directly (NinjaRS tolerance 1e-6), fast and COLI disagree on
+  22 lanes: COLLIER is right on 15 (13 flagged `Unstable`), NinjaRS on 3
+  (`fr-phys-real-n5-r7` lane 0, `fr-phys-real-n6-r8` lane 2, `fr-light-mixed-n7-r9-mu2`
+  lane 1, where COLI is off by 7.2e-4, 7.8e-6 and 2.4e-6 with accuracy flag -1) and neither on
+  4 (all flagged); DD's only miss is `fr-phys-real-n4-r6` lane 1 (2.5e-6, accuracy flag 0).
+  The generic engine at higher precision returns every lane as `Success` and recovers all of
+  them: DoubleFloat to 9.1e-9 at worst (`fr-light-mixed-n6-r8-mu2` lane 2, cancellation
+  4e22), Float(128) to 8.2e-15, Float(256) to 6.5e-25 (`fr-mixed-complex-n7-r9` lane 1).
+  The last is the references' own floor: their scalar C0/D0 table carries 45 digits, which the
+  reduction amplifies by the cancellation (3e21 there), and Float(512) agrees with Float(256)
+  to 1.1e-55 on that lane.
