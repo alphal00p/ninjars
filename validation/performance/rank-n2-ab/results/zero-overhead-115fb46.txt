@@ -1,0 +1,154 @@
+# Zero overhead for rank <= n+1 after integration pass 2: machine code and instruction counts
+# (claude/todo-next-integration 115fb46 against main 0d0d7e7 and pass 1's head f33ff8d), 2026-10-21.
+# No cycle timing here: the cycle-timed guard (scripts/run_rerun.sh) is run separately on a quiet host.
+
+Builds (rustc 1.98.1, LLVM 22.1.8; `cargo build --locked --release -p ninjars-cli`; probes with
+`cargo test --locked --release -p ninjars-symbolica --test <probe> --no-run`, default features):
+A  main 0d0d7e7         oneloopmaster 09b2c74, Symbolica e679e8c1, gammaloop 1e8063a7
+   CLI sha256 08b4fe92668fc6c0fe0c4f0c30d12ff70317f8f39b940c2e419e4838c1448266
+   (byte-identical to the main CLI of integration pass 1, built by the fast-n7 verifier)
+F  pass 1 head f33ff8d  oneloopmaster 09b2c74, Symbolica e679e8c1, gammaloop d1904bf2
+   CLI sha256 c2658008ac5caa777f10922b4a7d7d79a0e9a5afafc2f183ffbb94920340d835 (byte-identical to pass 1's)
+B  pass 2 head 115fb46  oneloopmaster 8ec256fc, Symbolica 9cdc2949, gammaloop d1904bf2
+   CLI sha256 013186472bb84019cb81dd163f09af889163c40906773ee1340ed3e35d2815ec
+F -> B contains: the generic light-like bases merge (8ce5754), the pruned-harness merge, docs,
+n5r5_exact, the Symbolica pin 9cdc2949 (72a273c), the oneloopmaster pin 8ec256fc (8a8bc55), the Float
+soft-box relabelling (8e583f2), the tracked-precision check (2a7df0d: MasterFailure::ImpreciseResult),
+the V0 re-bless (c24f976). None of it touches crates/ninjars/src/fast or crates/ninjars-cli/src; in
+crates/ninjars only masters.rs changes (the new MasterFailure::ImpreciseResult variant).
+
+## 1. Machine code (scripts/dis_compare.py --no-alias, DEFAULT regex of 759abc2)
+
+| pair | names A / B | compared | identical | different | only A / only B (names) |
+|---|---|---|---|---|---|
+| A -> B | 1123 / 1354 | 1708 | 388 | 1320 | 182 / 413 |
+| F -> B | 1234 / 1354 | 1823 | 536 | 1287 | 181 / 301 |
+| A -> F, pass 1's regex (`ninjars_cli::`) | 1088 / 1159 | 2129 | 2104 | 25 | 1 / 72 (pass 1: 2104 of 2129) |
+
+By origin (instances; only A / only B are names):
+
+| origin | A -> B identical | different | only A | only B | F -> B identical | different | only A / B |
+|---|---|---|---|---|---|---|---|
+| ninjars::fast | 79 | 3 | 0 | 56 | 138 | 0 | 0 / 0 |
+| CLI modules (case_bench, pipeline_bench, fast_runtime) | 12 | 15 | 0 | 8 | 35 | 0 | 0 / 0 |
+| core/alloc generics over them (drop glue, closures) | 72 | 9 | 1 | 20 | 104 | 0 | 0 / 0 |
+| ninjars_symbolica::oneloop_native | 10 | 0 | 0 | 1 | 11 | 0 | 0 / 0 |
+| other ninjars instances (generic engine over the native masters) | 8 | 6 | 0 | 26 | 40 | 0 | 0 / 0 |
+| oneloopmaster (oneloop::native and instances over it) | 207 | 1287 | 181 | 302 | 208 | 1287 | 181 / 301 |
+
+- Every default stage instance is identical A -> B: `FastAmplitude::{boxes, bubbles, tadpoles,
+  triangles, evaluate_up_to_n1}`, 28 of 28 (19 stage + 9 evaluate_up_to_n1 instances).
+- F -> B: every function outside oneloopmaster is identical (328 instances, none unmatched). This
+  pass changed no fast-engine, CLI-driver or masters-wrapper machine code.
+- The 33 non-oneloopmaster differences A -> B are exactly those of A -> F (pass 1's merges); the
+  same list, function by function, with the same instruction counts:
+  - ninjars::fast: FastAmplitude::new 2896 -> 284, TensorNumerator::new 153 -> 155,
+    MuTensorNumerator::new 185 -> 189 (over-declared rank and the Replacement enum);
+  - drop glue: FastAmplitude (1 -> 2 instances, 2369 -> 3274), TensorNumerator and
+    MuTensorNumerator 13 -> 17, Pipeline<Tensor/MuTensor> 41 -> 45, case_bench::Args 48 -> 67
+    (COLLIER options), fast_runtime::{Binding 73 -> 55, FastSession 49 -> 53, Tensor 24 -> 31};
+  - bench drivers that inline the dispatcher: case_bench::time_case<Tensor> 5804 -> 5653 and
+    <MuTensor> 5853 -> 5745, their closures #9/#10 89-90 -> 81-82 and #14 86 -> 78,
+    pipeline_bench::time_widths 5815 / 5874 (same count) and closure #8 110 -> 105,
+    case_bench::run 3169 -> 3229, FastSession::evaluate 235 -> 242, FastSession::new 1738 -> 1732,
+    Binding::bind 435 -> 435;
+  - generic engine over OneLoopNativeMasters (claude/stability-cut-terms, already different at the
+    pass 1 base cdb5c07): Amplitude::evaluate_batch_with_inputs 1208 -> 1316,
+    ResidueIntegrator::evaluate_batch 1439 -> 1452, 4 integrate_stage 539-549 -> 586-588.
+  The 8 CLI-module functions and drop glues that pass 1's regex did not select are the new
+  regex's (759abc2); pass 1 had compared FastSession::evaluate and case_bench::run separately.
+- oneloopmaster 09b2c74 -> 8ec256fc (and Symbolica e679e8c1 -> 9cdc2949 inside the Float and
+  DoubleFloat instances): 1287 functions differ (5,204,113 -> 4,064,617 instructions in total),
+  181 / 302 names only in A / B (renamed generated branches). By module:
+
+| module | carrier | different | instructions A | B | only A | only B |
+|---|---|---|---|---|---|---|
+| generated_d0 | Float | 510 | 1925734 | 1481524 | 16 | 69 |
+| generated_d0 | f64 | 228 | 1939909 | 1405680 | 69 | 71 |
+| generated_d0 | DoubleFloat | 217 | 576269 | 402298 | 57 | 97 |
+| generated_c0 | Float | 98 | 176072 | 154746 | 11 | 8 |
+| generated_c0 | f64 | 76 | 319508 | 371524 | 10 | 10 |
+| generated_c0 | DoubleFloat | 50 | 39707 | 37139 | 13 | 14 |
+| handwritten (sheet, triangle, box_contour, boxes, r_function, scale, div) | all | 70 | 98943 | 92314 | 4 | 32 |
+| primitives, tensor, generated_b0/db0, NativeEvaluator::evaluate_row | all | 38 | 127971 | 119392 | 1 | 1 |
+
+### Struct offsets (offsets_cmp.py: offsets and immediates kept; the 28 stage instances)
+- A -> B: 10 identical, 18 different, the same 18 functions with the same operand changes as
+  A -> F (offsets_diff.py outputs equal): the over-declared numerator layouts. Each
+  evaluate_up_to_n1 instance differs in one instruction, the numerator's `rank` field
+  (`mov 0x30(%rcx)` -> `mov 0x70(%rcx)`, `0x30` -> `0x58` for ReplayNumerator); the 8 stage
+  instances over RecordingNumerator in 11 (tadpoles, triangles) to 21 lines (boxes, bubbles;
+  fields moved by +0x40), bubbles::<ReplayNumerator> in 17 lines.
+- F -> B: 28 of 28 identical with offsets and immediates kept.
+
+### lane_rank inlining (HANDOFF 3.B.7)
+- B (CLI and the three probes) has no out-of-line `<TensorNumerator as FastNumerator>::lane_rank`
+  or `<MuTensorNumerator as FastNumerator>::lane_rank`; 2d56861 (before f33ff8d's
+  #[inline(always)]) had both (0x130 and 0x145 bytes). The out-of-line lane_rank symbols left are
+  the wrappers', as at f33ff8d: RecordingNumerator<_>, TimedNumerator<_> (CLI) and
+  DynNumerator<RecordingNumerator<TensorNumerator>>.
+- The 13 evaluate_declared_n2 symbols of the CLI have f33ff8d's call targets and sizes: 710 / 712
+  instructions for the TensorNumerator / MuTensorNumerator instances over OneLoopNativeMasters and
+  ReplayMasters (468 at 2d56861, where lane_rank was called).
+- Live residual, rank n+2 set, F -> B, live path without the masters (replay + numerator), width 32:
+  n = 1: -0.2 .. +0.2, n = 2: -0.9 .. +1.0, n = 3: -2.3 .. +2.2 instructions per point (medians
+  0.0, 0.0, -0.1); numerator part alone -0.4 .. +0.3 per lane. Out of line, lane_rank cost
+  +34.5 per lane (pass 1).
+
+## 2. Instructions per point (in-process perf counters)
+
+Probes, copied into crates/ninjars-symbolica/tests/ of each side: scripts/ab_icount.rs (unchanged:
+replayed reduction, and live path = TensorNumerator/MuTensorNumerator + OneLoopNativeMasters),
+scripts/ab_icount_split.rs (adds the replayed numerator with live native masters: masters =
+mixed - replay, numerator = live - mixed), scripts/ab_masters_family.rs (each master family
+alone, on the arguments the fast engine passes), and pass 1's conditioned copy of ab_icount.rs.
+Each pinned (taskset) to an idle CPU whose thread_siblings_list is only itself (host load 60-140),
+3 repetitions per side (2 for the family probe), medians. Repetitions agree to <= 0.001 % per key
+with ab_icount.rs (0.022 % for one rerun of pass 1's f33ff8d probe binary), <= 0.004 % with the
+split and family probes. Probes built from identical source at
+different paths differ by up to 0.05 % per key (rebuilt f33ff8d probe against pass 1's:
+-0.052 % .. +0.021 %, geomean <= 0.001 %).
+Sets: rank <= n+1 = validation/benchmark/{cases,synthetic} (27 cases x widths 1, 32 = 54 keys);
+rank n+2 = validation/rank-n2/cases + validation/benchmark/synthetic-rank-n2 (111 x 2 = 222 keys);
+declared n+2 = the over-declared verifier's 6 padded cases (12 keys).
+
+| set | pair | replay geomean (range) | live geomean (range) | masters part | live without masters |
+|---|---|---|---|---|---|
+| rank <= n+1 | A -> B | -0.001 % (-0.021 .. +0.016 %) | +0.305 % (-0.321 .. +0.951 %) | +0.674 % (-0.555 .. +1.703 %) | +0.000 % (-0.035 .. +0.032 %) |
+| rank <= n+1 | F -> B | -0.000 % (-0.021 .. +0.017 %) | +0.306 % (-0.326 .. +0.951 %) | +0.668 % (-0.557 .. +1.703 %) | +0.004 % (-0.051 .. +0.052 %) |
+| rank <= n+1 | A -> F | -0.001 % (-0.013 .. +0.011 %) | -0.001 % (-0.017 .. +0.011 %) | +0.006 % | -0.004 % |
+| rank <= n+1, conditioned_cuts | f33ff8d (pass 1's probe binary) -> B | -0.000 % (-0.036 .. +0.023 %) | +0.294 % (-0.298 .. +0.920 %) | | |
+| rank n+2 | A -> B | +1.492 % (-0.599 .. +7.368 %), n = 7 +2.60 % | +0.404 % (-0.121 .. +12.526 %), n = 7 +0.45 % | +0.91 % | +0.313 % |
+| rank n+2 | F -> B | +0.000 % (-0.018 .. +0.052 %) | +0.116 % (-0.086 .. +0.451 %), n = 7 +0.28 % | +0.883 % (-1.576 .. +3.495 %) | +0.001 % (-0.007 .. +0.018 %) |
+| rank n+2 | A -> F | +1.492 %, n = 7 +2.60 % | +0.288 % | +0.02 % | +0.313 % |
+| declared n+2 | F -> B | -0.001 % (-0.022 .. +0.006 %) | +0.277 % (+0.010 .. +0.821 %) | +0.696 % | -0.002 % |
+
+- Pass 1 (A -> f33ff8d, its own runs): rank <= n+1 replay +0.001 % (-0.012 .. +0.017 %), live
+  -0.000 %; rank n+2 replay +1.49 % (n = 7 +2.6 %), live +0.29 %. Reproduced above (A -> F).
+- Sums over the keys of the live change A -> B, instructions per point: rank <= n+1
+  +281,249 = reduction -62 + masters +280,919 + numerator +392; rank n+2 +6,770,740 = reduction
+  +2,718,900 (pass 1's rank n+2 work) + masters +4,036,913 + numerator +14,927.
+- The masters part is 38.5 % of the live rank <= n+1 instructions (median key) and 8.4 % of the
+  rank n+2 ones. F -> B, only the masters part moves (+0.67 % / +0.88 %); the reduction and
+  numerator parts move by at most +0.006 % in geomean.
+- Rank n+2 by n, A -> B (replay / live / masters / live without masters): n = 1 +4.75 / +1.75 /
+  +0.63 / +1.80 %; 2 +0.46 / +0.14 / +0.22 / +0.14 %; 3 -0.26 / -0.04 / -0.00 / -0.04 %;
+  4 +0.68 / +0.18 / +0.74 / +0.10 %; 5 +1.47 / +0.38 / +1.70 / +0.18 %; 6 +2.28 / +0.41 / +1.57 /
+  +0.22 %; 7 +2.60 / +0.45 / +1.60 / +0.21 %. F -> B: replay and live without masters 0.00 % at
+  every n.
+
+### Master families, A -> B (scripts/ab_masters_family.rs; instructions per row, summed over keys)
+
+| set | D0 | C0 | A0 | bubbles | all masters |
+|---|---|---|---|---|---|
+| rank <= n+1 | +1.58 % (74 % of the master instructions; per key +0.68 .. +3.29 %) | -0.54 % (-2.2 .. +1.0 %) | +0.60 % | +0.02 % (rank 2), +0.03 % (rank 3) | +1.04 % |
+| rank n+2 | +1.67 % (87 %; per key +0.30 .. +4.94 %) | -0.32 % | +0.58 % | -0.10 % (rank 4) | +1.41 % |
+
+On the rank <= n+1 set at width 1, a D0 row costs 21,267 (syn-n5-r4) to 167,811 (syn-n6-r7)
+instructions in A, and B adds +195 to +2,678 per row. The cause is oneloopmaster 09b2c74 -> 8ec256fc
+(binary64 code; the Symbolica pin changes only Float arithmetic). Which of its changes (contour box
+near vanishing Gram determinants, complex-mass sheets, two-mass complements, soft-box relabelling at
+the numerical D0 entry points) costs it was not measured.
+
+Per-key numbers (medians): icount-115fb46.tsv (replay and live of A, F, B from ab_icount.rs,
+masters of A, F, B from ab_icount_split.rs).
