@@ -20,7 +20,7 @@ publish = false
 tensor = []
 
 [dependencies]
-oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "09b2c7497743db875ed446da95123175dd00b1c8", default-features = false, features = ["generated-evaluators"] }
+oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "8ec256fc26cb361b20e10f59c19beb35717ef32c", default-features = false, features = ["generated-evaluators"] }
 symbolica = { version = "3.0.1", default-features = false, features = ["integer-gmp", "float-mpfr", "bincode", "serde", "tracing_max_level_info"] }
 serde_json = "1"
 
