@@ -566,10 +566,10 @@ where
     }
 }
 
-fn repeated_lanes_fail_alone<T: NativeFloat>(prototype: T, name: &str)
+fn repeated_lanes_fail_alone<T>(prototype: T, name: &str)
 where
     Complex<T>: Real + EvaluationDomain,
-    T: Real + SingleFloat,
+    T: NativeFloat + Real + SingleFloat,
 {
     for n in 2..=5 {
         for s_matrix in [false, true] {
@@ -593,7 +593,7 @@ where
             ];
             // The failed lane also carries a NaN numerator parameter.
             let second = vec![lane(0, 1, Some(3)), repeated(1, None), lane(2, 4, Some(1))];
-            let (after_first, statuses) = run(&[first.clone()]);
+            let (after_first, statuses) = run(std::slice::from_ref(&first));
             assert_eq!(statuses, vec![EvaluationStatus::Success; 3], "{name}");
             let (results, statuses) = run(&[first.clone(), second.clone()]);
             assert_eq!(

@@ -180,7 +180,10 @@ impl OneLoopNativeMasters {
         {
             return false;
         }
-        for (triple, values) in out.iter_mut().zip(self.output[..outputs].chunks_exact(3)) {
+        for (triple, values) in out
+            .iter_mut()
+            .zip(self.output[..outputs].as_chunks::<3>().0)
+        {
             *triple = [
                 C64::from_symbolica(values[0]),
                 C64::from_symbolica(values[1]),
@@ -323,7 +326,7 @@ impl FastMasters for OneLoopNativeMasters {
                     .zip(out.chunks_exact_mut(width))
                     .zip(ok.iter_mut())
                 {
-                    for (triple, value) in result.iter_mut().zip(values.chunks_exact(3)) {
+                    for (triple, value) in result.iter_mut().zip(values.as_chunks::<3>().0) {
                         *triple = [
                             C64::from_symbolica(value[0]),
                             C64::from_symbolica(value[1]),

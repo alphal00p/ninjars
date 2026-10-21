@@ -207,13 +207,13 @@ fn fdh_rejects_four_dimensional_only_structures() {
     graph.check_fdh().unwrap();
     let with_projector = |extra: Atom| {
         let mut modified = graph.clone();
-        modified.diagram = modified
-            .diagram
-            .clone()
-            .with_projector(
-                feynkit_graph::NumeratorInterface::admit(feynkit_graph::NumeratorInterface::export(modified.diagram.projector()).0 * extra, None)
-                    .unwrap(),
-            );
+        modified.diagram = modified.diagram.clone().with_projector(
+            feynkit_graph::NumeratorInterface::admit(
+                feynkit_graph::NumeratorInterface::export(modified.diagram.projector()).0 * extra,
+                None,
+            )
+            .unwrap(),
+        );
         modified
     };
     let minkowski = LibraryRep::from(Minkowski {}).symbol();

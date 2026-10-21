@@ -187,7 +187,7 @@ fn from_double(z: &Complex<DoubleFloat>) -> Complex<Float> {
     // The leading binary64 and the exact remainder.
     let float = |x: &DoubleFloat| {
         let high = x.to_f64();
-        let low = (x.clone() - DoubleFloat::from(high)).to_f64();
+        let low = (*x - DoubleFloat::from(high)).to_f64();
         Float::with_val(BITS, high) + Float::with_val(BITS, low)
     };
     Complex::new(float(&z.re), float(&z.im))

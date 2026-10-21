@@ -483,18 +483,21 @@ fn rank_n2_cases_pass() {
 }
 
 /// `--stability-test` (generic engine, opt-in as for `reduce`) flags the rank
-/// n+2 lanes whose new terms cancel in binary64: lane 1 of
-/// rn2-phys-{real,complex}-n6-r8 (scaled differences 1.4e-6 real, 4.4e-5
-/// complex). Real lane 1 cancels between the cut-constructible and rational
-/// parts of single cuts. Lane 2 (1.3e-6 real, 6.0e-6 complex) cancelled
-/// between cuts beyond half the bits only with the earlier eight-reference
-/// bubble score (1.1e-3 and 5.4e-4); with the 24 references of
-/// `cuts.rs::bubble_reference` it stays below, so the test passes it. Real
-/// lane 2 is then a false negative: its 1.3e-6 exceeds its binary64 budget
-/// (5.9e-7; the lane is report only, cond' > 1e6) because the remaining loss
-/// is inside single cuts, which the test does not measure (TODO_NEXT_PLAN.md
-/// 2.4). DoubleFloat keeps more than half of its bits on the same lanes and
-/// passes.
+/// n+2 lanes whose terms cancel in binary64: lanes 1 and 2 of
+/// rn2-phys-{real,complex}-n6-r8. Their binary64 scaled differences to the
+/// reference are 1.4e-6 and 1.3e-6 (real), 4.4e-5 and 6.0e-6 (complex), all
+/// above 2^-26 = 1.5e-8, so every flag is right in the stability test's own
+/// sense (wrong = error above 2^-(p/2)). Real lane 1 cancels between the
+/// cut-constructible and rational parts of single cuts. With the 24 bubble
+/// references of `cuts.rs::bubble_reference` the cut-constructible and
+/// rational parts of lane 2's cuts no longer cancel beyond half the bits (with
+/// the earlier eight-reference score they did, and lane 2 was off by 1.1e-3
+/// and 5.4e-4), but the terms inside its cuts still do. The test measures
+/// those terms (each master integral times its weight and each rational term
+/// of every cut, 9ff3d0a), so lane 2 stays flagged; with the per-cut parts
+/// alone real lane 2 was a false negative (1.3e-6 against its binary64 budget
+/// of 5.9e-7). DoubleFloat keeps more than half of its bits on the same lanes
+/// and passes.
 #[test]
 fn stability_test_flags_rank_n2_cancellations() {
     let statuses = |extra: &[&str]| {
@@ -511,8 +514,8 @@ fn stability_test_flags_rank_n2_cancellations() {
     assert_eq!(
         statuses(&["--precision", "f64", "--stability-test"]),
         [
-            ["Success", "Unstable", "Success"],
-            ["Success", "Unstable", "Success"]
+            ["Success", "Unstable", "Unstable"],
+            ["Success", "Unstable", "Unstable"]
         ]
     );
     assert_eq!(
