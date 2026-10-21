@@ -552,7 +552,8 @@ counted as a success, and a rescue loop never escalated its lane.
 - **The check.** Every `Float` result is checked: the finite part and both
   poles of every family (A0, B0..B1111, DB0, C0, D0, An). Its tracked
   precision as a complex value (`ninjars_symbolica::tracked_bits`) must reach
-  `required_tracked_bits(working) = max(53, working/4)`. Below that, the row
+  `required_tracked_bits(working) = max(53, working/4)`, at most
+  `working/2`. Below that, the row
   fails with `MasterFailure::ImpreciseResult` through the same path as a
   non-finite result, so the lane is not a success.
 - **Scope and cost.** binary64 and DoubleFloat track no precision and are
@@ -872,7 +873,9 @@ Effect of the option, with the statistics of the box geometry above:
   the geometric mean of the error ratio is 0.46. 167 lanes are more than 2
   times better and 20 more than 2 times worse (21 without the 1e-16 floor).
   The worst is 1.1e-10 on `rn2-irml-zero-n5-r6` lane 1: default 1.3e-11,
-  generic f64 5.9e-11, so 11 times generic. Lanes outside fall from 43 to 6.
+  generic f64 5.9e-11, so 1.8 times generic. The largest ratio to generic
+  f64 among the 20 is 11 (`rn2-int-real-n6-r5` lane 2, 1.2e-14). Lanes
+  outside fall from 43 to 6.
 - **Identity pieces** (the 203 tier-A rank <= n+1 lanes of
   `validation/rank-n2/identity/cases`): the geometric mean is 0.135, with 120
   lanes better and 2 worse (at most 1.7e-12). Lanes outside fall from 55 to 3.
@@ -901,7 +904,8 @@ for binary64 runs that do not need comparability with original Ninja:
    checks); and the split itself, which moves with the bubble reference, so
    that splits would stop matching Ninja's and MadLoop's.
 3. **Not uniformly better.** About 20 of the 465 control lanes get more than
-   2 times worse, at worst 1.1e-10 (11 times generic f64).
+   2 times worse, at worst 1.1e-10 (1.8 times generic f64) and at most 11
+   times generic f64 (`rn2-int-real-n6-r5` lane 2, 1.2e-14).
 4. **The production model is escalation.** binary64 behaves as Ninja does;
    ill-conditioned points are flagged (generic `--stability-test`) and
    rescued in DoubleFloat. The option improves binary64 statistically but
@@ -916,8 +920,13 @@ reconsidered (`TODO_NEXT_PLAN.md`).
   bits. Its fast sections are bitwise those blessed on main 0d0d7e7 with only
   the oneloopmaster 8ec256f and Symbolica 9cdc2949 re-pins applied (c24f976).
   Its generic sections moved only for the generic engine's own accuracy
-  changes and the re-pins (section 10).
-  <!-- PASS2: state that V0 (with its generic Float(256) section compared within the precision bound, section 10) and V0p pass at the pass-2 head, and name that head. -->
+  changes and the re-pins (section 10). Since cb6b4d1 (on 115fb46) V0
+  compares the generic Float(256) section within 2^-200 of each lane's
+  largest component, with exact statuses, and every other section bitwise
+  (section 10); the fixture passes there unchanged. V0p passes at c24f976;
+  115fb46 and the pass-2 commits cb6b4d1, 27844af and 1a1eea4 change no code
+  that it covers (only documentation, validation data, scripts and the V0
+  test).
 - **Independent bitwise dump (S3 verifier).** 7484 lane results over 204 cases
   (n = 1..7, ranks 0..n+1, three widths) are byte-identical in hex bits and
   status.
@@ -966,7 +975,35 @@ reconsidered (`TODO_NEXT_PLAN.md`).
     (−0.014 % to +0.017 %);
   - rank <= n+1 lanes are bitwise those of main on 630 control lanes and 203
     identity pieces (611f6dc..a0e7b50).
-  <!-- PASS2: replace or confirm the f33ff8d machine-code and instruction-count figures with the pass-2 head's: dis_compare.py --no-alias against main 0d0d7e7 (identical stage instances out of how many, matched functions), offsets_cmp.py, and ab_icount.rs rank <= n+1 replayed/live geomean and range (54 keys, widths 1 and 32). -->
+- **After integration pass 2** (the release CLI at 115fb46, with
+  oneloopmaster 8ec256f and Symbolica 9cdc2949, against main 0d0d7e7;
+  `dis_compare.py --no-alias` with the regex of 759abc2, which selects more
+  CLI functions than pass 1's;
+  `validation/performance/rank-n2-ab/results/zero-overhead-115fb46.txt`,
+  1a1eea4):
+  - every `boxes`, `bubbles`, `tadpoles`, `triangles` and
+    `evaluate_up_to_n1` instance (28) is identical. With struct offsets kept
+    (`offsets_cmp.py`), the same 18 of the 28 as at f33ff8d differ, with the
+    same operand changes;
+  - outside oneloopmaster, 33 functions differ, all from pass 1's merges:
+    `FastAmplitude::new`, `TensorNumerator::new` and
+    `MuTensorNumerator::new`, drop glue, the benchmark drivers that inline
+    the dispatcher (`time_case` closures 89 → 81 instructions, `time_widths`
+    closure 110 → 105, `FastSession::evaluate` 235 → 242, `case_bench::run`
+    3169 → 3229) and six generic-engine instances;
+  - the oneloopmaster re-pin (09b2c74 → 8ec256f) changes 1287 of its native
+    functions;
+  - against pass 1's head f33ff8d, all 328 functions outside oneloopmaster
+    are identical, and so are the 28 stage instances with struct offsets
+    kept;
+  - instructions per point on rank <= n+1 against main (54 keys, widths 1
+    and 32; repetitions agree to 0.001 %): replayed reduction −0.001 %
+    (−0.021 % to +0.016 %); live path +0.305 % (−0.321 % to +0.951 %), all
+    of it in the native masters (+0.674 %, the oneloopmaster pin: D0 +1.58 %
+    per row, C0 −0.54 %, A0 +0.6 %); live path without the masters +0.000 %
+    (−0.035 % to +0.032 %);
+  - `lane_rank` is still inlined: no out-of-line
+    `TensorNumerator::lane_rank` or `MuTensorNumerator::lane_rank`.
 - **The Symbolica re-pin** (72a273c, verify-ninjars-prep): all 193
   `ninjars::fast` functions are identical; only 44 `oneloop::native`
   instances on MPFR `Float` differ, as symbolica-dev/symbolica#97 implies.
@@ -979,7 +1016,9 @@ reconsidered (`TODO_NEXT_PLAN.md`).
 against its rank n+1 twin, from the benchmark report's rank n+2 measurement
 (`docs/benchmark/data/rank_n2.json`, `twins`). It was taken on main 0d0d7e7
 with oneloopmaster 09b2c74, on 2026-10-19 on CPU 260: after the basis
-conditioning, before the box geometry and the lower-rank dispatch.
+conditioning, before the box geometry and the lower-rank dispatch. The
+benchmark, and with it the COLLIER comparison below, was not rerun before
+the landing; the instruction counts below cover the changes since.
 
 | n | rank n+2 (ns/point) | rank n+1 twin (ns/point) | ratio | total ratio | COLLIER COLI ratio |
 |---|---|---|---|---|---|
@@ -990,8 +1029,6 @@ conditioning, before the box geometry and the lower-rank dispatch.
 | 5 | 103092 | 42085 | 2.45 | 1.80 | 5.27 |
 | 6 | 198223 | 83199 | 2.38 | 1.65 | 4.45 |
 | 7 | 344292 | 152436 | 2.26 | 1.62 | 4.21 |
-
-<!-- PASS2: if the benchmark refresh of pass 2 regenerates docs/benchmark/data/rank_n2.json, refill this table from its `twins` (reduction_w32 rank n+2 / twin / ratio, total_w32 ratio, collier ratio) and the date, head, oneloopmaster pin and CPU of the sentence above; likewise the median and range of the numerator share and the per-n COLLIER factors below (by_n). -->
 
 - The total ratio includes the numerator and the masters. The COLLIER column
   is COLLIER 1.2.10's (COLI) own rank n+2 time over its rank n+1 time on the
@@ -1023,9 +1060,12 @@ Instructions per point added to the rank n+2 path:
   about 35 instructions per lane on the live path;
 - together, at f33ff8d against main 0d0d7e7: +1.49 % replayed in geomean,
   +2.6 % at n = 7. At n = 1 and width 1 it is up to +7.4 % replayed and
-  +12.5 % live (`rn2-int-mixed-n1-r3`, +92 instructions per point replayed).
-
-<!-- PASS2: rank n+2 instructions per point at the pass-2 head against main 0d0d7e7 (ab_icount: replayed and live geomean, n = 7, largest key), replacing or confirming the f33ff8d line above. -->
+  +12.5 % live (`rn2-int-mixed-n1-r3`, +92 instructions per point replayed);
+- at 115fb46 against main 0d0d7e7 (222 keys, 1a1eea4): +1.49 % replayed in
+  geomean (−0.60 % to +7.37 %; n = 7: +2.60 %), unchanged from f33ff8d
+  (+0.000 %); live +0.40 % (n = 7: +0.45 %), or +0.31 % without the
+  masters. The masters part grows by 0.9 % with the oneloopmaster pin (D0
+  +1.67 % per row, C0 −0.32 %).
 
 ## 8. Validation
 
@@ -1083,16 +1123,16 @@ measured.
 
 | id | test (`crates/ninjars-symbolica/tests/` unless noted) | result |
 |---|---|---|
-| V0 | `regression_bitwise::rank_up_to_n_plus_one_is_bitwise_unchanged` | against `r-le-n1-d53dd08.json` (file name kept): main d53dd08's bits, re-blessed for main's own changes and in place for the generic selection (5ed3b22), the native B0 (c3a6aba) and the oneloopmaster 8ec256f and Symbolica 9cdc2949 re-pins (c24f976; `validation/regression/README.md`, section 10). Fast and binary64 sections bitwise; blessed at c24f976 <!-- PASS2: the pass-2 head at which V0 passes, and how the generic Float(256) section is compared (the precision bound of section 10) --> |
-| V0p | `src/plan_fingerprints_tests.rs::exact_plans_for_rank_up_to_n_plus_one_are_unchanged` | 1,239 fingerprints unchanged; passes at c24f976 <!-- PASS2: confirm at the pass-2 head --> |
-| V1 | `cargo test --workspace` | 8346699, release: default features 389 passed, 0 failed, 12 ignored (47.6 min); `--all-features` 498, 0, 21 (75.4 min) <!-- PASS2: the pass-2 head's counts (passed / failed / ignored, minutes) for each test command that was run: -p ninjars, -p ninjars-symbolica --features native-masters, -p ninjars-graph, -p ninjars-cli, and --workspace --all-features if run --> |
+| V0 | `regression_bitwise::rank_up_to_n_plus_one_is_bitwise_unchanged` | against `r-le-n1-d53dd08.json` (file name kept): main d53dd08's bits, re-blessed for main's own changes and in place for the generic selection (5ed3b22), the native B0 (c3a6aba) and the oneloopmaster 8ec256f and Symbolica 9cdc2949 re-pins (c24f976; `validation/regression/README.md`, section 10). Fast and binary64 sections bitwise; blessed at c24f976. Since cb6b4d1 the generic Float(256) section is compared within 2^-200 of each lane's largest component, with exact statuses (section 10); passes at cb6b4d1 (on 115fb46) |
+| V0p | `src/plan_fingerprints_tests.rs::exact_plans_for_rank_up_to_n_plus_one_are_unchanged` | 1,239 fingerprints unchanged; passes at c24f976; 115fb46 and the pass-2 commits cb6b4d1, 27844af and 1a1eea4 change no code it covers |
+| V1 | `cargo test --workspace` | 8346699, release: default features 389 passed, 0 failed, 12 ignored (47.6 min); `--all-features` 498, 0, 21 (75.4 min) <!-- PASS2: missing the ninjars-tests counts at the pass-2 head (115fb46 and the pass-2 commits): passed / failed / ignored and minutes for each command run (-p ninjars, -p ninjars-symbolica --features native-masters, -p ninjars-graph, -p ninjars-cli, and --workspace --all-features if run). --> |
 | V2a | `rank_n2_laurent` | division recovers known quotients, n = 1..6: 8.7e-77 (Float(256)), 1.8e-15 (binary64); new subtraction terms against the sympy closed forms <= 4e-77, swapped-axis control 1.2 (S2) |
 | V2b | `rank_n2_reconstruct` | on-cut reconstruction of every cut size, n = 1..6, with and without mu²: <= 1.1e-73 (Float), <= 5e-13 (binary64); pruned swapped arithmetic identical (S2) |
 | V2c | `rank_n2_boxes` | box modes agree, n = 4..6: <= 1.5e-70 (Float); binary64 <= 3e-14 (coefficients), 5e-10 (integrated, n = 6); beta-offset control (S2) |
 | V2 (fast) | `crates/ninjars/src/fast/tests_x2.rs` | jets against direct expansion, division multiply-back at NT = 6 and 5, on-cut residue reconstruction, box finite-mu fit, rank-3 tadpole integral, pinch identity, batching and replay bitwise (1d5cb5f) |
 | V3 | `tests_x2.rs` (fixtures) | 24 cases, worst 1.24e-15 (series) and 1.26e-15 (closed form); 444 perturbed controls each detected (S3) |
-| V4 | `rank_n2_reference::suite_generic_float_matches_references` | Float(256), exact masters: 285 pass, 48 report-only, 0 fail; tier A <= 1.3e-36 at n <= 6, <= 5.9e-30 at n = 7 (integration run, S3 verifier) <!-- PASS2: the pass-2 head's Float(256) counts and tier-A maxima from the section 8.3 run --> |
-| V4f | `suite_fast_binary64_matches_references`, `suite_generic_binary64_matches_references` | fast 276 pass, 57 report-only; generic f64 275, 58; 0 fail (integration run) <!-- PASS2: the pass-2 head's fast and generic f64 counts from the section 8.3 run --> |
+| V4 | `rank_n2_reference::suite_generic_float_matches_references` | Float(256), exact masters: 285 pass, 48 report-only, 0 fail; tier A <= 1.3e-36 at n <= 6, <= 5.9e-30 at n = 7 (integration run, S3 verifier); the same counts and tier-A maxima in the section 8.3 case-check at 115fb46 |
+| V4f | `suite_fast_binary64_matches_references`, `suite_generic_binary64_matches_references` | fast 276 pass, 57 report-only; generic f64 275, 58; 0 fail (integration run; the same counts in the section 8.3 case-check at 115fb46) |
 | V5 | `rank_n2_padding` (`fast_`/`generic_padding_to_rank_n_plus_two`, `fast_padding_to_rank_n_plus_two_with_conditioned_cuts`, `fast_mixed_rank_batches_*`), `fast_rank_n2::fast_rank_n2_padding_reproduces_original_ninja` | rank <= n+1 cases declared at n+2 (`padding-manifest.json`, 238 cases): generic Float(256) within 7.3e-61 on 745 lanes with the lanes' own S-matrices (5ed3b22; 4.9e-55 at the S5b verifier); fast engine through `AtDeclaredRank` (the rank n+2 engine): Laurent coefficients against original Ninja, or within 10 times Ninja's own error of the exact reduction where that error exceeds the tolerance (79f306a); fast engine by default: every lane (753) bitwise equal to the case declared at the lane's own rank, also with `conditioned_cuts` (650 of the 753 differ from the default geometry); mixed-rank batches with native masters (ranks n-1 to n+2, plain and with mu² to mu⁶ terms, 5 `Unstable` lanes, with and without S-matrices, alone and in natural, reversed and 37-lane cyclic batches): all 268 lane checks bitwise equal to the lane's own-rank single-lane run, failed lanes keep their previous result (baaa240; with `conditioned_cuts`, 22 lowered lanes differ from the default) |
 | V6 | `rank_n2_identity` | pinch `I_n[D_j M] = I_(n-1)[M]` and constructive decompositions, n = 2..7; Float: rank n+2 sides 5.3e-70 (S5b verifier); binary64: pieces with Ninja's geometry for n <= 6, and with `conditioned_cuts` for every n (largest 1.5e-11); rank n+2 sides against the pieces, largest 3.8e-9, generic f64 2.3e-8 (d0819f0). Ninja's geometry at n = 7 stays ignored (`*_default_geometry`, 8.4) |
 | V7 | `rank_n2_invariance` | shift (V7a) and relabelling (V7b) at rank n+2 in Float(256): 1.1e-69 (S5b verifier); batch width and lane order bitwise (V7c); V7b binary64 for every n, fast at most 4.9e-7, within 10 times the noise (611f6dc) |
@@ -1100,7 +1140,7 @@ measured.
 | V9 | `rank_n2_reference::conditioning_scan_report` | report only (bubble p² ladder, triangle and box Gram ladders) |
 | V10 | `rank_n2_dual` | HyperDual against finite differences, n = 2..4 (stand-in masters) and n = 2 (exact masters incl. B1111): <= 5.5e-48 (S2); the S2 verifier found <= 1.6e-44 against central differences at Float(512) |
 | V11 | `fast_native_masters`, `masters`, `master_status`, `rank_n2_interfaces`, `rank_n2_float_bubbles`, `soft_box_labelling` | B1111 accuracy and interface identity; B0..B111 from the native families for every carrier; soft D0 boxes in all 24 labellings for every carrier; `Float` results with too few tracked bits fail and are rescued at higher precision (section 6) |
-| CLI | `crates/ninjars-cli/tests/case_check.rs` | case-check equals case-bench's reference check; controls with both engines; failures, stale known failures and the engine and precision scope of known-failure entries are reported; the GENERIC_RUNNER interface; a rank n+2 sample; `--stability-test` flags exactly lane 1 of `rn2-phys-{real,complex}-n6-r8` in binary64 (real lane 2 is a false negative, section 9), and the cancellation inside cut contributions of the review's reproducer (`tests/data/repro-stability-test-miss-n6-r8.json`) and of `rn2-phys-complex-n6-r7` lane 1 |
+| CLI | `crates/ninjars-cli/tests/case_check.rs` | case-check equals case-bench's reference check; controls with both engines; failures, stale known failures and the engine and precision scope of known-failure entries are reported; the GENERIC_RUNNER interface; a rank n+2 sample; `--stability-test` flags exactly lane 1 of `rn2-phys-{real,complex}-n6-r8` in binary64 (real lane 2 is a false negative, section 9), and the cancellation inside cut contributions of the review's reproducer (`crates/ninjars-cli/tests/data/repro-stability-test-miss-n6-r8.json`) and of `rn2-phys-complex-n6-r7` lane 1 |
 | stability | `stability.rs`; `integration.rs::term_moduli_count_every_master_and_rational_term` | the any-n cancelling lane is flagged in binary64 and in DoubleFloat (off by 6.9e-16 > 2^-53 against Float(256)) and passes in Float(256); the term moduli count every master and rational term (9ff3d0a) |
 
 **Independent verification.** Verifier agents re-checked each stream.
@@ -1134,35 +1174,45 @@ ninjars case-check --engines fast --precision f64 \
 # and --engines generic --precision f64 | double | float:128 | float:256
 ```
 
-The results at e116813 (oneloopmaster 09b2c74): 105 suite cases plus 6
-synthetic ones, 333 lanes, counted as pass / fail / report-only / known failure
-(integration run). No case errors, no unchecked lanes and no stale known
-failures occurred, and every one of the five runs exits 0.
+The results at 115fb46 (oneloopmaster 8ec256f, Symbolica 9cdc2949) with the
+`known-failures.json` of 27844af: 105 suite cases plus 6 synthetic ones, 333
+lanes, counted as pass / fail / report-only / known failure (integration
+pass 2). No case errors, no unchecked lanes and no stale known failures
+occurred, every lane's status is `Success` (the tracked-precision check of
+the `Float` masters flags none), and every one of the five runs exits 0.
 
 | n | lanes | fast (f64) | generic f64 | generic DoubleFloat | generic Float(128) | generic Float(256) |
 |---|---|---|---|---|---|---|
 | 1 | 36 | 36/0/0/0 | 36/0/0/0 | 36/0/0/0 | 36/0/0/0 | 36/0/0/0 |
 | 2 | 57 | 55/0/2/0 | 55/0/2/0 | 57/0/0/0 | 57/0/0/0 | 49/0/8/0 |
 | 3 | 45 | 44/0/1/0 | 44/0/1/0 | 45/0/0/0 | 45/0/0/0 | 45/0/0/0 |
-| 4 | 57 | 53/0/4/0 | 52/0/5/0 | 57/0/0/0 | 56/0/0/1 | 49/0/8/0 |
+| 4 | 57 | 53/0/4/0 | 52/0/5/0 | 57/0/0/0 | 57/0/0/0 | 49/0/8/0 |
 | 5 | 57 | 47/0/10/0 | 47/0/10/0 | 52/0/5/0 | 52/0/5/0 | 50/0/7/0 |
-| 6 | 57 | 32/0/25/0 | 32/0/25/0 | 41/0/16/0 | 40/0/16/1 | 41/0/16/0 |
-| 7 | 24 | 9/0/15/0 | 9/0/15/0 | 9/0/15/0 | 8/0/15/1 | 15/0/9/0 |
-| **all** | 333 | **276/0/57/0** | **275/0/58/0** | **297/0/36/0** | **294/0/36/3** | **285/0/48/0** |
-| largest checked difference | | 5.3e-8 | 5.2e-7 | 1.4e-11 | 1.4e-11 | 7.0e-12 |
-| tier A, n <= 6 / n = 7 | | 9.1e-9 / 5.3e-8 | 6.0e-9 / 3.5e-8 | 1.0e-24 / 1.3e-24 | 7.1e-30 / 1.2e-29 | 1.3e-36 / 5.9e-30 |
+| 6 | 57 | 32/0/25/0 | 32/0/25/0 | 41/0/16/0 | 41/0/16/0 | 41/0/16/0 |
+| 7 | 24 | 9/0/15/0 | 9/0/15/0 | 9/0/15/0 | 9/0/15/0 | 15/0/9/0 |
+| **all** | 333 | **276/0/57/0** | **275/0/58/0** | **297/0/36/0** | **297/0/36/0** | **285/0/48/0** |
+| largest checked difference | | 2.6e-8 | 3.3e-8 | 7.5e-12 | 7.5e-12 | 7.1e-12 |
+| tier A, n <= 6 / n = 7 | | 8.7e-9 / 2.6e-8 | 6.6e-9 / 3.3e-8 | 9.6e-25 / 1.0e-24 | 5.3e-29 / 7.3e-30 | 1.3e-36 / 5.9e-30 |
 | exit status | | 0 | 0 | 0 | 0 | 0 |
 
-<!-- PASS2: replace the table and the sentence above it (head, oneloopmaster pin) with the five runs at the pass-2 head (oneloopmaster 8ec256f, Symbolica 9cdc2949): per n and in total pass / fail / report-only / known failure, the largest checked difference, tier A n <= 6 / n = 7, case errors, unchecked lanes, stale known failures and exit status of each run. -->
+The controls (615 rank <= n+1 lanes, same command with `$R/controls/reference`
+on `$R/controls/cases/*.json` and the ten synthetic `syn-n{2..6}-r{n,n+1}`
+cases) give 600/0/15/0 (fast), 600/0/15/0 (generic f64), 600/0/15/0
+(DoubleFloat), 599/0/15/1 (Float(128)) and 601/0/14/0 (Float(256)) at
+115fb46, and also exit 0. With `--conditioned-cuts` the fast engine gives
+276/0/57/0 on the suite (bitwise the default run: rank n+2 lanes use the same
+engine) and 600/0/15/0 on the controls (largest checked difference 2.4e-7,
+default 2.6e-6), both exiting 0.
 
-The controls (615 rank <= n+1 lanes, same command with `$R/controls/reference`)
-gave 600/0/15/0 (fast), 599/0/15/1 (generic f64), 600/0/15/0 (DoubleFloat),
-588/0/15/12 (Float(128)) and 601/0/14/0 (Float(256)) at e116813, and also
-exit 0. At 5ed3b22 (the generic selection at every rank class) they give
+The controls gave 600/0/15/0 (fast), 599/0/15/1 (generic f64), 600/0/15/0
+(DoubleFloat), 588/0/15/12 (Float(128)) and 601/0/14/0 (Float(256)) at
+e116813. At 5ed3b22 (the generic selection at every rank class) they gave
 600/0/15/0 (fast, generic f64 and DoubleFloat), 589/0/15/11 (Float(128)) and
 601/0/14/0 (Float(256)): the two entries of generic f64 and Float(128) in
-`known-failures.json` went stale and were removed.
-<!-- PASS2: the controls' five counts (pass / fail / report-only / known failure) and exit status at the pass-2 head, and any known-failures.json entry added or removed when it was re-derived there. -->
+`known-failures.json` went stale and were removed. The re-derivation at
+115fb46 (27844af) removed the other 14 Float(128) entries (3 suite, 11
+control lanes), stale with Symbolica 9cdc2949, and added one for the control
+`rn2-int-mixed-n6-r6` lane 2 (below).
 
 **Changes since e116813**, each measured on its own commit:
 - **Generic selection (86b378b, 5ed3b22).** The suite verdicts are unchanged
@@ -1185,11 +1235,29 @@ exit 0. At 5ed3b22 (the generic selection at every rank class) they give
   `--conditioned-cuts` the controls are also 600/0/15/0, with a largest
   checked difference of 2.4e-7.
 - **Integration pass 1 (f33ff8d)**, before the generic merge and the re-pins,
-  gives the table's counts in all five runs.
+  reproduced e116813's counts in all five runs.
+- **Integration pass 2 (115fb46: oneloopmaster 8ec256f, Symbolica
+  9cdc2949).** With the previous `known-failures.json`, Float(128) exited 1
+  on the suite and on the controls; the other runs kept every verdict, lane by
+  lane, against f9a8b16 (generic modes) and f33ff8d (fast).
+  - Symbolica 9cdc2949 (symbolica-dev/symbolica#97) made the 14 Float(128)
+    known inaccuracies stale: the lanes now differ by 2.4e-36 to 3.0e-33, at
+    most 0.35 of their tolerances. Release CLIs at 2de63f9 and 72a273c, which
+    differ only in that pin, make all 14 stale. Suite Float(128) goes from
+    294/0/36/3 to 297/0/36/0, the controls from 589/0/15/11 to 599/0/15/1.
+  - The same pin made the control `rn2-int-mixed-n6-r6` lane 2 fail in
+    Float(128): 2.6e-31 against a tolerance of 1.8e-31 (3.5e-32 before). It
+    is listed as a known inaccuracy (section 9.3). Its rank twin in the
+    suite, `rn2-int-mixed-n6-r8` lane 2, moved from 7.1e-30 to 5.3e-29, 0.42
+    of its tolerance, and sets the Float(128) tier-A maximum at n <= 6.
+  - Elsewhere values move at rounding level with the masters (suite /
+    control lanes changed): fast 121 / 221 (scaled differences 0.95 times
+    before in geometric mean), generic f64 127 / 231, DoubleFloat 249 / 461,
+    Float(256) 24 / 190 (by at most 1.3e-71 / 5.6e-61 of the lane).
 
 How to read the table:
 - **The largest checked differences** sit on tier-B lanes or at n = 7. On
-  tier A, Float(256) agrees to <= 1.3e-36 at n <= 6, and its 7.0e-12 is
+  tier A, Float(256) agrees to <= 1.3e-36 at n <= 6, and its 7.1e-12 is
   `syn-n6-r8` lane 2, whose uncertainty is the input ambiguity of a snapped
   S-matrix.
 - **Report-only lanes** have one of four reasons:
@@ -1204,8 +1272,11 @@ How to read the table:
     This is 23 generic and 22 fast binary64 lanes, mostly B1111 parts of 1e-14
     to 3e-6 of the lane (`validation/rank-n2/README.md`).
 - **Known failures.** There are no upstream failures since oneloopmaster
-  09b2c74. The 3 Float(128) entries are known inaccuracies of the exact masters
-  in `Float` (section 9). <!-- PASS2: the number of Float(128) known inaccuracies on the suite at the pass-2 head after known-failures.json is re-derived. -->
+  09b2c74. The suite has no known failure since the re-derivation at 115fb46
+  (before: 3 Float(128) known inaccuracies of the exact masters in `Float`).
+  The controls have one, the Float(128) known inaccuracy of
+  `rn2-int-mixed-n6-r6` lane 2 (2.6e-31, 1.4 times its tolerance;
+  section 9.3).
 - **Against the merge run at 8346699** (oneloopmaster fe550e3): the 9 known
   failures of findings 3 and 5 are gone. `rn2-int-mixed-n6-r8` lane 1 (tier B)
   now passes in every run; the 8 n = 7 lanes are tier C (COLLIER's values) and
@@ -1225,8 +1296,10 @@ where:
   reduction with the same wrong D0, or drops them.
 
 COLLIER's condition alone does not predict the reduction's binary64 loss.
-Original Ninja's error does: on 531 control lanes the fast engine stays within
-12.6 times it (`validation/rank-n2/README.md`).
+Original Ninja's error does: on the 543 control lanes with a Ninja result
+the fast engine stays within 12.5 times it at 115fb46, with or without
+`--conditioned-cuts` (before 5ed3b22: 12.6 on the 531 lanes of the time,
+known failures excluded; `validation/rank-n2/README.md`).
 
 ### 8.4 Formerly ignored binary64 tests
 
@@ -1251,7 +1324,7 @@ like original Ninja, loses accuracy. The new
 `controls_fast_conditioned_binary64_match_references` checks the option on
 the controls: 600 pass and 15 are report-only, as by default.
 
-<!-- PASS2: confirm at the pass-2 head that these four tests pass and that the two *_default_geometry variants are the only ignored tests of the rank_n2_* files, and give the ignored-test count of the workspace run (8.2, V1). -->
+<!-- PASS2: missing the ninjars-tests results at the pass-2 head (115fb46 and the pass-2 commits): that these four tests pass, that the two *_default_geometry variants are the only ignored tests of the rank_n2_* files, and the ignored-test count of the workspace run (8.2, V1). -->
 
 ### 8.5 Reproducing
 
@@ -1340,11 +1413,12 @@ means an error above 2^-(p/2).
   an a-posteriori test such as Ninja's N=N test would be the next step.
 - **A false negative: `rn2-phys-real-n6-r8` lane 2.** With the generic
   selection (86b378b) its generic f64 error is 1.3e-6, above its binary64
-  budget of 5.9e-7, yet it keeps more than half the bits between cuts. With
-  the per-term measure merged,
-  `case_check.rs::stability_test_flags_rank_n2_cancellations` still expects
-  lane 1 of `rn2-phys-{real,complex}-n6-r8` to be the only `Unstable` lanes,
-  so its loss is not in the summation that the test measures. <!-- PASS2: confirm that stability_test_flags_rank_n2_cancellations and stability_test_flags_cancellation_inside_cut_contributions pass at the pass-2 head (they were not run on the merged generic selection plus per-term test before pass 2). -->
+  budget of 5.9e-7, yet it keeps more than half the bits between cuts.
+  `case_check.rs::stability_test_flags_rank_n2_cancellations` expects lane 1
+  of `rn2-phys-{real,complex}-n6-r8` to be the only `Unstable` lanes. If it
+  passes with the per-term measure merged, the loss is not in the summation
+  that the test measures; the 5ed3b22 stream expected the per-term measure
+  to flag the lane. <!-- PASS2: missing the ninjars-tests result at the pass-2 head (115fb46 and the pass-2 commits): whether case_check.rs stability_test_flags_rank_n2_cancellations and stability_test_flags_cancellation_inside_cut_contributions pass. Neither has run on the generic selection merged with the per-term measure of 9ff3d0a. If the first fails, rewrite this bullet, 9.2 "Generic binary64" and TODO_NEXT_PLAN.md section 5. -->
 - The fast engine has no equivalent test.
 
 **Generic binary64 on ill-conditioned light-like lanes** (final review,
@@ -1464,7 +1538,7 @@ bases and box geometry. With `FastOptions::conditioned_cuts`
   - The option costs +29.8 % instructions in the replayed rank <= n+1
     reduction, moves the cut-constructible/rational split away from original
     Ninja's, and makes 20 control lanes more than 2 times worse, up to
-    1.1e-10 (11 times generic f64).
+    1.1e-10 and up to 11 times generic f64 (section 7.2).
 - **Over-declared lanes.** The same lanes declared at rank n+2 through
   `AtDeclaredRank` are often more accurate than at their own rank: 64 of the
   615 suite control lanes are more than 10 times more accurate (finding 6,
@@ -1525,20 +1599,48 @@ bases and box geometry. With `FastOptions::conditioned_cuts`
 
 **Exact masters in Float(128).** `Float` evaluates C0/D0 with Symbolica's
 precision-tracking interpreter of oneloopmaster's exact expressions, while
-binary64 and DoubleFloat use its native code. At 128 bits that costs up to 10
-bits on boxes: on the 139 boxes of the 15 lanes first listed as known
-inaccuracies, D0 is off by a median 471 and at most 1.4e5 units in the last
-place, against 34 and 4670 in binary64 (C0: at most 4 bits more).
-- 3 suite lanes (`rn2-int-mixed-n4-r6` lane 2, `rn2-int-mixed-n6-r8` lane 0,
-  `rn2-int-mixed-n7-r9` lane 1) and 11 control lanes miss the binary64 budget
-  scaled to 128 bits by 1.0 to 10 times (worst 1.7e-31). They are listed as
-  generic Float(128) known inaccuracies in `known-failures.json`.
-  `rn2-irml-zero-n5-r6` lane 1 went from 4.3e-32 to 1.2e-32 with the common
-  selection of 5ed3b22, inside its 2.7e-32 tolerance, and was removed.
-  <!-- PASS2: the Float(128) known inaccuracies after known-failures.json is re-derived at the pass-2 head (oneloopmaster 8ec256f, Symbolica 9cdc2949): suite and control lane counts, worst miss, entries removed or added. -->
+binary64 and DoubleFloat use its native code.
+- **The loss.** On the 139 boxes of the 15 lanes first listed as known
+  inaccuracies, D0 at 128 bits was off by a median 471 and at most 1.4e5
+  units in the last place with Symbolica e679e8c1 and oneloopmaster 09b2c74,
+  against 34 and 4670 in binary64: up to 10 bits more (C0: at most 4 bits
+  more). With Symbolica 9cdc2949 (symbolica-dev/symbolica#97) and
+  oneloopmaster 8ec256f it is off by a median 80 and at most 2.4e4 units,
+  against 28 and 4.6e3 in binary64 and 30 and 3.7e3 in DoubleFloat; C0 by a
+  median 7.3 and at most 383 units (before: 8.4 and 811).
+- **The lanes listed before.** 3 suite lanes (`rn2-int-mixed-n4-r6` lane 2,
+  `rn2-int-mixed-n6-r8` lane 0, `rn2-int-mixed-n7-r9` lane 1) and 12 control
+  lanes missed the binary64 budget scaled to 128 bits by 1.0 to 10 times
+  (worst 1.7e-31) and were listed as generic Float(128) known inaccuracies
+  in `known-failures.json`. `rn2-irml-zero-n5-r6` lane 1 went from 4.3e-32
+  to 1.2e-32 with the common selection of 5ed3b22, inside its 2.7e-32
+  tolerance, and was removed. The other 14 went stale with Symbolica
+  9cdc2949 (now 2.4e-36 to 3.0e-33, at most 0.35 of their tolerances) and
+  were removed when `known-failures.json` was re-derived at 115fb46
+  (27844af).
+- **The lane listed now.** The same pin made the control
+  `rn2-int-mixed-n6-r6` lane 2 miss: 2.6e-31, 1.4 times the binary64 budget
+  scaled to 128 bits (1.8e-31), where it passed at 3.5e-32. It is the one
+  generic Float(128) known inaccuracy (limit 1e-30); the suite has none.
+  - All but 1.1e-32 of its error is the D0 of propagators 0, 1, 2, 5, whose
+    term is 7.8e3 times the lane. At 128 bits that D0 is 1.0e4 units of
+    2^-128 off on Symbolica's interpreter (the route of `SymbolicaMasters`)
+    and 7.1e3 units on oneloopmaster's native `Float` code, in all 24
+    labellings of the box; before the pin it was 1.5e3 units. Binary64 is
+    7.8 units of 2^-53 off and DoubleFloat 20 units of 2^-106.
+  - Float(256), Float(1024) and `scalars/` agree on the exact D0 to 45
+    digits. Binary64, DoubleFloat and Float(256) pass the lane.
+  - Its rank twins on the same kinematics moved with it and pass:
+    `rn2-int-mixed-n6-r{5,7}` lane 2 and the suite's `rn2-int-mixed-n6-r8`
+    lane 2, at 0.25, 0.27 and 0.42 of their tolerances.
 - From 160 bits on, the references' uncertainty hides this loss.
-- The tracked-precision check of section 6 passes these masters: NinjaRS's
-  recorded C0 and D0 calls keep at least 101 tracked bits at 128 bits.
+- The tracked-precision check of section 6 passes the rank n+2 suite's
+  masters: its 7,644 C0 and D0 calls and the 843 distinct recorded master
+  calls keep at least 101 tracked bits at 128 bits (2a7df0d). The control
+  lanes' calls were not measured; in the case-check at 115fb46 every suite
+  and control lane is `Success` in Float(128) and Float(256), so the check
+  fails no lane there. It does not flag `rn2-int-mixed-n6-r6` lane 2 either:
+  its D0 keeps 119.7 tracked bits.
 
 **Float(128) near thresholds.**
 - numerica's `Float` tracks significance through cancellation. For exact
@@ -1704,7 +1806,9 @@ width 1 at 1.061), a heap-layout effect (9.1). The benchmark report has a
 rank n+2 section against COLLIER 1.2.10 (section 5,
 `docs/benchmark/rank_n2.typ`; 7d9c01f, b992fbc).
 
-<!-- PASS2: the cycle-timed guard of pass 2 (validation/performance/rank-n2-ab/scripts/run_rerun.sh, A = main 0d0d7e7, B = the pass-2 head): geomean of the reduction and total ratios, A/A, keys above 1.03 and their rerun-alone ratios, the generic bench maximum and the absolute gates against Ninja; or state that it was not rerun and why. -->
+The cycle-timed guard was not rerun for the landing, and neither was the
+COLLIER benchmark. Integration pass 2 compared machine code and counted
+instructions instead (115fb46 against main 0d0d7e7, section 7.2).
 
 ## 10. Errata and departures from the design
 
@@ -1786,16 +1890,20 @@ Departures from the design, each recorded in the commit named:
     main 0d0d7e7 with only the two re-pins applied, so the fast engine moves
     only through (c). The relabelling and the tracked-precision check change
     nothing in V0.
-  - **Next: a precision bound for the generic Float(256) section.** The
+  - **A precision bound for the generic Float(256) section** (cb6b4d1). The
     generic Float(256) bits depend on the dependencies' `Float` rounding
     (cause (d) above) and, through oneloopmaster's Symbolica evaluators, on
-    the process's symbol-registration history, not only on NinjaRS. V0
-    will compare that section within a working-precision bound of the lane
-    scale, with statuses exact, while the deterministic sections (fast
-    engine, generic binary64 and explicit mu²) stay bitwise. The four causes
-    of c24f976 together moved it by at most 3.6e-67 of the lane's largest
-    coefficient (`syn-n6-r7` lane 1).
-    <!-- PASS2: the commit that makes V0 compare the generic Float(256) section within a bound, the bound itself (e.g. 2^-200 of the lane scale) and its justification as written in regression_bitwise.rs and validation/regression/README.md. -->
+    the process's symbol-registration history, not only on NinjaRS. V0 now
+    compares that section within 2^-200 of each lane's largest component
+    (`FLOAT_AGREEMENT_BITS` in `regression_bitwise.rs`), 56 bits above the
+    working precision's rounding, with every status exact. The fast-engine,
+    generic binary64 and explicit-mu² sections are deterministic (native
+    masters, NinjaRS's positional evaluators) and stay bitwise. The four
+    causes of c24f976 together moved the Float(256) section by at most
+    3.6e-67 of the lane's largest coefficient (`syn-n6-r7` lane 1), about
+    2^-221, so such rounding-level moves need no re-bless, while a real
+    change of the result still fails: with a fixture value moved by 1e-70 of
+    its lane scale V0 passes, with one moved by 1e-50 it fails.
 - **V4f tolerance.** It is based on original Ninja's error with
   `cond' = max(condition, new_terms_over_scale)`, instead of
   `1e-14 max(1, cond) + 3 unc` (3c6c88c, dda8f8e).
@@ -1844,4 +1952,4 @@ repository:
 | integration pass 1 | f33ff8d, before the generic merge: machine code and instruction counts against main 0d0d7e7, `case-check` in five configurations, all crate test suites |
 | oneloopmaster landing | the oneloopmaster final candidate 3a322d0 and its verifiers (verify-olm-gates2: fs and the oracle-sweep comparisons; verify-olm-sweep2: ns and ns2), the documentation check of a8a3b8c (corrected in 8ec256f); oneloopmaster `STATUS.md`, "Adversarial sweeps and the remaining tail" |
 | OneLOop and COLLIER comparison | 2026-10-21: OneLOop 3.6 (double and quad), COLLIER 1.2.9 (COLI and DD), oneloopmaster 09b2c74 and 3a322d0 on fs, ns and ns2, with the rescue ladder over DoubleFloat and `Float` 128 to 1024 bits; it also selected the tracked-precision rule (2a7df0d) |
-| integration pass 2 | 8a8bc55..115fb46 (the oneloopmaster and Symbolica re-pins, 8e583f2, 2a7df0d, the V0 re-bless c24f976) and its checks: known failures and `case-check`, tests, performance <!-- PASS2: the pass-2 head and the checks' outcome in one line (what passed, what is documented as open). --> |
+| integration pass 2 | 72a273c (the Symbolica re-pin) and 8a8bc55 to 115fb46 (the oneloopmaster re-pin, 8e583f2, 2a7df0d, the V0 re-bless c24f976) and its checks at 115fb46: known failures re-derived and `case-check` in five modes plus `--conditioned-cuts`, all runs exiting 0 (27844af); V0's precision bound for the generic Float(256) section (cb6b4d1); machine code and instruction counts against main 0d0d7e7, rank <= n+1 unchanged outside oneloopmaster's masters (1a1eea4); tests (section 8.2). Open: the Float(128) known inaccuracy of `rn2-int-mixed-n6-r6` lane 2 (section 9.3) and the D0 cost of oneloopmaster 8ec256f (section 7.2); not rerun: the cycle-timed guard and the COLLIER benchmark |
