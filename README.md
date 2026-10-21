@@ -117,6 +117,11 @@ scale and its source. `--mu-sampling-scale EXPR` supplies an exact override,
 independent of the renormalization scale. The default mu-expansion mode obtains
 the integrated rational coefficient directly from the numerator expansion.
 Conditioning diagnostics and precision rescue remain under development.
+Master integrals in `Float` are checked against numerica's tracked precision:
+a result that keeps fewer than max(53, bits/4) tracked bits (a requirement
+capped at bits/2) fails its lane with `MasterFailure::ImpreciseResult`, as a
+non-finite one does, so that a rescue at higher precision retries the lane
+instead of accepting it (2a7df0d).
 
 `reduce --engine fast` (also `bench`) selects `ninjars::fast`, a batched
 binary64 port of original Ninja's reduction with oneloopmaster's native
@@ -134,9 +139,18 @@ See the [CLI guide](crates/ninjars-cli/README.md#reduction-engines).
 
 Rank n+2 (beyond original Ninja) is reduced by both engines. The generic
 engine builds every exact plan from a `RankClass`, and its plans for rank
-<= n+1 are byte-identical to before. The fast engine reduces rank n+2 in a
-separate engine selected at construction (`fast/engine_x2.rs`), which leaves
-the rank <= n+1 path bitwise unchanged.
+<= n+1 are byte-identical to before. Its cut provider chooses each lane's
+bubble reference and tadpole basis with the fast rank n+2 engine's scores at
+every rank (5ed3b22, f9a8b16), which moved its rank <= n+1 results at
+rounding level ([V0 re-bless](validation/regression/README.md)). The fast
+engine reduces rank n+2 in a separate engine selected at construction
+(`fast/engine_x2.rs`), which leaves the rank <= n+1 path bitwise unchanged.
+Lanes declared at rank n+2 whose numerator has a lower rank are reduced at
+their own rank, bitwise as declared there (`fast/declared_rank.rs`). The
+opt-in `FastOptions::conditioned_cuts` (`--conditioned-cuts`) gives the rank
+<= n+1 path the rank n+2 engine's conditioned cut geometry: on the control
+lanes its binary64 error is 0.46 times the default's in geometric mean, at
++29.8 % instructions in the replayed reduction.
 
 The new pieces are:
 - a three-term box mu-expansion on the exact d-dimensional cut,
@@ -149,8 +163,11 @@ The new pieces are:
 `ninjars case-check` judges both engines against the high-precision suite in
 `validation/rank-n2` (333 lanes, n = 1..7). No lane fails in the fast engine
 or in the generic engine in binary64, DoubleFloat, Float(128) or Float(256).
-With oneloopmaster 09b2c74 no upstream failure is left; three Float(128) lanes
-are listed as known inaccuracies of the exact masters in `Float`. See
+With oneloopmaster 8ec256fc and Symbolica 9cdc2949 no upstream failure is
+left, no suite lane is listed as a known inaccuracy, and the tracked-precision
+check of 2a7df0d flags no lane; one rank <= n+1 control lane is listed as a
+Float(128) known inaccuracy of the exact masters in `Float`.
+See
 [rank n+2](docs/rank-n2.md) for the formulas, the validation and the known
 limitations.
 
@@ -198,7 +215,14 @@ uninstrumented total) over a shared phase-space pool; `case-bench` gives the
 same breakdown for the `ninjars-bench-case-v1` files shared with original
 Ninja. Both can check results against original Ninja; see the
 [CLI guide](crates/ninjars-cli/README.md#end-to-end-and-bench-case-timings)
-and the [benchmark report](docs/benchmark/benchmark.typ). `case-check` reduces
+and the [benchmark report](docs/benchmark/benchmark.typ).
+Numerator rank n+2, where original Ninja has no result, is compared with the
+tensor-integral library COLLIER 1.2.10 (`validation/benchmark/collier`, report
+section 5): at main 0d0d7e7 the fast engine takes ×0.27 to ×0.011 of COLLIER
+COLI's time at n = 4..7 (4 to 90 times faster) and ×0.52 to ×1.24 at n <= 3
+(`docs/benchmark/data/rank_n2.json`). COLLIER runs without its global cache,
+which returns wrong 7-point rank-9 results ([COLLIER_CACHE_BUG.md](COLLIER_CACHE_BUG.md)).
+`case-check` reduces
 the same files with the fast engine and the generic engine at `f64`, `double`
 or `float:<bits>`, optionally declared at a higher rank, and judges every lane
 against high-precision or original-Ninja references; see the

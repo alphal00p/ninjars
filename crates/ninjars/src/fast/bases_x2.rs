@@ -25,9 +25,9 @@
 //! the result; the bubble reference also moves terms between the
 //! cut-constructible and the rational part (only their sum is reference
 //! independent, given true master integrals), as the generic engine's own
-//! reference choice does. A rank <= n+1 numerator declared at rank n+2
-//! therefore gives the rank <= n+1 engine's Laurent coefficients, but not its
-//! split.
+//! reference choice does. A rank <= n+1 numerator run through the rank n+2
+//! engine (`AtDeclaredRank`) therefore gives the rank <= n+1 engine's Laurent
+//! coefficients, but not its split.
 //!
 //! - **Bubbles** (`k = V_first - V_second`, real null reference `r`):
 //!   `score = |k.r|/(|k||r⁰|) · min_v |e3.v|/(|e3||v|)` (Euclidean norms of
@@ -35,12 +35,14 @@
 //!   `G(k, r, v) = 2 (k.r)(e3.v)(e4.v)` and `|e3|² = 2 |e1⁰ r⁰|`
 //!   (`e1 = k - r1 r`); for real kinematics `|e4.v| = |e3.v|`, so both
 //!   orientations are covered. Candidates: Ninja's reference and the 24
-//!   signed permutations of `(3/4, 1/2, 1/2, 1/4)` (exactly null in binary64;
-//!   the generic engine scores 8 of them, `ninjars-symbolica`
-//!   `cuts.rs::bubble_reference`).
+//!   signed permutations of `(3/4, 1/2, 1/2, 1/4)` (exactly null in binary64).
+//!   Since 5ed3b22 the generic engine scores the same 24 (scaled by 4/3; the
+//!   score is scale invariant) with this score at every rank class
+//!   (`ninjars-symbolica` `cuts.rs::bubble_reference`).
 //! - **Tadpoles**: `score = min_v min(|e1.v|/|e1|, |e3.v|/|e3|)/|v|` over
 //!   original Ninja's three bases and six exactly null pairs built like the
-//!   generic engine's rational Weyl spinors (`tadpole_plans.rs`).
+//!   generic engine's rational Weyl spinors (`tadpole_plans.rs`), whose six
+//!   the generic engine scores the same way (`tadpole_line_scores`).
 //!
 //! The scores were chosen on forced experiments (every candidate for one cut
 //! at a time, against Float(256) results) over the rank n+2 suite and random
