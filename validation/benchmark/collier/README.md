@@ -1,15 +1,24 @@
-# COLLIER at numerator rank n+2: timing and accuracy reference
+# COLLIER at numerator rank n+2: accuracy reference
 
 Original Ninja stops at numerator rank n+1, so the rank n+2 part of the benchmark report
-([`docs/benchmark/benchmark.typ`](../../../docs/benchmark/benchmark.typ), section "Numerator
-rank n + 2", data in `docs/benchmark/data/rank_n2.json`) compares NinjaRS with the
-tensor-integral library COLLIER 1.2.10 (Denner, Dittmaier, Hofer, Comput. Phys. Commun. 212
-(2017) 220, arXiv:1604.06792; COLI and DD branches: Denner, Dittmaier, Nucl. Phys. B 658 (2003)
-175, B 734 (2006) 62, B 844 (2011) 199).
+([`docs/benchmark/benchmark.typ`](../../../docs/benchmark/benchmark.typ), section "Validation
+at numerator rank n + 2", data in `docs/benchmark/data/rank_n2.json`) validates NinjaRS against
+high-precision references and the tensor-integral library COLLIER 1.2.10 (Denner, Dittmaier,
+Hofer, Comput. Phys. Commun. 212 (2017) 220, arXiv:1604.06792; COLI and DD branches: Denner,
+Dittmaier, Nucl. Phys. B 658 (2003) 175, B 734 (2006) 62, B 844 (2011) 199).
 
 COLLIER computes tensor integrals and contracts them with the numerator's tensor coefficients.
-That is a different method from integrand reduction, so the comparison is a timing reference,
+That is a different method from integrand reduction, so the comparison is an independent check,
 not like for like (see "What is compared").
+
+> **Timings not maintained (2026-10-21).** Since the report revision of 2026-10-21 its rank n+2
+> section ("Validation at numerator rank n + 2") validates NinjaRS against the high-precision
+> references and COLLIER and makes no timing comparison. The timing files in `results/`
+> (`collier.json` rounds, `ninjars-fast.json`, `ninjars-generic.json`, `instructions.json`,
+> `environment.json`) are those of the run at NinjaRS 0d0d7e7 (2026-10-19, CPU 260) and are kept
+> for reference only; they are not maintained, and the timing sections below describe that run.
+> `run_bench.py` and `count_instructions.py` are kept, but the report no longer reads their
+> output (`collect.py` still copies it into `rank_n2.json`).
 
 ## Pipeline
 
@@ -17,10 +26,10 @@ not like for like (see "What is compared").
 source <devenv>                                     # gfortran, python3; cmake via nix if absent
 validation/benchmark/collier/build.sh               # COLLIER 1.2.10 (precise, stock) + collier_bench
 cargo build --profile perf --locked -p ninjars-cli --features numerator-jit   # target/perf/ninjars
-python3 validation/benchmark/collier/run_bench.py --rounds 2     # timings (pinned, interleaved per round), ~1.5 h
+python3 validation/benchmark/collier/run_bench.py --rounds 2     # timings (pinned, interleaved per round), ~1.5 h; not maintained
 python3 validation/benchmark/collier/run_accuracy.py            # case-check verdicts, ~10 min
 python3 validation/benchmark/collier/run_final_review.py        # fresh cases of the final review, ~4 min
-python3 validation/benchmark/collier/count_instructions.py      # perf stat instruction counts
+python3 validation/benchmark/collier/count_instructions.py      # perf stat instruction counts; not maintained
 python3 validation/benchmark/collier/collect.py                 # -> docs/benchmark/data/rank_n2.json
 cd docs/benchmark && nix shell nixpkgs#typst -c typst compile benchmark.typ benchmark.pdf
 ```
