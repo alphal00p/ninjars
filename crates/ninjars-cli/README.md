@@ -198,9 +198,10 @@ magnitudes of the terms it is computed from is rounding noise of an exact zero,
 and the lane reports `cut_failed` in every precision (`SingularParameter` for
 the generic engine), where an exact-zero test accepted or rejected it depending
 on the carrier. `reduce --stability-test` and `case-check --stability-test`
-(generic engine) also report `unstable` lanes whose cut contributions cancel so
-much that fewer than half of the carrier's bits survive (the summed
-contribution magnitudes exceed `2^(p/2)` times the result). It is opt-in like
+(generic engine) also report `unstable` lanes whose cut contributions, term by
+term, cancel so much that fewer than half of the carrier's bits survive (the
+summed moduli of their terms, each master integral times its weight and each
+rational term of every cut, exceed `2^(p/2)` times the result). It is opt-in like
 Ninja's accuracy tests: an exactly vanishing amplitude (a Ward identity, a zero
 helicity amplitude) is rounding noise of its cut contributions and fails it in
 every precision.
@@ -217,7 +218,9 @@ Whether or not the flag is set, every successful generic `reduce` lane reports
   range (e.g. `--bits` above 1074);
 - `precision_bits`: `p`, so the estimate can always be recomputed.
 
-The fast engine does not report it.
+`contribution_moduli` measures whole contributions; the stability test
+measures their terms, which can cancel further. The fast engine reports
+neither.
 
 `--engine fast` runs `ninjars::fast`, a batched binary64 port of original
 Ninja's `Amplitude::evaluate` (complex masses, box mu-expansion, Ninja's skip
@@ -258,7 +261,9 @@ engine (`ninjars::fast` `engine_x2.rs`, chosen once at construction). It
 leaves the rank <= n+1 path bitwise unchanged. Per cut and lane it picks the
 bubble reference vector and tadpole basis that best condition the uncut
 lines, so its cut-constructible/rational split need not match original
-Ninja's.
+Ninja's. Lanes declared at rank n+2 whose numerator has a lower rank are
+reduced at their own rank, bitwise as declared there
+(`fast/declared_rank.rs`).
 
 On the synthetic and physical fixtures of `tests/fast_engine.rs` both engines
 agree on the Laurent coefficients within the scaled 1e-9 criterion. The
@@ -418,12 +423,20 @@ nix develop --command cargo run --release -p ninjars-cli -- case-check \
 - `--engines generic` runs the generic engine at each `--precision`:
   - `f64` with native masters;
   - `double` (DoubleFloat) and `float:<bits>` with oneloopmaster's exact
-    expressions, and B1111 from its native family.
+    expressions for A0, C0 and D0 (native code in DoubleFloat), and B0..B1111
+    from its native tensor families.
 
   The dense tensor is expanded numerically, so a dense rank-9 numerator needs
   no Symbolica preparation.
 - `--declare-rank R` (or `n+K`) runs every numerator declared at a higher rank
   with zero top coefficients.
+  - The generic engine reduces it at the declared rank.
+  - The fast engine reduces lanes declared at rank n+2 bitwise as declared at
+    their own rank. That equals the undeclared run when the case's rank is the
+    lane's rank.
+  - `--declare-rank n+1` for numerators of rank <= n changes the fast results,
+    as in original Ninja.
+  - In library code, `ninjars::fast::AtDeclaredRank` keeps the rank n+2 engine.
 - `--conditioned-cuts` runs the fast engine with the opt-in conditioned cut
   geometry for rank <= n+1 (`FastOptions::conditioned_cuts`): per cut and
   lane, the bubble reference and tadpole basis that best condition the uncut
@@ -434,8 +447,8 @@ nix develop --command cargo run --release -p ninjars-cli -- case-check \
   reduction ([rank n+2](../../docs/rank-n2.md), section 7.2). Rank n+2
   always uses that geometry. The fast run's report then carries
   `"conditioned_cuts": true`.
-- `--stability-test` marks generic-engine lanes whose cut contributions
-  cancel below half the carrier's bits as `Unstable`.
+- `--stability-test` marks generic-engine lanes whose cut contributions,
+  term by term, cancel below half the carrier's bits as `Unstable`.
 
 **References and verdicts.** `--reference-dir` holds `<case>.json`: either
 the high-precision `ninjars-reference-collier-v1` files, with tier, uncertainty

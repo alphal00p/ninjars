@@ -1,12 +1,17 @@
 //! Rank r = n+2 fast engine (beyond original Ninja).
 //!
 //! [`super::FastAmplitude::new`] builds a [`RankN2Engine`] once when
-//! `rank == n + 2` and forwards every evaluation to it, so the rank <= n+1
-//! engine in `engine.rs` is untouched. Stage order, skip rules (`cut_stop`,
-//! scaleless bubbles, massless tadpoles), stability checks, lane compaction,
-//! publish-on-success and statuses are those of `engine.rs`; the recipe per
-//! cut is the one of `docs/rank-n2.md` section 3 (confirmed exactly against
-//! an independent reduction for n = 1..6):
+//! `rank == n + 2` and forwards to it every lane whose numerator has rank
+//! n+2 or does not report its rank (`declared_rank.rs`; lanes of a lower
+//! rank go to rank <= n+1 engines built at their own rank), so the rank
+//! <= n+1 engine in `engine.rs` is untouched. Stage order, skip rules
+//! (`cut_stop`, scaleless bubbles, massless tadpoles), stability checks, lane
+//! compaction, publish-on-success and statuses are those of `engine.rs`, plus
+//! one failure condition of the box geometry (`box_x2.rs`: the lane is
+//! unstable when the normal, `v²` or the Gram determinant of the cut momenta
+//! is exactly zero or not finite); the recipe per cut is the one of
+//! `docs/rank-n2.md` section 3 (confirmed exactly against an independent
+//! reduction for n = 1..6):
 //!
 //! - **box**: `c0` from the two four-dimensional solutions as before; the
 //!   mu-expansion runs on the exact d-dimensional cut, `q = q̄0 - V0 + t v`,
