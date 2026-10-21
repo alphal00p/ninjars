@@ -238,6 +238,21 @@ The first guard attributed `syn-n2-r2`'s +6 % to the rank n+2 modules sitting am
 
 **Probe cycles are too noisy to judge layout.** The in-process probe's cycle counts vary by ±10 % between repetitions on this host. `ab_icount.rs` times 400 calls per point at width 1. They are not used for timing here.
 
+## Integration pass 2 (115fb46): machine code and instruction counts ([results/zero-overhead-115fb46.txt](results/zero-overhead-115fb46.txt))
+
+Release CLIs and in-process probes of main `0d0d7e7` (A), pass 1's head `f33ff8d` (F) and `claude/todo-next-integration` `115fb46` (B), which carries the oneloopmaster pin `8ec256fc` and the Symbolica pin `9cdc2949`. Instruction counts only; the cycle-timed guard (`run_rerun.sh`) is run separately.
+- **Machine code** (`dis_compare.py --no-alias`):
+  - all 28 default stage instances (`boxes`, `bubbles`, `tadpoles`, `triangles`, `evaluate_up_to_n1`) are identical A -> B;
+  - F -> B, every function outside oneloopmaster is identical, also with struct offsets kept (`offsets_cmp.py`);
+  - A -> B outside oneloopmaster, the 33 differences are pass 1's;
+  - oneloopmaster's native code differs in 1287 functions, from its pin.
+- **`lane_rank`** is still inlined into `evaluate_declared_n2`: no out-of-line `TensorNumerator`/`MuTensorNumerator::lane_rank`. At width 32, n = 1..3, F -> B moves the live path without masters by at most 2.3 instructions per point.
+- **Rank <= n+1** (54 keys), B against A: replayed reduction -0.001 % (-0.021 % to +0.016 %), live path +0.305 %. The live change is the masters' (+0.674 %); the live path without masters is +0.000 % (-0.035 % to +0.032 %).
+- **Rank n+2** (222 keys), B against F: replay +0.000 %, live +0.116 %, all from the masters (+0.883 %).
+- **Masters per family** (`ab_masters_family.rs`), A -> B: D0 +1.6 % instructions per row, C0 -0.3 % to -0.5 %, A0 +0.6 %, bubbles ±0.1 %.
+
+Per-key numbers: [results/icount-115fb46.tsv](results/icount-115fb46.tsv). Probes: `ab_icount.rs` (unchanged), `ab_icount_split.rs` (adds a run with the replayed numerator and live masters, which separates the masters from the reduction and the numerator) and `ab_masters_family.rs`.
+
 ## Files
 
 **scripts/**
@@ -251,6 +266,7 @@ The first guard attributed `syn-n2-r2`'s +6 % to the rank n+2 modules sitting am
 | `run_generic_one.sh`, `ab_generic.sh` | the generic bench A/B |
 | `analyze.py`, `analyze_generic.py` | ratios and acceptance |
 | `run_icount.sh`, `icount_compare.py`, `generic_icount.sh` | instruction counts |
+| `ab_icount_split.rs`, `ab_masters_family.rs` | instruction counts of the live path split into reduction, masters and numerator, and per master family (integration pass 2) |
 | `dis_compare.py` | machine-code comparison |
 | `twin_pairs.py`, `twin_cost.sh`, `twin_report.py`, `make_twin_fixtures.py` | rank n+2 cost |
 | `gate_check.py` | the absolute gates |
