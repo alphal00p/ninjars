@@ -11,7 +11,8 @@ run_accuracy.py):
                       round;
 - ninjars-generic.json `ninjars case-bench --engines generic` (one round);
 - accuracy.json       `ninjars case-check` verdicts and scaled differences (fast and
-                      generic f64, generic DoubleFloat, Float(128), Float(256));
+                      generic f64, generic DoubleFloat, Float(128), Float(256)), and the
+                      scaled differences of every lane to COLLIER's values;
 - environment.json    CPU, date, rounds, blocks, foreign CPU time per run;
 - instructions.json   retired instructions per point (count_instructions.py), optional;
 - accuracy-final-review.json  NinjaRS and COLLIER on the final review's fresh cases
@@ -20,9 +21,23 @@ The high-precision references are validation/rank-n2/reference (suite, synthetic
 validation/rank-n2/controls/reference (rank n+1 twins).
 
 Timings: per case and quantity the best (smallest) of the rounds' block medians, in
-microseconds per phase-space point. Scaled differences follow case-check: the largest
+microseconds per phase-space point. The timing files and the accuracy files can come
+from different runs (an accuracy-only refresh re-runs run_accuracy.py and
+run_final_review.py); `timings` records the timed tree and `accuracy_head` the checked
+one, and `timings.from_previous_run` is true when they differ. Scaled differences follow case-check: the largest
 |x - ref| over the three Laurent coefficients over the lane scale, here in exact decimal
 arithmetic against the 40-digit reference decimals.
+
+NinjaRS against COLLIER (`accuracy.ninjars_vs_collier`, per case-check run): a lane
+agrees with a COLLIER value when |x_NinjaRS - x_COLLIER| / scale is at most the sum of
+the two tolerances: case-check's tolerance of the lane (docs/rank-n2.md section 8.3) and
+COLLIER's own claim, max(reqacc * max(1, absum / scale), estimate / scale) in binary64
+(reqacc = 1e-8, COLLIER's default target; absum = the sum of the contraction terms'
+magnitudes, estimate = COLLIER's error estimate) and 1e-20 * max(1, condition) for the
+1.2.9 COLI quad values of the references (SetReqAcc_cll(1e-20)). A disagreement is
+decided by the reference: NinjaRS is right when it is within its tolerance, COLLIER when
+it is within its claim plus the reference's uncertainty. On the final review's fresh
+cases NinjaRS's tolerance is the report's 1e-6.
 
 usage: collect.py [--results DIR] [--output docs/benchmark/data/rank_n2.json]
 """
@@ -43,6 +58,9 @@ REPO = HERE.parents[2]
 RN2 = REPO / "validation" / "rank-n2"
 KEYS = ("eps0", "eps_m1", "eps_m2")
 SHA256 = "460624ea709211506b642343a7f6be41d3883ccb52598b14950f8e07c0262713"
+REQACC = 1e-8  # COLLIER's default target accuracy (binary64 runs)
+QUAD_REQACC = 1e-20  # the quad references' SetReqAcc_cll (validation/rank-n2/harness/collier_reference.py)
+FRESH_TOLERANCE = 1e-6  # NinjaRS binary64 on the final review's fresh cases (the report's threshold)
 
 # Rows of the per-case timing table (the other cases enter the per-n aggregates).
 DISPLAY = (
@@ -286,6 +304,10 @@ def main():
                 nl = ninja_lane.get(lane_id, {}).get(label)
                 if nl:
                     row[label] = {"error": nl["scaled_difference"], "verdict": nl["verdict"], "status": nl["status"]}
+            quad = rl.get("collier_coli_quad_decimal")
+            if quad:
+                vals = [x for k in KEYS for x in quad[k]]
+                row["coli-quad-1.2.9"] = {"error": scaled_difference(vals, rl)[0]}
             lanes.append(row)
     lanes.sort(key=lambda r: (r["n"], r["case"], r["id"]))
 
@@ -411,6 +433,133 @@ def main():
         fresh["coli_above_1e-6"] = [{"id": l["id"], "coli": l["coli"], "fast": l.get("fast"),
                                      "generic": l.get("generic"), "flags": l.get("coli_flags")}
                                     for l in fr if (l.get("coli") or 0) > 1e-6]
+        # the generic engine at higher precision: statuses (the tracked-precision check
+        # of the Float masters fails a lane) and errors
+        precisions = [p.replace("float:", "float") for p in load(res / "accuracy-final-review.json")
+                      .get("precisions", []) if p != "f64"]
+        fresh["high_precision"] = {}
+        for p in precisions:
+            st = {}
+            for l in fr:
+                st[l.get(f"{p}_status")] = st.get(l.get(f"{p}_status"), 0) + 1
+            errs = [l.get(p) for l in fr if l.get(p) is not None]
+            fresh["high_precision"][p] = {
+                "statuses": st, **stats(errs),
+                "above_1e-6": sum(1 for x in errs if x > 1e-6),
+                "largest_id": max((l for l in fr if l.get(p) is not None), key=lambda l: l[p])["id"] if errs else None,
+                "not_success": [{"id": l["id"], "status": l.get(f"{p}_status"), "fast": l.get("fast"),
+                                 "generic": l.get("generic"), "condition": l.get("condition"),
+                                 **{q: l.get(q) for q in precisions}} for l in fr
+                                if l.get(f"{p}_status") not in ("Success", None)]}
+        # NinjaRS's binary64 values against COLLIER's (tolerance: 1e-6 for NinjaRS, COLLIER's
+        # claim as for the suite), decided by the 60-100 digit references
+        fresh["ninjars_vs_collier"] = {}
+        for engine in ("fast", "generic"):
+            for label in ("coli", "dd"):
+                rows = [l for l in fr if l.get(f"{engine}_vs_{label}") is not None]
+                if not rows:
+                    continue
+                agree, disagree = 0, []
+                for l in rows:
+                    lane_flags = l[f"{label}_flags"]
+                    claim = max(REQACC * max(1.0, lane_flags[3]), lane_flags[2])
+                    d = l[f"{engine}_vs_{label}"]
+                    if d <= FRESH_TOLERANCE + claim:
+                        agree += 1
+                        continue
+                    ninjars_ok = l[engine] <= FRESH_TOLERANCE
+                    collier_ok = l[label] <= claim + (l.get("uncertainty") or 0.0)
+                    disagree.append({"id": l["id"], "difference": d, "ninjars_error": l[engine], "collier_error": l[label],
+                                     "collier_claim": claim, "accflag": lane_flags[1], "condition": l.get("condition"),
+                                     "stability_test": l.get("generic_stability_test"),
+                                     "right": {(True, False): "ninjars", (False, True): "collier",
+                                               (False, False): "neither", (True, True): "both"}[(ninjars_ok, collier_ok)]})
+                right = {}
+                for e in disagree:
+                    right[e["right"]] = right.get(e["right"], 0) + 1
+                largest = max(rows, key=lambda l: l[f"{engine}_vs_{label}"])
+                fresh["ninjars_vs_collier"][f"{engine}/{label}"] = {
+                    "compared": len(rows), "agree": agree, "disagree": len(disagree), "disagreements_right": right,
+                    "largest_difference": largest[f"{engine}_vs_{label}"], "largest_difference_id": largest["id"],
+                    "disagreements": disagree}
+
+    # NinjaRS against COLLIER, lane by lane, per case-check run (see the module docstring)
+    lane_index = {r["id"]: r for r in lanes}
+
+    def collier_claim(r, variant):
+        c = r[variant]
+        if variant == "coli-quad-1.2.9":
+            return QUAD_REQACC * max(1.0, r["condition"] or 0.0)
+        return max(REQACC * max(1.0, c["absum_over_scale"]), c["estimate"])
+
+    def versus(rows, variant, label):
+        compared, agree, disagree, untolerated, loose, comparison_set = [], [], [], [], 0, []
+        for lane in rows:
+            d = (lane.get("collier") or {}).get(label)
+            r = lane_index.get(lane["id"])
+            if d is None or r is None or variant not in r:
+                continue
+            compared.append((d, lane["id"]))
+            if judged(r):
+                comparison_set.append((d, lane["id"]))
+            claim = collier_claim(r, variant)
+            loose += claim > 1e-6
+            entry = {"id": lane["id"], "tier": r["tier"], "difference": d, "ninjars_error": lane["scaled_difference"],
+                     "ninjars_tolerance": lane["tolerance"], "verdict": lane["verdict"],
+                     "collier_error": r[variant]["error"], "collier_claim": claim}
+            if variant != "coli-quad-1.2.9":
+                entry["accflag"] = r[variant]["accflag"]
+            if lane["tolerance"] is None:
+                untolerated.append(entry)
+            elif d <= lane["tolerance"] + claim:
+                agree.append(d)
+            else:
+                ninjars_ok = lane["scaled_difference"] <= lane["tolerance"]
+                collier_ok = r[variant]["error"] <= claim + (r["uncertainty"] or 0.0)
+                entry["right"] = {(True, False): "ninjars", (False, True): "collier", (False, False): "neither",
+                                  (True, True): "both"}[(ninjars_ok, collier_ok)]
+                disagree.append(entry)
+        if not compared:
+            return None
+        largest = max(compared)
+        right = {}
+        for e in disagree:
+            right[e["right"]] = right.get(e["right"], 0) + 1
+        set_largest = max(comparison_set, default=(None, None))
+        return {"compared": len(compared), "agree": len(agree), "disagree": len(disagree),
+                "no_ninjars_tolerance": len(untolerated), "collier_claim_above_1e-6": loose,
+                "within": {t: sum(1 for d, _ in compared if d <= float(t)) for t in ("1e-12", "1e-10", "1e-8", "1e-6")},
+                "largest_difference": largest[0], "largest_difference_id": largest[1],
+                "largest_agreeing": max(agree, default=None),
+                # the binary64 comparison set of the accuracy table (tier A/B, condition <= 1e6)
+                "comparison_set": {"lanes": len(comparison_set), "largest_difference": set_largest[0],
+                                   "largest_difference_id": set_largest[1],
+                                   "within_1e-8": sum(1 for d, _ in comparison_set if d <= 1e-8)},
+                "disagreements_right": right,
+                # every disagreement where NinjaRS is not right in full; those where only
+                # COLLIER misses its claim as [id, COLLIER's error, its claim]
+                "disagreements": [e for e in disagree if e["right"] != "ninjars"],
+                "collier_misses": sorted([e["id"], e["collier_error"], e["collier_claim"]] for e in disagree
+                                         if e["right"] == "ninjars"),
+                "untolerated": untolerated}
+
+    versus_collier = {}
+    for key, rows in acc_runs.items():
+        judged_rows = [l for l in rows if l["tolerance"] is not None and l["scaled_difference"] is not None]
+        outside = [l for l in judged_rows if l["scaled_difference"] > l["tolerance"]]
+        statuses = {}
+        for l in rows:
+            statuses[l["status"]] = statuses.get(l["status"], 0) + 1
+        versus_collier[key] = {
+            "lanes": len(rows), "statuses": statuses,
+            "reference": {"with_tolerance": len(judged_rows), "within_tolerance": len(judged_rows) - len(outside),
+                          "outside_tolerance": [{"id": l["id"], "verdict": l["verdict"], "tier": l["tier"],
+                                                 "error": l["scaled_difference"], "tolerance": l["tolerance"]}
+                                                for l in outside],
+                          "largest": max((l["scaled_difference"] for l in rows if l["scaled_difference"] is not None),
+                                         default=None)},
+            **{label: versus(rows, variant, label) for variant, label in (
+                ("precise-coli", "coli"), ("precise-dd", "dd"), ("coli-quad-1.2.9", "coli_quad"))}}
 
     # case-check verdict table (docs/rank-n2.md section 8.3), per n and run
     verdict_table = {}
@@ -429,7 +578,17 @@ def main():
                               "largest_tier_a": max(tier_a) if tier_a else None,
                               "exit_status": (accuracy or {}).get("exit_status", {}).get(key.split("/")[1])}
 
+    timed_head = env.get("ninjars_head")
     out = {
+        "timings": {"ninjars_head": timed_head, "oneloopmaster": env.get("oneloopmaster"), "date": env["date"],
+                    "from_previous_run": bool(accuracy) and accuracy.get("ninjars_head") != timed_head,
+                    "note": "timings (cases, by_n, twins, instructions, collier_overheads_us, "
+                            "collier_stock_over_precise) are those of the run in environment.json, COLLIER's "
+                            "lane values those of its collier_lanes entry; NinjaRS's accuracy entries "
+                            "(accuracy, case_check) were checked at accuracy_head"},
+        "accuracy_date": (accuracy or {}).get("date"),
+        "accuracy_oneloopmaster": (accuracy or {}).get("oneloopmaster"),
+        "accuracy_symbolica": (accuracy or {}).get("symbolica"),
         "date": env["date"],
         "host": env.get("processor", ""),
         "cpu": env["cpu"],
@@ -453,7 +612,7 @@ def main():
         "collier_overheads_us": overheads,
         "twins": twin_rows,
         "accuracy": {"by_n": acc_by_n, "collier_flags": flags, "collier_vs_1.2.9": agreement,
-                     "final_review": fresh, "collier_cache": cache_check},
+                     "final_review": fresh, "collier_cache": cache_check, "ninjars_vs_collier": versus_collier},
         "case_check": verdict_table,
         "instructions": instructions,
     }
