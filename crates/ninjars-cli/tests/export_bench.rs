@@ -109,6 +109,57 @@ fn check_verification(report: &Value, label: &str) {
     }
 }
 
+/// Differences between an exported and a committed bench case: every value
+/// exactly, except each lane's `tensor`, whose (re, im) parts must agree within
+/// 2^-200 of the lane's largest committed part (rounding residues of the
+/// 256-bit coefficient evaluation, see `pool_fixtures_export_the_committed_bench_cases`).
+fn cases_agree(path: &str, actual: &Value, expected: &Value, out: &mut Vec<String>) {
+    let parts = |v: &Value| -> Option<Vec<f64>> {
+        v.as_array()?
+            .iter()
+            .map(|z| Some([z.get(0)?.as_f64()?, z.get(1)?.as_f64()?]))
+            .collect::<Option<Vec<[f64; 2]>>>()
+            .map(|pairs| pairs.into_iter().flatten().collect())
+    };
+    match (actual, expected) {
+        (Value::Object(a), Value::Object(b)) => {
+            for key in b.keys().chain(a.keys().filter(|k| !b.contains_key(*k))) {
+                let (x, y) = (
+                    a.get(key).unwrap_or(&Value::Null),
+                    b.get(key).unwrap_or(&Value::Null),
+                );
+                if key == "tensor" {
+                    match (parts(x), parts(y)) {
+                        (Some(x), Some(y)) if x.len() == y.len() => {
+                            let scale = y.iter().fold(0f64, |m, v| m.max(v.abs()));
+                            let bound = scale * 2f64.powi(-200);
+                            for (k, (u, v)) in x.iter().zip(&y).enumerate() {
+                                if (u - v).abs() > bound {
+                                    out.push(format!(
+                                        "{path}/tensor[{}][{}]: {u} != {v}",
+                                        k / 2,
+                                        k % 2
+                                    ));
+                                }
+                            }
+                        }
+                        _ => out.push(format!("{path}/tensor: shapes differ")),
+                    }
+                } else {
+                    cases_agree(&format!("{path}/{key}"), x, y, out);
+                }
+            }
+        }
+        (Value::Array(a), Value::Array(b)) if a.len() == b.len() => {
+            for (i, (x, y)) in a.iter().zip(b).enumerate() {
+                cases_agree(&format!("{path}[{i}]"), x, y, out);
+            }
+        }
+        _ if actual != expected => out.push(format!("{path}: {actual} != {expected}")),
+        _ => {}
+    }
+}
+
 #[test]
 fn pool_fixtures_export_the_committed_bench_cases() {
     let directory = scratch("pool");
@@ -128,12 +179,21 @@ fn pool_fixtures_export_the_committed_bench_cases() {
             report["tensor"]["rank"],
             report["tensor"]["numerator_degree"]
         );
-        // The committed case is reproduced bit for bit from the exact fixture.
+        // The committed case is reproduced from the exact fixture: every field
+        // exactly, and the tensor coefficients within 2^-200 of the lane's
+        // largest coefficient. The coefficients are 256-bit values rounded to
+        // binary64; parts that vanish exactly come out as rounding residues
+        // (about 1e-74 on coefficients of 1e4 to 1e7, near 2^-260 of the lane)
+        // whose bits depend on how Symbolica rounds Float products (they moved
+        // with Symbolica 9cdc2949, symbolica-dev/symbolica#97).
         let committed = root().join(format!("validation/benchmark/cases/{name}.json"));
+        let mut differences = Vec::new();
+        cases_agree("", &read(&output), &read(&committed), &mut differences);
         assert!(
-            fs::read(&output).unwrap() == fs::read(&committed).unwrap(),
-            "{name}: exported case differs from {}",
-            committed.display()
+            differences.is_empty(),
+            "{name}: exported case differs from {}:\n{}",
+            committed.display(),
+            differences.join("\n")
         );
     }
     fs::remove_dir_all(directory).unwrap();
