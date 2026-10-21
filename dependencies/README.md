@@ -8,6 +8,10 @@ the remaining Rust packages and development environment.
 is pending, consolidated into one base-to-head diff per dependency. Bootstrap
 verifies each patch's SHA-256 and applies it to the pinned
 base. Locally committed versions of exactly those patches are also recognized.
+A patch is regenerated as `git diff --abbrev=8 <base> <head>` in a clone of the
+dependency (for Symbolica, `git diff --abbrev=8 c78cffc2 9cdc2949`), then its
+SHA-256 is updated in `manifest.json`; `--abbrev=8` fixes the width of the
+`index` lines, which otherwise depends on the clone, so the bytes reproduce.
 Patch source revisions, test evidence, and upstream PR URLs belong in
 `references/PLAN.md`; a local commit does not imply an upstream PR exists.
 

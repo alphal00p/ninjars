@@ -2566,7 +2566,10 @@ Float(256..1024), fixed at 09b2c74).
   `validation/benchmark/ill-conditioned` and `validation/benchmark/masters_native`
   `[patch.crates-io]` blocks and lockfiles (only the three `source` lines move;
   `cargo metadata --locked` passes in each root). `dependencies/patches/symbolica-batch-dual.patch`
-  is regenerated as `git diff c78cffc2 9cdc2949` (sha256 `c8f55f66…b348`);
+  is regenerated as `git diff --abbrev=8 c78cffc2 9cdc2949` in a Symbolica
+  clone (sha256 `c8f55f66…b348`; `--abbrev=8` fixes the width of the `index`
+  lines, which otherwise depends on the clone's object count, so the bytes
+  and the hash reproduce);
   `patched_revisions` now lists `9cdc2949` instead of `e679e8c1`, because
   bootstrap accepts exactly the checkouts that already contain the
   consolidated patch, and `e679e8c1` no longer does. `tools/bootstrap.py`
@@ -2595,7 +2598,8 @@ not retained in the repository).
   without and with `--prune-swapped-arithmetic`, with identical raw (3.8e-15),
   coefficient-oracle (2.4e-15), integrated (1.3e-16) and MadLoop (6.2e-17)
   scaled errors. The pruned run's same-artifact full/pruned parity checks 375
-  complex components per row: largest `|pruned - full| / max(1, |full|)` is
+  complex components (75 rows over the integrated widths 0/1/3/8/31/32, 5
+  heads each): largest `|pruned - full| / max(1, |full|)` is
   7.7e-34, numerator call/row deltas equal. Between the two runs, the primary
   session's 15 Laurent/CC/R1 components are bitwise identical except one
   analytically vanishing single pole (6.4e-18) that moves by one ulp
@@ -2608,3 +2612,49 @@ not retained in the repository).
   without pruning and 2.2 %/2.5 %/2.6 % fewer with it (about 0.10M per row);
   original Ninja's blocks are unchanged (1.26M per row). No wall-clock timing
   was taken.
+
+### oneloopmaster pin 8ec256fc, Float rescue check and V0 re-bless (2026-10-21)
+
+- **Pin** (8a8bc55). oneloopmaster `09b2c74` → `8ec256fc26cb361b20e10f59c19beb35717ef32c`
+  (main; the code of the verified candidate 3a322d0): contour box near
+  vanishing Gram determinants, Denner–Dittmaier sheets for one- and two-mass
+  boxes with complex masses, two-mass complements, the soft-box relabelling at
+  the numerical D0 entry points; it takes Symbolica from `alphal00p/symbolica`
+  `9cdc2949`, the same source as NinjaRS's `[patch.crates-io]`. Root,
+  `validation/benchmark/ill-conditioned`, `validation/benchmark/masters_native`
+  and `validation/performance/shared_provider` manifests/lockfiles,
+  `dependencies/manifest.json`, the README pin table; `cargo metadata --locked`
+  passes in all four roots and each resolves one symbolica/numerica/graphica
+  (9cdc2949) and one oneloop. No API change.
+- **Soft-box relabelling on the `Float` route** (8e583f2): `SymbolicaMasters`
+  applies `oneloop::regular_d0_labelling` to every D0 row after the on-shell
+  threshold. `tests/soft_box_labelling.rs`: pyAmpliCol's `e+ e- -> t t~ h`
+  box `(m, m, 0, m)` in all 24 labellings through every provider and carrier,
+  within 5.2e-16 (binary64), 1.8e-31 (DoubleFloat), 2.0e-38 (`Float(128)`,
+  `Float(256)`) of the 38-digit reference and 5.2e-16 of COLLIER; without the
+  relabelling `Float(128)` puts labelling 0132 73 times its largest coefficient
+  away from 0123.
+- **Tracked-precision check** (2a7df0d, user decision 2026-10-21: points must
+  be rescued consistently when the precision increases). A `Float` master row
+  whose finite part or pole keeps fewer than `max(53, bits/4)` tracked bits
+  (complex: `-log2(sqrt((|re| 2^-p_re)² + (|im| 2^-p_im)²)/|z|)`) fails with
+  `MasterFailure::ImpreciseResult`. Rule from oneloopmaster's adversarial
+  sweeps (session-2026-10-20b `oneloop-compare`, `verify-olm-sweep2`):
+  false negatives only on the 6 rows whose tracked precision is unreliable,
+  false positives only at 128 bits (1059 right values with 35–52 bits, all
+  right with >= 64 bits at 256); `bits/4` alone would pass 392 values between
+  1e-10 and 1e-6 at 128 bits. NinjaRS's 8,487 recorded master calls all pass at
+  128 and 256 bits. `SymbolicaDualMasters` checks the value components only
+  (derivatives of constant coefficients are rounding residues). Cost 77 ns per
+  checked value (1 % of a native `Float(128)` B11 row) and nothing when both
+  parts keep the required bits.
+- **Effect.** V0 and `case-check --engines generic --precision float:128|float:256`
+  on 16 suite cases (48 lanes) are unchanged by the relabelling and the check
+  (statuses, verdicts and decimal values). At `float:128` those 16 cases show 3
+  stale known inaccuracies (`rn2-int-mixed-n4-r6` lane 2, `-n6-r8` lane 0,
+  `-n7-r9` lane 1) with or without them: the re-pins fixed those lanes;
+  `known-failures.json` is re-derived separately.
+- **V0 re-bless** (`validation/regression/README.md`, History): once, in place,
+  for (a) native B0, (b) the generic selection, (c) oneloopmaster, (d) Symbolica;
+  the fast sections equal, bitwise, those of a fixture blessed on main
+  0d0d7e7 with only the two re-pins.
