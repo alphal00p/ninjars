@@ -2,7 +2,10 @@ use ninjars::{
     Complex, DoubleFloat, Float, FloatLike, MasterFailure, MasterIntegral, MasterProvider,
     MasterRequest, MasterStatus,
 };
-use ninjars_symbolica::{OneLoopNativeMasters, SymbolicaDualMasters, SymbolicaMasters};
+use ninjars_symbolica::{
+    OneLoopNativeMasters, SymbolicaDualMasters, SymbolicaMasters, required_tracked_bits,
+    tracked_bits,
+};
 use oneloop::{NativeFloat, NativeTensorEvaluator, TensorIntegral};
 use symbolica::{
     domains::{
@@ -514,6 +517,9 @@ fn tracked_component_precision_is_retained_in_scalar_and_dual_rows() {
             &mut statuses,
         )
         .unwrap();
+    // Derivative components are not checked against `required_tracked_bits`
+    // (the 31-bit component), the values are (53 bits at least here).
+    assert_eq!(required_tracked_bits(192), 53);
     assert_eq!(statuses, [MasterStatus::Success; 3]);
     for (result, mass) in output.iter().zip(&dual_masses) {
         for (actual, expected) in result[1].values().iter().zip(mass.values()) {
@@ -521,6 +527,37 @@ fn tracked_component_precision_is_retained_in_scalar_and_dual_rows() {
             assert_eq!(actual.re.get_precision(), expected.re.get_precision());
             assert_eq!(actual.im.get_precision(), expected.im.get_precision());
         }
+    }
+    // A value of 31 tracked bits makes its row imprecise; the output stays.
+    let weak = lift(Complex::new(
+        Float::new(31).from_rational(&Rational::from((1, 11))),
+        Float::new(3),
+    ));
+    let rows = [dual_masses[2].clone(), weak];
+    let mut output = vec![std::array::from_fn(|_| dual_masses[0].clone()); 2];
+    let before = output.clone();
+    let mut statuses = [MasterStatus::Success; 2];
+    provider
+        .evaluate_batch(
+            MasterRequest {
+                integral: MasterIntegral::A0,
+                invariants: &[],
+                masses_squared: &rows,
+                scales_squared: &rows,
+            },
+            &mut output,
+            &mut statuses,
+        )
+        .unwrap();
+    assert_eq!(
+        statuses,
+        [
+            MasterStatus::Success,
+            MasterStatus::Failed(MasterFailure::ImpreciseResult)
+        ]
+    );
+    for (actual, expected) in output[1].iter().zip(&before[1]) {
+        assert_eq!(actual.values(), expected.values());
     }
 }
 
@@ -551,12 +588,22 @@ fn tracked_precision_acceptance_does_not_claim_recovered_digits() {
                 &mut statuses,
             )
             .unwrap();
-        assert_eq!(statuses, [MasterStatus::Success]);
-        output.remove(0)[0].clone()
+        (statuses[0], output.remove(0)[0].clone())
     };
-    let lower = evaluate(320, 53);
-    let medium = evaluate(160, 160);
-    let higher = evaluate(320, 320);
+    let success = |(status, value): (MasterStatus, Complex<Float>)| {
+        assert_eq!(status, MasterStatus::Success);
+        value
+    };
+    // At 320 working bits the 53 bits that the input determines fall short of
+    // `required_tracked_bits(320)` = 80: the row is reported imprecise, with
+    // its output untouched, rather than accepted.
+    let (status, untouched) = evaluate(320, 53);
+    assert_eq!(status, MasterStatus::Failed(MasterFailure::ImpreciseResult));
+    assert!(untouched.is_fully_zero());
+    // At 128 working bits (53 required) the same input is accepted.
+    let lower = success(evaluate(128, 53));
+    let medium = success(evaluate(160, 160));
+    let higher = success(evaluate(320, 320));
     let error = |value: &Complex<Float>| (value.re.clone() - &expected).norm().to_f64();
     assert!(
         lower.re.get_precision() < 100,
@@ -799,7 +846,10 @@ fn float_b1111(
 /// the row's scale (its tracked precision plus `log2(S/|x|)` for invariants
 /// and masses, its own tracked precision for `mu²`). Each row is bitwise the
 /// native family at that precision, in a batch or alone, also after the
-/// evaluator cache has been cleared for too many precisions.
+/// evaluator cache has been cleared for too many precisions. A row whose
+/// inputs determine too few bits for the working precision keeps fewer
+/// tracked bits than `required_tracked_bits` (64 at 256 bits; B1111 here
+/// keeps about 4 bits less than its row precision) and fails as imprecise.
 #[test]
 fn float_b1111_rows_take_the_precision_their_inputs_determine() {
     let at = |bits: u32, x: f64| Float::with_val(bits, x);
@@ -809,12 +859,12 @@ fn float_b1111_rows_take_the_precision_their_inputs_determine() {
     };
     let row =
         |p2: Complex<Float>, mu2: Float| [p2, real(at(256, 1.)), real(at(256, 1.5)), real(mu2)];
-    let seventh = Float::new(53).from_rational(&Rational::from((-1, 7)));
+    let seventh = |bits: u32| Float::new(bits).from_rational(&Rational::from((-1, 7)));
     let rows = [
         // Exact inputs at the working precision.
         (row(real(at(256, -1.)), at(256, 1.)), 256),
-        // A 53-bit invariant of the row's size: 53 + floor(log2(1.5 * 7)).
-        (row(real(seventh.clone()), at(256, 1.)), 56),
+        // A 72-bit invariant of the row's size: 72 + floor(log2(1.5 * 7)).
+        (row(real(seventh(72)), at(256, 1.)), 75),
         // A tiny 8-bit invariant determines 8 + floor(log2(1.5 * 2^100)).
         (row(real(at(8, 0.5f64.powi(100))), at(256, 1.)), 108),
         // Inputs above the working precision are rounded to it.
@@ -828,7 +878,7 @@ fn float_b1111_rows_take_the_precision_their_inputs_determine() {
             256,
         ),
         // mu² limits the row by its own tracked precision.
-        (row(real(at(256, -1.)), at(64, 1.)), 64),
+        (row(real(at(256, -1.)), at(80, 1.)), 80),
         // A tiny, weakly determined width: 4 + floor(log2(1.5 * 2^200)).
         (
             [
@@ -853,31 +903,348 @@ fn float_b1111_rows_take_the_precision_their_inputs_determine() {
         );
         assert!(value[0].re.get_precision() <= *bits, "row {index}");
     }
-    // The rounded 1/7 cannot recover the exact invariant's value.
-    let exact = native_b1111(
-        &row(
-            real(Float::new(256).from_rational(&Rational::from((-1, 7)))),
-            at(256, 1.),
-        ),
-        256,
-    );
+    // The rounded 1/7 cannot recover the exact invariant's value: it is off
+    // at the 72-bit input's rounding, far above 256-bit accuracy.
+    let exact = native_b1111(&row(real(seventh(256)), at(256, 1.)), 256);
     let difference = (batch[1][0].re.clone() - &exact[0].re).norm().to_f64();
-    assert!(difference > 1e-20, "{difference:e}");
+    assert!(difference > 1e-30, "{difference:e}");
     assert!(batch[1][0].re.get_precision() < 100);
     // Equal values give equal results at equal precision.
     assert_bitwise(&batch[3], &batch[0], "rounded 512-bit inputs");
 
-    // More row precisions than the evaluator cache keeps, twice.
+    // Rows that determine 56 bits (a 53-bit invariant of the row's size) and
+    // 64 bits (mu²): the native family keeps fewer than 64 tracked bits there,
+    // so at 256 working bits these rows fail as imprecise, outputs untouched,
+    // next to a successful row.
+    assert_eq!(required_tracked_bits(256), 64);
+    let low = [
+        (row(real(seventh(53)), at(256, 1.)), 56),
+        (row(real(at(256, -1.)), at(64, 1.)), 64),
+    ];
+    for (point, bits) in &low {
+        let native = native_b1111(point, *bits);
+        assert!(
+            native
+                .iter()
+                .any(|value| tracked_bits(value).is_some_and(|b| b < 64.))
+        );
+    }
+    let points = [low[0].0.clone(), rows[0].0.clone(), low[1].0.clone()];
+    let masses: Vec<_> = points
+        .iter()
+        .flat_map(|row| [row[1].clone(), row[2].clone()])
+        .collect();
+    let sentinel = Complex::new(Float::with_val(256, 101), Float::new(256));
+    let mut output = vec![std::array::from_fn(|_| sentinel.clone()); 3];
+    let mut statuses = [MasterStatus::Success; 3];
+    provider
+        .evaluate_batch(
+            MasterRequest {
+                integral: MasterIntegral::B1111,
+                invariants: &points.iter().map(|row| row[0].clone()).collect::<Vec<_>>(),
+                masses_squared: &masses,
+                scales_squared: &points.iter().map(|row| row[3].clone()).collect::<Vec<_>>(),
+            },
+            &mut output,
+            &mut statuses,
+        )
+        .unwrap();
+    let imprecise = MasterStatus::Failed(MasterFailure::ImpreciseResult);
+    assert_eq!(statuses, [imprecise, MasterStatus::Success, imprecise]);
+    assert!(
+        output[0]
+            .iter()
+            .chain(&output[2])
+            .all(|value| value == &sentinel)
+    );
+    assert_bitwise(
+        &output[1],
+        &batch[0],
+        "successful row between imprecise ones",
+    );
+
+    // More row precisions than the evaluator cache keeps, twice (72 to 95
+    // bits, which keep at least 64 tracked bits).
     for _ in 0..2 {
-        let points: Vec<_> = (40..64)
+        let points: Vec<_> = (72..96)
             .map(|bits| row(real(at(bits, -1.)), at(256, 1.)))
             .collect();
         for ((point, bits), value) in points
             .iter()
-            .zip(40..)
+            .zip(72..)
             .zip(float_b1111(&mut provider, &points))
         {
             assert_bitwise(&value, &native_b1111(point, bits), &format!("{bits} bits"));
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Tracked precision of `Float` results (`required_tracked_bits`).
+
+#[test]
+fn tracked_bits_combine_the_parts_of_a_complex_value() {
+    let part = |bits: u32, x: f64| Float::with_val(bits, x);
+    // An exact zero is not checked; a zero part contributes nothing.
+    assert_eq!(
+        tracked_bits(&Complex::new(Float::new(128), Float::new(7))),
+        None
+    );
+    assert_eq!(
+        tracked_bits(&Complex::new(part(90, 3.), Float::new(7))),
+        Some(90.)
+    );
+    assert_eq!(
+        tracked_bits(&Complex::new(Float::new(7), part(40, -3.))),
+        Some(40.)
+    );
+    // A cancelled imaginary residue (4.4e-47 with one tracked bit) next to a
+    // 122-bit real part, as oneloopmaster's interpreted D0 returns for a real
+    // box: almost 122 bits, not min(122, 1).
+    let (x, y) = (part(122, 1.97e-10), part(1, 4.4e-47));
+    let (a, b) = (x.to_f64(), y.to_f64());
+    let expected =
+        -0.5 * (((a * 0.5f64.powi(122)).powi(2) + (b * 0.5).powi(2)) / (a * a + b * b)).log2();
+    let bits = tracked_bits(&Complex::new(x, y)).unwrap();
+    assert!(
+        bits > 121. && (bits - expected).abs() < 1e-9,
+        "{bits} != {expected}"
+    );
+    // Equal magnitudes: sqrt(2) |x| over |x| sqrt(2^-2p1 + 2^-2p2).
+    let bits = tracked_bits(&Complex::new(part(100, 1.5), part(10, -1.5))).unwrap();
+    let expected = 0.5 - 0.5 * (0.5f64.powi(200) + 0.5f64.powi(20)).log2();
+    assert!((bits - expected).abs() < 1e-9, "{bits} != {expected}");
+    // Magnitudes beyond binary64's range: the same bits (up to the 10-bit
+    // rounding of the second part's magnitude).
+    let parse = |text: &str, bits: u32| Float::parse(text, Some(bits)).unwrap();
+    let (tiny, tinier) = (parse("1.5e-1000", 100), parse("-1.5e-1000", 10));
+    assert!(tiny.to_f64() == 0. && tiny.get_precision() == 100 && tinier.get_precision() == 10);
+    let bits = tracked_bits(&Complex::new(tiny, tinier)).unwrap();
+    assert!((bits - expected).abs() < 1e-2, "{bits} != {expected}");
+    // A part below binary64's range next to an ordinary one.
+    let bits = tracked_bits(&Complex::new(part(80, 1.), parse("1e-1000", 1))).unwrap();
+    assert!((bits - 80.).abs() < 1e-9, "{bits}");
+}
+
+#[test]
+fn required_tracked_bits_keep_a_binary64_floor_and_a_quarter_of_the_working_precision() {
+    for (working, required) in [
+        (64, 32),
+        (106, 53),
+        (128, 53),
+        (192, 53),
+        (212, 53),
+        (256, 64),
+        (512, 128),
+        (1024, 256),
+    ] {
+        assert_eq!(required_tracked_bits(working), required, "{working} bits");
+    }
+}
+
+/// `[mu², p1², p2², p3², p4², s12, s23, m1², m2², m3², m4²]` of a D0 row (the
+/// squared masses as `(re, im)`), binary64 values evaluated exactly, and
+/// COLLIER's quadruple-precision finite part.
+struct D0Row {
+    name: &'static str,
+    arguments: [f64; 7],
+    masses: [(f64, f64); 4],
+    collier: (&'static str, &'static str),
+}
+
+/// Two D0 rows of oneloopmaster's adversarial sweeps that 128 bits cannot
+/// resolve (both routes give 2-3 tracked bits and errors of 2e2 and 2e4) and
+/// 256 bits can (108 and 117 tracked bits, errors 3e-31 and 2e-31), and three
+/// D0 calls recorded from NinjaRS runs (top-quark boxes), right at both
+/// precisions.
+const D0_ROWS: [D0Row; 5] = [
+    D0Row {
+        // Vanishing Gram determinant, collinear legs.
+        name: "ns 15427",
+        arguments: [
+            1.0,
+            1.813459875603322e-15,
+            -8.430033101015222e-12,
+            0.0,
+            0.0,
+            1.7524100309193198,
+            8.7237156309848e-27,
+        ],
+        masses: [
+            (0.5638765110239303, 0.0),
+            (0.006792306489955465, -0.000523082614939654),
+            (0.056996542362116355, 0.0),
+            (0.0, 0.0),
+        ],
+        collier: (
+            "85.3191503640561163230045412069002108",
+            "56.0633108755794625508204683271514405",
+        ),
+    },
+    D0Row {
+        // Vanishing Gram determinant, collinear legs, on-shell channel.
+        name: "ns2 7068",
+        arguments: [
+            1.0,
+            -1.2571982003413564e-15,
+            -2.5694316928147163e-12,
+            1.9844859176795768e-10,
+            0.0,
+            9.560252985332225e-23,
+            5.33093227419059,
+        ],
+        masses: [
+            (5.9436793906102725, 0.0),
+            (0.0, 0.0),
+            (5.33093227419059, -0.10861632420324978),
+            (5.33093227419059, -0.10861632420324978),
+        ],
+        collier: (
+            "0.0314061344247081229576122609689248847",
+            "0.00269517158551766199661354320757033355",
+        ),
+    },
+    D0Row {
+        name: "NinjaRS call 0",
+        arguments: [10000.0, 0.0, 40000.0, 0.0, -33333.333333333336, 0.0, 0.0],
+        masses: [(29929.0, 0.0); 4],
+        collier: (
+            "1.97054389566887488910164285671820723e-10",
+            "-2.85610763449079607145667290041068664e-44",
+        ),
+    },
+    D0Row {
+        name: "NinjaRS call 1",
+        arguments: [10000.0, 0.0, 250000.0, 0.0, -232142.85714285713, 0.0, 0.0],
+        masses: [(29929.0, 0.0); 4],
+        collier: (
+            "2.00199884618426934590385535508263719e-11",
+            "1.88211004094358269805041005548693094e-10",
+        ),
+    },
+    D0Row {
+        name: "NinjaRS call 2",
+        arguments: [10000.0, 0.0, 640000.0, 0.0, -568888.8888888889, 0.0, 0.0],
+        masses: [(29929.0, 0.0); 4],
+        collier: (
+            "-2.26224092614764200153041052035614693e-11",
+            "4.87235269142158614017980228181807190e-11",
+        ),
+    },
+];
+
+/// Relative distance of a finite part from COLLIER's.
+fn from_collier(value: &Complex<Float>, row: &D0Row) -> f64 {
+    let parse = |text: &str| Float::parse(text, Some(256)).unwrap();
+    let (re, im) = (parse(row.collier.0), parse(row.collier.1));
+    let (dr, di) = (value.re.clone() - &re, value.im.clone() - &im);
+    ((dr.clone() * &dr + di.clone() * &di).sqrt() / (re.clone() * &re + im.clone() * &im).sqrt())
+        .to_f64()
+}
+
+/// The rows' D0 request arguments at `bits`.
+fn d0_request(rows: &[&D0Row], bits: u32) -> RequestRows<Float> {
+    let real = |x: f64| Complex::new(Float::with_val(bits, x), Float::new(bits));
+    (
+        rows.iter()
+            .flat_map(|row| row.arguments[1..].iter().map(|&x| real(x)))
+            .collect(),
+        rows.iter()
+            .flat_map(|row| {
+                row.masses.iter().map(|&(re, im)| {
+                    Complex::new(Float::with_val(bits, re), Float::with_val(bits, im))
+                })
+            })
+            .collect(),
+        rows.iter().map(|row| real(row.arguments[0])).collect(),
+    )
+}
+
+/// The user's rescue model: a `Float` D0 whose 128-bit value has a few tracked
+/// bits (and is wrong) fails at 128 bits as imprecise and succeeds, right, at
+/// 256 bits; ordinary rows succeed at both, in the same batches.
+#[test]
+fn float_d0_with_few_tracked_bits_fails_and_is_rescued_at_higher_precision() {
+    let rows: Vec<&D0Row> = D0_ROWS.iter().collect();
+    // What 128 bits give: oneloopmaster's interpreted route (the expressions
+    // that `SymbolicaMasters<Float>` evaluates) keeps 2-3 tracked bits on the
+    // first two rows, and their values are far off.
+    let mut interpreted = oneloop::PrecisionEvaluator::with_binary_precision_and_backend(
+        oneloop::ScalarIntegral::D0,
+        128,
+        oneloop::EvaluationBackend::Expression,
+    )
+    .unwrap();
+    let (invariants, masses, scales) = d0_request(&rows, 128);
+    for (index, row) in rows.iter().enumerate().take(2) {
+        let arguments: Vec<_> = invariants[6 * index..6 * index + 6]
+            .iter()
+            .chain(&masses[4 * index..4 * index + 4])
+            .chain(&scales[index..index + 1])
+            .cloned()
+            .collect();
+        let mut value = vec![scales[0].zero(); 3];
+        interpreted.evaluate(&arguments, &mut value).unwrap();
+        let bits = tracked_bits(&value[0]).unwrap();
+        let error = from_collier(&value[0], row);
+        assert!(
+            bits < 8. && error > 1.,
+            "{}: {bits} bits, {error:e}",
+            row.name
+        );
+    }
+
+    for bits in [128, 256] {
+        let (invariants, masses, scales) = d0_request(&rows, bits);
+        let request = MasterRequest {
+            integral: MasterIntegral::D0,
+            invariants: &invariants,
+            masses_squared: &masses,
+            scales_squared: &scales,
+        };
+        let sentinel = Complex::new(Float::with_val(bits, 101), Float::new(bits));
+        let mut output = vec![std::array::from_fn(|_| sentinel.clone()); rows.len()];
+        let mut statuses = vec![MasterStatus::Success; rows.len()];
+        let mut provider = SymbolicaMasters::new(Float::new(bits));
+        provider
+            .evaluate_batch(request.clone(), &mut output, &mut statuses)
+            .unwrap();
+        // Strict evaluation fails whenever a row fails, leaving the output.
+        let mut strict = output.clone();
+        let result = provider.evaluate(request, &mut strict);
+        assert_eq!(result.is_ok(), bits == 256);
+        let required = f64::from(required_tracked_bits(bits));
+        for (index, (row, (value, status))) in
+            rows.iter().zip(output.iter().zip(&statuses)).enumerate()
+        {
+            if bits == 128 && index < 2 {
+                assert_eq!(
+                    *status,
+                    MasterStatus::Failed(MasterFailure::ImpreciseResult),
+                    "{} at {bits} bits",
+                    row.name
+                );
+                assert!(value.iter().all(|value| value == &sentinel));
+                continue;
+            }
+            assert_eq!(
+                *status,
+                MasterStatus::Success,
+                "{} at {bits} bits",
+                row.name
+            );
+            assert_eq!(&strict[index], value);
+            for coefficient in value {
+                assert!(tracked_bits(coefficient).is_none_or(|b| b >= required));
+            }
+            // COLLIER's quadruple precision bounds the comparison.
+            let error = from_collier(&value[0], row);
+            assert!(error < 1e-28, "{} at {bits} bits: {error:e}", row.name);
+            eprintln!(
+                "{} at {bits} bits: {:.1} tracked bits, {error:.1e} from COLLIER",
+                row.name,
+                tracked_bits(&value[0]).unwrap()
+            );
         }
     }
 }

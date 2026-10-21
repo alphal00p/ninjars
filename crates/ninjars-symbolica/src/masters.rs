@@ -87,6 +87,120 @@ fn strict_status(statuses: &[MasterStatus]) -> Result<()> {
     Ok(())
 }
 
+/// Least tracked bits ([`tracked_bits`]) that every coefficient of an
+/// arbitrary-precision `Float` master result must keep at `working` bits of
+/// working precision: `max(53, working/4)`, and at most `working/2` (from 106
+/// bits on, `max(53, working/4)`: 53 at 128 bits, 64 at 256, 128 at 512, 256 at
+/// 1024). A result below it is reported as [`MasterFailure::ImpreciseResult`],
+/// so that a rescue loop escalates the lane instead of accepting a finite but
+/// possibly wrong value.
+///
+/// The rule comes from oneloopmaster 8ec256fc's C0/D0 on the adversarial
+/// sweeps (`fs`, `ns`, `ns2`: 100,680 rows; native and interpreted `Float` at
+/// 128, 256, 512 and 1024 bits, the last on a subset, against COLLIER's
+/// quadruple-precision values where its DD branch or the 256-bit values
+/// confirm them). A value is wrong above 1e-6 relative error and right at or
+/// below 1e-10. Wrong values report at most 28 tracked bits at 128 bits and 24 at 256
+/// bits, except on 6 rows, which report 81 to 1023 bits (vanishing-Gram and
+/// light-like planar boxes with no reliable precision estimate:
+/// `ns` 9210, 10378, 10965, 11620, `ns2` 5278, 11326). Right values report at
+/// least 35 tracked bits at 128 bits, 103 at 256, 159 at 512 and 1002 at 1024.
+/// Over both routes, as false negatives (wrong values passing) / false
+/// positives (right values flagged) at 128 / 256 / 512 / 1024 bits:
+///
+/// | rule | 128 | 256 | 512 | 1024 |
+/// |---|---|---|---|---|
+/// | 53 | 4 / 1059 | 2 / 0 | 2 / 0 | 2 / 0 |
+/// | `working/2` | 4 / 3505 | 2 / 72 | 1 / 52 | 1 / 0 |
+/// | `working/4` | 4 / 0 | 2 / 0 | 2 / 0 | 2 / 0 |
+/// | `max(53, working/4)` | 4 / 1059 | 2 / 0 | 2 / 0 | 2 / 0 |
+///
+/// Every false negative is one of the 6 rows. `working/4` alone flags no right
+/// value, but at 128 bits it lets 392 of the 581 values between 1e-10 and 1e-6
+/// relative error pass (errors up to 1e-7, with 32 to 43 tracked bits): a
+/// `Float` result less precise than binary64 would end the rescue there. The
+/// binary64 floor flags all 581, and the 1059 right values below it at 128
+/// bits (0.5 % of 197,000), at a cost of one escalation each: at 256 bits all
+/// but 2 of these 1640 values are right with at least 64 tracked bits, and the
+/// 2 (`ns` 11777 on both routes, 6e-9 with 32 bits) are flagged again and right
+/// at 512 bits. On every sweep of the oneloopmaster verifiers (14 sets, 333,000
+/// rows; 128 and 256 bits), the rule flags 0.26 % of the right values at 128
+/// bits and none at 256, lets no value between 1e-10 and 1e-6 pass, and passes
+/// wrong values only on the 6 rows and the relabellings of `ns` 9210. The
+/// 8,481 master calls with a reference among the 8,487 recorded from NinjaRS
+/// runs are right and pass at both precisions. Below 106 bits (no data) the
+/// rule keeps at most half the working precision.
+///
+/// Tracked precision is numerica's estimate, not a certified bound (it can
+/// overstate the accuracy, as on the 6 rows): a successful status is still not
+/// a guarantee.
+pub fn required_tracked_bits(working: u32) -> u32 {
+    (working / 4).max(53).min(working / 2)
+}
+
+/// Tracked bits of a complex value `z = x + iy`: `-log2(u / |z|)`, with
+/// `u = sqrt((|x| 2^-p_x)² + (|y| 2^-p_y)²)` the absolute uncertainty that
+/// numerica's tracked precisions `p_x` and `p_y` of the parts imply. An
+/// exactly zero part contributes nothing; `None` for an exactly zero value.
+/// The smaller of `p_x` and `p_y` would understate a value whose small part
+/// has cancelled (a real part of 2e-10 with 122 tracked bits and an imaginary
+/// residue of 4e-47 with one has 122 bits). Fixed-precision carriers report
+/// their constant precision. Evaluated in binary64 from the parts' magnitudes,
+/// or from their quotient when a magnitude lies outside binary64's range.
+pub fn tracked_bits<T: NativeFloat>(value: &Complex<T>) -> Option<f64> {
+    let (re, im) = (&value.re, &value.im);
+    let (p_re, p_im) = (f64::from(re.get_precision()), f64::from(im.get_precision()));
+    match (re.is_fully_zero(), im.is_fully_zero()) {
+        (true, true) => return None,
+        (false, true) => return Some(p_re),
+        (true, false) => return Some(p_im),
+        (false, false) => {}
+    }
+    // log2 of the smaller magnitude over the larger one (<= 0), and the
+    // precisions of the larger and the smaller part.
+    let (a, b) = (re.to_f64().abs(), im.to_f64().abs());
+    let normal = |x: f64| x.is_finite() && x >= f64::MIN_POSITIVE;
+    let (ratio, p_large, p_small) = if normal(a) && normal(b) {
+        // The difference of logarithms: the quotient itself may underflow.
+        if a >= b {
+            (b.log2() - a.log2(), p_re, p_im)
+        } else {
+            (a.log2() - b.log2(), p_im, p_re)
+        }
+    } else {
+        let (x, y) = (re.norm(), im.norm());
+        let (quotient, p_large, p_small) = if x >= y {
+            (y / &x, p_re, p_im)
+        } else {
+            (x / &y, p_im, p_re)
+        };
+        let ratio = quotient.to_f64();
+        let ratio = if normal(ratio) {
+            ratio.log2()
+        } else {
+            quotient.log().to_f64() / std::f64::consts::LN_2
+        };
+        (ratio, p_large, p_small)
+    };
+    // Both relative to the larger magnitude: log2 |z|, and log2 u from the
+    // larger part's and the smaller part's uncertainties.
+    let modulus = 0.5 * (2f64.powf(2. * ratio)).ln_1p() / std::f64::consts::LN_2;
+    let (large, small) = (-p_large, ratio - p_small);
+    let top = large.max(small);
+    let uncertainty =
+        top + 0.5 * (2f64.powf(2. * (large - top)) + 2f64.powf(2. * (small - top))).log2();
+    Some(modulus - uncertainty)
+}
+
+/// Whether a finite master value keeps fewer than `required` tracked bits.
+/// The relative uncertainty is at most that of the less precise part, so a
+/// value whose parts both keep `required` bits passes without evaluating
+/// [`tracked_bits`] (77 ns per value, 1 % of a native `Float(128)` B11 row).
+fn imprecise<T: NativeFloat>(value: &Complex<T>, required: f64) -> bool {
+    f64::from(value.re.get_precision().min(value.im.get_precision())) < required
+        && tracked_bits(value).is_some_and(|bits| bits < required)
+}
+
 /// Reusable master provider for `f64`, `DoubleFloat`, and arbitrary-precision `Float`.
 ///
 /// Constants are mapped directly from rationals at the representative's working
@@ -97,11 +211,15 @@ fn strict_status(statuses: &[MasterStatus]) -> Result<()> {
 /// bits through arithmetic, so cancellation can lower a component's precision
 /// even when its absolute error is small. Inputs and computed outputs retain
 /// that information; this provider never pads their precision. A successful
-/// status reports a finite result in the supported domain, not attainment of
-/// the working precision. Accuracy requires reconstruction or convergence checks.
+/// status reports a finite result in the supported domain and, for `Float`,
+/// at least [`required_tracked_bits`] of the working precision in the tracked
+/// precision ([`tracked_bits`]) of every coefficient; otherwise the row fails
+/// with [`MasterFailure::ImpreciseResult`], so that a rescue loop escalates it.
+/// Success does not certify an accuracy: tracked precision is an estimate.
+/// Accuracy requires reconstruction or convergence checks.
 /// `MasterProvider::evaluate_batch` compacts eligible rows, evaluates the family
-/// once, and scatters only finite results. Failed rows retain their old output;
-/// `evaluate` retains its strict all-or-nothing contract.
+/// once, and scatters only successful results. Failed rows retain their old
+/// output; `evaluate` retains its strict all-or-nothing contract.
 /// Expression preparation uses the calling thread, which must provide the stack
 /// required by oneloopmaster (128 MiB is its documented regression-test setting).
 ///
@@ -550,12 +668,21 @@ where
                 .evaluate_batch(&self.arguments, results, rows)
                 .map_err(|error| Error::Symbolic(error.to_string()))?;
         }
+        // `Float` tracks the significant bits of every value; binary64 and
+        // DoubleFloat do not (see `required_tracked_bits`).
+        let required = T::FIXED_BITS
+            .is_none()
+            .then(|| f64::from(required_tracked_bits(self.precision())));
         for (&row, values) in self.active.iter().zip(self.results.as_chunks::<3>().0) {
             if values
                 .iter()
                 .any(|value| !value.re.is_finite() || !value.im.is_finite())
             {
                 self.statuses[row] = MasterStatus::Failed(MasterFailure::NonFiniteResult);
+            } else if let Some(required) = required
+                && values.iter().any(|value| imprecise(value, required))
+            {
+                self.statuses[row] = MasterStatus::Failed(MasterFailure::ImpreciseResult);
             }
         }
         Ok(())
@@ -586,7 +713,16 @@ where
 /// cover every component, before compaction or arithmetic. As for
 /// [`SymbolicaMasters`], constants use the representative's working precision;
 /// each input and computed component keeps its own tracked significant precision.
-/// Success does not certify that all derivatives achieve the working precision.
+/// For `Float`, a row whose value (the first component of a Laurent
+/// coefficient, finite part or pole) keeps fewer than [`required_tracked_bits`]
+/// tracked bits fails with [`MasterFailure::ImpreciseResult`], as in
+/// [`SymbolicaMasters`]. Derivative components are not checked: the derivative
+/// of an analytically constant coefficient comes out of the dualized
+/// expressions as a rounding residue (B11's 1/eps pole is 1/3, and its
+/// derivative along a momentum direction is -8.6e-78 with 3 tracked bits at
+/// 256 bits in `tests/rank_n2_dual.rs`), which no working precision makes
+/// exact, so such rows would fail at every precision. Success does not
+/// certify that all derivatives achieve the working precision.
 pub struct SymbolicaDualMasters<T: NativeFloat> {
     representative: T,
     shape: Vec<Vec<usize>>,
@@ -736,12 +872,24 @@ where
             .unwrap()
             .evaluate_batch(&self.arguments, &mut self.results, rows)
             .map_err(|error| Error::Symbolic(error.to_string()))?;
+        // The value (first component) of every coefficient of a `Float`
+        // result, as for `SymbolicaMasters`; not the derivatives (see the
+        // type's documentation).
+        let required = T::FIXED_BITS
+            .is_none()
+            .then(|| f64::from(required_tracked_bits(self.representative.get_precision())));
         for (&row, values) in self.active.iter().zip(self.results.chunks_exact(columns)) {
             if values
                 .iter()
                 .any(|value| !value.re.is_finite() || !value.im.is_finite())
             {
                 self.statuses[row] = MasterStatus::Failed(MasterFailure::NonFiniteResult);
+            } else if let Some(required) = required
+                && values
+                    .chunks_exact(components)
+                    .any(|coefficient| imprecise(&coefficient[0], required))
+            {
+                self.statuses[row] = MasterStatus::Failed(MasterFailure::ImpreciseResult);
             }
         }
         Ok(())

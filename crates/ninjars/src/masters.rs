@@ -114,13 +114,21 @@ pub enum MasterFailure {
     /// This includes removable limits which still need neighborhood expansions.
     UnsupportedDerivativeDomain,
     NonFiniteResult,
+    /// The result is finite, but a provider that tracks significant bits
+    /// (arbitrary-precision `Float`) found a coefficient with fewer tracked
+    /// bits than its threshold for the working precision: the value may be
+    /// wrong (cancellation, an unresolved branch). A higher working precision
+    /// usually rescues the row. Fixed-precision carriers never report it.
+    ImpreciseResult,
 }
 
 /// Outcome of one row, separate from the retained numerical output.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MasterStatus {
-    /// Evaluation produced finite values in the provider's supported domain.
-    /// This does not certify an accuracy target or a number of significant bits.
+    /// Evaluation produced finite values in the provider's supported domain
+    /// (with providers that track precision, at least their threshold of
+    /// tracked bits). This does not certify an accuracy target: tracked
+    /// precision is an estimate.
     Success,
     Failed(MasterFailure),
 }

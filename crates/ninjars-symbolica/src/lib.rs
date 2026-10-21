@@ -57,7 +57,7 @@ pub use high_cuts::{SymbolicaDualHighCuts, SymbolicaHighCuts};
 pub use integration::{SymbolicaDualIntegrationKernels, SymbolicaIntegrationKernels};
 pub use kinematics::{SymbolicaDualSamplingScales, SymbolicaSamplingScales};
 pub use laurent::{DualLaurentDivisionEvaluator, LaurentDivision, LaurentDivisionEvaluator};
-pub use masters::{SymbolicaDualMasters, SymbolicaMasters};
+pub use masters::{SymbolicaDualMasters, SymbolicaMasters, required_tracked_bits, tracked_bits};
 pub use pentagon_kernels::{SymbolicaDualPentagonKernels, SymbolicaPentagonKernels};
 pub use polynomial::PolynomialNumerator;
 pub use projection::{
