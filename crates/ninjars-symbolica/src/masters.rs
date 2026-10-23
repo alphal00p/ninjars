@@ -268,6 +268,7 @@ fn imprecise<T: NativeFloat>(value: &Complex<T>, required: f64) -> bool {
 pub struct SymbolicaMasters<T: NativeFloat> {
     representative: T,
     onshell_threshold: Option<T>,
+    pole_selection: oneloop::PoleSelection,
     evaluators: BTreeMap<MasterIntegral, BatchExpressionEvaluator<Complex<T>>>,
     native: BTreeMap<MasterIntegral, NativeEvaluator<T>>,
     /// Native tensor families (the bubble coefficients), by family and working bits: the
@@ -303,6 +304,7 @@ where
         Self {
             representative,
             onshell_threshold,
+            pole_selection: oneloop::PoleSelection::BOTH,
             evaluators: BTreeMap::new(),
             native: BTreeMap::new(),
             native_tensor: BTreeMap::new(),
@@ -312,6 +314,24 @@ where
             active: Vec::new(),
             statuses: Vec::new(),
         }
+    }
+
+    /// Select the bare loop's poles. Finite coefficients and rational terms
+    /// are unchanged. UV/IR separation requires the generic reduction engine,
+    /// which retains the coefficients of scaleless bubbles.
+    pub fn with_pole_selection(mut self, selection: oneloop::PoleSelection) -> Self {
+        self.set_pole_selection(selection);
+        self
+    }
+
+    /// Change pole selection on a retained provider; cached evaluators always
+    /// compute the ordinary masters, then project successful rows at commit.
+    pub fn set_pole_selection(&mut self, selection: oneloop::PoleSelection) {
+        self.pole_selection = selection;
+    }
+
+    pub fn pole_selection(&self) -> oneloop::PoleSelection {
+        self.pole_selection
     }
 
     /// Set (or with `None` disable) the absolute on-shell threshold used on the
@@ -687,15 +707,17 @@ where
         Ok(())
     }
 
-    fn commit(&self, output: &mut [Laurent<Complex<T>>]) {
+    fn commit(&self, integral: MasterIntegral, output: &mut [Laurent<Complex<T>>]) -> Result<()> {
         for (&row, values) in self.active.iter().zip(self.results.as_chunks::<3>().0) {
             if self.statuses[row] == MasterStatus::Success {
                 output[row].clone_from_slice(values);
+                crate::pole_selection::select(self.pole_selection, integral, &mut output[row])?;
             }
         }
         if !self.active.is_empty() {
             oneloop::record_usage();
         }
+        Ok(())
     }
 }
 
@@ -927,6 +949,10 @@ impl<T: NativeFloat> MasterProvider<Complex<T>> for SymbolicaMasters<T>
 where
     Complex<T>: EvaluationDomain,
 {
+    fn requires_scaleless_bubbles(&self) -> bool {
+        self.pole_selection.uv != self.pole_selection.ir
+    }
+
     fn evaluate(
         &mut self,
         request: MasterRequest<'_, Complex<T>>,
@@ -935,7 +961,7 @@ where
         request.validate(output.len())?;
         self.stage(&request, true)?;
         strict_status(&self.statuses)?;
-        self.commit(output);
+        self.commit(request.integral, output)?;
         Ok(())
     }
 
@@ -952,7 +978,7 @@ where
         }
         .validate("master statuses", statuses.len())?;
         self.stage(&request, false)?;
-        self.commit(output);
+        self.commit(request.integral, output)?;
         statuses.copy_from_slice(&self.statuses);
         Ok(())
     }

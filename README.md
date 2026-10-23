@@ -308,3 +308,36 @@ tree under `references/MG5_aMC_v3_7_0`.
 
 NinjaRS is licensed under GPL-3.0-or-later. Its dependencies retain their own
 licenses; see their source distributions.
+
+### Separate bare-loop UV and IR poles
+
+`ninjars_symbolica::PoleSelection` is the oneloopmaster selector, re-exported
+by NinjaRS. Both `SymbolicaMasters<T>` (binary64, double-double, or arbitrary
+precision) and `OneLoopNativeMasters` accept
+`.with_pole_selection(PoleSelection::UV)` and a mutable
+`.set_pole_selection(...)`. `BOTH` is the unchanged default; `IR` and `NONE`
+select infrared poles and omit all poles, respectively. The selection affects
+only the single and double Laurent poles: finite coefficients and the
+reduction's rational terms remain unchanged. Counterterms are outside this API.
+
+Use the **generic reduction engine** for `UV` or `IR`: it retains the
+coefficients of scaleless bubbles, including
+`B0(0;0,0) = 1/epsilon_UV - 1/epsilon_IR` and the longitudinal tensor moments.
+These coefficients cannot be reconstructed by splitting a previously summed
+combined-pole result. Pole residues are selected by oneloopmaster at the master
+boundary, before contraction with the reduction coefficients. Cached providers
+can change their selection between evaluations without rebuilding reduction
+plans.
+
+`FastAmplitude` currently drops scaleless-bubble coefficients. It therefore
+rejects providers requesting separate `UV` or `IR` poles before evaluating the
+numerator, including through `GenericMasters` and `RecordingMasters` adapters.
+Its ordinary `BOTH` and `NONE` modes remain supported. Direct native master
+calls can select all four modes; only their use in the fast reduction engine
+is restricted. Higher-precision rescue should use the same selector as the
+initial evaluation. Pole selection does not relax domain, finite-result, or
+tracked-precision checks.
+
+Run the provider, failure-preservation, fast-engine guard, and generic
+scaleless-reduction controls with
+`cargo test -p ninjars-symbolica --test pole_selection -- --test-threads=1`.

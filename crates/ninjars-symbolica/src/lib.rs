@@ -18,6 +18,8 @@ mod laurent;
 mod masters;
 mod oneloop_native;
 pub use oneloop_native::OneLoopNativeMasters;
+pub use oneloop::PoleSelection;
+mod pole_selection;
 #[cfg(feature = "native-kernels")]
 mod native_kernels;
 #[cfg(feature = "native-kernels")]

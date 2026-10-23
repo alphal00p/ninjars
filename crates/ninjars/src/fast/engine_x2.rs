@@ -1706,6 +1706,10 @@ impl<N: FastNumerator + ?Sized> FastNumerator for DynNumerator<'_, N> {
 pub(super) struct DynMasters<'a, M: ?Sized>(pub(super) &'a mut M);
 
 impl<M: FastMasters + ?Sized> FastMasters for DynMasters<'_, M> {
+    fn requires_scaleless_bubbles(&self) -> bool {
+        self.0.requires_scaleless_bubbles()
+    }
+
     fn evaluate(
         &mut self,
         family: FastMaster,

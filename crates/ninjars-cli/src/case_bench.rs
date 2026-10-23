@@ -185,6 +185,10 @@ struct ArgumentRecorder<M> {
 }
 
 impl<M: FastMasters> FastMasters for ArgumentRecorder<M> {
+    fn requires_scaleless_bubbles(&self) -> bool {
+        self.inner.requires_scaleless_bubbles()
+    }
+
     fn evaluate(
         &mut self,
         family: FastMaster,

@@ -57,6 +57,7 @@ fn snap_onshell(args: &mut [C64], invariants: usize) {
 /// (non-finite values, complex invariants, masses with positive imaginary
 /// parts, non-positive scales) or non-finite results fail individually.
 pub struct OneLoopNativeMasters {
+    pole_selection: oneloop::PoleSelection,
     a0: NativeEvaluator<f64>,
     b0: NativeEvaluator<f64>,
     db0: NativeEvaluator<f64>,
@@ -80,6 +81,7 @@ fn native_error(error: String) -> Error {
 impl OneLoopNativeMasters {
     pub fn new() -> Result<Self> {
         Ok(Self {
+            pole_selection: oneloop::PoleSelection::BOTH,
             a0: NativeEvaluator::new(ScalarIntegral::A0).map_err(native_error)?,
             b0: NativeEvaluator::new(ScalarIntegral::B0).map_err(native_error)?,
             db0: NativeEvaluator::new(ScalarIntegral::DB0).map_err(native_error)?,
@@ -95,6 +97,33 @@ impl OneLoopNativeMasters {
             batch_input: Vec::new(),
             batch_output: Vec::new(),
         })
+    }
+
+    /// Select the bare loop's poles, preserving finite coefficients. Selected
+    /// UV/IR providers can be used with the generic engine; FastAmplitude
+    /// rejects them before reduction because it skips scaleless bubbles.
+    pub fn with_pole_selection(mut self, selection: oneloop::PoleSelection) -> Self {
+        self.set_pole_selection(selection);
+        self
+    }
+
+    /// Changing this selection also updates all retained scalar/tensor
+    /// evaluators. Each evaluator projects only successful ordinary results.
+    pub fn set_pole_selection(&mut self, selection: oneloop::PoleSelection) {
+        self.pole_selection = selection;
+        self.a0.set_pole_selection(selection);
+        self.b0.set_pole_selection(selection);
+        self.db0.set_pole_selection(selection);
+        self.c0.set_pole_selection(selection);
+        self.d0.set_pole_selection(selection);
+        self.an.set_pole_selection(selection);
+        self.b11.set_pole_selection(selection);
+        self.b111.set_pole_selection(selection);
+        self.b1111.set_pole_selection(selection);
+    }
+
+    pub fn pole_selection(&self) -> oneloop::PoleSelection {
+        self.pole_selection
     }
 
     /// oneloopmaster's native domain contract for one thresholded row.
@@ -274,6 +303,10 @@ impl OneLoopNativeMasters {
 }
 
 impl FastMasters for OneLoopNativeMasters {
+    fn requires_scaleless_bubbles(&self) -> bool {
+        self.pole_selection.uv != self.pole_selection.ir
+    }
+
     fn evaluate(
         &mut self,
         family: FastMaster,
@@ -372,6 +405,10 @@ fn request_rows(request: &MasterRequest<'_, Complex<f64>>) -> usize {
 }
 
 impl MasterProvider<Complex<f64>> for OneLoopNativeMasters {
+    fn requires_scaleless_bubbles(&self) -> bool {
+        self.pole_selection.uv != self.pole_selection.ir
+    }
+
     fn evaluate(
         &mut self,
         request: MasterRequest<'_, Complex<f64>>,

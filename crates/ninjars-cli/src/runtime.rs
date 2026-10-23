@@ -334,6 +334,10 @@ struct TimedMasters<'a, M> {
     timing: &'a mut CallTiming,
 }
 impl<T, M: MasterProvider<T>> MasterProvider<T> for TimedMasters<'_, M> {
+    fn requires_scaleless_bubbles(&self) -> bool {
+        self.inner.requires_scaleless_bubbles()
+    }
+
     fn evaluate(
         &mut self,
         request: MasterRequest<'_, T>,

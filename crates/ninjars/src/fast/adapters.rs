@@ -357,6 +357,10 @@ impl<M: MasterProvider<Complex<f64>>> GenericMasters<M> {
 }
 
 impl<M: MasterProvider<Complex<f64>>> FastMasters for GenericMasters<M> {
+    fn requires_scaleless_bubbles(&self) -> bool {
+        self.inner.requires_scaleless_bubbles()
+    }
+
     fn evaluate(
         &mut self,
         family: FastMaster,
