@@ -10,10 +10,11 @@ use std::{
     sync::Arc,
 };
 
-use feynkit_kinematics::{Helicity, WavefunctionKind};
+use feynkit_kinematics::{Helicity, WavefunctionError, WavefunctionKind};
 use ninjars_graph::{
     CoefficientBackend, FourMomentum, LegState, Model, NumeratorMode, PhysicalNumeratorError,
     PhysicalNumeratorSpec, PhysicalTensorNumerator, R2Scheme, vector_wavefunction,
+    vector_wavefunction_checked,
 };
 use serde_json::Value;
 use symbolica::{
@@ -282,12 +283,17 @@ fn pentagon_preparation_is_warm_allocation_free_and_matches_its_bench_case() {
 
 #[test]
 fn vector_wavefunctions_are_feynkits_bit_for_bit() {
-    let momenta: [[f64; 4]; 5] = [
+    let huge = 2.0_f64.powi(600);
+    let tiny = huge.recip();
+    let momenta: [[f64; 4]; 8] = [
         [100., 100. * 2. / 3., 100. / 3., 100. * 2. / 3.],
         [225., 0., 0., 225.],
         [225., 0., 0., -225.],
         [300., 30., -40., 120.],
         [91.1876, 0., 0., 0.],
+        [5. * huge, 3. * huge, 4. * huge, 0.],
+        [5. * tiny, 3. * tiny, 4. * tiny, 0.],
+        [huge, tiny, 0., huge],
     ];
     for p in momenta {
         let momentum = FourMomentum::from(p);
@@ -318,6 +324,14 @@ fn vector_wavefunctions_are_feynkits_bit_for_bit() {
         }
     }
     assert!(vector_wavefunction(&[1., 0., 0., 1.], 2, false).is_none());
+    for bar in [false, true] {
+        for helicity in [-1, 1] {
+            assert!(matches!(
+                vector_wavefunction_checked(&[huge, tiny, 0., huge], helicity, bar),
+                Err(WavefunctionError::InsufficientPrecision { bits: 53, .. })
+            ));
+        }
+    }
 }
 
 #[test]
@@ -348,6 +362,18 @@ fn invalid_physical_inputs_are_rejected_without_touching_the_output() {
         Err(PhysicalNumeratorError::NonFinite { row: 1 })
     ));
     momenta[4][2] = 0.5;
+    let huge = 2.0_f64.powi(600);
+    momenta[4] = [huge, huge.recip(), 0., huge];
+    helicities[4] = 1;
+    assert!(matches!(
+        numerator.prepare(&momenta, &helicities, &model, 2, &mut tensor),
+        Err(PhysicalNumeratorError::Wavefunction {
+            row: 1,
+            leg: 1,
+            source: WavefunctionError::InsufficientPrecision { bits: 53, .. },
+        })
+    ));
+    assert!(tensor.iter().all(|c| *c == sentinel));
     model.pop();
     assert!(matches!(
         numerator.prepare(&momenta, &helicities, &model, 2, &mut tensor),
