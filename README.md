@@ -338,6 +338,19 @@ is restricted. Higher-precision rescue should use the same selector as the
 initial evaluation. Pole selection does not relax domain, finite-result, or
 tracked-precision checks.
 
+With the fast engine, the UV residue can instead be read off the numerator:
+`ninjars::fast::tensor_uv_residue` (and `TensorUvResidues` for many integrals
+of one `(n, rank)` shape) returns the `1/epsilon_UV` coefficient of a tensor
+integral from its shifts, squared masses and tensor coefficients by a
+large-loop-momentum expansion with exact angular averages. It works in any
+Symbolica float carrier and needs neither masters nor a second reduction. A
+consumer of `FastAmplitude` separates the poles of its combined (`BOTH`)
+result as UV = `tensor_uv_residue(...)`, IR = combined − UV and the double
+pole IR. The scaleless bubbles the fast engine drops have UV + IR = 0, so
+their parts are included. The finite part is the fast engine's, unchanged.
+
 Run the provider, failure-preservation, fast-engine guard, and generic
 scaleless-reduction controls with
-`cargo test -p ninjars-symbolica --test pole_selection -- --test-threads=1`.
+`cargo test -p ninjars-symbolica --test pole_selection -- --test-threads=1`,
+and the residue against the generic engine with UV-selected masters with
+`cargo test -p ninjars-symbolica --test tensor_uv_residue`.
