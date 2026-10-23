@@ -35,6 +35,7 @@ pub use physical::{
 pub use physical_numerator::{
     CoefficientBackend, GenerationTimings, LegState, PhysicalLeg, PhysicalNumeratorError,
     PhysicalNumeratorSpec, PhysicalTensorNumerator, vector_wavefunction,
+    vector_wavefunction_checked,
 };
 pub use prepare::{
     PreparationError, PreparationOptions, PreparationTimings, PreparedIntegrand, edge_width,

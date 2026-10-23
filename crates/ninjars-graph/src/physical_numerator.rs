@@ -31,7 +31,7 @@ use std::{
 };
 
 use feynkit_graph::ExternalState;
-use feynkit_kinematics::{FourMomentum, Kinematics};
+use feynkit_kinematics::{FourMomentum, Kinematics, WavefunctionError, WavefunctionKind};
 use feynkit_model::Model;
 use ninjars_positional::positional_evaluator;
 use symbolica::{
@@ -75,6 +75,12 @@ pub enum PhysicalNumeratorError {
         row: usize,
         leg: usize,
         helicity: i8,
+    },
+    #[error("row {row}, leg {leg}: {source}")]
+    Wavefunction {
+        row: usize,
+        leg: usize,
+        source: WavefunctionError,
     },
     #[error("row {row}: nonfinite physical input")]
     NonFinite { row: usize },
@@ -266,19 +272,32 @@ fn shape(buffer: &'static str, rows: usize, columns: usize, actual: usize) -> Re
 ///
 /// Identical floating-point operations to `FourMomentum::wavefunction` with
 /// `WavefunctionKind::{Epsilon, EpsilonBar}`. Returns `None` for helicities
-/// the state does not admit (longitudinal massless/at-rest vectors).
+/// the state does not admit or for an unresolved/nonfinite chart. Use
+/// [`vector_wavefunction_checked`] to retain the typed numerical failure.
 pub fn vector_wavefunction(
     momentum: &[f64; 4],
     helicity: i8,
     bar: bool,
 ) -> Option<[Complex<f64>; 4]> {
+    vector_wavefunction_checked(momentum, helicity, bar).ok()
+}
+
+/// Allocation-free vector state with FeynKit's typed chart errors preserved.
+pub fn vector_wavefunction_checked(
+    momentum: &[f64; 4],
+    helicity: i8,
+    bar: bool,
+) -> std::result::Result<[Complex<f64>; 4], WavefunctionError> {
+    if momentum.iter().any(|component| !component.is_finite()) {
+        return Err(WavefunctionError::NonFinite);
+    }
     let p = FourMomentum::from(*momentum);
     let mut components = match helicity {
         0 => {
             let mass2 = p.mass_squared();
             let norm = p.spatial.norm();
             if mass2 <= 0. || norm == 0. {
-                return None;
+                return Err(WavefunctionError::UndefinedLongitudinal);
             }
             let mass = mass2.sqrt();
             let scale = p.temporal.value / (mass * norm);
@@ -291,7 +310,7 @@ pub fn vector_wavefunction(
             .map(|x| Complex::new(x, 0.))
         }
         1 | -1 => {
-            let [a, b] = p.transverse_basis();
+            let [a, b] = p.transverse_basis()?;
             let scale = 1. / 2_f64.sqrt();
             std::array::from_fn(|i| {
                 Complex::new(
@@ -300,14 +319,20 @@ pub fn vector_wavefunction(
                 )
             })
         }
-        _ => return None,
+        _ => return Err(WavefunctionError::Helicity(WavefunctionKind::Epsilon)),
     };
     if bar {
         for component in &mut components {
             component.im = -component.im;
         }
     }
-    Some(components)
+    if components
+        .iter()
+        .any(|value| !value.re.is_finite() || !value.im.is_finite())
+    {
+        return Err(WavefunctionError::NonFinite);
+    }
+    Ok(components)
 }
 
 impl PhysicalTensorNumerator {
@@ -725,13 +750,20 @@ impl PhysicalTensorNumerator {
                     .extend(p[leg].iter().map(|&x| Complex::new(x, 0.)));
             }
             for &(leg, bar) in &self.waves {
-                let wave = vector_wavefunction(&p[leg], h[leg], bar).ok_or(
-                    PhysicalNumeratorError::Helicity {
-                        row,
-                        leg,
-                        helicity: h[leg],
-                    },
-                )?;
+                let wave =
+                    vector_wavefunction_checked(&p[leg], h[leg], bar).map_err(
+                        |source| match source {
+                            WavefunctionError::Helicity(_)
+                            | WavefunctionError::UndefinedLongitudinal => {
+                                PhysicalNumeratorError::Helicity {
+                                    row,
+                                    leg,
+                                    helicity: h[leg],
+                                }
+                            }
+                            source => PhysicalNumeratorError::Wavefunction { row, leg, source },
+                        },
+                    )?;
                 self.input.extend_from_slice(&wave);
             }
             self.input.extend(m.iter().map(|&x| Complex::new(x, 0.)));
