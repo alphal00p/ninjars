@@ -37,6 +37,7 @@
 //! and adds, with exact integer weights.
 
 use crate::{Complex, SingleFloat};
+use std::borrow::Cow;
 
 use super::tensor_layout::{block_offset, homogeneous_index, monomials, ncoeff};
 
@@ -205,7 +206,8 @@ impl<T: SingleFloat> Walk<'_, T> {
 /// propagators with real or complex shifts `shifts` (`4n` entries, the four
 /// components of each `V_i` in turn), squared masses `masses_squared` (`n`)
 /// and the dense rank-`rank` tensor `coefficients` (`binomial(rank + 4, 4)`,
-/// [`super::tensor_layout`]). Zero unless `rank + 4 ≥ 2n`.
+/// [`super::tensor_layout`]). Zero unless `rank + 4 ≥ 2n`. Computed at the
+/// largest binary precision of the inputs ([`TensorUvResidues::residue`]).
 pub fn tensor_uv_residue<T: SingleFloat>(
     n: usize,
     rank: usize,
@@ -214,6 +216,27 @@ pub fn tensor_uv_residue<T: SingleFloat>(
     coefficients: &[Complex<T>],
 ) -> Complex<T> {
     TensorUvResidues::new(n, rank).residue(shifts, masses_squared, coefficients)
+}
+
+/// `value` with both parts at no less than `precision` binary digits.
+fn lifted<T: SingleFloat>(value: &Complex<T>, precision: u32) -> Complex<T> {
+    let mut value = value.clone();
+    for part in [&mut value.re, &mut value.im] {
+        if part.get_precision() < precision {
+            part.set_precision(precision);
+        }
+    }
+    value
+}
+
+/// `values` lifted to `precision`, borrowed when none needs it.
+fn lifted_all<T: SingleFloat>(values: &[Complex<T>], precision: u32) -> Cow<'_, [Complex<T>]> {
+    let low = |c: &Complex<T>| c.re.get_precision() < precision || c.im.get_precision() < precision;
+    if values.iter().any(low) {
+        Cow::Owned(values.iter().map(|c| lifted(c, precision)).collect())
+    } else {
+        Cow::Borrowed(values)
+    }
 }
 
 /// [`tensor_uv_residue`] for many integrals of one `(n, rank)` shape: the
@@ -235,12 +258,35 @@ impl TensorUvResidues {
         }
     }
 
-    /// The residue of one integral (inputs as [`tensor_uv_residue`]).
+    /// The residue of one integral (inputs as [`tensor_uv_residue`]) at the
+    /// largest binary precision of its inputs.
     pub fn residue<T: SingleFloat>(
         &self,
         shifts: &[Complex<T>],
         masses_squared: &[Complex<T>],
         coefficients: &[Complex<T>],
+    ) -> Complex<T> {
+        let precision = shifts
+            .iter()
+            .chain(masses_squared)
+            .chain(coefficients)
+            .map(|c| c.re.get_precision().max(c.im.get_precision()))
+            .max()
+            .unwrap_or(0);
+        self.residue_at(shifts, masses_squared, coefficients, precision)
+    }
+
+    /// The residue at a working `precision` (binary digits). Exact inputs
+    /// (zeros, small integers) can carry a low precision under Symbolica's
+    /// loose tracking, and a multiprecision product rounds to the smaller
+    /// precision of its factors, so every input below `precision` is lifted
+    /// to it first (exactly; binary64 and DoubleFloat inputs are borrowed).
+    pub fn residue_at<T: SingleFloat>(
+        &self,
+        shifts: &[Complex<T>],
+        masses_squared: &[Complex<T>],
+        coefficients: &[Complex<T>],
+        precision: u32,
     ) -> Complex<T> {
         let (n, rank) = (self.n, self.rank);
         assert_eq!(shifts.len(), 4 * n, "4n shift components");
@@ -250,10 +296,13 @@ impl TensorUvResidues {
             ncoeff(rank),
             "binomial(rank + 4, 4) coefficients"
         );
-        let zero = Complex::new(coefficients[0].re.zero(), coefficients[0].re.zero());
+        let prototype = lifted(&coefficients[0], precision);
+        let zero = Complex::new(prototype.re.zero(), prototype.re.zero());
         let Some(layout) = &self.layout else {
             return zero;
         };
+        let shifts = lifted_all(shifts, precision);
+        let masses_squared = lifted_all(masses_squared, precision);
         let metric = [1, -1, -1, -1];
         let mut walk = Walk {
             layout,
@@ -283,8 +332,9 @@ impl TensorUvResidues {
             if block.iter().all(is_zero) {
                 continue;
             }
+            let block = lifted_all(block, precision);
             let one = walk.integer(1);
-            walk.walk(0, r + 4 - 2 * n, block, r, one);
+            walk.walk(0, r + 4 - 2 * n, &block, r, one);
         }
         walk.total
     }
@@ -305,6 +355,40 @@ mod tests {
             out[monomial_index(m)] = c(value);
         }
         out
+    }
+
+    #[test]
+    fn exact_low_precision_inputs_are_lifted_to_the_working_precision() {
+        // Multiprecision: exact coefficients and masses at 2 binary digits
+        // against 128-bit shifts. Unlifted, every product rounds to 2 digits.
+        use crate::{Float, FloatLike};
+        use symbolica::domains::float::RealLike;
+        let mpfr =
+            |x: f64, bits: u32| Complex::new(Float::with_val(bits, x), Float::with_val(bits, 0));
+        let shifts = [
+            0.0, 0.0, 0.0, 0.0, 0.3, 0.1, -0.7, 0.45, 1.1, -0.35, 0.2, 0.6,
+        ];
+        let masses = [3.0, 0.0, 2.0];
+        let mut numerator = tensor(
+            3,
+            &[([2, 0, 0, 0], 3.), ([0, 1, 1, 0], -2.), ([1, 0, 0, 1], 3.)],
+        );
+        numerator[monomial_index([1, 1, 1, 0])] = c(3.);
+        let expected = tensor_uv_residue(3, 3, &shifts.map(c), &masses.map(c), &numerator);
+        let low = |v: &[Complex<f64>]| -> Vec<Complex<Float>> {
+            v.iter().map(|x| mpfr(x.re, 2)).collect()
+        };
+        let got = TensorUvResidues::new(3, 3).residue(
+            &shifts.map(|x| mpfr(x, 128)),
+            &low(&masses.map(c)),
+            &low(&numerator),
+        );
+        assert!(got.re.get_precision() >= 128);
+        let difference = (got.re.to_f64() - expected.re).abs();
+        assert!(
+            difference <= 1e-14 * expected.re.abs().max(1.),
+            "{difference}"
+        );
     }
 
     #[test]
