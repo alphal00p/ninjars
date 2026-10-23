@@ -1016,9 +1016,10 @@ reconsidered (`TODO_NEXT_PLAN.md`).
 against its rank n+1 twin, from the benchmark report's rank n+2 measurement
 (`docs/benchmark/data/rank_n2.json`, `twins`). It was taken on main 0d0d7e7
 with oneloopmaster 09b2c74, on 2026-10-19 on CPU 260: after the basis
-conditioning, before the box geometry and the lower-rank dispatch. The
-benchmark, and with it the COLLIER comparison below, was not rerun before
-the landing; the instruction counts below cover the changes since.
+conditioning, before the box geometry and the lower-rank dispatch. These
+timings were not rerun (the benchmark's rank n+2 section is now an accuracy
+validation against COLLIER, 2026-10-21); the instruction counts below cover
+the changes since.
 
 | n | rank n+2 (ns/point) | rank n+1 twin (ns/point) | ratio | total ratio | COLLIER COLI ratio |
 |---|---|---|---|---|---|
@@ -1807,9 +1808,11 @@ width 1 at 1.061), a heap-layout effect (9.1). The benchmark report has a
 rank n+2 section against COLLIER 1.2.10 (section 5,
 `docs/benchmark/rank_n2.typ`; 7d9c01f, b992fbc).
 
-The cycle-timed guard was not rerun for the landing, and neither was the
-COLLIER benchmark. Integration pass 2 compared machine code and counted
-instructions instead (115fb46 against main 0d0d7e7, section 7.2).
+The cycle-timed guard was not rerun for the landing. Integration pass 2
+compared machine code and counted instructions instead (115fb46 against
+main 0d0d7e7, section 7.2). After the landing (2026-10-21) the benchmark
+report was refreshed with the current pins, and its rank n+2 section now
+validates accuracy against COLLIER instead of comparing timings.
 
 ## 10. Errata and departures from the design
 

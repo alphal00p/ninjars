@@ -1,4 +1,18 @@
-# Wall time of run.sh on oneloopmaster 09b2c74, the current pin (AMD EPYC 9754, pinned with taskset -c 245,
+# Wall time of run.sh on oneloopmaster 8ec256fc and Symbolica 9cdc2949, the current pins (NinjaRS aa6a630; AMD EPYC 9754,
+# 2026-10-21, pinned with taskset -c 60, whose SMT sibling CPU 316 was 2.4 % busy during the run; load average 114 -> 105)
+700 bits, three points incl. preparation: real 7.913 s, user 7.011 s, sys 0.839 s
+1000 bits, three points incl. preparation: real 9.070 s, user 8.233 s, sys 0.765 s
+# Two earlier attempts of the same run (siblings 17-19 % busy, so not kept): 700 bits 7.74 and 7.88 s, 1000 bits 9.05 and 9.28 s.
+# Three rounds, each running the aa6a630 CLI and the d53dd08 CLI (oneloopmaster 09b2c74, Symbolica e679e8c1: the previous
+# measurement below) alternately on the same core (700 bits: CPUs 39, 60, 75; 1000 bits: CPUs 78, 60, 60; the sibling at
+# most 7 % busy, except one 1000-bit d53dd08 run at 19 %), `perf stat -e instructions:u,cycles:u` on each reduce:
+#   700 bits:  aa6a630 7.82-8.22 s, d53dd08 8.02-8.22 s; instructions 6.490-6.497e10 against 6.446-6.461e10 (+0.7 %)
+#   1000 bits: aa6a630 9.22-9.43 s, d53dd08 9.02-9.62 s; instructions 7.587-7.589e10 against 7.517-7.523e10 (+0.9 %)
+# aa6a630 moves the 700- and 1000-bit results by at most 1.1e-208 and 2.3e-299 relative to the 09b2c74 files (Symbolica's
+# Float products rounded once, the generic engine's bubble and tadpole selection, B0 from the B11 family; every status
+# unchanged), dd.json by at most 8.7e-31 and fast.json by 7.8e-16 (lanes 1 and 2; oneloopmaster 8ec256fc's native D0).
+# digits_700_vs_1000: 208.8/209.0/208.1 -> 208.4/208.9/208.7; the 200 printed digits of the 1000-bit finite part are unchanged.
+# Wall time of run.sh on oneloopmaster 09b2c74, the previous pin (AMD EPYC 9754, pinned with taskset -c 245,
 # 2026-10-19; CPU 245 was idle beforehand, 0.2 % busy over 15 s, with the host at a load average of about 120)
 700 bits, three points incl. preparation: real 7.710 s, user 6.860 s, sys 0.748 s
 1000 bits, three points incl. preparation: real 8.934 s, user 8.067 s, sys 0.758 s

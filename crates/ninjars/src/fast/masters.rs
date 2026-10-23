@@ -54,6 +54,13 @@ impl FastMaster {
 /// set `ok[row] = false`; its outputs are unspecified. Successful rows set
 /// `ok[row] = true`.
 pub trait FastMasters {
+    /// True for providers selecting UV or IR poles separately. The fast
+    /// engine currently omits scaleless bubbles and rejects such providers;
+    /// use the generic reduction engine, which retains their coefficients.
+    fn requires_scaleless_bubbles(&self) -> bool {
+        false
+    }
+
     fn evaluate(
         &mut self,
         family: FastMaster,

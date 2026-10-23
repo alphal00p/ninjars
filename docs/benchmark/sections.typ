@@ -90,9 +90,9 @@ benchmark were checked as follows.
   benchmark (34 call streams: the physical diagrams as exported by NinjaRS
   and by MadLoop, and the synthetic topologies), oneloopmaster's native code
   agrees with OneLOop 3.6 to $8 times 10^(-14)$ on the physical diagrams
-  and to $3.6 times 10^(-11)$ on the synthetic ones (the worst a $D_0$ near a
-  vanishing Gram determinant, discussed below), except for one rank-3 tensor
-  bubble ($2.5 times 10^(-9)$). The native bubble tensors were
+  and to $2.7 times 10^(-12)$ on the synthetic ones (a $D_0$ of
+  `syn-n6-r7`), except for one rank-3 tensor bubble
+  ($2.5 times 10^(-9)$). The native bubble tensors were
   validated against 595 direct Feynman-parameter integrations, including
   thresholds and massless limits.
 
@@ -100,22 +100,20 @@ benchmark were checked as follows.
 $10^(-6)$ (marked † in @tab:identical). In each, one lane's finite part is a
 tiny remainder of cancelling master-integral contributions. The exact values
 were computed with the generic NinjaRS engine at 256–512 bits, where the
-evaluations agree to 40 digits (`syn-n6-r6`) and to binary64 rounding
-(`syn-gghhh-ggHHH-n5-r5`); the per-point data are in
-`validation/benchmark/ill-conditioned/`. Against them, neither binary64 code
-is accurate on these lanes:
+evaluations agree to 40 digits (`syn-n6-r6`, for its snapped binary64
+inputs) and to binary64 rounding (`syn-gghhh-ggHHH-n5-r5`); the per-point
+data are in `validation/benchmark/ill-conditioned/`. Against them, neither
+binary64 code is accurate on these lanes:
 
 - `syn-gghhh-ggHHH-n5-r5`, lane 1, borders a box with normalized Gram
   determinant $8 times 10^(-8)$. Ninja is off by $3.0 times 10^(-4)$ and
-  NinjaRS by $4.6 times 10^(-4)$; with exact masters rounded to binary64
-  NinjaRS is off by $3.1 times 10^(-4)$, so most of the loss is in the
-  binary64 reduction itself, in both codes. The rest comes from
-  oneloopmaster's binary64 $D_0$ at that box, off by $3.6 times 10^(-11)$
-  against OneLOop's $7.9 times 10^(-15)$; it was off by
-  $4.4 times 10^(-12)$ (NinjaRS's lane by $3.4 times 10^(-4)$) before
-  oneloopmaster took the contour box's edge roots from exact Källén
-  functions (9c5490b). This regression has been reported upstream and is
-  still open (09b2c74 returns the same $D_0$).
+  NinjaRS by $3.1 times 10^(-4)$. With exact masters rounded to binary64,
+  NinjaRS is also off by $3.1 times 10^(-4)$, so the loss is in the binary64
+  reduction itself, in both codes. oneloopmaster's binary64 $D_0$ at that
+  box is off by $2.6 times 10^(-14)$ (OneLOop $7.9 times 10^(-15)$). From
+  9c5490b (exact Källén edge roots) until 8ec256fc it was off by
+  $3.6 times 10^(-11)$, which put this lane at $4.6 times 10^(-4)$;
+  8ec256fc's contour box for vanishing Gram determinants fixes it.
 - `syn-n6-r6`, lane 0, cancels by a factor of about $10^(12)$. Ninja is off
   by 2.3 % and NinjaRS by 1.3 % (1.2 % with Ninja's own master values).
   NinjaRS was off by 24 % before oneloopmaster conditioned the dilogarithm
@@ -123,7 +121,10 @@ is accurate on these lanes:
   $C_0(-237088.3, -236743.3, 0; 29929 - 259.5 i, 0, 6464.16 - 168.84 i)$
   was off by $2.4 times 10^(-13)$ against OneLOop's $3.3 times 10^(-15)$
   and is now off by $2.2 times 10^(-15)$, with the divided-difference
-  expansion OneLOop uses for such roots.
+  expansion OneLOop uses for such roots. The lane's exact value is fixed by
+  its binary64 inputs only to about $10^(-4)$: taking the invariants from the
+  snapped S-matrix entries or from the momenta changes it by
+  $9.9 times 10^(-5)$, far less than the binary64 errors.
 
 Neither code's stability checks flag these lanes. All other lanes of these
 cases agree with the exact values to $10^(-9)$ or better.
@@ -131,15 +132,23 @@ cases agree with the exact values to $10^(-9)$ or better.
 *Defects found on the way.* The comparison exposed and fixed the following
 defects.
 
-- *Symbolica* (binary64 only): the dilogarithm went through an MPFR callback
-  (12 µs to 2 ms per call, making native $C_0$/$D_0$ 25–430× slower than
-  OneLOop); a binary64 series kernel now serves it (PR \#89), and
-  oneloopmaster's binary64 code calls it directly.
+- *Symbolica:*
+  - in binary64, the dilogarithm went through an MPFR callback (12 µs to
+    2 ms per call, making native $C_0$/$D_0$ 25–430× slower than OneLOop);
+    a binary64 series kernel now serves it (PR \#89), and oneloopmaster's
+    binary64 code calls it directly;
+  - in arbitrary precision, `Float` products were rounded twice
+    ($a b != b a$) and $a - b$ was formed through a working-precision $-1$,
+    so that exact sign tests in $C_0$/$D_0$ flipped at 256 bits; they are
+    now rounded once (PR \#97, carried by the pinned 9cdc2949; binary64 and
+    double-double are bitwise unchanged).
 - *oneloopmaster* (fixed in the exact expressions, so every route — native,
   hand-written, SymJIT, interpreter, arbitrary precision and Dual numbers —
-  carries the fix, except where noted; NinjaRS pins oneloopmaster 09b2c74,
-  and the last eight items and the full extent of the $B_(1111)$ error were
-  found after the previous revision of this report, which used 264a6ce):
+  carries the fix, except where noted; NinjaRS pins oneloopmaster 8ec256fc.
+  The tenth to seventeenth items and the full extent of the $B_(1111)$
+  error were found after the revision of this report that used 264a6ce, the
+  last three items and the present accuracy of the seventh after the
+  previous revision, which used 3023fa6):
   - $B_0$/$B_0'$ returning NaN with a massless line;
   - inexact unit roots in massless bubble tensors (fixed in the native port
     of OneLOop's bubble routines), and wrong lips at $p^2 = 0$ with masses of
@@ -156,9 +165,11 @@ defects.
     points). OneLOop 3.6 itself departs from its own vanishing-width limit at
     some of these points;
   - a box near a vanishing Gram determinant (accuracy $7 times 10^(-10)$,
-    then $4 times 10^(-12)$; $3.6 times 10^(-11)$ in binary64 since the
-    exact Källén edge roots below, a regression reported upstream and still
-    open);
+    then $4 times 10^(-12)$, and $3.6 times 10^(-11)$ in binary64 after the
+    exact Källén edge roots below; now $2.6 times 10^(-14)$: the contour's
+    line edges take a pole's offset from its root from Vieta's product, and
+    where one contour is ill-conditioned the other is evaluated too,
+    8ec256fc);
   - exact-zero branch tests decided by rounding noise in arbitrary precision
     ($C_0$ wrong at 256, 512 and 1024 bits for some arguments);
   - an expression-construction blow-up introduced and removed during these
@@ -198,7 +209,23 @@ defects.
   - in the interpreter only, the cancellation test of the conditioned
     dilogarithm differences above evaluating both dilogarithms two or three
     times, slowing the arbitrary-precision runs of @arbprec by 1.4–1.5×;
-    they are now evaluated once (09b2c74).
+    they are now evaluated once (09b2c74);
+  - one-mass boxes with a complex mass, at any width, on a wrong sheet,
+    OneLOop's `boxf1` included (131 of 3,000 random such boxes, by 0.3 to 7
+    of the value), and two-mass boxes with complex masses in the same way
+    (0.4 % to 2.8 % of random such boxes); they now take Denner and
+    Dittmaier's sheets;
+  - two-mass boxes with both massive lines at or next to their shells, on
+    which the complex-mass sheets of the previous item, as first implemented,
+    lost up to 0.16 of the value in binary64 (the mass pairs' complements were
+    formed from the rounded arguments; OneLOop's sheets at 09b2c74 lost at most
+    $2 times 10^(-10)$ there); the complements now come from the channels'
+    complements, so this never reached a pinned oneloopmaster;
+  - soft boxes, wrong or non-finite in many labellings of their propagators
+    (on oneloopmaster's adversarial sweeps, 59 % of the binary64
+    evaluations of 14,400 soft-box relabellings at 09b2c74); they are now
+    relabelled at the numerical $D_0$ entry points and right on every
+    route (8ec256fc).
 - *NinjaRS:*
   - rounded light-like invariants entering the masters without OneLOop's
     on-shell threshold (a $10^(-7)$ error in $gamma gamma -> gamma gamma$
@@ -218,8 +245,16 @@ defects.
 
 Apart from the on-shell threshold, none of these defects affected the
 accuracy of the physical benchmark diagrams in binary64; the dilogarithm
-affected only their speed. The oneloopmaster changes since 264a6ce move the
-binary64 results of the physical diagrams by at most $6 times 10^(-15)$.
+affected only their speed. Since the previous revision of this report
+(oneloopmaster 3023fa6), the binary64 results of the physical diagrams have
+moved by at most $4 times 10^(-15)$. oneloopmaster's own adversarial $D_0$
+sweeps (three sweeps, 99,119 referenced rows in all) still find a tail that
+its `STATUS.md` lists as open work. Over them the four binary64 routes return
+2,798 finite but wrong values, against 18,377 at 09b2c74; but on the two
+sweeps generated after the fixes, 28 binary64 boxes that 09b2c74 got right
+or returned as NaN are now finite and wrong by more than $10^(-6)$ (by up to
+0.36), and so are 195 `Float` rows, mostly at 1 to 4 tracked bits. None of
+the benchmark's master calls is among them (*Masters*, above).
 
 = Arbitrary precision end to end <arbprec>
 
@@ -240,14 +275,12 @@ prepares the numerator exactly (FeynKit, exact radical momenta and
 polarization vectors), runs the generic reduction engine on Symbolica's
 arbitrary-precision `Float` (cut solutions, Laurent divisions and
 subtractions at 700 bits) and evaluates oneloopmaster's exact master
-expressions at the same precision. All three points take 7.7–7.8
-seconds in total at 700 bits and 8.7–9.0 seconds at 1000 bits, including
-the one-time preparation. The same CLI built on the previous pin,
-oneloopmaster 149ddff, run alternately with it on the same core (CPU 245),
-takes 10.5 and 13.3–13.7 seconds: oneloopmaster 3cbe08d, which conditions
-the dilogarithm differences, had made the run about 1.4× (700 bits) and
-1.5× (1000 bits) slower, and 09b2c74 fixes this (a CLI built on 264a6ce,
-before 3cbe08d, takes 7.3–7.4 and 8.5–8.6 seconds there). The 700-bit results
+expressions at the same precision. All three points take 7.9 seconds in
+total at 700 bits and 9.1 seconds at 1000 bits (CPU 60), including the
+one-time preparation, and 7.8–8.2 and 9.2–9.4 seconds in three further
+rounds (CPUs 39, 60 and 75 at 700 bits; 78, 60 and 60 at 1000 bits). Run alternately on the same cores with the CLI of the
+previous revision (oneloopmaster 09b2c74, Symbolica e679e8c1), the current
+one executes 0.7 % (700 bits) and 0.9 % (1000 bits) more instructions. The 700-bit results
 agree with a 1000-bit run to
 #calc.floor(calc.min(..arb.points.map(p => p.digits_700_vs_1000))) digits;
 the poles and the rational part vanish to working precision (below
@@ -256,7 +289,7 @@ exactly zero), as they must for this finite pentagon. The table compares the fin
 Accuracy is always measured this way, by comparison with a higher
 precision: the significant precision that Symbolica's `Float` tracks counts
 cancellations but not accumulated rounding, and overstates the accuracy by
-a few bits (3–8 bits in the 700-bit runs above, up to 13 bits in precision
+a few bits (4–7 bits in the 700-bit runs above, up to 13 bits in precision
 scans of the $gamma gamma -> gamma gamma$ boxes).
 
 #figure(
@@ -338,7 +371,7 @@ outputs and master values of the same evaluation replayed at O(1) cost); the
 tensor-numerator expansions (live tensor numerator minus pure reduction); the
 master integrals (the recorded calls replayed through oneloopmaster's native
 code); and the uninstrumented total. At the tabulated batch width the
-components add up to the total within 6 %. `ninjars case-bench` performs the same breakdown on the shared
+components add up to the total within 1 % (`case-bench`, @tab:identical: within 3.3 %). `ninjars case-bench` performs the same breakdown on the shared
 bench-case files, which contain exactly the propagators and tensor
 coefficients given to original Ninja.
 
@@ -365,25 +398,32 @@ S-matrix) and replays recorded numerator outputs and OneLOop results to
 isolate each component, exactly like the NinjaRS harness. Every replay
 reproduces the direct evaluation bit for bit.
 
-*Environment.* A shared AMD EPYC 9754 host; every timed process, NinjaRS and
-the references alike, runs single-threaded and pinned to the same core
-(CPU 250; the arbitrary-precision runs of @arbprec used CPU 245). The
-reference timings are from 2026-10-18, the NinjaRS timings from 2026-10-19
-(Symbolica e679e8c1), measured with oneloopmaster 3023fa6 (the
-arbitrary-precision timings with the pinned 09b2c74). 149ddff and 09b2c74
-change no binary64 evaluated call (every benchmark case and example gives
-bit-identical binary64 and double-double results with all three, and the
-native masters return the same bits on every recorded call), so they stand.
-09b2c74 rounds the interpreted $D_0$ differently, by at most 56 units in the
-last place at 700 and 1000 bits; the results of @arbprec are computed with
-09b2c74. References
-timed a day earlier on another core (CPU 29) agree within about 1 %, except
-OneLOop on the $n = 5$ cases (5–8 % faster there), which moves no gate
-(`validation/benchmark/cpu-crosscheck.md`). Rust 1.98
+*Environment.* A shared AMD EPYC 9754 host; every timed process runs
+single-threaded and pinned to one core. The NinjaRS timings are from
+2026-10-21 (NinjaRS aa6a630, oneloopmaster 8ec256fc, Symbolica 9cdc2949) on
+cores of the first socket, which has simultaneous multithreading: a run was
+kept only if the core's other hardware thread stayed at most 5–10 % busy
+(after all retries, two rounds kept their least disturbed attempt, at 19 %
+and 5.3 %). Every value is the most representative of three rounds
+interleaved with the previous revision on the same core
+(`validation/benchmark/rerun-8ec256fc/`). The reference timings are from
+2026-10-18 on CPU 250 (second socket, no SMT); an earlier cross-check on
+CPU 29 agreed within about 1 %, except OneLOop on the $n = 5$ cases, 5–8 %
+faster there (`validation/benchmark/cpu-crosscheck.md`). Re-timed on the
+cores used now, with the same executables, original Ninja's replay lies
+within −6.3 to +4.9 % of them (pure reduction −0.3 to +3.0 %, tensor numerator
+−2.0 to +4.9 %, OneLOop −6.3 to +3.5 %), and the MadLoop pipeline, rebuilt for three diagrams, within −3
+to −1 %. This moves no gate: against these re-timed references the gates are
+(a) ×0.48–0.56, (b) ×0.27–0.61 and (c) ×0.19–0.39 (three diagrams). Against
+the previous revision on the same core, the reduction is unchanged
+(×0.99–1.02 on the physical diagrams; instructions within 0.25 %), and oneloopmaster 8ec256fc's
+master integrals take 6–7 % longer on the gg → HH(H) box and pentagon
+diagrams (+1.4–1.6 % instructions). The arbitrary-precision runs of
+@arbprec used CPU 60, whose other hardware thread was 2.4 % busy. Rust 1.98
 (`--profile perf`: opt-level 3, one codegen unit for the hot crates), GCC and
 gfortran 15.3, no `-march`/`-ffast-math` on either side. Timings are medians
-of at least seven blocks of at least 20 ms; independent repeated runs agree
-within 1–4 %, sub-microsecond components within 10–20 %.
+of nine blocks of at least 20 ms; the three rounds agree within 6 %
+(pipeline totals within 2.2 %; generation, timed once per round, varied by up to 27 %), components below 1.5 µs within 22 %.
 
 = What is new in NinjaRS <innovations>
 
@@ -460,7 +500,7 @@ tadpole tensor coefficients are native ports of OneLOop's routines. The
 corrections to the scalar integrals found while benchmarking (@correctness)
 were made in the exact expressions, so all of these routes, and the
 hand-written binary64 $C_0$/$D_0$ kernels transcribed from them, carry them. Replayed call by call on the master calls
-original Ninja makes in the benchmark, the native masters take 0.25–0.86× the
+original Ninja makes in the benchmark, the native masters take 0.24–0.88× the
 time of OneLOop.
 
 = Algorithmic improvements <algorithms>
@@ -484,8 +524,8 @@ some synthetic cases are inherited binary64 conditioning (@correctness).
   homogenized numerator $t^(-R) N(q)$ as one transposed Horner sweep in
   $u = 1 / t$ truncated at the requested order, with exact polynomial
   dependence on $mu^2$ and $x$: every tensor coefficient is touched once per
-  expansion. This makes the tensor numerator 1.9–2.4× faster than Ninja's on
-  the physical diagrams (1.7–2.6× over all cases).
+  expansion. This makes the tensor numerator 2.0–2.5× faster than Ninja's on
+  the physical diagrams (1.9–2.7× over all cases).
 - *Rank-specialized subtractions.* Ninja's FORM-generated coefficient-level
   subtractions are translated mechanically, and the parent coefficients that
   vanish identically for the given rank are folded away at compile time
@@ -500,7 +540,7 @@ some synthetic cases are inherited binary64 conditioning (@correctness).
   `__muldc3`/`__divdc3` calls (worth 20 % on Ninja's side).
 - *True numerator rank.* As described above, the exact numerator avoids the
   inflated ranks MadLoop declares, which makes Ninja's tensor expansions
-  3.7× more expensive for the pentagon (81 µs at rank 5 against 22 µs at
+  3.6× more expensive for the pentagon (81 µs at rank 5 against 23 µs at
   rank 4) and about 5× for the triangles in the MadLoop pipeline.
 - *Single-dispatch master kernels.* The generated oneloopmaster code
   evaluated each Laurent order of $C_0$ and $D_0$ separately, repeating the
@@ -509,7 +549,7 @@ some synthetic cases are inherited binary64 conditioning (@correctness).
   the four-mass Denner–Nierste–Scharf box) perform one dispatch per call,
   never evaluate inactive branches, and keep the exact expressions as their
   validated reference; they are 2–3.5× faster than the generated code and,
-  on the physical call streams, 1.5–1.8× (boxes) and 1.9–3.6× (triangles)
+  on the physical call streams, 1.5–1.8× (boxes) and 1.9–3.7× (triangles)
   faster than OneLOop.
 - *Fast binary64 dilogarithm and native tensor bubbles.* oneloopmaster's
   binary64 dilogarithm now uses a dedicated series kernel (17–110 ns per
@@ -518,7 +558,7 @@ some synthetic cases are inherited binary64 conditioning (@correctness).
   native evaluation sharing the roots and logarithms (a binary64
   specialization of oneloopmaster's port of OneLOop's bubble routines,
   validated against the exact expressions and Feynman-parameter integrals),
-  3.8–12× faster than OneLOop's `olo_b11` on the physical call streams.
+  4–12× faster than OneLOop's `olo_b11` on the physical call streams.
 - *On-shell thresholds in one place.* Exact-zero dispatch in oneloopmaster
   is combined with OneLOop's on-shell threshold as Ninja configures it,
   applied once to every master request, and MadLoop's on-shell treatment of

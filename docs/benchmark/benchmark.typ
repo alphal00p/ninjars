@@ -111,8 +111,10 @@
   compared with original Ninja and OneLOop component by component. Green
   cells mean NinjaRS is faster, red slower; white is parity. NinjaRS
   evaluates batches of #data.batch_width phase-space points; times are per
-  point. At numerator rank $n + 2$ (@rank-n2), beyond original Ninja, the
-  reference is the tensor-integral library COLLIER, a different method.
+  point. At numerator rank $n + 2$ (@rank-n2), beyond original Ninja,
+  NinjaRS's results are validated against high-precision references and the
+  tensor-integral library COLLIER, a different method; that section compares
+  accuracy, not time.
 ]
 
 #let range-of(values) = {
@@ -142,6 +144,28 @@
       [NinjaRS (SymJIT O2 numerator + reduction + masters) ≤ MadLoop pipeline],
       range-of(data.cases.map(c => ratio(c.ninjars_us.total, c.madloop_us.total)))),
   )
+]
+
+#block(fill: pale, inset: 9pt, radius: 4pt, width: 100%)[
+  #set text(9pt)
+  *Changes since the previous revision* (2026-10-19; this revision
+  #data.date). NinjaRS aa6a630 pins oneloopmaster 8ec256fc (previously
+  3023fa6, and 09b2c74 for @arbprec), Symbolica 9cdc2949 (e679e8c1 plus
+  PR \#97: `Float` products rounded once) and gammaloop `feynkit` d1904bf2
+  (the physical DOT graphs regenerate byte-identically). oneloopmaster
+  8ec256fc changes the $D_0$: next to a vanishing Gram determinant the
+  contour box takes its pole offsets from Vieta's product and a second
+  contour (the box of `syn-gghhh-ggHHH-n5-r5`: $3.6 times 10^(-11)$ →
+  $2.6 times 10^(-14)$), one- and two-mass boxes with complex masses take
+  Denner and Dittmaier's sheets (OneLOop is wrong on 131 of 3,000 random
+  one-mass boxes with a width), two-mass boxes next to their shells take
+  their mass-pair complements from the channels, and soft boxes are
+  relabelled (@correctness). Every NinjaRS timing and accuracy result was
+  re-measured; the reference timings were kept (@methodology). The physical
+  diagrams' binary64 results move by at most $4 times 10^(-15)$, the gate
+  ranges by at most 0.04, mostly through the different cores. The rank
+  $n + 2$ section (@rank-n2) is now a validation against COLLIER and the
+  references, without timing comparison.
 ]
 
 = Summary of all test cases <summary>

@@ -649,6 +649,10 @@ struct TimedMasters<'a, M> {
 }
 
 impl<M: FastMasters> FastMasters for TimedMasters<'_, M> {
+    fn requires_scaleless_bubbles(&self) -> bool {
+        self.inner.requires_scaleless_bubbles()
+    }
+
     fn evaluate(
         &mut self,
         family: FastMaster,

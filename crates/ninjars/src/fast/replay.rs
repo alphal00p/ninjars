@@ -321,6 +321,7 @@ impl FastNumerator for ReplayNumerator {
 /// Records every master family call of a wrapped [`FastMasters`].
 pub struct RecordingMasters<M> {
     inner: M,
+    recorded_scaleless_bubbles: bool,
     values: Vec<[C64; 3]>,
     ok: Vec<bool>,
     calls: Vec<(FastMaster, usize)>,
@@ -330,6 +331,7 @@ impl<M: FastMasters> RecordingMasters<M> {
     pub fn new(inner: M) -> Self {
         Self {
             inner,
+            recorded_scaleless_bubbles: false,
             values: Vec::new(),
             ok: Vec::new(),
             calls: Vec::new(),
@@ -345,6 +347,7 @@ impl<M: FastMasters> RecordingMasters<M> {
         self.inner
     }
     pub fn clear(&mut self) {
+        self.recorded_scaleless_bubbles = false;
         self.values.clear();
         self.ok.clear();
         self.calls.clear();
@@ -355,6 +358,8 @@ impl<M: FastMasters> RecordingMasters<M> {
     }
     pub fn replay(&self) -> ReplayMasters {
         ReplayMasters {
+            requires_scaleless_bubbles: self.recorded_scaleless_bubbles
+                || self.inner.requires_scaleless_bubbles(),
             values: self.values.clone(),
             ok: self.ok.clone(),
             calls: self.calls.clone(),
@@ -366,6 +371,10 @@ impl<M: FastMasters> RecordingMasters<M> {
 }
 
 impl<M: FastMasters> FastMasters for RecordingMasters<M> {
+    fn requires_scaleless_bubbles(&self) -> bool {
+        self.inner.requires_scaleless_bubbles()
+    }
+
     fn evaluate(
         &mut self,
         family: FastMaster,
@@ -374,6 +383,7 @@ impl<M: FastMasters> FastMasters for RecordingMasters<M> {
         ok: &mut [bool],
     ) -> Result<()> {
         self.inner.evaluate(family, args, out, ok)?;
+        self.recorded_scaleless_bubbles |= self.inner.requires_scaleless_bubbles();
         self.values.extend_from_slice(out);
         self.ok.extend_from_slice(ok);
         self.calls.push((family, ok.len()));
@@ -384,6 +394,7 @@ impl<M: FastMasters> FastMasters for RecordingMasters<M> {
 /// Returns recorded master values in call order at O(1) cost per call.
 #[derive(Clone, Debug)]
 pub struct ReplayMasters {
+    requires_scaleless_bubbles: bool,
     values: Vec<[C64; 3]>,
     ok: Vec<bool>,
     calls: Vec<(FastMaster, usize)>,
@@ -401,6 +412,10 @@ impl ReplayMasters {
 }
 
 impl FastMasters for ReplayMasters {
+    fn requires_scaleless_bubbles(&self) -> bool {
+        self.requires_scaleless_bubbles
+    }
+
     fn evaluate(
         &mut self,
         family: FastMaster,

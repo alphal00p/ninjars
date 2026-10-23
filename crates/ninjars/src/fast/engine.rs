@@ -876,6 +876,12 @@ impl FastAmplitude {
         results: &mut [FastResult],
         statuses: &mut [FastStatus],
     ) -> Result<()> {
+        if masters.requires_scaleless_bubbles() {
+            return Err(Error::Unsupported(
+                "separate UV/IR poles require scaleless-bubble coefficients; use the generic reduction engine".into(),
+            ));
+        }
+
         if let Some(replacement) = self.replacement.as_deref_mut() {
             // Both entries are cold and never inlined.
             return match replacement {

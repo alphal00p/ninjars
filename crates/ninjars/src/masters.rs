@@ -135,6 +135,13 @@ pub enum MasterStatus {
 
 /// Providers retain their numerical workspaces between evaluations.
 pub trait MasterProvider<T> {
+    /// Whether integration needs coefficients of scaleless bubbles, whose
+    /// combined UV/IR master normally vanishes. Engines which discard those
+    /// coefficients must reject this provider before reducing any numerator.
+    fn requires_scaleless_bubbles(&self) -> bool {
+        false
+    }
+
     /// Write one `[finite, simple pole, double pole]` result per input row.
     /// Any invalid request or failed numerical row leaves all outputs unchanged.
     fn evaluate(&mut self, request: MasterRequest<'_, T>, output: &mut [Laurent<T>]) -> Result<()>;
