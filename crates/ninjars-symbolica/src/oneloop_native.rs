@@ -6,10 +6,12 @@
 //! n+2) is oneloopmaster's `TensorIntegral::B1111`: OneLOop's `bub1111` with
 //! the corrected mass-swap sign (OneLOop itself has the wrong sign there).
 //!
-//! Inputs first pass OneLOop's on-shell threshold exactly as original Ninja
-//! configures it (`olo_onshell(INFRARED_EPS = 1e-9)`): invariants and squared
-//! masses below the threshold become zero and real invariants within it of a
-//! real squared mass become exactly on shell.
+//! By default, inputs first pass OneLOop's on-shell threshold exactly as
+//! original Ninja configures it (`olo_onshell(INFRARED_EPS = 1e-9)`):
+//! invariants and squared masses below the threshold become zero and real
+//! invariants within it of a real squared mass become exactly on shell. The
+//! threshold is absolute, in the units of the inputs;
+//! [`OneLoopNativeMasters::with_onshell_threshold`] changes or disables it.
 
 use ninjars::fast::{C64, FastMaster, FastMasters};
 use ninjars::{
@@ -24,13 +26,14 @@ fn is_zero(z: C64) -> bool {
     z.re == 0. && z.im == 0.
 }
 
-/// Original Ninja's `INFRARED_EPS`, passed to OneLOop as its on-shell threshold.
+/// Original Ninja's `INFRARED_EPS`, which it passes to OneLOop as its on-shell
+/// threshold; the default of [`OneLoopNativeMasters::with_onshell_threshold`].
 pub const ONSHELL_THRESHOLD: f64 = 1e-9;
 
 /// Apply OneLOop's on-shell threshold to `[invariants..., masses..., mu²]`.
-fn snap_onshell(args: &mut [C64], invariants: usize) {
+fn snap_onshell(args: &mut [C64], invariants: usize, threshold: f64) {
     let masses = args.len() - invariants - 1;
-    let small = |z: &C64| z.re.abs() + z.im.abs() < ONSHELL_THRESHOLD;
+    let small = |z: &C64| z.re.abs() + z.im.abs() < threshold;
     for mass in &mut args[invariants..invariants + masses] {
         if small(mass) {
             *mass = C64::ZERO;
@@ -42,7 +45,7 @@ fn snap_onshell(args: &mut [C64], invariants: usize) {
             *momentum = C64::ZERO;
         } else if let Some(mass) = rest[..masses]
             .iter()
-            .find(|m| m.im == 0. && (momentum.re - m.re).abs() < ONSHELL_THRESHOLD)
+            .find(|m| m.im == 0. && (momentum.re - m.re).abs() < threshold)
         {
             *momentum = *mass;
         }
@@ -56,8 +59,12 @@ fn snap_onshell(args: &mut [C64], invariants: usize) {
 /// identical values through either interface. Rows with invalid inputs
 /// (non-finite values, complex invariants, masses with positive imaginary
 /// parts, non-positive scales) or non-finite results fail individually.
+///
+/// By default every row first passes OneLOop's on-shell threshold, original
+/// Ninja's absolute `1e-9`; see [`Self::with_onshell_threshold`].
 pub struct OneLoopNativeMasters {
     pole_selection: oneloop::PoleSelection,
+    onshell_threshold: Option<f64>,
     a0: NativeEvaluator<f64>,
     b0: NativeEvaluator<f64>,
     db0: NativeEvaluator<f64>,
@@ -82,6 +89,7 @@ impl OneLoopNativeMasters {
     pub fn new() -> Result<Self> {
         Ok(Self {
             pole_selection: oneloop::PoleSelection::BOTH,
+            onshell_threshold: Some(ONSHELL_THRESHOLD),
             a0: NativeEvaluator::new(ScalarIntegral::A0).map_err(native_error)?,
             b0: NativeEvaluator::new(ScalarIntegral::B0).map_err(native_error)?,
             db0: NativeEvaluator::new(ScalarIntegral::DB0).map_err(native_error)?,
@@ -126,7 +134,33 @@ impl OneLoopNativeMasters {
         self.pole_selection
     }
 
-    /// oneloopmaster's native domain contract for one thresholded row.
+    /// Set (or with `None` disable) the on-shell threshold, as
+    /// [`SymbolicaMasters::with_onshell_threshold`](crate::SymbolicaMasters::with_onshell_threshold)
+    /// does on the fixed-precision path. `Some(t)` sets invariants and squared
+    /// masses with `|re| + |im| < t` to zero and a real invariant within `t`
+    /// of a real squared mass to that mass; `None` evaluates every row at its
+    /// given arguments. The default, `Some(1e-9)`, is original Ninja's
+    /// `INFRARED_EPS`: it is absolute, in the units of the inputs, so it also
+    /// moves genuine scales below it, e.g. a squared mass of `1e-12` (a keV
+    /// mass in GeV) becomes massless. Callers that supply exact zeros and
+    /// exact on-shell invariants (for example through an S-matrix) need no
+    /// threshold.
+    pub fn with_onshell_threshold(mut self, threshold: Option<f64>) -> Self {
+        self.set_onshell_threshold(threshold);
+        self
+    }
+
+    /// See [`Self::with_onshell_threshold`].
+    pub fn set_onshell_threshold(&mut self, threshold: Option<f64>) {
+        self.onshell_threshold = threshold;
+    }
+
+    /// The on-shell threshold, `None` when disabled.
+    pub fn onshell_threshold(&self) -> Option<f64> {
+        self.onshell_threshold
+    }
+
+    /// oneloopmaster's native domain contract for one staged row.
     fn row_is_valid(row: &[C64], invariants: usize) -> bool {
         let mu2 = row[row.len() - 1];
         row.iter().all(|z| z.is_finite())
@@ -136,15 +170,18 @@ impl OneLoopNativeMasters {
             && mu2.re > 0.
     }
 
-    /// Stage every row of a family call (thresholded, in Symbolica's
-    /// complex layout). Returns whether all rows satisfy the domain contract.
+    /// Stage every row of a family call (thresholded if a threshold is set,
+    /// in Symbolica's complex layout). Returns whether all rows satisfy the
+    /// domain contract.
     fn stage_batch(&mut self, args: &[C64], arity: usize, invariants: usize) -> bool {
         self.batch_input.clear();
         let mut valid = true;
         for point in args.chunks_exact(arity) {
             let row = &mut self.args[..arity];
             row.copy_from_slice(point);
-            snap_onshell(row, invariants);
+            if let Some(threshold) = self.onshell_threshold {
+                snap_onshell(row, invariants, threshold);
+            }
             valid &= Self::row_is_valid(row, invariants);
             self.batch_input
                 .extend(row.iter().map(|z| z.to_symbolica()));
@@ -152,10 +189,12 @@ impl OneLoopNativeMasters {
         valid
     }
 
-    /// Copy and threshold the arguments of one row.
+    /// Copy the arguments of one row and threshold them if a threshold is set.
     fn stage(&mut self, args: &[C64], invariants: usize) {
         self.args[..args.len()].copy_from_slice(args);
-        snap_onshell(&mut self.args[..args.len()], invariants);
+        if let Some(threshold) = self.onshell_threshold {
+            snap_onshell(&mut self.args[..args.len()], invariants, threshold);
+        }
         self.input.clear();
         self.input
             .extend(self.args[..args.len()].iter().map(|z| z.to_symbolica()));
