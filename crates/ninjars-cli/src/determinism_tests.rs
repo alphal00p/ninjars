@@ -134,7 +134,8 @@ fn templates_do_not_depend_on_process_history() {
     let stdout = String::from_utf8_lossy(&output.stdout);
     let reference: Vec<String> = stdout
         .lines()
-        .find_map(|line| line.strip_prefix("BITS "))
+        // libtest may print the child's output on its "test ... " line.
+        .find_map(|line| line.split_once("BITS ").map(|(_, bits)| bits))
         .unwrap_or_else(|| {
             panic!(
                 "child failed: {stdout}{}",
