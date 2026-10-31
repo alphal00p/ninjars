@@ -106,7 +106,8 @@ mod tests {
 
     #[test]
     fn ordering_is_a_bijection_matching_ten_build() {
-        for rank in 0..=8 {
+        // Up to rank n+2 at n = 10 propagators.
+        for rank in 0..=12 {
             let monomials = monomials(rank);
             assert_eq!(monomials.len(), ncoeff(rank));
             for (index, &m) in monomials.iter().enumerate() {

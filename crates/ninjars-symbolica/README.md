@@ -73,6 +73,17 @@ for the last attempt and call `reset()` or `reset_batch(lanes)` to clear results
 Dual carriers; supported integrated derivatives remain limited by the master
 provider's validated domains.
 
+Nothing in either engine is sized by n. `tests/any_n.rs` covers n = 7, 8 and 10
+with sparse numerators. `tests/n_point.rs` covers n = 8 and 9 with dense tensor
+numerators (every coefficient non-zero) up to rank n+1: the fast engine, in
+both propagator orders, is within 1e-6 (rank n) and 1e-5 (rank n+1) of the
+exact DoubleFloat reduction with the same binary64 masters, and DoubleFloat is
+within 1e-20 of Float(128). Pinch identities, an n-point numerator `D_{n-1} T`
+against the (n-1)-point reduction of `T`, hold up to n = 10. Rank n+2 is only
+reported, in an ignored test: some of its points are ill-conditioned, and
+since the fast engine has no cancellation test, its `FastStatus::Success` is
+no accuracy claim there. The reversed propagator order flags such lanes.
+
 For four or more propagators, use `evaluate_batch_with_high_cuts` with a
 `SymbolicaHighCuts` provider and one nonzero mu-squared sampling scale per lane.
 The scale should be comparable to the largest squared mass or invariant.
