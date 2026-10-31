@@ -617,8 +617,8 @@ fn dense(n: usize, rank: usize) -> Vec<Errors> {
 
 /// (b)-(d) at ranks n and n+1. Binary64 loses digits with the rank and the
 /// number of uncut lines: on these points the largest errors are 1.0e-7 at
-/// rank n and 3.3e-6 at rank n+1 (n = 9, reversed order), about a tenth of
-/// the bounds. DoubleFloat agrees with Float(128) to about 1e-24.
+/// rank n and 3.3e-6 at rank n+1 (n = 8 and n = 9 respectively, reversed
+/// order), three to ten times below the bounds. DoubleFloat agrees with Float(128) to about 1e-24.
 fn dense_up_to_n_plus_1(n: usize) {
     for rank in [n, n + 1] {
         let bound = if rank == n { 1e-6 } else { 1e-5 };
