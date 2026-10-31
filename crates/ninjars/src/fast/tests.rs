@@ -656,6 +656,84 @@ fn orthogonal_cut_momenta_keep_the_basis_normalization() {
     assert!((e34.re + e.mp12).abs() <= 1e-12 * exact.abs() && e34.im.abs() <= 1e-12);
 }
 
+/// Light-like momenta near the `z` axis. Ninja's spinors took the axis spinor
+/// within `INFRARED_EPS` of an axis (dropping the transverse momentum) and
+/// divided by a cancelling `p⁰ + p³` near `-z`; a beam along `-z` reached as a
+/// difference of sums of momenta has a rounding residue there, which is above
+/// `INFRARED_EPS` once the energies are large. The basis relations hold to
+/// rounding (relative to the vectors' components) at every angle, energy sign
+/// and scale; with Ninja's spinors 205 of these 432 checks failed, by up to
+/// 4.4e-4 (9.4e15 for the beam along `-z` reached as a difference at
+/// `E = 4e8`).
+#[test]
+fn bases_near_the_z_axis_are_massless_and_orthogonal() {
+    let norm = |v: &CMom| v.iter().map(|z| z.norm_sqr()).sum::<f64>().sqrt();
+    let worst = |e: &Basis| {
+        let real = |v: &RMom| v.map(C64::real);
+        let vectors = [real(&e.e1), real(&e.e2), e.e3, e.e4];
+        let mut worst = 0f64;
+        for i in 0..4 {
+            for j in i..4 {
+                let expected = match (i, j) {
+                    (0, 1) => e.mp12,
+                    (2, 3) => -e.mp12,
+                    _ => 0.,
+                };
+                let (a, b) = (&vectors[i], &vectors[j]);
+                let error = (mp_cc(a, b) - expected).abs() / (norm(a) * norm(b));
+                worst = worst.max(error);
+            }
+        }
+        worst
+    };
+    let eps = FastOptions::default().infrared_eps;
+    let mut rng = Rng(17);
+    let mut failures = Vec::new();
+    let mut check = |label: String, k: RMom, other: RMom| {
+        for (name, e) in [
+            ("single", Basis::from_single(&k, eps)),
+            ("pair", Basis::from_pair(&k, &other, eps)),
+            ("reversed pair", Basis::from_pair(&other, &k, eps)),
+        ] {
+            let error = worst(&e);
+            if !(error < 1e-13) {
+                failures.push(format!("{label}, {name}: {error:e}"));
+            }
+        }
+    };
+    // (label, sign of p⁰, sign of p³): near +z and -z, and their negatives.
+    let axes = [
+        ("+z", 1., 1.),
+        ("-z", 1., -1.),
+        ("-(+z)", -1., -1.),
+        ("-(-z)", -1., 1.),
+    ];
+    let phi = 0.7_f64;
+    for theta in [0_f64, 1e-9, 1e-8, 1e-6, 1e-5, 1e-3, 0.1] {
+        for energy in [1e-3, 1., 500., 4e8] {
+            for (axis, sign, z) in axes {
+                let (s, c) = (theta.sin(), theta.cos());
+                let e = sign * energy;
+                let k = [e, e * s * phi.cos(), e * s * phi.sin(), z * energy * c];
+                let other = rng.rmom(energy);
+                check(format!("{axis} at {theta:e}, E = {energy:e}"), k, other);
+            }
+        }
+    }
+    // A beam along -z (and +z) reached as the difference of two sums.
+    for energy in [1., 500., 4e5, 4e8] {
+        for beam in [[energy, 0., 0., -energy], [energy, 0., 0., energy]] {
+            for i in 0..4 {
+                let q = rng.rmom(energy);
+                let k = sub(&[q[0] + beam[0], q[1], q[2], q[3] + beam[3]], &q);
+                let other = rng.rmom(energy);
+                check(format!("beam {beam:?} as a difference ({i})"), k, other);
+            }
+        }
+    }
+    assert!(failures.is_empty(), "{failures:#?}");
+}
+
 #[test]
 fn cut_solutions_are_on_shell() {
     let mut rng = Rng(9);

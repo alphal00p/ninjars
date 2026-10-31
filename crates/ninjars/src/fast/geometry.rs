@@ -60,28 +60,52 @@ fn signed_root(x: f64) -> C64 {
 }
 
 impl Spinor {
-    fn new(p: &RMom, eps: f64) -> Self {
+    /// The spinor of a light-like `p`, formed from its larger light-cone
+    /// component, with no threshold (`p± = p⁰ ± p³`, `p⊥ = p¹ + i p²`,
+    /// `p⊥ p⊥* = p⁺ p⁻`; signed roots, `√x = i √-x` for `x < 0`):
+    /// - on the `z` axis (`p⊥ = 0`), Ninja's axis spinors: `ap = bp = √(2p⁰)`
+    ///   if `|p⁺| ≥ |p⁻|`, otherwise `ame = bme = √(2p⁰)`, the others zero;
+    /// - for `|p⁺| ≥ |p⁻|`, Ninja's form: `ap = bp = √p⁺`, `ame = p⊥/√p⁺`,
+    ///   `bme = p⊥*/√p⁺`;
+    /// - otherwise the same spinor up to the phase `√p⁺ √p⁻ / p⊥`:
+    ///   `ame = bme = √p⁻`, `ap = p⊥*/√p⁻`, `bp = p⊥/√p⁻`.
+    ///
+    /// The component taken is never formed by cancellation. Ninja took the
+    /// axis spinors whenever `|p⁰ ∓ p³| < INFRARED_EPS` (absolute, in the
+    /// units of the inputs), which drops a transverse momentum of up to
+    /// `√(2 |p⁰| INFRARED_EPS)`, and `√p⁺` everywhere else, which near the
+    /// `-z` axis divides by a cancelling `p⁺`: for a beam along `-z` reached
+    /// as a difference of loop shifts, a rounding residue that is above
+    /// `INFRARED_EPS` once the energies are large in those units. Ninja's
+    /// bits are kept for `|p⁺| ≥ |p⁻|` outside those windows and on the `z`
+    /// axis inside them (except for `|p⁰| < INFRARED_EPS / 2` along `-z`,
+    /// where Ninja took the `+z` spinor).
+    fn new(p: &RMom) -> Self {
         let zero = C64::ZERO;
-        if (p[0] - p[3]).abs() < eps {
+        let plus = p[0] + p[3];
+        let minus = p[0] - p[3];
+        // On the z axis, and for p⁰ = p³ = 0 (the zero spinor), Ninja's
+        // axis spinors.
+        if (p[1] == 0. && p[2] == 0.) || (plus == 0. && minus == 0.) {
             let v = signed_root(2. * p[0]);
-            Self {
-                ap: v,
-                ame: zero,
-                bp: v,
-                bme: zero,
+            if plus.abs() >= minus.abs() {
+                Self {
+                    ap: v,
+                    ame: zero,
+                    bp: v,
+                    bme: zero,
+                }
+            } else {
+                Self {
+                    ap: zero,
+                    ame: v,
+                    bp: zero,
+                    bme: v,
+                }
             }
-        } else if (p[0] + p[3]).abs() < eps {
-            let v = signed_root(2. * p[0]);
-            Self {
-                ap: zero,
-                ame: v,
-                bp: zero,
-                bme: v,
-            }
-        } else {
+        } else if plus.abs() >= minus.abs() {
             // ap = sqrt(p+) is real or purely imaginary: divide by it with a
             // single real reciprocal.
-            let plus = p[0] + p[3];
             if plus < 0. {
                 let s = (-plus).sqrt();
                 let inv = 1. / s;
@@ -100,6 +124,25 @@ impl Spinor {
                     bp: C64::real(s),
                     bme: C64::new(p[1] * inv, -p[2] * inv),
                 }
+            }
+        } else if minus < 0. {
+            // The same with ame = sqrt(p-).
+            let s = (-minus).sqrt();
+            let inv = 1. / s;
+            Self {
+                ap: C64::new(-p[2] * inv, -p[1] * inv),
+                ame: C64::new(0., s),
+                bp: C64::new(p[2] * inv, -p[1] * inv),
+                bme: C64::new(0., s),
+            }
+        } else {
+            let s = minus.sqrt();
+            let inv = 1. / s;
+            Self {
+                ap: C64::new(p[1] * inv, -p[2] * inv),
+                ame: C64::real(s),
+                bp: C64::new(p[1] * inv, p[2] * inv),
+                bme: C64::real(s),
             }
         }
     }
@@ -179,7 +222,7 @@ impl Basis {
                 k1k2 / one_plus
             };
         }
-        Self::complete(e1, e2, r1, r2, mp12, eps)
+        Self::complete(e1, e2, r1, r2, mp12)
     }
 
     /// `Basis(k)`: `k = e1 + r1 e2` with a fixed massless reference `e2`.
@@ -199,12 +242,12 @@ impl Basis {
             r1 = 0.5 * kq / k1k2;
             e1 = sub(&e1, &scale(&k2, r1));
         }
-        Self::complete(e1, k2, r1, 0., k1k2, eps)
+        Self::complete(e1, k2, r1, 0., k1k2)
     }
 
-    fn complete(e1: RMom, e2: RMom, r1: f64, r2: f64, mp12: f64, eps: f64) -> Self {
-        let sp1 = Spinor::new(&e1, eps);
-        let sp2 = Spinor::new(&e2, eps);
+    fn complete(e1: RMom, e2: RMom, r1: f64, r2: f64, mp12: f64) -> Self {
+        let sp1 = Spinor::new(&e1);
+        let sp2 = Spinor::new(&e2);
         Self {
             e1,
             e2,

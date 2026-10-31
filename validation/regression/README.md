@@ -17,7 +17,8 @@ identity at rank <= n+1 is a regression convention, not a compatibility
 contract): it is re-blessed in place, in its own commit, with a written
 justification in History that quotes a symmetric error statistic against a
 high-precision truth, including the lanes that get worse. The fast engine's
-sections never move for such a change.
+sections never move for such a change. A deliberate accuracy change of the
+fast engine itself is treated the same way (History: the light-like spinors).
 
 | file | test | content |
 |---|---|---|
@@ -301,3 +302,50 @@ pass it bitwise.
   `Float` master results (`MasterFailure::ImpreciseResult`), change nothing
   in V0: its output at 2a7df0d equals the re-pin's (8a8bc55) bitwise, with no
   status change in `Float(256)`.
+
+- The fast engine's light-like spinors (`crates/ninjars/src/fast/geometry.rs`
+  `Spinor`, `fast/bases_x2.rs` `SpinorX2`) are now formed from the larger
+  light-cone component, with no threshold (commit "fast: light-like spinors
+  from the larger light-cone component"). Ninja's form took the spinor of the
+  beam axis within the absolute `INFRARED_EPS` of `p⁰ = ±p³`, dropping the
+  transverse momentum, and elsewhere divided by `√(p⁰ + p³)`, formed by
+  cancellation near the `-z` axis. Ninja's spinor bits are kept for
+  `|p⁰ + p³| ≥ |p⁰ - p³|` outside those windows and on the `z` axis inside
+  them; elsewhere the spinor is the same up to a phase, which every basis
+  relation and result is invariant under, so results move by rounding, and
+  by Ninja's error where its spinors were inaccurate. This is a deliberate
+  accuracy change of the fast engine, so its sections were re-blessed in place
+  in their own commit; V0p is unchanged (no exact plan changed).
+  - **Justification: a symmetric statistic.** `examples/fast_precision.rs`
+    (the fast engine with original Ninja's recorded masters against the
+    generic engine in `Float(256)` with the same masters, so only the
+    reduction is compared) on every case of this fixture with a truth (194
+    lanes; the `edge-unstable-n4-*` cases have none), errors clamped at
+    1e-16, ratios after/before: the error moves on 187 lanes, 140 better and
+    47 worse, 23 more than ten times better and none more than ten times
+    worse; geometric mean 0.150; median 2.3e-14 -> 7.4e-15, 99th percentile
+    6.3e-8 -> 3.0e-8, largest 4.9e-5 -> 2.4e-6 (`syn-gghhh-ggHHH-n5-r5`
+    lane 1, the cancelling lane next to the box with normalised Gram
+    determinant 8.2e-8). The largest gains are the `p² = ±0.01` lanes of
+    `edge-small-p2-n2-r{1,2,3}`, 5.6e-9 to 6.3e-8 before and at most 6.6e-11
+    after (at most 5.7e-16 at ranks 1 and 2): the light-like `e1` of their
+    bubble basis has `p⁰ - p³ = 4e-13`, inside the window, which dropped its
+    transverse momentum of 1.3e-5; original Ninja's recorded results are off
+    by the same amounts. The largest loss is 4.1 times
+    (`gg-hhh-top-box-8` `sqrt_s_450` 3.6e-15 -> 1.5e-14); the six lanes that
+    get worse and end above 1e-13 lose at most 1.43 times
+    (`syn-gghhh-ggHHH-n5-r4` lane 1 4.3e-12 -> 6.2e-12; `syn-n6-r5` lane 0
+    2.8e-8 -> 3.0e-8).
+  - **Fixture changes**, as scaled differences against the previous fixture:
+    - fast engine with `TensorNumerator`: 221 of 237 width-1 lanes (63 of 66
+      cases) and 1931 of 2112 width-32 entries, median 3.0e-14 (width 1).
+      The largest is 3.1e-3 on `syn-n6-r6` lane 0, whose cut-constructible
+      and rational parts (4.0e-7) cancel to 5.8e-17: the change is 4.5e-13
+      of the parts. Next are 3.2e-4 on `syn-gghhh-ggHHH-n5-r5` lane 1 (both
+      copies) and 1.7e-7 on `syn-n6-r7` lane 2;
+    - explicit-`mu²` fast sections (`GenericNumerator`, `MuTensorNumerator`):
+      all 26 lanes of each (9 cases), median 5.9e-14 and 6.4e-14, at most
+      2.1e-6 and 1.6e-6 (`syn-n6-r7` lane 2);
+    - generic engine in binary64 (with and without explicit `mu²`) and in
+      `Float(256)`: unchanged;
+    - no lane status changed.

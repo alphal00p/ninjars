@@ -50,7 +50,7 @@ pub struct FastOptions {
     /// performs the full reduction.
     pub cut_stop: usize,
     /// Ninja's `INFRARED_EPS` (`1e-9`): massless-momentum threshold of the
-    /// cut bases and spinors, and of the scaleless-bubble skip rule.
+    /// cut bases and of the scaleless-bubble skip rule.
     pub infrared_eps: f64,
     /// Ninja's floating-point stability threshold (`REAL_MIN = 1e20 *
     /// DBL_MIN`): a Gram determinant, uncut denominator or expansion leading
