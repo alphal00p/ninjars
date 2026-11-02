@@ -208,6 +208,8 @@ impl<T: SingleFloat> Walk<'_, T> {
 /// and the dense rank-`rank` tensor `coefficients` (`binomial(rank + 4, 4)`,
 /// [`super::tensor_layout`]). Zero unless `rank + 4 ≥ 2n`. Computed at the
 /// largest binary precision of the inputs ([`TensorUvResidues::residue`]).
+/// Panics for `rank > n + 13` ([`TensorUvResidues::new`]) and on slices of
+/// the wrong length.
 pub fn tensor_uv_residue<T: SingleFloat>(
     n: usize,
     rank: usize,
@@ -248,8 +250,17 @@ pub struct TensorUvResidues {
 }
 
 impl TensorUvResidues {
+    /// The tables for `n` propagators and rank `rank`. Panics for a divergent
+    /// shape with `rank > n + 13`: its walk reaches degree `2 rank − 2n + 4 >
+    /// 30`, where the exact `i64` angular denominator `2^k (k+1)!` overflows
+    /// (the fast engine's ranks are at most `n + 2`).
     pub fn new(n: usize, rank: usize) -> Self {
         let divergent = rank + 4 >= 2 * n;
+        assert!(
+            !divergent || rank <= n + 13,
+            "tensor_uv: rank {rank} > n + 13 = {} exceeds the exact i64 angular weights",
+            n + 13
+        );
         Self {
             n,
             rank,
@@ -457,6 +468,49 @@ mod tests {
             let expected = if rank % 2 == 0 { 1. } else { -1. } / (rank + 1) as f64;
             assert!((got.re - expected).abs() < 1e-14, "rank {rank}: {got:?}");
         }
+    }
+
+    /// `((q + V)²)^s` as a dense rank-`2s` tensor.
+    fn shifted_square_power(s: usize, v: [f64; 4]) -> Vec<Complex<f64>> {
+        let g = [1., -1., -1., -1.];
+        let mut factor = vec![([0u32; 4], (0..4).map(|mu| g[mu] * v[mu] * v[mu]).sum())];
+        for mu in 0..4 {
+            let mut e = [0u32; 4];
+            e[mu] = 1;
+            factor.push((e, 2. * g[mu] * v[mu]));
+            e[mu] = 2;
+            factor.push((e, g[mu]));
+        }
+        let mut power = vec![1.];
+        for k in 0..s {
+            let mut next = vec![0.; ncoeff(2 * k + 2)];
+            for (m, value) in monomials(2 * k).into_iter().zip(&power) {
+                for &(f, x) in &factor {
+                    next[monomial_index(std::array::from_fn(|mu| m[mu] + f[mu]))] += value * x;
+                }
+            }
+            power = next;
+        }
+        power.into_iter().map(c).collect()
+    }
+
+    #[test]
+    fn largest_supported_rank_is_exact() {
+        // ∫ ((q + V)²)^7 / ((q + V)² − m²) = ∫ (q²)^7 / (q² − m²): the
+        // residue (m²)^8 at rank 14 = n + 13, whose walk reaches the
+        // degree-30 averages (denominator 2^15 16!).
+        let (v, m2) = ([1., 0., 0., 0.], 1.5_f64);
+        let numerator = shifted_square_power(7, v);
+        let got = tensor_uv_residue(1, 14, &v.map(c), &[c(m2)], &numerator);
+        let expected = m2.powi(8);
+        assert!((got.re - expected).abs() < 1e-10 * expected, "{got:?}");
+    }
+
+    #[test]
+    #[should_panic(expected = "n + 13")]
+    fn ranks_beyond_the_exact_weights_panic() {
+        // Rank 15 = n + 14 would reach 2^16 17!, beyond i64.
+        let _ = TensorUvResidues::new(1, 15);
     }
 
     #[test]
