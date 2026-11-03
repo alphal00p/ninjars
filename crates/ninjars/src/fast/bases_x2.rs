@@ -91,26 +91,33 @@ struct SpinorX2 {
 }
 
 impl SpinorX2 {
-    fn new(p: &RMom, eps: f64) -> Self {
+    /// `geometry.rs` `Spinor::new`: from the larger light-cone component.
+    fn new(p: &RMom) -> Self {
         let zero = C64::ZERO;
-        if (p[0] - p[3]).abs() < eps {
+        let plus = p[0] + p[3];
+        let minus = p[0] - p[3];
+        // On the z axis, and for p⁰ = p³ = 0 (the zero spinor), Ninja's
+        // axis spinors.
+        if (p[1] == 0. && p[2] == 0.) || (plus == 0. && minus == 0.) {
             let v = signed_root(2. * p[0]);
-            Self {
-                ap: v,
-                ame: zero,
-                bp: v,
-                bme: zero,
+            if plus.abs() >= minus.abs() {
+                Self {
+                    ap: v,
+                    ame: zero,
+                    bp: v,
+                    bme: zero,
+                }
+            } else {
+                Self {
+                    ap: zero,
+                    ame: v,
+                    bp: zero,
+                    bme: v,
+                }
             }
-        } else if (p[0] + p[3]).abs() < eps {
-            let v = signed_root(2. * p[0]);
-            Self {
-                ap: zero,
-                ame: v,
-                bp: zero,
-                bme: v,
-            }
-        } else {
-            let plus = p[0] + p[3];
+        } else if plus.abs() >= minus.abs() {
+            // ap = sqrt(p+) is real or purely imaginary: divide by it with a
+            // single real reciprocal.
             if plus < 0. {
                 let s = (-plus).sqrt();
                 let inv = 1. / s;
@@ -130,6 +137,25 @@ impl SpinorX2 {
                     bme: C64::new(p[1] * inv, -p[2] * inv),
                 }
             }
+        } else if minus < 0. {
+            // The same with ame = sqrt(p-).
+            let s = (-minus).sqrt();
+            let inv = 1. / s;
+            Self {
+                ap: C64::new(-p[2] * inv, -p[1] * inv),
+                ame: C64::new(0., s),
+                bp: C64::new(p[2] * inv, -p[1] * inv),
+                bme: C64::new(0., s),
+            }
+        } else {
+            let s = minus.sqrt();
+            let inv = 1. / s;
+            Self {
+                ap: C64::new(p[1] * inv, -p[2] * inv),
+                ame: C64::real(s),
+                bp: C64::new(p[1] * inv, p[2] * inv),
+                bme: C64::real(s),
+            }
         }
     }
 }
@@ -148,9 +174,9 @@ fn momentum_from_spinors(i: &SpinorX2, j: &SpinorX2) -> CMom {
 
 /// `Basis::complete`: `e3 = <1|γ|2]/2` and `e4 = <2|γ|1]/2` of the real
 /// massless `e1`, `e2`.
-fn complete(e1: RMom, e2: RMom, r1: f64, r2: f64, mp12: f64, eps: f64) -> Basis {
-    let sp1 = SpinorX2::new(&e1, eps);
-    let sp2 = SpinorX2::new(&e2, eps);
+fn complete(e1: RMom, e2: RMom, r1: f64, r2: f64, mp12: f64) -> Basis {
+    let sp1 = SpinorX2::new(&e1);
+    let sp2 = SpinorX2::new(&e2);
     Basis {
         e1,
         e2,
@@ -174,7 +200,7 @@ fn bubble_basis(k: &RMom, r: &RMom, eps: f64) -> Basis {
         r1 = 0.5 * kq / k1k2;
         e1 = sub(&e1, &scale(r, r1));
     }
-    complete(e1, *r, r1, 0., k1k2, eps)
+    complete(e1, *r, r1, 0., k1k2)
 }
 
 /// Original Ninja's bubble reference for `k` (`Basis(k)`).
@@ -378,7 +404,7 @@ impl TadpoleBasesX2 {
             } else {
                 let (a, b, c, d) = PAIRS[i - 3];
                 let (e1, e2) = (null(a, b), null(c, d));
-                complete(e1, e2, 0., 0., mp_rr(&e1, &e2), eps)
+                complete(e1, e2, 0., 0., mp_rr(&e1, &e2))
             }
         });
         let inv1 = bases.map(|e| 1. / norm2(&e.e1).sqrt());

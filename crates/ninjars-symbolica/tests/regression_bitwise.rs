@@ -28,6 +28,8 @@
 //! provider's bubble-reference and tadpole-basis selection. The last re-bless,
 //! on the rank n+2 integration branch, took the two dependency re-pins as
 //! well; its fast sections equal those of main 0d0d7e7 with the same pins.
+//! The fast sections were then re-blessed in place for the fast engine's
+//! light-like spinors, formed from the larger light-cone component.
 //! See `validation/regression/README.md` (History) for every reviewed
 //! re-bless. The fast-engine, generic binary64 and explicit-`mu²` sections are
 //! deterministic (native masters, NinjaRS's positional evaluators) and are
@@ -572,7 +574,7 @@ fn compute() -> Value {
     eprintln!("V0 total {:.1}s", started.elapsed().as_secs_f64());
     json!({
         "format": "ninjars-regression-bitwise-v1",
-        "baseline": "claude/todo-next-integration 2a7df0d (NinjaRS main 0d0d7e7 at rank <= n+1 with the generic engine's native B0 and bubble/tadpole selection; first generated at e4c16a7, from main d53dd08), oneloopmaster 8ec256fc, Symbolica 9cdc2949",
+        "baseline": "claude/todo-next-integration 2a7df0d (NinjaRS main 0d0d7e7 at rank <= n+1 with the generic engine's native B0 and bubble/tadpole selection; first generated at e4c16a7, from main d53dd08; fast sections with the light-like spinors from the larger light-cone component), oneloopmaster 8ec256fc, Symbolica 9cdc2949",
         "description": "Bitwise outputs for numerator rank <= n+1: fast engine (TensorNumerator + OneLoopNativeMasters, widths 1 and 32; entries 'status:hex' of [laurent0..2, cut_constructible, rational] as (re,im) f64 bits, '=k' repeats width-1 entry k), generic f64 (PolynomialNumerator + OneLoopNativeMasters), explicit mu^2 numerators (fast via GenericNumerator and MuTensorNumerator, generic f64), generic Float(256) with SymbolicaMasters (decimal strings). Test: crates/ninjars-symbolica/tests/regression_bitwise.rs.",
         "fast_tensor": fast,
         "generic_f64": generic_f64,
