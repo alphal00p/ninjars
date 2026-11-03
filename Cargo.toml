@@ -28,7 +28,9 @@ oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "5b710
 linnet = { git = "https://github.com/alphal00p/gammaloop.git", rev = "d1904bf2bd5bf4f26969a73b415095e941a55610", default-features = false, features = ["serde"] }
 thiserror = "2"
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+# float_roundtrip: correctly rounded float parsing. The default parser reads
+# about 3% of shortest round-trip binary64 decimals one ulp off.
+serde_json = { version = "1", features = ["float_roundtrip"] }
 clap = { version = "4", features = ["derive"] }
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 
