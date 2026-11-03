@@ -51,6 +51,7 @@ pub mod tensor;
 mod tensor_jets;
 pub mod tensor_layout;
 pub mod tensor_mu;
+pub mod tensor_uv;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
@@ -67,6 +68,7 @@ pub use numerator::{FastNumerator, t2_len, t3_len};
 pub use replay::{RecordingMasters, RecordingNumerator, ReplayMasters, ReplayNumerator};
 pub use tensor::TensorNumerator;
 pub use tensor_mu::MuTensorNumerator;
+pub use tensor_uv::{TensorUvResidues, tensor_uv_residue};
 
 /// Lane-major numerical inputs of a fast-path evaluation.
 ///
