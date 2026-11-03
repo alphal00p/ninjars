@@ -10,6 +10,11 @@ number of propagators and numerator rank up to n+2 in every precision, with
 batched polynomial/Dual callbacks, both box mu-extraction modes, lower-cut
 subtraction, master integrals and lane-local accumulation. Rank n+2 goes one
 beyond original Ninja, which stops at n+1; see [rank n+2](docs/rank-n2.md).
+Nothing is sized by n: eight and nine propagators are validated on dense
+tensors up to rank n+1, and pinch identities up to ten propagators
+(`crates/ninjars-symbolica/tests/n_point.rs`). At rank n+2 beyond seven
+propagators, binary64 loses every digit on some points, and the fast engine
+still reports success on them.
 Analytic and original Ninja controls validate an initial synthetic suite.
 Independent FeynKit preparation also matches raw MadLoop numerators for both
 top-quark H→gg orientations, six four-photon boxes and eight gg→HH graphs.

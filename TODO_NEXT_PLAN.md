@@ -228,7 +228,10 @@ track the tail"; `STATUS.md`, "Adversarial sweeps and the remaining tail
   n+2 misses at about 5e-13, `rn2-exact-mu-n4-r6-perm` lanes 1, 5, 6).
 - **Cancellation flag**, like the generic `--stability-test`: on the final
   review's fresh lanes, the 21 lanes above 1e-6 in binary64 all have cut
-  contributions cancelling by 3e6 or more.
+  contributions cancelling by 3e6 or more. At n = 8, rank n+2, two lanes of
+  `tests/n_point.rs` (`dense_tensors_rank_n_plus_2_report`) are off by 5e2
+  and 5e1 times the amplitude with `FastStatus::Success`; the reversed
+  propagator order differs by about 2.5 there.
 - **Rank n+2 speed**: the dense tensor expansions (`t3_expansion_x2`,
   `t2_expansion_x2`) take a median 64–76 % of the fast engine's time per n.
 - **Tadpole scoring on light-like equal-mass kinematics** picks a basis 64

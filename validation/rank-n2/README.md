@@ -474,8 +474,10 @@ lane scale; V6 requires tier A on its left-hand sides, which all n = 7 ones are.
 
 ## n = 7 (S5b)
 
-The user's practical range is n <= 7, so S5b extends the suite by one multiplicity with the
-same generators and pipeline.
+S5b extends the suite by one multiplicity with the same generators and pipeline. The suite
+stops at n = 7. Eight and nine propagators (pinch identities up to ten) are checked without
+an external reference in `crates/ninjars-symbolica/tests/n_point.rs`; there rank n+2 is
+reported only, since binary64 loses every digit on some of its points.
 
 - **Kinematics.** `gen_suite.py` appends the specs `int` (real, complex, mixed masses) and
   `shifted` (mixed) at n = 7, after every earlier spec, so every existing case is regenerated
