@@ -2208,3 +2208,32 @@ impl Engines {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn bench_case_reads_binary64_inputs_exactly() {
+        // Shortest round-trip decimals that serde_json's default float parser
+        // (without `float_roundtrip`) reads one ulp off, from random 1 TeV
+        // phase-space points.
+        let x = [
+            250.68280409344726_f64,
+            455.32222202908076,
+            -106.51042640074759,
+            249.49630826847826,
+            -232.95945854705062,
+        ];
+        let text = format!(
+            r#"{{"format":"ninjars-bench-case-v1","name":"t","n":1,"rank":0,"lanes":[{{"id":"l","shifts":[[{:?},{:?},{:?},{:?}]],"masses_squared":[[{:?},0.0]],"mu_squared":1.0,"tensor":[[1.0,0.0]]}}]}}"#,
+            x[0], x[1], x[2], x[3], x[4]
+        );
+        let case = BenchCase::parse(&text, Path::new("t.json")).unwrap();
+        let lane = &case.lanes[0];
+        for (read, expected) in lane.shifts[0].iter().zip(&x[..4]) {
+            assert_eq!(read.to_bits(), expected.to_bits(), "{read:?} != {expected:?}");
+        }
+        assert_eq!(lane.masses[0].re.to_bits(), x[4].to_bits());
+    }
+}

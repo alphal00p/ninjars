@@ -367,8 +367,8 @@ fn pinch(n: usize, rank: usize) -> Vec<(FastStatus, FastStatus, f64)> {
         .collect()
 }
 
-/// Asserted up to rank n+1, where the largest error is 4.5e-8 (n = 9, rank
-/// 10). Rank n+2 is printed only (up to 2.9e-5 at n = 8).
+/// Asserted up to rank n+1, where the largest error is 6.4e-8 (n = 10, rank
+/// 11). Rank n+2 is printed only (up to 2.9e-5 at n = 8).
 #[test]
 fn pinch_identities_n8_to_n10() {
     for n in [8, 9, 10] {
@@ -616,9 +616,9 @@ fn dense(n: usize, rank: usize) -> Vec<Errors> {
 }
 
 /// (b)-(d) at ranks n and n+1. Binary64 loses digits with the rank and the
-/// number of uncut lines: on these points the largest errors are 1.0e-7 at
-/// rank n and 3.3e-6 at rank n+1 (n = 8 and n = 9 respectively, reversed
-/// order), three to ten times below the bounds. DoubleFloat agrees with Float(128) to about 1e-24.
+/// number of uncut lines: on these points the largest errors are 3.7e-8 at
+/// rank n and 3.2e-6 at rank n+1 (both at n = 9, in the reversed order), 27
+/// and 3 times below the bounds. DoubleFloat agrees with Float(128) to about 1e-24.
 fn dense_up_to_n_plus_1(n: usize) {
     for rank in [n, n + 1] {
         let bound = if rank == n { 1e-6 } else { 1e-5 };
