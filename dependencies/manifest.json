@@ -9,11 +9,11 @@
       "patches": [
         {
           "path": "dependencies/patches/symbolica-batch-dual.patch",
-          "sha256": "f0cc7411b573413ababb092b2f360037b47ddd23290990e858bc2044ca74bd68"
+          "sha256": "79fff9b36d236a1286d754b0d527550395c55bf5b8b1c5c761ec2dbf05ca5db7"
         }
       ],
       "patched_revisions": [
-        "a558dfaed8f198dfc4c3652dfb9fe0f7c65b0505"
+        "ab497fae22c5a5e3f33ce77adfa11bb37fa5fca0"
       ]
     },
     {
@@ -27,7 +27,7 @@
       "name": "oneloopmaster",
       "path": "references/oneloopmaster",
       "url": "https://github.com/alphal00p/oneloopmaster.git",
-      "revision": "79f4c01e54557669bdb9e6251d164f93714ac6e1"
+      "revision": "31fd92251d0b33b3127106671ff607c63e4fe0af"
     },
     {
       "name": "ninja-reference",

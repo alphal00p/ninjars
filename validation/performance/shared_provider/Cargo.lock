@@ -1147,7 +1147,7 @@ dependencies = [
 [[package]]
 name = "graphica"
 version = "3.0.1"
-source = "git+https://github.com/ValentinHirschi/symbolica.git?rev=a558dfaed8f198dfc4c3652dfb9fe0f7c65b0505#a558dfaed8f198dfc4c3652dfb9fe0f7c65b0505"
+source = "git+https://github.com/ValentinHirschi/symbolica.git?rev=ab497fae22c5a5e3f33ce77adfa11bb37fa5fca0#ab497fae22c5a5e3f33ce77adfa11bb37fa5fca0"
 dependencies = [
  "ahash",
  "dyn-clone",
@@ -1701,7 +1701,7 @@ dependencies = [
 [[package]]
 name = "numerica"
 version = "3.0.2"
-source = "git+https://github.com/ValentinHirschi/symbolica.git?rev=a558dfaed8f198dfc4c3652dfb9fe0f7c65b0505#a558dfaed8f198dfc4c3652dfb9fe0f7c65b0505"
+source = "git+https://github.com/ValentinHirschi/symbolica.git?rev=ab497fae22c5a5e3f33ce77adfa11bb37fa5fca0#ab497fae22c5a5e3f33ce77adfa11bb37fa5fca0"
 dependencies = [
  "ahash",
  "astro-float",
@@ -1740,7 +1740,7 @@ checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
 [[package]]
 name = "oneloop"
 version = "0.1.0"
-source = "git+https://github.com/alphal00p/oneloopmaster.git?rev=79f4c01e54557669bdb9e6251d164f93714ac6e1#79f4c01e54557669bdb9e6251d164f93714ac6e1"
+source = "git+https://github.com/alphal00p/oneloopmaster.git?rev=31fd92251d0b33b3127106671ff607c63e4fe0af#31fd92251d0b33b3127106671ff607c63e4fe0af"
 dependencies = [
  "bincode",
  "symbolica",
@@ -2481,7 +2481,7 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 [[package]]
 name = "symbolica"
 version = "3.0.2"
-source = "git+https://github.com/ValentinHirschi/symbolica.git?rev=a558dfaed8f198dfc4c3652dfb9fe0f7c65b0505#a558dfaed8f198dfc4c3652dfb9fe0f7c65b0505"
+source = "git+https://github.com/ValentinHirschi/symbolica.git?rev=ab497fae22c5a5e3f33ce77adfa11bb37fa5fca0#ab497fae22c5a5e3f33ce77adfa11bb37fa5fca0"
 dependencies = [
  "ahash",
  "append-only-vec",
