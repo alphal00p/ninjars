@@ -739,7 +739,7 @@ dependencies = [
 [[package]]
 name = "dot-parser"
 version = "0.5.1"
-source = "git+https://github.com/alphal00p/gammaloop.git?rev=d1904bf2bd5bf4f26969a73b415095e941a55610#d1904bf2bd5bf4f26969a73b415095e941a55610"
+source = "git+https://github.com/alphal00p/gammaloop.git?rev=4b8569c03f7498b13482bc954953e66f6de5ffc1#4b8569c03f7498b13482bc954953e66f6de5ffc1"
 dependencies = [
  "either",
  "pest",
@@ -865,7 +865,7 @@ dependencies = [
 [[package]]
 name = "feynkit-kinematics"
 version = "0.1.0"
-source = "git+https://github.com/alphal00p/gammaloop.git?rev=d1904bf2bd5bf4f26969a73b415095e941a55610#d1904bf2bd5bf4f26969a73b415095e941a55610"
+source = "git+https://github.com/alphal00p/gammaloop.git?rev=4b8569c03f7498b13482bc954953e66f6de5ffc1#4b8569c03f7498b13482bc954953e66f6de5ffc1"
 dependencies = [
  "linnet",
  "numerica",
@@ -938,7 +938,7 @@ dependencies = [
 [[package]]
 name = "gammaloop-workspace-hack"
 version = "0.1.0"
-source = "git+https://github.com/alphal00p/gammaloop.git?rev=d1904bf2bd5bf4f26969a73b415095e941a55610#d1904bf2bd5bf4f26969a73b415095e941a55610"
+source = "git+https://github.com/alphal00p/gammaloop.git?rev=4b8569c03f7498b13482bc954953e66f6de5ffc1#4b8569c03f7498b13482bc954953e66f6de5ffc1"
 dependencies = [
  "ahash",
  "arrayvec",
@@ -1144,7 +1144,7 @@ version = "0.1.0"
 dependencies = [
  "ninjars",
  "ninjars-symbolica",
- "oneloop",
+ "oneloop 0.1.0 (git+https://github.com/alphal00p/oneloopmaster.git?rev=8ec256fc26cb361b20e10f59c19beb35717ef32c)",
  "serde_json",
  "symbolica",
 ]
@@ -1294,7 +1294,7 @@ dependencies = [
 [[package]]
 name = "linnet"
 version = "0.17.0"
-source = "git+https://github.com/alphal00p/gammaloop.git?rev=d1904bf2bd5bf4f26969a73b415095e941a55610#d1904bf2bd5bf4f26969a73b415095e941a55610"
+source = "git+https://github.com/alphal00p/gammaloop.git?rev=4b8569c03f7498b13482bc954953e66f6de5ffc1#4b8569c03f7498b13482bc954953e66f6de5ffc1"
 dependencies = [
  "ahash",
  "bincode",
@@ -1450,7 +1450,7 @@ version = "0.1.0"
 dependencies = [
  "ninjars",
  "ninjars-positional",
- "oneloop",
+ "oneloop 0.1.0 (git+https://github.com/alphal00p/oneloopmaster.git?rev=5b710437ada83cbc6e8c6d51e56f7d6ee6a0edb5)",
  "symbolica",
  "symbolica-utils",
 ]
@@ -1584,6 +1584,16 @@ name = "once_cell_polyfill"
 version = "1.70.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
+
+[[package]]
+name = "oneloop"
+version = "0.1.0"
+source = "git+https://github.com/alphal00p/oneloopmaster.git?rev=5b710437ada83cbc6e8c6d51e56f7d6ee6a0edb5#5b710437ada83cbc6e8c6d51e56f7d6ee6a0edb5"
+dependencies = [
+ "bincode",
+ "symbolica",
+ "symjit",
+]
 
 [[package]]
 name = "oneloop"
@@ -2237,7 +2247,7 @@ checksum = "02ef091d4e8b981dbaa4cc17789d00b53d5d2c001ae689f14e6093f30c529036"
 [[package]]
 name = "spenso"
 version = "0.6.0"
-source = "git+https://github.com/alphal00p/gammaloop.git?rev=d1904bf2bd5bf4f26969a73b415095e941a55610#d1904bf2bd5bf4f26969a73b415095e941a55610"
+source = "git+https://github.com/alphal00p/gammaloop.git?rev=4b8569c03f7498b13482bc954953e66f6de5ffc1#4b8569c03f7498b13482bc954953e66f6de5ffc1"
 dependencies = [
  "ahash",
  "append-only-vec",
@@ -2280,7 +2290,7 @@ dependencies = [
 [[package]]
 name = "spenso-macros"
 version = "0.3.2"
-source = "git+https://github.com/alphal00p/gammaloop.git?rev=d1904bf2bd5bf4f26969a73b415095e941a55610#d1904bf2bd5bf4f26969a73b415095e941a55610"
+source = "git+https://github.com/alphal00p/gammaloop.git?rev=4b8569c03f7498b13482bc954953e66f6de5ffc1#4b8569c03f7498b13482bc954953e66f6de5ffc1"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2360,7 +2370,7 @@ dependencies = [
 [[package]]
 name = "symbolica-utils"
 version = "0.1.0"
-source = "git+https://github.com/alphal00p/gammaloop.git?rev=d1904bf2bd5bf4f26969a73b415095e941a55610#d1904bf2bd5bf4f26969a73b415095e941a55610"
+source = "git+https://github.com/alphal00p/gammaloop.git?rev=4b8569c03f7498b13482bc954953e66f6de5ffc1#4b8569c03f7498b13482bc954953e66f6de5ffc1"
 dependencies = [
  "bincode",
  "bincode-trait-derive",
