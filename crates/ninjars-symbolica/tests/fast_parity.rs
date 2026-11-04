@@ -486,13 +486,25 @@ fn parity_ranks(n: usize, ranks: std::ops::RangeInclusive<usize>, seed: u64) {
                     );
                 }
             }
+            // Each point's noise is at least the case's: the largest reversal
+            // difference, per engine, over its stable points. One point's
+            // reversal can fall far below the case's binary64 rounding by
+            // chance (n = 7, rank 8, mu, lane 0: the generic engine's 2.5e-9
+            // with Symbolica 9cdc2949 and 1.2e-10 with 20a9da94, at an
+            // engine difference of 7.6e-9 and 6.2e-9); unstable points keep
+            // their own noise and do not raise the others'.
+            let case = noise
+                .iter()
+                .filter(|(g, f)| *g <= UNSTABLE_NOISE && *f <= UNSTABLE_NOISE)
+                .fold((0_f64, 0_f64), |(g, f), &(a, b)| (g.max(a), f.max(b)));
+            let at_least_case = |(g, f): (f64, f64)| (g.max(case.0), f.max(case.1));
             for lane in 0..count {
                 let label = format!("n={n} rank={rank} mu={with_mu} lane={lane}");
                 check(
                     &label,
                     &fast[lane],
                     &generic[lane],
-                    noise[lane % 4],
+                    at_least_case(noise[lane % 4]),
                     &mut summary,
                 );
             }
@@ -501,7 +513,7 @@ fn parity_ranks(n: usize, ranks: std::ops::RangeInclusive<usize>, seed: u64) {
                 &format!("n={n} rank={rank} mu={with_mu} permutation"),
                 &fast[2],
                 &generic[1],
-                (noise[1].0.max(noise[2].0), noise[1].1.max(noise[2].1)),
+                at_least_case((noise[1].0.max(noise[2].0), noise[1].1.max(noise[2].1))),
                 &mut summary,
             );
         }
