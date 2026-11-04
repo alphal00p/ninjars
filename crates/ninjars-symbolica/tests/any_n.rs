@@ -895,6 +895,23 @@ where
     amplitude.results().to_vec()
 }
 
+/// The binary64 bound of [`derivatives`] for component `k` at dual `order`:
+/// 1e-9, except 2e-8 for the second-order dual of the explicit rational part
+/// (`k = 4`) from seven propagators on. That value's binary64 error depends
+/// on the evaluator's Horner scheme alone (n = 7, rank 8: 1.9e-10 with the
+/// scheme of Symbolica fork 9cdc2949, 0.8e-9..9e-9 with that fork's other
+/// schemes and with Symbolica 20a9da94, whose Horner search picks another
+/// one), and the rational part itself is only ~5e-9..9e-9 accurate at order
+/// 0 there, so 1e-9 was below the component's binary64 conditioning. The
+/// Float(200) bound stays 1e-40.
+fn binary64_bound(n: usize, k: usize, order: usize) -> f64 {
+    if n >= 7 && k == 4 && order == 2 {
+        2e-8
+    } else {
+        1e-9
+    }
+}
+
 /// (d) Dual derivatives against central finite differences of Float(512)
 /// evaluations. With step 2^-80, truncation is O(2^-160) and rounding at most
 /// O(2^-352) in the second difference, both far below the 1e-40 tolerance.
@@ -936,7 +953,7 @@ fn derivatives(n: usize, rank: usize) {
                 let error64 = distance(&dual64[lane][k].values[order], e) / scale;
                 let error200 = distance(&dual200[lane][k].values[order], e) / scale;
                 assert!(
-                    error64 <= 1e-9,
+                    error64 <= binary64_bound(n, k, order),
                     "n={n} rank={rank} lane={lane} component={k} order={order}: {error64:e}"
                 );
                 assert!(
