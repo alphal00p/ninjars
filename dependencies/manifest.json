@@ -5,15 +5,15 @@
       "name": "symbolica",
       "path": "references/symbolica",
       "url": "https://github.com/symbolica-dev/symbolica.git",
-      "revision": "c78cffc20f318df1fce50539a587cbe8ffc717c0",
+      "revision": "36cbac3a555d4b93b9601706f1d2f32629770ae6",
       "patches": [
         {
           "path": "dependencies/patches/symbolica-batch-dual.patch",
-          "sha256": "c8f55f66b0fac0f88a6dc3292790360f7071fc812a779d2cd19791491b5cb348"
+          "sha256": "e347cb4208584ce804ffbc3dd45c2e6afa8512cb371ff09abdcd05c05c23d431"
         }
       ],
       "patched_revisions": [
-        "9cdc2949cdb153478c1eca0d40690dc0abfc616e"
+        "20a9da94071d7dd64ea5cdd6ed9d6e8f8cefeacc"
       ]
     },
     {
@@ -27,7 +27,7 @@
       "name": "oneloopmaster",
       "path": "references/oneloopmaster",
       "url": "https://github.com/alphal00p/oneloopmaster.git",
-      "revision": "8ec256fc26cb361b20e10f59c19beb35717ef32c"
+      "revision": "128ea6645f2811e6179068b98731501292841409"
     },
     {
       "name": "ninja-reference",

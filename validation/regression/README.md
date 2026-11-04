@@ -349,3 +349,27 @@ pass it bitwise.
     - generic engine in binary64 (with and without explicit `mu²`) and in
       `Float(256)`: unchanged;
     - no lane status changed.
+
+- Re-pin on upstream Symbolica (branch `pyamplicol/symbolica-upstream`):
+  Symbolica 9cdc2949 (alphal00p fork) → 20a9da94
+  (ValentinHirschi/symbolica `loop_me_pyamplicol`, symbolica-dev/symbolica
+  `community` 36cbac3a plus the commits of symbolica-dev/symbolica#163) and
+  oneloopmaster 5b710437 → 128ea664 (the same Symbolica pin, no source
+  change). The V0 fixture was re-blessed in place; V0p is unchanged. The
+  evaluators Symbolica builds for the generic engine and for
+  `GenericNumerator`'s expansions get another operation order upstream (its
+  Horner search changed, 7b6d502b), so only those sections move, by rounding
+  of the same reductions. As scaled differences against the previous fixture:
+  - fast engine with `TensorNumerator` (widths 1 and 32, 2349 entries) and
+    with `MuTensorNumerator` (26 lanes): unchanged;
+  - fast `GenericNumerator`: 24 of 26 lanes, median 3.0e-14, at most 5.3e-7
+    (`syn-n6-r7` lane 2, which cancels; then 4.7e-9 on lane 1);
+  - generic engine in binary64: 214 of 237 lanes, median 2.9e-15. The
+    largest is 0.22 on `syn-n6-r6` lane 0, the lane binary64 cannot resolve
+    (see the cut-selection entry), then 7.2e-7 on `syn-gghhh-ggHHH-n5-r5`
+    lane 1 (both copies) and 5.3e-8 on `syn-n6-r5` lane 0;
+  - explicit-`mu²` numerators, generic binary64: 24 of 26 lanes, median
+    3.3e-14, at most 2.4e-8 (`syn-n6-r7` lane 2);
+  - generic `Float(256)`: 90 of 170 decimal components (15 of 17 lanes), at
+    most 7.3e-67 of the lane's largest component;
+  - no lane status changed.

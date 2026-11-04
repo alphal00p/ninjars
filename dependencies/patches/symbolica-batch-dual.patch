@@ -1,5 +1,5 @@
 diff --git a/lib/numerica/src/domains/dual.rs b/lib/numerica/src/domains/dual.rs
-index c64e08fe..36606d26 100644
+index c46fd3c5..d6772bd6 100644
 --- a/lib/numerica/src/domains/dual.rs
 +++ b/lib/numerica/src/domains/dual.rs
 @@ -367,6 +367,17 @@ pub trait DualNumberStructure {
@@ -37,17 +37,7 @@ index c64e08fe..36606d26 100644
          impl<T> $crate::domains::dual::DualNumberStructure for $t<T> {
              fn get_len(&self) -> usize {
                  self.values.len()
-@@ -872,6 +893,9 @@ macro_rules! create_hyperdual_from_components {
- 
-             #[inline]
-             fn pow(&self, e: u64) -> Self {
-+                if e == 0 {
-+                    return self.one();
-+                }
-                 // TODO: use binary exponentiation
-                 let mut res = self.clone();
-                 for _ in 1..e {
-@@ -1053,13 +1077,19 @@ macro_rules! create_hyperdual_from_components {
+@@ -1056,13 +1077,19 @@ macro_rules! create_hyperdual_from_components {
  
              #[inline(always)]
              fn norm(&self) -> Self {
@@ -72,7 +62,7 @@ index c64e08fe..36606d26 100644
              }
  
              #[inline(always)]
-@@ -1430,6 +1460,16 @@ impl<T: Default> HyperDual<T> {
+@@ -1433,6 +1460,16 @@ impl<T: Default> HyperDual<T> {
      }
  }
  
@@ -89,17 +79,7 @@ index c64e08fe..36606d26 100644
  impl<T> DualNumberStructure for HyperDual<T> {
      fn get_len(&self) -> usize {
          self.values.len()
-@@ -1963,6 +2003,9 @@ impl<T: FloatLike> FloatLike for HyperDual<T> {
- 
-     #[inline]
-     fn pow(&self, e: u64) -> Self {
-+        if e == 0 {
-+            return self.one();
-+        }
-         // TODO: use binary exponentiation
-         let mut res = self.clone();
-         for _ in 1..e {
-@@ -2142,13 +2185,16 @@ impl<T: Real> Real for HyperDual<T> {
+@@ -2148,13 +2185,16 @@ impl<T: Real> Real for HyperDual<T> {
  
      #[inline(always)]
      fn norm(&self) -> Self {
@@ -121,75 +101,11 @@ index c64e08fe..36606d26 100644
      }
  
      #[inline(always)]
-@@ -2385,6 +2431,128 @@ mod test {
+@@ -2391,6 +2431,64 @@ mod test {
  
      create_hyperdual_from_depths!(Dual, [1, 2, 3]);
      create_hyperdual_from_components!(ReorderedDual, [[0, 0], [0, 1], [1, 0]]);
 +    create_hyperdual_from_components!(NormDual, [[0, 0], [1, 0], [0, 1], [2, 0], [1, 1]]);
-+
-+    #[test]
-+    fn integer_powers_preserve_components_precision_and_shape() {
-+        use super::DualNumber;
-+        use crate::domains::float::{Complex, Float, SingleFloat};
-+
-+        fn check<T: Real + SingleFloat, D: Real + DualNumber<Complex<T>>>(
-+            prototype: &T,
-+            mut value: D,
-+        ) where
-+            Complex<T>: Real,
-+        {
-+            // i*(2+x+3y+5x²+7xy), stored as Taylor coefficients.
-+            for (power, imaginary, expected) in [
-+                (0, false, [1, 0, 0, 0, 0]),
-+                (1, true, [2, 1, 3, 5, 7]),
-+                (2, false, [-4, -4, -12, -21, -34]),
-+                (3, true, [-8, -12, -36, -66, -120]),
-+            ] {
-+                let result = value.pow(power);
-+                assert_eq!(result.get_shape(), value.get_shape());
-+                for (actual, expected) in result.values().iter().zip(expected) {
-+                    let number = prototype.from_i64(expected);
-+                    let expected = if imaginary {
-+                        Complex::new(prototype.zero(), number)
-+                    } else {
-+                        Complex::new(number, prototype.zero())
-+                    };
-+                    assert_eq!(actual, &expected);
-+                    assert_eq!(actual.re.get_precision(), prototype.get_precision());
-+                    assert_eq!(actual.im.get_precision(), prototype.get_precision());
-+                }
-+            }
-+            // A vanishing primal with nonzero derivatives still has power zero
-+            // equal to the multiplicative identity in the original shape.
-+            value.values_mut()[0] = Complex::new(prototype.zero(), prototype.zero());
-+            let result = value.pow(0);
-+            assert_eq!(result.get_shape(), value.get_shape());
-+            assert_eq!(result.values(), value.one().values());
-+        }
-+
-+        fn carriers<T: Real + SingleFloat>(prototype: T)
-+        where
-+            Complex<T>: Real,
-+        {
-+            let values =
-+                [2, 1, 3, 5, 7].map(|v| Complex::new(prototype.zero(), prototype.from_i64(v)));
-+            check(
-+                &prototype,
-+                NormDual {
-+                    values: values.clone(),
-+                },
-+            );
-+            check(
-+                &prototype,
-+                HyperDual::from_values(
-+                    vec![vec![0, 0], vec![1, 0], vec![0, 1], vec![2, 0], vec![1, 1]],
-+                    values.to_vec(),
-+                ),
-+            );
-+        }
-+        carriers(0.);
-+        carriers(Float::new(192));
-+    }
 +
 +    #[test]
 +    fn complex_norm_real_parameter_derivatives() {
@@ -248,9 +164,9 @@ index c64e08fe..36606d26 100644
 +        }
 +    }
  
-     #[test]
-     fn real_functions() {
-@@ -2460,6 +2628,25 @@ mod test {
+     create_hyperdual_from_components!(PowerDual, [[0, 0], [1, 0], [0, 1], [2, 0], [1, 1]]);
+ 
+@@ -2513,6 +2611,25 @@ mod test {
          assert_eq!(runtime_y.values, [3., 1., 0.]);
      }
  
@@ -276,241 +192,114 @@ index c64e08fe..36606d26 100644
      #[test]
      fn runtime_dual() {
          let x = HyperDual::<f64>::from_values(
-diff --git a/lib/numerica/src/domains/float/multiprecision.rs b/lib/numerica/src/domains/float/multiprecision.rs
-index 1ec944aa..9f775e3d 100644
---- a/lib/numerica/src/domains/float/multiprecision.rs
-+++ b/lib/numerica/src/domains/float/multiprecision.rs
-@@ -258,21 +258,60 @@ impl Sub<Float> for Float {
- impl Mul<&Float> for Float {
-     type Output = Self;
+diff --git a/src/api/python/evaluator.rs b/src/api/python/evaluator.rs
+index 525760ff..fd533fd6 100644
+--- a/src/api/python/evaluator.rs
++++ b/src/api/python/evaluator.rs
+@@ -5,10 +5,16 @@ use crate::state::StateMap;
+ // The final byte versions the state-aware evaluator envelope.
+ const SAVED_EVALUATOR_MAGIC: &[u8] = b"\xffSYMEVAL\x01";
  
-+    /// Multiply two floats. The exact product is rounded once, to the smaller
-+    /// precision, so that `a * b` equals `b * a`. A factor `±1` only sets the
-+    /// sign of the other factor, whatever their precisions: evaluators form
-+    /// `a - b` as `a + (-1) b`, and rounding `b` to the precision of the `-1`
-+    /// left `b - b` a nonzero residue.
-     #[inline]
--    fn mul(mut self, rhs: &Self) -> Self::Output {
-+    fn mul(self, rhs: &Self) -> Self::Output {
-+        if let Some(product) = unit_product(&self, rhs) {
-+            return product;
-+        }
-         if self.prec() > rhs.prec() {
--            self.set_prec(rhs.prec());
-+            return self
-+                .0
-+                .mul_round(&rhs.0, rhs.prec(), RoundingDirection::Nearest)
-+                .into();
-         }
- 
-         (self.0 * &rhs.0).into()
+-fn encode_saved_evaluator<T: bincode::Encode>(evaluator: T) -> PyResult<Vec<u8>> {
++// Only the state the evaluator references is saved, so that the bytes do not
++// depend on unrelated symbols, finite fields or variable lists of the process.
++fn encode_saved_evaluator<T: bincode::Encode>(
++    evaluator: T,
++    symbols: ahash::HashSet<Symbol>,
++) -> PyResult<Vec<u8>> {
+     let mut bytes = SAVED_EVALUATOR_MAGIC.to_vec();
+     bytes.push(u8::from(cfg!(feature = "native_code_generation")));
+-    State::export(&mut bytes).map_err(|error| exceptions::PyIOError::new_err(error.to_string()))?;
++    State::export_symbols(&mut bytes, symbols)
++        .map_err(|error| exceptions::PyIOError::new_err(error.to_string()))?;
+     bincode::encode_into_std_write(evaluator, &mut bytes, bincode::config::standard())
+         .map_err(|error| exceptions::PyIOError::new_err(error.to_string()))?;
+     Ok(bytes)
+@@ -298,6 +304,53 @@ mod tests {
+         })
+         .unwrap();
      }
- }
- 
-+/// Whether `x` is exactly `1` or `-1`.
-+#[inline]
-+fn is_unit(x: &Float) -> bool {
-+    // Only `±1` have exponent 1 (magnitude in [1, 2)) among the powers of two.
-+    x.0.get_exp() == Some(1) && (x.0 == 1. || x.0 == -1.)
-+}
 +
-+/// The product with a factor of exactly `±1`, which only sets the sign of the
-+/// other factor and keeps its precision; `None` when neither factor is `±1`.
-+#[inline]
-+fn unit_product(a: &Float, b: &Float) -> Option<Float> {
-+    let (unit, other) = if is_unit(b) {
-+        (b, a)
-+    } else if is_unit(a) {
-+        (a, b)
-+    } else {
-+        return None;
-+    };
-+    Some(if unit.0.is_sign_negative() {
-+        -other.clone()
-+    } else {
-+        other.clone()
-+    })
-+}
++    #[test]
++    fn python_evaluator_save_holds_only_the_state_it_references() {
++        let evaluator = parse!("x^2 + pi")
++            .evaluator(&[parse!("x")])
++            .build()
++            .unwrap();
++        let symbols = evaluator.referenced_symbols();
++        assert!(!symbols.is_empty());
++        let original = PythonExpressionEvaluator {
++            rational_constants: evaluator.get_constants().to_vec(),
++            eval_complex: evaluator.map_coeff(&|c| Complex::new(c.re.to_f64(), c.im.to_f64())),
++            eval_real: None,
++            #[cfg(feature = "native_code_generation")]
++            jit_real: None,
++            #[cfg(feature = "native_code_generation")]
++            jit_complex: None,
++            eval_double_float: None,
++            eval_double_float_complex: None,
++            eval_arb_prec: None,
++            eval_arb_prec_complex: None,
++            jit_compile: false,
++            #[cfg(feature = "native_code_generation")]
++            jit_settings: JITCompilationSettings::default(),
++        };
 +
- impl Mul<Float> for Float {
-     type Output = Self;
- 
-     #[inline]
-     fn mul(self, rhs: Self) -> Self::Output {
-+        if let Some(product) = unit_product(&self, &rhs) {
-+            return product;
-+        }
-         if rhs.prec() < self.prec() {
-             (rhs.0 * self.0).into()
-         } else {
-@@ -284,10 +323,15 @@ impl Mul<Float> for Float {
- impl Div<&Float> for Float {
-     type Output = Self;
- 
-+    /// Divide two floats. The exact quotient is rounded once, to the smaller
-+    /// precision.
-     #[inline]
--    fn div(mut self, rhs: &Self) -> Self::Output {
-+    fn div(self, rhs: &Self) -> Self::Output {
-         if self.prec() > rhs.prec() {
--            self.set_prec(rhs.prec());
-+            return self
-+                .0
-+                .div_round(&rhs.0, rhs.prec(), RoundingDirection::Nearest)
-+                .into();
-         }
- 
-         (self.0 / &rhs.0).into()
-@@ -298,12 +342,8 @@ impl Div<Float> for Float {
-     type Output = Self;
- 
-     #[inline]
--    fn div(mut self, rhs: Self) -> Self::Output {
--        if self.prec() > rhs.prec() {
--            self.set_prec(rhs.prec());
--        }
--
--        (self.0 / rhs.0).into()
-+    fn div(self, rhs: Self) -> Self::Output {
-+        self / &rhs
-     }
- }
- 
-@@ -382,8 +422,15 @@ impl SubAssign<Float> for Float {
- impl MulAssign<&Float> for Float {
-     #[inline]
-     fn mul_assign(&mut self, rhs: &Float) {
-+        if let Some(product) = unit_product(self, rhs) {
-+            *self = product;
-+            return;
-+        }
-         if self.prec() > rhs.prec() {
--            self.set_prec(rhs.prec());
-+            self.0 = self
-+                .0
-+                .mul_round(&rhs.0, rhs.prec(), RoundingDirection::Nearest);
-+            return;
-         }
- 
-         self.0.mul_assign(&rhs.0);
-@@ -393,11 +440,7 @@ impl MulAssign<&Float> for Float {
- impl MulAssign<Float> for Float {
-     #[inline]
-     fn mul_assign(&mut self, rhs: Float) {
--        if self.prec() > rhs.prec() {
--            self.set_prec(rhs.prec());
--        }
--
--        self.0.mul_assign(rhs.0);
-+        *self *= &rhs;
-     }
- }
- 
-@@ -405,7 +448,10 @@ impl DivAssign<&Float> for Float {
-     #[inline]
-     fn div_assign(&mut self, rhs: &Float) {
-         if self.prec() > rhs.prec() {
--            self.set_prec(rhs.prec());
-+            self.0 = self
-+                .0
-+                .div_round(&rhs.0, rhs.prec(), RoundingDirection::Nearest);
-+            return;
-         }
- 
-         self.0.div_assign(&rhs.0);
-@@ -415,11 +461,7 @@ impl DivAssign<&Float> for Float {
- impl DivAssign<Float> for Float {
-     #[inline]
-     fn div_assign(&mut self, rhs: Float) {
--        if self.prec() > rhs.prec() {
--            self.set_prec(rhs.prec());
--        }
--
--        self.0.div_assign(rhs.0);
-+        *self /= &rhs;
-     }
- }
- 
-diff --git a/lib/numerica/src/domains/float/tests.rs b/lib/numerica/src/domains/float/tests.rs
-index 53f21cd8..4de38961 100644
---- a/lib/numerica/src/domains/float/tests.rs
-+++ b/lib/numerica/src/domains/float/tests.rs
-@@ -423,6 +423,73 @@ fn float_rational() {
-     assert_eq!(b.get_precision(), 71);
- }
- 
-+#[test]
-+fn float_products_round_once() {
-+    // A square root carries one bit more than its argument.
-+    for k in 2..200 {
-+        let x = Float::with_val(256, k).sqrt();
-+        assert_eq!(x.prec(), 257);
-+        let y = Float::with_val(256, k) / Float::with_val(256, k + 1);
-+        assert_eq!(y.prec(), 256);
-+        let xy = x.clone() * &y;
-+        assert_eq!(xy, y.clone() * &x, "{k}");
-+        assert_eq!(xy.prec(), 256);
-+        assert_eq!(xy, x.clone() * y.clone());
-+        assert_eq!(xy, y.clone() * x.clone());
-+        let mut assigned = x.clone();
-+        assigned *= &y;
-+        assert_eq!(assigned, xy);
-+        let mut assigned = x.clone();
-+        assigned *= y.clone();
-+        assert_eq!(assigned, xy);
-+
-+        // The imaginary part of z conj(z) is x (-y) + y x.
-+        let z = Complex::new(x.clone(), y.clone());
-+        let norm = z.clone() * z.conj();
-+        assert!(norm.im.is_fully_zero(), "{k}: {}", norm.im);
-+
-+        let q = x.clone() / &y;
-+        assert_eq!(q.prec(), 256);
-+        assert_eq!(q, x.clone() / y.clone());
-+        let mut assigned = x.clone();
-+        assigned /= &y;
-+        assert_eq!(assigned, q);
-+    }
-+}
-+
-+#[test]
-+fn float_unit_factors_are_exact() {
-+    for k in 2..200 {
-+        let x = Float::with_val(256, k).sqrt();
-+        for bits in [53, 256] {
-+            let minus_one = Float::with_val(bits, -1);
-+            let one = Float::with_val(bits, 1);
-+            for negated in [
-+                x.clone() * &minus_one,
-+                minus_one.clone() * &x,
-+                x.clone() * minus_one.clone(),
-+                minus_one.clone() * x.clone(),
-+            ] {
-+                assert_eq!(negated, -x.clone());
-+                assert_eq!(negated.prec(), x.prec());
-+                // `x - x`, as evaluators form it.
-+                assert!((x.clone() + &negated).is_fully_zero(), "{k} {bits}");
++        Python::initialize();
++        Python::attach(|py| -> PyResult<()> {
++            let before = original.save(py)?.as_bytes().to_vec();
++            for i in 0..64 {
++                symbol!(format!("symbolica::python::saved_state::unrelated{i}"));
 +            }
-+            let mut assigned = x.clone();
-+            assigned *= &one;
-+            assert_eq!(assigned, x);
-+            assert_eq!(assigned.prec(), x.prec());
-+            assert_eq!(one.clone() * &x, x);
-+        }
-+
-+        // `z - conj(z)` of a real z, as complex evaluators form it.
-+        let z = Complex::new(x.clone(), Float::new(256));
-+        let minus_one = Complex::new(Float::with_val(256, -1), Float::new(256));
-+        let difference = z.clone() + z.conj() * &minus_one;
-+        assert!(difference.re.is_fully_zero() && difference.im.is_fully_zero(), "{k}");
++            let after = original.save(py)?.as_bytes().to_vec();
++            // Unrelated symbols created in between leave the saved bytes unchanged.
++            assert_eq!(before, after);
++            let loaded = PythonExpressionEvaluator::load(
++                &py.get_type::<PythonExpressionEvaluator>(),
++                PyBytes::new(py, &after),
++            )?;
++            assert_eq!(
++                loaded.eval_complex.set_coeff(&loaded.rational_constants).referenced_symbols(),
++                symbols,
++            );
++            Ok(())
++        })
++        .unwrap();
 +    }
-+}
-+
- #[test]
- fn float_cancellation() {
-     let a = Float::with_val(10, 1000);
+ }
+ 
+ /// A structured instruction stream for evaluating an expression.
+@@ -969,16 +1022,20 @@ impl PythonExpressionEvaluator {
+     /// Symbolica's symbolic state is included and restored automatically by `load`.
+     fn save<'p>(&self, py: Python<'p>) -> PyResult<Bound<'p, PyBytes>> {
+         let evaluator = self.eval_complex.set_coeff(&self.rational_constants);
++        let symbols = evaluator.referenced_symbols();
+         #[cfg(not(feature = "native_code_generation"))]
+-        let bytes = encode_saved_evaluator(evaluator)?;
++        let bytes = encode_saved_evaluator(evaluator, symbols)?;
+         #[cfg(feature = "native_code_generation")]
+-        let bytes = encode_saved_evaluator(&(
+-            self.jit_compile,
+-            &self.jit_settings,
+-            evaluator,
+-            &self.jit_real,
+-            &self.jit_complex,
+-        ))?;
++        let bytes = encode_saved_evaluator(
++            &(
++                self.jit_compile,
++                &self.jit_settings,
++                evaluator,
++                &self.jit_real,
++                &self.jit_complex,
++            ),
++            symbols,
++        )?;
+         Ok(PyBytes::new(py, &bytes))
+     }
+ 
 diff --git a/src/evaluate.rs b/src/evaluate.rs
-index 20a72c0f..37fd7d86 100644
+index 31d21e24..8c704cda 100644
 --- a/src/evaluate.rs
 +++ b/src/evaluate.rs
 @@ -26,6 +26,7 @@ use symjit::{Applet, Composer, Config, Defuns, Storage, Translator};
@@ -518,106 +307,21 @@ index 20a72c0f..37fd7d86 100644
  #[cfg(feature = "native_code_generation")]
  mod backend;
 +mod batch;
+ mod compose;
  mod domain;
  mod dual;
- mod evaluator;
-@@ -39,6 +40,7 @@ mod tree;
+@@ -41,6 +42,7 @@ mod tree;
  
  #[cfg(feature = "native_code_generation")]
  pub use backend::*;
 +pub use batch::*;
+ pub use compose::*;
  pub use domain::*;
  pub use dual::*;
- pub use evaluator::*;
-@@ -584,6 +586,296 @@ mod test {
+@@ -795,6 +797,81 @@ mod test {
          }
      }
  
-+    #[test]
-+    fn completed_conditionals_reuse_only_their_parent_scope() {
-+        let repeated = parse!("(if(c,1/x,sqrt(x+2))+x)*(if(c,1/x,sqrt(x+2))+y)");
-+        let params = [parse!("c"), parse!("x"), parse!("y")];
-+        let exact = repeated
-+            .evaluator(&params)
-+            .horner_iterations(0)
-+            .build()
-+            .unwrap();
-+        let branches = |graph: &ExportedInstructions<Complex<Rational>>| {
-+            graph
-+                .instructions
-+                .iter()
-+                .filter(|i| matches!(i, Instruction::IfElse(..)))
-+                .count()
-+        };
-+        assert_eq!(branches(&exact.export_instructions()), 1);
-+        let heads = [
-+            parse!("if(c,1/x,sqrt(x+2))+x"),
-+            parse!("if(c,1/x,sqrt(x+2))+y"),
-+        ];
-+        let multiple = Atom::evaluator_multiple(&heads, &params)
-+            .horner_iterations(0)
-+            .build()
-+            .unwrap();
-+        assert_eq!(branches(&multiple.export_instructions()), 1);
-+        let separate =
-+            parse!("if(a,(if(c,1/x,sqrt(x+2))+x)*(if(c,1/x,sqrt(x+2))+y),if(c,1/x,sqrt(x+2))+y)");
-+        let exact = separate
-+            .evaluator(&[parse!("a"), parse!("c"), parse!("x"), parse!("y")])
-+            .horner_iterations(0)
-+            .build()
-+            .unwrap();
-+        // One completed inner conditional in each arm; neither arm's result
-+        // may escape into its sibling, even when the expressions are identical.
-+        assert_eq!(branches(&exact.export_instructions()), 3);
-+        let mut scalar = exact.clone().map_coeff(&|c| c.re.to_f64());
-+        let mut batch = scalar.clone().into_batch_evaluator();
-+        let inputs = [
-+            1., 0., 0., 2., 0., 0., 0., 2., 1., 1., -2., 3., 0., 1., -2., 3.,
-+        ];
-+        let mut expected = [0.; 4];
-+        for (input, expected) in inputs.as_chunks::<4>().0.iter().zip(&mut expected) {
-+            let [a, c, x, y] = *input;
-+            let selected = if c != 0. { 1. / x } else { (x + 2.).sqrt() };
-+            *expected = if a != 0. {
-+                (selected + x) * (selected + y)
-+            } else {
-+                selected + y
-+            };
-+            assert!((scalar.evaluate_single(input) - *expected).abs() < 1e-12);
-+        }
-+        for rows in [4, 0, 1, 3, 4] {
-+            let mut output = vec![f64::NAN; rows];
-+            batch
-+                .evaluate_batch(&inputs[..4 * rows], &mut output, rows)
-+                .unwrap();
-+            for (actual, expected) in output.iter().zip(expected) {
-+                assert!(actual.is_finite() && (actual - expected).abs() < 1e-12);
-+            }
-+        }
-+        #[cfg(feature = "bincode")]
-+        {
-+            let bytes = bincode::encode_to_vec(&exact, bincode::config::standard()).unwrap();
-+            let (decoded, _) = bincode::decode_from_slice::<
-+                crate::evaluate::ExpressionEvaluator<Complex<Rational>>,
-+                _,
-+            >(&bytes, bincode::config::standard())
-+            .unwrap();
-+            let mut decoded = decoded.map_coeff(&|c| c.re.to_f64());
-+            assert!((decoded.evaluate_single(&inputs[..4]) - expected[0]).abs() < 1e-12);
-+        }
-+        #[cfg(feature = "native_code_generation")]
-+        {
-+            let mut jit = scalar
-+                .jit_compile(JITCompilationSettings::default())
-+                .unwrap();
-+            for (input, expected) in inputs.as_chunks::<4>().0.iter().zip(expected) {
-+                let mut output = [0.];
-+                jit.evaluate(input, &mut output);
-+                assert!((output[0] - expected).abs() < 1e-12);
-+            }
-+        }
-+    }
-+
 +    #[test]
 +    fn completed_shared_conditionals_keep_captures_and_mixed_dual_components() {
 +        let params = [parse!("c"), parse!("x"), parse!("y")];
@@ -693,139 +397,9 @@ index 20a72c0f..37fd7d86 100644
 +        }
 +    }
 +
-+    #[test]
-+    fn non_inlined_function_reuses_temporary_stack_slots() {
-+        let helper = symbol!("symbolica::shared_stack::chain");
-+        let argument = symbol!("symbolica::shared_stack::argument");
-+        let parent = symbol!("symbolica::shared_stack::parent");
-+        let captured = parse!("symbolica::shared_stack::captured");
-+        let mut body = Atom::var(argument);
-+        for _ in 0..64 {
-+            body = symbol!("sin").call((&body,)) + &captured;
-+        }
-+        let expression = parent.call((parse!("x"),)) + parent.call((parse!("x+1"),));
-+        let params = [parse!("x"), captured];
-+        let build = |policy| {
-+            expression
-+                .evaluator(&params)
-+                .add_function_with_options(
-+                    helper,
-+                    vec![argument],
-+                    body.clone(),
-+                    FunctionRegistrationOptions::new().inlining(policy),
-+                )
-+                .unwrap()
-+                .add_function_with_options(
-+                    parent,
-+                    vec![argument],
-+                    helper.call((symbol!("sin").call((Atom::var(argument),)),)),
-+                    FunctionRegistrationOptions::new().inlining(policy),
-+                )
-+                .unwrap()
-+                .horner_iterations(0)
-+                .build()
-+                .unwrap()
-+        };
-+        let exact = build(InliningPolicy::Never);
-+        assert_eq!(exact.external_fns.len(), 2);
-+        let shared = exact.external_fns[0].body.as_ref().unwrap();
-+        assert_eq!(exact.external_fns[0].symbol, helper);
-+        let parent_body = exact.external_fns[1].body.as_ref().unwrap();
-+        assert!(
-+            parent_body
-+                .instructions
-+                .iter()
-+                .any(|(instruction, _)| match instruction {
-+                    super::Instr::ExternalFun(target, _, args) => args.contains(target),
-+                    _ => false,
-+                })
-+        );
-+        assert_eq!(shared.param_count, 2);
-+        assert!(shared.instructions.len() >= 64);
-+        assert!(shared.stack_size <= shared.param_count + 3);
-+        assert!(shared.result_index < shared.stack_size);
-+        assert!(
-+            shared
-+                .instructions
-+                .iter()
-+                .any(|(instruction, _)| match instruction {
-+                    super::Instr::Add(target, args) => args.contains(target),
-+                    super::Instr::BuiltinFun(target, _, arg) => target == arg,
-+                    _ => false,
-+                })
-+        );
-+        let clone = exact.clone();
-+        assert!(std::sync::Arc::ptr_eq(
-+            shared,
-+            clone.external_fns[0].body.as_ref().unwrap()
-+        ));
-+        let exported = exact.export_instructions();
-+        assert!(
-+            exported.sub_evaluators[0].instructions.sub_evaluators[0]
-+                .instructions
-+                .temporary_count
-+                <= 3
-+        );
-+        let mut shared = exact.map_coeff(&|c| c.re.to_f64());
-+        let mut inline = build(InliningPolicy::Always).map_coeff(&|c| c.re.to_f64());
-+        for inputs in [[0.2, 0.1], [-0.3, 0.4], [1.5, -0.7]] {
-+            assert_eq!(
-+                shared.evaluate_single(&inputs),
-+                inline.evaluate_single(&inputs)
-+            );
-+        }
-+    }
-+
-+    #[test]
-+    fn non_inlined_stack_reuse_preserves_nested_lazy_branches() {
-+        let build = |policy| {
-+            parse!("shared_stack_branch::outer(c,x)+shared_stack_branch::outer(c,x+1)")
-+                .evaluator(&[parse!("c"), parse!("x"), parse!("q")])
-+                .add_function_with_options(
-+                    symbol!("shared_stack_branch::inner"),
-+                    vec![symbol!("b"), symbol!("z")],
-+                    parse!("if(b,1/z+sqrt(z+2),sqrt(z+2)+q*z)+q"),
-+                    FunctionRegistrationOptions::new().inlining(policy),
-+                )
-+                .unwrap()
-+                .add_function_with_options(
-+                    symbol!("shared_stack_branch::outer"),
-+                    vec![symbol!("a"), symbol!("y")],
-+                    parse!("if(a,shared_stack_branch::inner(a,y)+q*y,if(q,shared_stack_branch::inner(a,y)*q,1/(y+2)))"),
-+                    FunctionRegistrationOptions::new().inlining(policy),
-+                )
-+                .unwrap()
-+                .horner_iterations(0)
-+                .build()
-+                .unwrap()
-+                .map_coeff(&|c| c.re.to_f64())
-+        };
-+        let mut shared = build(InliningPolicy::Never);
-+        let mut inline = build(InliningPolicy::Always);
-+        let inputs = [0., 0., 2., 1., 3., 4., 0., 0., 0., 1., 2., 1., 0., -1., 2.];
-+        for index in [0, 2, 1, 4, 3, 0] {
-+            let args = &inputs[3 * index..3 * index + 3];
-+            let expected = inline.evaluate_single(args);
-+            let result = shared.evaluate_single(args);
-+            assert!(result.is_finite());
-+            assert!((result - expected).abs() < 1e-12);
-+        }
-+        #[cfg(feature = "native_code_generation")]
-+        {
-+            let mut jit = shared
-+                .jit_compile(JITCompilationSettings::default())
-+                .unwrap();
-+            for args in inputs.as_chunks::<3>().0 {
-+                let mut result = [0.];
-+                jit.evaluate(args, &mut result);
-+                assert!((result[0] - inline.evaluate_single(args)).abs() < 1e-12);
-+            }
-+        }
-+    }
-+
      #[test]
-     fn non_inlined_function_discovers_only_required_captures() {
-         // Every level introduces a new argument and drops the arguments of its ancestors.
+     fn non_inlined_function_reuses_temporary_stack_slots() {
+         // Keep this regression on libtest's default stack even when a local Cargo
 diff --git a/src/evaluate/batch.rs b/src/evaluate/batch.rs
 new file mode 100644
 index 00000000..0cd1f07f
@@ -1402,430 +976,10 @@ index 00000000..0cd1f07f
 +    }
 +}
 diff --git a/src/evaluate/dual.rs b/src/evaluate/dual.rs
-index 0b33aa61..06735284 100644
+index af739f28..e8c10421 100644
 --- a/src/evaluate/dual.rs
 +++ b/src/evaluate/dual.rs
-@@ -1,25 +1,42 @@
- use super::*;
- 
- impl<T: Default + Clone> ExpressionEvaluator<T> {
--    /// Inline generated scalar instructions without dualizing them again.
--    fn inline_vector_components(
-+    /// Import a generated evaluator's scalar constants and shared function table.
-+    fn import_vector_context<V: Vectorize<T>>(
-         &self,
--        args: &[Slot],
-+        vectorizer: &V,
-         ins: &mut InstructionList<T>,
-         external_functions: &mut Vec<ExternalFunctionContainer<T>>,
--        next_label: &mut usize,
--    ) -> Vec<Slot> {
--        let mut slots = args.to_vec();
-+    ) -> (Vec<Slot>, Vec<usize>) {
-+        let mut slots = Vec::new();
-         let mut constants = Vec::new();
--        for value in &self.stack[self.param_count..self.reserved_indices] {
--            constants.push(ins.constants.len());
--            slots.push(Slot::Const(ins.constants.len()));
--            // InstructionList tracks constants in vector-sized groups.
--            ins.constants.push(value.clone());
--            ins.constants.extend((1..ins.dim).map(|_| T::default()));
--            ins.unknown_constants.push(false);
-+        let unknown: HashSet<_> = self
-+            .external_fns
-+            .iter()
-+            .filter_map(|external| external.constant_index)
-+            .collect();
-+        for (index, value) in self.stack[self.param_count..self.reserved_indices]
-+            .iter()
-+            .enumerate()
-+        {
-+            let slot = if unknown.contains(&index) {
-+                // Registered constants can have equal placeholder values. Keep
-+                // their identities distinct and exclude them from interning
-+                // before any later literal is imported.
-+                let slot = Slot::Const(ins.constants.len());
-+                ins.constants.push(value.clone());
-+                ins.constants.extend((1..ins.dim).map(|_| T::default()));
-+                ins.unknown_constants.push(true);
-+                slot
-+            } else {
-+                vectorizer.import_scalar_constant(value.clone(), ins)
-+            };
-+            let Slot::Const(index) = slot else {
-+                panic!("Imported scalar constants must use constant slots");
-+            };
-+            constants.push(index);
-+            slots.push(slot);
-         }
--        slots.resize(self.stack.len(), Slot::Temp(0));
-         let mut functions = Vec::new();
-         for external in &self.external_fns {
-             let mut external = external.clone();
-@@ -27,6 +44,14 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
-                 *index = constants[*index];
-                 ins.unknown_constants[*index / ins.dim] = true;
-             }
-+            if let Some(body) = external.body.as_mut() {
-+                let body = Arc::make_mut(body);
-+                for (instruction, _) in &mut body.instructions {
-+                    if let Instr::ExternalFun(_, function, _) = instruction {
-+                        *function = functions[*function];
-+                    }
-+                }
-+            }
-             let index = external_functions
-                 .iter()
-                 .position(|f| f == &external && f.constant_index == external.constant_index)
-@@ -36,6 +61,23 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
-                 });
-             functions.push(index);
-         }
-+        (slots, functions)
-+    }
-+
-+    /// Inline generated scalar instructions without dualizing them again.
-+    fn inline_vector_components<V: Vectorize<T>>(
-+        &self,
-+        vectorizer: &V,
-+        args: &[Slot],
-+        ins: &mut InstructionList<T>,
-+        external_functions: &mut Vec<ExternalFunctionContainer<T>>,
-+        next_label: &mut usize,
-+    ) -> Vec<Slot> {
-+        let (constants, functions) =
-+            self.import_vector_context(vectorizer, ins, external_functions);
-+        let mut slots = args.to_vec();
-+        slots.extend(constants);
-+        slots.resize(self.stack.len(), Slot::Temp(0));
-         let mut labels = HashMap::default();
-         for (instr, _) in &self.instructions {
-             if let Instr::Label(label) = instr {
-@@ -88,6 +130,63 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
-         self.result_indices.iter().map(|i| slots[*i]).collect()
-     }
- 
-+    /// Retain one vector component without executing instructions exclusive to
-+    /// other components. Keep control-flow instructions and their conditions so
-+    /// singular expressions in inactive branches remain unevaluated.
-+    fn retain_vector_component(&mut self, component: usize) {
-+        self.result_indices = vec![self.result_indices[component]];
-+        self.undo_stack_optimization();
-+        let mut needed = vec![false; self.stack.len()];
-+        needed[self.result_indices[0]] = true;
-+        self.instructions = self
-+            .instructions
-+            .drain(..)
-+            .rev()
-+            .filter_map(|entry| {
-+                match &entry.0 {
-+                    Instr::Add(out, args)
-+                    | Instr::Mul(out, args)
-+                    | Instr::ExternalFun(out, _, args) => {
-+                        if !needed[*out] {
-+                            return None;
-+                        }
-+                        for arg in args {
-+                            needed[*arg] = true;
-+                        }
-+                    }
-+                    Instr::Pow(out, arg, _) | Instr::BuiltinFun(out, _, arg) => {
-+                        if !needed[*out] {
-+                            return None;
-+                        }
-+                        needed[*arg] = true;
-+                    }
-+                    Instr::Powf(out, a, b) => {
-+                        if !needed[*out] {
-+                            return None;
-+                        }
-+                        needed[*a] = true;
-+                        needed[*b] = true;
-+                    }
-+                    Instr::Join(out, c, a, b) => {
-+                        if !needed[*out] {
-+                            return None;
-+                        }
-+                        needed[*c] = true;
-+                        needed[*a] = true;
-+                        needed[*b] = true;
-+                    }
-+                    Instr::IfElse(c, _) => needed[*c] = true,
-+                    Instr::Goto(_) | Instr::Label(_) => {}
-+                }
-+                Some(entry)
-+            })
-+            .collect();
-+        self.instructions.reverse();
-+        self.undo_stack_optimization();
-+        self.optimize_stack();
-+        self.fix_labels();
-+    }
-+
-     /// Redefine every operation to take `n` components in and
-     /// yield `n` components. This can be used to define efficient
-     /// evaluation over dual numbers.
-@@ -99,6 +198,9 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
-     /// The input to the functions
-     /// is the flattened vector of all components of all parameters,
-     /// followed by all previously computed output components.
-+    /// Shared function bodies are transformed recursively and remain shared.
-+    /// Each result component has its own scalar body, with unused instructions
-+    /// removed. Components can still repeat common intermediate work.
-     ///
-     /// # Example
-     ///
-@@ -124,16 +226,22 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
-     ///
-     /// assert!(dest.iter().all(|x| x.abs() < 1e-10));
-     /// ```
--    pub fn vectorize<V: Vectorize<T>>(mut self, v: &V) -> Result<ExpressionEvaluator<T>, String> {
-+    pub fn vectorize<V: Vectorize<T>>(self, v: &V) -> Result<ExpressionEvaluator<T>, String> {
-+        self.vectorize_impl(v, &mut HashMap::default(), false)
-+    }
-+
-+    fn vectorize_impl<V: Vectorize<T>>(
-+        mut self,
-+        v: &V,
-+        bodies: &mut HashMap<usize, ExpressionEvaluator<T>>,
-+        function_scope: bool,
-+    ) -> Result<ExpressionEvaluator<T>, String> {
-         let mut new_external_fns = vec![];
-         let mut external_fn_index_map = HashMap::default();
-         let mut unknown_constants = vec![false; self.reserved_indices - self.param_count];
-         for external_fn in &self.external_fns {
-             if external_fn.body.is_some() {
--                return Err(format!(
--                    "Sub-evaluator '{}' cannot be vectorized",
--                    external_fn.symbol.get_name()
--                ));
-+                continue;
-             }
- 
-             if let Some(c_index) = external_fn.constant_index {
-@@ -240,6 +348,7 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
-         };
- 
-         let mut generated_functions = HashMap::default();
-+        let mut shared_functions: HashMap<usize, (Vec<usize>, Vec<Slot>)> = HashMap::default();
-         let mut next_label = self
-             .instructions
-             .iter()
-@@ -269,6 +378,102 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
-                     (o, VectorInstruction::BuiltinFun(f, get_slot!(slot_map[&a])))
-                 }
-                 Instr::ExternalFun(o, f, a) => {
-+                    if let Some(body) = &self.external_fns[f].body {
-+                        let (functions, constants) = match shared_functions.entry(f) {
-+                            Entry::Occupied(entry) => entry.into_mut(),
-+                            Entry::Vacant(entry) => {
-+                                let key = Arc::as_ptr(body) as usize;
-+                                if !bodies.contains_key(&key) {
-+                                    let mut external_fns = self.external_fns[..f].to_vec();
-+                                    // The function's existing constants are captured
-+                                    // parameters. They are resolved in the root, not
-+                                    // in this temporary evaluator's empty constant pool.
-+                                    for external in &mut external_fns {
-+                                        external.constant_index = None;
-+                                    }
-+                                    let evaluator = ExpressionEvaluator {
-+                                        stack: vec![T::default(); body.stack_size],
-+                                        param_count: body.param_count,
-+                                        reserved_indices: body.param_count,
-+                                        instructions: body.instructions.clone(),
-+                                        result_indices: vec![body.result_index],
-+                                        external_fns,
-+                                        settings: self.settings.clone(),
-+                                    }
-+                                    .vectorize_impl(v, bodies, true)?;
-+                                    bodies.insert(key, evaluator);
-+                                }
-+                                let generated = &bodies[&key];
-+                                let (constants, function_indices) = generated
-+                                    .import_vector_context(v, &mut ins, &mut new_external_fns);
-+                                let mut functions = Vec::with_capacity(v.get_dimension());
-+                                for component in 0..v.get_dimension() {
-+                                    let mut evaluator = generated.clone();
-+                                    evaluator.retain_vector_component(component);
-+                                    // Exported functions are identified by symbol and
-+                                    // tags. Distinguish components and vectorization
-+                                    // rules, including different Dual shapes with the
-+                                    // same dimension, when exporting or merging.
-+                                    let mut signature =
-+                                        std::collections::hash_map::DefaultHasher::new();
-+                                    format!("{:?}", evaluator.instructions).hash(&mut signature);
-+                                    evaluator.reserved_indices.hash(&mut signature);
-+                                    evaluator.result_indices.hash(&mut signature);
-+                                    evaluator.external_fns.hash(&mut signature);
-+                                    let signature = signature.finish();
-+                                    let mut tags = self.external_fns[f].tags.clone();
-+                                    tags.push(signature.into());
-+                                    tags.push(component.into());
-+                                    for (instruction, _) in &mut evaluator.instructions {
-+                                        if let Instr::ExternalFun(_, function, _) = instruction {
-+                                            *function = function_indices[*function];
-+                                        }
-+                                    }
-+                                    let mut external = ExternalFunctionContainer::with_body(
-+                                        self.external_fns[f].symbol,
-+                                        tags,
-+                                        Arc::new(FunctionBody {
-+                                            instructions: evaluator.instructions,
-+                                            // Newly generated constants are explicit
-+                                            // scalar captures after the flattened inputs.
-+                                            param_count: evaluator.reserved_indices,
-+                                            result_index: evaluator.result_indices[0],
-+                                            stack_size: evaluator.stack.len(),
-+                                        }),
-+                                    );
-+                                    external.export_name = format!(
-+                                        "{}__symbolica_vector_{:x}_{}",
-+                                        self.external_fns[f].export_name, signature, component,
-+                                    );
-+                                    let index = new_external_fns
-+                                        .iter()
-+                                        .position(|f| f == &external)
-+                                        .unwrap_or_else(|| {
-+                                            new_external_fns.push(external);
-+                                            new_external_fns.len() - 1
-+                                        });
-+                                    functions.push(index);
-+                                }
-+                                entry.insert((functions, constants))
-+                            }
-+                        };
-+                        let args = a
-+                            .iter()
-+                            .flat_map(|x| {
-+                                let slot = get_slot!(slot_map[x]);
-+                                (0..v.get_dimension()).map(move |k| slot.index(k))
-+                            })
-+                            .chain(constants.iter().copied())
-+                            .collect::<Vec<_>>();
-+                        for function in functions {
-+                            ins.add(VectorInstruction::ExternalFun(*function, args.clone()));
-+                        }
-+                        slot_map.insert(
-+                            o,
-+                            ins.instructions.len() + self.reserved_indices - v.get_dimension(),
-+                        );
-+                        continue;
-+                    }
-                     if !external_fn_index_map.contains_key(&(self.external_fns[f].clone(), 0)) {
-                         let external = &self.external_fns[f];
-                         let generated = match generated_functions.entry((f, a.len())) {
-@@ -299,6 +504,7 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
-                             })
-                             .collect::<Vec<_>>();
-                         let results = generated.inline_vector_components(
-+                            v,
-                             &args,
-                             &mut ins,
-                             &mut new_external_fns,
-@@ -366,7 +572,11 @@ impl<T: Default + Clone> ExpressionEvaluator<T> {
-                 ),
-             };
- 
--            let r = v.map_instruction(&instr, &mut ins);
-+            let r = if function_scope {
-+                v.map_instruction_in_function(&instr, &mut ins)
-+            } else {
-+                v.map_instruction(&instr, &mut ins)
-+            };
-             assert_eq!(r.len(), v.get_dimension());
-             for ii in r {
-                 ins.add(ii);
-@@ -490,6 +700,26 @@ pub trait Vectorize<T> {
-     /// `false` if each constant only appears in the first slot and has zeros for all other slots.
-     fn duplicate_constants(&self) -> bool;
- 
-+    /// Import an already-generated scalar constant, without vectorizing it again.
-+    /// The returned slot must be a [`Slot::Const`] holding `value`. Implementations
-+    /// may reuse an existing literal constant. Registered constants are imported
-+    /// separately so equal placeholders cannot merge distinct symbolic values.
-+    ///
-+    /// The default keeps a separate vector-sized storage group for each scalar,
-+    /// preserving compatibility with vectorizers over types without equality.
-+    fn import_scalar_constant(&self, value: T, instructions: &mut InstructionList<T>) -> Slot
-+    where
-+        T: Default + Clone,
-+    {
-+        let slot = Slot::Const(instructions.constants.len());
-+        instructions.constants.push(value);
-+        instructions
-+            .constants
-+            .extend((1..instructions.dim).map(|_| T::default()));
-+        instructions.unknown_constants.push(false);
-+        slot
-+    }
-+
-     /// Map an instruction applied to a vector of slots (components accessible with [Slot::index])
-     /// to a vector of instructions of [Vectorize::get_dimension] length.
-     fn map_instruction(
-@@ -498,6 +728,17 @@ pub trait Vectorize<T> {
-         instr_addr: &mut InstructionList<T>,
-     ) -> Vec<VectorInstruction>;
- 
-+    /// Map an instruction in a shared function body. Parameter indices here
-+    /// refer to that function's arguments and captures, not the root inputs.
-+    /// Override this when root-parameter assumptions affect instruction mapping.
-+    fn map_instruction_in_function(
-+        &self,
-+        instr: &VectorInstruction,
-+        instr_addr: &mut InstructionList<T>,
-+    ) -> Vec<VectorInstruction> {
-+        self.map_instruction(instr, instr_addr)
-+    }
-+
-     /// Get the dimension of the vectorization.
-     fn get_dimension(&self) -> usize;
- 
-@@ -519,7 +760,7 @@ pub trait Vectorize<T> {
- /// You can specify which components of the dual numbers are always zero
- /// by providing a list of `(component index, dual index)` pairs in the constructor.
- pub struct Dualizer<T: DualNumberStructure> {
--    dual: T,
-+    dual: Arc<T>,
-     zero_components: HashSet<(usize, usize)>, // component, index
- }
- 
-@@ -529,7 +770,7 @@ impl<T: DualNumberStructure> Dualizer<T> {
-     /// by providing a list of `(component index, dual index)` pairs.
-     pub fn new(dual: T, zero_components_per_parameter: Vec<(usize, usize)>) -> Self {
-         Self {
--            dual,
-+            dual: Arc::new(dual),
-             zero_components: zero_components_per_parameter.into_iter().collect(),
-         }
-     }
-@@ -540,6 +781,26 @@ impl<T: DualNumberStructure> Vectorize<Complex<Rational>> for Dualizer<T> {
-         false
-     }
- 
-+    fn import_scalar_constant(
-+        &self,
-+        value: Complex<Rational>,
-+        instructions: &mut InstructionList<Complex<Rational>>,
-+    ) -> Slot {
-+        instructions.add_constant_in_first_component(value)
-+    }
-+
-+    fn map_instruction_in_function(
-+        &self,
-+        instr: &VectorInstruction,
-+        instr_addr: &mut InstructionList<Complex<Rational>>,
-+    ) -> Vec<VectorInstruction> {
-+        Self {
-+            dual: self.dual.clone(),
-+            zero_components: HashSet::default(),
-+        }
-+        .map_instruction(instr, instr_addr)
-+    }
-+
-     fn vectorize_function(
-         &self,
-         symbol: Symbol,
-@@ -937,13 +1198,45 @@ impl<T: DualNumberStructure> Vectorize<Complex<Rational>> for Dualizer<T> {
+@@ -977,13 +977,45 @@ impl<T: DualNumberStructure> Vectorize<Complex<Rational>> for Dualizer<T> {
                      e.iter().map(|x| VectorInstruction::Assign(*x)).collect()
                  }
                  Symbol::ABS_ID => {
@@ -1878,30 +1032,8 @@ index 0b33aa61..06735284 100644
                          .collect()
                  }
                  Symbol::CONJ_ID => {
-@@ -1036,11 +1329,18 @@ impl<T: DualNumberStructure> Vectorize<Complex<Rational>> for Dualizer<T> {
- 
- #[cfg(test)]
- mod test {
--    use numerica::domains::{dual::HyperDual, float::Complex, rational::Rational};
-+    use numerica::domains::{
-+        dual::HyperDual,
-+        float::{Complex, Float},
-+        rational::Rational,
-+    };
- 
-     use crate::{
--        atom::{Atom, AtomCore, EvaluationInfo},
--        evaluate::Dualizer,
-+        atom::{Atom, AtomCore, EvaluationInfo, Symbol},
-+        evaluate::{
-+            Dualizer, FunctionMap, FunctionRegistrationOptions, InliningPolicy, InstructionList,
-+            Slot, VectorInstruction, Vectorize,
-+        },
-         function, parse, symbol,
-     };
- 
-@@ -1271,6 +1571,453 @@ mod test {
-         }
+@@ -1501,6 +1533,67 @@ mod test {
+         assert_eq!(instructions.constants[1].0, 0);
      }
  
 +    #[test]
@@ -1965,328 +1097,13 @@ index 0b33aa61..06735284 100644
 +        }
 +    }
 +
-+    #[test]
-+    fn deep_shared_dual_constants_stay_bounded() {
-+        let shape = vec![vec![0, 0], vec![1, 0], vec![0, 1], vec![2, 0], vec![1, 1]];
-+        let build = |depth, inlining| {
-+            let x = symbol!("dual_pool_x");
-+            let z = symbol!("dual_pool_z");
-+            let condition = symbol!("dual_pool_condition");
-+            let functions: Vec<_> = (0..depth)
-+                .map(|i| symbol!(format!("dual_pool_function_{i}")))
-+                .collect();
-+            let mut map = FunctionMap::new();
-+            for (index, &function) in functions.iter().enumerate() {
-+                let body = if index == 0 {
-+                    Symbol::IF.call((
-+                        condition,
-+                        (z.to_atom() + 2).sqrt() + Symbol::PI,
-+                        z.to_atom().pow(2),
-+                    ))
-+                } else {
-+                    functions[index - 1].call((z,)) + z.to_atom().pow(2)
-+                };
-+                map.add_function_with_options(
-+                    function,
-+                    vec![z],
-+                    body,
-+                    FunctionRegistrationOptions::new().inlining(inlining),
-+                )
-+                .unwrap();
-+            }
-+            functions[depth - 1]
-+                .call((x,))
-+                .evaluator(&[x.to_atom(), condition.to_atom()])
-+                .function_map(map)
-+                .build()
-+                .unwrap()
-+                .vectorize(&Dualizer::new(HyperDual::<f64>::new(shape.clone()), vec![]))
-+                .unwrap()
-+        };
-+        for depth in [1, 2, 4, 8] {
-+            let exact = build(depth, InliningPolicy::Never);
-+            let constants = exact.reserved_indices - exact.param_count;
-+            // This family introduces the same literals at every level. Its
-+            // constant pool must not grow by the Dual dimension per level.
-+            assert!(
-+                constants <= 64 * shape.len(),
-+                "depth={depth}, constants={constants}"
-+            );
-+            let max_parameters = exact
-+                .external_fns
-+                .iter()
-+                .filter_map(|external| external.body.as_ref().map(|body| body.param_count))
-+                .max()
-+                .unwrap();
-+            assert!(
-+                max_parameters <= 128 * shape.len(),
-+                "depth={depth}, captures={max_parameters}"
-+            );
-+            eprintln!(
-+                "shared Dual depth={depth}, constants={constants}, max_parameters={max_parameters}"
-+            );
-+            let map = |v: &Complex<Rational>| Complex::new(v.re.to_f64(), v.im.to_f64());
-+            let mut shared = exact.map_coeff(&map);
-+            let mut inline = build(depth, InliningPolicy::Always).map_coeff(&map);
-+            let c = |re, im| Complex::new(re, im);
-+            for (x, condition) in [(c(0.3, 0.2), 1.), (c(-2., 0.), 0.), (c(1.2, -0.1), 1.)] {
-+                let input = [
-+                    x,
-+                    c(0., 1.),
-+                    c(1., -0.5),
-+                    c(0.25, 0.),
-+                    c(0., 0.5),
-+                    c(condition, 0.),
-+                    c(0., 0.),
-+                    c(0., 0.),
-+                    c(0., 0.),
-+                    c(0., 0.),
-+                ];
-+                let mut actual = [c(0., 0.); 5];
-+                let mut expected = actual;
-+                shared.evaluate(&input, &mut actual);
-+                inline.evaluate(&input, &mut expected);
-+                for (actual, expected) in actual.into_iter().zip(expected) {
-+                    assert!((actual.re - expected.re).abs() < 1e-11);
-+                    assert!((actual.im - expected.im).abs() < 1e-11);
-+                }
-+            }
-+        }
-+    }
-+
-+    #[test]
-+    fn imported_registered_constants_keep_distinct_placeholders() {
-+        let first = symbol!(
-+            "dual_pool_registered_first",
-+            eval =
-+                EvaluationInfo::constant(|_, precision| Ok(Float::with_val(precision, 2).into()))
-+        );
-+        let second = symbol!(
-+            "dual_pool_registered_second",
-+            eval =
-+                EvaluationInfo::constant(|_, precision| Ok(Float::with_val(precision, 3).into()))
-+        );
-+        let x = symbol!("dual_pool_registered_x");
-+        let source = (first.to_atom() * x + second + 1)
-+            .evaluator(&[x.to_atom()])
-+            .build()
-+            .unwrap();
-+        let expected = source.clone().map_coeff_with_prec(
-+            &|v| Complex::new(v.re.to_multi_prec_float(192), v.im.to_multi_prec_float(192)),
-+            192,
-+        );
-+        let vectorizer = Dualizer::new(HyperDual::<f64>::new(vec![vec![0], vec![1]]), vec![]);
-+        let mut instructions = InstructionList {
-+            instructions: vec![],
-+            constants: vec![],
-+            unknown_constants: vec![],
-+            dim: 2,
-+        };
-+        let mut functions = vec![];
-+        let (slots, _) =
-+            source.import_vector_context(&vectorizer, &mut instructions, &mut functions);
-+        let registered: Vec<_> = functions.iter().filter_map(|f| f.constant_index).collect();
-+        assert_eq!(registered.len(), 2);
-+        assert_ne!(registered[0], registered[1]);
-+        let zero = vectorizer.import_scalar_constant(Complex::default(), &mut instructions);
-+        assert!(registered.iter().all(|index| zero != Slot::Const(*index)));
-+        let mut values: Vec<_> = instructions
-+            .constants
-+            .iter()
-+            .map(|v| Complex::new(v.re.to_multi_prec_float(192), v.im.to_multi_prec_float(192)))
-+            .collect();
-+        for function in functions {
-+            if let Some(index) = function.constant_index {
-+                values[index] = function.evaluate_constant::<Complex<Float>>(192).unwrap();
-+            }
-+        }
-+        for (slot, expected) in slots
-+            .iter()
-+            .zip(&expected.stack[expected.param_count..expected.reserved_indices])
-+        {
-+            let Slot::Const(index) = slot else {
-+                unreachable!()
-+            };
-+            assert_eq!(&values[*index], expected);
-+            assert_eq!(values[*index].re.prec(), expected.re.prec());
-+            assert_eq!(values[*index].im.prec(), expected.im.prec());
-+        }
-+    }
-+
-+    #[test]
-+    fn scalar_constant_import_keeps_vectorizers_without_equality_supported() {
-+        #[derive(Clone, Default)]
-+        struct Value(i32);
-+        struct Custom;
-+        impl Vectorize<Value> for Custom {
-+            fn duplicate_constants(&self) -> bool {
-+                false
-+            }
-+            fn get_dimension(&self) -> usize {
-+                2
-+            }
-+            fn map_instruction(
-+                &self,
-+                _: &VectorInstruction,
-+                _: &mut InstructionList<Value>,
-+            ) -> Vec<VectorInstruction> {
-+                unreachable!()
-+            }
-+        }
-+        let mut instructions = InstructionList {
-+            instructions: vec![],
-+            constants: vec![],
-+            unknown_constants: vec![],
-+            dim: 2,
-+        };
-+        assert_eq!(
-+            Custom.import_scalar_constant(Value(7), &mut instructions),
-+            Slot::Const(0)
-+        );
-+        assert_eq!(instructions.constants[0].0, 7);
-+        assert_eq!(instructions.constants[1].0, 0);
-+    }
-+
-+    #[test]
-+    fn shared_functions_preserve_captures_branches_and_higher_derivatives() {
-+        let build = |inlining| {
-+            let mut functions = FunctionMap::new();
-+            for (name, arg, expression) in [
-+                ("dual_shared::inner", "z", "if(c, sqrt(z+2)+pi, z^2)"),
-+                ("dual_shared::outer", "y", "dual_shared::inner(y)+q*y"),
-+            ] {
-+                functions
-+                    .add_function_with_options(
-+                        symbol!(name),
-+                        vec![symbol!(arg)],
-+                        parse!(expression),
-+                        FunctionRegistrationOptions::new().inlining(inlining),
-+                    )
-+                    .unwrap();
-+            }
-+            parse!("dual_shared::outer(x)+dual_shared::outer(x+1)")
-+                .evaluator(&[parse!("x"), parse!("q"), parse!("c")])
-+                .function_map(functions)
-+                .build()
-+                .unwrap()
-+                .vectorize(&Dualizer::new(
-+                    HyperDual::<Complex<Rational>>::new(vec![
-+                        vec![0, 0],
-+                        vec![1, 0],
-+                        vec![0, 1],
-+                        vec![2, 0],
-+                        vec![1, 1],
-+                    ]),
-+                    vec![],
-+                ))
-+                .unwrap()
-+        };
-+        let exact = build(InliningPolicy::Never);
-+        // Each function is shared across both call sites; generated component
-+        // bodies retain calls to the inner function instead of expanding it.
-+        assert_eq!(
-+            exact
-+                .external_fns
-+                .iter()
-+                .filter(|f| f.body.is_some())
-+                .count(),
-+            10
-+        );
-+        assert!(
-+            exact
-+                .external_fns
-+                .iter()
-+                .filter_map(|f| f.body.as_ref())
-+                .any(|body| {
-+                    body.instructions
-+                        .iter()
-+                        .any(|(instr, _)| matches!(instr, super::Instr::ExternalFun(..)))
-+                })
-+        );
-+        let mut shared = exact.map_coeff(&|r| r.re.to_f64());
-+        let mut inline = build(InliningPolicy::Always).map_coeff(&|r| r.re.to_f64());
-+        // At x=-2 the square root has singular derivatives, but this branch is
-+        // inactive. Repeated calls also exercise reuse of body-local stacks.
-+        for (x, c) in [(0.3, 1.), (-2., 0.), (1.2, 1.)] {
-+            let inputs = [x, 1., 0., 0., 0., 2., 0., 1., 0., 0., c, 0., 0., 0., 0.];
-+            let mut a = [0.; 5];
-+            let mut b = [0.; 5];
-+            shared.evaluate(&inputs, &mut a);
-+            inline.evaluate(&inputs, &mut b);
-+            for (a, b) in a.into_iter().zip(b) {
-+                assert!((a - b).abs() < 1e-10, "shared {a} != inline {b}");
-+            }
-+        }
-+    }
-+
-+    #[test]
-+    fn shared_function_parameters_do_not_inherit_root_zero_assumptions() {
-+        let mut evaluator = parse!("x+dual_shared_zero::square(y)")
-+            .evaluator(&[parse!("x"), parse!("y")])
-+            .add_function_with_options(
-+                symbol!("dual_shared_zero::square"),
-+                vec![symbol!("z")],
-+                parse!("z^2"),
-+                FunctionRegistrationOptions::new().inlining(InliningPolicy::Never),
-+            )
-+            .unwrap()
-+            .build()
-+            .unwrap()
-+            .vectorize(&Dualizer::new(
-+                HyperDual::<Complex<Rational>>::new(vec![vec![0], vec![1]]),
-+                vec![(0, 1)],
-+            ))
-+            .unwrap()
-+            .map_coeff(&|r| r.re.to_f64());
-+        let mut out = [0.; 2];
-+        evaluator.evaluate(&[1., 0., 3., 1.], &mut out);
-+        assert_eq!(out, [10., 6.]);
-+    }
-+
-+    #[test]
-+    fn shared_vectorized_functions_export_merge_and_serialize() {
-+        let build = |shape| {
-+            parse!("dual_shared_merge::f(x,y)")
-+                .evaluator(&[parse!("x"), parse!("y")])
-+                .add_function_with_options(
-+                    symbol!("dual_shared_merge::f"),
-+                    vec![symbol!("u"), symbol!("v")],
-+                    parse!("u^2+u*v"),
-+                    FunctionRegistrationOptions::new().inlining(InliningPolicy::Never),
-+                )
-+                .unwrap()
-+                .build()
-+                .unwrap()
-+                .vectorize(&Dualizer::new(
-+                    HyperDual::<Complex<Rational>>::new(shape),
-+                    vec![],
-+                ))
-+                .unwrap()
-+        };
-+        let mut evaluator = build(vec![vec![0], vec![1], vec![2]]);
-+        evaluator
-+            .merge(build(vec![vec![0, 0], vec![1, 0], vec![0, 1]]), Some(1))
-+            .unwrap();
-+        let exported = evaluator.export_instructions();
-+        let identities = exported
-+            .sub_evaluators
-+            .iter()
-+            .map(|body| (body.symbol, body.tags.clone()))
-+            .collect::<super::HashSet<_>>();
-+        assert_eq!(identities.len(), exported.sub_evaluators.len());
-+        let mut evaluator = evaluator.map_coeff(&|r| r.re.to_f64());
-+        #[cfg(feature = "bincode")]
-+        {
-+            let encoded = bincode::encode_to_vec(&evaluator, bincode::config::standard()).unwrap();
-+            evaluator = bincode::decode_from_slice(&encoded, bincode::config::standard())
-+                .unwrap()
-+                .0;
-+        }
-+        let mut out = [0.; 6];
-+        evaluator.evaluate(&[3., 1., 0., 4., 0., 1.], &mut out);
-+        assert_eq!(out, [21., 10., 4., 21., 10., 3.]);
-+    }
-+
+     #[test]
+     fn shared_functions_preserve_captures_branches_and_higher_derivatives() {
+         let build = |inlining| {
+@@ -1666,6 +1759,70 @@ mod test {
+         }
+     }
+ 
 +    #[test]
 +    fn complex_absolute_value_real_parameter_derivatives() {
 +        let mut evaluator = dualize(
@@ -2355,854 +1172,248 @@ index 0b33aa61..06735284 100644
      fn unknown_constant() {
          let expr = parse!("2*pi*x^2");
 diff --git a/src/evaluate/evaluator.rs b/src/evaluate/evaluator.rs
-index 2a6f155a..2524403b 100644
+index 38bb909f..6a8fa865 100644
 --- a/src/evaluate/evaluator.rs
 +++ b/src/evaluate/evaluator.rs
-@@ -780,6 +780,7 @@ impl<T: Default> ExpressionEvaluator<T> {
+@@ -36,6 +36,69 @@ pub(super) struct ProgramView<'a, T> {
+ }
  
-         let mut dag_nodes = vec![0]; // store index to parent node
-         let mut current_node = 0;
-+        let mut branch_exits = HashMap::default();
- 
-         for (instr, phase) in &mut self.instructions {
-             let new_pos = new_instr.len() + self.reserved_indices;
-@@ -821,7 +822,6 @@ impl<T: Default> ExpressionEvaluator<T> {
-                     }
-                 }
-                 Instr::Join(p, a, b, c) => {
--                    current_node = dag_nodes[current_node];
-                     *a = rename_map[*a];
-                     *b = rename_map[*b];
-                     *c = rename_map[*c];
-@@ -832,12 +832,17 @@ impl<T: Default> ExpressionEvaluator<T> {
-                     current_node = dag_nodes.len() - 1;
-                     *c = rename_map[*c];
-                 }
--                Instr::Goto(_) => {
-+                Instr::Goto(label) => {
-                     let parent = dag_nodes[current_node];
-+                    branch_exits.insert(*label, parent);
-                     dag_nodes.push(parent); // enter else block (included goto and labels)
-                     current_node = dag_nodes.len() - 1;
-                 }
--                _ => {}
-+                Instr::Label(label) => {
-+                    if let Some(parent) = branch_exits.get(label) {
-+                        current_node = *parent;
-+                    }
+ impl<T> ExpressionEvaluator<T> {
++    /// The symbols this evaluator references: built-in functions of its
++    /// instructions and function bodies, its external and registered constant
++    /// functions with the symbols in their tags, and those of its hot start.
++    pub(crate) fn referenced_symbols(&self) -> ahash::HashSet<Symbol> {
++        fn instructions(code: &[(Instr, ComplexPhase)], symbols: &mut ahash::HashSet<Symbol>) {
++            for (instruction, _) in code {
++                if let Instr::BuiltinFun(_, symbol, _) = instruction {
++                    symbols.insert(*symbol);
 +                }
-             }
- 
-             let key = match &*instr {
-@@ -920,6 +925,7 @@ impl<T: Default> ExpressionEvaluator<T> {
-         let mut branch_id = vec![0; self.instructions.len()];
-         let mut dag_nodes = vec![0]; // store index to parent node
-         let mut current_node = 0;
-+        let mut branch_exits = HashMap::default();
- 
-         const PROMOTED_PAIR: u32 = 1 << 31;
- 
-@@ -997,13 +1003,19 @@ impl<T: Default> ExpressionEvaluator<T> {
-                     current_node = dag_nodes.len() - 1;
-                     continue;
-                 }
--                Instr::Goto(_) => {
-+                Instr::Goto(label) => {
-                     let parent = dag_nodes[current_node];
-+                    branch_exits.insert(*label, parent);
-                     dag_nodes.push(parent); // enter else block (included goto and labels)
-                     current_node = dag_nodes.len() - 1;
-                 }
--                Instr::Join(..) => {
--                    current_node = dag_nodes[current_node];
-+                Instr::Label(label) => {
-+                    // One conditional can produce several Join instructions
-+                    // (for example, one per vector component). Its control-flow
-+                    // scope ends once, at the forward jump's target label.
-+                    if let Some(parent) = branch_exits.get(label) {
-+                        current_node = *parent;
-+                    }
-                 }
-                 _ => {}
-             }
-@@ -1729,6 +1741,59 @@ mod cse_tests {
-         }
-     }
- 
-+    #[test]
-+    fn nested_multi_result_branches_keep_common_operations_in_scope() {
-+        let mut original = evaluator(
-+            3,
-+            vec![
-+                Instr::IfElse(0, Label(0)),
-+                Instr::IfElse(1, Label(1)),
-+                Instr::Add(5, vec![2, 2]),
-+                Instr::Goto(Label(2)),
-+                Instr::Label(Label(1)),
-+                Instr::Mul(8, vec![2, 2]),
-+                Instr::Label(Label(2)),
-+                Instr::Join(10, 1, 5, 8),
-+                Instr::Join(11, 1, 5, 8),
-+                Instr::Mul(12, vec![2, 2]),
-+                Instr::Add(13, vec![10, 11, 12]),
-+                Instr::Goto(Label(3)),
-+                Instr::Label(Label(0)),
-+                Instr::Mul(16, vec![2, 2]),
-+                Instr::Label(Label(3)),
-+                Instr::Join(18, 0, 13, 16),
-+            ],
-+            vec![18],
-+        );
-+        original.fix_labels();
-+        for pairs in [false, true] {
-+            let mut optimized = original.clone();
-+            if pairs {
-+                assert!(optimized.remove_common_pairs() > 0);
-+            } else {
-+                optimized.remove_common_instructions();
-+            }
-+            optimized.optimize_stack();
-+            optimized.fix_labels();
-+            for (c, d) in [(0., 0.), (0., 1.), (1., 0.), (1., 1.), (0., 0.)] {
-+                let input = [c, d, 3.];
-+                let expected = if c == 0. {
-+                    9.
-+                } else if d == 0. {
-+                    27.
-+                } else {
-+                    21.
-+                };
-+                assert_eq!(original.evaluate_single(&input), expected);
-+                assert_eq!(
-+                    optimized.evaluate_single(&input),
-+                    expected,
-+                    "common pairs={pairs}, c={c}, d={d}"
-+                );
 +            }
 +        }
++        fn tree<C>(expression: &Expression<C>, symbols: &mut ahash::HashSet<Symbol>) {
++            match expression {
++                Expression::Const(..)
++                | Expression::Parameter(..)
++                | Expression::ReadArg(..)
++                | Expression::SubExpression(..) => {}
++                Expression::Eval(_, _, arguments)
++                | Expression::Add(_, arguments)
++                | Expression::Mul(_, arguments) => {
++                    arguments.iter().for_each(|argument| tree(argument, symbols))
++                }
++                Expression::Pow(_, base) => tree(&base.0, symbols),
++                Expression::Powf(_, pair) => {
++                    tree(&pair.0, symbols);
++                    tree(&pair.1, symbols);
++                }
++                Expression::BuiltinFun(_, symbol, argument) => {
++                    symbols.insert(*symbol);
++                    tree(argument, symbols);
++                }
++                Expression::Fun(_, symbol, tags, arguments) => {
++                    symbols.insert(*symbol);
++                    for tag in tags {
++                        symbols.extend(tag.get_all_symbols(true));
++                    }
++                    arguments.iter().for_each(|argument| tree(argument, symbols));
++                }
++                Expression::IfElse(_, branches) => {
++                    tree(&branches.0, symbols);
++                    tree(&branches.1, symbols);
++                    tree(&branches.2, symbols);
++                }
++            }
++        }
++
++        let mut symbols = ahash::HashSet::default();
++        instructions(&self.instructions, &mut symbols);
++        for function in &self.external_fns {
++            symbols.insert(function.symbol);
++            for tag in &function.tags {
++                symbols.extend(tag.get_all_symbols(true));
++            }
++            if let Some(body) = &function.body {
++                instructions(&body.instructions, &mut symbols);
++            }
++        }
++        for expression in self.settings.hot_start.iter().flatten() {
++            tree(expression, &mut symbols);
++        }
++        symbols
 +    }
 +
-     #[test]
-     fn dependent_duplicates_collapse_in_one_pass() {
-         let depth = 128;
-diff --git a/src/evaluate/tree.rs b/src/evaluate/tree.rs
-index 378d96db..4365eb69 100644
---- a/src/evaluate/tree.rs
-+++ b/src/evaluate/tree.rs
-@@ -894,11 +894,25 @@ impl<'a> AtomView<'a> {
-             let stack_size = param_count + instr.len();
-             let (instructions, result_indices) =
-                 Self::lower_instructions(instr, result_indices, param_count, param_count, context)?;
--            let body = FunctionBody {
-+            // This is fresh SSA, just like a newly lowered root evaluator. Reuse
-+            // its allocator before storing the immutable shared body. Explicit
-+            // arguments and captured values are reserved inputs; numerical
-+            // coefficients are unnecessary for this instruction-only pass.
-+            let mut allocation = ExpressionEvaluator {
-+                stack: vec![(); stack_size],
-+                param_count,
-+                reserved_indices: param_count,
-                 instructions,
-+                result_indices,
-+                external_fns: vec![],
-+                settings: settings.clone(),
-+            };
-+            allocation.optimize_stack();
-+            let body = FunctionBody {
-+                instructions: allocation.instructions,
-                 param_count,
--                result_index: result_indices[0],
--                stack_size,
-+                result_index: allocation.result_indices[0],
-+                stack_size: allocation.stack.len(),
-             };
-             // Recursive compilation has already registered every callee.
-             context.external_indices.insert(
-@@ -1283,6 +1297,9 @@ impl<'a> AtomView<'a> {
- 
-                     let temp = Slot::Temp(instr.len());
-                     instr.push(Instruction::Join(temp, cond, then_branch, else_branch));
-+                    // The completed result now dominates this scope. Branch-local
-+                    // values remain in their cloned caches, never in the parent.
-+                    subexpressions.insert(*self, temp);
-                     return Ok(temp);
-                 } else if let Some(fun) = fn_map.get(*self) {
-                     fun
+     pub(super) fn program(&self) -> ProgramView<'_, T> {
+         ProgramView {
+             instructions: &self.instructions,
 diff --git a/src/lib.rs b/src/lib.rs
-index 96426e53..33a8b487 100644
+index fc44b539..8e492278 100644
 --- a/src/lib.rs
 +++ b/src/lib.rs
-@@ -128,9 +128,9 @@ pub mod prelude {
+@@ -130,10 +130,10 @@ pub mod prelude {
          JITCompilationSettings,
      };
      pub use crate::evaluate::{
--        Dualizer, EvaluationDomain, EvaluationFn, EvaluatorBuilder, ExportedInstructions,
--        ExportedSubEvaluator, ExpressionEvaluator, ExternalFunction, FunctionMap, Instruction,
--        OperationCount, OptimizationSettings, Vectorize,
-+        BatchExpressionEvaluator, Dualizer, EvaluationDomain, EvaluationFn, EvaluatorBuilder,
-+        ExportedInstructions, ExportedSubEvaluator, ExpressionEvaluator, ExternalFunction,
-+        FunctionMap, Instruction, OperationCount, OptimizationSettings, Vectorize,
+-        ComposeError, ComposerSlot, Dualizer, EvaluationDomain, EvaluationFn, EvaluatorBuilder,
+-        EvaluatorComposer, ExportedInstructions, ExportedSubEvaluator, ExpressionEvaluator,
+-        ExternalFunction, FunctionMap, Instruction, OperationCount, OptimizationSettings,
+-        Vectorize,
++        BatchExpressionEvaluator, ComposeError, ComposerSlot, Dualizer, EvaluationDomain,
++        EvaluationFn, EvaluatorBuilder, EvaluatorComposer, ExportedInstructions,
++        ExportedSubEvaluator, ExpressionEvaluator, ExternalFunction, FunctionMap, Instruction,
++        OperationCount, OptimizationSettings, Vectorize,
      };
  
      pub use crate::id::{
-diff --git a/src/transcendental.rs b/src/transcendental.rs
-index ca5d7405..69a7bc91 100644
---- a/src/transcendental.rs
-+++ b/src/transcendental.rs
-@@ -554,6 +554,32 @@ impl SpecialSymbols {
-                         **out = function!(polylog_symbol, s.to_owned() - 1, z) / z;
-                     }
-                 })
-+                .with_series_function(|args| {
-+                    let [n, z] = args else { return None; };
-+                    let order = u32::try_from(n.to_atom()).ok()?;
-+                    if order < 2 || z.get_trailing_exponent() <= 0 {
-+                        return None;
-+                    }
-+
-+                    // At zero, substitution into the derivative Li_{n-1}(z)/z
-+                    // loses the removable limit. Compose the defining series
-+                    // instead, as in polylog_series_integer. Positive valuation
-+                    // ensures that only finitely many powers survive truncation.
-+                    let depth = z.absolute_order();
-+                    let mut sum = z.clone();
-+                    let mut power = z.clone();
-+                    let mut k = Integer::from(2);
-+                    loop {
-+                        power = &power * z;
-+                        power.truncate_absolute_order(depth.clone());
-+                        if power.is_zero() {
-+                            break;
-+                        }
-+                        sum = &sum + &power.clone().div_coeff(&Atom::num(k.clone()).pow(order));
-+                        k += 1;
-+                    }
-+                    Some((Atom::num(1), sum.to_atom()))
-+                })
-                 .with_evaluation_info(
-                     EvaluationInfo::new().with_tags(1)
-                     .register_tagged(|tags| {
-@@ -606,12 +632,16 @@ impl SpecialSymbols {
-                     })
-                     .register_tagged(|tags| {
-                         let order = complex_float_tag("polylog", tags, 53).ok();
--                        Box::new(move |args: &[f64]| polylog_eval_f64(order.clone(), args))
-+                        let dilogarithm = order.as_ref().is_some_and(is_dilogarithm_order);
-+                        Box::new(move |args: &[f64]| {
-+                            polylog_eval_f64(order.as_ref(), dilogarithm, args)
-+                        })
-                     })
-                     .register_tagged(|tags| {
-                         let order = complex_float_tag("polylog", tags, 53).ok();
-+                        let dilogarithm = order.as_ref().is_some_and(is_dilogarithm_order);
-                         Box::new(move |args: &[Complex<f64>]| {
--                            polylog_eval_complex_f64(order.clone(), args)
-+                            polylog_eval_complex_f64(order.as_ref(), dilogarithm, args)
-                         })
-                     }),
-                 )
-@@ -3009,31 +3039,253 @@ fn polygamma_eval_complex_f64(order: Option<u32>, args: &[Complex<f64>]) -> Comp
-     polygamma_numeric_eval(order, &complex_f64_to_float(arg, 53), 53).to_f64()
- }
+diff --git a/src/poly/factor.rs b/src/poly/factor.rs
+index 508c3940..bd0872a6 100644
+--- a/src/poly/factor.rs
++++ b/src/poly/factor.rs
+@@ -4177,6 +4177,41 @@ impl<E: PositiveExponent> MultivariatePolynomial<IntegerRing, E, LexOrder> {
+             .unwrap_or_else(|| self * self)
+     }
  
--fn polylog_eval_f64(order: Option<Complex<Float>>, args: &[f64]) -> f64 {
-+fn polylog_eval_f64(order: Option<&Complex<Float>>, dilogarithm: bool, args: &[f64]) -> f64 {
-     let Some(order) = order else {
-         return f64::NAN;
-     };
-     let [arg] = args else {
-         return f64::NAN;
-     };
-+    if dilogarithm && arg.is_finite() {
-+        return dilog_f64(*arg);
-+    }
-     let arg = Complex::new(Float::with_val(53, *arg), Float::new(53));
--    polylog_numeric_eval(&order, &arg, 53)
-+    polylog_numeric_eval(order, &arg, 53)
-         .map(|x| x.re.to_f64())
-         .unwrap_or(f64::NAN)
- }
- 
--fn polylog_eval_complex_f64(order: Option<Complex<Float>>, args: &[Complex<f64>]) -> Complex<f64> {
-+fn polylog_eval_complex_f64(
-+    order: Option<&Complex<Float>>,
-+    dilogarithm: bool,
-+    args: &[Complex<f64>],
-+) -> Complex<f64> {
-     let Some(order) = order else {
-         return Complex::new(f64::NAN, f64::NAN);
-     };
-     let [arg] = args else {
-         return Complex::new(f64::NAN, f64::NAN);
-     };
--    polylog_numeric_eval(&order, &complex_f64_to_float(arg, 53), 53)
-+    if dilogarithm && arg.re.is_finite() && arg.im.is_finite() {
-+        return dilog_complex_f64(*arg);
-+    }
-+    polylog_numeric_eval(order, &complex_f64_to_float(arg, 53), 53)
-         .map(|x| x.to_f64())
-         .unwrap_or_else(|| Complex::new(f64::NAN, f64::NAN))
- }
- 
-+/// Whether a numeric polylogarithm order tag is exactly two.
-+fn is_dilogarithm_order(order: &Complex<Float>) -> bool {
-+    order.im.is_zero() && order.re == Float::with_val(order.re.prec(), 2)
-+}
++    /// Give every non-constant factor a positive leading coefficient and move
++    /// the signs into the constant factor. The stages of the factorization
++    /// (random evaluation points and splitting choices of the univariate and
++    /// lifting steps) only determine the factors up to a unit, so without this
++    /// the same input can factor as `(a-b)*(a+b)` in one call and
++    /// `(b-a)*(-a-b)` in the next.
++    fn normalize_factor_signs(mut factors: Vec<(Self, usize)>) -> Vec<(Self, usize)> {
++        let mut negative = false;
++        for (factor, multiplicity) in &mut factors {
++            if !factor.is_constant() && factor.lcoeff().is_negative() {
++                *factor = -factor.clone();
++                negative ^= *multiplicity % 2 == 1;
++            }
++        }
++        if !negative {
++            return factors;
++        }
 +
-+/// `pi^2/6` and `pi^2/3`, correctly rounded to binary64.
-+const PI_SQUARED_OVER_SIX: f64 = 1.644_934_066_848_226_4;
-+const PI_SQUARED_OVER_THREE: f64 = 3.289_868_133_696_452_9;
-+
-+/// `B_(2k)/(2k+1)!` for `k = 1..=10`: with `u = -log(1-z)`,
-+/// `Li2(z) = u - u^2/4 + sum_k B_(2k)/(2k+1)! u^(2k+1)` for `|u| < 2 pi`.
-+const DILOG_BERNOULLI: [f64; 10] = [
-+    1.0 / 36.0,
-+    -1.0 / 3600.0,
-+    1.0 / 211680.0,
-+    -1.0 / 10886400.0,
-+    1.0 / 526901760.0,
-+    -4.064_761_645_144_225_5e-11,
-+    8.921_691_020_456_452_6e-13,
-+    -1.993_929_586_072_107_6e-14,
-+    4.518_980_029_619_918_2e-16,
-+    -1.035_651_761_218_124_7e-17,
-+];
-+
-+/// The Bernoulli series of `Li2(w)` in `u = -log(1-w)`.
-+///
-+/// Callers keep `|u| <= pi/3`, where the omitted `k = 11` term is below
-+/// `1e-18` relative to the result.
-+#[inline]
-+fn dilog_bernoulli_series_f64(u: f64) -> f64 {
-+    let v = u * u;
-+    // Estrin's scheme, as in the complex series. No mul_add: without a target
-+    // FMA feature it becomes a libm call.
-+    let b = &DILOG_BERNOULLI;
-+    let (v2, linear) = (v * v, |c0: f64, c1: f64| c0 + c1 * v);
-+    let v4 = v2 * v2;
-+    let low = linear(b[0], b[1]) + v2 * linear(b[2], b[3]);
-+    let high = linear(b[4], b[5]) + v2 * linear(b[6], b[7]);
-+    let sum = low + v4 * high + v4 * v4 * linear(b[8], b[9]);
-+    u - v / 4.0 + u * v * sum
-+}
-+
-+#[inline]
-+fn dilog_bernoulli_series_complex_f64(u: Complex<f64>) -> Complex<f64> {
-+    let v = mul_complex_f64(u, u);
-+    // Estrin's scheme in v: short dependency chains instead of nine
-+    // dependent complex multiply-adds.
-+    let b = &DILOG_BERNOULLI;
-+    let linear = |c0: f64, c1: f64| Complex::new(c0 + c1 * v.re, c1 * v.im);
-+    let add = |a: Complex<f64>, b: Complex<f64>| Complex::new(a.re + b.re, a.im + b.im);
-+    let v2 = mul_complex_f64(v, v);
-+    let v4 = mul_complex_f64(v2, v2);
-+    let v8 = mul_complex_f64(v4, v4);
-+    let low = add(linear(b[0], b[1]), mul_complex_f64(v2, linear(b[2], b[3])));
-+    let high = add(linear(b[4], b[5]), mul_complex_f64(v2, linear(b[6], b[7])));
-+    let sum = add(
-+        add(low, mul_complex_f64(v4, high)),
-+        mul_complex_f64(v8, linear(b[8], b[9])),
-+    );
-+    let uv = Complex::new(u.re * v.re - u.im * v.im, u.re * v.im + u.im * v.re);
-+    Complex::new(
-+        u.re - v.re / 4.0 + (uv.re * sum.re - uv.im * sum.im),
-+        u.im - v.im / 4.0 + (uv.re * sum.im + uv.im * sum.re),
-+    )
-+}
-+
-+/// Principal `log(1 + w)` without losing the relative precision of small `w`.
-+#[inline]
-+fn log_one_plus_complex_f64(w: Complex<f64>) -> Complex<f64> {
-+    let real = 1.0 + w.re;
-+    let modulus_log = if w.re.abs() < 0.5 && w.im.abs() < 0.5 {
-+        // |1+w|^2 - 1 = w.re (2 + w.re) + w.im^2, without forming |1+w|^2.
-+        0.5 * (w.re * (2.0 + w.re) + w.im * w.im).ln_1p()
-+    } else {
-+        log_modulus_f64(real, w.im)
-+    };
-+    Complex::new(modulus_log, w.im.atan2(real))
-+}
-+
-+/// `log(|x + i y|)` for finite, not both zero, components.
-+#[inline]
-+fn log_modulus_f64(x: f64, y: f64) -> f64 {
-+    let squared = x * x + y * y;
-+    if squared.is_normal() && squared.is_finite() {
-+        0.5 * squared.ln()
-+    } else {
-+        x.hypot(y).ln()
-+    }
-+}
-+
-+#[inline]
-+fn log_complex_f64(z: Complex<f64>) -> Complex<f64> {
-+    Complex::new(log_modulus_f64(z.re, z.im), z.im.atan2(z.re))
-+}
-+
-+/// `1/z` without overflowing or underflowing `|z|^2` (Smith's algorithm).
-+#[inline]
-+fn inverse_complex_f64(z: Complex<f64>) -> Complex<f64> {
-+    if z.re.abs() >= z.im.abs() {
-+        let ratio = z.im / z.re;
-+        let denominator = z.re + z.im * ratio;
-+        Complex::new(1.0 / denominator, -ratio / denominator)
-+    } else {
-+        let ratio = z.re / z.im;
-+        let denominator = z.re * ratio + z.im;
-+        Complex::new(ratio / denominator, -1.0 / denominator)
-+    }
-+}
-+
-+#[inline]
-+fn mul_complex_f64(a: Complex<f64>, b: Complex<f64>) -> Complex<f64> {
-+    Complex::new(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re)
-+}
-+
-+/// The real dilogarithm `Li2(x)` in binary64, for real `x`.
-+///
-+/// For `x > 1` this returns the real part of the continuation, which is the
-+/// same on both sides of the cut. It agrees with the numerical value of
-+/// `polylog(2, x)` to a few ulps away from the zero of `Re Li2(x)` near
-+/// `x = 12.6`, where only absolute accuracy is retained. Non-finite input
-+/// gives `NaN`.
-+pub fn dilog_f64(x: f64) -> f64 {
-+    if !x.is_finite() {
-+        return f64::NAN;
-+    }
-+    if x == 0.0 {
-+        // Like polylog(2, 0), including for a negative zero.
-+        return 0.0;
-+    }
-+    if x < -1.0 {
-+        // Li2(x) = -Li2(1/x) - pi^2/6 - log(-x)^2/2.
-+        let log = (-x).ln();
-+        let series = dilog_bernoulli_series_f64(-(-1.0 / x).ln_1p());
-+        -series - PI_SQUARED_OVER_SIX - 0.5 * log * log
-+    } else if x <= 0.5 {
-+        dilog_bernoulli_series_f64(-(-x).ln_1p())
-+    } else if x < 1.0 {
-+        // Li2(x) = -Li2(1-x) + pi^2/6 - log(x) log(1-x); 1-x is exact.
-+        let log = x.ln();
-+        -dilog_bernoulli_series_f64(-log) + PI_SQUARED_OVER_SIX - log * (1.0 - x).ln()
-+    } else if x == 1.0 {
-+        PI_SQUARED_OVER_SIX
-+    } else if x <= 2.0 {
-+        // The real part of the reflection on the cut, with exact 1-x.
-+        let log = x.ln();
-+        -dilog_bernoulli_series_f64(-log) + PI_SQUARED_OVER_SIX - log * (x - 1.0).ln()
-+    } else {
-+        // Re Li2(x) = -Li2(1/x) + pi^2/3 - log(x)^2/2.
-+        let log = x.ln();
-+        -dilog_bernoulli_series_f64(-(-1.0 / x).ln_1p()) + PI_SQUARED_OVER_THREE - 0.5 * log * log
-+    }
-+}
-+
-+/// The principal-branch complex dilogarithm `Li2(z)` in binary64.
-+///
-+/// Exactly real arguments follow `polylog(2, x)`: for `x > 1` the result is the
-+/// lower lip `Li2(x - i0)`, `Im Li2(x) = -pi log(x)`, independent of the sign of
-+/// the zero imaginary part; for `x <= 1` the imaginary part is zero, with the
-+/// same sign as before (`-0` only at `x = -1`). A nonzero
-+/// imaginary part, however small, selects its own side of the cut. The relative
-+/// error is a few ulps of `|Li2(z)|`. Non-finite input gives `NaN` components.
-+pub fn dilog_complex_f64(z: Complex<f64>) -> Complex<f64> {
-+    if !z.re.is_finite() || !z.im.is_finite() {
-+        return Complex::new(f64::NAN, f64::NAN);
-+    }
-+    if z.im == 0.0 {
-+        let imaginary = if z.re > 1.0 {
-+            -std::f64::consts::PI * z.re.ln()
-+        } else if z.re == -1.0 {
-+            // polylog(2, -1) = -(1-2^(-1)) zeta(2) carries a negative zero.
-+            -0.0
++        if let Some(index) = factors
++            .iter()
++            .position(|(factor, multiplicity)| factor.is_constant() && *multiplicity == 1)
++        {
++            let constant = -factors[index].0.clone();
++            if constant.is_one() {
++                factors.remove(index);
++            } else {
++                factors[index].0 = constant;
++            }
 +        } else {
-+            0.0
-+        };
-+        return Complex::new(dilog_f64(z.re), imaginary);
++            let minus_one = -factors[0].0.one();
++            factors.insert(0, (minus_one, 1));
++        }
++        factors
 +    }
 +
-+    let one_minus_re = 1.0 - z.re;
-+    if z.re > 0.5 && one_minus_re * one_minus_re + z.im * z.im <= 1.0 {
-+        // |1-z| <= 1: Li2(z) = -Li2(1-z) + pi^2/6 - log(z) log(1-z), where the
-+        // series variable of Li2(1-z) is -log(z). Here 1/2 < Re z < 2, so z-1
-+        // is exact and log(z) keeps its relative precision near z = 1.
-+        let log_z = log_one_plus_complex_f64(Complex::new(-one_minus_re, z.im));
-+        let log_one_minus_z = log_complex_f64(Complex::new(one_minus_re, -z.im));
-+        let series = dilog_bernoulli_series_complex_f64(Complex::new(-log_z.re, -log_z.im));
-+        let product = mul_complex_f64(log_z, log_one_minus_z);
-+        return Complex::new(
-+            -series.re + PI_SQUARED_OVER_SIX - product.re,
-+            -series.im - product.im,
-+        );
-+    }
-+
-+    let squared_modulus = z.re * z.re + z.im * z.im;
-+    if squared_modulus <= 1.0 {
-+        // |z| <= 1 and Re z <= 1/2, so |log(1-z)| <= pi/3.
-+        let log = log_one_plus_complex_f64(Complex::new(-z.re, -z.im));
-+        return dilog_bernoulli_series_complex_f64(Complex::new(-log.re, -log.im));
-+    }
-+
-+    // |z| > 1 and |1-z| > 1, so Re(1/z) < 1/2 and |1/z| < 1:
-+    // Li2(z) = -Li2(1/z) - pi^2/6 - log(-z)^2/2.
-+    let inverse = inverse_complex_f64(z);
-+    let log = log_one_plus_complex_f64(Complex::new(-inverse.re, -inverse.im));
-+    let series = dilog_bernoulli_series_complex_f64(Complex::new(-log.re, -log.im));
-+    let log_minus_z = log_complex_f64(Complex::new(-z.re, -z.im));
-+    let square = mul_complex_f64(log_minus_z, log_minus_z);
-+    Complex::new(
-+        -series.re - PI_SQUARED_OVER_SIX - 0.5 * square.re,
-+        -series.im - 0.5 * square.im,
-+    )
-+}
-+
- fn zeta_eval_f64(args: &[f64]) -> f64 {
-     let [arg] = args else {
-         return f64::NAN;
-@@ -5462,6 +5714,67 @@ mod tests {
-         assert!(Complex::<Float>::try_from(parse!("polylog(2,0.5)")).is_ok());
-     }
+     /// Add a factor to a factorization, combining its multiplicity with an
+     /// identical factor that was already recovered.
+     fn append_integer_factor(factors: &mut Vec<(Self, usize)>, factor: Self, multiplicity: usize) {
+@@ -4806,10 +4841,10 @@ impl<E: PositiveExponent> Factorize for MultivariatePolynomial<IntegerRing, E, L
  
-+    #[test]
-+    fn polylog_series_at_zero() {
-+        let x = symbol!("x");
-+        assert_eq!(
-+            parse!("polylog(2,x)").series(x, 0, 8).unwrap().to_atom(),
-+            parse!("x+x^2/4+x^3/9+x^4/16+x^5/25+x^6/36+x^7/49+x^8/64")
-+        );
-+        assert_eq!(
-+            parse!("polylog(3,x)").series(x, 0, 5).unwrap().to_atom(),
-+            parse!("x+x^2/8+x^3/27+x^4/64+x^5/125")
-+        );
-+        assert_eq!(
-+            parse!("polylog(2,x^5)").series(x, 0, 2).unwrap().to_atom(),
-+            Atom::new()
-+        );
-+        assert_eq!(
-+            parse!("polylog(2,x)/x").series(x, 0, 4).unwrap().to_atom(),
-+            parse!("1+x/4+x^2/9+x^3/16+x^4/25")
-+        );
-+    }
-+
-+    #[test]
-+    fn polylog_series_at_zero_composes_and_shifts() {
-+        let x = symbol!("x");
-+        assert_eq!(
-+            parse!("polylog(2,1-x)")
-+                .series(x, 1, 5)
-+                .unwrap()
-+                .to_atom()
-+                .expand(),
-+            parse!("-(x-1)+(x-1)^2/4-(x-1)^3/9+(x-1)^4/16-(x-1)^5/25").expand()
-+        );
-+        assert_eq!(
-+            parse!("polylog(2,x+x^2)")
-+                .series(x, 0, 4)
-+                .unwrap()
-+                .to_atom(),
-+            parse!("x+5*x^2/4+11*x^3/18+31*x^4/48")
-+        );
-+        assert_eq!(
-+            parse!("polylog(2,x^(1/2))")
-+                .series(x, 0, (5, 2))
-+                .unwrap()
-+                .to_atom(),
-+            parse!("x^(1/2)+x/4+x^(3/2)/9+x^2/16+x^(5/2)/25")
-+        );
-+    }
-+
-+    #[test]
-+    fn polylog_series_away_from_zero_is_unchanged() {
-+        let x = symbol!("x");
-+        assert_eq!(
-+            parse!("polylog(2,-1+x)")
-+                .series(x, 0, 2)
-+                .unwrap()
-+                .to_atom()
-+                .expand(),
-+            parse!("-pi^2/12+log(2)*x+(log(2)/2-1/4)*x^2").expand()
-+        );
-+    }
-+
-     #[test]
-     fn polylog_matches_ginac_off_series_region() {
-         if Command::new("ginsh").arg("--help").output().is_err() {
-@@ -5708,6 +6021,238 @@ mod tests {
+     fn factor(&self) -> Vec<(Self, usize)> {
+         if let Some(factors) = self.factor_in_active_variable() {
+-            return factors;
++            return Self::normalize_factor_signs(factors);
          }
+         if let Some(factors) = self.factor_quadratic_before_square_free() {
+-            return factors;
++            return Self::normalize_factor_signs(factors);
+         }
+ 
+         let sf = self.square_free_factorization();
+@@ -4944,7 +4979,7 @@ impl<E: PositiveExponent> Factorize for MultivariatePolynomial<IntegerRing, E, L
+             }
+         }
+ 
+-        factors
++        Self::normalize_factor_signs(factors)
      }
  
-+    /// Arguments covering every continuation region of the binary64 dilogarithm,
-+    /// its region boundaries, both sides of the cut, and extreme magnitudes.
-+    #[cfg(feature = "float-mpfr")]
-+    fn dilog_f64_sample_arguments() -> Vec<Complex<f64>> {
-+        let mut points = Vec::new();
-+        for i in -30..=30 {
-+            for j in -30..=30 {
-+                points.push(Complex::new(f64::from(i) * 0.137, f64::from(j) * 0.093));
-+            }
-+        }
-+        let third = std::f64::consts::FRAC_PI_3;
-+        let angles = (0..48).map(|k| f64::from(k) * std::f64::consts::PI / 24.0 + 1e-3);
-+        for angle in angles.chain([third, -third, 1e-12, -1e-12, std::f64::consts::PI]) {
-+            for radius in [
-+                1e-300, 1e-200, 1e-20, 1e-8, 1e-3, 0.3, 0.999, 1.0, 1.001, 3.0, 1e3, 1e8, 1e20,
-+                1e200, 1e300,
-+            ] {
-+                points.push(Complex::new(radius * angle.cos(), radius * angle.sin()));
-+            }
-+            for distance in [1e-14, 1e-8, 1e-3, 0.5, 0.999_999, 1.0, 1.000_001] {
-+                points.push(Complex::new(
-+                    1.0 + distance * angle.cos(),
-+                    distance * angle.sin(),
-+                ));
-+            }
-+        }
-+        for x in [
-+            -1e300,
-+            -1e10,
-+            -3.0,
-+            -1.0 - 1e-15,
-+            -1.0,
-+            -0.5,
-+            -1e-12,
-+            1e-300,
-+            0.25,
-+            0.5,
-+            0.75,
-+            1.0 - f64::EPSILON / 2.0,
-+            1.0,
-+            1.0 + f64::EPSILON,
-+            1.5,
-+            2.0,
-+            3.0,
-+            100.0,
-+            1e10,
-+            1e300,
-+        ] {
-+            for y in [1e-300, -1e-300, 1e-14, -1e-14] {
-+                points.push(Complex::new(x, y));
-+            }
-+        }
-+        // Deterministic pseudo-random arguments with scattered magnitudes.
-+        let mut state = 0x2545_f491_4f6c_dd1d_u64;
-+        let mut next = || {
-+            state ^= state << 13;
-+            state ^= state >> 7;
-+            state ^= state << 17;
-+            (state >> 11) as f64 / (1u64 << 53) as f64
-+        };
-+        for _ in 0..4000 {
-+            let radius = 10f64.powf(16.0 * next() - 8.0);
-+            let angle = 2.0 * std::f64::consts::PI * next();
-+            points.push(Complex::new(radius * angle.cos(), radius * angle.sin()));
-+        }
-+        points
-+    }
-+
-+    #[cfg(feature = "float-mpfr")]
-+    fn reference_dilog(z: Complex<f64>) -> Complex<Float> {
-+        const BITS: u32 = 256;
-+        let argument = Complex::new(Float::with_val(BITS, z.re), Float::with_val(BITS, z.im));
-+        polylog_integer_numeric_eval(2, &argument, BITS, 0).unwrap()
-+    }
-+
-+    #[cfg(feature = "float-mpfr")]
-+    #[test]
-+    fn dilog_complex_f64_matches_multiprecision() {
-+        let mut worst = (0.0, Complex::new(0.0, 0.0));
-+        for z in dilog_f64_sample_arguments() {
-+            let actual = super::dilog_complex_f64(z);
-+            let expected = reference_dilog(z);
-+            let difference = Complex::new(
-+                Float::with_val(256, actual.re) - &expected.re,
-+                Float::with_val(256, actual.im) - &expected.im,
-+            );
-+            let error = (difference.norm().re / expected.norm().re).to_f64();
-+            if error > worst.0 {
-+                worst = (error, z);
-+            }
-+        }
-+        // About four ulps; the old route rounded the same reference once.
-+        eprintln!(
-+            "binary64 Li2: worst relative error {:e} at {:?}",
-+            worst.0, worst.1
-+        );
-+        assert!(
-+            worst.0 < 1e-15,
-+            "worst relative error {:e} at {:?}",
-+            worst.0,
-+            worst.1
-+        );
-+    }
-+
-+    #[cfg(feature = "float-mpfr")]
-+    #[test]
-+    fn dilog_f64_matches_multiprecision() {
-+        let mut arguments: Vec<f64> = (-400..=400).map(|i| f64::from(i) * 0.0371).collect();
-+        arguments.extend([
-+            -1e300,
-+            -1e10,
-+            -3.0,
-+            -1.0,
-+            -1e-300,
-+            1e-300,
-+            1e-20,
-+            1e-8,
-+            0.5,
-+            1.0 - 1e-15,
-+            1.0,
-+            1.0 + 1e-15,
-+            2.0,
-+            2.0 + 1e-15,
-+            12.0,
-+            13.0,
-+            1e10,
-+            1e300,
-+        ]);
-+        for x in arguments {
-+            let actual = super::dilog_f64(x);
-+            let expected = reference_dilog(Complex::new(x, 0.0)).re;
-+            let error = (Float::with_val(256, actual) - &expected).norm().to_f64();
-+            // Re Li2(x) changes sign near x = 12.6, so for x > 1 the cut's
-+            // pi^2/3 term, not the result, sets the attainable absolute error.
-+            let scale = expected.norm().to_f64() + if x > 1.0 { 3.3 } else { 0.0 };
-+            assert!(
-+                error <= 1e-15 * scale,
-+                "x={x:e}: {actual:e} vs {expected}, error {error:e}"
-+            );
-+        }
-+    }
-+
-+    #[test]
-+    fn dilog_f64_preserves_cut_conventions() {
-+        let pi_log_two = std::f64::consts::PI * std::f64::consts::LN_2;
-+        for imaginary in [0.0, -0.0] {
-+            // Exactly real arguments use the lower lip, as polylog(2, x) does.
-+            let value = super::dilog_complex_f64(Complex::new(2.0, imaginary));
-+            assert!((value.re - std::f64::consts::PI.powi(2) / 4.0).abs() < 1e-15);
-+            assert!((value.im + pi_log_two).abs() < 1e-15);
-+            for x in [-3.0, -0.5, 0.0, 0.5, 1.0] {
-+                let value = super::dilog_complex_f64(Complex::new(x, imaginary));
-+                assert!(value.im == 0.0 && value.im.is_sign_positive(), "{x}");
-+                assert_eq!(value.re, super::dilog_f64(x));
-+            }
-+        }
-+        // A nonzero imaginary part selects its own side, however small.
-+        for sign in [-1.0, 1.0] {
-+            let value = super::dilog_complex_f64(Complex::new(2.0, sign * 1e-300));
-+            assert!((value.im - sign * pi_log_two).abs() < 1e-15);
-+        }
-+        let zero = super::dilog_complex_f64(Complex::new(-0.0, -0.0));
-+        assert!(zero.re == 0.0 && zero.re.is_sign_positive());
-+        assert!(zero.im == 0.0 && zero.im.is_sign_positive());
-+        assert_eq!(super::dilog_f64(1.0), std::f64::consts::PI.powi(2) / 6.0);
-+        assert_eq!(super::dilog_f64(-1.0), -std::f64::consts::PI.powi(2) / 12.0);
-+        assert!(super::dilog_f64(f64::NAN).is_nan());
-+        assert!(
-+            super::dilog_complex_f64(Complex::new(f64::INFINITY, 0.0))
-+                .re
-+                .is_nan()
-+        );
-+    }
-+
-+    #[cfg(feature = "float-mpfr")]
-+    #[test]
-+    fn dilog_f64_keeps_previous_signed_zeros() {
-+        // The previous binary64 route evaluated polylog(2, z) with MPFR at 53
-+        // bits. Exact zero components of the result keep their signs.
-+        let order = Complex::new(Float::with_val(53, 2), Float::new(53));
-+        for x in [-1e10, -3.0, -1.0, -0.5, 0.0, 0.25, 0.5, 1.0, 2.0, 1e10] {
-+            for y in [0.0, -0.0] {
-+                let z = Complex::new(x, y);
-+                let argument = Complex::new(Float::with_val(53, x), Float::with_val(53, y));
-+                let previous = polylog_numeric_eval(&order, &argument, 53).unwrap();
-+                let previous = Complex::new(previous.re.to_f64(), previous.im.to_f64());
-+                let value = super::dilog_complex_f64(z);
-+                for (new, old) in [(value.re, previous.re), (value.im, previous.im)] {
-+                    if old == 0.0 {
-+                        assert_eq!(new.to_bits(), old.to_bits(), "{z:?}");
-+                    }
-+                }
-+            }
-+        }
-+    }
-+
-+    #[test]
-+    fn binary64_polylog_evaluators_use_dilog_kernel() {
-+        let evaluator = parse!("polylog(2,x)")
-+            .evaluator(&[parse!("x")])
-+            .build()
-+            .unwrap();
-+        let mut complex = evaluator
-+            .clone()
-+            .map_coeff(&|x| Complex::new(x.re.to_f64(), x.im.to_f64()));
-+        let mut real = evaluator.map_coeff(&|x| x.re.to_f64());
-+        for z in [
-+            Complex::new(0.3, 0.1),
-+            Complex::new(-2.5, 0.7),
-+            Complex::new(5.0, -1e-3),
-+            Complex::new(5.0, 0.0),
-+            Complex::new(0.5, -0.0),
-+        ] {
-+            let value = complex.evaluate_single(&[z]);
-+            let expected = super::dilog_complex_f64(z);
-+            assert_eq!(value.re.to_bits(), expected.re.to_bits());
-+            assert_eq!(value.im.to_bits(), expected.im.to_bits());
-+        }
-+        for x in [-2.5, 0.3, 5.0] {
-+            assert_eq!(real.evaluate_single(&[x]), super::dilog_f64(x));
-+        }
-+
-+        // Other orders keep the multiprecision route.
-+        let mut trilog = parse!("polylog(3,x)")
-+            .evaluator(&[parse!("x")])
-+            .build()
-+            .unwrap()
-+            .map_coeff(&|x| Complex::new(x.re.to_f64(), x.im.to_f64()));
-+        let value = trilog.evaluate_single(&[Complex::new(0.5, 0.0)]);
-+        assert!((value.re - 0.537_213_193_608_040_2).abs() < 1e-15);
-+    }
-+
-     #[test]
-     fn zeta_exact_normalization() {
-         assert_eq!(parse!("zeta(0)"), parse!("-1/2"));
-diff --git a/tests/evaluation.rs b/tests/evaluation.rs
-index 4d4358bb..1115dab7 100644
---- a/tests/evaluation.rs
-+++ b/tests/evaluation.rs
-@@ -3,7 +3,7 @@ use symbolica::{
-     domains::{
-         Ring,
-         finite_field::{FiniteFieldCore, Zp},
--        float::{Complex, ErrorPropagatingFloat, Float, RealLike},
-+        float::{Complex, ErrorPropagatingFloat, Float, FloatLike, RealLike},
-         rational::Rational,
-     },
-     evaluate::{
-@@ -405,6 +405,26 @@ fn error_propagating_float_transcendental_evaluator() {
-     assert!(epfloat.get_precision().is_some());
- }
+     fn is_irreducible(&self) -> bool {
+@@ -17959,4 +17994,40 @@ mod test {
  
-+#[test]
-+fn float_evaluator_keeps_exact_differences() {
-+    // sqrt(x) carries one bit more than x, and `a - b` is evaluated as
-+    // `a + (-1) b` with a `-1` at the working precision.
-+    let x = parse!("x");
-+    let evaluator = parse!("sqrt(x) - abs(sqrt(x))")
-+        .evaluator(&[x])
-+        .build()
-+        .unwrap();
-+    for bits in [128, 256, 512] {
-+        let mut evaluator = evaluator
-+            .clone()
-+            .map_coeff(&|c| Float::with_val(bits, c.re.to_f64()));
-+        for k in 2..100 {
-+            let result = evaluator.evaluate_single(&[Float::with_val(bits, k)]);
-+            assert!(result.is_fully_zero(), "{bits} bits, x = {k}: {result}");
-+        }
-+    }
-+}
+         assert_eq!(factors, vec![(f1, 1), (f2, 1)])
+     }
 +
- #[test]
- fn float_transcendental_evaluator() {
-     let params = vec![
++    #[test]
++    fn integer_factor_signs_do_not_depend_on_random_choices() {
++        // Two active variables of a ten-variable ring: the bivariate stage
++        // used to return (t^2-2*y)*(t^2+2*y) or (-t^2-2*y)*(-t^2+2*y)
++        // depending on its random choices. The order of the factors is not
++        // part of the result.
++        let variables: Vec<_> = (0..10)
++            .map(|i| symbol!(format!("factor_sign_v{i}")).into())
++            .collect();
++        let target = parse!("factor_sign_v5*(factor_sign_v6^4-4*factor_sign_v7^2)")
++            .to_polynomial::<_, u32>(&Z, Some(Arc::new(variables)));
++        let sorted = |mut factors: Vec<(MultivariatePolynomial<IntegerRing, u32>, usize)>| {
++            factors.sort_by(|a, b| a.0.internal_cmp(&b.0).then(a.1.cmp(&b.1)));
++            factors
++        };
++        let reference = sorted(target.factor());
++        assert_eq!(reference.len(), 3);
++        let mut product = target.one();
++        for (factor, multiplicity) in &reference {
++            assert!(!factor.lcoeff().is_negative(), "{factor}");
++            for _ in 0..*multiplicity {
++                product = &product * factor;
++            }
++        }
++        assert_eq!(product, target);
++        for _ in 0..64 {
++            assert_eq!(sorted(target.factor()), reference);
++        }
++
++        let mut factors = sorted((-target.clone()).factor());
++        let minus_one = target.constant((-1).into());
++        let index = factors.iter().position(|(f, _)| f == &minus_one).unwrap();
++        assert_eq!(factors.remove(index).1, 1);
++        assert_eq!(factors, reference);
++    }
+ }
+diff --git a/src/state.rs b/src/state.rs
+index cd8c823f..954dc824 100644
+--- a/src/state.rs
++++ b/src/state.rs
+@@ -1327,6 +1327,39 @@ impl State {
+         symbols
+     }
+ 
++    /// Write the given symbols, and the symbols their data depends on, to a binary
++    /// stream in the partial-state format, without finite fields or variable lists.
++    ///
++    /// Unlike [`State::export_partial`], the output depends only on these symbols
++    /// (their names, attributes and identifiers), not on unrelated symbols,
++    /// finite fields or polynomial variable lists registered earlier in the
++    /// process. Use it for objects, such as evaluators, that reference symbols
++    /// but no finite fields or variable lists.
++    pub fn export_symbols<W: Write>(
++        dest: &mut W,
++        symbols: HashSet<Symbol>,
++    ) -> Result<(), std::io::Error> {
++        let (n_symbols, _, _) = Self::export_registry_lengths();
++        let symbols = Self::get_dependent_symbols(symbols);
++
++        dest.write_u32::<LittleEndian>(SYMBOLICA_MAGIC)?;
++        dest.write_u16::<LittleEndian>(EXPORT_FORMAT_VERSION)?;
++        dest.write_u8(!FULL_STATE_EXPORT_FLAG)?;
++
++        dest.write_u64::<LittleEndian>(symbols.len() as u64)?;
++        for (i, (s, _)) in State::symbol_iter().take(n_symbols).enumerate() {
++            if symbols.contains(&s) {
++                dest.write_u32::<LittleEndian>(i as u32)?;
++                s.export(dest)?;
++            }
++        }
++
++        // No finite fields and no variable lists.
++        dest.write_u64::<LittleEndian>(0)?;
++        dest.write_u64::<LittleEndian>(0)?;
++        Ok(())
++    }
++
+     /// Write the state of a part of the symbol table to a binary stream.
+     #[inline(always)]
+     pub fn export_partial<W: Write>(
