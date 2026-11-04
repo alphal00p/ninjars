@@ -24,7 +24,7 @@ feynkit-amplitude = { git = "https://github.com/alphal00p/gammaloop.git", rev = 
 spenso = { git = "https://github.com/alphal00p/gammaloop.git", rev = "d1904bf2bd5bf4f26969a73b415095e941a55610", default-features = false, features = ["native", "shadowing"] }
 idenso = { git = "https://github.com/alphal00p/gammaloop.git", rev = "d1904bf2bd5bf4f26969a73b415095e941a55610", default-features = false, features = ["native"] }
 symbolica-utils = { git = "https://github.com/alphal00p/gammaloop.git", rev = "d1904bf2bd5bf4f26969a73b415095e941a55610", default-features = false, features = ["native"] }
-oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "31fd92251d0b33b3127106671ff607c63e4fe0af", default-features = false }
+oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "128ea6645f2811e6179068b98731501292841409", default-features = false }
 linnet = { git = "https://github.com/alphal00p/gammaloop.git", rev = "d1904bf2bd5bf4f26969a73b415095e941a55610", default-features = false, features = ["serde"] }
 thiserror = "2"
 serde = { version = "1", features = ["derive"] }
@@ -38,14 +38,14 @@ tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 # author-merged commits; the branch the Python Community release is built
 # from) with the consolidated upstream PR (batched evaluation, DualNumber
 # component views, evaluator saves with only their referenced state, complex
-# modulus derivatives in Dual domains) on top,
-# branch ValentinHirschi/symbolica pyamplicol/pin-community-36cbac3a. Moves to
-# upstream when the PR is merged. One revision for all three crates, shared
+# modulus derivatives in Dual domains, deterministic integer factor signs) on
+# top: symbolica-dev/symbolica#163, branch ValentinHirschi/symbolica
+# loop_me_pyamplicol. Moves to upstream when the PR is merged. One revision for all three crates, shared
 # with oneloopmaster and pyAmpliCol.
 [patch.crates-io]
-symbolica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "ab497fae22c5a5e3f33ce77adfa11bb37fa5fca0" }
-numerica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "ab497fae22c5a5e3f33ce77adfa11bb37fa5fca0" }
-graphica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "ab497fae22c5a5e3f33ce77adfa11bb37fa5fca0" }
+symbolica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "20a9da94071d7dd64ea5cdd6ed9d6e8f8cefeacc" }
+numerica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "20a9da94071d7dd64ea5cdd6ed9d6e8f8cefeacc" }
+graphica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "20a9da94071d7dd64ea5cdd6ed9d6e8f8cefeacc" }
 symbolica-typst-plugin = { git = "https://github.com/symbolica-dev/symbolica-typst-plugin", rev = "57b7455b37c30f4f87353c0073e49f5225e937ab" }
 
 [profile.release]
