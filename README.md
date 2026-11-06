@@ -315,8 +315,12 @@ tree under `references/MG5_aMC_v3_7_0`.
 - [Symbolica](https://github.com/symbolica-dev/symbolica)
 - [oneloopmaster](https://github.com/alphal00p/oneloopmaster)
 
-NinjaRS is licensed under GPL-3.0-or-later. Its dependencies retain their own
-licenses; see their source distributions.
+NinjaRS is licensed under the BSD Zero Clause License (0BSD); see `LICENSE`.
+Content taken from other projects keeps its own license:
+`dependencies/patches/symbolica-batch-dual.patch` is a diff of Symbolica's
+source and remains subject to Symbolica's terms. The dependencies, including
+the sources that `tools/bootstrap.py` fetches into `references/`, retain their
+own licenses; see their source distributions.
 
 ### Separate bare-loop UV and IR poles
 
