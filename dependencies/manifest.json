@@ -9,11 +9,11 @@
       "patches": [
         {
           "path": "dependencies/patches/symbolica-batch-dual.patch",
-          "sha256": "65d0fd354990007ddd5965d4d40b70bc705a8c6ffdecc516582375bacc540c67"
+          "sha256": "39baba4954598d3f105e76e30ed5c5f9f35b32f21804d9682590938a22d2f832"
         }
       ],
       "patched_revisions": [
-        "b9eaa735862e7d22d7694a14da02f2498342e29a"
+        "dfe6bd97b974b1028dc63071ea165136cd2b0ef5"
       ]
     },
     {

@@ -60,15 +60,18 @@ Dependencies are pinned in `Cargo.toml` and recorded with their provenance in
 | --- | --- | --- |
 | FeynKit, Spenso, Idenso (gammaloop) | `https://github.com/alphal00p/gammaloop` | `d1904bf2` (branch `feynkit`, with PRs #142-#144 and #149-#152 merged) |
 | oneloopmaster (`oneloop`) | `https://github.com/alphal00p/oneloopmaster` | `a7cf4587` (`main`) |
-| Symbolica, Numerica, Graphica | `https://github.com/ValentinHirschi/symbolica` (branch `loop_me_pyamplicol`, PR symbolica-dev/symbolica#163) | `b9eaa735` |
+| Symbolica, Numerica, Graphica | `https://github.com/ValentinHirschi/symbolica` (branch `loop_me_pyamplicol`, PR symbolica-dev/symbolica#163) | `dfe6bd97` |
 
-Symbolica `b9eaa735` is symbolica-dev/symbolica's `community` branch `36cbac3a`
+Symbolica `dfe6bd97` is symbolica-dev/symbolica's `community` branch `36cbac3a`
 (main `9de26e4e` plus the author's merged commits; the Python Community release
 is built from it) plus the consolidated upstream pull request in
 `dependencies/patches` (batched evaluation, `DualNumber` component views, saved
 evaluators that hold only the state they reference, complex modulus
-derivatives in Dual domains, deterministic integer factor signs, and
-polynomial exponents bounded by the i32 conversion range;
+derivatives in Dual domains, deterministic integer factor signs,
+polynomial exponents bounded by the i32 conversion range, a journaled
+conditional cache in the direct evaluator translator (no per-branch cache
+copies; generated instructions unchanged), and native Python `ComplexFloat`
+operands converted at the more precise component's precision;
 symbolica-dev/symbolica#163). The pin moves to upstream
 when that pull request is merged.
 NinjaRS replaces the crates.io `symbolica`,
@@ -81,9 +84,9 @@ git must repeat that block in its own root `Cargo.toml`:
 ninjars-symbolica = { git = "https://github.com/alphal00p/ninjars", rev = "<revision>" }
 
 [patch.crates-io]
-symbolica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "b9eaa735862e7d22d7694a14da02f2498342e29a" }
-numerica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "b9eaa735862e7d22d7694a14da02f2498342e29a" }
-graphica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "b9eaa735862e7d22d7694a14da02f2498342e29a" }
+symbolica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "dfe6bd97b974b1028dc63071ea165136cd2b0ef5" }
+numerica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "dfe6bd97b974b1028dc63071ea165136cd2b0ef5" }
+graphica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "dfe6bd97b974b1028dc63071ea165136cd2b0ef5" }
 symbolica-typst-plugin = { git = "https://github.com/symbolica-dev/symbolica-typst-plugin", rev = "57b7455b37c30f4f87353c0073e49f5225e937ab" }
 ```
 
