@@ -25,9 +25,9 @@ symbolica = { version = "3.0.1", default-features = false, features = ["integer-
 serde_json = "1"
 
 [patch.crates-io]
-symbolica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "b9eaa735862e7d22d7694a14da02f2498342e29a" }
-numerica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "b9eaa735862e7d22d7694a14da02f2498342e29a" }
-graphica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "b9eaa735862e7d22d7694a14da02f2498342e29a" }
+symbolica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "dfe6bd97b974b1028dc63071ea165136cd2b0ef5" }
+numerica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "dfe6bd97b974b1028dc63071ea165136cd2b0ef5" }
+graphica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "dfe6bd97b974b1028dc63071ea165136cd2b0ef5" }
 
 # Same as NinjaRS's release profile.
 [profile.release]

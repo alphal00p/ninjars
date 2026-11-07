@@ -39,16 +39,18 @@ tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 # from) with the consolidated upstream PR (batched evaluation, DualNumber
 # component views, evaluator saves with only their referenced state, complex
 # modulus derivatives in Dual domains, deterministic integer factor signs,
-# polynomial exponents bounded by the i32 conversion range) on top:
+# polynomial exponents bounded by the i32 conversion range, a journaled
+# conditional cache in the direct evaluator translator, native Python
+# ComplexFloat operands at the more precise component's precision) on top:
 # symbolica-dev/symbolica#163, branch ValentinHirschi/symbolica
 # loop_me_pyamplicol. Moves to upstream when the PR is merged. One revision
 # for all three crates, shared with pyAmpliCol (oneloopmaster a7cf4587's own
 # standalone [patch] names the previous head 20a9da94; only the root's
 # [patch] applies in a build).
 [patch.crates-io]
-symbolica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "b9eaa735862e7d22d7694a14da02f2498342e29a" }
-numerica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "b9eaa735862e7d22d7694a14da02f2498342e29a" }
-graphica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "b9eaa735862e7d22d7694a14da02f2498342e29a" }
+symbolica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "dfe6bd97b974b1028dc63071ea165136cd2b0ef5" }
+numerica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "dfe6bd97b974b1028dc63071ea165136cd2b0ef5" }
+graphica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "dfe6bd97b974b1028dc63071ea165136cd2b0ef5" }
 symbolica-typst-plugin = { git = "https://github.com/symbolica-dev/symbolica-typst-plugin", rev = "57b7455b37c30f4f87353c0073e49f5225e937ab" }
 
 [profile.release]
