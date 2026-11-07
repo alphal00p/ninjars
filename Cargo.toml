@@ -24,7 +24,7 @@ feynkit-amplitude = { git = "https://github.com/alphal00p/gammaloop.git", rev = 
 spenso = { git = "https://github.com/alphal00p/gammaloop.git", rev = "d1904bf2bd5bf4f26969a73b415095e941a55610", default-features = false, features = ["native", "shadowing"] }
 idenso = { git = "https://github.com/alphal00p/gammaloop.git", rev = "d1904bf2bd5bf4f26969a73b415095e941a55610", default-features = false, features = ["native"] }
 symbolica-utils = { git = "https://github.com/alphal00p/gammaloop.git", rev = "d1904bf2bd5bf4f26969a73b415095e941a55610", default-features = false, features = ["native"] }
-oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "a7cf45876b2273f2c1b5dd1490d88abc07a6f287", default-features = false }
+oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "bd703d09a78f7849a6b86a07096e6f222fc01193", default-features = false }
 linnet = { git = "https://github.com/alphal00p/gammaloop.git", rev = "d1904bf2bd5bf4f26969a73b415095e941a55610", default-features = false, features = ["serde"] }
 thiserror = "2"
 serde = { version = "1", features = ["derive"] }
@@ -44,9 +44,8 @@ tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 # ComplexFloat operands at the more precise component's precision) on top:
 # symbolica-dev/symbolica#163, branch ValentinHirschi/symbolica
 # loop_me_pyamplicol. Moves to upstream when the PR is merged. One revision
-# for all three crates, shared with pyAmpliCol (oneloopmaster a7cf4587's own
-# standalone [patch] names the previous head 20a9da94; only the root's
-# [patch] applies in a build).
+# for all three crates, shared with pyAmpliCol and oneloopmaster bd703d09's
+# own standalone [patch] (only the root's [patch] applies in a build).
 [patch.crates-io]
 symbolica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "dfe6bd97b974b1028dc63071ea165136cd2b0ef5" }
 numerica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "dfe6bd97b974b1028dc63071ea165136cd2b0ef5" }
