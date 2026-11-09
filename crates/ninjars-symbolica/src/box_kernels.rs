@@ -7,6 +7,7 @@ use crate::{
         difference_dot_scale, square_scale,
     },
 };
+use ninjars::conditioning::BOX_MU_MARGIN_BITS;
 use ninjars::{
     BatchShape, BoxCoefficientMode, BoxDivisionRequest, BoxMuDivisionRequest, BoxMuMode,
     BoxProjectionRequest, BoxReductionKernels, BoxReductionOptions, Complex, Error, ExpansionKind,
@@ -351,6 +352,9 @@ struct Engine<V, K, Checks, R> {
     interpolation: K,
     zero: V,
     negligible: Negligible<R>,
+    /// `2^(p - BOX_MU_MARGIN_BITS)`: the conditioning bound's budget
+    /// (`ninjars::conditioning`) in the carrier's precision `p`.
+    mu_budget: R,
     checks: PhantomData<fn() -> Checks>,
     input: Vec<V>,
     probe: Vec<V>,
@@ -402,6 +406,11 @@ impl<V: FloatLike, K: KernelExecutor<V>, R: Real + SingleFloat, Checks: ValueChe
             interpolation: compile(&plans.interpolation)?,
             zero: prototype.zero(),
             negligible: Negligible::new(&Checks::magnitude(prototype)),
+            mu_budget: {
+                let real = Checks::magnitude(prototype);
+                let bits = real.get_precision().saturating_sub(BOX_MU_MARGIN_BITS);
+                real.from_i64(2).pow(u64::from(bits))
+            },
             checks: PhantomData,
             input: Vec::new(),
             probe: Vec::new(),
@@ -639,6 +648,9 @@ impl<V: FloatLike, K: KernelExecutor<V>, R: Real + SingleFloat, Checks: ValueChe
             {
                 continue;
             }
+            if !self.mu_conditioned(r, probe, &numerator[row * width]) {
+                continue;
+            }
             self.active.push(row);
             self.packed
                 .extend_from_slice(&numerator[row * width..(row + 1) * width]);
@@ -664,6 +676,119 @@ impl<V: FloatLike, K: KernelExecutor<V>, R: Real + SingleFloat, Checks: ValueChe
             }
         }
         Ok(())
+    }
+    /// The box mu-expansion's conditioning bound (`ninjars::conditioning`):
+    /// per uncut line `R_j = 2 |v| |V_j - V_first| / |d0_j|` (Euclidean norms
+    /// of the components) and above rank n `ρ = Σ_j |d1_j| / (|d0_j| t)` with
+    /// `t² = |beta / v.v|`; the predicted loss `Π_j R_j max(ρ, 1)^k
+    /// (ν Σ_j R_j + 1)` at rank `n + k` must stay within `2^(p -
+    /// BOX_MU_MARGIN_BITS)`. At rank n a cheap upper bound of `R_j`
+    /// (`3 S / |d0_j|₁` with the taxicab scale `S = 4 max|V| Σ_μ |v_μ|₁`, as
+    /// the fast engine's pre-test) passes regular rows without square roots.
+    /// `ν = 1` unless the request carries the numerator's leading coefficient
+    /// along directions of the box's hyperplane
+    /// (`BoxMuDivisionRequest::reference`).
+    fn mu_conditioned(&self, r: &BoxMuDivisionRequest<'_, V>, probe: &[V], leading: &V) -> bool {
+        let greater = |a: &R, b: &R| a.real_cmp(b) == Some(std::cmp::Ordering::Greater);
+        let zero = Checks::magnitude(&self.zero);
+        let one = zero.one();
+        let uncut = self.n - 4;
+        let excess = self.rank.saturating_sub(self.n) as u64;
+        let within = |product: R, expansion: R, sum: R, nu: R| {
+            let expansion = if greater(&expansion, &one) {
+                expansion
+            } else {
+                one.clone()
+            };
+            let amplification = product * expansion.pow(excess) * (nu * sum + one.clone());
+            // NaN compares as unordered: refused.
+            matches!(
+                amplification.real_cmp(&self.mu_budget),
+                Some(std::cmp::Ordering::Less | std::cmp::Ordering::Equal)
+            )
+        };
+        let taxicab = |x: &FourMomentum<V>| {
+            x.components()
+                .into_iter()
+                .fold(zero.clone(), |sum, c| sum + Checks::magnitude(c))
+        };
+        let v = &r.geometry.v_orth;
+        let vnorm = taxicab(v);
+        if excess == 0 {
+            // Pre-test with the cheap upper bound.
+            let vmax = r
+                .shifts
+                .iter()
+                .flat_map(|s| s.components())
+                .fold(zero.clone(), |max, c| {
+                    let m = Checks::magnitude(c);
+                    if greater(&m, &max) { m } else { max }
+                });
+            let scale = vnorm.clone() * vmax * zero.from_i64(12);
+            let (mut product, mut sum) = (one.clone(), zero.clone());
+            for i in 0..uncut {
+                let ratio = scale.clone() / Checks::magnitude(&probe[1 + 2 * i]);
+                product *= ratio.clone();
+                sum += ratio;
+            }
+            if within(product, one.clone(), sum, one.clone()) {
+                return true;
+            }
+        }
+        // The Euclidean R_j and, above rank n, the expansion ratio.
+        let euclid = |x: &FourMomentum<V>| {
+            x.components()
+                .into_iter()
+                .fold(zero.clone(), |sum, c| sum + Checks::modulus_squared(c))
+                .sqrt()
+        };
+        let origin = &r.shifts[r.partition[0]];
+        let vlength = euclid(v);
+        let t = (Checks::modulus_squared(&r.geometry.beta).sqrt()
+            / Checks::modulus_squared(&probe[0]).sqrt())
+        .sqrt();
+        let (mut product, mut sum, mut expansion) = (one.clone(), zero.clone(), zero.clone());
+        for (i, &line) in r.complement.iter().enumerate() {
+            let length = euclid(&(r.shifts[line].clone() - origin.clone()));
+            let d0 = Checks::modulus_squared(&probe[1 + 2 * i]).sqrt();
+            let d1 = Checks::modulus_squared(&probe[2 + 2 * i]).sqrt();
+            let ratio = vlength.clone() * length * zero.from_i64(2) / d0.clone();
+            product *= ratio.clone();
+            sum += ratio;
+            expansion += d1 / (d0 * t.clone());
+        }
+        let nu = match r.reference {
+            None => one.clone(),
+            Some((directions, values)) => {
+                let mut reference = zero.clone();
+                for (x, value) in directions.iter().zip(values) {
+                    let size = taxicab(x);
+                    if !greater(&size, &zero) {
+                        continue;
+                    }
+                    let scaled =
+                        Checks::magnitude(value) * (vnorm.clone() / size).pow(self.rank as u64);
+                    if greater(&scaled, &reference) {
+                        reference = scaled;
+                    }
+                }
+                // As `ninjars::conditioning::box_mu_numerator_ratio`.
+                let magnitude = Checks::magnitude(leading);
+                if !greater(&magnitude, &zero) {
+                    zero.clone()
+                } else if greater(&reference, &zero) {
+                    let ratio = magnitude / reference.clone();
+                    if greater(&ratio, &one) {
+                        one.clone()
+                    } else {
+                        ratio
+                    }
+                } else {
+                    one.clone()
+                }
+            }
+        };
+        within(product, expansion, sum, nu)
     }
     fn project(
         &mut self,

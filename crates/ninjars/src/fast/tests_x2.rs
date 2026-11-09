@@ -1745,8 +1745,12 @@ fn rank_n2_batches_and_replay_are_bitwise() {
             *c = rng.c();
         }
         let mut amplitude = FastAmplitude::new(n, rank, FastOptions::default()).unwrap();
-        // Width 1, lane by lane.
+        // Width 1, lane by lane. A lane may be refused by the box
+        // mu-expansion's conditioning bound (`crate::conditioning`), typed:
+        // these random kinematics put some box lines near their box's
+        // hyperplane; the batch and the replay must then refuse it too.
         let mut single = Vec::new();
+        let mut single_statuses = Vec::new();
         for lane in 0..lanes {
             let mut one = TensorNumerator::new(rank, 1);
             one.lane_coefficients_mut(0)
@@ -1769,8 +1773,13 @@ fn rank_n2_batches_and_replay_are_bitwise() {
                     &mut statuses,
                 )
                 .unwrap();
-            assert_eq!(statuses[0], FastStatus::Success, "n={n} lane {lane}");
+            assert!(
+                matches!(statuses[0], FastStatus::Success | FastStatus::Unstable),
+                "n={n} lane {lane}: {:?}",
+                statuses[0]
+            );
             single.push(results[0]);
+            single_statuses.push(statuses[0]);
         }
         // The whole batch on the reused engine, recorded.
         let mut recording = RecordingNumerator::new(tensor);
@@ -1786,6 +1795,11 @@ fn rank_n2_batches_and_replay_are_bitwise() {
                 &mut statuses,
             )
             .unwrap();
+        assert!(
+            single_statuses.contains(&FastStatus::Success),
+            "n={n}: no lane served"
+        );
+        assert_eq!(statuses, single_statuses, "n={n}: batch statuses differ");
         assert_eq!(results, single, "n={n}: batch differs from width 1");
         let mut replay_numerator = recording.replay();
         let mut replay_masters = masters.replay();
