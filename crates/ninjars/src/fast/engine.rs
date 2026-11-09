@@ -33,7 +33,9 @@ use super::masters::{FastMaster, FastMasters};
 use super::numerator::{FastNumerator, t2_len_le3, t3_len};
 use super::subtractions as subs;
 use super::{FastInput, FastResult, FastStatus};
-use crate::conditioning::{BoxMuConditioning, box_mu_numerator_ratio};
+use crate::conditioning::{
+    BoxMuConditioning, BoxMuPropagation, box_mu_numerator_ratio, box_mu_refused, box_mu_rounding,
+};
 use crate::{Error, Result};
 
 /// The rank <= n+1 stages with the conditioned cut geometry, generated from
@@ -705,6 +707,11 @@ pub struct FastAmplitude {
     lanes: usize,
     alive: Vec<bool>,
     lane_status: Vec<FastStatus>,
+    /// Per lane the first-order rounding estimate of the box mu-expansion
+    /// rational terms of the boxes the conditioning screen flagged (units of
+    /// the roundoff; 0 when none was flagged), decided against the lane's
+    /// finite part in `integrate` (`crate::conditioning`).
+    mu_error: Vec<f64>,
     active: Vec<usize>,
     smat: Vec<f64>,
     vsq: Vec<f64>,
@@ -852,6 +859,7 @@ impl FastAmplitude {
             lanes: 0,
             alive: Vec::new(),
             lane_status: Vec::new(),
+            mu_error: Vec::new(),
             active: Vec::new(),
             smat: Vec::new(),
             vsq: Vec::new(),
@@ -1062,6 +1070,8 @@ impl FastAmplitude {
         self.alive.resize(lanes, true);
         self.lane_status.clear();
         self.lane_status.resize(lanes, FastStatus::NotEvaluated);
+        self.mu_error.clear();
+        self.mu_error.resize(lanes, 0.);
         self.active.clear();
         self.active.extend(0..lanes);
         self.staged.resize(lanes, FastResult::default());
@@ -1239,9 +1249,10 @@ impl FastAmplitude {
                 &mut self.calls.out,
             )?;
             // Rows whose geometric loss (`crate::conditioning`; at rank n
-            // its cheap upper bound) exceeds the budget: (row, |n0|, the
-            // exact geometry above rank n), decided in `box_mu_conditioning`.
-            let mut suspects: Vec<(usize, f64, Option<BoxMuConditioning>)> = Vec::new();
+            // its cheap upper bound) exceeds the budget: (row, |n0|, |n1|,
+            // the exact geometry above rank n), decided in
+            // `box_mu_conditioning`.
+            let mut suspects: Vec<(usize, [f64; 2], Option<BoxMuConditioning>)> = Vec::new();
             for r in 0..self.box_rows.len() {
                 let row = self.box_rows[r];
                 let lane = row.lane;
@@ -1266,7 +1277,7 @@ impl FastAmplitude {
                         continue;
                     }
                     if conditioning.exceeds(0, 1., f64::MANTISSA_DIGITS) {
-                        suspects.push((r, self.calls.out[r].taxicab(), None));
+                        suspects.push((r, [self.calls.out[r].taxicab(), 0.], None));
                     }
                     self.box_c[b * lanes + lane][1] = self.calls.out[r] / d / (vort2 * vort2);
                 } else {
@@ -1300,7 +1311,11 @@ impl FastAmplitude {
                         continue;
                     }
                     if conditioning.exceeds(1, 1., f64::MANTISSA_DIGITS) {
-                        suspects.push((r, self.calls.out[2 * r].taxicab(), Some(conditioning)));
+                        let numerator = [
+                            self.calls.out[2 * r].taxicab(),
+                            self.calls.out[2 * r + 1].taxicab(),
+                        ];
+                        suspects.push((r, numerator, Some(conditioning)));
                     }
                     self.box_c[b * lanes + lane][1] = nmu[1] / (vort2 * vort2);
                 }
@@ -1312,11 +1327,13 @@ impl FastAmplitude {
         Ok(())
     }
 
-    /// The conditioning bound (`crate::conditioning`) for the box rows over
+    /// The conditioning screen (`crate::conditioning`) for the box rows over
     /// the budget: at rank n (cheap upper bound) the Euclidean `R_j` of each
     /// uncut line, then, for the rows still over it, `ν` from the numerator's
     /// leading coefficient along three directions of the box's hyperplane.
-    /// Lanes still predicted to lose more than the budget fail.
+    /// A row still predicted to lose more than the budget adds its
+    /// first-order rounding estimate to its lane's `mu_error`, which
+    /// `integrate` decides against the lane's finite part.
     #[cold]
     #[inline(never)]
     fn box_mu_conditioning<N: FastNumerator + ?Sized>(
@@ -1325,19 +1342,19 @@ impl FastAmplitude {
         num: &mut N,
         p: &[usize],
         b: usize,
-        suspects: &[(usize, f64, Option<BoxMuConditioning>)],
+        suspects: &[(usize, [f64; 2], Option<BoxMuConditioning>)],
         excess: u32,
     ) -> Result<()> {
         let n = self.topo.n;
         let cp = self.topo.box_complements[b * (n - 4)..(b + 1) * (n - 4)].to_vec();
-        let mut over: Vec<(usize, f64, BoxMuConditioning)> = Vec::new();
-        for &(r, leading, exact) in suspects {
+        let mut over: Vec<(usize, [f64; 2], BoxMuConditioning)> = Vec::new();
+        for &(r, numerator, exact) in suspects {
             let row = self.box_rows[r];
             let v = &input.shifts[row.lane * n..(row.lane + 1) * n];
             let conditioning =
                 exact.unwrap_or_else(|| euclidean_conditioning(&row.vort, v, p[0], &cp));
             if conditioning.exceeds(excess, 1., f64::MANTISSA_DIGITS) {
-                over.push((r, leading, conditioning));
+                over.push((r, numerator, conditioning));
             }
         }
         if over.is_empty() {
@@ -1362,14 +1379,39 @@ impl FastAmplitude {
             None,
             &mut self.calls.out,
         )?;
-        for (i, &(r, leading, conditioning)) in over.iter().enumerate() {
+        for (i, &(r, numerator, conditioning)) in over.iter().enumerate() {
             let reference = self.calls.out[3 * i..3 * i + 3]
                 .iter()
                 .fold(0_f64, |a, z| a.max(z.taxicab()));
-            let nu = box_mu_numerator_ratio(leading, reference);
+            let nu = box_mu_numerator_ratio(numerator[0], reference);
             if conditioning.exceeds(excess, nu, f64::MANTISSA_DIGITS) {
-                let lane = self.box_rows[r].lane;
-                fail(&mut self.alive, &mut self.lane_status, lane);
+                let row = self.box_rows[r];
+                let lane = row.lane;
+                let v = &input.shifts[lane * n..(lane + 1) * n];
+                let m = &input.masses_squared[lane * n..(lane + 1) * n];
+                let vsq = &self.vsq[lane * n..(lane + 1) * n];
+                let mut propagation = BoxMuPropagation::new([numerator[0], numerator[1], 0.]);
+                for &j in &cp {
+                    let kk = sub(&v[j], &v[p[0]]);
+                    let d0 = (mp_cr(&row.vort, &kk) * 2.).abs();
+                    let d1 = if excess == 0 {
+                        0.
+                    } else {
+                        (C64::real(vsq[j] - vsq[p[0]]) - m[j] + m[p[0]] + mp_cr(&row.mid, &kk) * 2.)
+                            .abs()
+                    };
+                    propagation.line(d0, d1);
+                }
+                let vv = mp_cc(&row.vort, &row.vort).abs();
+                self.mu_error[lane] += box_mu_rounding(
+                    excess,
+                    conditioning.sum,
+                    reference,
+                    &propagation,
+                    vv,
+                    0.,
+                    0.,
+                );
             }
         }
         Ok(())
@@ -2301,6 +2343,14 @@ impl FastAmplitude {
             };
             if !result.laurent.iter().all(|z| z.is_finite()) || !rational.is_finite() {
                 self.lane_status[lane] = FastStatus::NonFinite;
+                continue;
+            }
+            // The conditioning screen's flagged boxes (`crate::conditioning`).
+            let flagged = self.mu_error[lane];
+            if flagged > 0.
+                && box_mu_refused(flagged, result.laurent[0].abs(), f64::MANTISSA_DIGITS)
+            {
+                self.lane_status[lane] = FastStatus::Unstable;
                 continue;
             }
             self.staged[lane] = result;

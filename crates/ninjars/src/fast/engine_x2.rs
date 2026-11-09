@@ -59,7 +59,9 @@ use super::masters::{FastMaster, FastMasters};
 use super::numerator::{FastNumerator, t2_len, t3_len};
 use super::subtractions_series_x2 as subs;
 use super::{FastInput, FastResult, FastStatus};
-use crate::conditioning::{BoxMuConditioning, box_mu_numerator_ratio};
+use crate::conditioning::{
+    BoxMuConditioning, BoxMuPropagation, box_mu_numerator_ratio, box_mu_refused, box_mu_rounding,
+};
 use crate::{Error, Result};
 
 /// Triangle slots at `mindeg` 5, `(t, mu²)` per index (design 1.3).
@@ -312,6 +314,9 @@ pub(super) struct RankN2Engine {
     lanes: usize,
     alive: Vec<bool>,
     lane_status: Vec<FastStatus>,
+    /// Per lane the first-order rounding estimate of the flagged boxes'
+    /// mu-expansion rational terms (as in `engine.rs`).
+    mu_error: Vec<f64>,
     active: Vec<usize>,
     smat: Vec<f64>,
     vsq: Vec<f64>,
@@ -346,6 +351,7 @@ impl RankN2Engine {
             lanes: 0,
             alive: Vec::new(),
             lane_status: Vec::new(),
+            mu_error: Vec::new(),
             active: Vec::new(),
             smat: Vec::new(),
             vsq: Vec::new(),
@@ -461,6 +467,8 @@ impl RankN2Engine {
         self.alive.resize(lanes, true);
         self.lane_status.clear();
         self.lane_status.resize(lanes, FastStatus::NotEvaluated);
+        self.mu_error.clear();
+        self.mu_error.resize(lanes, 0.);
         self.active.clear();
         self.active.extend(0..lanes);
         self.staged.resize(lanes, FastResult::default());
@@ -654,7 +662,7 @@ impl RankN2Engine {
             )?;
             // Rows whose geometry alone exceeds the conditioning bound
             // (`crate::conditioning`), as in `engine.rs`.
-            let mut suspects: Vec<[(usize, f64, BoxMuConditioning); 1]> = Vec::new();
+            let mut suspects: Vec<[(usize, [f64; 3], BoxMuConditioning); 1]> = Vec::new();
             for r in 0..self.box_rows.len() {
                 let row = self.box_rows[r];
                 let lane = row.lane;
@@ -663,7 +671,11 @@ impl RankN2Engine {
                 let vsq = &self.vsq[lane * n..(lane + 1) * n];
                 let vort2 = mp_cc(&row.vort, &row.vort);
                 let bound = 4. * self.bounds[lane].0 * taxicab_sum(&row.vort);
-                let leading = self.calls.out[3 * r][0].taxicab();
+                let numerator = [
+                    self.calls.out[3 * r][0].taxicab(),
+                    self.calls.out[3 * r + 1][0].taxicab(),
+                    self.calls.out[3 * r + 2][0].taxicab(),
+                ];
                 let mut nmu = [
                     self.calls.out[3 * r][0],
                     self.calls.out[3 * r + 1][0],
@@ -700,7 +712,7 @@ impl RankN2Engine {
                     continue;
                 }
                 if conditioning.exceeds(2, 1., f64::MANTISSA_DIGITS) {
-                    suspects.push1((r, leading, conditioning));
+                    suspects.push1((r, numerator, conditioning));
                 }
                 let vort4 = vort2 * vort2;
                 let c6 = nmu[0] / (vort4 * vort2);
@@ -716,9 +728,11 @@ impl RankN2Engine {
         Ok(())
     }
 
-    /// The conditioning bound at rank n+2 (`engine.rs` `box_mu_conditioning`)
+    /// The conditioning screen at rank n+2 (`engine.rs` `box_mu_conditioning`)
     /// for the rows over the budget: `ν` from the numerator's leading
-    /// coefficient along three directions of each box's hyperplane.
+    /// coefficient along three directions of each box's hyperplane; a row
+    /// still over it adds its first-order rounding estimate to its lane's
+    /// `mu_error`.
     #[cold]
     #[inline(never)]
     fn box_mu_conditioning(
@@ -727,7 +741,7 @@ impl RankN2Engine {
         input: &FastInput,
         num: &mut dyn FastNumerator,
         p: &[usize],
-        over: &[(usize, f64, BoxMuConditioning)],
+        over: &[(usize, [f64; 3], BoxMuConditioning)],
     ) -> Result<()> {
         self.calls.clear();
         for &(r, _, _) in over {
@@ -748,14 +762,46 @@ impl RankN2Engine {
             None,
             self.calls.out.as_flattened_mut(),
         )?;
-        for (i, &(r, leading, conditioning)) in over.iter().enumerate() {
+        for (i, &(r, numerator, conditioning)) in over.iter().enumerate() {
             let reference = self.calls.out.as_flattened()[3 * i..3 * i + 3]
                 .iter()
                 .fold(0_f64, |a, z| a.max(z.taxicab()));
-            let nu = box_mu_numerator_ratio(leading, reference);
+            let nu = box_mu_numerator_ratio(numerator[0], reference);
             if conditioning.exceeds(2, nu, f64::MANTISSA_DIGITS) {
-                let lane = self.box_rows[r].lane;
-                fail(&mut self.alive, &mut self.lane_status, lane);
+                let row = self.box_rows[r];
+                let lane = row.lane;
+                let v = &input.shifts[lane * n..(lane + 1) * n];
+                let m = &input.masses_squared[lane * n..(lane + 1) * n];
+                let vsq = &self.vsq[lane * n..(lane + 1) * n];
+                let s = &self.smat[lane * n * n..(lane + 1) * n * n];
+                let mut propagation = BoxMuPropagation::new(numerator);
+                for j in (0..n).filter(|j| !p.contains(j)) {
+                    let kk = sub(&v[j], &v[p[0]]);
+                    let d0 = (mp_cr(&row.vort, &kk) * 2.).abs();
+                    let d1 = (C64::real(vsq[j] - vsq[p[0]]) - m[j] + m[p[0]]
+                        + mp_cr(&row.mid, &kk) * 2.)
+                        .abs();
+                    propagation.line(d0, d1);
+                }
+                // The mu⁶ integral's weight, as in `integrate`.
+                let mut ssum = 0.;
+                for a in 0..4 {
+                    for c in a + 1..4 {
+                        ssum += s[p[a] * n + p[c]];
+                    }
+                }
+                let msum = m[p[0]] + m[p[1]] + m[p[2]] + m[p[3]];
+                let w6 = (msum / 12. - C64::real(ssum / 60.)).abs();
+                let vv = mp_cc(&row.vort, &row.vort).abs();
+                self.mu_error[lane] += box_mu_rounding(
+                    2,
+                    conditioning.sum,
+                    reference,
+                    &propagation,
+                    vv,
+                    row.beta.abs(),
+                    w6,
+                );
             }
         }
         Ok(())
@@ -1659,6 +1705,14 @@ impl RankN2Engine {
             };
             if !result.laurent.iter().all(|z| z.is_finite()) || !rational.is_finite() {
                 self.lane_status[lane] = FastStatus::NonFinite;
+                continue;
+            }
+            // The conditioning screen's flagged boxes (`crate::conditioning`).
+            let flagged = self.mu_error[lane];
+            if flagged > 0.
+                && box_mu_refused(flagged, result.laurent[0].abs(), f64::MANTISSA_DIGITS)
+            {
+                self.lane_status[lane] = FastStatus::Unstable;
                 continue;
             }
             self.staged[lane] = result;

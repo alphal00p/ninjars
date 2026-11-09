@@ -50,6 +50,22 @@
 //! directly. A row over the budget gets its `ν`: the numerator's leading coefficient along three
 //! directions of the box's own hyperplane (pair sums of its shift
 //! differences, scaled to the normal's taxicab norm), `N̄` the largest modulus.
+//!
+//! **The fast engines decide flagged lanes a posteriori.** `L` measures the
+//! loss against a regular box (`R_j ~ 1`); at regular kinematics with many
+//! uncut lines every line contributes its regular `log2 R_j` (a few bits) and
+//! one moderately small `d0_j` lifts a high-multiplicity lane over the
+//! binary64 budget although nothing cancels (random 8- and 9-point lanes at
+//! rank n+1, served `1e-7` off). The binary64 engines therefore treat `L > p
+//! - M` as a screen: a flagged box adds its first-order rounding estimate
+//! ([`box_mu_rounding`]: the moduli of its rational terms through the
+//! recurrence of the divisions, [`BoxMuPropagation`], times `(k + 1) Σ_j R_j
+//! + 1`, plus `N̄`'s propagation) to its lane, and the lane is refused
+//! ([`box_mu_refused`]) when the sum exceeds `2^-BOX_MU_TARGET_BITS` of the
+//! lane's finite part: the cancellation between the boxes is then measured on
+//! the lane's own value instead of being modelled. The generic engine
+//! (double-double, MPFR, and its binary64) refuses every flagged lane: its
+//! budgets leave room for the regular overhead.
 
 /// The margin `M` in bits: a lane is refused when a box's predicted loss `L`
 /// exceeds `p - M`. Derived from the target and the calibration
@@ -123,6 +139,97 @@ pub fn box_mu_numerator_ratio(leading: f64, reference: f64) -> f64 {
     }
 }
 
+/// The fast engines' target for a lane the screen flags: the first-order
+/// estimate of the rounding error of its boxes' mu-expansion rational terms
+/// must stay within `2^-BOX_MU_TARGET_BITS` of the lane's finite part
+/// (`docs/box-mu-conditioning.md`, section 3). `17 = ceil(log2(1e5))`: the lax
+/// target `1e-5`; no further margin, because the estimate is an upper
+/// estimate (it exceeded the measured error on every calibration lane).
+pub const BOX_MU_TARGET_BITS: i32 = 17;
+
+/// The moduli of the box mu-expansion's coefficients through its divisions by
+/// the uncut lines `D_j = d0_j t + d1_j` (the recurrence of `nmu`:
+/// `x0 /= d0`, `x1 = (x1 + |d1| x0) / d0`, `x2 = (x2 + |d1| x1) / d0`, every
+/// term by its modulus), for the first-order rounding estimate of a flagged
+/// box ([`box_mu_rounding`]).
+#[derive(Clone, Copy, Debug)]
+pub struct BoxMuPropagation {
+    /// From the moduli of the numerator's coefficients `|n0|, |n1|, |n2|`
+    /// along the box normal.
+    pub magnitude: [f64; 3],
+    /// From `(1, 0, 0)`: the factor that carries an absolute error of the
+    /// leading coefficient `n0` into each coefficient.
+    pub leading: [f64; 3],
+}
+
+impl BoxMuPropagation {
+    /// The numerator's coefficient moduli before the divisions.
+    #[inline]
+    pub fn new(numerator: [f64; 3]) -> Self {
+        Self {
+            magnitude: numerator,
+            leading: [1., 0., 0.],
+        }
+    }
+
+    /// Divides by one uncut line with `|d0|` and `|d1|`.
+    #[inline]
+    pub fn line(&mut self, d0: f64, d1: f64) {
+        for x in [&mut self.magnitude, &mut self.leading] {
+            x[0] /= d0;
+            x[1] = (x[1] + d1 * x[0]) / d0;
+            x[2] = (x[2] + d1 * x[1]) / d0;
+        }
+    }
+}
+
+/// First-order rounding estimate, in units of the unit roundoff, of a box's
+/// mu-expansion rational terms at rank `n + excess` (`docs/box-mu-
+/// conditioning.md`, section 2): each `d0_j` carries a relative error
+/// `R_j` (units of the roundoff) and enters the leading term `excess + 1`
+/// times, so the coefficients move by `((excess + 1) Σ_j R_j + 1)` times their
+/// moduli (the `+ 1` for the numerator's own rounding relative to its
+/// coefficients); the leading coefficient's absolute rounding `N̄` (the
+/// numerator's scale along the box's hyperplane, as for `ν`) adds `N̄` times
+/// its propagation factor. The rational terms are `-c4 / 6` and (rank n+2)
+/// `c6 w6`, `w6 = |Σ m² / 12 - Σ s / 60|`: rank n `c4 = n0 / (Π d0 (v.v)²)`;
+/// rank n+1 `c4 = x1 / (v.v)²`; rank n+2 `c6 = x0 / (v.v)³`,
+/// `c4 = x2 / (v.v)² + 3 β c6`. `vv = |v.v|`, `beta = |β|`.
+#[inline]
+pub fn box_mu_rounding(
+    excess: u32,
+    sum: f64,
+    reference: f64,
+    propagation: &BoxMuPropagation,
+    vv: f64,
+    beta: f64,
+    w6: f64,
+) -> f64 {
+    let relative = f64::from(excess + 1) * sum + 1.;
+    let (a, g) = (&propagation.magnitude, &propagation.leading);
+    let vv2 = vv * vv;
+    match excess {
+        0 => (relative * a[0] + reference * g[0]) / vv2 / 6.,
+        1 => (relative * a[1] + reference * g[1]) / vv2 / 6.,
+        _ => {
+            let (a6, g6) = (a[0] / (vv2 * vv), g[0] / (vv2 * vv));
+            let a4 = a[2] / vv2 + 3. * beta * a6;
+            let g4 = g[2] / vv2 + 3. * beta * g6;
+            relative * (a4 / 6. + a6 * w6) + reference * (g4 / 6. + g6 * w6)
+        }
+    }
+}
+
+/// Whether a lane the screen flagged is refused: its boxes' summed rounding
+/// estimate `error` ([`box_mu_rounding`], units of `2^-precision`) exceeds
+/// `2^-BOX_MU_TARGET_BITS` of the modulus `finite` of its finite part. NaN is
+/// refused; a vanishing finite part refuses any flagged lane.
+#[inline]
+pub fn box_mu_refused(error: f64, finite: f64, precision: u32) -> bool {
+    let predicted = error * 2f64.powi(-(precision as i32));
+    !(predicted <= finite * 2f64.powi(-BOX_MU_TARGET_BITS))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -176,5 +283,47 @@ mod tests {
         assert_eq!(box_mu_numerator_ratio(1., 0.), 1.);
         assert_eq!(box_mu_numerator_ratio(0., 0.), 0.);
         assert_eq!(box_mu_numerator_ratio(1., f64::NAN), 1.);
+    }
+
+    /// The moduli recurrence reproduces `n0 / Π d0` and the rank n+1 / n+2
+    /// sums `Σ_j d1_j / d0_j` (two lines: `a`, `b`), and the rounding estimate
+    /// follows the rational terms' weights.
+    #[test]
+    fn propagation_and_rounding_estimate() {
+        let mut p = BoxMuPropagation::new([3., 5., 7.]);
+        p.line(2., 1.);
+        p.line(4., 2.);
+        assert_eq!(p.magnitude[0], 3. / 8.);
+        // x1 = n1 / (ab) + n0 (d1a/a + d1b/b) / (ab).
+        assert_eq!(p.magnitude[1], 5. / 8. + 3. * (1. / 2. + 2. / 4.) / 8.);
+        assert_eq!(p.leading[0], 1. / 8.);
+        assert_eq!(p.leading[1], (1. / 2. + 2. / 4.) / 8.);
+        // Rank n: ((Σ R + 1) |n0| / Π d0 + N̄ / Π d0) / (vv² 6).
+        let e = box_mu_rounding(0, 10., 2., &p, 2., 0., 0.);
+        assert_eq!(e, (11. * 3. / 8. + 2. / 8.) / 4. / 6.);
+        // Rank n+1: the leading coefficient's term enters twice.
+        let e1 = box_mu_rounding(1, 10., 2., &p, 2., 0., 0.);
+        assert_eq!(e1, (21. * p.magnitude[1] + 2. * p.leading[1]) / 4. / 6.);
+        // Rank n+2: c6 = x0 / vv³ with its weight w6; c4 adds 3 β c6.
+        let e2 = box_mu_rounding(2, 10., 2., &p, 2., 0.5, 3.);
+        let (a6, g6) = (p.magnitude[0] / 8., p.leading[0] / 8.);
+        let (a4, g4) = (p.magnitude[2] / 4. + 1.5 * a6, p.leading[2] / 4. + 1.5 * g6);
+        assert_eq!(e2, 31. * (a4 / 6. + a6 * 3.) + 2. * (g4 / 6. + g6 * 3.));
+    }
+
+    /// A flagged lane is served when its estimate stays within
+    /// `2^-BOX_MU_TARGET_BITS` of its finite part; NaN and a vanishing finite
+    /// part refuse.
+    #[test]
+    fn refusal_against_the_finite_part() {
+        let edge = 2f64.powi(53 - BOX_MU_TARGET_BITS);
+        assert!(!box_mu_refused(edge * 0.9, 1., 53));
+        assert!(box_mu_refused(edge * 1.1, 1., 53));
+        assert!(!box_mu_refused(edge * 1.1, 2., 53));
+        assert!(box_mu_refused(1., 0., 53));
+        assert!(box_mu_refused(f64::NAN, 1., 53));
+        assert!(box_mu_refused(1., f64::NAN, 53));
+        // The carrier's precision scales the roundoff.
+        assert!(!box_mu_refused(edge * 1.1, 1., 54));
     }
 }

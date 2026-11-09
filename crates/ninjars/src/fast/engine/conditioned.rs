@@ -219,9 +219,10 @@ impl FastAmplitude {
                 &mut self.calls.out,
             )?;
             // Rows whose geometric loss (`crate::conditioning`; at rank n
-            // its cheap upper bound) exceeds the budget: (row, |n0|, the
-            // exact geometry above rank n), decided in `box_mu_conditioning`.
-            let mut suspects: Vec<(usize, f64, Option<BoxMuConditioning>)> = Vec::new();
+            // its cheap upper bound) exceeds the budget: (row, |n0|, |n1|,
+            // the exact geometry above rank n), decided in
+            // `box_mu_conditioning`.
+            let mut suspects: Vec<(usize, [f64; 2], Option<BoxMuConditioning>)> = Vec::new();
             for r in 0..self.box_rows.len() {
                 let row = self.box_rows[r];
                 let lane = row.lane;
@@ -246,7 +247,7 @@ impl FastAmplitude {
                         continue;
                     }
                     if conditioning.exceeds(0, 1., f64::MANTISSA_DIGITS) {
-                        suspects.push((r, self.calls.out[r].taxicab(), None));
+                        suspects.push((r, [self.calls.out[r].taxicab(), 0.], None));
                     }
                     self.box_c[b * lanes + lane][1] = self.calls.out[r] / d / (vort2 * vort2);
                 } else {
@@ -280,7 +281,11 @@ impl FastAmplitude {
                         continue;
                     }
                     if conditioning.exceeds(1, 1., f64::MANTISSA_DIGITS) {
-                        suspects.push((r, self.calls.out[2 * r].taxicab(), Some(conditioning)));
+                        let numerator = [
+                            self.calls.out[2 * r].taxicab(),
+                            self.calls.out[2 * r + 1].taxicab(),
+                        ];
+                        suspects.push((r, numerator, Some(conditioning)));
                     }
                     self.box_c[b * lanes + lane][1] = nmu[1] / (vort2 * vort2);
                 }

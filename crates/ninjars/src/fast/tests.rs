@@ -1081,19 +1081,7 @@ fn conditioned_cuts_are_per_lane_and_ignored_at_rank_n2() {
         if rank == n + 2 {
             assert_eq!(default, batch, "n={n} rank={rank}");
         } else {
-            // These elongated kinematics (sums of future timelike momenta) put
-            // single box lines near their box's hyperplane (R ~ 1e4): the box
-            // mu-expansion's conditioning bound (`crate::conditioning`) may
-            // refuse a lane at rank n+1, typed; every other lane is served.
-            assert!(
-                batch
-                    .1
-                    .iter()
-                    .all(|&s| s == FastStatus::Success || s == FastStatus::Unstable)
-                    && batch.1.contains(&FastStatus::Success),
-                "n={n} rank={rank}: {:?}",
-                batch.1
-            );
+            assert!(batch.1.iter().all(|&s| s == FastStatus::Success));
             assert_ne!(default.0, batch.0, "n={n} rank={rank}: no cut changed");
         }
     }
