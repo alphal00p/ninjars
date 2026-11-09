@@ -218,6 +218,11 @@ impl FastAmplitude {
                 if x1 { Some(&self.calls.v1) } else { None },
                 &mut self.calls.out,
             )?;
+            // Rows whose geometric loss (`crate::conditioning`; at rank n
+            // its cheap upper bound) exceeds the budget: (row, |n0|, |n1|,
+            // the exact geometry above rank n), decided in
+            // `box_mu_conditioning`.
+            let mut suspects: Vec<(usize, [f64; 2], Option<BoxMuConditioning>)> = Vec::new();
             for r in 0..self.box_rows.len() {
                 let row = self.box_rows[r];
                 let lane = row.lane;
@@ -225,6 +230,7 @@ impl FastAmplitude {
                 let m = &input.masses_squared[lane * n..(lane + 1) * n];
                 let vort2 = mp_cc(&row.vort, &row.vort);
                 let bound = 4. * self.bounds[lane].0 * taxicab_sum(&row.vort);
+                let mut conditioning = BoxMuConditioning::ONE;
                 if !x1 {
                     let mut d = C64::ONE;
                     let mut singular = false;
@@ -233,17 +239,25 @@ impl FastAmplitude {
                         singular |= !check.relative_within(factor.taxicab(), bound, || {
                             difference_scale(&row.vort, &v[j], &v[c1])
                         });
+                        conditioning.line(BOX_MU_PRETEST * bound, factor.taxicab());
                         d *= factor;
                     }
                     if singular || !check.absolute(d.taxicab()) {
                         fail(&mut self.alive, &mut self.lane_status, lane);
                         continue;
                     }
+                    if conditioning.exceeds(0, 1., f64::MANTISSA_DIGITS) {
+                        suspects.push((r, [self.calls.out[r].taxicab(), 0.], None));
+                    }
                     self.box_c[b * lanes + lane][1] = self.calls.out[r] / d / (vort2 * vort2);
                 } else {
                     let mut nmu = [self.calls.out[2 * r], self.calls.out[2 * r + 1]];
                     let vsq = &self.vsq[lane * n..(lane + 1) * n];
                     let mut stable = true;
+                    // Euclidean scale and the solutions' distance from the
+                    // center along the normal (`crate::conditioning`).
+                    let vnorm = euclidean_norm(&row.vort);
+                    let t = euclidean_norm(&sub_cc(&row.q[0], &row.mid)) / vnorm;
                     for &j in cp {
                         let kk = sub(&v[j], &v[c1]);
                         let d0 = mp_cr(&row.vort, &kk) * 2.;
@@ -253,8 +267,11 @@ impl FastAmplitude {
                             stable = false;
                             break;
                         }
+                        let length = kk.iter().map(|x| x * x).sum::<f64>().sqrt();
+                        conditioning.line(2. * vnorm * length, d0.abs());
                         let d1 =
                             C64::real(vsq[j] - vsq[c1]) - m[j] + m[c1] + mp_cr(&row.mid, &kk) * 2.;
+                        conditioning.expansion(d1.abs(), d0.abs(), t);
                         nmu[0] /= d0;
                         nmu[1] -= d1 * nmu[0];
                         nmu[1] /= d0;
@@ -263,8 +280,18 @@ impl FastAmplitude {
                         fail(&mut self.alive, &mut self.lane_status, lane);
                         continue;
                     }
+                    if conditioning.exceeds(1, 1., f64::MANTISSA_DIGITS) {
+                        let numerator = [
+                            self.calls.out[2 * r].taxicab(),
+                            self.calls.out[2 * r + 1].taxicab(),
+                        ];
+                        suspects.push((r, numerator, Some(conditioning)));
+                    }
                     self.box_c[b * lanes + lane][1] = nmu[1] / (vort2 * vort2);
                 }
+            }
+            if !suspects.is_empty() {
+                self.box_mu_conditioning(input, num, &p, b, &suspects, u32::from(x1))?;
             }
         }
         Ok(())

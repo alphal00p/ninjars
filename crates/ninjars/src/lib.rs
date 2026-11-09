@@ -9,6 +9,7 @@ mod amplitude;
 mod batch;
 mod boxes;
 mod bubbles;
+pub mod conditioning;
 mod cuts;
 pub mod fast;
 mod high_cuts;

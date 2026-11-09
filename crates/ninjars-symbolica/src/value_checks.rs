@@ -20,6 +20,9 @@ pub(crate) trait ValueChecks<V> {
     /// Taxicab magnitude `|Re| + |Im|` of the primal component, as Ninja's
     /// `taxicab_norm`.
     fn magnitude(value: &V) -> Self::Real;
+    /// Squared modulus `Re² + Im²` of the primal component (the box
+    /// mu-expansion's conditioning bound, `ninjars::conditioning`).
+    fn modulus_squared(value: &V) -> Self::Real;
 }
 
 pub(crate) struct OrdinaryChecks;
@@ -50,6 +53,11 @@ where
     #[inline]
     fn magnitude(value: &Complex<T>) -> T {
         value.re.norm() + value.im.norm()
+    }
+
+    #[inline]
+    fn modulus_squared(value: &Complex<T>) -> T {
+        value.re.clone() * &value.re + value.im.clone() * &value.im
     }
 }
 
@@ -129,6 +137,11 @@ where
     #[inline]
     fn magnitude(value: &D) -> T {
         OrdinaryChecks::magnitude(&value.values()[0])
+    }
+
+    #[inline]
+    fn modulus_squared(value: &D) -> T {
+        OrdinaryChecks::modulus_squared(&value.values()[0])
     }
 }
 

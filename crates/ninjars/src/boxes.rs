@@ -58,6 +58,11 @@ pub struct BoxMuDivisionRequest<'a, T> {
     pub shifts: &'a [FourMomentum<T>],
     pub masses_squared: &'a [T],
     pub geometry: &'a BoxCut<T>,
+    /// The conditioning bound's numerator scale (`crate::conditioning`):
+    /// three directions of the box's hyperplane and the numerator's leading
+    /// coefficient along each. `None` takes `ν = 1`; [`BoxReducer`] supplies
+    /// them for the rows the kernels refuse without them.
+    pub reference: Option<(&'a [FourMomentum<T>], &'a [T])>,
 }
 pub struct BoxProjectionRequest<'a, T> {
     pub geometry: &'a BoxCut<T>,
@@ -568,13 +573,100 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
                     shifts: &shifts[lane * n..(lane + 1) * n],
                     masses_squared: &masses_squared[lane * n..(lane + 1) * n],
                     geometry: &cuts[i],
+                    reference: None,
                 });
             }
+            let width = kind.len();
             let values = &mut self.mu_values;
-            values.resize(kind.len() * final_rows.len(), self.zero.clone());
+            values.resize(width * final_rows.len(), self.zero.clone());
             numerator.expansion_batch(kind, &expansions, values)?;
             self.kernels
                 .divide_mu_batch(&divisions, values, mu_coefficients, mu_stable)?;
+            // The conditioning bound's second stage (`crate::conditioning`):
+            // the rows refused with `ν = 1` again with the numerator's
+            // leading coefficient along three directions of their box's
+            // hyperplane (a row refused by the noise tests stays refused).
+            let retry: Vec<usize> = (0..final_rows.len()).filter(|&j| !mu_stable[j]).collect();
+            if !retry.is_empty() {
+                let kind = self
+                    .kernels
+                    .numerator_mu_expansion()
+                    .expect("the box plan requested a mu expansion");
+                let mut references: Vec<[FourMomentum<T>; 2]> = Vec::with_capacity(3 * retry.len());
+                for &j in &retry {
+                    let (_, i) = final_rows[j];
+                    let row = active[i];
+                    let lane = row % lanes;
+                    let cut = &self.topology.cuts()[self.cuts[row / lanes]];
+                    let v = &shifts[lane * n..(lane + 1) * n];
+                    let origin = &v[cut.partition[0]];
+                    let d = |k: usize| v[cut.partition[k]].clone() - origin.clone();
+                    let (a, b, c) = (d(1), d(2), d(3));
+                    for x in [a.clone() + b.clone(), b + c.clone(), c + a] {
+                        references.push([x, cuts[i].a.clone()]);
+                    }
+                }
+                let mut requests = Vec::with_capacity(references.len());
+                for (k, pair) in references.iter().enumerate() {
+                    let (_, i) = final_rows[retry[k / 3]];
+                    let row = active[i];
+                    let cut_index = self.cuts[row / lanes];
+                    let cut = &self.topology.cuts()[cut_index];
+                    requests.push(ExpansionRequest {
+                        id: SampleId {
+                            lane: row % lanes,
+                            sample: cut_index,
+                        },
+                        partition: &cut.partition,
+                        vectors: pair,
+                        parameters: if shifted {
+                            std::slice::from_ref(&cuts[i].beta)
+                        } else {
+                            &[]
+                        },
+                    });
+                }
+                let mut reference_values = vec![self.zero.clone(); width * requests.len()];
+                numerator.expansion_batch(kind, &requests, &mut reference_values)?;
+                let leading: Vec<T> = reference_values
+                    .chunks(width)
+                    .map(|chunk| chunk[0].clone())
+                    .collect();
+                let directions: Vec<FourMomentum<T>> =
+                    references.iter().map(|pair| pair[0].clone()).collect();
+                let mut retried = Vec::with_capacity(retry.len());
+                let mut retry_values = Vec::with_capacity(width * retry.len());
+                for (k, &j) in retry.iter().enumerate() {
+                    let d = &divisions[j];
+                    retried.push(BoxMuDivisionRequest {
+                        partition: d.partition,
+                        complement: d.complement,
+                        shifts: d.shifts,
+                        masses_squared: d.masses_squared,
+                        geometry: d.geometry,
+                        reference: Some((
+                            &directions[3 * k..3 * k + 3],
+                            &leading[3 * k..3 * k + 3],
+                        )),
+                    });
+                    retry_values.extend_from_slice(&values[j * width..(j + 1) * width]);
+                }
+                let mut retry_coefficients =
+                    vec![[self.zero.clone(), self.zero.clone(), self.zero.clone()]; retry.len()];
+                let mut retry_stable = vec![false; retry.len()];
+                self.kernels.divide_mu_batch(
+                    &retried,
+                    &retry_values,
+                    &mut retry_coefficients,
+                    &mut retry_stable,
+                )?;
+                for (k, &j) in retry.iter().enumerate() {
+                    if retry_stable[k] {
+                        mu_coefficients[j] = retry_coefficients[k].clone();
+                        mu_stable[j] = true;
+                    }
+                }
+            }
         }
         let pairs = &mut self.projection_pairs;
         pairs.clear();

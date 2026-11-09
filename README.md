@@ -129,7 +129,16 @@ magnitude in each lane, retaining working precision. JSON records each selected
 scale and its source. `--mu-sampling-scale EXPR` supplies an exact override,
 independent of the renormalization scale. The default mu-expansion mode obtains
 the integrated rational coefficient directly from the numerator expansion.
-Conditioning diagnostics and precision rescue remain under development.
+Conditioning diagnostics and precision rescue remain under development. The
+box mu-expansion refuses a lane, typed (`Unstable` in the fast engine,
+`CutFailed { SingularParameter }` in the generic one), when its predicted loss
+of digits exceeds the carrier's precision minus a margin, in every carrier and
+independently of the noise thresholds: near-planar 2 -> 3 points with a rank-n
+numerator otherwise lose about twice the digits of `log2(scale/|d0|)`. The
+binary64 engines decide a lane flagged by that bound a posteriori, refusing it
+when the first-order rounding estimate of its boxes' mu-expansion terms
+exceeds `2^-17` of its finite part; see
+[box mu-expansion conditioning](docs/box-mu-conditioning.md).
 Master integrals in `Float` are checked against numerica's tracked precision:
 a result that keeps fewer than max(53, bits/4) tracked bits (a requirement
 capped at bits/2) fails its lane with `MasterFailure::ImpreciseResult`, as a
