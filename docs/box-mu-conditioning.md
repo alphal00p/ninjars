@@ -99,7 +99,7 @@ when the leading coefficient vanishes exactly (no term of the box's top
 degree, e.g. a numerator declared above its true rank) and 1 when only the
 reference vanishes.
 
-**Refusal.** A lane is refused when any box cut has `L > p - M`, `p` the
+**The screen.** A lane is flagged when any box cut has `L > p - M`, `p` the
 carrier's precision (53 for binary64, 106 for `DoubleFloat`, the bits of an
 MPFR `Float`) and `M = BOX_MU_MARGIN_BITS`. At rank n the engines test a cheap
 upper bound first, `R_j <= 3 S' / |d0_j|₁` with the taxicab scale
@@ -109,7 +109,49 @@ one division and two products per uncut line. Only a row over it forms the
 Euclidean `R_j` (and above rank n, where `d1` is at hand anyway, `R_j` and
 `ρ` are formed directly), and only a row still over the budget evaluates
 `N̄` (the fast engine's cold stage; the generic engine's `BoxReducer`
-retries the rows its kernels refused with the reference values).
+retries the rows its kernels refused with the reference values). The
+generic engine (double-double, MPFR, and its binary64) refuses a flagged
+lane.
+
+**The fast engines decide a flagged lane a posteriori.** `L` measures a box
+against a regular box (`R_j ~ 1`). At regular kinematics with many uncut
+lines every line contributes its regular `log2 R_j` (three bits or so), and
+one moderately small `d0_j` lifts a high-multiplicity lane over the binary64
+budget although nothing cancels: `tests/n_point.rs` has random 9-point lanes
+at rank n+1 with one line at `R ~ 700 .. 1250` and four regular lines adding
+12 to 14 bits (`L = 40 .. 42 > 39`), which the expansion serves `1e-7` off.
+The binary64 engines (`fast/engine.rs`, `fast/engine_x2.rs` and the
+generated `fast/engine/conditioned.rs`) therefore use `L > p - M` as a
+screen and measure the cancellation on the lane's own value. A flagged box
+adds the first-order rounding estimate of its rational terms
+(`conditioning::box_mu_rounding`, in units of the roundoff `u = 2^-p`) to its
+lane:
+
+```text
+E_b = ((k + 1) Σ_j R_j + 1) A_b + N̄ G_b,
+```
+
+where `A_b` is the modulus of the box's rational terms (`|c4| / 6`, and
+`|c6| w6` at rank n+2, `w6 = |Σ m² / 12 - Σ s / 60|` the weight of the
+`mu⁶` integral) with every term of the division recurrence taken by its
+modulus (`BoxMuPropagation`: `x0 /= |d0|`, `x1 = (x1 + |d1| x0) / |d0|`,
+`x2 = (x2 + |d1| x1) / |d0|`, from `|n0|, |n1|, |n2|`): each `d0_j`
+carries the relative error `u R_j` and enters the leading term `k + 1`
+times, the `+ 1` is the rounding of the coefficients themselves; `G_b` is
+the same recurrence started from `(1, 0, 0)`, so `N̄ G_b` carries the
+absolute rounding `u N̄` of the leading coefficient (`N̄` its scale along the
+box's hyperplane, as for `ν`; it dominates when `ν` is small). At the end
+of the lane the engines refuse it, `FastStatus::Unstable`, when
+
+```text
+u Σ_b E_b > 2^-T |finite part of the lane|,    T = BOX_MU_TARGET_BITS = 17,
+```
+
+`T = ceil(log2(1e5))`, the lax target, with no further margin because the
+estimate is an upper estimate of the error it models (section 3). A lane
+whose finite part vanishes is refused when flagged. Regular rows never reach
+the screen's cold stage, so they pay nothing; a flagged lane runs to the end
+like any other and is decided there.
 
 ## 3. Calibration
 
@@ -190,15 +232,61 @@ The first version of the bound used the taxicab scale `S'` throughout, with
 `R_j` measured against `|d0_j| ~ S'` and `(Σ_j R_j)^k` in place of `ρ^k`.
 It calibrated to `M = 12` but refused regular lanes with three uncut lines at
 rank n+1 and n+2 (NinjaRS's own random-kinematics tests), whose taxicab `R_j`
-is of order 10 to 100 per line; the Euclidean `R_j` and `ρ` are of order 1
-there.
+is of order 10 to 100 per line. The Euclidean `R_j` and `ρ` are of order 1
+to 10 there, but a refusal on `L` alone still refused random 9-point lanes
+at rank n+1 (`tests/n_point.rs`, section 2), which is why the fast engines
+decide a flagged lane a posteriori. An invariant variant of the magnitude
+factor, `Π_j (1 + ρ_j)` (the box's mu-expansion terms against its
+cut-constructible coefficient), was rejected: it serves more wrong lanes
+than `Π_j R_j` on the calibration set at every margin.
+
+**The fast engines' a posteriori decision.** The first-order estimate `E` of
+section 2 was evaluated on the same calibration lanes from the exact
+geometry and the lane's tensor (`N̄` as in the engines), and compared with
+the measured error of the old engine on the lane's own scale (`pred = u Σ_b
+E_b / |finite|`; slack = `log2(pred / error)`, over the lanes the screen
+flags with an error above 16 ulp):
+
+| carrier | flagged lanes | slack min | 1 % | 10 % | median |
+|---|---|---|---|---|---|
+| binary64 fast | 40,420 | -15.5 | -1.0 | 0.5 | 3.1 |
+| binary64 fast, zero noise thresholds | 49,012 | -15.5 | -0.9 | 0.6 | 3.4 |
+| double-double | 4,442 | 0.3 | 0.3 | 1.6 | 3.6 |
+| MPFR 107 bits | 4,272 | 0.6 | 0.9 | 1.6 | 3.5 |
+| MPFR 128 bits | 1,643 | 0.4 | 0.6 | 1.2 | 3.3 |
+
+Where the box mu-expansion is the only source of error (the extended
+carriers) the estimate is an upper estimate on every lane. The negative
+binary64 slacks are lanes of `g g > z z z` point 44 at tilts `1e-11 ..
+1e-9` whose error on their own scale is the triangle-Gram source of section 4
+(suppressed lanes, all within `1e-5` of their family's scale): the decision
+then serves 79 lanes `2e-5 .. 2e-3` off on their own scale and none off on the
+family scale, as the old engine does at the same point at larger tilts,
+where the screen flags nothing. `T = 17` refuses a flagged lane whose
+estimate exceeds `7.6e-6` of its value.
+
+Run through the engine (`fast/engine.rs` with the decision; the same 1,260
+calibration families, 81,912 lanes per carrier, point 44's tilts `>= 1e-6`
+apart):
+
+| carrier | served | served > `1e-5` off (family) | refused | false refusals | false refusals, screen alone |
+|---|---|---|---|---|---|
+| binary64 fast | 32,128 | 0 | 49,784 | 7,173 | 9,089 |
+| binary64 fast, zero noise thresholds | 32,192 | 0 | 49,720 | 8,007 | 9,987 |
+| binary64 fast, conditioned cuts | 32,128 | 0 | 49,784 | | |
+
+Every served value equals the old engine's bit for bit. Point 44 at tilts
+`>= 1e-6` (10,368 lanes): one lane served `1.1e-5` off on the family scale,
+the triangle-Gram source, served the same by the old engine (the screen does
+not flag it).
 
 **False refusals** (lanes the old engine served within `1e-5`, now refused)
 are the bound's cost; the calibration set is concentrated on near-planar
 points by construction. Born-interfered `g g > g g g` at tilt `1e-8` stays
-served (`L` at most 38.4 bits in binary64); at tilt `1e-12` it is refused in
-binary64 (served before with lane errors up to `1.2e-5`); double-double
-serves both unchanged.
+served (`L` at most 38.4 bits in binary64); at tilt `1e-12` binary64 serves
+12 of its 24 lanes and refuses 12, five of which were `1e-5 .. 3.7e-5` off
+(family scale), the other seven within `1e-5` (served before at the point
+`7.3e-7` off); double-double serves both unchanged.
 
 **Regular points** are unchanged: the bound only adds refusals, never moves a
 served value, and at regular points `R` is of order 1 (the regular controls of
@@ -250,9 +338,9 @@ or agreement within `1e-5` of the fixture's scale; that the fast engine with
 zero noise thresholds refuses the marked fixtures; and that the controls keep
 the statuses and binary64 bits of `98e223da`. `crates/ninjars/src/
 conditioning.rs` tests the loss model itself. The example
-`box_mu_conditioning` reduces any fixture with chosen carriers. Two unit tests
-with random elongated kinematics (`fast::tests::conditioned_cuts_are_per_lane_
+`box_mu_conditioning` reduces any fixture with chosen carriers. NinjaRS's
+random-kinematics tests keep their assertions (`tests/n_point.rs` up to
+`n = 10`, rank `n + 1` asserted; `fast::tests::conditioned_cuts_are_per_lane_
 and_ignored_at_rank_n2`, `fast::tests_x2::rank_n2_batches_and_replay_are_
-bitwise`) now accept the bound's typed refusal of a lane (single box lines at
-`R ~ 1e4`; served before at `1e-8 .. 2e-5` off) and still compare the batch
-and the single-lane evaluations bitwise, statuses included.
+bitwise`, whose single box lines reach `R ~ 1e4`): the a posteriori decision
+serves their lanes.

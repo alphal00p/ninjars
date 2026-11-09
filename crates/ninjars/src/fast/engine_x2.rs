@@ -778,7 +778,8 @@ impl RankN2Engine {
                 for j in (0..n).filter(|j| !p.contains(j)) {
                     let kk = sub(&v[j], &v[p[0]]);
                     let d0 = (mp_cr(&row.vort, &kk) * 2.).abs();
-                    let d1 = (C64::real(vsq[j] - vsq[p[0]]) - m[j] + m[p[0]]
+                    let d1 = (C64::real(vsq[j] - vsq[p[0]]) - m[j]
+                        + m[p[0]]
                         + mp_cr(&row.mid, &kk) * 2.)
                         .abs();
                     propagation.line(d0, d1);

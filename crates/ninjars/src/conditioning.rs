@@ -55,17 +55,18 @@
 //! loss against a regular box (`R_j ~ 1`); at regular kinematics with many
 //! uncut lines every line contributes its regular `log2 R_j` (a few bits) and
 //! one moderately small `d0_j` lifts a high-multiplicity lane over the
-//! binary64 budget although nothing cancels (random 8- and 9-point lanes at
-//! rank n+1, served `1e-7` off). The binary64 engines therefore treat `L > p
-//! - M` as a screen: a flagged box adds its first-order rounding estimate
-//! ([`box_mu_rounding`]: the moduli of its rational terms through the
-//! recurrence of the divisions, [`BoxMuPropagation`], times `(k + 1) Σ_j R_j
-//! + 1`, plus `N̄`'s propagation) to its lane, and the lane is refused
-//! ([`box_mu_refused`]) when the sum exceeds `2^-BOX_MU_TARGET_BITS` of the
-//! lane's finite part: the cancellation between the boxes is then measured on
-//! the lane's own value instead of being modelled. The generic engine
-//! (double-double, MPFR, and its binary64) refuses every flagged lane: its
-//! budgets leave room for the regular overhead.
+//! binary64 budget although nothing cancels (random 9-point lanes at rank
+//! n+1, served `1e-7` off). The binary64 engines therefore treat
+//! `L > p - M` as a screen: a flagged box adds its first-order rounding
+//! estimate ([`box_mu_rounding`]: the moduli of its rational terms through
+//! the recurrence of the divisions, [`BoxMuPropagation`], times
+//! `(k + 1) Σ_j R_j + 1`, plus `N̄`'s propagation) to its lane, and the lane
+//! is refused ([`box_mu_refused`]) when the sum exceeds
+//! `2^-BOX_MU_TARGET_BITS` of the lane's finite part: the cancellation
+//! between the boxes is then measured on the lane's own value instead of
+//! being modelled. The generic engine (double-double, MPFR, and its
+//! binary64) refuses every flagged lane: its budgets leave room for the
+//! regular overhead.
 
 /// The margin `M` in bits: a lane is refused when a box's predicted loss `L`
 /// exceeds `p - M`. Derived from the target and the calibration
@@ -227,7 +228,11 @@ pub fn box_mu_rounding(
 #[inline]
 pub fn box_mu_refused(error: f64, finite: f64, precision: u32) -> bool {
     let predicted = error * 2f64.powi(-(precision as i32));
-    !(predicted <= finite * 2f64.powi(-BOX_MU_TARGET_BITS))
+    let limit = finite * 2f64.powi(-BOX_MU_TARGET_BITS);
+    !matches!(
+        predicted.partial_cmp(&limit),
+        Some(std::cmp::Ordering::Less | std::cmp::Ordering::Equal)
+    )
 }
 
 #[cfg(test)]
