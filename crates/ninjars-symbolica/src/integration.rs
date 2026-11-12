@@ -282,11 +282,13 @@ where
     Complex<T>: Real + EvaluationDomain,
 {
     pub fn new(cut_size: usize, higher_rank: bool, prototype: T) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Self::new_class(cut_size, higher_class(higher_rank), prototype)
     }
 
     /// Kernels for residues of the given rank class.
     pub fn new_class(cut_size: usize, class: RankClass, prototype: T) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Self::build(cut_size, class, prototype, false)
     }
 
@@ -298,6 +300,7 @@ where
         class: RankClass,
         prototype: T,
     ) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Self::build(cut_size, class, prototype, true)
     }
 
@@ -319,11 +322,13 @@ where
     Complex<T>: Real + EvaluationDomain,
 {
     pub fn new(cut_size: usize, higher_rank: bool, prototype: T, dual: &D) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Self::new_class(cut_size, higher_class(higher_rank), prototype, dual)
     }
 
     /// Kernels for residues of the given rank class.
     pub fn new_class(cut_size: usize, class: RankClass, prototype: T, dual: &D) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Self::build(cut_size, class, prototype, dual, false)
     }
 
@@ -334,6 +339,7 @@ where
         prototype: T,
         dual: &D,
     ) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Self::build(cut_size, class, prototype, dual, true)
     }
 

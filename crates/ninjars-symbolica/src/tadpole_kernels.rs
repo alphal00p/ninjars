@@ -798,6 +798,7 @@ where
     }
 
     pub fn new(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let zero = Complex::new(prototype.zero(), prototype.zero());
         Ok(Self {
             engine: Engine::new(propagators, rank, &zero, |exact| exact.compile(&prototype))?,
@@ -809,6 +810,7 @@ where
     /// parent's structural-zero coefficients are exactly zero. The generic
     /// fallback retains its full output and finite checks.
     pub fn with_rank_specialized_corrections(mut self) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let prototype = self.engine.zero.re.clone();
         self.engine
             .specialize_corrections(|exact| exact.compile(&prototype))?;
@@ -868,6 +870,7 @@ where
     }
 
     pub fn new(propagators: usize, rank: usize, prototype: T, dual: &D) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(Self {
             engine: Engine::new(propagators, rank, dual, |exact| {
                 exact.compile_dual(&prototype, dual)
@@ -878,6 +881,7 @@ where
     /// See [`SymbolicaTadpoleKernels::with_rank_specialized_corrections`].
     /// Structural zeros are checked across every higher/mixed Dual component.
     pub fn with_rank_specialized_corrections(mut self) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let dual = self.engine.zero.clone();
         let prototype = self.engine.division.scalar_prototype().clone();
         self.engine
@@ -930,6 +934,7 @@ where
     /// Opt into generated n=5/r=4 correction bodies with the same exact-zero
     /// guards. Generic native selections are retained for whole-batch fallback.
     pub fn with_native_rank_specialized_corrections(self) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let mut kernels = self.with_rank_specialized_corrections()?;
         let prototype = kernels.engine.zero.re.clone();
         use crate::rank_specialization::RankSpecializedCorrectionPlan::{
@@ -956,6 +961,7 @@ where
         rank: usize,
         prototype: T,
     ) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let mut kernels = Self::new(propagators, rank, prototype.clone())?;
         crate::native_kernels::install_denominator(
             &mut kernels.engine.denominator,
@@ -968,6 +974,7 @@ where
     /// Select denominators and both available parent-axis projection plans.
     /// Tadpole subtraction, residue projection and geometry stay interpreted.
     pub fn new_with_native_kernels(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         use crate::native_kernels::tadpoles::{TadpoleSourcePlan, install_projection};
         let mut kernels = Self::new_with_native_denominators(propagators, rank, prototype.clone())?;
         for (projection, source_size) in kernels.engine.source_projection.iter_mut().zip([3, 2]) {
@@ -994,6 +1001,7 @@ where
     /// Only the catalogued ordered five-component shape is generated; other
     /// shapes use the interpreted alternate and report that backend.
     pub fn with_native_rank_specialized_corrections(self) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let mut kernels = self.with_rank_specialized_corrections()?;
         let prototype = kernels.engine.division.scalar_prototype().clone();
         use crate::rank_specialization::RankSpecializedCorrectionPlan::{
@@ -1021,6 +1029,7 @@ where
         prototype: T,
         dual: &D,
     ) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let mut kernels = Self::new(propagators, rank, prototype.clone(), dual)?;
         crate::native_kernels::install_dual_denominator(
             &mut kernels.engine.denominator,
@@ -1038,6 +1047,7 @@ where
         prototype: T,
         dual: &D,
     ) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         use crate::native_kernels::tadpoles::{TadpoleSourcePlan, install_dual_projection};
         let mut kernels =
             Self::new_with_native_denominators(propagators, rank, prototype.clone(), dual)?;

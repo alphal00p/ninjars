@@ -162,6 +162,7 @@ impl TriangleBubbleSubtraction {
     /// Selection follows explicit `(t,x,mu²)` powers, preserving their order.
     /// It does not infer semantics from input/output buffer dimensions.
     pub fn for_quotient(division: &LaurentDivision) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         if division.cut_size() != 2 {
             return Err(Error::Unsupported(
                 "triangle-to-bubble correction requires a bubble quotient".into(),
@@ -192,6 +193,7 @@ impl TriangleBubbleSubtraction {
     }
 
     pub fn new(higher_rank: bool) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Self::new_class(if higher_rank {
             RankClass::NPlus1
         } else {
@@ -202,6 +204,7 @@ impl TriangleBubbleSubtraction {
     /// The correction for a triangle residue of the given rank class; the
     /// series degree is `2 + excess`.
     pub fn new_class(class: RankClass) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let count = residue_coefficient_count(3, class);
         let layout = TriangleBubbleInputLayout {
             residue: 0..count,
@@ -317,6 +320,7 @@ impl TriangleBubbleSubtraction {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(TriangleBubbleEvaluator {
             kernel: self.exact.compile(prototype)?,
         })
@@ -330,6 +334,7 @@ impl TriangleBubbleSubtraction {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(DualTriangleBubbleEvaluator {
             kernel: self.exact.compile_dual(prototype, dual)?,
         })
@@ -401,6 +406,7 @@ pub struct TadpoleSubtraction {
 
 impl TadpoleSubtraction {
     pub fn new(source_cut_size: usize, higher_rank: bool) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Self::new_class(
             source_cut_size,
             if higher_rank {
@@ -414,6 +420,7 @@ impl TadpoleSubtraction {
     /// The correction from a source residue of the given rank class; the
     /// series degree is `1 + excess`.
     pub fn new_class(source_cut_size: usize, class: RankClass) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         if !matches!(source_cut_size, 2 | 3) {
             return Err(Error::Unsupported(
                 "tadpole subtraction requires a triangle or bubble source".into(),
@@ -536,6 +543,7 @@ impl TadpoleSubtraction {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(TadpoleSubtractionEvaluator {
             kernel: self.exact.compile(prototype)?,
         })
@@ -549,6 +557,7 @@ impl TadpoleSubtraction {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(DualTadpoleSubtractionEvaluator {
             kernel: self.exact.compile_dual(prototype, dual)?,
         })
@@ -598,6 +607,7 @@ impl TriangleBubbleSubtraction {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let mut result = self.compile(prototype)?;
         if let Some(plan) =
             crate::native_kernels::bubbles::BubblePlan::correction(self.class, &self.output)?

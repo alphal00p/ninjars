@@ -87,6 +87,7 @@ fn native_error(error: String) -> Error {
 
 impl OneLoopNativeMasters {
     pub fn new() -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(Self {
             pole_selection: oneloop::PoleSelection::BOTH,
             onshell_threshold: Some(ONSHELL_THRESHOLD),

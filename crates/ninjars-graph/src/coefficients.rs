@@ -83,6 +83,7 @@ pub struct PolynomialCoefficientPlan {
 
 impl PolynomialCoefficientPlan {
     pub fn new(expression: Atom, variables: [Atom; 5], parameters: Vec<Atom>) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let all: Vec<_> = variables.iter().chain(&parameters).collect();
         if all.iter().enumerate().any(|(i, value)| {
             !matches!(value.as_view(), AtomView::Var(_)) || all[..i].contains(value)
@@ -159,6 +160,7 @@ impl PolynomialCoefficientPlan {
     /// evaluation order and does not guarantee improved conditioning. Rebuild
     /// the template because previously distinct heads may become identical.
     pub fn factor_coefficients(self) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         // Algebra audit: AtomCore::factor and its documented exact identity;
         // poly/factor.rs and examples/factorization.rs; FeynKit's installed
         // FeynCalc WW/Higgs/Z controls. Mapping/flattening also uses Symbolica.
@@ -192,6 +194,7 @@ impl PolynomialCoefficientPlan {
     /// the evaluator does not depend on what the process registered before.
     /// Zero polynomials need no evaluator.
     pub fn exact_evaluator(&self) -> Result<Option<ExpressionEvaluator<Complex<Rational>>>> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         if self.heads.is_empty() {
             return Ok(None);
         }
@@ -206,6 +209,7 @@ impl PolynomialCoefficientPlan {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let evaluator = self.exact_evaluator()?.map(|e| {
             e.map_coeff_with_prec(
                 &|v| {
@@ -332,6 +336,7 @@ mod jit {
 
     impl PolynomialCoefficientPlan {
         pub fn compile_symjit_o2(&self) -> Result<SymJitCoefficientEvaluator> {
+            let _license = ninjars::licensing::unlock_for_ninjars_operation();
             if std::env::var_os("SYMJIT_TOML").is_some()
                 || std::fs::exists("symjit.toml")
                     .map_err(|e| CoefficientError::Jit(e.to_string()))?

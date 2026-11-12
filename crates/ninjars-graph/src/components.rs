@@ -107,6 +107,7 @@ impl PreparedIntegrand {
         mu_squared: Option<&Atom>,
         external_momenta: &BTreeMap<Atom, FourMomentum<Atom>>,
     ) -> Result<Kinematics, PreparationError> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         if mu_squared.is_some() {
             self.check_fdh()?;
         }
@@ -155,6 +156,7 @@ impl PreparedIntegrand {
         mu_squared: Option<&Atom>,
         external_momenta: &BTreeMap<Atom, FourMomentum<Atom>>,
     ) -> Result<Atom, PreparationError> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(self
             .dimensional_kinematics(loop_components, mu_squared, external_momenta)?
             .apply(&self.numerator)
@@ -167,6 +169,7 @@ impl PreparedIntegrand {
     /// (see the module documentation). Inspects the graph numerator, its
     /// prefactor and projector before contraction.
     pub fn check_fdh(&self) -> Result<(), PreparationError> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let axial = [AGS.gamma5, AGS.projp, AGS.projm];
         let spinors = [symbols::u(), symbols::ubar(), symbols::v(), symbols::vbar()];
         let levi_civita = *EPSILON_SYMBOL;
@@ -213,6 +216,7 @@ impl PreparedIntegrand {
         &self,
         external_momenta: &BTreeMap<Atom, FourMomentum<Atom>>,
     ) -> Result<Vec<FourMomentum<Atom>>, PreparationError> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let loop_name = &self.family.loop_momenta()[0];
         self.quadratics
             .iter()
@@ -240,6 +244,7 @@ impl PreparedIntegrand {
 
     /// Squared masses in normalized propagators, preserving exact expressions.
     pub fn squared_masses(&self) -> Vec<Atom> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         self.quadratics
             .iter()
             .map(|quadratic| (-quadratic.remainder() / quadratic.scale()).together())

@@ -270,6 +270,7 @@ where
     }
 
     pub fn new(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let zero = Complex::new(prototype.zero(), prototype.zero());
         Ok(Self {
             engine: Engine::new(propagators, rank, &zero, |exact| exact.compile(&prototype))?,
@@ -295,6 +296,7 @@ where
     }
 
     pub fn new(propagators: usize, rank: usize, prototype: T, dual: &D) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(Self {
             engine: Engine::new(propagators, rank, dual, |exact| {
                 exact.compile_dual(&prototype, dual)
@@ -332,6 +334,7 @@ where
         rank: usize,
         prototype: T,
     ) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let mut kernels = Self::new(propagators, rank, prototype.clone())?;
         crate::native_kernels::install_denominator(
             &mut kernels.engine.denominator,
@@ -355,6 +358,7 @@ where
         prototype: T,
         dual: &D,
     ) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let mut kernels = Self::new(propagators, rank, prototype.clone(), dual)?;
         crate::native_kernels::install_dual_denominator(
             &mut kernels.engine.denominator,

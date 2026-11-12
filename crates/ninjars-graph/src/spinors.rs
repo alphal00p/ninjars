@@ -71,6 +71,7 @@ fn is_spinor_line(part: AtomView<'_>) -> bool {
 
 /// Whether the expression contains an open spinor line.
 pub fn has_spinor_chains(expression: &Atom) -> bool {
+    let _license = ninjars::licensing::unlock_for_ninjars_operation();
     let mut found = false;
     expression.visitor(&mut |part| {
         found |= is_spinor_line(part);
@@ -305,6 +306,7 @@ pub fn expand_components(
     vectors: &BTreeMap<Atom, FourMomentum<Atom>>,
     spinors: &BTreeMap<Atom, [Atom; 4]>,
 ) -> Result<Atom, PreparationError> {
+    let _license = ninjars::licensing::unlock_for_ninjars_operation();
     let open = |expression: &Atom| has_spinor_chains(expression) || has_levi_civita(expression);
     if !open(expression) {
         return Ok(expression.clone());

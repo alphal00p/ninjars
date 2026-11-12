@@ -159,6 +159,7 @@ pub struct Amplitude<T, K: AmplitudeKernels<T>> {
 
 impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
     pub fn new(kernels: K, prototype: T, lanes: usize) -> Result<Self> {
+        let _license = crate::licensing::unlock_for_ninjars_operation();
         let topology = Topology::new(kernels.propagators(), kernels.rank())?;
         let active = |size| {
             size <= topology.propagators()
@@ -462,6 +463,7 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
         high_geometry: &mut H,
         masters: &mut M,
     ) -> Result<()> {
+        let _license = crate::licensing::unlock_for_ninjars_operation();
         let AmplitudeInput {
             shifts,
             masses_squared,

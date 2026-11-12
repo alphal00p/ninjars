@@ -271,6 +271,7 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
         geometry: &mut C,
         output: &mut [CutOutcome<BoxResidue<T>>],
     ) -> Result<()> {
+        let _license = crate::licensing::unlock_for_ninjars_operation();
         let n = self.topology.propagators();
         let options = self.kernels.options();
         let levels = options.sample_count(n, self.topology.rank());

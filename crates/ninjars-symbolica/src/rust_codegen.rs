@@ -75,6 +75,7 @@ macro_rules! export_kernel {
                 emitter: &mut RustEmitter,
                 options: EmitOptions,
             ) -> Result<GeneratedModule> {
+                let _license = ninjars::licensing::unlock_for_ninjars_operation();
                 emitter
                     .emit(self.exact.evaluator()?, options)
                     .map_err(Error::Symbolic)
@@ -86,6 +87,7 @@ macro_rules! export_kernel {
                 emitter: &mut RustEmitter,
                 options: EmitOptions,
             ) -> Result<GeneratedModule> {
+                let _license = ninjars::licensing::unlock_for_ninjars_operation();
                 emitter
                     .emit(self.exact.dual_evaluator(structure)?, options)
                     .map_err(Error::Symbolic)
@@ -96,6 +98,7 @@ macro_rules! export_kernel {
                 emitter: &mut RustEmitter,
                 options: EmitOptions,
             ) -> Result<GeneratedModule> {
+                let _license = ninjars::licensing::unlock_for_ninjars_operation();
                 emitter
                     .emit_batch(self.exact.evaluator()?, options)
                     .map_err(Error::Symbolic)
@@ -107,6 +110,7 @@ macro_rules! export_kernel {
                 emitter: &mut RustEmitter,
                 options: EmitOptions,
             ) -> Result<GeneratedModule> {
+                let _license = ninjars::licensing::unlock_for_ninjars_operation();
                 emitter
                     .emit_batch(self.exact.dual_evaluator(structure)?, options)
                     .map_err(Error::Symbolic)
@@ -130,6 +134,7 @@ impl RustKernelExport for RankSpecializedCorrectionPlan {
         emitter: &mut RustEmitter,
         options: EmitOptions,
     ) -> Result<GeneratedModule> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         emitter
             .emit(self.prepare()?.exact.evaluator()?, options)
             .map_err(Error::Symbolic)
@@ -141,6 +146,7 @@ impl RustKernelExport for RankSpecializedCorrectionPlan {
         emitter: &mut RustEmitter,
         options: EmitOptions,
     ) -> Result<GeneratedModule> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         emitter
             .emit(self.prepare()?.exact.dual_evaluator(structure)?, options)
             .map_err(Error::Symbolic)
@@ -151,6 +157,7 @@ impl RustKernelExport for RankSpecializedCorrectionPlan {
         emitter: &mut RustEmitter,
         options: EmitOptions,
     ) -> Result<GeneratedModule> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         emitter
             .emit_batch(self.prepare()?.exact.evaluator()?, options)
             .map_err(Error::Symbolic)
@@ -162,6 +169,7 @@ impl RustKernelExport for RankSpecializedCorrectionPlan {
         emitter: &mut RustEmitter,
         options: EmitOptions,
     ) -> Result<GeneratedModule> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         emitter
             .emit_batch(self.prepare()?.exact.dual_evaluator(structure)?, options)
             .map_err(Error::Symbolic)

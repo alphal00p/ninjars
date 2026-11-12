@@ -26,6 +26,7 @@ pub struct DenominatorExpansion {
 
 impl DenominatorExpansion {
     pub fn new(cut_size: usize) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let layout = LaurentDivision::new(cut_size, cut_size, cut_size)?;
         let kind = layout.denominator_expansion().clone();
         let bubble = cut_size == 2;
@@ -105,6 +106,7 @@ impl DenominatorExpansion {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(DenominatorEvaluator {
             kernel: self.exact.compile(prototype)?,
         })
@@ -117,6 +119,7 @@ impl DenominatorExpansion {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(DualDenominatorEvaluator {
             kernel: self.exact.compile_dual(prototype, dual)?,
         })
@@ -169,6 +172,7 @@ impl DenominatorExpansion {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let mut result = self.compile(prototype)?;
         crate::native_kernels::install_denominator(
             &mut result.kernel,
@@ -191,6 +195,7 @@ impl DenominatorExpansion {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let mut result = self.compile_dual(prototype, dual)?;
         crate::native_kernels::install_dual_denominator(
             &mut result.kernel,

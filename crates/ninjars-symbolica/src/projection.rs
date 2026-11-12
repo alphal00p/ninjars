@@ -34,6 +34,7 @@ impl Default for BubbleSourceProjection {
 }
 impl BubbleSourceProjection {
     pub fn new() -> Self {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let p: Vec<_> = (0..28)
             .map(|i| Atom::var(symbol!(format!("ninjars_bubble_source_projection::p{i}"))))
             .collect();
@@ -67,6 +68,7 @@ impl BubbleSourceProjection {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(BubbleSourceProjectionEvaluator {
             kernel: self.exact.compile(prototype)?,
         })
@@ -79,6 +81,7 @@ impl BubbleSourceProjection {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(DualBubbleSourceProjectionEvaluator {
             kernel: self.exact.compile_dual(prototype, dual)?,
         })
@@ -139,6 +142,7 @@ pub struct ResidueProjection {
 
 impl ResidueProjection {
     pub fn new(division: &LaurentDivision) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let cut = division.cut_size();
         if cut != 2 && cut != 3 {
             return Err(Error::Unsupported(
@@ -263,6 +267,7 @@ impl ResidueProjection {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(ResidueProjectionEvaluator {
             kernel: self.exact.compile(prototype)?,
         })
@@ -275,6 +280,7 @@ impl ResidueProjection {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(DualResidueProjectionEvaluator {
             kernel: self.exact.compile_dual(prototype, dual)?,
         })
@@ -320,6 +326,7 @@ impl BubbleSourceProjection {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let mut result = self.compile(prototype)?;
         crate::native_kernels::bubbles::install(
             &mut result.kernel,

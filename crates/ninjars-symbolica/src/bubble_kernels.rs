@@ -882,6 +882,7 @@ where
     }
 
     pub fn new(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let zero = Complex::new(prototype.zero(), prototype.zero());
         Ok(Self {
             engine: Engine::new(propagators, rank, &zero, |exact| exact.compile(&prototype))?,
@@ -896,6 +897,7 @@ where
     /// Overflow confined to discarded arithmetic no longer rejects a lane;
     /// complete live residue coefficients and publication checks remain intact.
     pub fn with_pruned_swapped_arithmetic(mut self) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let prototype = self.engine.zero.re.clone();
         self.engine
             .prune_swapped(|exact| exact.compile(&prototype))?;
@@ -912,6 +914,7 @@ where
     /// existing generic batch backend. Raw APIs keep both orientations complete;
     /// projection-only pruning is configured independently.
     pub fn with_rank_specialized_corrections(mut self) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let prototype = self.engine.zero.re.clone();
         self.engine
             .specialize_correction(|exact| exact.compile(&prototype))?;
@@ -970,6 +973,7 @@ where
     }
 
     pub fn new(propagators: usize, rank: usize, prototype: T, dual: &D) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(Self {
             engine: Engine::new(propagators, rank, dual, |exact| {
                 exact.compile_dual(&prototype, dual)
@@ -980,6 +984,7 @@ where
     /// See [`SymbolicaBubbleKernels::with_pruned_swapped_arithmetic`]. Every
     /// derivative component and the complete ordered Dual shape are retained.
     pub fn with_pruned_swapped_arithmetic(mut self) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let dual = self.engine.zero.clone();
         let prototype = self.engine.division.scalar_prototype().clone();
         self.engine
@@ -993,6 +998,7 @@ where
 
     /// See [`SymbolicaBubbleKernels::with_rank_specialized_corrections`].
     pub fn with_rank_specialized_corrections(mut self) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let dual = self.engine.zero.clone();
         let prototype = self.engine.division.scalar_prototype().clone();
         self.engine
@@ -1047,6 +1053,7 @@ where
     /// Opt into generated n=5/r=4 correction bodies with the same exact-zero
     /// guards. Generic native selections are retained for whole-batch fallback.
     pub fn with_native_rank_specialized_corrections(self) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let mut kernels = self.with_rank_specialized_corrections()?;
         let prototype = kernels.engine.zero.re.clone();
         crate::native_kernels::rank_specialization::install_ordinary(
@@ -1068,6 +1075,7 @@ where
         rank: usize,
         prototype: T,
     ) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let mut kernels = Self::new(propagators, rank, prototype.clone())?;
         crate::native_kernels::install_denominator(
             &mut kernels.engine.denominator,
@@ -1081,6 +1089,7 @@ where
     /// triangle-parent correction for this topology's quotient degree. Rank
     /// n+2 has no catalogued correction body and keeps the interpreter.
     pub fn new_with_native_kernels(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         use crate::native_kernels::bubbles::{BubblePlan, install};
         let mut kernels = Self::new_with_native_denominators(propagators, rank, prototype.clone())?;
         install(
@@ -1109,6 +1118,7 @@ where
     /// Only the catalogued ordered five-component shape is generated; other
     /// shapes use the interpreted alternate and report that backend.
     pub fn with_native_rank_specialized_corrections(self) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let mut kernels = self.with_rank_specialized_corrections()?;
         let prototype = kernels.engine.division.scalar_prototype().clone();
         crate::native_kernels::rank_specialization::install_dual(
@@ -1131,6 +1141,7 @@ where
         prototype: T,
         dual: &D,
     ) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let mut kernels = Self::new(propagators, rank, prototype.clone(), dual)?;
         crate::native_kernels::install_dual_denominator(
             &mut kernels.engine.denominator,

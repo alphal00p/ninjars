@@ -557,6 +557,7 @@ where
     Complex<T>: Real + EvaluationDomain,
 {
     pub fn new(prototype: T) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let zero = Complex::new(prototype.zero(), prototype.zero());
         Ok(Self {
             engine: Engine::new(
@@ -577,6 +578,7 @@ where
     Complex<T>: Real + EvaluationDomain,
 {
     pub fn new(prototype: T, dual: D) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(Self {
             engine: Engine::new(
                 &prototype,

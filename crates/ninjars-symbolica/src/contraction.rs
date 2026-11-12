@@ -65,6 +65,7 @@ pub struct MasterContraction {
 
 impl MasterContraction {
     pub fn new(cut_size: usize, higher_rank: bool) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Self::new_class(
             cut_size,
             if higher_rank {
@@ -77,6 +78,7 @@ impl MasterContraction {
 
     /// Contraction for a residue of the given rank class.
     pub fn new_class(cut_size: usize, class: RankClass) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         if !(1..=4).contains(&cut_size) {
             return Err(Error::Unsupported(
                 "master contraction currently supports cuts of size one through four".into(),
@@ -224,6 +226,7 @@ impl MasterContraction {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(MasterContractionEvaluator {
             weights: self.weights.compile(prototype)?,
             contraction: self.contraction.compile(prototype)?,
@@ -240,6 +243,7 @@ impl MasterContraction {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(DualMasterContractionEvaluator {
             weights: self.weights.compile_dual(prototype, dual)?,
             contraction: self.contraction.compile_dual(prototype, dual)?,

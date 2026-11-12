@@ -32,6 +32,7 @@ pub struct GraphFactors {
 impl GraphFactors {
     /// `(-1)^closed_grassmann_loops / automorphisms`.
     pub fn factor(&self) -> Atom {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let sign = if self.closed_grassmann_loops % 2 == 1 {
             -1
         } else {
@@ -48,6 +49,7 @@ impl GraphFactors {
 /// [`FeynmanDiagram::canonical_key`]. Symbolica counts multi-edge permutations
 /// and undirected self-loop reversals, as it does during generation.
 pub fn graph_factors(diagram: &FeynmanDiagram) -> Result<GraphFactors, PreparationError> {
+    let _license = ninjars::licensing::unlock_for_ninjars_operation();
     let model = diagram.model();
     let mut graph = Graph::<(bool, usize), usize>::new();
     let mut nodes = BTreeMap::new();

@@ -33,6 +33,7 @@ where
     /// mu-squared terms and ranks through `propagator_count + 1`. It can be used
     /// with `validation/reference/build.py --numerator-header <header>`.
     pub fn export_ninja_cpp(&self, propagator_count: usize) -> Result<String> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         if propagator_count == 0 {
             return Err(Error::NoPropagators);
         }

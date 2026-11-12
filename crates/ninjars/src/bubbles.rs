@@ -322,6 +322,7 @@ impl<T: FloatLike, K: BubbleReductionKernels<T>> BubbleReducer<T, K> {
         geometry: &mut C,
         output: &mut [CutOutcome<BubbleResidue<T>>],
     ) -> Result<()> {
+        let _license = crate::licensing::unlock_for_ninjars_operation();
         let n = self.topology.propagators();
         if triangle_topology.propagators() != n || triangle_topology.rank() != self.topology.rank()
         {

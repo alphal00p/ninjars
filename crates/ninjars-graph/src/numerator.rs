@@ -58,6 +58,7 @@ pub fn contract_numerator_with_color(
     diagram: &FeynmanDiagram,
     kinematics: &Kinematics,
 ) -> Result<(Atom, Option<Atom>), PreparationError> {
+    let _license = ninjars::licensing::unlock_for_ninjars_operation();
     let numerator = feynkit_graph::NumeratorInterface::export(diagram.numerator()).0
         * feynkit_graph::NumeratorInterface::export(diagram.numerator_prefactor()).0
         * feynkit_graph::NumeratorInterface::export(diagram.projector()).0;

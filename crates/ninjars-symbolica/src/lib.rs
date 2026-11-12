@@ -1,4 +1,9 @@
 //! Symbolica-backed numerator and master-integral adapters for NinjaRS.
+//!
+//! Symbolic preparation and master evaluation enter NinjaRS's scoped Symbolica
+//! library license, including their oneloopmaster calls. The scope ends when
+//! the operation returns. It does not authorize unrelated caller expressions
+//! or independent uses of the standalone `ninjars-positional` utility.
 #![forbid(unsafe_code)]
 
 #[cfg(all(test, feature = "rust-codegen"))]

@@ -39,6 +39,7 @@ where
     /// Construct callbacks with a fixed derivative shape. Bind phase-space
     /// parameters separately with `set_parameter_batch`, including for no parameters.
     pub fn new(source: PolynomialNumerator<T>, prototype: D) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let shape = prototype
             .get_shape()
             .into_iter()
@@ -149,6 +150,7 @@ where
         requests: &[NumeratorRequest<'_, D>],
         output: &mut [D],
     ) -> Result<()> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         BatchShape {
             rows: requests.len(),
             columns: 1,
@@ -194,6 +196,7 @@ where
         requests: &[ExpansionRequest<'_, D>],
         output: &mut [D],
     ) -> Result<()> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         BatchShape {
             rows: requests.len(),
             columns: kind.len(),

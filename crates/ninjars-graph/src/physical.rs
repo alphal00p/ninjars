@@ -65,6 +65,7 @@ pub fn prepare_top_four_photons(
     model: impl Into<Arc<Model>>,
     kinematics: &Kinematics,
 ) -> Result<Vec<PreparedIntegrand>, PhysicalPreparationError> {
+    let _license = ninjars::licensing::unlock_for_ninjars_operation();
     if kinematics.dimension() != Dimension::Concrete(4) {
         return Err(PhysicalPreparationError::Dimension);
     }
@@ -135,6 +136,7 @@ pub fn prepare_top_higgs_gluons(
     model: impl Into<Arc<Model>>,
     kinematics: &Kinematics,
 ) -> Result<Vec<PreparedIntegrand>, PhysicalPreparationError> {
+    let _license = ninjars::licensing::unlock_for_ninjars_operation();
     if kinematics.dimension() != Dimension::Concrete(4) {
         return Err(PhysicalPreparationError::Dimension);
     }
@@ -235,6 +237,7 @@ pub fn prepare_gluon_self_energy(
     kinematics: &Kinematics,
     quark_pdgs: &[i64],
 ) -> Result<Vec<PreparedIntegrand>, PhysicalPreparationError> {
+    let _license = ninjars::licensing::unlock_for_ninjars_operation();
     if kinematics.dimension() != Dimension::Concrete(4) {
         return Err(PhysicalPreparationError::Dimension);
     }
@@ -326,6 +329,7 @@ impl PreparedIntegrand {
     /// dimension formulas. This is an explicit preparation policy; the default
     /// graph preparation keeps arbitrary color invariants symbolic.
     pub fn with_color_dimension_invariants(mut self) -> Result<Self, PreparationError> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         self.numerator = SymbolicTensor::infer(self.numerator)?
             .simplify_algebra(&AlgebraSettings {
                 color: Some(ColorSimplifySettings::default().with_cof_dimension_invariants()),

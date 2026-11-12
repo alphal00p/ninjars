@@ -151,6 +151,7 @@ pub fn prepare_dot_timed(
     kinematics: &Kinematics,
     options: impl Into<PreparationOptions>,
 ) -> Result<(PreparedIntegrand, PreparationTimings), PreparationError> {
+    let _license = ninjars::licensing::unlock_for_ninjars_operation();
     let options = options.into();
     let start = Instant::now();
     let diagram = FeynmanDiagram::from_dot(model, dot)?;
@@ -181,6 +182,7 @@ pub fn prepare_diagram_timed(
     kinematics: &Kinematics,
     options: impl Into<PreparationOptions>,
 ) -> Result<(PreparedIntegrand, PreparationTimings), PreparationError> {
+    let _license = ninjars::licensing::unlock_for_ninjars_operation();
     prepare(diagram, kinematics, options.into(), false)
 }
 
@@ -308,6 +310,7 @@ pub fn edge_width(
     diagram: &FeynmanDiagram,
     edge: EdgeId,
 ) -> Result<Option<(Atom, Atom)>, PreparationError> {
+    let _license = ninjars::licensing::unlock_for_ninjars_operation();
     let model = diagram.model();
     let (_, _, data) = diagram
         .edges()

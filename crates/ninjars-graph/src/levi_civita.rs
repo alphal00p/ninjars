@@ -41,6 +41,7 @@ pub(crate) fn is_levi_civita(part: AtomView<'_>) -> bool {
 
 /// Whether the expression contains a four-dimensional Levi-Civita tensor.
 pub fn has_levi_civita(expression: &Atom) -> bool {
+    let _license = ninjars::licensing::unlock_for_ninjars_operation();
     let mut found = false;
     expression.visitor(&mut |part| {
         found |= is_levi_civita(part);

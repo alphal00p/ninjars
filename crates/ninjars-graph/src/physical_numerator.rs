@@ -312,6 +312,7 @@ pub fn vector_wavefunction(
 
 impl PhysicalTensorNumerator {
     pub fn new(spec: &PhysicalNumeratorSpec) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let mut timings = GenerationTimings::default();
         let (prepared, preparation) = prepare_dot_timed(
             spec.model.clone(),

@@ -66,6 +66,7 @@ fn powers(degree: i32, shift: i32, bubble: bool) -> ExpansionKind {
 
 impl LaurentDivision {
     pub fn new(propagators: usize, rank: usize, cut_size: usize) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         if propagators == 0 {
             return Err(Error::NoPropagators);
         }
@@ -215,6 +216,7 @@ impl LaurentDivision {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(LaurentDivisionEvaluator {
             kernel: self.exact.compile(prototype)?,
         })
@@ -228,6 +230,7 @@ impl LaurentDivision {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(DualLaurentDivisionEvaluator {
             kernel: self.exact.compile_dual(prototype, dual)?,
         })

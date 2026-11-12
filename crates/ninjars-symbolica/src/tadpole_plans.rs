@@ -31,6 +31,7 @@ pub struct TadpoleSourceProjection {
 
 impl TadpoleSourceProjection {
     pub fn new(source_size: usize) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let (axes, scope) = match source_size {
             3 => (2, "triangle_axes"),
             2 => (3, "bubble_axes"),
@@ -114,6 +115,7 @@ impl Default for TadpoleGeometryProbe {
 
 impl TadpoleGeometryProbe {
     pub fn new() -> Self {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let parameters: Vec<_> = (0..8)
             .map(|i| Atom::var(symbol!(format!("ninjars_cut_kernel::p{i}"))))
             .collect();
@@ -149,6 +151,7 @@ macro_rules! evaluator {
             where
                 Complex<T>: Real + EvaluationDomain,
             {
+                let _license = ninjars::licensing::unlock_for_ninjars_operation();
                 Ok(TadpolePlanEvaluator {
                     kernel: self.exact.compile(prototype)?,
                 })
@@ -162,6 +165,7 @@ macro_rules! evaluator {
             where
                 Complex<T>: Real + EvaluationDomain,
             {
+                let _license = ninjars::licensing::unlock_for_ninjars_operation();
                 Ok(DualTadpolePlanEvaluator {
                     kernel: self.exact.compile_dual(prototype, dual)?,
                 })
@@ -216,6 +220,7 @@ impl TadpoleSourceProjection {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         use crate::native_kernels::tadpoles::{TadpoleSourcePlan, install_projection};
         let mut result = self.compile(prototype)?;
         install_projection(
@@ -239,6 +244,7 @@ impl TadpoleSourceProjection {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         use crate::native_kernels::tadpoles::{TadpoleSourcePlan, install_dual_projection};
         let mut result = self.compile_dual(prototype, dual)?;
         install_dual_projection(

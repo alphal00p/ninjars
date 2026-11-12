@@ -75,55 +75,82 @@ fn main() {
         )
         .try_init();
     let result = match Cli::parse().command {
-        Command::Prepare(args) => prepare::run(args).map_err(|error| error.to_string()),
+        Command::Prepare(args) => {
+            let _license = ninjars::licensing::unlock_for_ninjars_operation();
+            prepare::run(args).map_err(|error| error.to_string())
+        }
         Command::Reduce(args) => std::thread::Builder::new()
             .name("ninjars-reduce".into())
             // oneloopmaster's exact expression preparation requires this stack.
             .stack_size(128 * 1024 * 1024)
-            .spawn(move || reduce::run(args).map_err(|error| error.to_string()))
+            .spawn(move || {
+                let _license = ninjars::licensing::unlock_for_ninjars_operation();
+                reduce::run(args).map_err(|error| error.to_string())
+            })
             .expect("cannot start reduction worker")
             .join()
             .unwrap_or_else(|_| Err("reduction worker panicked".into())),
         Command::Bench(args) => std::thread::Builder::new()
             .name("ninjars-bench".into())
             .stack_size(128 * 1024 * 1024)
-            .spawn(move || bench::run(args).map_err(|error| error.to_string()))
+            .spawn(move || {
+                let _license = ninjars::licensing::unlock_for_ninjars_operation();
+                bench::run(args).map_err(|error| error.to_string())
+            })
             .expect("cannot start benchmark worker")
             .join()
             .unwrap_or_else(|_| Err("benchmark worker panicked".into())),
         Command::ExportBench(args) => std::thread::Builder::new()
             .name("ninjars-export-bench".into())
             .stack_size(128 * 1024 * 1024)
-            .spawn(move || export_bench::run(args).map_err(|error| error.to_string()))
+            .spawn(move || {
+                let _license = ninjars::licensing::unlock_for_ninjars_operation();
+                export_bench::run(args).map_err(|error| error.to_string())
+            })
             .expect("cannot start export worker")
             .join()
             .unwrap_or_else(|_| Err("export worker panicked".into())),
         Command::NumeratorBench(args) => std::thread::Builder::new()
             .name("ninjars-numerator-bench".into())
             .stack_size(128 * 1024 * 1024)
-            .spawn(move || numerator_bench::run(args).map_err(|error| error.to_string()))
+            .spawn(move || {
+                let _license = ninjars::licensing::unlock_for_ninjars_operation();
+                numerator_bench::run(args).map_err(|error| error.to_string())
+            })
             .expect("cannot start numerator benchmark worker")
             .join()
             .unwrap_or_else(|_| Err("numerator benchmark worker panicked".into())),
-        Command::Draw(args) => draw::run(args).map_err(|error| error.to_string()),
+        Command::Draw(args) => {
+            let _license = ninjars::licensing::unlock_for_ninjars_operation();
+            draw::run(args).map_err(|error| error.to_string())
+        }
         Command::CaseBench(args) => std::thread::Builder::new()
             .name("ninjars-case-bench".into())
             .stack_size(128 * 1024 * 1024)
-            .spawn(move || case_bench::run(args).map_err(|error| error.to_string()))
+            .spawn(move || {
+                let _license = ninjars::licensing::unlock_for_ninjars_operation();
+                case_bench::run(args).map_err(|error| error.to_string())
+            })
             .expect("cannot start case benchmark worker")
             .join()
             .unwrap_or_else(|_| Err("case benchmark worker panicked".into())),
         Command::CaseCheck(args) => std::thread::Builder::new()
             .name("ninjars-case-check".into())
             .stack_size(128 * 1024 * 1024)
-            .spawn(move || case_check::run(args).map_err(|error| error.to_string()))
+            .spawn(move || {
+                let _license = ninjars::licensing::unlock_for_ninjars_operation();
+                case_check::run(args).map_err(|error| error.to_string())
+            })
             .expect("cannot start case check worker")
             .join()
             .unwrap_or_else(|_| Err("case check worker panicked".into())),
         Command::PipelineBench(args) => std::thread::Builder::new()
             .name("ninjars-pipeline-bench".into())
             .stack_size(128 * 1024 * 1024)
-            .spawn(move || pipeline_bench::run(args).map_err(|error| error.to_string()))
+            .spawn(move || {
+                let _license = ninjars::licensing::unlock_for_ninjars_operation();
+                pipeline_bench::run(args).map_err(|error| error.to_string())
+            })
             .expect("cannot start pipeline benchmark worker")
             .join()
             .unwrap_or_else(|_| Err("pipeline benchmark worker panicked".into())),
@@ -131,7 +158,10 @@ fn main() {
         Command::Compare(args) => std::thread::Builder::new()
             .name("ninjars-compare".into())
             .stack_size(128 * 1024 * 1024)
-            .spawn(move || compare::run(args).map_err(|error| error.to_string()))
+            .spawn(move || {
+                let _license = ninjars::licensing::unlock_for_ninjars_operation();
+                compare::run(args).map_err(|error| error.to_string())
+            })
             .expect("cannot start comparison worker")
             .join()
             .unwrap_or_else(|_| Err("comparison worker panicked".into())),

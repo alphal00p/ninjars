@@ -143,6 +143,7 @@ impl<T: FloatLike, K: TriangleReductionKernels<T>> TriangleReducer<T, K> {
         geometry: &mut C,
         output: &mut [CutOutcome<TriangleResidue<T>>],
     ) -> Result<()> {
+        let _license = crate::licensing::unlock_for_ninjars_operation();
         let n = self.topology.propagators();
         BatchShape {
             rows: lanes,

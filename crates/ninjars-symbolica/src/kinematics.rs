@@ -189,6 +189,7 @@ where
     Complex<T>: Real + EvaluationDomain,
 {
     pub fn new(propagators: usize, prototype: T) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let carrier = Complex::new(prototype.zero(), prototype.zero());
         Ok(Self {
             engine: Engine::new(
@@ -210,6 +211,7 @@ where
     Complex<T>: Real + EvaluationDomain,
 {
     pub fn new(propagators: usize, prototype: T, dual: D) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         if dual.values().is_empty() {
             return Err(Error::Unsupported(
                 "sampling scales require a Dual primal component".into(),

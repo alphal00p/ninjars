@@ -151,6 +151,7 @@ impl ExactKernel {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         #[cfg(test)]
         COMPILED_PLANS.with_borrow_mut(|plans| {
             if let Some(plans) = plans {
@@ -181,6 +182,7 @@ impl ExactKernel {
     where
         Complex<T>: Real + EvaluationDomain,
     {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let shape: Vec<_> = dual
             .get_shape()
             .into_iter()
@@ -294,6 +296,9 @@ where
             return native.evaluate(input, output, rows);
         }
         if let Some(evaluator) = &mut self.evaluator {
+            // Native kernels above do not enter Symbolica. Keep their hot path
+            // independent of library-license activation.
+            let _license = ninjars::licensing::unlock_for_ninjars_operation();
             evaluator
                 .evaluate_batch(input, output, rows)
                 .map_err(|e| Error::Symbolic(e.to_string()))?;

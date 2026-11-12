@@ -261,6 +261,7 @@ where
         parameter_names: Vec<Atom>,
         prototype: T,
     ) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let all_variables: Vec<_> = variables.iter().chain(&parameter_names).collect();
         for (index, variable) in all_variables.iter().enumerate() {
             if !matches!(variable.as_view(), AtomView::Var(_)) {
@@ -599,6 +600,7 @@ where
         requests: &[NumeratorRequest<'_, Complex<T>>],
         output: &mut [Complex<T>],
     ) -> Result<()> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         BatchShape {
             rows: requests.len(),
             columns: 1,
@@ -628,6 +630,7 @@ where
         requests: &[ExpansionRequest<'_, Complex<T>>],
         output: &mut [Complex<T>],
     ) -> Result<()> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         BatchShape {
             rows: requests.len(),
             columns: kind.len(),

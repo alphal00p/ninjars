@@ -99,10 +99,16 @@ revisions there and applies the patches) and pass
 `references/` is needed otherwise; the C++/Fortran reference validation
 (`--features reference-codegen`, `validation/`) also uses `references/ninja`.
 
-Symbolica retains its own licensing and runtime requirements. Run its tests
-serially when using a license that limits concurrent instances. Production
-library code and graph preparation are Rust; Python and C++/Fortran here are
-development and reference-validation tools.
+NinjaRS registers a Symbolica library key issued for the `ninjars` crate.
+While the key is valid, NinjaRS operations, including its oneloopmaster calls
+and supported MadLoop interface, do not require a personal Symbolica key.
+Authorization is scoped to the operation and its worker threads; it does not
+license unrelated Symbolica computations in a caller's application. Registration
+failure, expiry or revocation leaves Symbolica's personal-license or restricted
+mode available. Symbolica retains its own licensing and runtime requirements.
+See [Symbolica library licensing](docs/symbolica-licensing.md) for the scope and
+integration details. Production library code and graph preparation are Rust;
+Python and C++/Fortran here are development and reference-validation tools.
 
 ## Packages
 

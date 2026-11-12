@@ -15,6 +15,8 @@ pub mod fast;
 mod high_cuts;
 mod integration;
 mod kinematics;
+#[doc(hidden)]
+pub mod licensing;
 mod masters;
 mod numerator;
 mod pentagons;

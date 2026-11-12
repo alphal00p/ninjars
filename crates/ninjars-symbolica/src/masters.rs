@@ -289,6 +289,7 @@ where
     Complex<T>: EvaluationDomain,
 {
     pub fn new(representative: T) -> Self {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         // Original Ninja: INFRARED_EPS = 1e-9 in double and 1e15 machine
         // epsilons in quadruple precision.
         let onshell_threshold = match T::FIXED_BITS {
@@ -472,6 +473,7 @@ where
     /// For `Float`, bubble rows below the working precision build their native
     /// evaluator on first use.
     pub fn prepare(&mut self, integral: MasterIntegral, rows: usize) -> Result<()> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         if self.native_evaluator(integral)?.is_some() {
             return Ok(());
         }
@@ -760,6 +762,7 @@ where
 {
     /// Use the shape of any Symbolica static or dynamic Dual instance.
     pub fn new(representative: T, structure: &impl DualNumberStructure) -> Self {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Self {
             representative,
             shape: structure
@@ -958,6 +961,7 @@ where
         request: MasterRequest<'_, Complex<T>>,
         output: &mut [Laurent<Complex<T>>],
     ) -> Result<()> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         request.validate(output.len())?;
         self.stage(&request, true)?;
         strict_status(&self.statuses)?;
@@ -971,6 +975,7 @@ where
         output: &mut [Laurent<Complex<T>>],
         statuses: &mut [MasterStatus],
     ) -> Result<()> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         request.validate(output.len())?;
         BatchShape {
             rows: request.rows(),
@@ -990,6 +995,7 @@ where
     Complex<T>: EvaluationDomain,
 {
     fn evaluate(&mut self, request: MasterRequest<'_, D>, output: &mut [Laurent<D>]) -> Result<()> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         request.validate(output.len())?;
         self.stage(&request, true)?;
         strict_status(&self.statuses)?;
@@ -1003,6 +1009,7 @@ where
         output: &mut [Laurent<D>],
         statuses: &mut [MasterStatus],
     ) -> Result<()> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         request.validate(output.len())?;
         BatchShape {
             rows: request.rows(),

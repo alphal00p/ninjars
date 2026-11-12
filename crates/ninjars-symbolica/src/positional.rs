@@ -11,6 +11,7 @@ pub(crate) fn positional_evaluator(
     aliases: &[(Atom, Atom)],
     common_pairs: bool,
 ) -> Result<ExpressionEvaluator<Complex<Rational>>> {
+    let _license = ninjars::licensing::unlock_for_ninjars_operation();
     ninjars_positional::positional_evaluator(expressions, parameters, aliases, common_pairs)
         .map_err(|error| match error {
             ninjars_positional::Error::Slots => Error::Unsupported(error.to_string()),

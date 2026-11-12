@@ -123,6 +123,7 @@ where
     Complex<T>: Real + EvaluationDomain,
 {
     pub fn new(propagators: usize, rank: usize, prototype: T) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let accumulation = accumulation(propagators, rank)?.compile(&prototype)?;
         Ok(Self {
             #[cfg(feature = "native-kernels")]
@@ -398,6 +399,7 @@ where
     Complex<T>: Real + EvaluationDomain,
 {
     pub fn new(propagators: usize, rank: usize, prototype: T, dual: &D) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let accumulation = accumulation(propagators, rank)?.compile_dual(&prototype, dual)?;
         Ok(Self {
             #[cfg(feature = "native-kernels")]
@@ -665,6 +667,7 @@ where
     /// interpreted specialization builder afterwards selects interpreted
     /// alternates. Consult both backend reports for conditional dispatch.
     pub fn with_native_rank_specialized_corrections(mut self) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         crate::rank_specialization::require_supported(self.n, self.rank)?;
         self.rank_specialized_corrections = true;
         self.native_rank_bubble =
@@ -767,6 +770,7 @@ where
     /// alternates. Consult both backend reports for conditional dispatch.
     /// Unsupported or reordered Dual shapes retain interpreted alternates.
     pub fn with_native_rank_specialized_corrections(mut self) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         crate::rank_specialization::require_supported(self.n, self.rank)?;
         self.rank_specialized_corrections = true;
         self.native_rank_bubble =

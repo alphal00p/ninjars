@@ -1240,6 +1240,7 @@ where
     Complex<T>: Real + EvaluationDomain,
 {
     pub fn new(prototype: T) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(Self {
             engine: CutEngine::new(prototype, None)?,
         })
@@ -1322,6 +1323,7 @@ where
     Complex<T>: Real + EvaluationDomain,
 {
     pub fn new(prototype: T, dual: D) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let shape: Vec<_> = dual
             .get_shape()
             .into_iter()

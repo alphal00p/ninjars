@@ -93,6 +93,7 @@ impl<T: FloatLike, K: PentagonReductionKernels<T>> PentagonReducer<T, K> {
         geometry: &mut C,
         output: &mut [CutOutcome<PentagonResidue<T>>],
     ) -> Result<()> {
+        let _license = crate::licensing::unlock_for_ninjars_operation();
         let n = self.topology.propagators();
         BatchShape {
             rows: lanes,

@@ -896,6 +896,7 @@ where
         options: BoxReductionOptions,
         prototype: T,
     ) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         let zero = Complex::new(prototype.zero(), prototype.zero());
         Ok(Self {
             engine: Engine::new(propagators, rank, options, &zero, |exact| {
@@ -918,6 +919,7 @@ where
         prototype: T,
         dual: &D,
     ) -> Result<Self> {
+        let _license = ninjars::licensing::unlock_for_ninjars_operation();
         Ok(Self {
             engine: Engine::new(propagators, rank, options, dual, |exact| {
                 exact.compile_dual(&prototype, dual)

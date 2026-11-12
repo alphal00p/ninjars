@@ -2,8 +2,11 @@
 //!
 //! DOT parsing, momentum routing, propagator construction and tensor algebra
 //! belong to FeynKit, Idenso and Symbolica. This crate only composes those APIs.
-//! The only item used from the `ninjars` crate is the tensor-numerator monomial
-//! ordering shared by original Ninja and MadLoop (`fast::tensor_layout`).
+//! The `ninjars` crate supplies the tensor-numerator monomial ordering shared
+//! by original Ninja and MadLoop (`fast::tensor_layout`) and scoped Symbolica
+//! authorization for these preparation operations. Symbolica expressions and
+//! models created directly by callers outside these APIs retain their own
+//! licensing requirements.
 //! Coefficient and mass evaluators are built through `ninjars-positional`, so
 //! their results do not depend on the symbols the process registered before.
 

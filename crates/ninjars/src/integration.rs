@@ -132,6 +132,7 @@ impl<T: FloatLike, K: IntegrationKernels<T>> ResidueIntegrator<T, K> {
         output: &mut [IntegratedContribution<T>],
         statuses: &mut [IntegrationStatus],
     ) -> Result<()> {
+        let _license = crate::licensing::unlock_for_ninjars_operation();
         let rows = requests.len();
         BatchShape { rows, columns: 1 }.validate("integrated residues", output.len())?;
         BatchShape { rows, columns: 1 }.validate("integration statuses", statuses.len())?;
