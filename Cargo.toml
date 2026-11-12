@@ -1,7 +1,7 @@
 [workspace]
 resolver = "3"
 members = ["crates/ninjars", "crates/ninjars-positional", "crates/ninjars-symbolica", "crates/ninjars-graph", "crates/ninjars-cli"]
-exclude = ["references"]
+exclude = ["references", "interfaces/madloop"]
 
 [workspace.package]
 version = "0.1.0"

@@ -1,0 +1,331 @@
+{
+  "abi_version": 4,
+  "bridge_version": "0.1.0",
+  "mg7_revision": "9a9b28d62ef20b0687770f76e7d1dc2fc517dddf",
+  "source_files": {
+    ".gitignore": {
+      "sha256": "75b7dbb02a9764029bd6e213d34359fa93b3241ba7e74ebf4b9b13dc3fbc27aa",
+      "size": 97
+    },
+    "COPYING": {
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "size": 35147
+    },
+    "Cargo.lock": {
+      "sha256": "20ae9b0a90d0a008227e3ff817ad93235bafea599ce20682c543d7ba2e132ca0",
+      "size": 78265
+    },
+    "Cargo.toml": {
+      "sha256": "7a746bf7d440af9a4896ac4f1790bcbe84c1f26fde0a32076570bf872cf85ca7",
+      "size": 1361
+    },
+    "LICENSE.MadGraph": {
+      "sha256": "10bdc951380a240c90cd6cf6beab465fbbb7af472591accc27ea76a5b5670c9b",
+      "size": 1875
+    },
+    "Makefile": {
+      "sha256": "ec17acc54951f1608ead108e8d336751b2da8f8d6aaaa30b554d8df02396dda7",
+      "size": 2103
+    },
+    "README.release.md": {
+      "sha256": "ba15a04bcac9c4a0fa74cc2f296d79ba47d8546d995ad52ef5e13e4644af6224",
+      "size": 1792
+    },
+    "UPSTREAM.md": {
+      "sha256": "ce2490b789bfbca7fc0c76511b645a48094f100c79732d2721f98f3ebf54ea83",
+      "size": 7152
+    },
+    "build.rs": {
+      "sha256": "fa389383328261938398f067a18ad860ef21e0bb4bc15c95b24be3e0a6704342",
+      "size": 375
+    },
+    "examples/replay.rs": {
+      "sha256": "9573bb3e0b526a2dae4ded84937327f82f4a8e6e6655a8111c9653a127f2023f",
+      "size": 6513
+    },
+    "mninjars.f90": {
+      "sha256": "9f20fb4280ba6d86a0323ce5bb4f4b358c15168166dbdb4e220e172952fbdbb7",
+      "size": 9491
+    },
+    "ninjars.h": {
+      "sha256": "fc8f76abb96e656ea7a7295af870a8fa91df5d098a2a77369552320e6ec56635",
+      "size": 6530
+    },
+    "smoke.f90": {
+      "sha256": "6b18ca787fe13f1ee0a5e2a565988e2253eb64020f27809e663c8e741d73c80f",
+      "size": 3906
+    },
+    "src/final_precision_tests.rs": {
+      "sha256": "98f4d0386180bb39f189762d944bc50aa4e11d7dd88faeea6581dc28dfcd13ad",
+      "size": 21940
+    },
+    "src/guarded.rs": {
+      "sha256": "0c7ac81fe597083e13b069e74a978161d56a101ca8b58bad4b8adaa04ad0d94c",
+      "size": 9559
+    },
+    "src/guarded_fenv.c": {
+      "sha256": "79e47e68003e6660cfc0d67318b1069e0f2f8958a7a6d642020543670ffbb427",
+      "size": 621
+    },
+    "src/guarded_tests.rs": {
+      "sha256": "9566681f2b67e82f5fed8f3186c362820b7991624296d04c905491b230f3769d",
+      "size": 11621
+    },
+    "src/lib.rs": {
+      "sha256": "c979965269217d11936b8dd417eadd8ecec5395ab5844dfc82adf6bb828d5328",
+      "size": 63126
+    },
+    "src/panic_contract_tests.rs": {
+      "sha256": "e029723d3ead3424b2f198c6efa2df5073025f9c2b75820b7d3e5b74926182f0",
+      "size": 1423
+    },
+    "src/pole_bridge_tests.rs": {
+      "sha256": "fa957fea8da831eee6b6ce54f48637b6452cf86709387a5c13d47c2666f7544d",
+      "size": 5448
+    },
+    "src/poles.rs": {
+      "sha256": "4384e5898c4580e41677b543857a965548c7c2b4ae1db6e1bcc24922c7dfa278",
+      "size": 11601
+    },
+    "src/retry_tests.rs": {
+      "sha256": "99e0ee011ef5af495655f32592aded4c52ef5a6ed92d040fc8c512f6f982025c",
+      "size": 7209
+    },
+    "src/tensor.rs": {
+      "sha256": "525d5083904cd0257938c128e0e44f2d202de0e31f82b411f45e2a004ff8e5e1",
+      "size": 17547
+    },
+    "src/tensor_allocation_tests.rs": {
+      "sha256": "73703def29114280d188ff396a9177eb26fb8ab6e81516286fd3db47869e55ad",
+      "size": 11495
+    },
+    "src/tensor_capture_tests.rs": {
+      "sha256": "38354ecdff8568c877f465c2a6cce18120d737ad962ee5375039cfec15dfec53",
+      "size": 11781
+    },
+    "src/tensor_dense_reference.rs": {
+      "sha256": "f5b153e179ac56e4a833f8d83b011a667e61cff1bcb567c2f1508a1d94013e55",
+      "size": 16731
+    },
+    "src/transport_contract_tests.rs": {
+      "sha256": "884307cd6500059cfb28a24748f8219d0d9f3a87ab84dd97bfd9af34a97ac6fb",
+      "size": 4083
+    },
+    "src/transport_replay_tests.rs": {
+      "sha256": "980e883d0e2607c5adc5c8a67331f79a756c85ec3191b359ee5a9a0e6030a796",
+      "size": 3624
+    },
+    "src/upstream_master_tests.rs": {
+      "sha256": "48eb9e0d7c7a23bd0f9039be3e986ea2322a4c31d236073a322ca4d71b57f456",
+      "size": 10980
+    },
+    "tests/OEM.md": {
+      "sha256": "13545e524c9739f6ed91c7fb24ec1bfea94c1644d672602cec1d302c4b043c35",
+      "size": 2645
+    },
+    "tests/data/cases/madloop-four-photon-top-box-0.json": {
+      "sha256": "9aea91e4e6c70b0f5984b2070e7aef8a77699260dacac1a9b3c9d65f23189796",
+      "size": 7704
+    },
+    "tests/data/cases/madloop-gg-hh-top-box-2.json": {
+      "sha256": "c9271b79b2a4df2155ee8855fda3ffc6090f37261711468efd3126cf6665d5a3",
+      "size": 5142
+    },
+    "tests/data/cases/madloop-gg-hh-top-triangle-0.json": {
+      "sha256": "5178de553b5dcfa0fcca616748943a63f2933399203f7d7040ba9c98aa3b4ea2",
+      "size": 2317
+    },
+    "tests/data/cases/madloop-gg-hhh-top-box-8.json": {
+      "sha256": "3f14438d72237acbd9c74f8ba813fa6fd04c2aa1af2cdde143134146a650a489",
+      "size": 4976
+    },
+    "tests/data/cases/madloop-gg-hhh-top-pentagon-26.json": {
+      "sha256": "af571c4df618dafad08dc0acdb345f39d0446a2ec814f03b7cc2ee5a25d727ca",
+      "size": 7781
+    },
+    "tests/data/cases/madloop-gg-hhh-top-triangle-0.json": {
+      "sha256": "98483fd5759713618d7dfa784d604b83a7f03b241a5402d9a808af3655920353",
+      "size": 2285
+    },
+    "tests/data/cases/madloop-hgg-top-triangle-0.json": {
+      "sha256": "8a70a0fc3569676b2601dbeb36b16cb70817b40df8eb3e762e4ed1899246d590",
+      "size": 3453
+    },
+    "tests/data/compensated/README.md": {
+      "sha256": "28385c3c59c656e867f34d2b8185a5c3ca9d8e30e703cbbe32774ced3190055a",
+      "size": 1407
+    },
+    "tests/data/compensated/corrected-results.json": {
+      "sha256": "f868eb5d279ef0ef68aefcf34704a094cb4452447aff857c7650358b623dfa94",
+      "size": 1734
+    },
+    "tests/data/compensated/expansion-results.json": {
+      "sha256": "e638fdb177e1e382a6f49bbdb8fc6ef936c44cd21ce2ffbcfbc08932e02ad13d",
+      "size": 131790
+    },
+    "tests/data/compensated/inputs.json": {
+      "sha256": "1fb7ea9413efd25053dfdab357baf9ee973d8df3b6452fbaa280b684aea177b9",
+      "size": 27152
+    },
+    "tests/data/convergence.json": {
+      "sha256": "b34d6ef194a5297914050ceb6ffd25f5402c0150898921d2dcaf65471e55ec93",
+      "size": 10189
+    },
+    "tests/data/ninja/madloop-four-photon-top-box-0.json": {
+      "sha256": "dc34ad2683fbe535140c63bba564b8f6e8e74ce3c64eb17ef3cfa96baa5a6dde",
+      "size": 13356
+    },
+    "tests/data/ninja/madloop-gg-hh-top-box-2.json": {
+      "sha256": "d893de26b4e2e4edbeb4d6ba3122a6cd231bd5842719b3b8b2c4a84ee5e67dcc",
+      "size": 13271
+    },
+    "tests/data/ninja/madloop-gg-hh-top-triangle-0.json": {
+      "sha256": "669b92538382201f26487865cd44a1d8eea03b13ed7b99dcdae21bd7662cca95",
+      "size": 12534
+    },
+    "tests/data/ninja/madloop-gg-hhh-top-box-8.json": {
+      "sha256": "c49f6d9db0c09602c6e663e60499a9b5126b9ca66d1738f6b5bac5846afda572",
+      "size": 13325
+    },
+    "tests/data/ninja/madloop-gg-hhh-top-pentagon-26.json": {
+      "sha256": "e4b1522302bab1592924b251a7ee153c94623726d68b2d552e6211a4b0b3ded3",
+      "size": 13393
+    },
+    "tests/data/ninja/madloop-gg-hhh-top-triangle-0.json": {
+      "sha256": "7905a646d4bb23daf1b0506b662913f60796c87dfcbbd556c5bd957f7eba3bd2",
+      "size": 12531
+    },
+    "tests/data/ninja/madloop-hgg-top-triangle-0.json": {
+      "sha256": "a50906866f8e8812c02365cff98cb56a20639537f1804d290edbd8020ed9d30b",
+      "size": 12610
+    },
+    "tests/data/provenance.json": {
+      "sha256": "f77b7cee3079a95f001a3cc7d6a9f0aa1f8a1b51f3668b0d709552c67016d18b",
+      "size": 4897
+    },
+    "tests/fenv_helpers.c": {
+      "sha256": "cdb2df81ddcfc898f00dae4d74a78f0d6436aaa6c9ea3e5991bf11616b8bbd8d",
+      "size": 549
+    },
+    "tests/oem.py": {
+      "sha256": "6bd151e7a9b46b3aa9db36dcb0b95aa801f60c4cd1a58451bb2ab44187a5adb0",
+      "size": 6677
+    },
+    "tests/oem_lifecycle.f90": {
+      "sha256": "7514bdf17bb9f6247eb0a1133c0a796dc176ead7992b45ae6f0d18948a33117e",
+      "size": 4979
+    },
+    "tests/poles/README.md": {
+      "sha256": "dd95f6df8df0e08813eaf9afc7ce8c439e4ba94b596beb480f39086c3f74d3c4",
+      "size": 10166
+    },
+    "tests/poles/bare_driver.f": {
+      "sha256": "5412bd1e19ae0744e856cd88b39071f2ef0b937f8b4ba4e3d4c426af26b4eb24",
+      "size": 4035
+    },
+    "tests/poles/cards/ew-mumu.dat": {
+      "sha256": "f1832ee506b45441279a4076cb274ba37899541f8bd7ec0d3494cfb9c24aa9d5",
+      "size": 4956
+    },
+    "tests/poles/cards/li-h.dat": {
+      "sha256": "49f08ecba557b9ed0e6760813b7eac089319264252f840fdd0a485d685f60a7d",
+      "size": 3468
+    },
+    "tests/poles/cards/qcd-tt.dat": {
+      "sha256": "49f08ecba557b9ed0e6760813b7eac089319264252f840fdd0a485d685f60a7d",
+      "size": 3468
+    },
+    "tests/poles/cards/qcd-z.dat": {
+      "sha256": "49f08ecba557b9ed0e6760813b7eac089319264252f840fdd0a485d685f60a7d",
+      "size": 3468
+    },
+    "tests/poles/collier_jobs.in": {
+      "sha256": "60b0f6965326aff14c31c03ad166798d42d1b8e26ffa4d9e710457f01e458488",
+      "size": 327
+    },
+    "tests/poles/collier_poles.f90": {
+      "sha256": "0265012288259ff01f208416ccd72fce9807eb2baefee7571e7bc00b26c1881e",
+      "size": 3929
+    },
+    "tests/poles/collier_reference.json": {
+      "sha256": "18f6694dd5af873d847e39bd299957454c698aeb31f3bf4b2389593bc44d3970",
+      "size": 166122
+    },
+    "tests/poles/compare_madloop.py": {
+      "sha256": "42a7218d1cf3bdae0f25f8a5f6bbc6371f11579ca7ec93dde77807a5f42eee1b",
+      "size": 8854
+    },
+    "tests/poles/generate_collier_reference.py": {
+      "sha256": "0d754d93f7586658f992ada075714eed28373e78aa6cc4a4e08f474abb490149",
+      "size": 4107
+    },
+    "tests/poles/madloop-validation.json": {
+      "sha256": "8fd1e41c286a54dd841ecb6455b26d1c72c33a1dff953582a0b5e621cc4ae458",
+      "size": 13630
+    },
+    "tests/poles/madloop_validation.py": {
+      "sha256": "ede6440ae7c2ae438608fb4be2cfc6f0f5dec28953dade8bb710df197d52e710",
+      "size": 10442
+    },
+    "tests/poles/native-dp-baseline.json": {
+      "sha256": "253412563b6241e5547f438e10c37c7de9d65694cf3ff8faa986e733b51f73c3",
+      "size": 994
+    },
+    "tests/poles/ninjars_poles.f90": {
+      "sha256": "904ed1844d14edbe98ff00f21c55b0c23299a9d2affe7e721d2a7fc36e8063b8",
+      "size": 2383
+    },
+    "tests/poles/points/control-gg-h.dat": {
+      "sha256": "a15a02856f75e085f051335cd00d35fa8aa69d19c96bf8c8535ebefcf35330c7",
+      "size": 882
+    },
+    "tests/poles/points/ew-2.dat": {
+      "sha256": "027faad8e4b32ba0113a1cbb43cbbe3efd1bdc7385bc91b14371e2a48637c44b",
+      "size": 1166
+    },
+    "tests/poles/points/qcd-1.dat": {
+      "sha256": "53591173c9e24c846c5594434484f32b1f6fb117dcc4e2f509156b9349275f5c",
+      "size": 876
+    },
+    "tests/poles/points/qcd-2.dat": {
+      "sha256": "5622dfd2708e21acf243197ae26156185ee3404f51c2a0e9583f88c0a54de4bf",
+      "size": 1166
+    },
+    "tests/poles/provenance.json": {
+      "sha256": "49e4fde137c87c14c2bf2aa881c4b7bd74e8ebe168a9cc64d1a0b4ce19531301",
+      "size": 1636
+    },
+    "tests/poles/tensor-validation.json": {
+      "sha256": "0c833553435e39c7358e9453636c120aa4a66dc300f2828b69d82c9e953b8472",
+      "size": 1139
+    },
+    "tests/poles/tensor_cases.json": {
+      "sha256": "16decf75a9ecc460406ddd87b1ee492f4e48bc6d6f73ec8b9afca5fd3b9bae0f",
+      "size": 2927
+    },
+    "tests/poles/tensor_validation.py": {
+      "sha256": "7cc16a2fc5c6afdc5f98a0c2f497cc2536b06b20b8dadc211a3a15fce587ee1f",
+      "size": 11252
+    },
+    "tests/poles/upstream-migration-validation.json": {
+      "sha256": "dcb18574f22f3746306dda6abf0d61966cfd84cf51cf5a9c9b41aacce7980fa1",
+      "size": 12694
+    },
+    "tests/replay.py": {
+      "sha256": "9c475d4fa7c17c200eafda7a1e0e6e0bb0f4392de2c89a9e26a302f69089a2b9",
+      "size": 2449
+    },
+    "tests/test_preflight.py": {
+      "sha256": "48424ddd1db0003fcbd44724ed34d8cc5d16eef3a244fab653a224416335ec44",
+      "size": 3683
+    },
+    "tests/test_upstream.py": {
+      "sha256": "b648a3a53d08d3a27cef4740de2ef21c30d7b38ce20f73937d12797f494e5300",
+      "size": 8769
+    },
+    "tools/ninjars_upstream.py": {
+      "sha256": "b8b76583053b427a42e3737c5dfede7860ee1f09f47733b49fc6404b3a204ac8",
+      "size": 8875
+    }
+  }
+}

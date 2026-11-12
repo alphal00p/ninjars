@@ -27,6 +27,15 @@ Full reconstruction controls, derivative continuation and performance acceptance
 remain in development.
 The complete specification and evidence ledger are in [the plan](references/PLAN.md).
 
+## MadLoop interface
+
+The separately versioned [MadLoop Fortran bridge](interfaces/madloop/README.release.md)
+provides a standalone C ABI and Fortran module for MadGraph7's NinjaRS backend.
+It has its own Cargo workspace, pinned dependencies, and numerical tests;
+Linux with GNU Fortran is the validated platform. The bridge is GPL-3.0-or-later,
+as documented in its `COPYING` and `UPSTREAM.md`; NinjaRS's core license remains
+0BSD. Its supported operations use NinjaRS's scoped Symbolica library license.
+
 ## Development
 
 The pinned Nix shell provides Rust 1.98.1, native numerical dependencies, and the
