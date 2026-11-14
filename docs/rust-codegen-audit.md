@@ -50,13 +50,11 @@ There are three distinct batch mechanisms:
   validates rows and then loops over `evaluate_row`. Each complete scalar
   formula finishes before the next row. **This outer row loop does not meet
   NinjaRS's requirement to carry batches through arithmetic and shared calls.**
-- `BatchExpressionEvaluator`, [batch.rs](../references/symbolica/src/evaluate/batch.rs):107,
-  retains component-contiguous workspaces, executes each instruction across
-  active lanes, propagates those lanes through shared functions, and preserves
-  lazy branches. `evaluate_batch` at line 130 calls the scalar evaluator directly
-  for `rows == 1` at line 158, avoiding batch packing and batch-workspace
-  allocations. Tests at lines 486 and 536 cover instruction-major calls and
-  inactive shared-function branches.
+- Symbolica's instruction-major batch interpreter (fork-only, not accepted
+  upstream, symbolica-dev/symbolica#163) is no longer used: NinjaRS's
+  interpreter fallback (`RowEvaluator`, ninjars-symbolica/src/row_evaluator.rs)
+  validates the batch shape and calls the scalar `ExpressionEvaluator` once per
+  row, with bit-identical results.
 - `RustEmitter::emit_batch`, [rust_codegen/batch.rs](../references/oneloopmaster/src/rust_codegen/batch.rs),
   emits one loop over lanes per instruction and invokes shared helper bodies
   once for their batch. Its `BatchWorkspace` retains disjoint slot-major storage,

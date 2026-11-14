@@ -49,8 +49,10 @@ use symbolica::{
         dual::{DualNumber, DualNumberStructure, HyperDual},
         rational::Rational,
     },
-    evaluate::{BatchExpressionEvaluator, Dualizer, EvaluationDomain, ExpressionEvaluator},
+    evaluate::{Dualizer, EvaluationDomain, ExpressionEvaluator},
 };
+
+use crate::row_evaluator::RowEvaluator;
 
 type ExactEvaluator = ExpressionEvaluator<Complex<Rational>>;
 
@@ -269,7 +271,7 @@ pub struct SymbolicaMasters<T: NativeFloat> {
     representative: T,
     onshell_threshold: Option<T>,
     pole_selection: oneloop::PoleSelection,
-    evaluators: BTreeMap<MasterIntegral, BatchExpressionEvaluator<Complex<T>>>,
+    evaluators: BTreeMap<MasterIntegral, RowEvaluator<Complex<T>>>,
     native: BTreeMap<MasterIntegral, NativeEvaluator<T>>,
     /// Native tensor families (the bubble coefficients), by family and working bits: the
     /// fixed precision of binary64 and DoubleFloat, or for `Float` each row's
@@ -493,17 +495,11 @@ where
             let evaluator = Self::numeric_evaluator(exact, &self.representative);
             self.evaluators.insert(integral, evaluator);
         }
-        self.evaluators
-            .get_mut(&integral)
-            .unwrap()
-            .reserve(rows)
-            .map_err(|error| Error::Symbolic(error.to_string()))
+        // The row-by-row interpreter needs no batch workspace.
+        Ok(())
     }
 
-    fn numeric_evaluator(
-        exact: ExactEvaluator,
-        representative: &T,
-    ) -> BatchExpressionEvaluator<Complex<T>> {
+    fn numeric_evaluator(exact: ExactEvaluator, representative: &T) -> RowEvaluator<Complex<T>> {
         exact
             .map_coeff_with_prec(
                 &|value| {
@@ -514,7 +510,7 @@ where
                 },
                 representative.get_precision(),
             )
-            .into_batch_evaluator()
+            .into()
     }
 
     fn exact_evaluator(integral: MasterIntegral) -> Result<ExactEvaluator> {
@@ -749,7 +745,7 @@ where
 pub struct SymbolicaDualMasters<T: NativeFloat> {
     representative: T,
     shape: Vec<Vec<usize>>,
-    evaluators: BTreeMap<MasterIntegral, BatchExpressionEvaluator<Complex<T>>>,
+    evaluators: BTreeMap<MasterIntegral, RowEvaluator<Complex<T>>>,
     arguments: Vec<Complex<T>>,
     results: Vec<Complex<T>>,
     active: Vec<usize>,

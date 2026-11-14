@@ -150,8 +150,7 @@ fn main() -> Result<()> {
         .map_coeff_with_prec(
             &|v| C::new(0_f64.from_rational(&v.re), 0_f64.from_rational(&v.im)),
             53,
-        )
-        .into_batch_evaluator();
+        );
     let points = [
         point(100., 60., 0., 80.),
         point(130., 50., 120., 0.),
@@ -237,7 +236,12 @@ fn main() -> Result<()> {
             coefficient_error = coefficient_error.max(close(*a, *b));
         }
         let mut kinematics = vec![C::new(0., 0.); rows * propagator_heads.len()];
-        propagators.evaluate_batch(&input, &mut kinematics, rows)?;
+        for (input, out) in input
+            .chunks_exact(parameters.len())
+            .zip(kinematics.chunks_exact_mut(propagator_heads.len()))
+        {
+            propagators.try_evaluate(input, out)?;
+        }
         assert!(
             kinematics
                 .iter()
@@ -341,10 +345,14 @@ fn main() -> Result<()> {
         .map_coeff_with_prec(
             &|v| C::new(0_f64.from_rational(&v.re), 0_f64.from_rational(&v.im)),
             53,
-        )
-        .into_batch_evaluator();
+        );
     let mut factored_values = jit_unique.clone();
-    factored.evaluate_batch(&unique_inputs, &mut factored_values, 9)?;
+    for (input, out) in unique_inputs
+        .chunks_exact(parameters.len())
+        .zip(factored_values.chunks_exact_mut(factored_heads.len()))
+    {
+        factored.try_evaluate(input, out)?;
+    }
     let factor_error = factored_values
         .iter()
         .zip(&oracle)

@@ -24,13 +24,14 @@ use symbolica::{
         float::{Complex, FloatLike, Real, SingleFloat},
         rational::Rational,
     },
-    evaluate::{BatchExpressionEvaluator, Dualizer, EvaluationDomain, ExpressionEvaluator},
+    evaluate::{Dualizer, EvaluationDomain, ExpressionEvaluator},
     symbol,
 };
 
 use crate::{
     PolynomialNumerator, TadpoleGeometryProbe,
     positional::positional_evaluator,
+    row_evaluator::RowEvaluator,
     tadpole_plans::{TADPOLE_REFERENCE_SPINORS, tadpole_reference_bases},
 };
 
@@ -49,7 +50,7 @@ pub struct SymbolicaDualCuts<T, D> {
 }
 
 struct Kernel<T> {
-    evaluator: BatchExpressionEvaluator<Complex<T>>,
+    evaluator: RowEvaluator<Complex<T>>,
     inputs: Vec<Complex<T>>,
     outputs: Vec<Complex<T>>,
     columns: usize,
