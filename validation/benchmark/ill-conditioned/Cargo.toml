@@ -8,14 +8,14 @@ edition = "2024"
 [dependencies]
 ninjars = { path = "../../../crates/ninjars" }
 ninjars-symbolica = { path = "../../../crates/ninjars-symbolica" }
-oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "bd703d09a78f7849a6b86a07096e6f222fc01193", default-features = false }
+oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "2e7afabb5903814196d7ab39c695ed9cac777aa4", default-features = false }
 symbolica = { version = "3.0.1", default-features = false, features = ["integer-gmp", "float-mpfr", "bincode", "serde", "tracing_max_level_info"] }
 serde_json = "1"
 
 [patch.crates-io]
-symbolica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "dfe6bd97b974b1028dc63071ea165136cd2b0ef5" }
-numerica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "dfe6bd97b974b1028dc63071ea165136cd2b0ef5" }
-graphica = { git = "https://github.com/ValentinHirschi/symbolica.git", rev = "dfe6bd97b974b1028dc63071ea165136cd2b0ef5" }
+symbolica = { git = "https://github.com/symbolica-dev/symbolica.git", rev = "0e2ad04c4f281e28bd29d5ad8b1bebf2764379b7" }
+numerica = { git = "https://github.com/symbolica-dev/symbolica.git", rev = "0e2ad04c4f281e28bd29d5ad8b1bebf2764379b7" }
+graphica = { git = "https://github.com/symbolica-dev/symbolica.git", rev = "0e2ad04c4f281e28bd29d5ad8b1bebf2764379b7" }
 symbolica-typst-plugin = { git = "https://github.com/symbolica-dev/symbolica-typst-plugin", rev = "57b7455b37c30f4f87353c0073e49f5225e937ab" }
 
 [profile.release]

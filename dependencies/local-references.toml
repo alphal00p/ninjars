@@ -9,7 +9,7 @@
 # Relative paths are resolved against the directory that contains this file's
 # parent (the repository root).
 
-[patch."https://github.com/alphal00p/gammaloop.git"]
+[patch."https://github.com/ValentinHirschi/gammaloop.git"]
 feynkit-kinematics = { path = "references/gammaloop_ninja_shared/crates/feynkit-kinematics" }
 feynkit-graph = { path = "references/gammaloop_ninja_shared/crates/feynkit-graph" }
 feynkit-model = { path = "references/gammaloop_ninja_shared/crates/feynkit-model" }

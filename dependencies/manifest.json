@@ -5,29 +5,22 @@
       "name": "symbolica",
       "path": "references/symbolica",
       "url": "https://github.com/symbolica-dev/symbolica.git",
-      "revision": "36cbac3a555d4b93b9601706f1d2f32629770ae6",
-      "patches": [
-        {
-          "path": "dependencies/patches/symbolica-batch-dual.patch",
-          "sha256": "39baba4954598d3f105e76e30ed5c5f9f35b32f21804d9682590938a22d2f832"
-        }
-      ],
-      "patched_revisions": [
-        "dfe6bd97b974b1028dc63071ea165136cd2b0ef5"
-      ]
+      "revision": "0e2ad04c4f281e28bd29d5ad8b1bebf2764379b7",
+      "branch": "community"
     },
     {
       "name": "feynkit",
       "path": "references/gammaloop_ninja_shared",
-      "url": "https://github.com/alphal00p/gammaloop.git",
-      "revision": "d1904bf2bd5bf4f26969a73b415095e941a55610",
-      "branch": "feynkit"
+      "url": "https://github.com/ValentinHirschi/gammaloop.git",
+      "revision": "ea3faaae063b1400570c15cf7e055f48312e9329",
+      "branch": "pyamplicol-community"
     },
     {
       "name": "oneloopmaster",
       "path": "references/oneloopmaster",
       "url": "https://github.com/alphal00p/oneloopmaster.git",
-      "revision": "bd703d09a78f7849a6b86a07096e6f222fc01193"
+      "revision": "2e7afabb5903814196d7ab39c695ed9cac777aa4",
+      "branch": "symbolica-community"
     },
     {
       "name": "ninja-reference",
