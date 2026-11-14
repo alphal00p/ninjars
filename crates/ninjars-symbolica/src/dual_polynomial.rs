@@ -9,10 +9,10 @@ use symbolica::{
         float::{Complex, Real, SingleFloat},
         rational::Rational,
     },
-    evaluate::{BatchExpressionEvaluator, Dualizer, EvaluationDomain, ExpressionEvaluator},
+    evaluate::{Dualizer, EvaluationDomain, ExpressionEvaluator},
 };
 
-use crate::PolynomialNumerator;
+use crate::{PolynomialNumerator, row_evaluator::RowEvaluator};
 
 /// Numerator callbacks using any existing Symbolica static or dynamic Dual.
 ///
@@ -26,8 +26,8 @@ pub struct DualPolynomialNumerator<T, D> {
     shape: Vec<Vec<usize>>,
     lanes: usize,
     parameters: Vec<Complex<T>>,
-    evaluator: BatchExpressionEvaluator<Complex<T>>,
-    expansions: HashMap<ExpansionKind, BatchExpressionEvaluator<Complex<T>>>,
+    evaluator: RowEvaluator<Complex<T>>,
+    expansions: HashMap<ExpansionKind, RowEvaluator<Complex<T>>>,
     inputs: Vec<Complex<T>>,
     results: Vec<Complex<T>>,
 }
@@ -63,7 +63,7 @@ where
         exact: ExpressionEvaluator<Complex<Rational>>,
         shape: &[Vec<usize>],
         representative: &T,
-    ) -> Result<BatchExpressionEvaluator<Complex<T>>> {
+    ) -> Result<RowEvaluator<Complex<T>>> {
         let structure = HyperDual::<Complex<Rational>>::new(shape.to_vec());
         let exact = exact
             .vectorize(&Dualizer::new(structure, Vec::new()))

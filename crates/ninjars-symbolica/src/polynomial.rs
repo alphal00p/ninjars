@@ -20,13 +20,13 @@ use symbolica::{
         integer::{Integer, IntegerRing, Z},
         rational::Rational,
     },
-    evaluate::{BatchExpressionEvaluator, EvaluationDomain, ExpressionEvaluator},
+    evaluate::{EvaluationDomain, ExpressionEvaluator},
     id::{Pattern, Replacement},
     poly::{PolyVariable, polynomial::MultivariatePolynomial},
     symbol,
 };
 
-use crate::positional::positional_evaluator;
+use crate::{positional::positional_evaluator, row_evaluator::RowEvaluator};
 
 static NEXT_NAMESPACE: AtomicU64 = AtomicU64::new(0);
 
@@ -46,8 +46,8 @@ pub struct PolynomialNumerator<T> {
     lanes: usize,
     rank: usize,
     prototype: T,
-    evaluator: BatchExpressionEvaluator<Complex<T>>,
-    expansions: HashMap<ExpansionKind, BatchExpressionEvaluator<Complex<T>>>,
+    evaluator: RowEvaluator<Complex<T>>,
+    expansions: HashMap<ExpansionKind, RowEvaluator<Complex<T>>>,
     inputs: Vec<Complex<T>>,
 }
 
@@ -365,7 +365,7 @@ where
         expressions: &[Atom],
         parameters: &[Atom],
         prototype: &T,
-    ) -> Result<BatchExpressionEvaluator<Complex<T>>> {
+    ) -> Result<RowEvaluator<Complex<T>>> {
         let evaluator = positional_evaluator(expressions, parameters, &[], true)?;
         Ok(Self::map_evaluator(evaluator, prototype))
     }
@@ -373,7 +373,7 @@ where
     pub(crate) fn map_evaluator(
         evaluator: ExpressionEvaluator<Complex<Rational>>,
         prototype: &T,
-    ) -> BatchExpressionEvaluator<Complex<T>> {
+    ) -> RowEvaluator<Complex<T>> {
         evaluator
             .map_coeff_with_prec(
                 &|value| {
@@ -384,7 +384,7 @@ where
                 },
                 prototype.get_precision(),
             )
-            .into_batch_evaluator()
+            .into()
     }
 
     fn check_lane(&self, lane: usize) -> Result<()> {
@@ -398,10 +398,7 @@ where
         }
     }
 
-    fn prepare_expansion(
-        &self,
-        kind: &ExpansionKind,
-    ) -> Result<BatchExpressionEvaluator<Complex<T>>> {
+    fn prepare_expansion(&self, kind: &ExpansionKind) -> Result<RowEvaluator<Complex<T>>> {
         Ok(Self::map_evaluator(
             self.exact_expansion(kind)?,
             &self.prototype,

@@ -22,7 +22,7 @@ construction use Symbolica. Evaluators and input buffers are reused.
 
 `DualPolynomialNumerator<T,D>` accepts an existing static Symbolica Dual or dynamic
 `HyperDual`, preserving its derivative shape. It transforms the exact evaluator
-with Symbolica's `Dualizer`, then executes flattened components in batches.
+with Symbolica's `Dualizer`, then evaluates the flattened components row by row.
 This propagates higher and mixed derivatives through external parameters, cut
 momenta, cut parameters and explicit `mu_squared` terms. Components follow
 Symbolica's Taylor coefficient convention: a multi-index component is the
@@ -31,7 +31,8 @@ corresponding derivative divided by the product of the component factorials.
 `SymbolicaMasters<T>` implements `MasterProvider<Complex<T>>` using oneloopmaster's
 exact expressions for A0, B0, DB0, C0, D0, B1, B11, B111 and the available tadpole
 tensor coefficients. It maps constants directly at the working precision and
-uses Symbolica's batch interpreter through shared helper calls and lazy branches.
+evaluates each row with Symbolica's scalar interpreter (shared helper calls and
+lazy branches).
 Results are `[finite, single pole, double pole]`. The rank-four bubble
 coefficient B1111 (rank n+2) comes from oneloopmaster's native tensor family
 for every carrier, since its exact expression loses about 5-6 digits per decade
@@ -54,7 +55,7 @@ triangle/box derivatives, zero-invariant removable limits and other unvalidated
 derivative regions. These restrictions are tracked in the project plan. Invalid
 master requests through `evaluate` leave the entire output buffer unchanged.
 `evaluate_batch` reports a status for each row and leaves failed rows unchanged,
-while evaluating all eligible rows through one batched instruction graph.
+while evaluating all eligible rows through one compiled instruction graph.
 
 ## Integrated amplitudes
 

@@ -43,7 +43,7 @@ and existing graph/cut usages supply invariant construction. Symbolica's public
 `AtomCore::abs`, evaluator implementation and Numerica complex norm/`hypot`
 implementation supply magnitudes without overflow-prone squaring in NinjaRS.
 Sampling providers compile these exact expressions through the existing
-`ExactKernel` and `BatchExpressionEvaluator`. Selecting the greatest magnitude
+`ExactKernel` and Symbolica's scalar `ExpressionEvaluator`, one row at a time. Selecting the greatest magnitude
 is numerical control flow; it uses the primal at working precision and returns
 a constant with the original Dual shape. No derivative algebra is introduced.
 Only an all-zero kinematic scale receives the unit fallback.

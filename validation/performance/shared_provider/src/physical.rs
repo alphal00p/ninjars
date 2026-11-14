@@ -16,7 +16,7 @@ use symbolica::{
         float::{Complex, Float, RealLike, SingleFloat},
         rational::Rational,
     },
-    evaluate::BatchExpressionEvaluator,
+    evaluate::ExpressionEvaluator,
     id::{Pattern, Replacement},
     parser::ParseSettings,
     symbol,
@@ -56,7 +56,7 @@ pub struct Physical {
     provider: Box<Provider>,
     plan: PolynomialCoefficientPlan,
     coefficients: Coefficients,
-    propagation: BatchExpressionEvaluator<C>,
+    propagation: ExpressionEvaluator<C>,
     sources: Vec<usize>,
     waves: Vec<(usize, WavefunctionKind)>,
     scalar_legs: Vec<usize>,
@@ -232,8 +232,7 @@ impl Physical {
             .map_coeff_with_prec(
                 &|v| C::new(0_f64.from_rational(&v.re), 0_f64.from_rational(&v.im)),
                 53,
-            )
-            .into_batch_evaluator();
+            );
         let provider = Box::new(Provider {
             numerator: PolynomialNumerator::new(
                 plan.template().clone(),
@@ -369,9 +368,13 @@ impl Physical {
         self.coefficients
             .evaluate(&self.input, &mut self.heads, rows)?;
         self.propagators.resize(rows * 50, C::new(0., 0.));
-        self.propagation
-            .evaluate_batch(&self.input, &mut self.propagators, rows)
-            .map_err(error)?;
+        for (input, out) in self
+            .input
+            .chunks_exact(self.propagation.get_input_len())
+            .zip(self.propagators.chunks_exact_mut(50))
+        {
+            self.propagation.try_evaluate(input, out).map_err(error)?;
+        }
         if self
             .propagators
             .iter()

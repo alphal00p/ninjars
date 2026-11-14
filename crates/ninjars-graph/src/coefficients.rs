@@ -18,7 +18,7 @@ use symbolica::{
         float::{Complex, Real, SingleFloat},
         rational::Rational,
     },
-    evaluate::{BatchExpressionEvaluator, EvaluationDomain, ExpressionEvaluator},
+    evaluate::{EvaluationDomain, ExpressionEvaluator},
     poly::polynomial::MultivariatePolynomial,
     symbol,
 };
@@ -220,7 +220,6 @@ impl PolynomialCoefficientPlan {
                 },
                 prototype.get_precision(),
             )
-            .into_batch_evaluator()
         });
         Ok(CoefficientEvaluator {
             inputs: self.parameters.len(),
@@ -277,7 +276,7 @@ fn finite<T: Real + SingleFloat>(values: &[Complex<T>], columns: usize, input: b
 pub struct CoefficientEvaluator<T> {
     inputs: usize,
     outputs: usize,
-    evaluator: Option<BatchExpressionEvaluator<Complex<T>>>,
+    evaluator: Option<ExpressionEvaluator<Complex<T>>>,
     scratch: Vec<Complex<T>>,
     zero: Complex<T>,
 }
@@ -298,11 +297,19 @@ where
             return Ok(());
         }
         self.scratch.resize(output.len(), self.zero.clone());
-        self.evaluator
+        let evaluator = self
+            .evaluator
             .as_mut()
-            .expect("nonempty heads have an evaluator")
-            .evaluate_batch(input, &mut self.scratch, rows)
-            .map_err(|e| CoefficientError::Symbolic(e.to_string()))?;
+            .expect("nonempty heads have an evaluator");
+        // One scalar evaluation per row of the validated row-major batch.
+        for row in 0..rows {
+            evaluator
+                .try_evaluate(
+                    &input[row * self.inputs..(row + 1) * self.inputs],
+                    &mut self.scratch[row * self.outputs..(row + 1) * self.outputs],
+                )
+                .map_err(|e| CoefficientError::Symbolic(e.to_string()))?;
+        }
         finite(&self.scratch, self.outputs, false)?;
         output.clone_from_slice(&self.scratch);
         Ok(())

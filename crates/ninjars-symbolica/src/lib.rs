@@ -40,6 +40,7 @@ mod projection;
 mod rank_specialization;
 #[cfg(feature = "reference-codegen")]
 mod reference;
+mod row_evaluator;
 #[cfg(feature = "rust-codegen")]
 pub mod rust_codegen;
 mod subtraction;

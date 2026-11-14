@@ -7,10 +7,10 @@ use symbolica::{
         dual::{DualNumber, DualNumberStructure, HyperDual},
         rational::Rational,
     },
-    evaluate::{BatchExpressionEvaluator, Dualizer, EvaluationDomain, ExpressionEvaluator},
+    evaluate::{Dualizer, EvaluationDomain, ExpressionEvaluator},
 };
 
-use crate::{PolynomialNumerator, positional::positional_evaluator};
+use crate::{PolynomialNumerator, positional::positional_evaluator, row_evaluator::RowEvaluator};
 
 #[cfg(test)]
 #[path = "kernel_jit_probe.rs"]
@@ -240,7 +240,7 @@ pub(crate) struct CompiledKernel<T> {
     native: Option<Box<dyn KernelExecutor<Complex<T>> + Send + Sync>>,
     inputs: usize,
     outputs: usize,
-    evaluator: Option<BatchExpressionEvaluator<Complex<T>>>,
+    evaluator: Option<RowEvaluator<Complex<T>>>,
 }
 
 impl<T: Real + SingleFloat> CompiledKernel<T>
