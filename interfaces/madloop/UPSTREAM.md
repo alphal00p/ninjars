@@ -3,15 +3,16 @@ The bridge uses the pinned NinjaRS and Symbolica revisions in `Cargo.toml` and
 including code adapted from the earlier GPL-licensed NinjaRS revision below.
 
 The current library-key dependency cohort pins NinjaRS
-`cf28d8e0018e0555256d3fba51e457d4941dcb0e`, oneloopmaster
-`bd703d09a78f7849a6b86a07096e6f222fc01193`, and the coupled
-Symbolica/numerica/graphica revision
-`dfe6bd97b974b1028dc63071ea165136cd2b0ef5` from
-`ValentinHirschi/symbolica`. The consuming bridge owns the
+`41db467aa9d07cd0b926bf1a8cfbb83a17a40cc9` (branch `symbolica-community`), oneloopmaster
+`2e7afabb5903814196d7ab39c695ed9cac777aa4` (branch `symbolica-community`), and
+the coupled Symbolica/numerica/graphica revision
+`0e2ad04c4f281e28bd29d5ad8b1bebf2764379b7` from upstream
+`symbolica-dev/symbolica` `community`. The consuming bridge owns the
 Symbolica patches because Cargo does not inherit dependency workspace patches.
 NinjaRS's transitive gammaloop kinematics and Symbolica helpers are locked at
-`d1904bf2bd5bf4f26969a73b415095e941a55610`; this also advances their earlier
-`1e8063a763d3aa515749c33616ee59aa827705be` source revision.
+`ValentinHirschi/gammaloop` `ea3faaae063b1400570c15cf7e055f48312e9329`
+(alphal00p/gammaloop `d1904bf2bd5bf4f26969a73b415095e941a55610` plus Spenso's
+`conj` moved into the `Numeric` implementation).
 Both native binary64 masters and generic higher-precision masters come from
 this oneloopmaster revision. NinjaRS includes the matching generic soft-box
 relabelling and precision-provider changes; a pin-only oneloopmaster update
