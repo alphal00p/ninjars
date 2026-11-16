@@ -68,8 +68,8 @@ Dependencies are pinned in `Cargo.toml` and recorded with their provenance in
 | Dependency | Repository | Revision |
 | --- | --- | --- |
 | FeynKit, Spenso, Idenso (gammaloop) | `https://github.com/ValentinHirschi/gammaloop` (branch `pyamplicol-community`) | `ea3faaae` |
-| oneloopmaster (`oneloop`) | `https://github.com/alphal00p/oneloopmaster` (branch `symbolica-community`) | `2e7afabb` |
-| Symbolica, Numerica, Graphica | `https://github.com/symbolica-dev/symbolica` (branch `community`) | `0e2ad04c` |
+| oneloopmaster (`oneloop`) | `https://github.com/alphal00p/oneloopmaster` (branch `symbolica-community-2`) | `07fc754f` |
+| Symbolica, Numerica, Graphica | `https://github.com/symbolica-dev/symbolica` (branch `community`) | `d0424f9e` |
 
 Symbolica is upstream's `community` branch, without local patches. The gammaloop
 revision is alphal00p/gammaloop `d1904bf2` (branch `feynkit`, with PRs
@@ -86,9 +86,9 @@ git must repeat that block in its own root `Cargo.toml`:
 ninjars-symbolica = { git = "https://github.com/alphal00p/ninjars", rev = "<revision>" }
 
 [patch.crates-io]
-symbolica = { git = "https://github.com/symbolica-dev/symbolica.git", rev = "0e2ad04c4f281e28bd29d5ad8b1bebf2764379b7" }
-numerica = { git = "https://github.com/symbolica-dev/symbolica.git", rev = "0e2ad04c4f281e28bd29d5ad8b1bebf2764379b7" }
-graphica = { git = "https://github.com/symbolica-dev/symbolica.git", rev = "0e2ad04c4f281e28bd29d5ad8b1bebf2764379b7" }
+symbolica = { git = "https://github.com/symbolica-dev/symbolica.git", rev = "d0424f9e414d3007889f8a98b404a1b1a91b37a7" }
+numerica = { git = "https://github.com/symbolica-dev/symbolica.git", rev = "d0424f9e414d3007889f8a98b404a1b1a91b37a7" }
+graphica = { git = "https://github.com/symbolica-dev/symbolica.git", rev = "d0424f9e414d3007889f8a98b404a1b1a91b37a7" }
 symbolica-typst-plugin = { git = "https://github.com/symbolica-dev/symbolica-typst-plugin", rev = "57b7455b37c30f4f87353c0073e49f5225e937ab" }
 ```
 

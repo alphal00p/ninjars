@@ -24,7 +24,7 @@ feynkit-amplitude = { git = "https://github.com/ValentinHirschi/gammaloop.git", 
 spenso = { git = "https://github.com/ValentinHirschi/gammaloop.git", rev = "ea3faaae063b1400570c15cf7e055f48312e9329", default-features = false, features = ["native", "shadowing"] }
 idenso = { git = "https://github.com/ValentinHirschi/gammaloop.git", rev = "ea3faaae063b1400570c15cf7e055f48312e9329", default-features = false, features = ["native"] }
 symbolica-utils = { git = "https://github.com/ValentinHirschi/gammaloop.git", rev = "ea3faaae063b1400570c15cf7e055f48312e9329", default-features = false, features = ["native"] }
-oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "2e7afabb5903814196d7ab39c695ed9cac777aa4", default-features = false }
+oneloop = { git = "https://github.com/alphal00p/oneloopmaster.git", rev = "07fc754f656c4744c9464f7c0f47d00b708b37e6", default-features = false }
 linnet = { git = "https://github.com/ValentinHirschi/gammaloop.git", rev = "ea3faaae063b1400570c15cf7e055f48312e9329", default-features = false, features = ["serde"] }
 thiserror = "2"
 serde = { version = "1", features = ["derive"] }
@@ -34,13 +34,13 @@ serde_json = { version = "1", features = ["float_roundtrip"] }
 clap = { version = "4", features = ["derive"] }
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 
-# Symbolica: upstream symbolica-dev/symbolica `community` 0e2ad04c, one revision
+# Symbolica: upstream symbolica-dev/symbolica `community` d0424f9e, one revision
 # for all three crates, shared with pyAmpliCol and oneloopmaster's own
 # standalone [patch] (only the root's [patch] applies in a build).
 [patch.crates-io]
-symbolica = { git = "https://github.com/symbolica-dev/symbolica.git", rev = "0e2ad04c4f281e28bd29d5ad8b1bebf2764379b7" }
-numerica = { git = "https://github.com/symbolica-dev/symbolica.git", rev = "0e2ad04c4f281e28bd29d5ad8b1bebf2764379b7" }
-graphica = { git = "https://github.com/symbolica-dev/symbolica.git", rev = "0e2ad04c4f281e28bd29d5ad8b1bebf2764379b7" }
+symbolica = { git = "https://github.com/symbolica-dev/symbolica.git", rev = "d0424f9e414d3007889f8a98b404a1b1a91b37a7" }
+numerica = { git = "https://github.com/symbolica-dev/symbolica.git", rev = "d0424f9e414d3007889f8a98b404a1b1a91b37a7" }
+graphica = { git = "https://github.com/symbolica-dev/symbolica.git", rev = "d0424f9e414d3007889f8a98b404a1b1a91b37a7" }
 symbolica-typst-plugin = { git = "https://github.com/symbolica-dev/symbolica-typst-plugin", rev = "57b7455b37c30f4f87353c0073e49f5225e937ab" }
 
 [profile.release]
