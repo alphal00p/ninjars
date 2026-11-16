@@ -3,10 +3,10 @@ The bridge uses the pinned NinjaRS and Symbolica revisions in `Cargo.toml` and
 including code adapted from the earlier GPL-licensed NinjaRS revision below.
 
 The current library-key dependency cohort pins NinjaRS
-`41db467aa9d07cd0b926bf1a8cfbb83a17a40cc9` (branch `symbolica-community`), oneloopmaster
-`2e7afabb5903814196d7ab39c695ed9cac777aa4` (branch `symbolica-community`), and
+`047b4b6dbd1e1b460f0996edfb27c4a8dc34bb2e` (branch `symbolica-community-2`), oneloopmaster
+`07fc754f656c4744c9464f7c0f47d00b708b37e6` (branch `symbolica-community-2`), and
 the coupled Symbolica/numerica/graphica revision
-`0e2ad04c4f281e28bd29d5ad8b1bebf2764379b7` from upstream
+`d0424f9e414d3007889f8a98b404a1b1a91b37a7` from upstream
 `symbolica-dev/symbolica` `community`. The consuming bridge owns the
 Symbolica patches because Cargo does not inherit dependency workspace patches.
 NinjaRS's transitive gammaloop kinematics and Symbolica helpers are locked at
