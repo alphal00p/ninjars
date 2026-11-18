@@ -2,26 +2,36 @@
 //! `docs/box-gram-conditioning.md`) on lanes with a nearly degenerate box.
 //!
 //! The fixtures of `validation/conditioning/box-gram` hold one pentagon or
-//! box lane each, with random tensor numerators: the two points of NinjaRS
-//! issue #15 (HC05 `g g > x0 g g`, final state collinear to binary64
-//! rounding; served `1e15 .. 1e34` off with status success before the
-//! bound), 2 -> 3 points tilted out of a collinear final state by `1e-1 ..
-//! 1e-16` rad, and planar points (event plane containing the beam, regular
-//! boxes) as controls. Each lane's reference is the generic engine at 1800
-//! and 2000 bits (recorded with their agreement).
+//! box lane each, with random tensor numerators: 2 -> 3 points tilted out of
+//! a collinear final state by `1e-1 .. 1e-16` rad (`collinear-ext-*`, massive
+//! external legs), the geometry of the two points of NinjaRS issue #15 (HC05
+//! `g g > x0 g g`, final state collinear to binary64 rounding), and planar
+//! points (event plane containing the beam, regular boxes) as controls. Each
+//! lane's reference is the generic engine at 1800 and 2000 bits (recorded
+//! with their agreement).
 //!
-//! - Every carrier the bound applies to (double-double, MPFR; not binary64,
-//!   `ninjars::conditioning::box_gram_applies`) either refuses a lane (a typed
-//!   status) or agrees with the reference within `TOLERANCE` of the
-//!   fixture's scale.
-//! - The bound acts as its model says (double-double and MPFR): a lane whose
-//!   largest predicted loss
-//!   `(r + 1) / 2 · log2 λ²` (the fixture's `box_gram_log2_lambda2`, computed
-//!   at 120 digits) exceeds `p - BOX_GRAM_MARGIN_BITS` by more than one bit
-//!   is refused; one below it by more than one bit is never refused with
-//!   `DegenerateGram`.
-//! - The issue #15 lanes are refused (`DegenerateGram`) at 200, 256 and 266
-//!   bits and served from 400 bits up.
+//! What guards what:
+//! - `every_carrier_refuses_or_agrees_with_the_reference` is the wrong-value
+//!   regression. Without the bound the engine serves the `collinear-ext-*`
+//!   lanes up to `1e44` off with status success in double-double and MPFR,
+//!   and this test fails. Every carrier the bound applies to (double-double,
+//!   MPFR from 106 bits, `ninjars::conditioning::box_gram_applies`) must
+//!   refuse a lane (a typed status) or agree with the reference within
+//!   `TOLERANCE` of the fixture's scale.
+//! - `the_bound_refuses_as_its_model_predicts` checks the predicate against
+//!   its model: a lane whose largest predicted loss `(r + 1) / 2 · log2 λ²`
+//!   (the fixture's `box_gram_log2_lambda2`, computed at 120 digits) exceeds
+//!   `p - BOX_GRAM_MARGIN_BITS` by more than one bit is refused; one below it
+//!   by more than one bit is never refused with `DegenerateGram`.
+//! - `issue_15_points_are_refused_below_400_bits_and_served_above` checks
+//!   that the predicate fires on the issue's geometry: refused
+//!   (`DegenerateGram`) at 200, 256 and 266 bits, served from 400 bits up.
+//!   It does not reproduce the wrong values of #15: with random tensors on
+//!   that geometry the engine without the bound serves the lanes right
+//!   (`1.8e-14` at 200 bits, a loss of about 154 bits against `L = 348 /
+//!   360`); the wrong values of #15 need pyAmpliCol's numerators and inputs.
+//! - `regular_and_planar_controls_are_never_refused_by_the_bound` passes with
+//!   or without the bound, by design.
 
 #[path = "common/conditioning.rs"]
 mod conditioning;
@@ -163,9 +173,10 @@ fn every_carrier_refuses_or_agrees_with_the_reference() {
     let (mut served, mut refused) = (0, 0);
     for ((carrier, index, lane), outcome) in outcomes {
         let fixture = &loaded[*index].fixture;
-        // Binary64 is outside the bound (`box_gram_applies`): the generic
-        // engine in binary64 serves the tilt-1e-6 box lane 1e15 off, before
-        // and after the bound (`docs/box-gram-conditioning.md`, section 4).
+        // Binary64 is outside the bound (`box_gram_applies`, below 106
+        // bits): the generic engine in binary64 serves the tilt-1e-6 box lane
+        // 1e15 off, before and after the bound
+        // (`docs/box-gram-conditioning.md`, section 4).
         if !box_gram_applies(bits(carrier)) {
             continue;
         }
@@ -204,7 +215,7 @@ fn the_bound_refuses_as_its_model_predicts() {
         let loss = predicted_loss(l);
         if !box_gram_applies(bits(carrier)) {
             // The geometry's own scores may still refuse (`DegenerateGram`
-            // at `2^-p`); the bound adds nothing in binary64.
+            // at `2^-p`); the bound adds nothing below 106 bits.
             continue;
         } else if loss > budget + 1. {
             acted += 1;
