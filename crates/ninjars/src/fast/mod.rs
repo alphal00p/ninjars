@@ -62,7 +62,7 @@ mod tests_x2;
 pub use adapters::{GenericMasters, GenericNumerator};
 pub use complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr, to_complex};
 pub use declared_rank::AtDeclaredRank;
-pub use engine::{FastAmplitude, FastOptions};
+pub use engine::{FastAmplitude, FastOptions, take_instabilities};
 pub use masters::{FastMaster, FastMasters};
 pub use numerator::{FastNumerator, t2_len, t3_len};
 pub use replay::{RecordingMasters, RecordingNumerator, ReplayMasters, ReplayNumerator};
@@ -109,6 +109,67 @@ pub enum FastStatus {
     MasterFailed,
     /// The accumulated result is not finite. Results are unchanged.
     NonFinite,
+}
+
+/// The test that made a lane [`FastStatus::Unstable`] ([`Instability`]).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum InstabilityTest {
+    /// A box cut's Gram determinant of two of its shift differences.
+    BoxGram,
+    /// A box normal's factors (its square, `p1.e3`, `p1.e4`).
+    BoxNormal,
+    /// The rank n+2 box geometry (normal, centre, solutions).
+    BoxGeometry,
+    /// An uncut denominator at a box cut solution.
+    BoxCutDenominator,
+    /// An uncut line's `d0_j = 2 v.(V_j - V_first)` of the mu expansion.
+    BoxMuDenominator,
+    /// The box mu expansion's leading terms.
+    BoxMuExpansion,
+    /// A triangle cut's Gram determinant.
+    TriangleGram,
+    /// A triangle's Laurent expansion (uncut denominators, leading terms).
+    TriangleExpansion,
+    /// A bubble's Laurent expansion.
+    BubbleExpansion,
+    /// A tadpole's Laurent expansion.
+    TadpoleExpansion,
+    /// The box mu expansion's conditioning screen (`crate::conditioning`).
+    BoxMuConditioning,
+}
+
+impl InstabilityTest {
+    /// The test's name in a status text.
+    pub fn name(self) -> &'static str {
+        match self {
+            Self::BoxGram => "box Gram determinant",
+            Self::BoxNormal => "box normal",
+            Self::BoxGeometry => "box geometry",
+            Self::BoxCutDenominator => "box uncut denominator",
+            Self::BoxMuDenominator => "box mu-expansion denominator",
+            Self::BoxMuExpansion => "box mu-expansion leading term",
+            Self::TriangleGram => "triangle Gram determinant",
+            Self::TriangleExpansion => "triangle expansion",
+            Self::BubbleExpansion => "bubble expansion",
+            Self::TadpoleExpansion => "tadpole expansion",
+            Self::BoxMuConditioning => "box mu-expansion conditioning",
+        }
+    }
+}
+
+/// Why a lane is [`FastStatus::Unstable`] ([`take_instabilities`]): the
+/// test, the tested quantity and the bound it had to exceed (taxicab
+/// norms: `max(stability_threshold, relative_tolerance x scale)`, the lane
+/// failing when `value <= bound`); for [`InstabilityTest::BoxMuConditioning`]
+/// the predicted rounding error and its limit (failing when `value >
+/// bound`). A NaN value is a tested quantity that is not finite (e.g. the
+/// cut basis of two real momenta spanning a Euclidean plane); NaN for both
+/// when the failing test compares none.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Instability {
+    pub test: InstabilityTest,
+    pub value: f64,
+    pub bound: f64,
 }
 
 /// Integrated contribution of one lane.

@@ -105,7 +105,7 @@ const FUNCTIONS: &[Function] = &[
                     &[m[c1], m[c2], m[c3], m[c4]],
                     &l,
                 ) else {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(&mut self.alive, &mut self.lane_status, lane, InstabilityTest::BoxGeometry);
                     continue;
                 };
                 self.box_rows.push(BoxRow {

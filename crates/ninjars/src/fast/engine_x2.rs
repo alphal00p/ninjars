@@ -49,7 +49,8 @@ use super::complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr};
 use super::engine::{
     FastOptions, MasterBatch, Stability, StageOptions, TadpoleData, Topology, Uncut,
     box_mu_reference_directions, den, den_scale, difference_scale, divide_t2, divide_t3, dot_scale,
-    euclidean_norm, fail, gram_scale, is_zero, scale_c, scaled_reference, sub_cr, taxicab_sum,
+    euclidean_norm, fail, gram_scale, is_zero, scale_c, scaled_reference, screen_refused, sub_cr,
+    taxicab_sum,
 };
 use super::geometry::{
     Basis, box_solutions, bubble_solution, cmom_from_real, combine_real2, gram_det, mp2,
@@ -58,7 +59,7 @@ use super::geometry::{
 use super::masters::{FastMaster, FastMasters};
 use super::numerator::{FastNumerator, t2_len, t3_len};
 use super::subtractions_series_x2 as subs;
-use super::{FastInput, FastResult, FastStatus};
+use super::{FastInput, FastResult, FastStatus, InstabilityTest};
 use crate::conditioning::{
     BoxMuConditioning, BoxMuPropagation, box_mu_numerator_ratio, box_mu_refused, box_mu_rounding,
 };
@@ -541,7 +542,12 @@ impl RankN2Engine {
                 let k1 = sub(&v[c3], &v[c2]);
                 let k3 = sub(&v[c1], &v[c4]);
                 if !check.relative(gram_det(&k3, &k0).abs(), gram_scale(&k3, &k0)) {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BoxGram,
+                    );
                     continue;
                 }
                 let e = Basis::from_pair(&k3, &k0, eps);
@@ -558,7 +564,12 @@ impl RankN2Engine {
                     || !check.relative(p1e3.taxicab(), dot_scale(&e.e3, &k1))
                     || !check.relative(p1e4.taxicab(), dot_scale(&e.e4, &k1))
                 {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BoxNormal,
+                    );
                     continue;
                 }
                 let l = box_solutions(&k3, &k0, &k1, &e, m[c1], m[c2], m[c3], m[c4]);
@@ -571,7 +582,12 @@ impl RankN2Engine {
                     &[m[c1], m[c2], m[c3], m[c4]],
                     &l,
                 ) else {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BoxGeometry,
+                    );
                     continue;
                 };
                 self.box_rows.push(BoxRowX2 {
@@ -630,7 +646,12 @@ impl RankN2Engine {
                     values[s] = self.calls.out[2 * r + s][0] / d;
                 }
                 if !stable {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BoxCutDenominator,
+                    );
                     continue;
                 }
                 self.box_c[b * lanes + lane] =
@@ -708,7 +729,12 @@ impl RankN2Engine {
                     nmu[2] /= d0;
                 }
                 if !stable {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BoxMuExpansion,
+                    );
                     continue;
                 }
                 if conditioning.exceeds(2, 1., f64::MANTISSA_DIGITS) {
@@ -835,7 +861,12 @@ impl RankN2Engine {
                 let k0 = sub(&v[c2], &v[c1]);
                 let k2 = sub(&v[c1], &v[c3]);
                 if !check.relative(gram_det(&k2, &k0).abs(), gram_scale(&k2, &k0)) {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::TriangleGram,
+                    );
                     continue;
                 }
                 let e = Basis::from_pair(&k2, &k0, eps);
@@ -918,7 +949,12 @@ impl RankN2Engine {
                     divide_t3_6(num2, d0b.inv(), d1, [row.param * b, b]);
                 }
                 if !stable {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::TriangleExpansion,
+                    );
                     continue;
                 }
                 // Slots (t, mu²): (5,0) (4,0) (3,0) (3,1) (2,0) (2,1) (1,0)
@@ -1079,7 +1115,12 @@ impl RankN2Engine {
                     };
                 }
                 if !stable {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BubbleExpansion,
+                    );
                     continue;
                 }
                 for &j in cp {
@@ -1242,7 +1283,12 @@ impl RankN2Engine {
                     };
                 }
                 if !stable {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BubbleExpansion,
+                    );
                     continue;
                 }
                 for &j in cp {
@@ -1471,7 +1517,12 @@ impl RankN2Engine {
                     }
                 }
                 if !stable {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::TadpoleExpansion,
+                    );
                     continue;
                 }
                 self.tad[a * lanes + lane] = data;
@@ -1714,6 +1765,7 @@ impl RankN2Engine {
                 && box_mu_refused(flagged, result.laurent[0].abs(), f64::MANTISSA_DIGITS)
             {
                 self.lane_status[lane] = FastStatus::Unstable;
+                screen_refused(lane, flagged, result.laurent[0].abs());
                 continue;
             }
             self.staged[lane] = result;

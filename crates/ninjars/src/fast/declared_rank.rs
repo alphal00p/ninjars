@@ -57,7 +57,9 @@
 //! stages use).
 
 use super::complex::{C64, CMom, RMom};
-use super::engine::{FastAmplitude, FastOptions, Replacement};
+use super::engine::{
+    FastAmplitude, FastOptions, Replacement, instabilities_len, remap_instabilities,
+};
 use super::engine_x2::{DynMasters, DynNumerator};
 use super::masters::FastMasters;
 use super::numerator::FastNumerator;
@@ -403,12 +405,15 @@ pub(super) fn evaluate_declared_n2<N: FastNumerator + ?Sized, M: FastMasters + ?
         let (lanes, part, part_results, part_statuses) = part.split(with_s_matrix);
         numerator.lower_rank(lanes, rank)?;
         let lowered = Lowered(&mut *numerator);
+        let recorded = instabilities_len();
         engine.evaluate_lowered(&part, &mut *lowered.0, masters, part_results, part_statuses)?;
+        remap_instabilities(recorded, |lane| lanes[lane]);
     }
     let high = &mut parts[declared];
     if !high.lanes.is_empty() {
         high.gather(n, input, results);
         let (map, part, part_results, part_statuses) = high.split(with_s_matrix);
+        let recorded = instabilities_len();
         x2.evaluate(
             topo,
             &part,
@@ -421,6 +426,7 @@ pub(super) fn evaluate_declared_n2<N: FastNumerator + ?Sized, M: FastMasters + ?
             part_results,
             part_statuses,
         )?;
+        remap_instabilities(recorded, |lane| map[lane]);
     }
     for part in parts.iter() {
         part.scatter(results, statuses);
