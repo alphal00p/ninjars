@@ -7,11 +7,11 @@ use crate::{
         difference_dot_scale, square_scale,
     },
 };
-use ninjars::conditioning::BOX_MU_MARGIN_BITS;
+use ninjars::conditioning::{BOX_MU_MARGIN_BITS, box_gram_budget_bits, box_gram_slope};
 use ninjars::{
-    BatchShape, BoxCoefficientMode, BoxDivisionRequest, BoxMuDivisionRequest, BoxMuMode,
-    BoxProjectionRequest, BoxReductionKernels, BoxReductionOptions, Complex, Error, ExpansionKind,
-    FloatLike, FourMomentum, RankClass, Real, Result, SingleFloat, Topology,
+    BatchShape, BoxCoefficientMode, BoxDivisionRequest, BoxGramRequest, BoxMuDivisionRequest,
+    BoxMuMode, BoxProjectionRequest, BoxReductionKernels, BoxReductionOptions, Complex, Error,
+    ExpansionKind, FloatLike, FourMomentum, RankClass, Real, Result, SingleFloat, Topology,
 };
 use std::marker::PhantomData;
 use symbolica::{
@@ -355,6 +355,9 @@ struct Engine<V, K, Checks, R> {
     /// `2^(p - BOX_MU_MARGIN_BITS)`: the conditioning bound's budget
     /// (`ninjars::conditioning`) in the carrier's precision `p`.
     mu_budget: R,
+    /// `(a, 2^(b (p - BOX_GRAM_MARGIN_BITS)))` for the box-Gram bound's
+    /// slope `c = a / b` at this rank (`ninjars::conditioning`).
+    gram_budget: (u64, R),
     checks: PhantomData<fn() -> Checks>,
     input: Vec<V>,
     probe: Vec<V>,
@@ -410,6 +413,12 @@ impl<V: FloatLike, K: KernelExecutor<V>, R: Real + SingleFloat, Checks: ValueChe
                 let real = Checks::magnitude(prototype);
                 let bits = real.get_precision().saturating_sub(BOX_MU_MARGIN_BITS);
                 real.from_i64(2).pow(u64::from(bits))
+            },
+            gram_budget: {
+                let real = Checks::magnitude(prototype);
+                let (a, b) = box_gram_slope(rank);
+                let bits = box_gram_budget_bits(real.get_precision()) * b;
+                (a, real.from_i64(2).pow(bits))
             },
             checks: PhantomData,
             input: Vec::new(),
@@ -677,6 +686,58 @@ impl<V: FloatLike, K: KernelExecutor<V>, R: Real + SingleFloat, Checks: ValueChe
         }
         Ok(())
     }
+    /// The box-Gram conditioning bound (`ninjars::conditioning`): the
+    /// four-dimensional cut solutions `q = a ± t v` (`t² = β / v.v`) against
+    /// the box's own scale, `λ² = (|a|² + |β / v.v| |v|²) / S²` with
+    /// `S² = max_i max(|V_i|², |m_i²|)` over the four cut lines (`|.|` the
+    /// Euclidean norm of the components). A box whose Gram determinant
+    /// nearly vanishes has `λ >> 1` (the shift differences nearly linearly
+    /// dependent, or spanning a nearly light-like hyperplane); the predicted
+    /// loss `(r + 1) log2 λ` at numerator rank `r` must stay within
+    /// `p - BOX_GRAM_MARGIN_BITS`: `(λ²)^a <= 2^(b (p - M))` with the slope
+    /// `a / b` per bit of `log2 λ²`. NaN or infinity refuses.
+    fn gram_conditioned(
+        &self,
+        requests: &[BoxGramRequest<'_, V>],
+        stable: &mut [bool],
+    ) -> Result<()> {
+        BatchShape {
+            rows: requests.len(),
+            columns: 1,
+        }
+        .validate("box Gram statuses", stable.len())?;
+        let (power, budget) = &self.gram_budget;
+        let zero = Checks::magnitude(&self.zero);
+        let greater = |a: &R, b: &R| a.real_cmp(b) == Some(std::cmp::Ordering::Greater);
+        let euclidean = |x: &FourMomentum<V>| {
+            x.components()
+                .into_iter()
+                .fold(zero.clone(), |sum, c| sum + Checks::modulus_squared(c))
+        };
+        for (row, r) in requests.iter().enumerate() {
+            let g = r.geometry;
+            let t_squared = (Checks::modulus_squared(&g.beta)
+                / Checks::modulus_squared(&g.v_orth_squared))
+            .sqrt();
+            let size = euclidean(&g.a) + t_squared * euclidean(&g.v_orth);
+            let mut scale = zero.clone();
+            for (shift, mass) in r.shifts.iter().zip(r.masses_squared) {
+                for s in [euclidean(shift), Checks::modulus_squared(mass).sqrt()] {
+                    if greater(&s, &scale) {
+                        scale = s;
+                    }
+                }
+            }
+            let ratio = size / scale;
+            // NaN and infinity (v.v = 0) are refused.
+            stable[row] = ratio.is_finite()
+                && matches!(
+                    ratio.pow(*power).real_cmp(budget),
+                    Some(std::cmp::Ordering::Less | std::cmp::Ordering::Equal)
+                );
+        }
+        Ok(())
+    }
     /// The box mu-expansion's conditioning bound (`ninjars::conditioning`):
     /// per uncut line `R_j = 2 |v| |V_j - V_first| / |d0_j|` (Euclidean norms
     /// of the components) and above rank n `ρ = Σ_j |d1_j| / (|d0_j| t)` with
@@ -940,6 +1001,7 @@ macro_rules! implementation{
             fn divide_mu_batch(&mut self,requests:&[BoxMuDivisionRequest<'_,$value>],numerator:&[$value],output:&mut[[$value;3]],stable:&mut[bool])->Result<()>{self.engine.divide_mu(requests,numerator,output,stable)}
             fn project_batch(&mut self,requests:&[BoxProjectionRequest<'_,$value>],output:&mut[$value],stable:&mut[bool])->Result<()>{self.engine.project(requests,output,stable)}
             fn values_are_finite(&self,values:&[$value])->bool{values.iter().all(|v|self.engine.valid(v))}
+            fn gram_conditioned_batch(&mut self,requests:&[BoxGramRequest<'_,$value>],stable:&mut[bool])->Result<()>{self.engine.gram_conditioned(requests,stable)}
         }
     }
 }
