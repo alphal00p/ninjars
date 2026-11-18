@@ -358,8 +358,9 @@ struct Engine<V, K, Checks, R> {
     /// (`ninjars::conditioning`) in the carrier's precision `p`.
     mu_budget: R,
     /// `(a, 2^(b (p - BOX_GRAM_MARGIN_BITS)))` for the box-Gram bound's
-    /// slope `c = a / b` at this rank (`ninjars::conditioning`); `None` for
-    /// binary64, where the bound does not apply (`box_gram_applies`).
+    /// slope `c = a / b` at this rank (`ninjars::conditioning`); `None` below
+    /// 106 bits (binary64), where the bound does not apply
+    /// (`box_gram_applies`).
     gram_budget: Option<(u64, R)>,
     checks: PhantomData<fn() -> Checks>,
     input: Vec<V>,
@@ -701,8 +702,9 @@ impl<V: FloatLike, K: KernelExecutor<V>, R: Real + SingleFloat, Checks: ValueChe
     /// dependent, or spanning a nearly light-like hyperplane); the predicted
     /// loss `(r + 1) log2 λ` at numerator rank `r` must stay within
     /// `p - BOX_GRAM_MARGIN_BITS`: `(λ²)^a <= 2^(b (p - M))` with the slope
-    /// `a / b` per bit of `log2 λ²`. NaN or infinity refuses. Binary64
-    /// accepts every row (`ninjars::conditioning::box_gram_applies`).
+    /// `a / b` per bit of `log2 λ²`. NaN or infinity refuses. Carriers below
+    /// 106 bits (binary64) accept every row
+    /// (`ninjars::conditioning::box_gram_applies`).
     fn gram_conditioned(
         &self,
         requests: &[BoxGramRequest<'_, V>],
