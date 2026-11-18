@@ -7,7 +7,9 @@ use crate::{
         difference_dot_scale, square_scale,
     },
 };
-use ninjars::conditioning::{BOX_MU_MARGIN_BITS, box_gram_budget_bits, box_gram_slope};
+use ninjars::conditioning::{
+    BOX_MU_MARGIN_BITS, box_gram_applies, box_gram_budget_bits, box_gram_slope,
+};
 use ninjars::{
     BatchShape, BoxCoefficientMode, BoxDivisionRequest, BoxGramRequest, BoxMuDivisionRequest,
     BoxMuMode, BoxProjectionRequest, BoxReductionKernels, BoxReductionOptions, Complex, Error,
@@ -356,8 +358,9 @@ struct Engine<V, K, Checks, R> {
     /// (`ninjars::conditioning`) in the carrier's precision `p`.
     mu_budget: R,
     /// `(a, 2^(b (p - BOX_GRAM_MARGIN_BITS)))` for the box-Gram bound's
-    /// slope `c = a / b` at this rank (`ninjars::conditioning`).
-    gram_budget: (u64, R),
+    /// slope `c = a / b` at this rank (`ninjars::conditioning`); `None` for
+    /// binary64, where the bound does not apply (`box_gram_applies`).
+    gram_budget: Option<(u64, R)>,
     checks: PhantomData<fn() -> Checks>,
     input: Vec<V>,
     probe: Vec<V>,
@@ -416,9 +419,12 @@ impl<V: FloatLike, K: KernelExecutor<V>, R: Real + SingleFloat, Checks: ValueChe
             },
             gram_budget: {
                 let real = Checks::magnitude(prototype);
-                let (a, b) = box_gram_slope(rank);
-                let bits = box_gram_budget_bits(real.get_precision()) * b;
-                (a, real.from_i64(2).pow(bits))
+                let precision = real.get_precision();
+                box_gram_applies(precision).then(|| {
+                    let (a, b) = box_gram_slope(rank);
+                    let bits = box_gram_budget_bits(precision) * b;
+                    (a, real.from_i64(2).pow(bits))
+                })
             },
             checks: PhantomData,
             input: Vec::new(),
@@ -695,7 +701,8 @@ impl<V: FloatLike, K: KernelExecutor<V>, R: Real + SingleFloat, Checks: ValueChe
     /// dependent, or spanning a nearly light-like hyperplane); the predicted
     /// loss `(r + 1) log2 λ` at numerator rank `r` must stay within
     /// `p - BOX_GRAM_MARGIN_BITS`: `(λ²)^a <= 2^(b (p - M))` with the slope
-    /// `a / b` per bit of `log2 λ²`. NaN or infinity refuses.
+    /// `a / b` per bit of `log2 λ²`. NaN or infinity refuses. Binary64
+    /// accepts every row (`ninjars::conditioning::box_gram_applies`).
     fn gram_conditioned(
         &self,
         requests: &[BoxGramRequest<'_, V>],
@@ -706,7 +713,10 @@ impl<V: FloatLike, K: KernelExecutor<V>, R: Real + SingleFloat, Checks: ValueChe
             columns: 1,
         }
         .validate("box Gram statuses", stable.len())?;
-        let (power, budget) = &self.gram_budget;
+        let Some((power, budget)) = &self.gram_budget else {
+            stable.fill(true);
+            return Ok(());
+        };
         let zero = Checks::magnitude(&self.zero);
         let greater = |a: &R, b: &R| a.real_cmp(b) == Some(std::cmp::Ordering::Greater);
         let euclidean = |x: &FourMomentum<V>| {

@@ -125,12 +125,29 @@ pub fn box_gram_budget_bits(precision: u32) -> u64 {
     u64::from(precision.saturating_sub(BOX_GRAM_MARGIN_BITS).max(1))
 }
 
+/// Whether the box-Gram bound applies to a carrier of `precision` bits:
+/// every carrier above binary64 (double-double, MPFR). In binary64 its
+/// budget `53 - 28 = 25` bits lies inside the regular regime, where `L` does
+/// not predict the loss (regular boxes reach `log2 λ² = 5 .. 8`, `L` up to
+/// 30 bits at rank 7 .. 9, and lose 10 .. 20): it would refuse lanes that
+/// binary64 serves within its budget today (`validation/rank-n2` controls
+/// `rn2-int-mixed-n6-r7`, `rn2-int-real-n7-r8-mu2`, `rn2-int-complex-n7-r9`;
+/// `docs/box-gram-conditioning.md`, section 4). Binary64 keeps its noise
+/// tests and the box mu-expansion bound.
+#[inline]
+pub fn box_gram_applies(precision: u32) -> bool {
+    precision > f64::MANTISSA_DIGITS
+}
+
 /// Whether a box cut with `log2 λ² = lambda_bits` at numerator rank `rank`
 /// is predicted to lose more than `precision - BOX_GRAM_MARGIN_BITS` bits
 /// (the engines compare `(λ²)^a` with `2^(b (p - M))` in the carrier
-/// itself). NaN exceeds.
+/// itself). NaN exceeds. False for binary64 ([`box_gram_applies`]).
 #[inline]
 pub fn box_gram_exceeds(lambda_bits: f64, rank: usize, precision: u32) -> bool {
+    if !box_gram_applies(precision) {
+        return false;
+    }
     let (a, b) = box_gram_slope(rank);
     let loss = a as f64 * lambda_bits;
     !(loss <= (b * box_gram_budget_bits(precision)) as f64)
@@ -379,13 +396,15 @@ mod tests {
     #[test]
     fn box_gram_bound_follows_its_loss_model() {
         let budget = |p: u32| f64::from(p - BOX_GRAM_MARGIN_BITS);
-        for (rank, p) in [(4, 106), (6, 256), (7, 512), (0, 53)] {
+        for (rank, p) in [(4, 106), (6, 256), (7, 512), (0, 64)] {
             let edge = 2. * budget(p) / (rank as f64 + 1.);
             assert!(!box_gram_exceeds(edge * 0.99, rank, p));
             assert!(box_gram_exceeds(edge * 1.01, rank, p));
         }
-        // Regular boxes (log2 λ² of a few bits) pass every carrier.
-        assert!(!box_gram_exceeds(3., 8, 53));
+        // Regular boxes (log2 λ² of a few bits) pass every carrier, and
+        // binary64 is not tested.
+        assert!(!box_gram_exceeds(3., 8, 106));
+        assert!(!box_gram_exceeds(1000., 8, 53));
         // The issue #15 points: log2 λ² ~ 99 at rank 6 (L ~ 348 bits) are
         // refused at 200 .. 333 bits and served from 400 bits up.
         for p in [200, 256, 266, 333] {

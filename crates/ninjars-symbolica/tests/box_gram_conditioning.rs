@@ -12,7 +12,8 @@
 //!
 //! - Every carrier either refuses a lane (a typed status) or agrees with the
 //!   reference within `TOLERANCE` of the fixture's scale.
-//! - The bound acts as its model says: a lane whose largest predicted loss
+//! - The bound acts as its model says (double-double and MPFR; binary64 is
+//!   never refused with `DegenerateGram`): a lane whose largest predicted loss
 //!   `(r + 1) / 2 · log2 λ²` (the fixture's `box_gram_log2_lambda2`, computed
 //!   at 120 digits) exceeds `p - BOX_GRAM_MARGIN_BITS` by more than one bit
 //!   is refused; one below it by more than one bit is never refused with
@@ -25,7 +26,7 @@ mod conditioning;
 
 use conditioning::{Fixture, LaneRef, Outcome, generic_lanes, parse_fixture};
 use ninjars::Float;
-use ninjars::conditioning::BOX_GRAM_MARGIN_BITS;
+use ninjars::conditioning::{BOX_GRAM_MARGIN_BITS, box_gram_applies};
 use serde_json::Value;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
@@ -193,7 +194,14 @@ fn the_bound_refuses_as_its_model_predicts() {
         let l = &loaded[*index];
         let budget = f64::from(bits(carrier) - BOX_GRAM_MARGIN_BITS);
         let loss = predicted_loss(l);
-        if loss > budget + 1. {
+        if !box_gram_applies(bits(carrier)) {
+            if degenerate_gram(outcome) {
+                failures.push(format!(
+                    "{} lane {lane} {carrier}: {} although the bound does not apply",
+                    l.fixture.name, outcome.status
+                ));
+            }
+        } else if loss > budget + 1. {
             acted += 1;
             if outcome.success {
                 failures.push(format!(
@@ -240,19 +248,15 @@ fn issue_15_points_are_refused_below_400_bits_and_served_above() {
     assert_eq!(checked, 2 * 2 * CARRIERS.len());
 }
 
-/// Regular boxes (planar points, the least tilted collinear point) keep the
-/// double-double and MPFR budgets. In binary64 the budget is `53 - 28 = 25`
-/// bits, and a regular planar box at rank 6 (`log2 λ² = 7.2`, predicted
-/// 25.1 bits) is at its edge (`docs/box-gram-conditioning.md`, section 4).
+/// Regular boxes (planar points, the least tilted collinear point) are never
+/// refused by the bound (binary64 is not tested by it).
 #[test]
 fn regular_and_planar_controls_are_never_refused_by_the_bound() {
     let (loaded, outcomes) = outcomes();
     let mut checked = 0;
     for ((carrier, index, lane), outcome) in outcomes {
         let l = &loaded[*index];
-        if !(l.fixture.name.starts_with("planar-") || l.fixture.name.ends_with("-t1e-1"))
-            || *carrier == "f64"
-        {
+        if !(l.fixture.name.starts_with("planar-") || l.fixture.name.ends_with("-t1e-1")) {
             continue;
         }
         assert!(
