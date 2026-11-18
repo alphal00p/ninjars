@@ -102,10 +102,10 @@ pub const BOX_MU_MARGIN_BITS: u32 = 14;
 /// section 3): a served lane must keep `log2(1e5) = 16.6` bits, and over the
 /// calibration lanes whose cut solutions lie far outside their shifts
 /// (`log2 λ² > 20`; synthetic tensors at tilts `1e-2 .. 1e-40` out of a
-/// collinear 2 -> 3 final state in binary64, double-double and MPFR at 128,
-/// 256, 512 bits; pyAmpliCol lanes of `g g > x0 g g`, `g g > g g g` and
-/// loop-induced `g g > z z g` in double-double and MPFR) the measured loss
-/// exceeds `L` by at most `11.3` bits, so `M = ceil(16.6 + 11.3) = 28`.
+/// collinear 2 -> 3 final state in double-double and MPFR at 128, 256 and
+/// 512 bits) the measured loss exceeds `L` by at most `11.3` bits, so
+/// `M = ceil(16.6 + 11.3) = 28`. pyAmpliCol's HC05 `g g > x0 g g` lanes at
+/// the same kind of points stay within `4.2` bits of `L`.
 pub const BOX_GRAM_MARGIN_BITS: u32 = 28;
 
 /// The box-Gram bound's slope at numerator rank `r` as `(a, b)`: the
