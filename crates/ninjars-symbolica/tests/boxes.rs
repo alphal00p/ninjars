@@ -540,9 +540,15 @@ fn direct_sample_division_isolates_bad_dual_shapes_and_rejects_duplicate_partiti
 /// stale record is forgotten when the next evaluation starts.
 #[test]
 fn box_reducer_evaluations_start_without_box_gram_records() {
+    box_reducer_clears_box_gram_records(DoubleFloat::default());
+}
+
+fn box_reducer_clears_box_gram_records<T: Real + SingleFloat + PartialOrd>(prototype: T)
+where
+    Complex<T>: Real + EvaluationDomain,
+{
     use ninjars::SampleId;
     use ninjars::conditioning::{BoxGramRefusal, record_box_gram_refusal, take_box_gram_refusals};
-    let prototype = DoubleFloat::default();
     let zero = Complex::new(prototype.zero(), prototype.zero());
     let p: Vec<_> = ROUTING[..4]
         .iter()
