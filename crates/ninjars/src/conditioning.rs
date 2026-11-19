@@ -1,4 +1,6 @@
-//! The conditioning bound of the box mu-expansion (`docs/box-mu-conditioning.md`).
+//! The conditioning bounds of the box mu-expansion (`docs/box-mu-conditioning.md`)
+//! and of the box Gram determinant (`docs/box-gram-conditioning.md`; its
+//! constants follow the mu-expansion's below).
 //!
 //! At rank `r = n + k` (`k` = 0, 1, 2) a box cut of an `n`-point lane gets its
 //! rational coefficients (`c4`, and `c6` at rank n+2) from the leading terms
@@ -77,6 +79,92 @@
 /// the measured loss stays at least `3.4` bits below `L` (the smallest slack,
 /// double-double), so `M = ceil(16.6 - 3.4) = 14`.
 pub const BOX_MU_MARGIN_BITS: u32 = 14;
+
+// ---------------------------------------------------------------------------
+// The box-Gram conditioning bound (`docs/box-gram-conditioning.md`).
+//
+// A box cut whose Gram determinant nearly vanishes (its three shift
+// differences nearly linearly dependent, as at a 2 -> 3 point with a
+// collinear final state, or spanning a nearly light-like hyperplane) has
+// four-dimensional cut solutions `q = a ± t v` far outside its shifts. With
+// `λ² = (|a|² + |β / v.v| |v|²) / S²`, `S² = max_i max(|V_i|², |m_i²|)` over
+// its four lines (`|.|` the Euclidean norm of the components), the numerator
+// and its division at rank `r` cancel terms of relative size `λ^(r + 1)`
+// down to the box's coefficients, so the reduction loses about
+// `L = (r + 1) / 2 · log2 λ²` bits; the triangles and bubbles that subtract
+// the box inherit the loss. The engines refuse the cut
+// (`CutFailure::DegenerateGram`) when `L > p - BOX_GRAM_MARGIN_BITS`.
+// ---------------------------------------------------------------------------
+
+/// The box-Gram bound's margin `M` in bits: a box cut is refused when its
+/// predicted loss `L = (r + 1) / 2 · log2 λ²` exceeds `p - M`. Derived from
+/// the lax target and the calibration (`docs/box-gram-conditioning.md`,
+/// section 3): a served lane must keep `log2(1e5) = 16.6` bits, and over the
+/// calibration lanes whose cut solutions lie far outside their shifts
+/// (`log2 λ² > 20`; synthetic tensors at tilts `1e-2 .. 1e-40` out of a
+/// collinear 2 -> 3 final state in double-double and MPFR at 128, 256 and
+/// 512 bits) the measured loss exceeds `L` by at most `11.3` bits, so
+/// `M = ceil(16.6 + 11.3) = 28`. pyAmpliCol's HC05 `g g > x0 g g` lanes at
+/// the same kind of points stay within `4.2` bits of `L`.
+pub const BOX_GRAM_MARGIN_BITS: u32 = 28;
+
+/// The box-Gram bound's slope at numerator rank `r` as `(a, b)`: the
+/// predicted loss is `a / b` bits per bit of `log2 λ²`, `a / b = (r + 1) / 2`
+/// (`docs/box-gram-conditioning.md`, section 3: measured `2.50 .. 4.02` at
+/// `r = 4 .. 7`, within one percent of `(r + 1) / 2`, independent of the
+/// number of propagators).
+#[inline]
+pub fn box_gram_slope(rank: usize) -> (u64, u64) {
+    (rank as u64 + 1, 2)
+}
+
+/// The box-Gram bound's budget `p - BOX_GRAM_MARGIN_BITS` in bits for a
+/// carrier of `precision` bits, at least 1.
+#[inline]
+pub fn box_gram_budget_bits(precision: u32) -> u64 {
+    u64::from(precision.saturating_sub(BOX_GRAM_MARGIN_BITS).max(1))
+}
+
+/// The smallest carrier precision the box-Gram bound applies to, in bits:
+/// double-double's 106 (`docs/box-gram-conditioning.md`, section 4). Two
+/// requirements set it, and 106 is the larger:
+/// - the budget `p - M` must clear the predicted loss of regular boxes, where
+///   `L` is an envelope that overshoots: the largest `log2 λ²` over the boxes
+///   of 100 000 flat `g g > g g g` points is 18.2, so a pentagon at rank n+2
+///   predicts `(7 + 1) / 2 · 18.2 = 72.8` bits and needs
+///   `p >= 72.8 + 28 = 101`;
+/// - the calibration covers double-double and MPFR at 128, 256 and 512 bits:
+///   its smallest carrier has 106 bits.
+///
+/// Binary64 (53) fails the first by far: with its budget of 25 bits the
+/// generic engine refused lanes it serves within tolerance
+/// (`validation/rank-n2` controls `rn2-int-mixed-n6-r7`,
+/// `rn2-int-real-n7-r8-mu2`, `rn2-int-complex-n7-r9`). MPFR below 106 bits
+/// is uncalibrated and left out as well.
+pub const BOX_GRAM_MIN_PRECISION: u32 = 106;
+
+/// Whether the box-Gram bound applies to a carrier of `precision` bits
+/// (double-double and MPFR from [`BOX_GRAM_MIN_PRECISION`] up, and their
+/// Dual shapes). Carriers below keep the geometry's noise tests and the box
+/// mu-expansion bound.
+#[inline]
+pub fn box_gram_applies(precision: u32) -> bool {
+    precision >= BOX_GRAM_MIN_PRECISION
+}
+
+/// Whether a box cut with `log2 λ² = lambda_bits` at numerator rank `rank`
+/// is predicted to lose more than `precision - BOX_GRAM_MARGIN_BITS` bits
+/// (the engines compare `(λ²)^a` with `2^(b (p - M))` in the carrier
+/// itself). NaN exceeds. False below [`BOX_GRAM_MIN_PRECISION`].
+#[inline]
+pub fn box_gram_exceeds(lambda_bits: f64, rank: usize, precision: u32) -> bool {
+    if !box_gram_applies(precision) {
+        return false;
+    }
+    let (a, b) = box_gram_slope(rank);
+    let loss = a as f64 * lambda_bits;
+    !(loss <= (b * box_gram_budget_bits(precision)) as f64)
+}
 
 /// Running product and sum of `R_j = S_j / |d0_j|` over a box's uncut lines,
 /// and at rank above n the expansion ratio `ρ = Σ_j |d1_j| / (|d0_j| t)`.
@@ -314,6 +402,36 @@ mod tests {
         let (a6, g6) = (p.magnitude[0] / 8., p.leading[0] / 8.);
         let (a4, g4) = (p.magnitude[2] / 4. + 1.5 * a6, p.leading[2] / 4. + 1.5 * g6);
         assert_eq!(e2, 31. * (a4 / 6. + a6 * 3.) + 2. * (g4 / 6. + g6 * 3.));
+    }
+
+    /// The box-Gram bound: `(r + 1) / 2` bits per bit of `log2 λ²` against
+    /// `p - BOX_GRAM_MARGIN_BITS`.
+    #[test]
+    fn box_gram_bound_follows_its_loss_model() {
+        let budget = |p: u32| f64::from(p - BOX_GRAM_MARGIN_BITS);
+        for (rank, p) in [(4, 106), (6, 256), (7, 512), (0, 128)] {
+            let edge = 2. * budget(p) / (rank as f64 + 1.);
+            assert!(!box_gram_exceeds(edge * 0.99, rank, p));
+            assert!(box_gram_exceeds(edge * 1.01, rank, p));
+        }
+        // Regular boxes (log2 λ² of a few bits) pass every carrier, and
+        // carriers below 106 bits are not tested: binary64, short MPFR.
+        assert!(!box_gram_exceeds(3., 8, 106));
+        assert!(!box_gram_exceeds(1000., 8, 53));
+        assert!(!box_gram_exceeds(1000., 8, 105));
+        assert!(box_gram_exceeds(1000., 8, 106));
+        // The largest regular log2 λ² of flat g g > g g g points at rank n+2
+        // passes double-double.
+        assert!(!box_gram_exceeds(18.2, 7, 106));
+        // The issue #15 points: log2 λ² ~ 99 at rank 6 (L ~ 348 bits) are
+        // refused at 200 .. 333 bits and served from 400 bits up.
+        for p in [200, 256, 266, 333] {
+            assert!(box_gram_exceeds(99.4, 6, p));
+        }
+        assert!(!box_gram_exceeds(99.4, 6, 400));
+        assert!(box_gram_exceeds(f64::NAN, 4, 512));
+        assert!(box_gram_exceeds(f64::INFINITY, 4, 512));
+        assert_eq!(box_gram_budget_bits(20), 1);
     }
 
     /// A flagged lane is served when its estimate stays within
