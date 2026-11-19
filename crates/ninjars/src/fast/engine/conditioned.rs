@@ -105,7 +105,12 @@ impl FastAmplitude {
                 let k1 = sub(&v[c3], &v[c2]);
                 let k3 = sub(&v[c1], &v[c4]);
                 if !check.relative(gram_det(&k3, &k0).abs(), gram_scale(&k3, &k0)) {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BoxGram,
+                    );
                     continue;
                 }
                 let e = Basis::from_pair(&k3, &k0, eps);
@@ -122,7 +127,12 @@ impl FastAmplitude {
                     || !check.relative(p1e3.taxicab(), dot_scale(&e.e3, &k1))
                     || !check.relative(p1e4.taxicab(), dot_scale(&e.e4, &k1))
                 {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        euclidean_or(InstabilityTest::BoxNormal, &e.e3, &k3, &k0),
+                    );
                     continue;
                 }
                 let l = box_solutions(&k3, &k0, &k1, &e, m[c1], m[c2], m[c3], m[c4]);
@@ -132,7 +142,7 @@ impl FastAmplitude {
                     &[m[c1], m[c2], m[c3], m[c4]],
                     &l,
                 ) else {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(&mut self.alive, &mut self.lane_status, lane, InstabilityTest::BoxGeometry);
                     continue;
                 };
                 self.box_rows.push(BoxRow {
@@ -190,7 +200,12 @@ impl FastAmplitude {
                     values[s] = self.calls.out[2 * r + s] / d;
                 }
                 if !stable {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BoxCutDenominator,
+                    );
                     continue;
                 }
                 self.box_c[b * lanes + lane] = [(values[0] + values[1]) * 0.5, C64::ZERO];
@@ -243,7 +258,12 @@ impl FastAmplitude {
                         d *= factor;
                     }
                     if singular || !check.absolute(d.taxicab()) {
-                        fail(&mut self.alive, &mut self.lane_status, lane);
+                        fail(
+                            &mut self.alive,
+                            &mut self.lane_status,
+                            lane,
+                            InstabilityTest::BoxMuDenominator,
+                        );
                         continue;
                     }
                     if conditioning.exceeds(0, 1., f64::MANTISSA_DIGITS) {
@@ -277,7 +297,12 @@ impl FastAmplitude {
                         nmu[1] /= d0;
                     }
                     if !stable {
-                        fail(&mut self.alive, &mut self.lane_status, lane);
+                        fail(
+                            &mut self.alive,
+                            &mut self.lane_status,
+                            lane,
+                            InstabilityTest::BoxMuExpansion,
+                        );
                         continue;
                     }
                     if conditioning.exceeds(1, 1., f64::MANTISSA_DIGITS) {
@@ -433,7 +458,12 @@ impl FastAmplitude {
                     };
                 }
                 if !stable {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BubbleExpansion,
+                    );
                     continue;
                 }
                 for &j in cp {
@@ -595,7 +625,12 @@ impl FastAmplitude {
                     };
                 }
                 if !stable {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BubbleExpansion,
+                    );
                     continue;
                 }
                 for &j in cp {
@@ -834,7 +869,12 @@ impl FastAmplitude {
                     }
                 }
                 if !stable {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::TadpoleExpansion,
+                    );
                     continue;
                 }
                 self.tad[a * lanes + lane] = data;

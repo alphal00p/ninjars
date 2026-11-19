@@ -57,12 +57,14 @@ mod tests;
 #[cfg(test)]
 mod tests_conditioned;
 #[cfg(test)]
+mod tests_instability;
+#[cfg(test)]
 mod tests_x2;
 
 pub use adapters::{GenericMasters, GenericNumerator};
 pub use complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr, to_complex};
 pub use declared_rank::AtDeclaredRank;
-pub use engine::{FastAmplitude, FastOptions};
+pub use engine::{FastAmplitude, FastOptions, take_instabilities};
 pub use masters::{FastMaster, FastMasters};
 pub use numerator::{FastNumerator, t2_len, t3_len};
 pub use replay::{RecordingMasters, RecordingNumerator, ReplayMasters, ReplayNumerator};
@@ -109,6 +111,120 @@ pub enum FastStatus {
     MasterFailed,
     /// The accumulated result is not finite. Results are unchanged.
     NonFinite,
+}
+
+/// The test that made a lane [`FastStatus::Unstable`] ([`Instability`]).
+/// Non-exhaustive: later NinjaRS versions may name further tests.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[non_exhaustive]
+pub enum InstabilityTest {
+    /// A box cut's Gram determinant of two of its shift differences.
+    BoxGram,
+    /// A box normal's factors (its square, `p1.e3`, `p1.e4`).
+    BoxNormal,
+    /// The rank n+2 box geometry (normal, centre, solutions): a vanishing or
+    /// non-finite normal or Gram determinant (no quantity to compare).
+    BoxGeometry,
+    /// An uncut denominator at a box cut solution (each factor and their
+    /// product).
+    BoxCutDenominator,
+    /// At rank n, an uncut line's `d0_j = 2 v.(V_j - V_first)` of the box
+    /// mu expansion (each factor and their product).
+    BoxMuDenominator,
+    /// Above rank n, an uncut line's `d0_j` of the box mu expansion's
+    /// Laurent division.
+    BoxMuExpansion,
+    /// A triangle cut's Gram determinant.
+    TriangleGram,
+    /// A triangle's Laurent expansion: an uncut line's leading coefficient
+    /// `2 e3.(V_j - V_first)` or `2 e4.(V_j - V_first)`.
+    TriangleExpansion,
+    /// A bubble's Laurent expansion (an uncut line's leading coefficient).
+    BubbleExpansion,
+    /// A tadpole's Laurent expansion (an uncut line's leading coefficient).
+    TadpoleExpansion,
+    /// The box mu expansion's conditioning screen (`crate::conditioning`).
+    BoxMuConditioning,
+    /// A box or triangle cut whose two real momenta span a Euclidean plane
+    /// (positive Gram determinant `k1² k2² - (k1.k2)²`): no real massless
+    /// basis ([`FastStatus::Unstable`]); the generic engine handles it. A
+    /// triangle without uncut lines (n = 3) is named when its lane's result
+    /// is not finite.
+    EuclideanPlane,
+}
+
+impl InstabilityTest {
+    /// The test's name in a status text.
+    pub fn name(self) -> &'static str {
+        match self {
+            Self::BoxGram => "box Gram determinant",
+            Self::BoxNormal => "box normal",
+            Self::BoxGeometry => "box geometry",
+            Self::BoxCutDenominator => "box uncut denominator",
+            Self::BoxMuDenominator => "box mu-expansion denominator",
+            Self::BoxMuExpansion => "box mu-expansion Laurent denominator",
+            Self::TriangleGram => "triangle Gram determinant",
+            Self::TriangleExpansion => "triangle expansion",
+            Self::BubbleExpansion => "bubble expansion",
+            Self::TadpoleExpansion => "tadpole expansion",
+            Self::BoxMuConditioning => "box mu-expansion conditioning",
+            Self::EuclideanPlane => "Euclidean-plane cut",
+        }
+    }
+    /// Whether the test refuses a value above its bound
+    /// ([`Self::BoxMuConditioning`], [`Self::EuclideanPlane`]) rather than
+    /// one at or below it (the noise tests).
+    pub fn refuses_above(self) -> bool {
+        matches!(self, Self::BoxMuConditioning | Self::EuclideanPlane)
+    }
+}
+
+/// Why a lane is [`FastStatus::Unstable`] ([`take_instabilities`]): the
+/// test, the tested quantity and its bound. The noise tests compare taxicab
+/// norms with `max(stability_threshold, relative_tolerance x scale)`, the
+/// lane failing when `value <= bound`; [`InstabilityTest::BoxMuConditioning`]
+/// compares the predicted rounding error with its limit
+/// `2^-BOX_MU_TARGET_BITS |finite part|` and [`InstabilityTest::EuclideanPlane`]
+/// the cut's Gram determinant with 0, the lane failing when `value > bound`
+/// ([`InstabilityTest::refuses_above`]). A NaN value is a tested quantity
+/// that is not finite; NaN for both when the failing test compares none
+/// ([`InstabilityTest::BoxGeometry`]). [`std::fmt::Display`] gives the
+/// status text, found and required, e.g. `triangle Gram determinant: found
+/// 0, required > 1.82e-12`. Non-exhaustive: later versions may add fields.
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[non_exhaustive]
+pub struct Instability {
+    pub test: InstabilityTest,
+    pub value: f64,
+    pub bound: f64,
+}
+
+impl std::fmt::Display for Instability {
+    /// `box normal: found 3.09e-11, required > 3.26e-8`,
+    /// `box mu-expansion conditioning: predicted error 3.19e-15, allowed <= 2.36e-15`,
+    /// `Euclidean-plane cut: Gram determinant 1.00e0, required <= 0`
+    /// (`crate::refusal_text`).
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use crate::refusal_text::{RefusalText, number};
+        let test = self.test.name();
+        if self.value.is_nan() && self.bound.is_nan() {
+            return write!(f, "{test}: degenerate, no quantity to compare");
+        }
+        let (quantity, requirement) = match self.test {
+            InstabilityTest::BoxMuConditioning => ("predicted error", "allowed <="),
+            InstabilityTest::EuclideanPlane => ("Gram determinant", "required <="),
+            _ => ("found", "required >"),
+        };
+        RefusalText {
+            test,
+            quantity,
+            found: number(self.value),
+            requirement,
+            bound: number(self.bound),
+            note: None,
+        }
+        .fmt(f)
+    }
 }
 
 /// Integrated contribution of one lane.

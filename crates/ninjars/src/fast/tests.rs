@@ -889,6 +889,20 @@ fn lane_statuses_isolate_failures_and_keep_previous_results() {
             FastStatus::Success
         ]
     );
+    // The collinear lane's instability says which test refused it and by
+    // how much: a triangle of three collinear shifts has an exactly zero
+    // Gram determinant, at most its bound; no other lane has one, and taking
+    // them clears them.
+    let instabilities = super::take_instabilities();
+    assert_eq!(instabilities.len(), 1, "{instabilities:?}");
+    let (lane, instability) = instabilities[0];
+    assert_eq!(lane, 1);
+    assert_eq!(instability.test, super::InstabilityTest::TriangleGram);
+    assert!(
+        instability.value == 0. && instability.bound > 0.,
+        "{instability:?}"
+    );
+    assert!(super::take_instabilities().is_empty());
     for (lane, result) in results.iter().enumerate().take(4).skip(1) {
         assert_eq!(*result, sentinel, "failed lane {lane} must keep its result");
     }
