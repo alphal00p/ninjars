@@ -307,7 +307,7 @@ fn records_display_measured_against_bound() {
     );
     assert_eq!(
         show(BoxNormal, f64::NAN, 3.3e-13),
-        "box normal not finite (bound 3.30e-13)"
+        "box normal NaN (bound 3.30e-13)"
     );
     assert_eq!(show(BoxGeometry, f64::NAN, f64::NAN), "box geometry");
 }

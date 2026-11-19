@@ -203,7 +203,7 @@ impl std::fmt::Display for BoxGramRefusal {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let (p, m) = (self.precision_bits, self.margin_bits);
         if self.loss_bits.is_nan() {
-            write!(f, "box-Gram bound: predicted loss not finite")
+            write!(f, "box-Gram bound: predicted loss NaN")
         } else if self.loss_bits.is_infinite() {
             write!(f, "box-Gram bound: cut solutions at infinity (v.v = 0)")
         } else {

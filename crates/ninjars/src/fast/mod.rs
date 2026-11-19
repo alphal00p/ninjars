@@ -207,7 +207,7 @@ impl std::fmt::Display for Instability {
         let name = self.test.name();
         match (self.value.is_nan(), self.bound.is_nan()) {
             (true, true) => write!(f, "{name}"),
-            (true, false) => write!(f, "{name} not finite (bound {})", number(self.bound)),
+            (true, false) => write!(f, "{name} NaN (bound {})", number(self.bound)),
             _ => {
                 let relation = if self.test.refuses_above() { ">" } else { "<=" };
                 write!(
