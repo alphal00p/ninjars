@@ -362,10 +362,13 @@ fn fast_engine_reports_spacelike_cut_planes_as_failed_lanes() {
     // the Euclidean triangle and every pentagon-rank4.json point have them.
     // The generic engine reduces these points; the fast engine, a port of
     // original Ninja, reports failed lanes without values and exits nonzero.
+    // Both are `Unstable` (an `EuclideanPlane` record): the triangle has no
+    // uncut line whose check would name it, so it is named when its result
+    // turns out non-finite (it was `NonFinite` before NinjaRS #19).
     for (fixture, status) in [
         (
             "examples/graphs/triangle.json",
-            json!({"kind":"nonfinite_result"}),
+            json!({"kind":"cut_failed","cut_index":null,"reason":"Unstable"}),
         ),
         (
             "examples/graphs/pentagon-rank4.json",
