@@ -32,11 +32,12 @@ use super::geometry::{
 use super::masters::{FastMaster, FastMasters};
 use super::numerator::{FastNumerator, t2_len_le3, t3_len};
 use super::subtractions as subs;
-use super::{FastInput, FastResult, FastStatus};
+use super::{FastInput, FastResult, FastStatus, Instability, InstabilityTest};
 use crate::conditioning::{
     BoxMuConditioning, BoxMuPropagation, box_mu_numerator_ratio, box_mu_refused, box_mu_rounding,
 };
 use crate::{Error, Result};
+use std::cell::{Cell, RefCell};
 
 /// The rank <= n+1 stages with the conditioned cut geometry, generated from
 /// the default ones below (`tests_conditioned.rs`; not formatted, so that
@@ -446,17 +447,33 @@ impl Stability {
     /// Ninja's absolute check only.
     #[inline(always)]
     pub(super) fn absolute(self, x: f64) -> bool {
-        x >= self.threshold
+        let stable = x >= self.threshold;
+        if !stable {
+            failed_check(x, self.threshold);
+        }
+        stable
     }
     #[inline(always)]
     pub(super) fn relative(self, x: f64, scale: f64) -> bool {
-        x >= self.threshold && x > self.tolerance * scale
+        let stable = x >= self.threshold && x > self.tolerance * scale;
+        if !stable {
+            failed_check(x, self.threshold.max(self.tolerance * scale));
+        }
+        stable
     }
     /// [`Self::relative`] against `scale()`, evaluated only when `x` does not
     /// already exceed the tolerance times `bound >= scale()`.
     #[inline(always)]
     pub(super) fn relative_within(self, x: f64, bound: f64, scale: impl FnOnce() -> f64) -> bool {
-        x >= self.threshold && (x > self.tolerance * bound || x > self.tolerance * scale())
+        if x >= self.threshold && x > self.tolerance * bound {
+            return true;
+        }
+        let scale = scale();
+        let stable = x >= self.threshold && x > self.tolerance * scale;
+        if !stable {
+            failed_check(x, self.threshold.max(self.tolerance * scale));
+        }
+        stable
     }
 }
 
@@ -559,12 +576,154 @@ pub(super) fn is_zero(z: C64) -> bool {
     z.re == 0. && z.im == 0.
 }
 
-/// Mark a lane unstable; its later cuts and its results are skipped.
-pub(super) fn fail(alive: &mut [bool], status: &mut [FastStatus], lane: usize) {
+/// Mark a lane unstable by `test`; its later cuts and its results are
+/// skipped. Its [`Instability`] takes the last failed check's quantity and
+/// bound ([`failed_check`]).
+pub(super) fn fail(
+    alive: &mut [bool],
+    status: &mut [FastStatus],
+    lane: usize,
+    test: InstabilityTest,
+) {
+    // Taken in every case: a failed check never outlives its `fail`.
+    let (value, bound) = FAILED_CHECK
+        .with(Cell::take)
+        .unwrap_or((f64::NAN, f64::NAN));
     if alive[lane] {
         alive[lane] = false;
         status[lane] = FastStatus::Unstable;
+        INSTABILITIES.with(|list| {
+            list.borrow_mut()
+                .push((lane, Instability { test, value, bound }))
+        });
     }
+}
+
+thread_local! {
+    /// The quantity and bound of the last failed stability check of this
+    /// thread ([`Stability`]), taken by the next [`fail`].
+    static FAILED_CHECK: Cell<Option<(f64, f64)>> = const { Cell::new(None) };
+    /// The instabilities of this thread's last [`FastAmplitude::evaluate`]
+    /// ([`take_instabilities`]).
+    static INSTABILITIES: RefCell<Vec<(usize, Instability)>> = const { RefCell::new(Vec::new()) };
+}
+
+/// Record a failed stability check (cold: the passing path is untouched).
+#[cold]
+#[inline(never)]
+fn failed_check(value: f64, bound: f64) {
+    FAILED_CHECK.with(|check| check.set(Some((value, bound))));
+}
+
+/// Record a lane the box mu-expansion's conditioning screen refused
+/// (`crate::conditioning::box_mu_refused`): its predicted rounding error and
+/// the limit, `2^-BOX_MU_TARGET_BITS` of its finite part.
+#[cold]
+#[inline(never)]
+pub(super) fn screen_refused(lane: usize, flagged: f64, finite: f64) {
+    let value = flagged * 2f64.powi(-(f64::MANTISSA_DIGITS as i32));
+    let bound = finite * 2f64.powi(-crate::conditioning::BOX_MU_TARGET_BITS);
+    INSTABILITIES.with(|list| {
+        list.borrow_mut().push((
+            lane,
+            Instability {
+                test: InstabilityTest::BoxMuConditioning,
+                value,
+                bound,
+            },
+        ))
+    });
+}
+
+/// `test`, or [`InstabilityTest::EuclideanPlane`] when the cut basis `e3`
+/// of the real momenta `k1`, `k2` is not finite because they span a
+/// Euclidean plane (`gram_det(k1, k2) > 0`: `Basis::from_pair` takes the
+/// square root of its negative); then the failed check becomes the Gram
+/// determinant against 0. Called on the failing path only.
+#[cold]
+#[inline(never)]
+pub(super) fn euclidean_or(
+    test: InstabilityTest,
+    e3: &CMom,
+    k1: &RMom,
+    k2: &RMom,
+) -> InstabilityTest {
+    let gram = gram_det(k1, k2);
+    if e3.iter().all(|z| z.is_finite()) || !(gram > 0.) {
+        return test;
+    }
+    FAILED_CHECK.with(|check| check.set(Some((gram, 0.))));
+    InstabilityTest::EuclideanPlane
+}
+
+/// Whether a triangle cut of `lane` has two real momenta spanning a
+/// Euclidean plane (its basis not finite, `gram_det > 0`), which made the
+/// lane's result non-finite: a triangle without uncut lines (n = 3) has no
+/// check that names it. Records [`InstabilityTest::EuclideanPlane`] with the
+/// first such triangle's Gram determinant. Called on the non-finite path
+/// only.
+#[cold]
+#[inline(never)]
+pub(super) fn plane_refused(topo: &Topology, input: &FastInput, lane: usize, eps: f64) -> bool {
+    let n = topo.n;
+    let v = &input.shifts[lane * n..(lane + 1) * n];
+    let plane = topo.triangles.iter().find_map(|&[c1, c2, c3]| {
+        let (k0, k2) = (sub(&v[c2], &v[c1]), sub(&v[c1], &v[c3]));
+        let gram = gram_det(&k2, &k0);
+        let basis = Basis::from_pair(&k2, &k0, eps);
+        (gram > 0. && !basis.e3.iter().all(|z| z.is_finite())).then_some(gram)
+    });
+    let Some(gram) = plane else {
+        return false;
+    };
+    FAILED_CHECK.with(Cell::take);
+    INSTABILITIES.with(|list| {
+        list.borrow_mut().push((
+            lane,
+            Instability {
+                test: InstabilityTest::EuclideanPlane,
+                value: gram,
+                bound: 0.,
+            },
+        ))
+    });
+    true
+}
+
+/// Forget this thread's instabilities: [`FastAmplitude::evaluate`] starts
+/// with it, so that they stay bounded by one call's lanes.
+#[inline]
+fn clear_instabilities() {
+    FAILED_CHECK.with(Cell::take);
+    INSTABILITIES.with(|list| list.borrow_mut().clear());
+}
+
+/// The number of instabilities recorded on this thread (the rank n+2 path
+/// remaps those of a sub-batch, [`remap_instabilities`]).
+pub(super) fn instabilities_len() -> usize {
+    INSTABILITIES.with(|list| list.borrow().len())
+}
+
+/// Map the lanes of the instabilities recorded since `from` through `map`
+/// (a sub-batch's lanes to the batch's).
+pub(super) fn remap_instabilities(from: usize, map: impl Fn(usize) -> usize) {
+    INSTABILITIES.with(|list| {
+        for entry in &mut list.borrow_mut()[from..] {
+            entry.0 = map(entry.0);
+        }
+    });
+}
+
+/// The instabilities of the calling thread's last
+/// [`FastAmplitude::evaluate`] call (each call starts by forgetting the
+/// previous one's), `(lane, Instability)` with `lane` the lane of its input,
+/// in the order the lanes failed: which test made each
+/// [`FastStatus::Unstable`] lane unstable, the tested quantity and its bound
+/// ([`Instability`]). Callers that read them take them after each
+/// evaluation, on the evaluating thread. Recorded on the failing path only.
+pub fn take_instabilities() -> Vec<(usize, Instability)> {
+    FAILED_CHECK.with(Cell::take);
+    INSTABILITIES.with(|list| std::mem::take(&mut *list.borrow_mut()))
 }
 
 /// Polynomial division of a triangle/tadpole Laurent expansion
@@ -944,6 +1103,7 @@ impl FastAmplitude {
         results: &mut [FastResult],
         statuses: &mut [FastStatus],
     ) -> Result<()> {
+        clear_instabilities();
         if masters.requires_scaleless_bubbles() {
             return Err(Error::Unsupported(
                 "separate UV/IR poles require scaleless-bubble coefficients; use the generic reduction engine".into(),
@@ -1142,7 +1302,12 @@ impl FastAmplitude {
                 let k1 = sub(&v[c3], &v[c2]);
                 let k3 = sub(&v[c1], &v[c4]);
                 if !check.relative(gram_det(&k3, &k0).abs(), gram_scale(&k3, &k0)) {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BoxGram,
+                    );
                     continue;
                 }
                 let e = Basis::from_pair(&k3, &k0, eps);
@@ -1159,7 +1324,12 @@ impl FastAmplitude {
                     || !check.relative(p1e3.taxicab(), dot_scale(&e.e3, &k1))
                     || !check.relative(p1e4.taxicab(), dot_scale(&e.e4, &k1))
                 {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        euclidean_or(InstabilityTest::BoxNormal, &e.e3, &k3, &k0),
+                    );
                     continue;
                 }
                 let l = box_solutions(&k3, &k0, &k1, &e, m[c1], m[c2], m[c3], m[c4]);
@@ -1220,7 +1390,12 @@ impl FastAmplitude {
                     values[s] = self.calls.out[2 * r + s] / d;
                 }
                 if !stable {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BoxCutDenominator,
+                    );
                     continue;
                 }
                 self.box_c[b * lanes + lane] = [(values[0] + values[1]) * 0.5, C64::ZERO];
@@ -1273,7 +1448,12 @@ impl FastAmplitude {
                         d *= factor;
                     }
                     if singular || !check.absolute(d.taxicab()) {
-                        fail(&mut self.alive, &mut self.lane_status, lane);
+                        fail(
+                            &mut self.alive,
+                            &mut self.lane_status,
+                            lane,
+                            InstabilityTest::BoxMuDenominator,
+                        );
                         continue;
                     }
                     if conditioning.exceeds(0, 1., f64::MANTISSA_DIGITS) {
@@ -1307,7 +1487,12 @@ impl FastAmplitude {
                         nmu[1] /= d0;
                     }
                     if !stable {
-                        fail(&mut self.alive, &mut self.lane_status, lane);
+                        fail(
+                            &mut self.alive,
+                            &mut self.lane_status,
+                            lane,
+                            InstabilityTest::BoxMuExpansion,
+                        );
                         continue;
                     }
                     if conditioning.exceeds(1, 1., f64::MANTISSA_DIGITS) {
@@ -1449,7 +1634,12 @@ impl FastAmplitude {
                 let k0 = sub(&v[c2], &v[c1]);
                 let k2 = sub(&v[c1], &v[c3]);
                 if !check.relative(gram_det(&k2, &k0).abs(), gram_scale(&k2, &k0)) {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::TriangleGram,
+                    );
                     continue;
                 }
                 let e = Basis::from_pair(&k2, &k0, eps);
@@ -1539,7 +1729,13 @@ impl FastAmplitude {
                     divide_t3(num2, nterms, d0b.inv(), d1, d2b);
                 }
                 if !stable {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    let test = euclidean_or(
+                        InstabilityTest::TriangleExpansion,
+                        &row.e3,
+                        &sub(&v[c1], &v[c3]),
+                        &sub(&v[c2], &v[c1]),
+                    );
+                    fail(&mut self.alive, &mut self.lane_status, lane, test);
                     continue;
                 }
                 let mut c = [C64::ZERO; 15];
@@ -1731,7 +1927,12 @@ impl FastAmplitude {
                     };
                 }
                 if !stable {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BubbleExpansion,
+                    );
                     continue;
                 }
                 for &j in cp {
@@ -1893,7 +2094,12 @@ impl FastAmplitude {
                     };
                 }
                 if !stable {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BubbleExpansion,
+                    );
                     continue;
                 }
                 for &j in cp {
@@ -2127,7 +2333,12 @@ impl FastAmplitude {
                     }
                 }
                 if !stable {
-                    fail(&mut self.alive, &mut self.lane_status, lane);
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::TadpoleExpansion,
+                    );
                     continue;
                 }
                 self.tad[a * lanes + lane] = data;
@@ -2342,7 +2553,11 @@ impl FastAmplitude {
                 rational,
             };
             if !result.laurent.iter().all(|z| z.is_finite()) || !rational.is_finite() {
-                self.lane_status[lane] = FastStatus::NonFinite;
+                self.lane_status[lane] = if any_tri && plane_refused(&self.topo, input, lane, eps) {
+                    FastStatus::Unstable
+                } else {
+                    FastStatus::NonFinite
+                };
                 continue;
             }
             // The conditioning screen's flagged boxes (`crate::conditioning`).
@@ -2351,6 +2566,7 @@ impl FastAmplitude {
                 && box_mu_refused(flagged, result.laurent[0].abs(), f64::MANTISSA_DIGITS)
             {
                 self.lane_status[lane] = FastStatus::Unstable;
+                screen_refused(lane, flagged, result.laurent[0].abs());
                 continue;
             }
             self.staged[lane] = result;

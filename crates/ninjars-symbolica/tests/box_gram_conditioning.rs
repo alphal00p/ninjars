@@ -30,6 +30,9 @@
 //!   that geometry the engine without the bound serves the lanes right
 //!   (`1.8e-14` at 200 bits, a loss of about 154 bits against `L = 348 /
 //!   360`); the wrong values of #15 need pyAmpliCol's numerators and inputs.
+//! - `refusals_by_the_bound_record_the_predicted_loss` checks the records of
+//!   `ninjars::conditioning::take_box_gram_refusals`: `L`, `p` and `M` of
+//!   every lane the bound refuses, and none for the others.
 //! - `regular_and_planar_controls_are_never_refused_by_the_bound` passes with
 //!   or without the bound, by design.
 
@@ -234,6 +237,50 @@ fn the_bound_refuses_as_its_model_predicts() {
     }
     assert!(acted > 0);
     assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+/// A lane the bound refuses carries its record: the predicted loss of the
+/// refused box (at most the lane's largest, within rounding of the
+/// fixture's 120-digit `λ²`), above the budget, the carrier's precision and
+/// the margin. Lanes it serves, and carriers it does not apply to, carry
+/// none; a `DegenerateGram` without a record is the geometry's own test.
+#[test]
+fn refusals_by_the_bound_record_the_predicted_loss() {
+    let (loaded, outcomes) = outcomes();
+    let mut recorded = 0;
+    for ((carrier, index, lane), outcome) in outcomes {
+        let l = &loaded[*index];
+        let p = bits(carrier);
+        let context = format!(
+            "{} lane {lane} {carrier}: {}",
+            l.fixture.name, outcome.status
+        );
+        let Some(record) = outcome.box_gram else {
+            if box_gram_applies(p) && predicted_loss(l) > f64::from(p - BOX_GRAM_MARGIN_BITS) + 1. {
+                // Refused, by the bound unless an earlier cut failed.
+                assert!(!outcome.success, "{context}");
+            }
+            continue;
+        };
+        assert!(degenerate_gram(outcome) && box_gram_applies(p), "{context}");
+        assert_eq!(
+            (record.precision_bits, record.margin_bits),
+            (p, BOX_GRAM_MARGIN_BITS)
+        );
+        let budget = f64::from(p - BOX_GRAM_MARGIN_BITS);
+        assert!(
+            record.loss_bits > budget && record.loss_bits <= predicted_loss(l) + 0.5,
+            "{context}: {record} (lane's largest {:.1})",
+            predicted_loss(l)
+        );
+        assert!(
+            record
+                .to_string()
+                .starts_with("box-Gram bound: predicted loss ")
+        );
+        recorded += 1;
+    }
+    assert!(recorded > 0);
 }
 
 #[test]

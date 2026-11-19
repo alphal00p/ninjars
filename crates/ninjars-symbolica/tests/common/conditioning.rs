@@ -151,6 +151,9 @@ pub struct Outcome {
     pub parts: Option<[C64; 2]>,
     /// The finite part as a decimal string in the carrier's precision.
     pub finite_text: Option<[String; 2]>,
+    /// The box-Gram bound's record that explains a `DegenerateGram` status
+    /// (`ninjars::conditioning::take_box_gram_refusals`).
+    pub box_gram: Option<ninjars::conditioning::BoxGramRefusal>,
 }
 
 fn f64_of(text: &str) -> f64 {
@@ -236,6 +239,7 @@ pub fn fast_lanes(lanes: &[LaneRef<'_>], options: FastOptions) -> Result<Vec<Out
                         format!("{:e}", r.laurent[0].im),
                     ]
                 }),
+                box_gram: None,
             }
         })
         .collect())
@@ -374,6 +378,7 @@ where
         &mut high,
         &mut masters,
     )?;
+    let refusals = ninjars::conditioning::take_box_gram_refusals();
     let digits = (f64::from(bits.max(53)) * std::f64::consts::LOG10_2).ceil() as usize + 2;
     let c = |z: &Complex<T>| C64::new(z.re.to_f64(), z.im.to_f64());
     Ok((0..count)
@@ -392,6 +397,10 @@ where
                         format!("{:.digits$e}", r[0].im),
                     ]
                 }),
+                box_gram: refusals
+                    .iter()
+                    .find(|refusal| refusal.explains(lane, &status))
+                    .copied(),
             }
         })
         .collect())
