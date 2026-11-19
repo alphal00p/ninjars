@@ -4,6 +4,9 @@
 //! library license, including their oneloopmaster calls. The scope ends when
 //! the operation returns. It does not authorize unrelated caller expressions
 //! or independent uses of the standalone `ninjars-positional` utility.
+//!
+//! Exact results independent of the process's history: call [`reserve`]
+//! before the process registers symbols of its own (`reserve` module).
 #![forbid(unsafe_code)]
 
 #[cfg(all(test, feature = "rust-codegen"))]
@@ -37,6 +40,9 @@ mod plan_fingerprints_tests;
 mod polynomial;
 mod positional;
 mod projection;
+mod reserve;
+pub use ninjars_positional::{Error as PositionalError, Regime};
+pub use reserve::reserve;
 mod rank_specialization;
 #[cfg(feature = "reference-codegen")]
 mod reference;
