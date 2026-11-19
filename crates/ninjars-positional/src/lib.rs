@@ -11,6 +11,15 @@
 //! encodings are functions of their positions only. Every crate that builds
 //! evaluators (the generic engine, graph coefficients and masses) shares this
 //! crate's process-wide pool of slots.
+//!
+//! The pool is built on first use. A process that registered more than about
+//! 61,000 symbols before that gets function slots instead of two-byte variable
+//! slots, whose evaluators have other instructions: results then depend on what
+//! the process registered before the pool was built. [`reserve`] builds the
+//! pool and reports the regime it obtained, as an error if it is not the
+//! variable-slot one. Call it (or `ninjars_symbolica::reserve`, which also
+//! fixes the master integrals' symbols) before the process registers symbols of
+//! its own.
 
 #![forbid(unsafe_code)]
 
@@ -27,7 +36,7 @@ use symbolica::{
     function, symbol,
 };
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Clone, Debug, thiserror::Error)]
 pub enum Error {
     #[error("more than 2^24 evaluator parameters and aliases")]
     Slots,
@@ -35,6 +44,48 @@ pub enum Error {
     ForeignSlot,
     #[error("{0}")]
     Symbolic(String),
+    /// [`reserve`] after the process had registered too many symbols for
+    /// two-byte variable slots: the pool holds function slots only.
+    #[error(
+        "the positional slot pool was built after {registered} symbols had been registered, \
+         too many for two-byte variable slots: exact evaluators would depend on the \
+         process's symbol history; reserve the slots before registering symbols"
+    )]
+    FunctionSlots { registered: usize },
+}
+
+/// The slots a process's pool holds ([`reserve`]).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Regime {
+    /// The [`VARIABLE_SLOTS`] two-byte variable slots in aligned blocks: an
+    /// evaluator with at most that many parameters and aliases has
+    /// instructions that depend only on its expressions and the parameter
+    /// positions.
+    Variables,
+    /// Function slots only: the pool was built after about 61,000 symbols.
+    Functions,
+}
+
+/// Build this process's slot pool (once; later calls return the same) and
+/// report its [`Regime`], as [`Error::FunctionSlots`] if it holds no variable
+/// slots. `registered` counts the symbols registered when the pool was built.
+pub fn reserve() -> Result<Regime> {
+    if SLOTS.variables.is_empty() {
+        Err(Error::FunctionSlots {
+            registered: SLOTS.registered,
+        })
+    } else {
+        Ok(Regime::Variables)
+    }
+}
+
+/// The [`Regime`] of this process's slot pool (building the pool).
+pub fn regime() -> Regime {
+    if SLOTS.variables.is_empty() {
+        Regime::Functions
+    } else {
+        Regime::Variables
+    }
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -58,9 +109,12 @@ struct Slots {
     symbols: HashSet<Symbol>,
     /// The first of `ninjars_slot::s0, s1, ...` with a two-byte ID.
     head: Symbol,
+    /// The symbols registered when the pool was built ([`reserve`]'s error).
+    registered: usize,
 }
 
 static SLOTS: LazyLock<Slots> = LazyLock::new(|| {
+    let registered = symbolica::state::State::symbol_iter().count();
     let mut names = 0;
     let mut fresh = || {
         names += 1;
@@ -99,6 +153,7 @@ static SLOTS: LazyLock<Slots> = LazyLock::new(|| {
         variables,
         symbols,
         head,
+        registered,
     }
 });
 

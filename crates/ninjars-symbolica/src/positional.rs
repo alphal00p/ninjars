@@ -17,5 +17,8 @@ pub(crate) fn positional_evaluator(
             ninjars_positional::Error::Slots => Error::Unsupported(error.to_string()),
             ninjars_positional::Error::ForeignSlot => Error::Symbolic(error.to_string()),
             ninjars_positional::Error::Symbolic(message) => Error::Symbolic(message),
+            ninjars_positional::Error::FunctionSlots { .. } => {
+                Error::Unsupported(error.to_string())
+            }
         })
 }

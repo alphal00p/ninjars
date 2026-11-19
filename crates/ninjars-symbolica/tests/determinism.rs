@@ -11,6 +11,12 @@
 //! another order, other master integrals first), then the probe in this
 //! thread and concurrently in several threads, and every result must be
 //! bitwise equal to the child's.
+//!
+//! The extended carriers' history test (`extended_results_*`): after
+//! `ninjars_symbolica::reserve`, the probe in double-double and in 190-bit
+//! `Float`, both with oneloopmaster's exact masters (`SymbolicaMasters`), is
+//! bitwise the same after 1,000, 20,000 and 70,000 foreign symbol
+//! registrations as alone (each history in its own child process).
 
 use ninjars::{
     AmplitudeInput, Complex, DoubleFloat, FourMomentum, Laurent, MasterProvider, MasterRequest,
@@ -28,6 +34,7 @@ use symbolica::{
 };
 
 const NAMESPACE: &str = "ninjars_determinism";
+const HISTORY: &str = "NINJARS_HISTORY_CHILD";
 const CHILD: &str = "NINJARS_DETERMINISM_CHILD";
 
 fn parse(text: &str) -> Atom {
@@ -265,6 +272,20 @@ fn bits(case: &Case) -> Vec<String> {
     bits
 }
 
+/// `case` in double-double and in 190-bit `Float`, with oneloopmaster's exact
+/// masters (`SymbolicaMasters`: the tadpole tensors in double-double, every
+/// family in `Float`).
+fn extended_bits(case: &Case) -> Vec<String> {
+    let float = || symbolica::domains::float::Float::with_val(190, 0);
+    let mut bits = evaluate(
+        case,
+        DoubleFloat::from(0.),
+        &mut SymbolicaMasters::new(DoubleFloat::from(0.)),
+    );
+    bits.extend(evaluate(case, float(), &mut SymbolicaMasters::new(float())));
+    bits
+}
+
 /// The probe: six propagators at rank seven.
 fn probe() -> Vec<String> {
     bits(&case(6, 7, 17, false))
@@ -328,5 +349,51 @@ fn generic_results_do_not_depend_on_process_history() {
         .collect();
     for thread in threads {
         assert_eq!(thread.join().unwrap(), reference, "concurrent threads");
+    }
+}
+
+#[test]
+#[ignore = "child process of extended_results_do_not_depend_on_foreign_symbols"]
+fn history_child() {
+    let Some(foreign) = std::env::var(HISTORY).ok() else {
+        return;
+    };
+    let foreign: usize = foreign.parse().unwrap();
+    // NINJARS_HISTORY_RESERVE=0 shows the dependence without the contract.
+    if std::env::var("NINJARS_HISTORY_RESERVE").as_deref() != Ok("0") {
+        ninjars_symbolica::reserve().expect("two-byte variable slots");
+    }
+    for i in 0..foreign {
+        let _ = symbolica::symbol!(format!("ninjars_history_foreign::s{i}"));
+    }
+    println!("BITS {}", extended_bits(&case(6, 7, 17, false)).join(";"));
+}
+
+fn history_bits(foreign: usize) -> Vec<String> {
+    let output = std::process::Command::new(std::env::current_exe().unwrap())
+        .args(["--exact", "history_child", "--ignored", "--nocapture"])
+        .env(HISTORY, foreign.to_string())
+        .output()
+        .unwrap();
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    stdout
+        .lines()
+        .find_map(|line| line.split_once("BITS ").map(|(_, bits)| bits))
+        .unwrap_or_else(|| panic!("child failed: {stdout}"))
+        .split(';')
+        .map(str::to_owned)
+        .collect()
+}
+
+#[test]
+fn extended_results_do_not_depend_on_foreign_symbols() {
+    let reference = history_bits(0);
+    assert_eq!(
+        reference.iter().filter(|bits| bits.contains("Success")).count(),
+        2,
+        "{reference:?}"
+    );
+    for foreign in [1_000, 20_000, 70_000] {
+        assert_eq!(history_bits(foreign), reference, "after {foreign} foreign symbols");
     }
 }
