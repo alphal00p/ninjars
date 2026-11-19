@@ -49,8 +49,8 @@ use super::complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr};
 use super::engine::{
     FastOptions, MasterBatch, Stability, StageOptions, TadpoleData, Topology, Uncut,
     box_mu_reference_directions, den, den_scale, difference_scale, divide_t2, divide_t3, dot_scale,
-    euclidean_norm, fail, gram_scale, is_zero, scale_c, scaled_reference, screen_refused, sub_cr,
-    taxicab_sum,
+    euclidean_norm, euclidean_or, fail, gram_scale, is_zero, scale_c, scaled_reference,
+    screen_refused, sub_cr, taxicab_sum,
 };
 use super::geometry::{
     Basis, box_solutions, bubble_solution, cmom_from_real, combine_real2, gram_det, mp2,
@@ -568,7 +568,7 @@ impl RankN2Engine {
                         &mut self.alive,
                         &mut self.lane_status,
                         lane,
-                        InstabilityTest::BoxNormal,
+                        euclidean_or(InstabilityTest::BoxNormal, &e.e3, &k3, &k0),
                     );
                     continue;
                 }
@@ -949,12 +949,13 @@ impl RankN2Engine {
                     divide_t3_6(num2, d0b.inv(), d1, [row.param * b, b]);
                 }
                 if !stable {
-                    fail(
-                        &mut self.alive,
-                        &mut self.lane_status,
-                        lane,
+                    let test = euclidean_or(
                         InstabilityTest::TriangleExpansion,
+                        &row.e3,
+                        &sub(&v[c1], &v[c3]),
+                        &sub(&v[c2], &v[c1]),
                     );
+                    fail(&mut self.alive, &mut self.lane_status, lane, test);
                     continue;
                 }
                 // Slots (t, mu²): (5,0) (4,0) (3,0) (3,1) (2,0) (2,1) (1,0)

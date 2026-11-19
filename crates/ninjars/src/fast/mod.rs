@@ -57,6 +57,8 @@ mod tests;
 #[cfg(test)]
 mod tests_conditioned;
 #[cfg(test)]
+mod tests_instability;
+#[cfg(test)]
 mod tests_x2;
 
 pub use adapters::{GenericMasters, GenericNumerator};
@@ -118,24 +120,33 @@ pub enum InstabilityTest {
     BoxGram,
     /// A box normal's factors (its square, `p1.e3`, `p1.e4`).
     BoxNormal,
-    /// The rank n+2 box geometry (normal, centre, solutions).
+    /// The rank n+2 box geometry (normal, centre, solutions): a vanishing or
+    /// non-finite normal or Gram determinant (no quantity to compare).
     BoxGeometry,
-    /// An uncut denominator at a box cut solution.
+    /// An uncut denominator at a box cut solution (each factor and their
+    /// product).
     BoxCutDenominator,
-    /// An uncut line's `d0_j = 2 v.(V_j - V_first)` of the mu expansion.
+    /// At rank n, an uncut line's `d0_j = 2 v.(V_j - V_first)` of the box
+    /// mu expansion (each factor and their product).
     BoxMuDenominator,
-    /// The box mu expansion's leading terms.
+    /// Above rank n, an uncut line's `d0_j` of the box mu expansion's
+    /// Laurent division.
     BoxMuExpansion,
     /// A triangle cut's Gram determinant.
     TriangleGram,
-    /// A triangle's Laurent expansion (uncut denominators, leading terms).
+    /// A triangle's Laurent expansion: an uncut line's leading coefficient
+    /// `2 e3.(V_j - V_first)` or `2 e4.(V_j - V_first)`.
     TriangleExpansion,
-    /// A bubble's Laurent expansion.
+    /// A bubble's Laurent expansion (an uncut line's leading coefficient).
     BubbleExpansion,
-    /// A tadpole's Laurent expansion.
+    /// A tadpole's Laurent expansion (an uncut line's leading coefficient).
     TadpoleExpansion,
     /// The box mu expansion's conditioning screen (`crate::conditioning`).
     BoxMuConditioning,
+    /// A box or triangle cut whose two real momenta span a Euclidean plane
+    /// (positive Gram determinant `k1² k2² - (k1.k2)²`): no real massless
+    /// basis ([`FastStatus::Unstable`]); the generic engine handles it.
+    EuclideanPlane,
 }
 
 impl InstabilityTest {
@@ -147,29 +158,67 @@ impl InstabilityTest {
             Self::BoxGeometry => "box geometry",
             Self::BoxCutDenominator => "box uncut denominator",
             Self::BoxMuDenominator => "box mu-expansion denominator",
-            Self::BoxMuExpansion => "box mu-expansion leading term",
+            Self::BoxMuExpansion => "box mu-expansion Laurent denominator",
             Self::TriangleGram => "triangle Gram determinant",
             Self::TriangleExpansion => "triangle expansion",
             Self::BubbleExpansion => "bubble expansion",
             Self::TadpoleExpansion => "tadpole expansion",
             Self::BoxMuConditioning => "box mu-expansion conditioning",
+            Self::EuclideanPlane => "Euclidean-plane cut, Gram determinant",
         }
+    }
+    /// Whether the test refuses a value above its bound
+    /// ([`Self::BoxMuConditioning`], [`Self::EuclideanPlane`]) rather than
+    /// one at or below it (the noise tests).
+    pub fn refuses_above(self) -> bool {
+        matches!(self, Self::BoxMuConditioning | Self::EuclideanPlane)
     }
 }
 
 /// Why a lane is [`FastStatus::Unstable`] ([`take_instabilities`]): the
-/// test, the tested quantity and the bound it had to exceed (taxicab
-/// norms: `max(stability_threshold, relative_tolerance x scale)`, the lane
-/// failing when `value <= bound`); for [`InstabilityTest::BoxMuConditioning`]
-/// the predicted rounding error and its limit (failing when `value >
-/// bound`). A NaN value is a tested quantity that is not finite (e.g. the
-/// cut basis of two real momenta spanning a Euclidean plane); NaN for both
-/// when the failing test compares none.
+/// test, the tested quantity and its bound. The noise tests compare taxicab
+/// norms with `max(stability_threshold, relative_tolerance x scale)`, the
+/// lane failing when `value <= bound`; [`InstabilityTest::BoxMuConditioning`]
+/// compares the predicted rounding error with its limit
+/// `2^-BOX_MU_TARGET_BITS |finite part|` and [`InstabilityTest::EuclideanPlane`]
+/// the cut's Gram determinant with 0, the lane failing when `value > bound`
+/// ([`InstabilityTest::refuses_above`]). A NaN value is a tested quantity
+/// that is not finite; NaN for both when the failing test compares none
+/// ([`InstabilityTest::BoxGeometry`]). [`std::fmt::Display`] gives the
+/// status text, e.g. `triangle Gram determinant 0 <= 1.82e-12`.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Instability {
     pub test: InstabilityTest,
     pub value: f64,
     pub bound: f64,
+}
+
+impl std::fmt::Display for Instability {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        fn number(x: f64) -> String {
+            if x == 0. {
+                "0".into()
+            } else if x.is_nan() {
+                "NaN".into()
+            } else {
+                format!("{x:.2e}")
+            }
+        }
+        let name = self.test.name();
+        match (self.value.is_nan(), self.bound.is_nan()) {
+            (true, true) => write!(f, "{name}"),
+            (true, false) => write!(f, "{name} not finite (bound {})", number(self.bound)),
+            _ => {
+                let relation = if self.test.refuses_above() { ">" } else { "<=" };
+                write!(
+                    f,
+                    "{name} {} {relation} {}",
+                    number(self.value),
+                    number(self.bound)
+                )
+            }
+        }
+    }
 }
 
 /// Integrated contribution of one lane.

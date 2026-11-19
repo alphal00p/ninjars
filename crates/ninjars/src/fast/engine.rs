@@ -585,12 +585,13 @@ pub(super) fn fail(
     lane: usize,
     test: InstabilityTest,
 ) {
+    // Taken in every case: a failed check never outlives its `fail`.
+    let (value, bound) = FAILED_CHECK
+        .with(Cell::take)
+        .unwrap_or((f64::NAN, f64::NAN));
     if alive[lane] {
         alive[lane] = false;
         status[lane] = FastStatus::Unstable;
-        let (value, bound) = FAILED_CHECK
-            .with(Cell::take)
-            .unwrap_or((f64::NAN, f64::NAN));
         INSTABILITIES.with(|list| {
             list.borrow_mut()
                 .push((lane, Instability { test, value, bound }))
@@ -602,8 +603,8 @@ thread_local! {
     /// The quantity and bound of the last failed stability check of this
     /// thread ([`Stability`]), taken by the next [`fail`].
     static FAILED_CHECK: Cell<Option<(f64, f64)>> = const { Cell::new(None) };
-    /// The instabilities of this thread's evaluations since the last
-    /// [`take_instabilities`].
+    /// The instabilities of this thread's last [`FastAmplitude::evaluate`]
+    /// ([`take_instabilities`]).
     static INSTABILITIES: RefCell<Vec<(usize, Instability)>> = const { RefCell::new(Vec::new()) };
 }
 
@@ -634,6 +635,35 @@ pub(super) fn screen_refused(lane: usize, flagged: f64, finite: f64) {
     });
 }
 
+/// `test`, or [`InstabilityTest::EuclideanPlane`] when the cut basis `e3`
+/// of the real momenta `k1`, `k2` is not finite because they span a
+/// Euclidean plane (`gram_det(k1, k2) > 0`: `Basis::from_pair` takes the
+/// square root of its negative); then the failed check becomes the Gram
+/// determinant against 0. Called on the failing path only.
+#[cold]
+#[inline(never)]
+pub(super) fn euclidean_or(
+    test: InstabilityTest,
+    e3: &CMom,
+    k1: &RMom,
+    k2: &RMom,
+) -> InstabilityTest {
+    let gram = gram_det(k1, k2);
+    if e3.iter().all(|z| z.is_finite()) || !(gram > 0.) {
+        return test;
+    }
+    FAILED_CHECK.with(|check| check.set(Some((gram, 0.))));
+    InstabilityTest::EuclideanPlane
+}
+
+/// Forget this thread's instabilities: [`FastAmplitude::evaluate`] starts
+/// with it, so that they stay bounded by one call's lanes.
+#[inline]
+fn clear_instabilities() {
+    FAILED_CHECK.with(Cell::take);
+    INSTABILITIES.with(|list| list.borrow_mut().clear());
+}
+
 /// The number of instabilities recorded on this thread (the rank n+2 path
 /// remaps those of a sub-batch, [`remap_instabilities`]).
 pub(super) fn instabilities_len() -> usize {
@@ -650,12 +680,13 @@ pub(super) fn remap_instabilities(from: usize, map: impl Fn(usize) -> usize) {
     });
 }
 
-/// The instabilities of the calling thread's [`FastAmplitude::evaluate`]
-/// calls since the last call of this function, `(lane, Instability)` with
-/// `lane` the lane of its call's input: which test made each
-/// [`FastStatus::Unstable`] lane unstable, the tested quantity and the
-/// bound it had to exceed. Callers that read them take them after each
-/// evaluation; nothing else reads or clears them.
+/// The instabilities of the calling thread's last
+/// [`FastAmplitude::evaluate`] call (each call starts by forgetting the
+/// previous one's), `(lane, Instability)` with `lane` the lane of its input,
+/// in the order the lanes failed: which test made each
+/// [`FastStatus::Unstable`] lane unstable, the tested quantity and its bound
+/// ([`Instability`]). Callers that read them take them after each
+/// evaluation, on the evaluating thread. Recorded on the failing path only.
 pub fn take_instabilities() -> Vec<(usize, Instability)> {
     FAILED_CHECK.with(Cell::take);
     INSTABILITIES.with(|list| std::mem::take(&mut *list.borrow_mut()))
@@ -1038,6 +1069,7 @@ impl FastAmplitude {
         results: &mut [FastResult],
         statuses: &mut [FastStatus],
     ) -> Result<()> {
+        clear_instabilities();
         if masters.requires_scaleless_bubbles() {
             return Err(Error::Unsupported(
                 "separate UV/IR poles require scaleless-bubble coefficients; use the generic reduction engine".into(),
@@ -1262,7 +1294,7 @@ impl FastAmplitude {
                         &mut self.alive,
                         &mut self.lane_status,
                         lane,
-                        InstabilityTest::BoxNormal,
+                        euclidean_or(InstabilityTest::BoxNormal, &e.e3, &k3, &k0),
                     );
                     continue;
                 }
@@ -1663,12 +1695,13 @@ impl FastAmplitude {
                     divide_t3(num2, nterms, d0b.inv(), d1, d2b);
                 }
                 if !stable {
-                    fail(
-                        &mut self.alive,
-                        &mut self.lane_status,
-                        lane,
+                    let test = euclidean_or(
                         InstabilityTest::TriangleExpansion,
+                        &row.e3,
+                        &sub(&v[c1], &v[c3]),
+                        &sub(&v[c2], &v[c1]),
                     );
+                    fail(&mut self.alive, &mut self.lane_status, lane, test);
                     continue;
                 }
                 let mut c = [C64::ZERO; 15];

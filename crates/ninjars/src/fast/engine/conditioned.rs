@@ -131,7 +131,7 @@ impl FastAmplitude {
                         &mut self.alive,
                         &mut self.lane_status,
                         lane,
-                        InstabilityTest::BoxNormal,
+                        euclidean_or(InstabilityTest::BoxNormal, &e.e3, &k3, &k0),
                     );
                     continue;
                 }
