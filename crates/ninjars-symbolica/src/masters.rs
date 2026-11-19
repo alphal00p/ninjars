@@ -45,7 +45,6 @@ use oneloop::{
     TensorIntegral,
 };
 use symbolica::{
-    atom::Atom,
     domains::{
         dual::{DualNumber, DualNumberStructure, HyperDual},
         rational::Rational,
@@ -515,8 +514,40 @@ where
     }
 
     fn exact_evaluator(integral: MasterIntegral) -> Result<ExactEvaluator> {
-        let (args, series) = master_series(integral)?;
-        OneLoopExpressions::new()
+        let args = (0..integral.argument_count())
+            .map(|index| symbolica::symbol!(format!("ninjars::master_argument_{index}")).to_atom())
+            .collect::<Vec<_>>();
+        let expressions = OneLoopExpressions::new();
+        let series = match integral {
+            MasterIntegral::A0 => oneloop::a0(&args[0], &args[1]),
+            MasterIntegral::B0 => oneloop::b0(&args[0], &args[1], &args[2], &args[3]),
+            MasterIntegral::DB0 => oneloop::db0(&args[0], &args[1], &args[2], &args[3]),
+            MasterIntegral::B1 => oneloop::b1(&args[0], &args[1], &args[2], &args[3]),
+            MasterIntegral::B11 => oneloop::b11(&args[0], &args[1], &args[2], &args[3]),
+            MasterIntegral::B111 => oneloop::b111(&args[0], &args[1], &args[2], &args[3]),
+            // Exact Passarino-Veltman expression with oneloopmaster's
+            // corrected zero-momentum mass swap, for Dual carriers only. It
+            // loses about 5-6 log10(m²/|p²|) digits at small p² (relative
+            // error 5.5e-6 in binary64 at p² = m²/256, 1.2e-4 in Float(256)
+            // at |p²|/m² = 4e-13), so `SymbolicaMasters` evaluates B1111 with
+            // the native family for every carrier (`native_tensor_family`).
+            MasterIntegral::B1111 => oneloop::b1111(&args[0], &args[1], &args[2], &args[3]),
+            MasterIntegral::An { rank } => oneloop::an(rank, &args[0], &args[1])
+                .map_err(|_| Error::Unsupported("tadpole tensor rank exceeds four".into()))?
+                .pop()
+                .expect("oneloopmaster includes A0 at every supported rank"),
+            MasterIntegral::C0 => expressions.c0(
+                [&args[0], &args[1], &args[2]],
+                [&args[3], &args[4], &args[5]],
+                &args[6],
+            ),
+            MasterIntegral::D0 => expressions.d0(
+                [&args[0], &args[1], &args[2], &args[3], &args[4], &args[5]],
+                [&args[6], &args[7], &args[8], &args[9]],
+                &args[10],
+            ),
+        };
+        expressions
             .evaluator(series.coefficients(), &args)
             .map_err(|error| Error::Symbolic(error.to_string()))
     }
@@ -986,88 +1017,4 @@ where
         statuses.copy_from_slice(&self.statuses);
         Ok(())
     }
-}
-
-/// The highest tadpole tensor rank oneloopmaster's `an` serves.
-pub(crate) const MAX_TADPOLE_RANK: usize = 4;
-
-/// Every family [`SymbolicaMasters`] may build an exact evaluator for, in a
-/// fixed order ([`crate::reserve`] registers their symbols in this order).
-pub(crate) fn exact_families() -> impl Iterator<Item = MasterIntegral> {
-    [
-        MasterIntegral::A0,
-        MasterIntegral::B0,
-        MasterIntegral::DB0,
-        MasterIntegral::C0,
-        MasterIntegral::D0,
-        MasterIntegral::B1,
-        MasterIntegral::B11,
-        MasterIntegral::B111,
-        MasterIntegral::B1111,
-    ]
-    .into_iter()
-    .chain((0..=MAX_TADPOLE_RANK).map(|rank| MasterIntegral::An { rank }))
-}
-
-/// Whether [`exact_families`] lists `integral`: an exhaustive match, so that
-/// a new family fails to compile until it is listed (and its symbols are
-/// reserved).
-#[allow(dead_code)]
-pub(crate) const fn listed(integral: MasterIntegral) -> bool {
-    match integral {
-        MasterIntegral::A0
-        | MasterIntegral::B0
-        | MasterIntegral::DB0
-        | MasterIntegral::C0
-        | MasterIntegral::D0
-        | MasterIntegral::B1
-        | MasterIntegral::B11
-        | MasterIntegral::B111
-        | MasterIntegral::B1111 => true,
-        MasterIntegral::An { rank } => rank <= MAX_TADPOLE_RANK,
-    }
-}
-
-/// The arguments (`ninjars::master_argument_*`) and oneloopmaster's Laurent
-/// series of `integral`'s exact evaluator. Building them registers every
-/// symbol the evaluator's instructions refer to (with
-/// `OneLoopExpressions::new()`, oneloopmaster's shared definitions);
-/// compiling registers none.
-pub(crate) fn master_series(
-    integral: MasterIntegral,
-) -> Result<(Vec<Atom>, oneloop::LaurentSeries)> {
-    let args = (0..integral.argument_count())
-        .map(|index| symbolica::symbol!(format!("ninjars::master_argument_{index}")).to_atom())
-        .collect::<Vec<_>>();
-    let expressions = OneLoopExpressions::new();
-    let series = match integral {
-        MasterIntegral::A0 => oneloop::a0(&args[0], &args[1]),
-        MasterIntegral::B0 => oneloop::b0(&args[0], &args[1], &args[2], &args[3]),
-        MasterIntegral::DB0 => oneloop::db0(&args[0], &args[1], &args[2], &args[3]),
-        MasterIntegral::B1 => oneloop::b1(&args[0], &args[1], &args[2], &args[3]),
-        MasterIntegral::B11 => oneloop::b11(&args[0], &args[1], &args[2], &args[3]),
-        MasterIntegral::B111 => oneloop::b111(&args[0], &args[1], &args[2], &args[3]),
-        // Exact Passarino-Veltman expression with oneloopmaster's
-        // corrected zero-momentum mass swap, for Dual carriers only. It
-        // loses about 5-6 log10(m²/|p²|) digits at small p² (relative
-        // error 5.5e-6 in binary64 at p² = m²/256, 1.2e-4 in Float(256)
-        // at |p²|/m² = 4e-13), so `SymbolicaMasters` evaluates B1111 with
-        // the native family for every carrier (`native_tensor_family`).
-        MasterIntegral::B1111 => oneloop::b1111(&args[0], &args[1], &args[2], &args[3]),
-        MasterIntegral::An { rank } => oneloop::an(rank, &args[0], &args[1])
-            .map_err(|_| Error::Unsupported("tadpole tensor rank exceeds four".into()))?
-            .pop()
-            .expect("oneloopmaster includes A0 at every supported rank"),
-        MasterIntegral::C0 => expressions.c0(
-            [&args[0], &args[1], &args[2]],
-            [&args[3], &args[4], &args[5]],
-            &args[6],
-        ),
-        MasterIntegral::D0 => expressions.d0(
-            [&args[0], &args[1], &args[2], &args[3], &args[4], &args[5]],
-            [&args[6], &args[7], &args[8], &args[9]],
-            &args[10],
-        ),
-    };
-    Ok((args, series))
 }

@@ -1,11 +1,16 @@
 //! `ninjars_symbolica::reserve`: the variable-slot regime, every master
-//! integral's symbols registered without compiling, and a loud failure when
-//! the process registered too many symbols before.
+//! integral's symbol registered by name (the table `src/master_symbols.txt`
+//! complete and its symbols plain), and a loud failure when the process
+//! registered too many symbols before.
 
 use ninjars::{DoubleFloat, MasterIntegral};
-use ninjars_symbolica::{PositionalError, Regime, SymbolicaMasters, reserve};
+use ninjars_symbolica::{PositionalError, Regime, SymbolicaMasters, master_symbols, reserve};
 use std::collections::BTreeSet;
-use symbolica::{atom::Atom, domains::float::Float, state::State};
+use symbolica::{
+    atom::{Atom, UserData},
+    domains::float::Float,
+    state::State,
+};
 
 const CHILD: &str = "NINJARS_RESERVE_CHILD";
 
@@ -42,15 +47,28 @@ fn families() -> Vec<MasterIntegral> {
 }
 
 fn names() -> BTreeSet<String> {
-    State::symbol_iter().map(|(_, name)| name.to_owned()).collect()
+    State::symbol_iter()
+        .map(|(_, name)| name.to_owned())
+        .collect()
 }
 
-/// After `reserve`, the pool holds variable slots and preparing (compiling)
+/// After `reserve`, the pool holds variable slots and building and compiling
 /// every master family in double-double and arbitrary precision registers no
-/// further symbol: their IDs are fixed by `reserve`.
+/// further symbol: their IDs are fixed by `reserve`. Every listed symbol is
+/// still a plain one afterwards (oneloopmaster registered the same symbol).
+/// A failure names what to add to `src/master_symbols.txt`.
 #[test]
 fn reserve_registers_every_master_symbol() {
+    let before_reserve = names();
     assert!(matches!(reserve(), Ok(Regime::Variables)));
+    let listed: Vec<&str> = master_symbols().collect();
+    let reserved: Vec<String> = names().difference(&before_reserve).cloned().collect();
+    for name in &listed {
+        assert!(
+            reserved.iter().any(|r| r == name) || before_reserve.contains(*name),
+            "{name}"
+        );
+    }
     assert_eq!(ninjars_positional::regime(), Regime::Variables);
     let slot = ninjars_positional::slots(1).unwrap();
     assert!(matches!(slot[0], Atom::Var(_)), "{slot:?}");
@@ -66,7 +84,22 @@ fn reserve_registers_every_master_symbol() {
             .unwrap_or_else(|error| panic!("{integral:?} (arbitrary precision): {error}"));
     }
     let new: Vec<_> = names().difference(&before).cloned().collect();
-    assert!(new.is_empty(), "symbols registered after reserve(): {new:?}");
+    assert!(
+        new.is_empty(),
+        "symbols registered after reserve(): {new:?}"
+    );
+    for (symbol, name) in State::symbol_iter() {
+        if listed.contains(&name) {
+            let plain = symbol.get_attributes().is_empty()
+                && symbol.get_tags().is_empty()
+                && symbol.get_normalization_function().is_none()
+                && symbol.get_evaluation_info().is_none()
+                && symbol.get_derivative_function().is_none()
+                && symbol.get_print_function().is_none()
+                && matches!(symbol.get_data(), UserData::None);
+            assert!(plain, "{name} is not a plain symbol");
+        }
+    }
 }
 
 #[test]

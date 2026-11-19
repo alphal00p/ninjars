@@ -27,39 +27,48 @@
 //! **Contract.** A process that wants NinjaRS's double-double and
 //! arbitrary-precision results independent of its history calls [`reserve`]
 //! before it registers any symbol of its own (parsing, importing a state,
-//! defining functions), and fails if it returns an error. [`reserve`] neither
-//! compiles nor evaluates anything; binary64 reductions with the fast engine
-//! never need it.
+//! defining functions), and fails if it returns an error. [`reserve`] only
+//! registers names (the pool's slots and the masters' symbols): it builds no
+//! expression and compiles nothing, and the masters' definitions are still
+//! built on their first use, against the reserved symbols. Binary64
+//! reductions with the fast engine never need it.
 
 use ninjars_positional::{Error as PositionalError, Regime};
 use std::sync::OnceLock;
 
-/// Build the positional slot pool and register every master-integral symbol,
-/// once per process (see the module documentation); later calls return the
-/// first call's result. The error is [`ninjars_positional::Error::FunctionSlots`]
-/// when the pool could not get two-byte variable slots (too many symbols had
-/// been registered before the first call): NinjaRS's exact results then
-/// depend on the process's history.
+/// Every symbol the exact master-integral evaluators refer to, one fully
+/// qualified name per line, in the order a fresh process registers them
+/// (oneloopmaster's shared definitions, then `ninjars::master_argument_*`).
+/// All are plain symbols (no attributes, tags, functions or data), so
+/// registering their names is the same registration oneloopmaster makes later.
+/// `tests/reserve.rs` fails, naming the missing symbols, if building and
+/// compiling every master after [`reserve`] registers any other symbol (a new
+/// oneloopmaster or master family), and if a listed symbol gains attributes.
+const MASTER_SYMBOLS: &str = include_str!("master_symbols.txt");
+
+/// Build the positional slot pool and register every master-integral symbol
+/// by name, once per process (see the module documentation); later calls
+/// return the first call's result. Nothing is built or compiled: about 5,000
+/// symbol registrations. The error is
+/// [`ninjars_positional::Error::FunctionSlots`] when the pool could not get
+/// two-byte variable slots (too many symbols had been registered before the
+/// first call): NinjaRS's exact results then depend on the process's history.
 pub fn reserve() -> Result<Regime, PositionalError> {
     static RESERVED: OnceLock<Result<Regime, PositionalError>> = OnceLock::new();
     RESERVED
         .get_or_init(|| {
             let _license = ninjars::licensing::unlock_for_ninjars_operation();
             let regime = ninjars_positional::reserve();
-            register_master_symbols()?;
+            for name in MASTER_SYMBOLS.lines().filter(|name| !name.is_empty()) {
+                let _ = symbolica::symbol!(name);
+            }
             regime
         })
         .clone()
 }
 
-/// Register every symbol an exact master-integral evaluator refers to, in one
-/// fixed order, without compiling one: oneloopmaster's shared definitions,
-/// then each family's arguments and series ([`crate::masters::exact_families`]).
-fn register_master_symbols() -> Result<(), PositionalError> {
-    let _ = oneloop::OneLoopExpressions::new();
-    for integral in crate::masters::exact_families() {
-        crate::masters::master_series(integral)
-            .map_err(|error| PositionalError::Symbolic(format!("{integral:?}: {error}")))?;
-    }
-    Ok(())
+/// The master-integral symbols [`reserve`] registers (for its tests).
+#[doc(hidden)]
+pub fn master_symbols() -> impl Iterator<Item = &'static str> {
+    MASTER_SYMBOLS.lines().filter(|name| !name.is_empty())
 }

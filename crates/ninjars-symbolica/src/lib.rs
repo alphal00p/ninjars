@@ -42,7 +42,7 @@ mod positional;
 mod projection;
 mod reserve;
 pub use ninjars_positional::{Error as PositionalError, Regime};
-pub use reserve::reserve;
+pub use reserve::{master_symbols, reserve};
 mod rank_specialization;
 #[cfg(feature = "reference-codegen")]
 mod reference;
