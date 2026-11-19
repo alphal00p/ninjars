@@ -64,6 +64,14 @@ pub struct BoxMuDivisionRequest<'a, T> {
     /// them for the rows the kernels refuse without them.
     pub reference: Option<(&'a [FourMomentum<T>], &'a [T])>,
 }
+/// A solved box cut for the box-Gram conditioning bound: its four lines'
+/// shifts and squared masses (partition order) and its geometry.
+pub struct BoxGramRequest<'a, T> {
+    pub id: SampleId,
+    pub shifts: [&'a FourMomentum<T>; 4],
+    pub masses_squared: [&'a T; 4],
+    pub geometry: &'a BoxCut<T>,
+}
 pub struct BoxProjectionRequest<'a, T> {
     pub geometry: &'a BoxCut<T>,
     pub shift: &'a FourMomentum<T>,
@@ -104,6 +112,16 @@ pub trait BoxReductionKernels<T> {
         stable: &mut [bool],
     ) -> Result<()>;
     fn values_are_finite(&self, values: &[T]) -> bool;
+    /// The box-Gram conditioning bound (`crate::conditioning`,
+    /// `docs/box-gram-conditioning.md`) on solved box cuts, before they are
+    /// sampled: `stable[row]` false refuses the cut of `requests[row]`
+    /// (`CutFailure::DegenerateGram`), because its reduction at this rank is
+    /// predicted to lose more bits than the carrier keeps.
+    fn gram_conditioned_batch(
+        &mut self,
+        requests: &[BoxGramRequest<'_, T>],
+        stable: &mut [bool],
+    ) -> Result<()>;
 }
 
 #[derive(Clone, Debug)]
@@ -135,6 +153,8 @@ pub struct BoxReducer<T, K> {
     coefficient_pool: VecPool<T>,
     mask_pool: VecPool<bool>,
     rows: Vec<usize>,
+    gram_stable: Vec<bool>,
+    solved: Vec<usize>,
     geometry_output: Vec<CutOutcome<BoxCut<T>>>,
     active: Vec<usize>,
     cut_geometries: Vec<BoxCut<T>>,
@@ -210,6 +230,8 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
             coefficient_pool: VecPool::default(),
             mask_pool: VecPool::default(),
             rows: Vec::new(),
+            gram_stable: Vec::new(),
+            solved: Vec::new(),
             geometry_output: Vec::new(),
             active: Vec::new(),
             cut_geometries: Vec::new(),
@@ -401,14 +423,52 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
         active.clear();
         let cuts = &mut self.cut_geometries;
         cuts.clear();
+        let solved = &mut self.solved;
+        solved.clear();
         for (i, cut) in cut_output.drain(..).enumerate() {
             match cut {
                 CutOutcome::Stable(cut) => {
                     active.push(rows[i]);
                     cuts.push(cut);
+                    solved.push(i);
                 }
                 CutOutcome::Unstable(f) => staged[rows[i]] = CutOutcome::Unstable(f),
             }
+        }
+        // The box-Gram conditioning bound (`crate::conditioning`): a cut
+        // whose solutions lie far outside its shifts (a nearly degenerate
+        // Gram determinant) is refused before it is sampled.
+        let gram = &mut self.gram_stable;
+        gram.resize(cuts.len(), false);
+        gram.fill(false);
+        {
+            let gram_requests: Vec<BoxGramRequest<'_, T>> = solved
+                .iter()
+                .zip(cuts.iter())
+                .map(|(&i, geometry)| BoxGramRequest {
+                    id: requests[i].id,
+                    shifts: requests[i].shifts,
+                    masses_squared: requests[i].masses_squared,
+                    geometry,
+                })
+                .collect();
+            self.kernels.gram_conditioned_batch(&gram_requests, gram)?;
+        }
+        if gram.iter().any(|stable| !stable) {
+            let mut index = 0;
+            active.retain(|&row| {
+                let keep = gram[index];
+                if !keep {
+                    staged[row] = CutOutcome::Unstable(CutFailure::DegenerateGram);
+                }
+                index += 1;
+                keep
+            });
+            let mut index = 0;
+            cuts.retain(|_| {
+                index += 1;
+                gram[index - 1]
+            });
         }
         let scales = &mut self.scales;
         scales.clear();

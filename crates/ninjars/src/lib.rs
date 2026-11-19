@@ -28,8 +28,8 @@ mod triangles;
 pub use amplitude::{Amplitude, AmplitudeInput, AmplitudeKernels, EvaluationStatus};
 pub use batch::{BatchShape, SampleId};
 pub use boxes::{
-    BoxCoefficientMode, BoxDivisionRequest, BoxMuDivisionRequest, BoxMuMode, BoxProjectionRequest,
-    BoxReducer, BoxReductionKernels, BoxReductionOptions, BoxResidue,
+    BoxCoefficientMode, BoxDivisionRequest, BoxGramRequest, BoxMuDivisionRequest, BoxMuMode,
+    BoxProjectionRequest, BoxReducer, BoxReductionKernels, BoxReductionOptions, BoxResidue,
 };
 pub use bubbles::{
     BubbleDivisionRequest, BubbleReducer, BubbleReductionKernels, BubbleResidue,
