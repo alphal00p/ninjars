@@ -289,25 +289,50 @@ fn records_belong_to_the_last_evaluation() {
     assert!(take_instabilities().is_empty());
 }
 
+/// A triangle without uncut lines (n = 3) whose two momenta span a
+/// Euclidean plane has no check that names it: its non-finite lane is
+/// refused `Unstable` with an `EuclideanPlane` record (it was `NonFinite`,
+/// served by neither), at every rank; the regular lanes keep their values.
 #[test]
-fn records_display_measured_against_bound() {
+fn euclidean_triangles_without_uncut_lines_are_named() {
+    let plane = vec![ZERO, [0., 1., 0., 0.], [0., 0., 1., 0.]];
+    for rank in [1, 2, 3, 4, 5] {
+        let record = refused(
+            rank,
+            &plane,
+            FastOptions::default(),
+            InstabilityTest::EuclideanPlane,
+        );
+        assert_eq!((record.value, record.bound), (1., 0.), "rank {rank}");
+    }
+}
+
+#[test]
+fn records_display_found_and_required() {
     let show = |test, value, bound| Instability { test, value, bound }.to_string();
     use InstabilityTest::*;
     assert_eq!(
-        show(TriangleGram, 0., 1.82e-12),
-        "triangle Gram determinant 0 <= 1.82e-12"
+        show(BoxNormal, 3.09e-11, 3.26e-8),
+        "box normal: found 3.09e-11, required > 3.26e-8"
     );
     assert_eq!(
-        show(BoxMuConditioning, 3.1e-9, 7.6e-11),
-        "box mu-expansion conditioning 3.10e-9 > 7.60e-11"
+        show(TriangleGram, 0., 1.82e-12),
+        "triangle Gram determinant: found 0, required > 1.82e-12"
+    );
+    assert_eq!(
+        show(BoxMuConditioning, 3.19e-15, 2.36e-15),
+        "box mu-expansion conditioning: predicted error 3.19e-15, allowed <= 2.36e-15"
     );
     assert_eq!(
         show(EuclideanPlane, 1., 0.),
-        "Euclidean-plane cut, Gram determinant 1.00e0 > 0"
+        "Euclidean-plane cut: Gram determinant 1.00e0, required <= 0"
     );
     assert_eq!(
-        show(BoxNormal, f64::NAN, 3.3e-13),
-        "box normal NaN (bound 3.30e-13)"
+        show(BoxNormal, f64::NAN, 3.26e-8),
+        "box normal: found NaN, required > 3.26e-8"
     );
-    assert_eq!(show(BoxGeometry, f64::NAN, f64::NAN), "box geometry");
+    assert_eq!(
+        show(BoxGeometry, f64::NAN, f64::NAN),
+        "box geometry: degenerate, no quantity to compare"
+    );
 }

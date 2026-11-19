@@ -114,7 +114,9 @@ pub enum FastStatus {
 }
 
 /// The test that made a lane [`FastStatus::Unstable`] ([`Instability`]).
+/// Non-exhaustive: later NinjaRS versions may name further tests.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[non_exhaustive]
 pub enum InstabilityTest {
     /// A box cut's Gram determinant of two of its shift differences.
     BoxGram,
@@ -145,7 +147,9 @@ pub enum InstabilityTest {
     BoxMuConditioning,
     /// A box or triangle cut whose two real momenta span a Euclidean plane
     /// (positive Gram determinant `k1² k2² - (k1.k2)²`): no real massless
-    /// basis ([`FastStatus::Unstable`]); the generic engine handles it.
+    /// basis ([`FastStatus::Unstable`]); the generic engine handles it. A
+    /// triangle without uncut lines (n = 3) is named when its lane's result
+    /// is not finite.
     EuclideanPlane,
 }
 
@@ -164,7 +168,7 @@ impl InstabilityTest {
             Self::BubbleExpansion => "bubble expansion",
             Self::TadpoleExpansion => "tadpole expansion",
             Self::BoxMuConditioning => "box mu-expansion conditioning",
-            Self::EuclideanPlane => "Euclidean-plane cut, Gram determinant",
+            Self::EuclideanPlane => "Euclidean-plane cut",
         }
     }
     /// Whether the test refuses a value above its bound
@@ -185,8 +189,10 @@ impl InstabilityTest {
 /// ([`InstabilityTest::refuses_above`]). A NaN value is a tested quantity
 /// that is not finite; NaN for both when the failing test compares none
 /// ([`InstabilityTest::BoxGeometry`]). [`std::fmt::Display`] gives the
-/// status text, e.g. `triangle Gram determinant 0 <= 1.82e-12`.
+/// status text, found and required, e.g. `triangle Gram determinant: found
+/// 0, required > 1.82e-12`. Non-exhaustive: later versions may add fields.
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct Instability {
     pub test: InstabilityTest,
     pub value: f64,
@@ -194,30 +200,30 @@ pub struct Instability {
 }
 
 impl std::fmt::Display for Instability {
+    /// `box normal: found 3.09e-11, required > 3.26e-8`,
+    /// `box mu-expansion conditioning: predicted error 3.19e-15, allowed <= 2.36e-15`,
+    /// `Euclidean-plane cut: Gram determinant 1.00e0, required <= 0`
+    /// (`crate::refusal_text`).
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        fn number(x: f64) -> String {
-            if x == 0. {
-                "0".into()
-            } else if x.is_nan() {
-                "NaN".into()
-            } else {
-                format!("{x:.2e}")
-            }
+        use crate::refusal_text::{RefusalText, number};
+        let test = self.test.name();
+        if self.value.is_nan() && self.bound.is_nan() {
+            return write!(f, "{test}: degenerate, no quantity to compare");
         }
-        let name = self.test.name();
-        match (self.value.is_nan(), self.bound.is_nan()) {
-            (true, true) => write!(f, "{name}"),
-            (true, false) => write!(f, "{name} NaN (bound {})", number(self.bound)),
-            _ => {
-                let relation = if self.test.refuses_above() { ">" } else { "<=" };
-                write!(
-                    f,
-                    "{name} {} {relation} {}",
-                    number(self.value),
-                    number(self.bound)
-                )
-            }
+        let (quantity, requirement) = match self.test {
+            InstabilityTest::BoxMuConditioning => ("predicted error", "allowed <="),
+            InstabilityTest::EuclideanPlane => ("Gram determinant", "required <="),
+            _ => ("found", "required >"),
+        };
+        RefusalText {
+            test,
+            quantity,
+            found: number(self.value),
+            requirement,
+            bound: number(self.bound),
+            note: None,
         }
+        .fmt(f)
     }
 }
 

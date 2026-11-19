@@ -49,8 +49,8 @@ use super::complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr};
 use super::engine::{
     FastOptions, MasterBatch, Stability, StageOptions, TadpoleData, Topology, Uncut,
     box_mu_reference_directions, den, den_scale, difference_scale, divide_t2, divide_t3, dot_scale,
-    euclidean_norm, euclidean_or, fail, gram_scale, is_zero, scale_c, scaled_reference,
-    screen_refused, sub_cr, taxicab_sum,
+    euclidean_norm, euclidean_or, fail, gram_scale, is_zero, plane_refused, scale_c,
+    scaled_reference, screen_refused, sub_cr, taxicab_sum,
 };
 use super::geometry::{
     Basis, box_solutions, bubble_solution, cmom_from_real, combine_real2, gram_det, mp2,
@@ -1757,7 +1757,11 @@ impl RankN2Engine {
                 rational,
             };
             if !result.laurent.iter().all(|z| z.is_finite()) || !rational.is_finite() {
-                self.lane_status[lane] = FastStatus::NonFinite;
+                self.lane_status[lane] = if any_tri && plane_refused(topo, input, lane, eps) {
+                    FastStatus::Unstable
+                } else {
+                    FastStatus::NonFinite
+                };
                 continue;
             }
             // The conditioning screen's flagged boxes (`crate::conditioning`).

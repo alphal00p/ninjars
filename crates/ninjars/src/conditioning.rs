@@ -173,6 +173,7 @@ pub fn box_gram_exceeds(lambda_bits: f64, rank: usize, precision: u32) -> bool {
 /// a record a `DegenerateGram` failure comes from the cut geometry's own
 /// tests (an exactly zero or negligible Gram quantity).
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct BoxGramRefusal {
     /// The refused cut's lane and topology cut index (`sample`), as
     /// `EvaluationStatus::CutFailed`'s `cut_index`.
@@ -187,6 +188,17 @@ pub struct BoxGramRefusal {
 }
 
 impl BoxGramRefusal {
+    /// The record of the box cut `id` refused with predicted loss
+    /// `loss_bits` in a carrier of `precision_bits` with margin
+    /// `margin_bits`.
+    pub fn new(id: crate::SampleId, loss_bits: f64, precision_bits: u32, margin_bits: u32) -> Self {
+        Self {
+            id,
+            loss_bits,
+            precision_bits,
+            margin_bits,
+        }
+    }
     /// Whether this record explains `status` of lane `lane`: a
     /// `CutFailed { DegenerateGram }` at this record's lane and cut.
     pub fn explains(&self, lane: usize, status: &crate::EvaluationStatus) -> bool {
@@ -199,20 +211,28 @@ impl BoxGramRefusal {
 }
 
 impl std::fmt::Display for BoxGramRefusal {
-    /// E.g. `box-Gram bound: predicted loss 348.1 bits > 189 - 28 bits`.
+    /// `box-Gram bound: predicted loss 295.0 bits, allowed <= 228 bits
+    /// (256 - 28)`: `p` is the carrier's working precision in bits (at 57
+    /// requested digits pyAmpliCol's carrier holds 256), `M` the margin
+    /// (`crate::refusal_text`).
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let (p, m) = (self.precision_bits, self.margin_bits);
-        if self.loss_bits.is_nan() {
-            write!(f, "box-Gram bound: predicted loss NaN")
+        let found = if self.loss_bits.is_nan() {
+            "NaN".into()
         } else if self.loss_bits.is_infinite() {
-            write!(f, "box-Gram bound: cut solutions at infinity (v.v = 0)")
+            "infinite (cut solutions at infinity, v.v = 0)".into()
         } else {
-            write!(
-                f,
-                "box-Gram bound: predicted loss {:.1} bits > {p} - {m} bits",
-                self.loss_bits
-            )
+            format!("{:.1} bits", self.loss_bits)
+        };
+        crate::refusal_text::RefusalText {
+            test: "box-Gram bound",
+            quantity: "predicted loss",
+            found,
+            requirement: "allowed <=",
+            bound: format!("{} bits", p.saturating_sub(m).max(1)),
+            note: Some(format!("{p} - {m}")),
         }
+        .fmt(f)
     }
 }
 
@@ -229,14 +249,15 @@ pub fn record_box_gram_refusal(refusal: BoxGramRefusal) {
 }
 
 /// Forget this thread's box-Gram refusals: each
-/// `Amplitude::evaluate_batch_with_inputs` starts with it.
+/// `Amplitude::evaluate_batch_with_inputs` and each
+/// `BoxReducer::evaluate_batch` starts with it.
 pub(crate) fn clear_box_gram_refusals() {
     BOX_GRAM_REFUSALS.with(|list| list.borrow_mut().clear());
 }
 
-/// The box-Gram refusals of the calling thread's last `Amplitude`
-/// evaluation (`Amplitude::evaluate_batch*`; each evaluation starts by
-/// forgetting the previous one's): per refused box cut its lane and cut, the
+/// The box-Gram refusals of the calling thread's last evaluation
+/// (`Amplitude::evaluate_batch*`, or a direct `BoxReducer::evaluate_batch`;
+/// each starts by forgetting the previous one's): per refused box cut its lane and cut, the
 /// predicted loss, the precision and the margin ([`BoxGramRefusal`]; a
 /// lane's status is explained by the record with
 /// [`BoxGramRefusal::explains`]). Take them after each evaluation, on the

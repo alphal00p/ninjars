@@ -1029,12 +1029,12 @@ fn gram_refused<V, R: Real + SingleFloat>(
                 ln / std::f64::consts::LN_2 * a as f64 / b as f64
             })
     };
-    record_box_gram_refusal(BoxGramRefusal {
-        id: r.id,
+    record_box_gram_refusal(BoxGramRefusal::new(
+        r.id,
         loss_bits,
-        precision_bits: precision,
-        margin_bits: BOX_GRAM_MARGIN_BITS,
-    });
+        precision,
+        BOX_GRAM_MARGIN_BITS,
+    ));
 }
 
 macro_rules! implementation{

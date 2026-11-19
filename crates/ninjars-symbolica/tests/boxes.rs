@@ -534,3 +534,65 @@ fn direct_sample_division_isolates_bad_dual_shapes_and_rejects_duplicate_partiti
         before
     );
 }
+
+/// A direct `BoxReducer` caller sees the box-Gram records of its last
+/// evaluation only (`ninjars::conditioning::take_box_gram_refusals`): a
+/// stale record is forgotten when the next evaluation starts.
+#[test]
+fn box_reducer_evaluations_start_without_box_gram_records() {
+    use ninjars::SampleId;
+    use ninjars::conditioning::{BoxGramRefusal, record_box_gram_refusal, take_box_gram_refusals};
+    let prototype = DoubleFloat::default();
+    let zero = Complex::new(prototype.zero(), prototype.zero());
+    let p: Vec<_> = ROUTING[..4]
+        .iter()
+        .map(|p| {
+            FourMomentum::from(p.map(|v| Complex::new(prototype.from_i64(v), prototype.zero())))
+        })
+        .collect();
+    let mass = Complex::new(prototype.one(), prototype.zero());
+    let scale = Complex::new(prototype.from_i64(2), prototype.zero());
+    let mut numerator = PolynomialNumerator::new(
+        parse!("a*(1+q0^2)"),
+        vars(),
+        vec![parse!("a")],
+        prototype.clone(),
+    )
+    .unwrap();
+    numerator
+        .set_parameter_batch(std::slice::from_ref(&mass), 1)
+        .unwrap();
+    let mut geometry = SymbolicaHighCuts::new(prototype.clone()).unwrap();
+    let mut reducer = BoxReducer::new(
+        SymbolicaBoxKernels::new(4, 4, options(true, BoxMuMode::Expansion), prototype.clone())
+            .unwrap(),
+        zero.clone(),
+    )
+    .unwrap();
+    let stale = BoxGramRefusal::new(SampleId { lane: 7, sample: 3 }, 300., 106, 28);
+    record_box_gram_refusal(stale);
+    let mut output = vec![CutOutcome::Unstable(CutFailure::NonFiniteResult)];
+    reducer
+        .evaluate_batch(
+            &p,
+            &vec![mass.clone(); 4],
+            std::slice::from_ref(&scale),
+            1,
+            &Topology::new(4, 4).unwrap(),
+            &[],
+            &mut numerator,
+            &mut geometry,
+            &mut output,
+        )
+        .unwrap();
+    assert!(
+        matches!(output[0], CutOutcome::Stable(_)),
+        "{:?}",
+        output[0]
+    );
+    assert_eq!(take_box_gram_refusals(), []);
+    assert_eq!(
+        stale.to_string(),
+        "box-Gram bound: predicted loss 300.0 bits, allowed <= 78 bits (106 - 28)"
+    );
+}

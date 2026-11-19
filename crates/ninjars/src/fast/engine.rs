@@ -656,6 +656,40 @@ pub(super) fn euclidean_or(
     InstabilityTest::EuclideanPlane
 }
 
+/// Whether a triangle cut of `lane` has two real momenta spanning a
+/// Euclidean plane (its basis not finite, `gram_det > 0`), which made the
+/// lane's result non-finite: a triangle without uncut lines (n = 3) has no
+/// check that names it. Records [`InstabilityTest::EuclideanPlane`] with the
+/// first such triangle's Gram determinant. Called on the non-finite path
+/// only.
+#[cold]
+#[inline(never)]
+pub(super) fn plane_refused(topo: &Topology, input: &FastInput, lane: usize, eps: f64) -> bool {
+    let n = topo.n;
+    let v = &input.shifts[lane * n..(lane + 1) * n];
+    let plane = topo.triangles.iter().find_map(|&[c1, c2, c3]| {
+        let (k0, k2) = (sub(&v[c2], &v[c1]), sub(&v[c1], &v[c3]));
+        let gram = gram_det(&k2, &k0);
+        let basis = Basis::from_pair(&k2, &k0, eps);
+        (gram > 0. && !basis.e3.iter().all(|z| z.is_finite())).then_some(gram)
+    });
+    let Some(gram) = plane else {
+        return false;
+    };
+    FAILED_CHECK.with(Cell::take);
+    INSTABILITIES.with(|list| {
+        list.borrow_mut().push((
+            lane,
+            Instability {
+                test: InstabilityTest::EuclideanPlane,
+                value: gram,
+                bound: 0.,
+            },
+        ))
+    });
+    true
+}
+
 /// Forget this thread's instabilities: [`FastAmplitude::evaluate`] starts
 /// with it, so that they stay bounded by one call's lanes.
 #[inline]
@@ -2519,7 +2553,11 @@ impl FastAmplitude {
                 rational,
             };
             if !result.laurent.iter().all(|z| z.is_finite()) || !rational.is_finite() {
-                self.lane_status[lane] = FastStatus::NonFinite;
+                self.lane_status[lane] = if any_tri && plane_refused(&self.topo, input, lane, eps) {
+                    FastStatus::Unstable
+                } else {
+                    FastStatus::NonFinite
+                };
                 continue;
             }
             // The conditioning screen's flagged boxes (`crate::conditioning`).

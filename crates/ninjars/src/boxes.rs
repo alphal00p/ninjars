@@ -294,6 +294,9 @@ impl<T: FloatLike, K: BoxReductionKernels<T>> BoxReducer<T, K> {
         output: &mut [CutOutcome<BoxResidue<T>>],
     ) -> Result<()> {
         let _license = crate::licensing::unlock_for_ninjars_operation();
+        // The box-Gram records (`crate::conditioning::take_box_gram_refusals`)
+        // belong to this evaluation, also for a direct caller.
+        crate::conditioning::clear_box_gram_refusals();
         let n = self.topology.propagators();
         let options = self.kernels.options();
         let levels = options.sample_count(n, self.topology.rank());
