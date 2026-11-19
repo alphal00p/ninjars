@@ -8,7 +8,8 @@ use crate::{
     },
 };
 use ninjars::conditioning::{
-    BOX_MU_MARGIN_BITS, box_gram_applies, box_gram_budget_bits, box_gram_slope,
+    BOX_GRAM_MARGIN_BITS, BOX_MU_MARGIN_BITS, BoxGramRefusal, box_gram_applies,
+    box_gram_budget_bits, box_gram_slope, record_box_gram_refusal,
 };
 use ninjars::{
     BatchShape, BoxCoefficientMode, BoxDivisionRequest, BoxGramRequest, BoxMuDivisionRequest,
@@ -747,6 +748,9 @@ impl<V: FloatLike, K: KernelExecutor<V>, R: Real + SingleFloat, Checks: ValueChe
                     ratio.pow(*power).real_cmp(budget),
                     Some(std::cmp::Ordering::Less | std::cmp::Ordering::Equal)
                 );
+            if !stable[row] {
+                gram_refused(r, &ratio, self.rank, budget.get_precision());
+            }
         }
         Ok(())
     }
@@ -1000,6 +1004,39 @@ where
         })
     }
 }
+/// Record a box-Gram refusal (`ninjars::conditioning::BoxGramRefusal`) of
+/// the cut `r` with `λ² = lambda_squared` at numerator rank `rank` in a
+/// carrier of `precision` bits: the predicted loss `(r + 1) / 2 · log2 λ²`
+/// in binary64 (through the carrier's natural logarithm, so that `λ²`
+/// beyond binary64's range is still measured). Refusing path only.
+#[cold]
+#[inline(never)]
+fn gram_refused<V, R: Real + SingleFloat>(
+    r: &BoxGramRequest<'_, V>,
+    lambda_squared: &R,
+    rank: usize,
+    precision: u32,
+) {
+    let loss_bits = if lambda_squared.real_cmp(lambda_squared).is_none() {
+        f64::NAN
+    } else if !lambda_squared.is_finite() {
+        f64::INFINITY
+    } else {
+        let (a, b) = box_gram_slope(rank);
+        format!("{:e}", lambda_squared.log())
+            .parse::<f64>()
+            .map_or(f64::NAN, |ln| {
+                ln / std::f64::consts::LN_2 * a as f64 / b as f64
+            })
+    };
+    record_box_gram_refusal(BoxGramRefusal {
+        id: r.id,
+        loss_bits,
+        precision_bits: precision,
+        margin_bits: BOX_GRAM_MARGIN_BITS,
+    });
+}
+
 macro_rules! implementation{
     ($name:ident<$($g:ident),+>,$value:ty,$($bounds:tt)*)=>{
         impl<$($g),+> BoxReductionKernels<$value> for $name<$($g),+> where $($bounds)*{

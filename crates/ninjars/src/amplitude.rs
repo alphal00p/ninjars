@@ -464,6 +464,7 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
         masters: &mut M,
     ) -> Result<()> {
         let _license = crate::licensing::unlock_for_ninjars_operation();
+        crate::conditioning::clear_box_gram_refusals();
         let AmplitudeInput {
             shifts,
             masses_squared,
