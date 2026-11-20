@@ -86,7 +86,9 @@ fn reserve_registers_every_master_symbol() {
     let new: Vec<_> = names().difference(&before).cloned().collect();
     assert!(
         new.is_empty(),
-        "symbols registered after reserve(): {new:?}"
+        "symbols registered after reserve(): {new:?}; append these names, in this \
+         order, at the end of crates/ninjars-symbolica/src/master_symbols.txt (never \
+         reorder the list: see `MASTER_SYMBOLS` in src/reserve.rs)"
     );
     for (symbol, name) in State::symbol_iter() {
         if listed.contains(&name) {

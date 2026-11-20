@@ -37,13 +37,21 @@ use ninjars_positional::{Error as PositionalError, Regime};
 use std::sync::OnceLock;
 
 /// Every symbol the exact master-integral evaluators refer to, one fully
-/// qualified name per line, in the order a fresh process registers them
-/// (oneloopmaster's shared definitions, then `ninjars::master_argument_*`).
-/// All are plain symbols (no attributes, tags, functions or data), so
-/// registering their names is the same registration oneloopmaster makes later.
-/// `tests/reserve.rs` fails, naming the missing symbols, if building and
-/// compiling every master after [`reserve`] registers any other symbol (a new
-/// oneloopmaster or master family), and if a listed symbol gains attributes.
+/// qualified name per line (oneloopmaster's shared definitions, then
+/// `ninjars::master_argument_*`). All are plain symbols (no attributes, tags,
+/// functions or data), so registering their names is the same registration
+/// oneloopmaster makes later.
+///
+/// **The list is fixed and append-only.** Its order fixes the symbols' IDs, and
+/// the IDs fix the instruction order of the master evaluators: reordering the
+/// list changes double-double and arbitrary-precision rounding in every
+/// process (reversing it changes 8 of 72 records of a six-topology probe).
+/// Add new names at the end; never reorder or remove lines.
+///
+/// `tests/reserve.rs` fails, naming the missing symbols to append, if building
+/// and compiling every master after [`reserve`] registers any other symbol (a
+/// new oneloopmaster or master family), and if a listed symbol gains
+/// attributes.
 const MASTER_SYMBOLS: &str = include_str!("master_symbols.txt");
 
 /// Build the positional slot pool and register every master-integral symbol
