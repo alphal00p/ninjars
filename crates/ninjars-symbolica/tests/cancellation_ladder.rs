@@ -10,9 +10,9 @@ mod conditioning;
 mod ladder;
 
 use conditioning::{Error, parse_fixture};
-use ladder::{Lane, consistent, run};
+use ladder::{Lane, consistent, run, run_rule};
 use ninjars::{Complex, DoubleFloat, Float};
-use ninjars_symbolica::cancellation_ladder::LadderOutcome;
+use ninjars_symbolica::cancellation_ladder::{LadderOutcome, LadderRule};
 
 const DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../validation/conditioning/triangle-gram");
 const REFERENCE_BITS: u32 = 512;
@@ -80,7 +80,7 @@ fn binary64_lanes_are_served_within_their_target() -> Result<(), Error> {
 
 /// MPFR base (200 bits): the lanes keep about 130 bits and are not flagged
 /// at the default target; a caller's target of 1e-50 flags them and the
-/// rule picks `L + 166 + 8` bits (256).
+/// rule picks its first rung (`2 L + 166 + 8` bits).
 #[test]
 fn mpfr_base_follows_the_callers_target() -> Result<(), Error> {
     let name = DEGENERATE[0];
@@ -91,7 +91,8 @@ fn mpfr_base_follows_the_callers_target() -> Result<(), Error> {
     let out = run(&lane, Float::with_val(200, 0), true, Some(1e-50))?;
     let rescued = out.ladder.expect("flagged at 1e-50");
     assert_eq!(rescued.outcome, LadderOutcome::Accepted);
-    assert_eq!(rescued.rungs[0], 256, "{:?}", rescued.rungs);
+    let rule = LadderRule { target: Some(1e-50), ..LadderRule::default() };
+    assert_eq!(Some(rescued.rungs[0]), rule.rung(200, out.lost_bits).map(|r| r.bits()), "{:?}", rescued.rungs);
     assert!(relative(rescued.value, reference) < 1e-15, "f64 comparison floor");
     Ok(())
 }
@@ -117,24 +118,31 @@ fn loose_targets_and_regular_lanes_are_left_alone() -> Result<(), Error> {
 }
 
 /// No served value is more wrong than its own estimate says, at every rung
-/// width the rule produces from a double-double base (first rungs 128, 192
-/// and 256 bits). A 128-bit MPFR rung of a lane that loses about 70 bits
-/// keeps far fewer bits than `p' - L'` (numerica rounds every intermediate to
-/// its tracked precision): its estimate must say so, and the ladder then
-/// climbs instead of serving it.
+/// width: 128 bits (the rule without its MPFR tracking margin, where a lane
+/// losing about 70 bits keeps far fewer bits than `p' - L'` because numerica
+/// rounds every intermediate to its tracked precision: the estimate must say
+/// so, and the lane climbs), and the default rule's first rungs at targets
+/// `2^-60`, `2^-100`, `2^-150` (192 to 320 bits).
 #[test]
 fn served_values_meet_their_estimates_at_every_rung_width() -> Result<(), Error> {
     for name in DEGENERATE {
         let lane = lane(name);
         let reference = truth(&lane);
         let lost = run(&lane, DoubleFloat::from(0.0), true, None)?.lost_bits;
-        // Targets whose first rung is 128, 192 and 256 bits for this lane.
-        for (target, first) in [
-            (2f64.powf(lost - 110.), 128),
-            (2f64.powi(-100), 192),
-            (2f64.powi(-150), 256),
-        ] {
-            let out = run(&lane, DoubleFloat::from(0.0), true, Some(target))?;
+        let untracked = LadderRule {
+            target: Some(2f64.powf(lost - 110.)),
+            mpfr_tracking: 0.,
+            ..LadderRule::default()
+        };
+        let mut cases = vec![(untracked, 128)];
+        for exponent in [-60, -100, -150] {
+            let rule = LadderRule { target: Some(2f64.powi(exponent)), ..LadderRule::default() };
+            let first = rule.rung(106, lost).expect("rung").bits();
+            cases.push((rule, first));
+        }
+        for (rule, first) in cases {
+            let target = rule.target.unwrap();
+            let out = run_rule(&lane, DoubleFloat::from(0.0), true, rule)?;
             let rescued = out.ladder.expect("flagged");
             assert_eq!(rescued.rungs[0], first, "{name} {target:e}: L {lost}");
             assert_eq!(rescued.outcome, LadderOutcome::Accepted, "{name} {target:e}: {:?}", rescued.rungs);

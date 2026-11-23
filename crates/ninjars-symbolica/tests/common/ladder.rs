@@ -146,6 +146,19 @@ pub fn run<T: LadderCarrier>(
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    run_rule(lane, prototype, ladder, LadderRule { target, ..LadderRule::default() })
+}
+
+/// [`run`] with a whole rule.
+pub fn run_rule<T: LadderCarrier>(
+    lane: &Lane,
+    prototype: T,
+    ladder: bool,
+    rule: LadderRule,
+) -> Result<Run, Error>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
     let n = lane.n;
     let zero = prototype.zero();
     let cr = |x: &Float| Complex::new(round(x, &prototype), zero.clone());
@@ -203,7 +216,7 @@ where
     }
     let by_size = by_size.into_iter().enumerate().filter(|(_, m)| *m > 0.).collect();
     let rescued = if ladder {
-        let mut ladder = PolynomialLadder::new(n, &numerator).with_rule(LadderRule { target, ..LadderRule::default() });
+        let mut ladder = PolynomialLadder::new(n, &numerator).with_rule(rule);
         let input = AmplitudeInput {
             shifts: &shifts,
             masses_squared: &masses,

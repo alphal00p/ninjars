@@ -44,12 +44,15 @@ One number drives it: the target relative accuracy `τ` of a lane
   `Unstable` (more than `p/2` bits lost) whose `ε` meets `τ` is served at its
   base value (`WithinTarget`).
 - **Rescue precision** (`LadderRule::rung`): the smallest available carrier
-  above the base with `p' >= L + log2(1/τ) + m`. Available carriers (`Rung`):
+  above the base with `p' >= L + log2(1/τ) + m`, an MPFR rung `L` bits more
+  (`mpfr_tracking`: numerica's `Float` consumes about `0.65 L` further bits of
+  tracked precision in the reduction; without it nearly every 128-bit rung
+  climbs to 192). Available carriers (`Rung`):
   double-double (106 bits) above a smaller base, MPFR at a multiple of 64
   bits from 128 (MPFR's limb: padding to it is free). Hence, at the default
-  targets, binary64 -> double-double up to `L = 71`, double-double -> MPFR
-  128 bits up to `L = 67`, 192 up to `L = 131`; MPFR `p` -> MPFR
-  `ceil64(L + p/2 + 8)`.
+  targets, binary64 -> double-double up to `L = 71`, else MPFR
+  `ceil64(2 L + 35)`; double-double -> MPFR `ceil64(2 L + 61)` (192 bits up to
+  `L = 65`, 256 up to 97); MPFR `p` -> MPFR `ceil64(2 L + p/2 + 8)`.
 - **Margin** `m = 8` bits: the rounding of a cancelling lane is `γ 2^-p M`
   with `γ = 5 .. 50` measured on the degenerate binary64 lanes
   (`ceil(log2 50) = 6`), plus one bit for measuring `L` from the base value

@@ -104,6 +104,12 @@ pub struct LadderRule {
     /// Project the rung's shifts onto their exact shells (module docs).
     /// `false` takes the given (or refined) kinematics as they are.
     pub project: bool,
+    /// Extra bits of an MPFR rung per bit lost: numerica's `Float` rounds
+    /// every intermediate to its tracked precision, which a cancelling
+    /// reduction consumes beyond `L` (measured: about `0.65 L` at 128 bits for
+    /// `L = 64`). With 1, the first MPFR rung usually suffices; the
+    /// re-measurement guarantees the value either way.
+    pub mpfr_tracking: f64,
 }
 
 /// The default target of a base carrier of `bits` bits: half its bits,
@@ -128,6 +134,7 @@ impl Default for LadderRule {
             max_rungs: 3,
             max_bits: None,
             project: true,
+            mpfr_tracking: 1.,
         }
     }
 }
@@ -148,8 +155,8 @@ impl LadderRule {
     }
 
     /// The smallest carrier above `base_bits` whose estimate meets the target
-    /// with the margin, `p' >= L + log2(1 / target) + m`, or `None` above
-    /// [`Self::max_bits`].
+    /// with the margin, `p' >= L + log2(1 / target) + m` (an MPFR rung
+    /// [`Self::mpfr_tracking`]` * L` more), or `None` above [`Self::max_bits`].
     pub fn rung(&self, base_bits: u32, lost: f64) -> Option<Rung> {
         let need = (lost.max(0.) - self.target(base_bits).log2() + self.margin_bits).ceil();
         if !need.is_finite() {
@@ -159,7 +166,11 @@ impl LadderRule {
         let rung = if need <= DOUBLE_DOUBLE_BITS {
             Rung::DoubleDouble
         } else {
-            let bits = need.max(2 * MPFR_LIMB_BITS);
+            let tracked = (f64::from(need) + self.mpfr_tracking * lost.max(0.)).ceil();
+            if !tracked.is_finite() || tracked > f64::from(u32::MAX) {
+                return None;
+            }
+            let bits = (tracked as u32).max(2 * MPFR_LIMB_BITS);
             Rung::Arbitrary(bits.div_ceil(MPFR_LIMB_BITS) * MPFR_LIMB_BITS)
         };
         (rung.bits() <= self.max_bits(base_bits)).then_some(rung)
@@ -1087,19 +1098,22 @@ mod tests {
         assert!(!rule.flags(53, 20.));
         assert_eq!(rule.rung(53, 30.), Some(Rung::DoubleDouble));
         assert_eq!(rule.rung(53, 71.), Some(Rung::DoubleDouble));
-        assert_eq!(rule.rung(53, 72.), Some(Rung::Arbitrary(128)));
-        // double-double -> MPFR at a whole number of limbs.
+        assert_eq!(rule.rung(53, 72.), Some(Rung::Arbitrary(192)));
+        // double-double -> MPFR at a whole number of limbs, L more bits for
+        // MPFR's tracking.
         assert!(rule.flags(106, 60.));
         assert!(!rule.flags(106, 50.));
-        assert_eq!(rule.rung(106, 60.), Some(Rung::Arbitrary(128)));
-        assert_eq!(rule.rung(106, 75.), Some(Rung::Arbitrary(192)));
+        assert_eq!(rule.rung(106, 60.), Some(Rung::Arbitrary(192)));
+        assert_eq!(rule.rung(106, 75.), Some(Rung::Arbitrary(256)));
+        let untracked = LadderRule { mpfr_tracking: 0., ..rule };
+        assert_eq!(untracked.rung(106, 60.), Some(Rung::Arbitrary(128)));
         // MPFR p -> MPFR p'.
-        assert_eq!(rule.rung(200, 120.), Some(Rung::Arbitrary(256)));
+        assert_eq!(rule.rung(200, 120.), Some(Rung::Arbitrary(384)));
         // A caller's target: binary64 at 1e-5 flags beyond 36 bits lost.
         let loose = LadderRule { target: Some(1e-5), ..rule };
         assert!(!loose.flags(53, 36.));
         assert!(loose.flags(53, 37.));
-        assert_eq!(loose.rung(106, 80.), Some(Rung::Arbitrary(128)));
+        assert_eq!(loose.rung(106, 80.), Some(Rung::Arbitrary(192)));
         // Above the cap: none.
         assert_eq!(rule.rung(106, 500.), None);
         assert_eq!(lost_bits(1., 1024.), 10.);
