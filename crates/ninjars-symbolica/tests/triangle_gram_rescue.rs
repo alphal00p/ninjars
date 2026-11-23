@@ -358,3 +358,31 @@ fn garbage_lanes_are_flagged_by_the_value_independent_term() -> Result<(), Error
     assert!(!rec.served && matches!(rec.outcome, RescueOutcome::Missed | RescueOutcome::Failed), "{rec:?}");
     Ok(())
 }
+
+/// The rescue under a caller's unchecked (zero) stability thresholds, as
+/// pyAmpliCol's best-effort pass runs it: no panic on any fixture (lanes
+/// with and without triangle, bubble and box cuts), every lane a typed
+/// status, every served value finite.
+#[test]
+fn zero_thresholds_never_panic() -> Result<(), Error> {
+    let zero = FastOptions {
+        stability_threshold: 0.,
+        relative_tolerance: 0.,
+        ..rescue()
+    };
+    let mut names: Vec<String> = std::fs::read_dir(DIR)?
+        .filter_map(|e| e.ok()?.file_name().into_string().ok())
+        .filter_map(|f| f.strip_suffix(".json").map(str::to_string))
+        .collect();
+    names.sort();
+    assert!(names.len() >= 5);
+    for name in names {
+        let f = fixture(&name);
+        for o in fast(&f, zero)? {
+            if o.success {
+                assert!(o.slot.iter().all(|z| z.re.is_finite() && z.im.is_finite()), "{name}");
+            }
+        }
+    }
+    Ok(())
+}
