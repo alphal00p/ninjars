@@ -168,7 +168,12 @@ fn served_values_meet_their_estimates_at_every_rung_width() -> Result<(), Error>
             assert_eq!(rescued.rungs[0], first, "{name} {target:e}: L {lost}");
             assert_eq!(rescued.outcome, LadderOutcome::Accepted, "{name} {target:e}: {:?}", rescued.rungs);
             let estimate = rescued.estimate.expect("measured");
-            assert!(estimate <= target, "{name} {target:e}: {estimate:e}");
+            // The reported estimate is that of the value returned in
+            // double-double: never below four of its units (audit m9), and
+            // within the target where the target is above that floor.
+            let floor = 4. * 2f64.powi(-106);
+            assert!(estimate >= floor, "{name} {target:e}: {estimate:e}");
+            assert!(estimate <= target.max(floor), "{name} {target:e}: {estimate:e}");
             let error = relative(rescued.value, reference);
             // f64 comparison floor 1e-15; a factor 2^8 for the growth the
             // estimate leaves out.
@@ -203,5 +208,46 @@ fn refused_lanes_carry_their_best_value() -> Result<(), Error> {
     let error = relative(best, reference);
     assert!(error <= 256. * estimate + 1e-15, "best {error:e} vs its estimate {estimate:e}");
     assert!(error < relative(out.value, reference).max(1e-15), "better than the base pass");
+    Ok(())
+}
+
+/// Audit m10: a lane the double-double base pass refuses `Unstable` is served
+/// unconfirmed (`WithinTarget`) only when its estimate meets the target with
+/// the 8-bit margin; between the two it is re-reduced.
+#[test]
+fn refused_double_double_lanes_need_the_margin() -> Result<(), Error> {
+    let lane = lane(DEGENERATE[0]);
+    let reference = truth(&lane);
+    let lost = run(&lane, DoubleFloat::from(0.0), true, Some(1e-5))?.lost_bits;
+    let estimate = 2f64.powf(lost - 106.);
+    let out = run(&lane, DoubleFloat::from(0.0), true, Some(estimate * 16.))?;
+    assert_eq!(out.status, "Unstable");
+    let rescued = out.ladder.expect("flagged");
+    assert_eq!(rescued.outcome, LadderOutcome::Accepted, "{:?}", rescued.rungs);
+    assert!(relative(rescued.value, reference) <= estimate * 16. + 1e-15);
+    let loose = run(&lane, DoubleFloat::from(0.0), true, Some(estimate * 512.))?;
+    assert_eq!(loose.ladder.expect("record").outcome, LadderOutcome::WithinTarget);
+    Ok(())
+}
+
+/// External review, finding 2: a served lane is within its reported estimate
+/// on EVERY Laurent coefficient (poles included), relative to the largest
+/// coefficient (f64 comparison floor).
+#[test]
+fn served_poles_meet_the_estimate_too() -> Result<(), Error> {
+    for name in DEGENERATE {
+        let lane = lane(name);
+        let reference = run(&lane, Float::with_val(REFERENCE_BITS, 0), false, None)?.laurent;
+        let out = run(&lane, DoubleFloat::from(0.0), true, Some(1e-23))?;
+        let rescued = out.ladder.expect("flagged");
+        assert_eq!(rescued.outcome, LadderOutcome::Accepted, "{name}");
+        let served = rescued.laurent.expect("served");
+        let estimate = rescued.estimate.expect("estimate");
+        let scale = reference.iter().map(|z| z.re.hypot(z.im)).fold(0., f64::max);
+        for k in 0..3 {
+            let error = (served[k].re - reference[k].re).hypot(served[k].im - reference[k].im) / scale;
+            assert!(error <= 256. * estimate + 1e-15, "{name} order {k}: {error:e} vs {estimate:e}");
+        }
+    }
     Ok(())
 }

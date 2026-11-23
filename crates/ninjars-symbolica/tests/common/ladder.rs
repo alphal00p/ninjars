@@ -119,6 +119,8 @@ where
 /// The ladder's result on one lane.
 pub struct Rescued {
     pub value: Complex<f64>,
+    /// Every served Laurent coefficient (finite, single, double pole).
+    pub laurent: Option<[Complex<f64>; 3]>,
     pub rungs: Vec<u32>,
     pub estimate: Option<f64>,
     pub projected: bool,
@@ -132,6 +134,8 @@ pub struct Run {
     pub status: String,
     /// The base pass's finite part (summed cut contributions).
     pub value: Complex<f64>,
+    /// The base pass's Laurent coefficients.
+    pub laurent: [Complex<f64>; 3],
     pub lost_bits: f64,
     /// Largest finite-part term moduli per cut size.
     pub by_size: Vec<(usize, f64)>,
@@ -235,6 +239,7 @@ where
                 .unwrap_or(Complex::new(f64::NAN, f64::NAN));
             Rescued {
                 value: v,
+                laurent: r.value.as_ref().map(|l| std::array::from_fn(|k| Complex::new(l[k].re.to_f64(), l[k].im.to_f64()))),
                 rungs: r.rungs,
                 estimate: r.rung_estimate,
                 projected: r.projected,
@@ -249,6 +254,7 @@ where
     };
     Ok(Run {
         status,
+        laurent: std::array::from_fn(|k| Complex::new(sum[k].re.to_f64(), sum[k].im.to_f64())),
         value,
         lost_bits: lost,
         by_size,
