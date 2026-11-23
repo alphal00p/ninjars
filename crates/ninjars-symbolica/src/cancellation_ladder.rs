@@ -383,10 +383,10 @@ pub enum LadderOutcome {
     /// The last rung's own estimate meets the target; its value is served.
     Accepted,
     /// The last rung's value lies below the base carrier's resolution of
-    /// the lane's terms (`|V'| <= 2^-p M'`): the lane vanishes up to
-    /// rounding. Its value is served; its absolute error `2^-p' M'` is below
-    /// `target 2^-m` times the base pass's `2^-p M`, but no relative accuracy
-    /// can be stated.
+    /// the lane's terms (`|V'| <= 2^-p M'`): the lane vanishes up to rounding,
+    /// so only an absolute accuracy could be stated. Refused, typed (no
+    /// value; its rung value is [`LaneRescue::best`]): the caller gave no
+    /// absolute budget.
     BelowResolution,
     /// Every rung allowed missed the target: no value is served, the lane is
     /// refused `Unstable` for the caller's own rescue.
@@ -418,7 +418,7 @@ pub struct LaneRescue<T> {
     pub projected: bool,
     pub outcome: LadderOutcome,
     /// The served Laurent coefficients rounded to the base carrier
-    /// (`Accepted`, `BelowResolution`, `WithinTarget`), else `None`.
+    /// (`Accepted`, `WithinTarget`), else `None`.
     pub value: Option<Laurent<Complex<T>>>,
     /// The best value the ladder has for this lane, served or not: the one
     /// with the smallest estimate among the base pass and every usable rung,
@@ -475,7 +475,8 @@ pub fn project_shells(
             .map(|x| x.iter().map(|c| c.to_f64() * c.to_f64()).sum::<f64>())
             .fold(0., f64::max);
         let residual = g.iter().map(|x| x.to_f64().abs()).fold(0., f64::max);
-        if residual <= scale * 2f64.powi(-(bits as i32)) * 16. {
+        // In the logarithm: `2^-bits` underflows binary64 from 1024 bits on.
+        if residual == 0. || residual.log2() <= scale.log2() - f64::from(bits) + 4. {
             return true;
         }
         if step == 6 {
@@ -624,8 +625,9 @@ where
     let mut shifts_r: Vec<[Float; 4]> = shifts_c.iter().map(|v| v.clone().map(|c| c.re)).collect();
     let mut keep = vec![false; n * n];
     if project && real_shifts && !given.is_empty() {
-        // Shell pairs: an exactly zero invariant, or one exactly equal to a
-        // real squared mass of the lane.
+        // Shell pairs: an exactly zero invariant, or one exactly equal to the
+        // real part of a squared mass of the lane (an on-shell leg of a
+        // complex-mass particle carries `Re m²`, audit m5).
         let mut pairs = Vec::new();
         for i in 0..n {
             for j in i + 1..n {
@@ -634,7 +636,7 @@ where
                     continue;
                 }
                 let shell = s.re.is_zero()
-                    || masses.iter().any(|m| m.im.is_zero() && !m.re.is_zero() && m.re == s.re);
+                    || masses.iter().any(|m| !m.re.is_zero() && m.re == s.re);
                 if shell {
                     keep[i * n + j] = true;
                     keep[j * n + i] = true;
@@ -925,6 +927,8 @@ impl PolynomialLadder {
         let width = self.parameters.len();
         let target = self.rule.target(base);
         let margin = 2f64.powf(self.rule.margin_bits);
+        // Four units of the base carrier: the floor of any served value.
+        let floor = below_bits(4., base);
         let mut pending: Vec<LaneRescue<T>> = Vec::new();
         let mut within: Vec<LaneRescue<T>> = Vec::new();
         for lane in 0..lanes {
@@ -941,7 +945,11 @@ impl PolynomialLadder {
             // only be served once a rung has confirmed it).
             let tracks = T::tracks_precision();
             let base_estimate = estimate(base, lost) * if tracks { margin } else { 1. };
-            let flagged = base_estimate > target || (tracks && status == EvaluationStatus::Unstable);
+            // A lane the engine refused is served unconfirmed only with the
+            // margin (audit m10: double-double estimates are honest within a
+            // factor 5-7, not exact); at an MPFR base never.
+            let refused = status == EvaluationStatus::Unstable;
+            let flagged = base_estimate > target || (refused && (tracks || base_estimate * margin > target));
             if !flagged {
                 if status == EvaluationStatus::Unstable {
                     within.push(LaneRescue {
@@ -1076,18 +1084,20 @@ impl PolynomialLadder {
                         None => (rung, low),
                     };
                     let own = estimate(served_rung.bits(), *lost);
-                    // The agreement of the two reductions (relative to the
-                    // served finite part, or its terms for a vanishing lane).
-                    let scale = taxicab_f(&sum[0]).max(moduli * 2f64.powi(-(base as i32)));
+                    // The agreement of the two reductions, for EVERY Laurent
+                    // coefficient (poles included), relative to the served
+                    // coefficient (an exactly zero pair agrees).
+                    let relative_to = |d: &Complex<Float>, v: &Complex<Float>| {
+                        let (d, v) = (taxicab_f(d), taxicab_f(v));
+                        if d == 0. { 0. } else if v > 0. { d / v } else { f64::INFINITY }
+                    };
                     let disagreement = match high {
-                        Some(_) => {
-                            let d = low.1[0].clone() - &sum[0];
-                            taxicab_f(&d) / scale
-                        }
+                        Some(_) => (0..3)
+                            .map(|j| relative_to(&(low.1[j].clone() - &sum[j]), &sum[j]))
+                            .fold(0., f64::max),
                         None => 0.,
                     };
                     let honest = (own * margin).max(disagreement);
-                    record.rung_estimate = Some(honest);
                     let accurate = (-honest.log2()).floor().clamp(1., f64::from(u32::MAX)) as u32;
                     let rounded: Laurent<Complex<T>> = sum.clone().map(|v| {
                         let mut re = T::from_float(&v.re, &prototype);
@@ -1096,23 +1106,45 @@ impl PolynomialLadder {
                         im.limit_precision(accurate);
                         Complex::new(re, im)
                     });
-                    if record.best.as_ref().is_none_or(|b| honest < b.estimate) {
+                    // The estimate of the value actually returned: the rung's,
+                    // plus what the narrowing to the base carrier did to every
+                    // coefficient (never below a few base units, audit m9).
+                    let bits = served_rung.bits().max(2 * MPFR_LIMB_BITS);
+                    let narrowing = (0..3)
+                        .map(|j| {
+                            let back = complex_to_float(&rounded[j], bits);
+                            relative_to(&(back - &sum[j]), &sum[j])
+                        })
+                        .fold(0., f64::max);
+                    let reported = honest.max(narrowing).max(floor);
+                    record.rung_estimate = Some(reported);
+                    if record.best.as_ref().is_none_or(|b| reported < b.estimate) {
                         record.best = Some(BestValue {
                             value: rounded.clone(),
-                            estimate: honest,
+                            estimate: reported,
                             bits: served_rung.bits(),
                         });
                     }
-                    let below = taxicab_f(&sum[0]) <= moduli * 2f64.powi(-(base as i32))
-                        && f64::from(served_rung.bits()) >= f64::from(base) - target.log2()
-                        && disagreement <= target;
-                    let served = if honest <= target {
+                    // A vanishing lane meets only an absolute criterion: it is
+                    // reported `BelowResolution`, typed and refused (its value
+                    // carried as the best one), never served as a success.
+                    let below = taxicab_f(&sum[0]) <= below_bits(*moduli, base)
+                        && f64::from(served_rung.bits()) >= f64::from(base) - target.log2();
+                    // Served: the returned value's own estimate meets the
+                    // target (narrowing included) and the rung is clearly
+                    // better than the base value (audit m5).
+                    let served = if honest <= target
+                        && honest.max(narrowing) <= target.max(floor)
+                        && honest < record.estimate
+                    {
                         Some(LadderOutcome::Accepted)
-                    } else if below {
-                        Some(LadderOutcome::BelowResolution)
                     } else {
                         None
                     };
+                    if below && served.is_none() {
+                        record.outcome = LadderOutcome::BelowResolution;
+                        continue;
+                    }
                     if let Some(outcome) = served {
                         record.outcome = outcome;
                         record.value = Some(rounded);
@@ -1186,6 +1218,16 @@ impl PolynomialLadder {
     }
 }
 
+/// `x 2^-bits` without underflowing `2^-bits` itself (`2f64.powi(-1024)` is
+/// zero): through the logarithm, for any width.
+fn below_bits(x: f64, bits: u32) -> f64 {
+    if x > 0. && x.is_finite() {
+        (x.log2() - f64::from(bits)).exp2()
+    } else {
+        0.
+    }
+}
+
 fn taxicab_f(value: &Complex<Float>) -> f64 {
     value.re.to_f64().abs() + value.im.to_f64().abs()
 }
@@ -1250,5 +1292,20 @@ mod tests {
         }
         // The point moved by the binary64 rounding only.
         assert!((shifts[1][3].to_f64() - p[3]).abs() < 1e-10);
+    }
+
+    #[test]
+    fn projection_converges_from_1024_bits_on() {
+        // Audit m8: the tolerance `2^-bits` underflowed binary64 at 1024 bits.
+        for bits in [1024, 1100] {
+            let f = |x: f64| Float::with_val(bits, x);
+            let p = [500.0, 0.3, 0.4, (500.0f64 * 500.0 - 0.25).sqrt()];
+            let mut shifts = vec![[f(0.), f(0.), f(0.), f(0.)], p.map(f)];
+            assert!(project_shells(&mut shifts, &[(0, 1, f(0.))], bits), "{bits}");
+            let d: Vec<Float> = (0..4).map(|mu| shifts[1][mu].clone() - &shifts[0][mu]).collect();
+            let s = d[0].clone() * &d[0] - &(d[1].clone() * &d[1]) - &(d[2].clone() * &d[2]) - &(d[3].clone() * &d[3]);
+            assert!(s.to_f64().abs() < 1e-290, "{bits}: {:e}", s.to_f64());
+        }
+        assert!(below_bits(1e30, 1100) > 0., "no underflow for the moduli of a lane");
     }
 }
