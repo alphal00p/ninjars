@@ -93,11 +93,19 @@ fn mpfr_base_follows_the_callers_target() -> Result<(), Error> {
     Ok(())
 }
 
-/// A loose caller target flags nothing; a regular lane is never flagged.
+/// A loose caller target re-reduces nothing: the degenerate double-double
+/// lane, refused `Unstable` by the base pass (more than half its bits lost),
+/// is served at its base value because its estimate meets the target. A
+/// regular lane is never flagged.
 #[test]
 fn loose_targets_and_regular_lanes_are_left_alone() -> Result<(), Error> {
     let degenerate = lane(DEGENERATE[0]);
-    assert!(run(&degenerate, DoubleFloat::from(0.0), true, Some(1e-5))?.ladder.is_none());
+    let out = run(&degenerate, DoubleFloat::from(0.0), true, Some(1e-5))?;
+    assert_eq!(out.status, "Unstable");
+    let served = out.ladder.expect("record");
+    assert_eq!(served.outcome, LadderOutcome::WithinTarget);
+    assert!(served.rungs.is_empty());
+    assert_eq!(served.value, out.value);
     let control = lane("ggg-0-n5-r5-control");
     let out = run(&control, DoubleFloat::from(0.0), true, None)?;
     assert!(out.ladder.is_none(), "regular lane flagged (L = {})", out.lost_bits);

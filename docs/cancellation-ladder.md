@@ -39,7 +39,10 @@ One number drives it: the target relative accuracy `τ` of a lane
   `V` their sum, the lane lost `L = log2(M / |V|)` bits (finite part; also the
   measure over the Laurent orders, which sees cancelling poles). Its error
   estimate in a carrier of `p` bits is `ε = 2^-p M / |V| = 2^(L - p)`.
-- **Trigger** (`LadderRule::flags`): `ε > τ`.
+- **Trigger** (`LadderRule::flags`): `ε > τ`. The target, not the base
+  engine's own stability test, decides: a lane the base pass refuses
+  `Unstable` (more than `p/2` bits lost) whose `ε` meets `τ` is served at its
+  base value (`WithinTarget`).
 - **Rescue precision** (`LadderRule::rung`): the smallest available carrier
   above the base with `p' >= L + log2(1/τ) + m`. Available carriers (`Rung`):
   double-double (106 bits) above a smaller base, MPFR at a multiple of 64
@@ -52,7 +55,14 @@ One number drives it: the target relative accuracy `τ` of a lane
   (`ceil(log2 50) = 6`), plus one bit for measuring `L` from the base value
   itself, plus one bit of slack.
 - **Re-measurement** (`LadderOutcome`): the rung's own estimate
-  `2^(L' - p')` is compared with `τ`: `Accepted` (served); `BelowResolution`
+  `2^(L' - p')` is compared with `τ`, where for an MPFR rung `L'` is at least
+  `p' - t`, `t` the tracked precision of the result (`tracked_bits`):
+  numerica's `Float` tracks the significant bits of every intermediate and
+  rounds to them, so a reduction keeps fewer bits than `p' - L'` (measured: a
+  128-bit rung of a lane that loses 64 bits kept about 22 bits, not 64; its
+  value was `2.5e-7` off while `2^(L'-p')` claimed `7e-20`; the tracked
+  estimate sends it to the 192-bit rung, which serves it within `1e-26`). The
+  outcome is `Accepted` (served); `BelowResolution`
   when the rung's value lies below the base carrier's resolution of the
   lane's terms, `|V'| <= 2^-p M'`, with `p' >= p + log2(1/τ)` (a lane that
   vanishes up to rounding: no relative accuracy exists, its absolute error

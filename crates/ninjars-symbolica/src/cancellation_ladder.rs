@@ -336,9 +336,13 @@ where
     }
 }
 
-/// How the ladder ended for one lane it re-reduced.
+/// How the ladder ended for one lane.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum LadderOutcome {
+    /// The base pass refused the lane ([`EvaluationStatus::Unstable`]: more
+    /// than half the carrier's bits lost) but its estimate meets the target:
+    /// its base value is served, nothing is re-reduced.
+    WithinTarget,
     /// The last rung's own estimate meets the target; its value is served.
     Accepted,
     /// The last rung's value lies below the base carrier's resolution of
@@ -773,6 +777,9 @@ pub struct LadderCounts {
     pub accepted: u64,
     pub below_resolution: u64,
     pub refused: u64,
+    /// Lanes the base pass refused `Unstable` whose estimate meets the
+    /// target (served at their base value).
+    pub within_target: u64,
     /// Lanes re-reduced per rung precision (bits): one per rung tried.
     pub reductions_by_bits: std::collections::BTreeMap<u32, u64>,
 }
@@ -825,9 +832,11 @@ impl PolynomialLadder {
     /// Rescue the lanes of the last evaluation of `amplitude` (reset before
     /// it, built with [`SymbolicaAmplitudeKernels::with_stability_test`]) on
     /// `input` and `parameters` (its numerator's parameter rows, lane-major)
-    /// that lost too many bits ([`LadderRule::flags`]). Lanes that are
-    /// neither `Success` nor `Unstable`, and lanes not flagged, are not
-    /// returned. Nothing is done when the amplitude measured nothing.
+    /// that lost too many bits ([`LadderRule::flags`]), and serves the lanes
+    /// the base pass refused `Unstable` whose estimate meets the target
+    /// ([`LadderOutcome::WithinTarget`]: the target, not half the carrier's
+    /// bits, decides). Lanes that are neither `Success` nor `Unstable`, and
+    /// successful lanes not flagged, are not returned. Nothing is done when the amplitude measured nothing.
     pub fn rescue<T: LadderCarrier>(
         &mut self,
         amplitude: &Amplitude<Complex<T>, SymbolicaAmplitudeKernels<T>>,
@@ -848,6 +857,7 @@ impl PolynomialLadder {
         let width = self.parameters.len();
         let target = self.rule.target(base);
         let mut pending: Vec<LaneRescue<T>> = Vec::new();
+        let mut within: Vec<LaneRescue<T>> = Vec::new();
         for lane in 0..lanes {
             let status = amplitude.statuses()[lane];
             if !matches!(status, EvaluationStatus::Success | EvaluationStatus::Unstable) {
@@ -856,7 +866,22 @@ impl PolynomialLadder {
             let Some((lost, _, sum)) = lane_loss(amplitude, lane) else {
                 continue;
             };
-            if self.rule.flags(base, lost) {
+            if !self.rule.flags(base, lost) {
+                if status == EvaluationStatus::Unstable {
+                    within.push(LaneRescue {
+                        lane,
+                        value: Some(sum.clone()),
+                        base: sum,
+                        lost_bits: lost,
+                        estimate: estimate(base, lost),
+                        target,
+                        rungs: Vec::new(),
+                        rung_estimate: None,
+                        projected: false,
+                        outcome: LadderOutcome::WithinTarget,
+                    });
+                }
+            } else {
                 pending.push(LaneRescue {
                     lane,
                     base: sum,
@@ -950,8 +975,11 @@ impl PolynomialLadder {
                 LadderOutcome::Accepted => self.counts.accepted += 1,
                 LadderOutcome::BelowResolution => self.counts.below_resolution += 1,
                 LadderOutcome::Missed | LadderOutcome::Failed => self.counts.refused += 1,
+                LadderOutcome::WithinTarget => {}
             }
         }
+        self.counts.within_target += within.len() as u64;
+        pending.extend(within);
         Ok(pending)
     }
 
