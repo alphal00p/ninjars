@@ -2845,13 +2845,12 @@ thread_local! {
 const BOX_GRAM_EXCESS_BITS: f64 = 11.3;
 
 /// The weight of a double-double term in a re-reduced lane's estimate,
-/// `2^-92`: double-double's `2^-104` (two bits under its `2^-106`) less a
-/// measured margin of twelve bits. On the audit's exactly consistent
-/// synthetic lanes (massless, top-mass, complex-mass and mixed lines, n = 3
-/// to 5, ranks n to n+1) the served lanes' errors exceed `2^-104 Σ|terms|`
-/// by up to `2.7e3`, on mixed massive and massless lines where the masters'
-/// own conditioning adds to the rounding; `2^12 = 4096` covers it
-/// (`docs/triangle-gram-conditioning.md`).
+/// `2^-100`: double-double's `2^-104` (two bits under its `2^-106`) with four
+/// bits of margin; each double-double `C0` term is further divided by its
+/// triangle's normalised Källén function δ (the provider's `C0` loses
+/// `log2(1/δ)` bits, measured against MPFR). Measured: no served lane above
+/// the target on two independent sets of exactly consistent synthetic lanes
+/// (`docs/triangle-gram-conditioning.md`, section 5).
 const DD_TERM_BITS: i32 = 100;
 
 /// The unit at which a re-reduced lane counts the box mu-expansion screen's

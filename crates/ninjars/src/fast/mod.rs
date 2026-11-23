@@ -317,15 +317,16 @@ pub struct Rescue {
     /// The precision of the re-reduction in bits (106: double-double).
     pub precision_bits: u32,
     /// Its own relative error estimate: `2^-53` times the moduli of its terms
-    /// that keep a binary64 factor plus `2^-92` times the others
-    /// (double-double's `2^-104` with a measured margin), over `|finite|`,
+    /// that keep a binary64 factor plus `2^-100` times the others (each
+    /// double-double `C0` term over its triangle's normalised Källén
+    /// function), over `|finite|`,
     /// plus `2^-53`; at least the box-Gram and box mu-expansion losses
     /// (`docs/triangle-gram-conditioning.md`, section 4). NaN when the
     /// re-reduction failed.
     pub estimate: f64,
     /// Its absolute error estimate (NaN for a refused lane).
     pub absolute: f64,
-    /// Whether it was served (`Accepted` or `BelowResolution`); if not, the
+    /// Whether it was served (`Accepted`); if not, the
     /// lane is [`FastStatus::Unstable`]
     /// ([`InstabilityTest::CancellationRescue`]).
     pub served: bool,
@@ -351,10 +352,11 @@ pub struct Rescue {
 pub enum RescueOutcome {
     /// Its own relative estimate meets [`FastOptions::rescue_target`]: served.
     Accepted,
-    /// It vanishes up to binary64's resolution of its own terms
-    /// (`|V'| <= 2^-53 M'`, `M'` the moduli of its terms) and its absolute
-    /// error estimate is at most the target times that resolution: served,
-    /// with no relative accuracy stated.
+    /// Reserved (the generic engine's ladder serves a lane below its base
+    /// carrier's resolution of its own terms). NOT produced by the fast
+    /// engine: such a lane's value is an ordinary part of the caller's point,
+    /// and no absolute scale of the point is known here, so a lane whose
+    /// relative estimate misses the target is `Missed`.
     BelowResolution,
     /// Neither: refused.
     Missed,
