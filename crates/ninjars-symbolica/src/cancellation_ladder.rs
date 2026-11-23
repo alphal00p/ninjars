@@ -185,6 +185,12 @@ pub trait LadderCarrier: NativeFloat {
     fn to_float(&self, bits: u32) -> Float;
     /// `value` rounded to the carrier of `prototype`.
     fn from_float(value: &Float, prototype: &Self) -> Self;
+    /// State that this value is accurate to `bits` significant bits: MPFR's
+    /// tracked precision is lowered to it (so that a caller's tracked
+    /// precision test sees the ladder's estimate); fixed carriers ignore it.
+    fn limit_precision(&mut self, bits: u32) {
+        let _ = bits;
+    }
 }
 
 impl LadderCarrier for f64 {
@@ -216,6 +222,11 @@ impl LadderCarrier for Float {
         let mut value = value.clone();
         value.set_prec(prototype.prec());
         value
+    }
+    fn limit_precision(&mut self, bits: u32) {
+        if bits < self.prec() {
+            self.set_prec(bits.max(1));
+        }
     }
 }
 
@@ -377,8 +388,23 @@ pub struct LaneRescue<T> {
     pub projected: bool,
     pub outcome: LadderOutcome,
     /// The served Laurent coefficients rounded to the base carrier
-    /// (`Accepted`, `BelowResolution`), else `None`.
+    /// (`Accepted`, `BelowResolution`, `WithinTarget`), else `None`.
     pub value: Option<Laurent<Complex<T>>>,
+    /// The best value the ladder has for this lane, served or not: the one
+    /// with the smallest estimate among the base pass and every usable rung,
+    /// with that estimate and the bits of its carrier. For a refused lane
+    /// (`Missed`, `Failed`) the caller can hand it on, wrapped as refused.
+    pub best: Option<BestValue<T>>,
+}
+
+/// A lane's best available value ([`LaneRescue::best`]).
+pub struct BestValue<T> {
+    pub value: Laurent<Complex<T>>,
+    /// Its estimated relative error `2^(L - p)` (MPFR: tracked precision
+    /// included).
+    pub estimate: f64,
+    /// Bits of the carrier it was computed in.
+    pub bits: u32,
 }
 
 /// Project one lane's real shifts (`n` four-vectors at `bits`) onto
@@ -871,6 +897,7 @@ impl PolynomialLadder {
                     within.push(LaneRescue {
                         lane,
                         value: Some(sum.clone()),
+                        best: None,
                         base: sum,
                         lost_bits: lost,
                         estimate: estimate(base, lost),
@@ -884,6 +911,11 @@ impl PolynomialLadder {
             } else {
                 pending.push(LaneRescue {
                     lane,
+                    best: Some(BestValue {
+                        value: sum.clone(),
+                        estimate: estimate(base, lost),
+                        bits: base,
+                    }),
                     base: sum,
                     lost_bits: lost,
                     estimate: estimate(base, lost),
@@ -942,6 +974,23 @@ impl PolynomialLadder {
                     }
                     let own = estimate(rung.bits(), lost);
                     record.rung_estimate = Some(own);
+                    // The rung's value, rounded to the base carrier, with the
+                    // significant bits its estimate allows.
+                    let accurate = (-own.log2()).floor().clamp(1., f64::from(u32::MAX)) as u32;
+                    let rounded: Laurent<Complex<T>> = sum.clone().map(|v| {
+                        let mut re = T::from_float(&v.re, &prototype);
+                        let mut im = T::from_float(&v.im, &prototype);
+                        re.limit_precision(accurate);
+                        im.limit_precision(accurate);
+                        Complex::new(re, im)
+                    });
+                    if record.best.as_ref().is_none_or(|b| own < b.estimate) {
+                        record.best = Some(BestValue {
+                            value: rounded.clone(),
+                            estimate: own,
+                            bits: rung.bits(),
+                        });
+                    }
                     let below = taxicab_f(&sum[0]) <= moduli * 2f64.powi(-(base as i32))
                         && f64::from(rung.bits()) >= f64::from(base) - target.log2();
                     let served = if own <= target {
@@ -953,12 +1002,7 @@ impl PolynomialLadder {
                     };
                     if let Some(outcome) = served {
                         record.outcome = outcome;
-                        record.value = Some(sum.map(|v| {
-                            Complex::new(
-                                T::from_float(&v.re, &prototype),
-                                T::from_float(&v.im, &prototype),
-                            )
-                        }));
+                        record.value = Some(rounded);
                     } else {
                         record.outcome = LadderOutcome::Missed;
                         next[k] = self.rule.rung(base, lost).filter(|r| r.bits() > rung.bits());

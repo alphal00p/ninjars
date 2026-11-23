@@ -112,3 +112,33 @@ fn loose_targets_and_regular_lanes_are_left_alone() -> Result<(), Error> {
     assert_eq!(out.status, "Success");
     Ok(())
 }
+
+/// No served value is more wrong than its own estimate says, at every rung
+/// width the rule produces from a double-double base (first rungs 128, 192
+/// and 256 bits). A 128-bit MPFR rung of a lane that loses about 70 bits
+/// keeps far fewer bits than `p' - L'` (numerica rounds every intermediate to
+/// its tracked precision): its estimate must say so, and the ladder then
+/// climbs instead of serving it.
+#[test]
+fn served_values_meet_their_estimates_at_every_rung_width() -> Result<(), Error> {
+    for name in DEGENERATE {
+        let lane = lane(name);
+        let reference = truth(&lane);
+        for (target, first) in [(2f64.powi(-40), 128), (2f64.powi(-100), 192), (2f64.powi(-150), 256)] {
+            let out = run(&lane, DoubleFloat::from(0.0), true, Some(target))?;
+            let rescued = out.ladder.expect("flagged");
+            let need = out.lost_bits - target.log2() + 8.;
+            if need <= 128. {
+                assert_eq!(rescued.rungs[0], first, "{name} {target:e}");
+            }
+            assert_eq!(rescued.outcome, LadderOutcome::Accepted, "{name} {target:e}: {:?}", rescued.rungs);
+            let estimate = rescued.estimate.expect("measured");
+            assert!(estimate <= target, "{name} {target:e}: {estimate:e}");
+            let error = relative(rescued.value, reference);
+            // f64 comparison floor 1e-15; a factor 2^8 for the growth the
+            // estimate leaves out.
+            assert!(error <= 256. * estimate + 1e-15, "{name} {target:e}: error {error:e}, estimate {estimate:e}, rungs {:?}", rescued.rungs);
+        }
+    }
+    Ok(())
+}
