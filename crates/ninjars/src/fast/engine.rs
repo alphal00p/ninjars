@@ -2855,9 +2855,10 @@ const BOX_GRAM_EXCESS_BITS: f64 = 11.3;
 /// consistent synthetic lanes (168 and 293 lanes, n = 3 to 6, massless,
 /// massive, complex and mixed lines; worst actual/estimate 1.01): an
 /// empirical weight, not a proof. C0 and D0 terms are further divided by the
-/// normalised Källén function δ of their (most degenerate sub-)triangle: they
-/// lose `log2(1/δ)` bits (measured: C0 `2^-104/δ`, D0 up to `2^-77` at a box
-/// with a degenerate sub-triangle).
+/// normalised Källén function δ of their triangle (C0, `1/δ`) or by δ² of the
+/// most degenerate sub-triangle (D0, `1/δ²`): measured against 200-bit MPFR,
+/// C0 at `2^-104/δ`, D0 up to `2^-104/δ²` (`2^-77` at a box with a degenerate
+/// sub-triangle).
 const DD_TERM_BITS: i32 = 100;
 
 /// The unit at which a re-reduced lane counts the box mu-expansion screen's
@@ -3030,19 +3031,28 @@ impl FastAmplitude {
             return Ok(());
         }
         for (lane, served) in self.rescue_cancelling_lanes(input, num, masters, refinement) {
-            if served {
-                results[lane] = self.staged[lane];
-                statuses[lane] = FastStatus::Success;
-                // A box mu-expansion refusal the re-reduction cured.
-                INSTABILITIES.with(|list| {
-                    list.borrow_mut()
-                        .retain(|(l, i)| !(*l == lane && i.test == InstabilityTest::BoxMuConditioning))
-                });
-            } else {
-                // Typed refusal; the slot carries the best available value
-                // (`Rescue::held_bits`, `held_estimate`).
-                results[lane] = self.staged[lane];
-                statuses[lane] = FastStatus::Unstable;
+            match served {
+                Some(true) => {
+                    results[lane] = self.staged[lane];
+                    statuses[lane] = FastStatus::Success;
+                    // A box mu-expansion refusal the re-reduction cured.
+                    INSTABILITIES.with(|list| {
+                        list.borrow_mut()
+                            .retain(|(l, i)| !(*l == lane && i.test == InstabilityTest::BoxMuConditioning))
+                    });
+                }
+                Some(false) => {
+                    // Typed refusal; the slot carries the best available
+                    // value (`Rescue::held_bits`, `held_estimate`).
+                    results[lane] = self.staged[lane];
+                    statuses[lane] = FastStatus::Unstable;
+                }
+                None => {
+                    // Outside the rescue's domain: the binary64 value and
+                    // status stay (a refused binary64 lane's slot gets its
+                    // value).
+                    results[lane] = self.staged[lane];
+                }
             }
         }
         Ok(())
@@ -3094,7 +3104,7 @@ impl FastAmplitude {
         num: &N,
         masters: &mut M,
         refinement: Option<&dyn FastRefinementSource>,
-    ) -> Vec<(usize, bool)> {
+    ) -> Vec<(usize, Option<bool>)> {
         let unit = 2f64.powi(-(f64::MANTISSA_DIGITS as i32));
         let target = self.options.rescue_target;
         let screened: Vec<usize> = INSTABILITIES.with(|list| {
@@ -3199,7 +3209,7 @@ impl FastAmplitude {
         masters: &mut M,
         refinement: Option<&dyn FastRefinementSource>,
         flagged: &[(usize, Cursor, f64, f64)],
-    ) -> Vec<(usize, bool)> {
+    ) -> Vec<(usize, Option<bool>)> {
         use super::dd::{Cd, Dd, mp_rr as mp_rr_d};
         use super::dd_driver::{DdTensor, project_light_like};
         let n = self.topo.n;
@@ -3215,6 +3225,7 @@ impl FastAmplitude {
         // Lanes at the caller's refined point: every master must then be the
         // provider's double-double one at that point (one point per lane).
         let mut at_refined = vec![false; k];
+        let mut outside = vec![false; k];
         let mut tensor = DdTensor::new(self.topo.rank);
         let (mut lo_v, mut lo_s, mut lo_m) =
             (vec![[0.; 4]; n], vec![0.; n * n], vec![C64::ZERO; n]);
@@ -3275,6 +3286,23 @@ impl FastAmplitude {
                 shifts.extend(v);
             }
             at_refined[r] = refined;
+            // Without a (consistent) refinement, a lane with an on-shell
+            // MASSIVE leg is outside the domain: the projection makes only
+            // massless pairs exact, so the masters (at the exact mass) and the
+            // cut geometry (at the binary64 shell residue) would sit at two
+            // points. Such lanes need the caller's refined kinematics.
+            if !refined {
+                outside[r] = (0..n).any(|i| {
+                    (0..i).any(|j| {
+                        let given = s[i * n + j];
+                        given.abs() >= eps
+                            && (0..n).any(|q| {
+                                let mq = input.masses_squared[lane * n + q];
+                                mq.im == 0. && mq.re != 0. && (given - mq.re).abs() < eps
+                            })
+                    })
+                });
+            }
             // A caller-given invariant strictly between zero and
             // `infrared_eps` is zero by the engine's convention (cut bases,
             // scaleless bubbles, on-shell masters) but not by the caller's
@@ -3328,11 +3356,29 @@ impl FastAmplitude {
         })();
         let mut outcome = Vec::with_capacity(k);
         for (r, &(lane, cursor, binary64_estimate, binary64_absolute)) in flagged.iter().enumerate() {
+            if outside[r] {
+                RESCUES.with(|list| {
+                    list.borrow_mut().push((
+                        lane,
+                        super::Rescue {
+                            precision_bits: 106,
+                            estimate: f64::NAN,
+                            absolute: f64::NAN,
+                            served: false,
+                            outcome: super::RescueOutcome::OutsideDomain,
+                            held_bits: 53,
+                            held_estimate: binary64_estimate,
+                        },
+                    ))
+                });
+                outcome.push((lane, None));
+                continue;
+            }
             if stages.is_err() || !dd.alive[r] || !consistent[r] {
                 // A degenerate or non-finite quantity, or a projection that
                 // could not be solved: no estimate, a typed refusal.
                 self.refuse_lane(lane, f64::NAN, f64::NAN, (53, binary64_estimate));
-                outcome.push((lane, false));
+                outcome.push((lane, Some(false)));
                 continue;
             }
             let mut cursor = cursor.0;
@@ -3371,8 +3417,9 @@ impl FastAmplitude {
             };
             // A triangle's normalised Källén function `sqrt|λ(a, b, c)| / max`
             // of its external invariants: the provider's double-double C0
-            // loses log2(1/δ) bits there, and D0 that of its most degenerate
-            // sub-triangle (both measured against 200-bit MPFR).
+            // loses log2(1/δ) bits there, and D0 2 log2(1/δ) of its most
+            // degenerate sub-triangle (both measured against 200-bit MPFR by
+            // the second audit: C0 at 2^-104/δ, D0 at up to 2^-104/δ²).
             let delta = |a: Cd, b: Cd, c: Cd| -> f64 {
                 let [a, b, c] = [a, b, c].map(|z| z.re.to_f64());
                 let big = a.abs().max(b.abs()).max(c.abs());
@@ -3409,7 +3456,7 @@ impl FastAmplitude {
                         ]
                         .into_iter()
                         .fold(1f64, f64::min);
-                        mdd += size(c0 * integral[0]) / worst;
+                        mdd += size(c0 * integral[0]) / (worst * worst);
                     } else {
                         m64 += size(c0 * integral[0]);
                     }
@@ -3615,7 +3662,7 @@ impl FastAmplitude {
                 // Refused, typed; the slot keeps the better value: the
                 // re-reduced one when it is at one point and its absolute
                 // estimate is below the binary64 lane's.
-                let held = if one_point && absolute < binary64_absolute {
+                let held = if one_point && absolute <= binary64_absolute / 16. {
                     self.staged[lane] = result;
                     (106, estimate)
                 } else {
@@ -3623,9 +3670,49 @@ impl FastAmplitude {
                 };
                 self.refuse_lane(lane, estimate, absolute, held);
             }
-            outcome.push((lane, served));
+            outcome.push((lane, Some(served)));
         }
-        RESCUED.with(|c| c.set(c.get() + outcome.iter().filter(|(_, s)| *s).count() as u64));
+        RESCUED.with(|c| c.set(c.get() + outcome.iter().filter(|(_, s)| *s == Some(true)).count() as u64));
         outcome
+    }
+}
+
+#[cfg(test)]
+mod rescue_record_tests {
+    use super::*;
+
+    fn record() -> super::super::Rescue {
+        super::super::Rescue {
+            precision_bits: 106,
+            estimate: 0.,
+            absolute: 0.,
+            served: true,
+            outcome: super::super::RescueOutcome::Accepted,
+            held_bits: 106,
+            held_estimate: 0.,
+        }
+    }
+
+    /// The records of a declared rank n+2 batch's lowered sub-batch name the
+    /// batch's lanes (`declared_rank.rs` remaps them like the instabilities);
+    /// records made before the sub-batch are left alone.
+    #[test]
+    fn sub_batch_rescue_records_name_the_batch_lanes() {
+        RESCUES.with(|list| {
+            let mut list = list.borrow_mut();
+            list.clear();
+            list.push((0, record()));
+            list.push((1, record()));
+        });
+        let from = rescues_len();
+        RESCUES.with(|list| {
+            let mut list = list.borrow_mut();
+            list.push((0, record()));
+            list.push((1, record()));
+        });
+        let batch_lanes = [5, 7];
+        remap_rescues(from, |lane| batch_lanes[lane]);
+        let lanes: Vec<usize> = take_rescues().into_iter().map(|(lane, _)| lane).collect();
+        assert_eq!(lanes, [0, 1, 5, 7]);
     }
 }
