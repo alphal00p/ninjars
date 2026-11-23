@@ -388,3 +388,10 @@ pass it bitwise.
     (both at the binary64 floor of the master contraction);
   - every other fast lane, the generic sections and the explicit-`mu²`
     numerators keep their bits, and no lane status changed.
+- The selective re-reduction (`b0e4dc6`: only the cuts of a flagged lane that
+  carry its cancellation are recomputed) moves the same three lanes again
+  (re-blessed with `12bcfad`'s successor): errors against the 256-bit
+  reductions ggHHH lane 1 `2.3e-18` (was `4.1e-18`; binary64 `1.9e-17`),
+  syn-n6-r6 lane 0 `6.9e-20` (unchanged), syn-n6-r7 lane 1 `4.0e-24`
+  (`3.5e-24`; binary64 `1.5e-24`, a lane `1e-5.6` of its terms). Nothing else
+  moved.

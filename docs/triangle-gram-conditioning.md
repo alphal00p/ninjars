@@ -202,7 +202,14 @@ layouts of `FastInput` (`shifts[lane * n + i]` four components;
 `s_matrix[lane * n * n + i * n + j]`, only with an `s_matrix` in `FastInput`;
 `masses_squared[lane * n + i]`), so that each rescue-precision value is the
 `FastInput` value plus its low part (double-double for this binary64 engine).
-`evaluate(..)` is `evaluate_refined(.., None, ..)`.
+`evaluate(..)` is `evaluate_refined(.., None, ..)`. A lazy form,
+`evaluate_refined_with(input, Option<&dyn FastRefinementSource>, ..)`, asks
+the source only for the lanes the re-reduction takes up
+(`FastRefinementSource::lane(lane, shifts_lo, s_matrix_lo, masses_lo) ->
+bool`, buffers zeroed on entry; `false` = repairs for that lane; a NaN
+invariant low part = that invariant from the refined shifts); `FastRefinement`
+implements it. Low parts need not be normalised against the `FastInput`
+values: the rescue forms each value by an exact double-double two-sum.
 
 - The binary64 pass reads `FastInput` only, bit for bit as without a
   refinement (`refined_kinematics_drive_the_rescue`).
@@ -217,6 +224,7 @@ layouts of `FastInput` (`shifts[lane * n + i]` four components;
   consistent with them. An inconsistent refinement degrades the rescue to the
   binary64 level (the test's all-zero refinement: the lanes stay `1e3`
   off), it never touches the binary64 pass.
-- The refinement is copied per call into a thread-local buffer (no `unsafe`;
-  capacity kept) and read only for flagged lanes. Lanes that the rank n+2
-  engine reduces at a lower rank are renumbered and use the repairs.
+- The rescue runs after each entry point has published its lanes
+  (`rescue_after`), with the refinement passed explicitly; it is read only for
+  flagged lanes. Lanes that the rank n+2 engine reduces at a lower rank are
+  renumbered and use the repairs.

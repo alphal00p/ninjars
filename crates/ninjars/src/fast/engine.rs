@@ -32,7 +32,10 @@ use super::geometry::{
 use super::masters::{FastMaster, FastMasters};
 use super::numerator::{FastNumerator, t2_len_le3, t3_len};
 use super::subtractions as subs;
-use super::{FastInput, FastRefinement, FastResult, FastStatus, Instability, InstabilityTest};
+use super::{
+    FastInput, FastRefinement, FastRefinementSource, FastResult, FastStatus, Instability,
+    InstabilityTest,
+};
 use crate::conditioning::{
     BoxMuConditioning, BoxMuPropagation, box_mu_numerator_ratio, box_mu_refused, box_mu_rounding,
 };
@@ -1141,6 +1144,7 @@ impl FastAmplitude {
         let n = self.topo.n;
         if let Some(r) = refinement {
             let lanes = input.lanes;
+            let s_len = if input.s_matrix.is_some() { lanes * n * n } else { 0 };
             for (name, expected, actual) in [
                 ("fast refinement shifts", lanes * n, r.shifts.len()),
                 (
@@ -1148,11 +1152,7 @@ impl FastAmplitude {
                     lanes * n,
                     r.masses_squared.map_or(lanes * n, |m| m.len()),
                 ),
-                (
-                    "fast refinement S-matrix",
-                    if input.s_matrix.is_some() { lanes * n * n } else { 0 },
-                    r.s_matrix.map_or(if input.s_matrix.is_some() { lanes * n * n } else { 0 }, |s| s.len()),
-                ),
+                ("fast refinement S-matrix", s_len, r.s_matrix.map_or(s_len, |s| s.len())),
             ] {
                 if expected != actual {
                     return Err(Error::Shape {
@@ -1163,11 +1163,27 @@ impl FastAmplitude {
                 }
             }
         }
-        // The lanes the rank n+2 engine lowers are renumbered: no refinement.
-        let refinement = refinement.filter(|_| {
-            !matches!(self.replacement.as_deref(), Some(Replacement::RankN2 { .. }))
-        });
-        let _scope = RefinementScope::set(refinement);
+        self.evaluate_refined_with(
+            input,
+            refinement.map(|r| r as &dyn FastRefinementSource),
+            numerator,
+            masters,
+            results,
+            statuses,
+        )
+    }
+
+    /// [`Self::evaluate_refined`] with a lazy [`FastRefinementSource`], asked
+    /// only for the lanes the re-reduction takes up.
+    pub fn evaluate_refined_with<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
+        &mut self,
+        input: &FastInput,
+        refinement: Option<&dyn FastRefinementSource>,
+        numerator: &mut N,
+        masters: &mut M,
+        results: &mut [FastResult],
+        statuses: &mut [FastStatus],
+    ) -> Result<()> {
         clear_instabilities();
         if masters.requires_scaleless_bubbles() {
             return Err(Error::Unsupported(
@@ -1178,15 +1194,19 @@ impl FastAmplitude {
         if let Some(replacement) = self.replacement.as_deref_mut() {
             // Both entries are cold and never inlined.
             return match replacement {
+                // The lowered lanes are renumbered: they take the rescue in
+                // `evaluate_lowered`, without the refinement.
                 Replacement::RankN2 { .. } => {
                     evaluate_declared_n2(self, input, numerator, masters, results, statuses)
                 }
                 Replacement::Conditioned(engine) => {
-                    evaluate_conditioned(engine, input, numerator, masters, results, statuses)
+                    evaluate_conditioned(engine, input, numerator, masters, results, statuses)?;
+                    engine.amp.rescue_after(input, numerator, refinement, results)
                 }
             };
         }
-        self.evaluate_up_to_n1(input, numerator, masters, results, statuses)
+        self.evaluate_up_to_n1(input, numerator, masters, results, statuses)?;
+        self.rescue_after(input, numerator, refinement, results)
     }
 
     /// [`Self::evaluate`] for the rank <= n+1 engines that `declared_rank.rs`
@@ -1206,9 +1226,13 @@ impl FastAmplitude {
         statuses: &mut [FastStatus],
     ) -> Result<()> {
         match self.replacement.as_deref_mut() {
-            None => self.evaluate_up_to_n1(input, numerator, masters, results, statuses),
+            None => {
+                self.evaluate_up_to_n1(input, numerator, masters, results, statuses)?;
+                self.rescue_after(input, numerator, None, results)
+            }
             Some(Replacement::Conditioned(engine)) => {
-                evaluate_conditioned(engine, input, numerator, masters, results, statuses)
+                evaluate_conditioned(engine, input, numerator, masters, results, statuses)?;
+                engine.amp.rescue_after(input, numerator, None, results)
             }
             Some(Replacement::RankN2 { .. }) => {
                 unreachable!("the lowered engines have rank <= n+1")
@@ -1275,9 +1299,6 @@ impl FastAmplitude {
             self.tadpoles(input, numerator)?;
         }
         self.integrate(input, masters)?;
-        if self.options.cancellation_rescue {
-            self.rescue_cancelling_lanes(input, numerator)?;
-        }
         // Publish only after every provider call succeeded.
         for lane in 0..lanes {
             if self.lane_status[lane] == FastStatus::Success {
@@ -2744,58 +2765,6 @@ thread_local! {
     static RESCUED: Cell<u64> = const { Cell::new(0) };
 }
 
-thread_local! {
-    /// A copy of the refinement of the current [`FastAmplitude::evaluate_refined`]
-    /// call on this thread, present while its [`RefinementScope`] lives (the
-    /// buffers keep their capacity between calls).
-    static REFINEMENT: RefCell<OwnedRefinement> = const { RefCell::new(OwnedRefinement::new()) };
-}
-
-#[derive(Default)]
-struct OwnedRefinement {
-    present: bool,
-    shifts: Vec<RMom>,
-    s_matrix: Option<Vec<f64>>,
-    masses: Option<Vec<C64>>,
-}
-
-impl OwnedRefinement {
-    const fn new() -> Self {
-        Self {
-            present: false,
-            shifts: Vec::new(),
-            s_matrix: None,
-            masses: None,
-        }
-    }
-}
-
-/// Copies this thread's refinement for one evaluation and withdraws it on
-/// drop (also on an early return or a panic).
-struct RefinementScope;
-
-impl RefinementScope {
-    fn set(r: Option<&FastRefinement>) -> Self {
-        REFINEMENT.with(|c| {
-            let mut c = c.borrow_mut();
-            c.present = r.is_some();
-            if let Some(r) = r {
-                c.shifts.clear();
-                c.shifts.extend_from_slice(r.shifts);
-                c.s_matrix = r.s_matrix.map(|s| s.to_vec());
-                c.masses = r.masses_squared.map(|m| m.to_vec());
-            }
-        });
-        Self
-    }
-}
-
-impl Drop for RefinementScope {
-    fn drop(&mut self) {
-        REFINEMENT.with(|c| c.borrow_mut().present = false);
-    }
-}
-
 /// The number of lanes this thread re-reduced in double-double
 /// ([`FastOptions::cancellation_rescue`]) since the last call.
 pub fn take_rescued_lanes() -> u64 {
@@ -3019,6 +2988,25 @@ impl FastAmplitude {
         sum
     }
 
+    /// The rescue after an evaluation published its lanes: re-reduce the
+    /// flagged ones and publish their new values (statuses unchanged).
+    #[inline(never)]
+    fn rescue_after<N: FastNumerator + ?Sized>(
+        &mut self,
+        input: &FastInput,
+        num: &N,
+        refinement: Option<&dyn FastRefinementSource>,
+        results: &mut [FastResult],
+    ) -> Result<()> {
+        if !self.options.cancellation_rescue {
+            return Ok(());
+        }
+        for lane in self.rescue_cancelling_lanes(input, num, refinement)? {
+            results[lane] = self.staged[lane];
+        }
+        Ok(())
+    }
+
     /// [`FastOptions::cancellation_rescue`]: after `integrate`, re-reduce in
     /// double-double the successful lanes whose term moduli exceed the
     /// target, from the triple cuts down, with the binary64 box coefficients
@@ -3030,9 +3018,10 @@ impl FastAmplitude {
         &mut self,
         input: &FastInput,
         num: &N,
-    ) -> Result<()> {
+        refinement: Option<&dyn FastRefinementSource>,
+    ) -> Result<Vec<usize>> {
         if !self.any_triangle() {
-            return Ok(());
+            return Ok(Vec::new());
         }
         let limit = 2f64.powi(f64::MANTISSA_DIGITS as i32 - CANCELLATION_TARGET_BITS);
         let cursors = self.master_cursors(input);
@@ -3050,10 +3039,10 @@ impl FastAmplitude {
             }
         }
         if flagged.is_empty() {
-            return Ok(());
+            return Ok(Vec::new());
         }
         let (n, rank) = (self.topo.n, self.topo.rank);
-        DD_STAGES.with(|cell| -> Result<()> {
+        DD_STAGES.with(|cell| -> Result<Vec<usize>> {
             let mut list = cell.borrow_mut();
             let index = match list.iter().position(|(key, _)| *key == (n, rank)) {
                 Some(index) => index,
@@ -3067,7 +3056,7 @@ impl FastAmplitude {
             };
             let dd = &mut list[index].1;
             dd.options = self.options;
-            self.rescue_with(dd, input, num, &flagged)
+            self.rescue_with(dd, input, num, refinement, &flagged)
         })
     }
 
@@ -3076,8 +3065,9 @@ impl FastAmplitude {
         dd: &mut super::dd_driver::DdStages,
         input: &FastInput,
         num: &N,
+        refinement: Option<&dyn FastRefinementSource>,
         flagged: &[(usize, Cursor)],
-    ) -> Result<()> {
+    ) -> Result<Vec<usize>> {
         use super::dd::{Cd, Dd, mp_rr as mp_rr_d};
         use super::dd_driver::{DdTensor, bubble_tensors, massless_b0, massless_c0, project_light_like};
         let n = self.topo.n;
@@ -3091,43 +3081,51 @@ impl FastAmplitude {
         let mut tensor = DdTensor::new(self.topo.rank);
         // Per flagged lane the refined invariants (n x n), if supplied.
         let mut smat_dd: Vec<Dd> = Vec::new();
-        let owned = REFINEMENT.with(|c| c.take());
-        let refinement = owned.present.then(|| FastRefinement {
-            shifts: &owned.shifts,
-            s_matrix: owned.s_matrix.as_deref(),
-            masses_squared: owned.masses.as_deref(),
-        });
+        let (mut lo_v, mut lo_s, mut lo_m) =
+            (vec![[0.; 4]; n], vec![0.; n * n], vec![C64::ZERO; n]);
         for &(lane, _) in flagged {
             let s = &self.smat[lane * n * n..(lane + 1) * n * n];
             let hi = &input.shifts[lane * n..(lane + 1) * n];
-            if let Some(r) = &refinement {
-                let lo = &r.shifts[lane * n..(lane + 1) * n];
+            lo_v.fill([0.; 4]);
+            lo_s.fill(0.);
+            lo_m.fill(C64::ZERO);
+            let refined = refinement.is_some_and(|r| r.lane(lane, &mut lo_v, &mut lo_s, &mut lo_m));
+            let first = shifts.len();
+            if refined {
+                // Exact two-sums: the low parts need not be normalised.
                 shifts.extend(
                     hi.iter()
-                        .zip(lo)
+                        .zip(&lo_v)
                         .map(|(h, l)| std::array::from_fn(|mu| Dd::from(h[mu]) + l[mu])),
                 );
-                if let (Some(lo), Some(_)) = (r.s_matrix, input.s_matrix) {
-                    let lo = &lo[lane * n * n..(lane + 1) * n * n];
-                    smat_dd.extend(s.iter().zip(lo).map(|(&h, &l)| Dd::from(h) + l));
-                }
             } else {
                 let mut v: Vec<[Dd; 4]> = hi.iter().map(|x| x.map(Dd::from)).collect();
                 project_light_like(&mut v, s, n);
                 shifts.extend(v);
             }
-            let mlo = refinement.as_ref().and_then(|r| r.masses_squared);
+            // Per lane n x n invariants: refined (from the source, or from the
+            // refined shifts where it gives NaN or the input has none), else
+            // NaN (the projected geometry's, computed at the contraction).
+            let vd = &shifts[first..first + n];
+            for i in 0..n {
+                for j in 0..n {
+                    smat_dd.push(if !refined {
+                        Dd::from(f64::NAN)
+                    } else if input.s_matrix.is_some() && !lo_s[i * n + j].is_nan() {
+                        Dd::from(s[i * n + j]) + lo_s[i * n + j]
+                    } else {
+                        let d: [Dd; 4] = std::array::from_fn(|mu| vd[i][mu] - vd[j][mu]);
+                        mp_rr_d(&d, &d)
+                    });
+                }
+            }
             masses.extend((0..n).map(|i| {
                 let h = Cd::from_c64(input.masses_squared[lane * n + i]);
-                match mlo {
-                    Some(lo) => h + Cd::from_c64(lo[lane * n + i]),
-                    None => h,
-                }
+                if refined { h + Cd::from_c64(lo_m[i]) } else { h }
             }));
             smat.extend_from_slice(s);
             tensor.push_lane(num.tensor_coefficients(lane).expect("checked"));
         }
-        REFINEMENT.with(|c| c.replace(owned));
         let ddin = super::dd_driver::FastInput {
             lanes: k,
             shifts: &shifts,
@@ -3176,7 +3174,7 @@ impl FastAmplitude {
         if dd.any_tadpole() {
             dd.tadpoles(&ddin, &mut tensor)?;
         }
-        let mut rescued = 0;
+        let mut rescued = Vec::new();
         for (r, &(lane, cursor)) in flagged.iter().enumerate() {
             if !dd.alive[r] {
                 continue;
@@ -3193,10 +3191,10 @@ impl FastAmplitude {
             // coefficients, which hold only for this geometry (the masters
             // keep the given invariants; their difference is of order
             // `2^-53` times these).
-            let refined_s = (!smat_dd.is_empty()).then(|| &smat_dd[r * n * n..(r + 1) * n * n]);
+            let refined_s = &smat_dd[r * n * n..(r + 1) * n * n];
             let sd = |i: usize, j: usize| -> Dd {
-                if let Some(s) = refined_s {
-                    return s[i * n + j];
+                if !refined_s[i * n + j].hi.is_nan() {
+                    return refined_s[i * n + j];
                 }
                 let d: [Dd; 4] = std::array::from_fn(|mu| vd[i][mu] - vd[j][mu]);
                 mp_rr_d(&d, &d)
@@ -3362,10 +3360,10 @@ impl FastAmplitude {
             };
             if result.laurent.iter().all(|z| z.is_finite()) && result.rational.is_finite() {
                 self.staged[lane] = result;
-                rescued += 1;
+                rescued.push(lane);
             }
         }
-        RESCUED.with(|c| c.set(c.get() + rescued));
-        Ok(())
+        RESCUED.with(|c| c.set(c.get() + rescued.len() as u64));
+        Ok(rescued)
     }
 }

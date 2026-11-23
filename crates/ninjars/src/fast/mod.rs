@@ -125,6 +125,46 @@ pub struct FastRefinement<'a> {
     pub masses_squared: Option<&'a [C64]>,
 }
 
+/// A lazy source of rescue-precision kinematics ([`FastRefinement`]'s
+/// semantics), asked only for the lanes the re-reduction takes up
+/// ([`FastAmplitude::evaluate_refined_with`]).
+pub trait FastRefinementSource {
+    /// Fill lane `lane`'s low parts: `shifts` (`n`), `s_matrix` (`n * n`, as
+    /// `FastInput::s_matrix`; when `FastInput` has none it is ignored) and
+    /// `masses_squared` (`n`), all zero on entry. `false`: no refinement for
+    /// this lane (the internal repairs serve it).
+    fn lane(
+        &self,
+        lane: usize,
+        shifts: &mut [RMom],
+        s_matrix: &mut [f64],
+        masses_squared: &mut [C64],
+    ) -> bool;
+}
+
+impl FastRefinementSource for FastRefinement<'_> {
+    fn lane(
+        &self,
+        lane: usize,
+        shifts: &mut [RMom],
+        s_matrix: &mut [f64],
+        masses_squared: &mut [C64],
+    ) -> bool {
+        let n = shifts.len();
+        shifts.copy_from_slice(&self.shifts[lane * n..(lane + 1) * n]);
+        match self.s_matrix {
+            Some(s) => s_matrix.copy_from_slice(&s[lane * n * n..(lane + 1) * n * n]),
+            // The invariants of the refined shifts: flagged by NaN, which the
+            // re-reduction replaces by the refined shifts' own invariants.
+            None => s_matrix.fill(f64::NAN),
+        }
+        if let Some(m) = self.masses_squared {
+            masses_squared.copy_from_slice(&m[lane * n..(lane + 1) * n]);
+        }
+        true
+    }
+}
+
 /// Per-lane outcome of a fast-path evaluation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum FastStatus {

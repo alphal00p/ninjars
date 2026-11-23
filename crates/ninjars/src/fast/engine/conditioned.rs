@@ -70,9 +70,6 @@ impl FastAmplitude {
             self.tadpoles_conditioned(input, numerator, tadpole_bases)?;
         }
         self.integrate(input, masters)?;
-        if self.options.cancellation_rescue {
-            self.rescue_cancelling_lanes(input, numerator)?;
-        }
         // Publish only after every provider call succeeded.
         for lane in 0..lanes {
             if self.lane_status[lane] == FastStatus::Success {
