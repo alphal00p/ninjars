@@ -374,7 +374,7 @@ pass it bitwise.
     most 7.3e-67 of the lane's largest component;
   - no lane status changed.
 - `FastOptions::cancellation_rescue` (`docs/triangle-gram-conditioning.md`,
-  default on) re-reduces in double-double the fast lanes whose term moduli
+  default on at the time) re-reduces in double-double the fast lanes whose term moduli
   exceed `2^23` times their finite part. Three V0 lanes qualify, all
   synthetic lanes whose finite part is a near-total cancellation; the fast
   `TensorNumerator` section was re-blessed in place for them and nothing else
@@ -404,3 +404,10 @@ pass it bitwise.
   `Unstable` (`cancellation rescue: estimated error ... target <= ...`), its
   value the binary64 one (`1.9e-17` off, `1.6e-5` relative), instead of a
   success. Nothing else moved; no other status changed.
+- `FastOptions::cancellation_rescue` now defaults to `false` (callers that
+  keep a test of their own behind it turn it on: pyAmpliCol's checked mode).
+  The regression runs the defaults, so the file is back, byte for byte, to the
+  baseline before the rescue (`a2546170`): the three lanes above carry their
+  binary64 values again and every status is the binary64 engine's. The
+  rescue's own regression is `crates/ninjars-symbolica/tests/
+  triangle_gram_rescue.rs`.

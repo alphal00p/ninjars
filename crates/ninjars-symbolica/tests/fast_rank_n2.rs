@@ -268,6 +268,16 @@ fn batch_input(
     common::ninja_reference::Batch::new(case, points)
 }
 
+
+/// The binary64 engine against original Ninja (replayed binary64 masters, no
+/// double-double ones): the cancellation rescue off.
+fn binary64_options() -> FastOptions {
+    FastOptions {
+        cancellation_rescue: false,
+        ..FastOptions::default()
+    }
+}
+
 #[test]
 fn fast_rank_n2_padding_reproduces_original_ninja() {
     let root = root();
@@ -310,9 +320,9 @@ fn fast_rank_n2_padding_reproduces_original_ninja() {
         let declared = case.n + 2;
         let name = case.name.clone();
         let mut masters = PaddedMasters::new(&ninja);
-        let mut amplitude = FastAmplitude::new(case.n, declared, FastOptions::default()).unwrap();
+        let mut amplitude = FastAmplitude::new(case.n, declared, binary64_options()).unwrap();
         // The validated rank n+1 engine on the same numerator padded to n+1.
-        let mut x1 = FastAmplitude::new(case.n, case.n + 1, FastOptions::default()).unwrap();
+        let mut x1 = FastAmplitude::new(case.n, case.n + 1, binary64_options()).unwrap();
         let (mut single, mut single_lowered) = (Vec::new(), Vec::new());
         for (index, reference) in ninja.iter().enumerate() {
             let batch = batch_input(&case, &[index]);
@@ -330,7 +340,7 @@ fn fast_rank_n2_padding_reproduces_original_ninja() {
                 )
                 .unwrap();
             let rank = tensor.lane_rank(0).unwrap();
-            let mut at_rank = FastAmplitude::new(case.n, rank, FastOptions::default()).unwrap();
+            let mut at_rank = FastAmplitude::new(case.n, rank, binary64_options()).unwrap();
             let mut truncated = TensorNumerator::new(rank, 1);
             truncated
                 .lane_coefficients_mut(0)
@@ -632,7 +642,7 @@ fn reduce_suite_case(
         scales_squared: &case.scales,
         s_matrix: Some(&case.smat),
     };
-    let mut amplitude = FastAmplitude::new(case.n, case.rank, FastOptions::default()).unwrap();
+    let mut amplitude = FastAmplitude::new(case.n, case.rank, binary64_options()).unwrap();
     let mut results = vec![FastResult::default(); lanes];
     let mut statuses = vec![FastStatus::NotEvaluated; lanes];
     let mut numerator: Box<dyn FastNumerator> = match case.mu_powers {
