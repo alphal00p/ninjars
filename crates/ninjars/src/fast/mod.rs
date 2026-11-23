@@ -228,6 +228,12 @@ pub enum InstabilityTest {
     /// A lane re-reduced by [`FastOptions::cancellation_rescue`] whose own
     /// estimate still exceeds [`FastOptions::rescue_target`].
     CancellationRescue,
+    /// A lane the trigger of [`FastOptions::cancellation_rescue`] measured
+    /// above [`FastOptions::rescue_target`] but outside the rescue's domain
+    /// (a numerator without tensor coefficients; an on-shell massive leg
+    /// without the caller's refined kinematics): not re-reduced, its binary64
+    /// value in the slot. Only with the rescue on.
+    RescueOutsideDomain,
 }
 
 impl InstabilityTest {
@@ -247,6 +253,7 @@ impl InstabilityTest {
             Self::BoxMuConditioning => "box mu-expansion conditioning",
             Self::EuclideanPlane => "Euclidean-plane cut",
             Self::CancellationRescue => "cancellation rescue",
+            Self::RescueOutsideDomain => "cancellation rescue outside its domain",
         }
     }
     /// Whether the test refuses a value above its bound
@@ -255,7 +262,10 @@ impl InstabilityTest {
     pub fn refuses_above(self) -> bool {
         matches!(
             self,
-            Self::BoxMuConditioning | Self::EuclideanPlane | Self::CancellationRescue
+            Self::BoxMuConditioning
+                | Self::EuclideanPlane
+                | Self::CancellationRescue
+                | Self::RescueOutsideDomain
         )
     }
 }
@@ -293,7 +303,9 @@ impl std::fmt::Display for Instability {
         }
         let (quantity, requirement) = match self.test {
             InstabilityTest::BoxMuConditioning => ("predicted error", "allowed <="),
-            InstabilityTest::CancellationRescue => ("estimated error", "target <="),
+            InstabilityTest::CancellationRescue | InstabilityTest::RescueOutsideDomain => {
+                ("estimated error", "target <=")
+            }
             InstabilityTest::EuclideanPlane => ("Gram determinant", "required <="),
             _ => ("found", "required >"),
         };
@@ -363,9 +375,11 @@ pub enum RescueOutcome {
     /// The re-reduction failed (a degenerate or non-finite quantity, or a
     /// projection that could not be solved): refused.
     Failed,
-    /// Not re-reduced: outside the rescue's domain (an on-shell massive
-    /// external leg without the caller's refined kinematics). The binary64
-    /// value and status stay as they were.
+    /// Not re-reduced: outside the rescue's domain (a numerator without
+    /// tensor coefficients; an on-shell massive external leg without the
+    /// caller's refined kinematics). Status `Unstable`
+    /// ([`InstabilityTest::RescueOutsideDomain`]), the binary64 value in the
+    /// slot.
     OutsideDomain,
 }
 
