@@ -98,46 +98,6 @@ impl Dd {
     }
 }
 
-impl Dd {
-    /// `ln 2` to double-double precision.
-    const LN2: Self = Self {
-        hi: 6.931471805599452862e-01,
-        lo: 2.319046813846299558e-17,
-    };
-
-    /// `exp(x)` to about double-double precision (argument reduction by
-    /// `ln 2` and `2^-10`, Taylor series, ten squarings).
-    pub fn exp(self) -> Self {
-        if !self.is_finite() {
-            return Self::from_f64(self.hi.exp());
-        }
-        let k = (self.hi / Self::LN2.hi).round();
-        let r = (self - Self::LN2 * k) * (1. / 1024.);
-        // exp(r) - 1 by Taylor, |r| < 3.4e-4: 12 terms reach 1e-50.
-        let mut term = r;
-        let mut sum = r;
-        for i in 2..=12 {
-            term = term * r / (i as f64);
-            sum += term;
-        }
-        // (1 + s)^2 - 1 = s (2 + s), ten times.
-        for _ in 0..10 {
-            sum = sum * (sum + 2.);
-        }
-        (sum + 1.) * 2f64.powi(k as i32)
-    }
-
-    /// `ln(x)` for `x > 0` to about double-double precision (one Newton step
-    /// from the binary64 logarithm).
-    pub fn ln(self) -> Self {
-        if !(self.hi > 0.) {
-            return Self::from_f64(f64::NAN);
-        }
-        let y = Self::from_f64(self.hi.ln());
-        y + self * (-y).exp() - 1.
-    }
-}
-
 impl From<f64> for Dd {
     #[inline(always)]
     fn from(x: f64) -> Self {
@@ -603,12 +563,6 @@ mod tests {
         let r = two.sqrt();
         assert!((r * r - 2.).abs().hi < 1e-31);
         // (1 + 2^-60) - 1 is exact in double-double, lost in binary64.
-        let e = Dd::ONE.exp();
-        // e = 2.718281828459045235360287471352662...
-        assert!((e - 2.718281828459045).to_f64() - 2.35360287471352662e-16 < 1e-30);
-        let l = Dd::from(10.).ln();
-        assert!((l.exp() - 10.).abs().hi < 1e-29);
-        assert!((Dd::from(2.).ln() - Dd::LN2).abs().hi < 1e-31);
         let x = Dd::ONE + 2f64.powi(-60);
         assert_eq!((x - 1.).to_f64(), 2f64.powi(-60));
         let z = Cd::new(3., -4.);

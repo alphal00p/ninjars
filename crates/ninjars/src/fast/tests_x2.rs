@@ -822,7 +822,7 @@ fn evaluate<N: FastNumerator + ?Sized>(
     input: &FastInput,
     numerator: &mut N,
 ) -> (Vec<FastResult>, Vec<FastStatus>) {
-    let mut amplitude = FastAmplitude::new(n, rank, FastOptions::default()).unwrap();
+    let mut amplitude = FastAmplitude::new(n, rank, binary64_options()).unwrap();
     let mut results = vec![FastResult::default(); input.lanes];
     let mut statuses = vec![FastStatus::NotEvaluated; input.lanes];
     amplitude
@@ -1189,7 +1189,7 @@ fn mixed_batches_split_and_stay_bitwise() {
             s_matrix: None,
         };
         let tensor = mixed_tensor(&mut rng, n, lanes);
-        let mut amplitude = FastAmplitude::new(n, n + 2, FastOptions::default()).unwrap();
+        let mut amplitude = FastAmplitude::new(n, n + 2, binary64_options()).unwrap();
         let (mut single, mut single_statuses) = (Vec::new(), Vec::new());
         for lane in 0..lanes {
             let mut one = TensorNumerator::new(n + 2, 1);
@@ -1201,7 +1201,7 @@ fn mixed_batches_split_and_stay_bitwise() {
                 let mut low = TensorNumerator::new(rank, 1);
                 low.lane_coefficients_mut(0)
                     .copy_from_slice(&tensor.lane_coefficients(lane)[..ncoeff(rank)]);
-                let mut at_rank = FastAmplitude::new(n, rank, FastOptions::default()).unwrap();
+                let mut at_rank = FastAmplitude::new(n, rank, binary64_options()).unwrap();
                 let (want, want_status) = single_lane(&mut at_rank, n, &input, lane, &mut low);
                 assert_eq!(status, want_status, "n={n} lane {lane}");
                 assert_eq!(bits(&result), bits(&want), "n={n} lane {lane}");
@@ -1440,7 +1440,7 @@ fn declared_rank_dispatch_and_errors() {
         scales_squared: &scales,
         s_matrix: None,
     };
-    let mut amplitude = FastAmplitude::new(n, n + 2, FastOptions::default()).unwrap();
+    let mut amplitude = FastAmplitude::new(n, n + 2, binary64_options()).unwrap();
     let mut wide = TensorNumerator::new(n + 2, lanes);
     for lane in 0..lanes {
         for c in &mut wide.lane_coefficients_mut(lane)[..ncoeff(n + 1)] {
@@ -1744,7 +1744,7 @@ fn rank_n2_batches_and_replay_are_bitwise() {
         for c in tensor.coefficients_mut() {
             *c = rng.c();
         }
-        let mut amplitude = FastAmplitude::new(n, rank, FastOptions::default()).unwrap();
+        let mut amplitude = FastAmplitude::new(n, rank, binary64_options()).unwrap();
         // Width 1, lane by lane.
         let mut single = Vec::new();
         for lane in 0..lanes {
@@ -1835,7 +1835,7 @@ fn rank_n2_lane_statuses_isolate_failures() {
         scales_squared: &scales,
         s_matrix: None,
     };
-    let mut amplitude = FastAmplitude::new(n, rank, FastOptions::default()).unwrap();
+    let mut amplitude = FastAmplitude::new(n, rank, binary64_options()).unwrap();
     assert_eq!(amplitude.rank(), rank);
     assert_eq!(amplitude.propagators(), n);
     let sentinel = FastResult {
@@ -1989,9 +1989,9 @@ impl FastNumerator for NoMuShifted {
 #[test]
 fn rank_n2_construction_and_numerator_requirements() {
     for n in 1..=8 {
-        assert!(FastAmplitude::new(n, n + 2, FastOptions::default()).is_ok());
+        assert!(FastAmplitude::new(n, n + 2, binary64_options()).is_ok());
         assert!(matches!(
-            FastAmplitude::new(n, n + 3, FastOptions::default()),
+            FastAmplitude::new(n, n + 3, binary64_options()),
             Err(Error::Rank { .. })
         ));
     }
@@ -2008,7 +2008,7 @@ fn rank_n2_construction_and_numerator_requirements() {
             s_matrix: None,
         };
         let mut numerator = NoMuShifted(unit_tensor(n + 2, 1));
-        let mut amplitude = FastAmplitude::new(n, n + 2, FastOptions::default()).unwrap();
+        let mut amplitude = FastAmplitude::new(n, n + 2, binary64_options()).unwrap();
         let mut results = [FastResult::default()];
         let mut statuses = [FastStatus::NotEvaluated];
         let outcome = amplitude.evaluate(
@@ -2147,7 +2147,7 @@ fn reduced_lane(n: usize, seed: u64) -> (FastAmplitude, MuTensorNumerator, Vec<R
     for c in numerator.coefficients_mut() {
         *c = rng.c();
     }
-    let mut amplitude = FastAmplitude::new(n, rank, FastOptions::default()).unwrap();
+    let mut amplitude = FastAmplitude::new(n, rank, binary64_options()).unwrap();
     let input = FastInput {
         lanes: 1,
         shifts: &shifts,
@@ -2182,7 +2182,7 @@ fn numerator_at(numerator: &mut MuTensorNumerator, cut: &[usize], q: &CMom, mu2:
 fn rank_n2_triangle_and_bubble_residues_reconstruct_the_integrand() {
     use super::bases_x2::bubble_basis_x2;
     use super::geometry::{Basis, bubble_solution, combine_real2, sub, triangle_solution};
-    let eps = FastOptions::default().infrared_eps;
+    let eps = binary64_options().infrared_eps;
     let mut worst = 0f64;
     let mut replaced = 0;
     for (n, seed) in [(2, 601), (2, 602), (3, 603), (3, 604), (3, 605)] {
@@ -2283,7 +2283,7 @@ fn rank_n2_box_mu_expansion_matches_finite_mu_samples() {
     // independently of the d-dimensional mu-expansion (with its beta offset
     // for mu²-dependent numerators).
     use super::geometry::{Basis, box_solutions, sub};
-    let eps = FastOptions::default().infrared_eps;
+    let eps = binary64_options().infrared_eps;
     let mut worst = 0f64;
     for seed in [701, 702, 703, 704] {
         let (amplitude, mut numerator, v, m) = reduced_lane(4, seed);
@@ -2415,5 +2415,16 @@ fn rank_n2_tadpole_integrates_rank_three_numerators() {
         let expected = [x * a0[0][0] + y, x * a0[0][1], x * a0[0][2]];
         assert_close(&results[0].laurent, &expected, "rank-3 tadpole");
         assert_close(&[results[0].rational], &[y], "rank-3 tadpole rational");
+    }
+}
+
+/// The binary64 engine alone: these tests use synthetic master providers
+/// without rescue-precision masters, and test the binary64 stages (the
+/// cancellation rescue has its own tests with oneloopmaster's masters in
+/// `ninjars-symbolica`).
+fn binary64_options() -> FastOptions {
+    FastOptions {
+        cancellation_rescue: false,
+        ..FastOptions::default()
     }
 }

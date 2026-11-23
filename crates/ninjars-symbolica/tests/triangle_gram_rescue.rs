@@ -9,10 +9,8 @@ mod conditioning;
 
 use conditioning::{Error, fast, parse_fixture};
 use ninjars::fast::dd::Dd;
-use ninjars::fast::{
-    C64, FastMaster, FastMasters, FastOptions, bubble_tensors, massless_b0, massless_c0,
-    take_rescued_lanes,
-};
+use ninjars::fast::dd::Cd;
+use ninjars::fast::{C64, FastMaster, FastMasters, FastOptions, take_rescued_lanes};
 use ninjars_symbolica::OneLoopNativeMasters;
 
 const DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../validation/conditioning/triangle-gram");
@@ -68,76 +66,82 @@ fn close(a: C64, b: C64, tolerance: f64) -> bool {
     (a - b).abs() <= tolerance * b.abs().max(1e-300) || (a - b).abs() < 1e-300
 }
 
-/// The double-double massless `B0`, `C0` (one and two masses, space- and
-/// time-like) and the Passarino-Veltman bubble tensors agree with OneLOop's
-/// binary64 values (OneLOop's own two-mass `C0` loses digits as the masses
-/// approach each other: 3e-13 at the degenerate point of the first case).
+/// `OneLoopNativeMasters::evaluate_rescue` (oneloopmaster's native masters in
+/// double-double) agrees with its binary64 `evaluate` on massless, massive,
+/// complex-mass and mixed rows of every family it provides; rank-four bubbles
+/// are not provided.
 #[test]
-fn double_double_masters_match_oneloop() -> Result<(), Error> {
-    let mut masters = OneLoopNativeMasters::new()?;
+fn double_double_masters_match_the_binary64_ones() -> Result<(), Error> {
+    let mut masters = OneLoopNativeMasters::new()?.with_onshell_threshold(None);
     let mu2 = C64::real(8315.251344);
-    let z = C64::ZERO;
-    for (p1, p2, p3) in [
-        (0., -1.9342957622827255e5, -1.9340112758684525e5),
-        (0., 3.0e5, 2.9e5),
-        (0., -1.0e5, 2.0e5),
-        (0., 0., -4.0e4),
-        (0., 0., 5.0e4),
-        (1.0e5, 0., -3.0e4),
-    ] {
-        let mut out = vec![[z; 3]; 1];
+    let (z, t, w) = (C64::ZERO, C64::real(29929.), C64::new(29929., -238.32134));
+    let r = C64::real;
+    let rows: Vec<(FastMaster, Vec<C64>)> = vec![
+        (FastMaster::A0, vec![t, mu2]),
+        (FastMaster::A0, vec![w, mu2]),
+        (FastMaster::BubbleRank2, vec![r(-1.9342957622827255e5), z, z, mu2]),
+        (FastMaster::BubbleRank3, vec![r(3.1e5), z, z, mu2]),
+        (FastMaster::BubbleRank3, vec![r(4.0e5), t, t, mu2]),
+        (FastMaster::BubbleRank3, vec![r(-2.0e5), t, z, mu2]),
+        (FastMaster::BubbleRank3, vec![r(6000.8), z, t, mu2]),
+        (FastMaster::BubbleRank3, vec![r(5.0e5), w, r(6400.), mu2]),
+        (FastMaster::C0, vec![z, r(-1.9342957622827255e5), r(-1.9340112758684525e5), z, z, z, mu2]),
+        (FastMaster::C0, vec![z, r(3.0e5), r(2.9e5), z, z, z, mu2]),
+        (FastMaster::C0, vec![r(1.0e5), z, r(-3.0e4), z, z, z, mu2]),
+        (FastMaster::C0, vec![z, r(6000.8), r(6066.3), z, t, z, mu2]),
+        (FastMaster::C0, vec![r(-1.9e5), t, r(-1.8e5), z, t, z, mu2]),
+        (FastMaster::C0, vec![r(2.0e5), r(1.5e5), r(3.0e5), w, w, w, mu2]),
+        (FastMaster::D0, vec![z, z, z, z, r(4.0e5), r(-1.5e5), z, z, z, z, mu2]),
+        (FastMaster::D0, vec![z, z, t, t, r(5.0e5), r(-2.0e5), z, z, t, t, mu2]),
+        (FastMaster::D0, vec![z, z, r(1.6e4), r(1.6e4), r(4.5e5), r(-1.2e5), w, w, w, w, mu2]),
+    ];
+    for (family, args) in rows {
+        let width = family.outputs();
+        let mut out = vec![[z; 3]; width];
         let mut ok = vec![false];
-        let args = [C64::real(p1), C64::real(p2), C64::real(p3), z, z, z, mu2];
-        masters.evaluate(FastMaster::C0, &args, &mut out, &mut ok)?;
-        let dd = massless_c0(
-            [Dd::from(p1), Dd::from(p2), Dd::from(p3)],
-            [p1 == 0., p2 == 0., p3 == 0.],
-            mu2.re,
-        )
-        .expect("one or two masses");
-        for o in 0..3 {
-            assert!(close(dd[o].to_c64(), out[0][o], 1e-12), "C0 ({p1}, {p2}, {p3}) order {o}");
-        }
-    }
-    for (p2, m0, m1) in [
-        (-1.9342957622827255e5, 0., 0.),
-        (3.1e5, 0., 0.),
-        (4.0e5, 173. * 173., 173. * 173.),
-        (-2.0e5, 173. * 173., 0.),
-        (9.0e4, 0., 91. * 91.),
-    ] {
-        let (m0, m1) = (C64::real(m0), C64::real(m1));
-        let mut out = vec![[z; 3]; 4];
-        let mut ok = vec![false];
-        masters.evaluate(FastMaster::BubbleRank3, &[C64::real(p2), m0, m1, mu2], &mut out, &mut ok)?;
-        let a0 = |m: C64, masters: &mut OneLoopNativeMasters| -> [C64; 3] {
-            if m.is_zero() {
-                return [z; 3];
-            }
-            let mut o = vec![[z; 3]; 1];
-            let mut k = vec![false];
-            masters.evaluate(FastMaster::A0, &[m, mu2], &mut o, &mut k).expect("A0");
-            o[0]
-        };
-        let (a0m0, a0m1) = (a0(m0, &mut masters), a0(m1, &mut masters));
-        let b0dd = (m0.is_zero() && m1.is_zero()).then(|| massless_b0(Dd::from(p2), mu2.re));
-        if let Some(b0) = &b0dd {
-            for o in 0..3 {
-                assert!(close(b0[o].to_c64(), out[0][o], 1e-14), "B0 {p2} order {o}");
-            }
-        }
-        let tensors = bubble_tensors(Dd::from(p2), ninjars::fast::dd::Cd::from_c64(m0), ninjars::fast::dd::Cd::from_c64(m1), &out[0], &a0m0, &a0m1, b0dd)
-            .expect("well-conditioned reduction");
-        for (j, tensor) in tensors.iter().enumerate() {
+        masters.evaluate(family, &args, &mut out, &mut ok)?;
+        let dargs: Vec<Cd> = args.iter().map(|&x| Cd::from_c64(x)).collect();
+        let mut dout = vec![[Cd::ZERO; 3]; width];
+        let mut dok = vec![false];
+        assert!(masters.evaluate_rescue(family, &dargs, &mut dout, &mut dok)?, "{family:?}");
+        assert!(ok[0] && dok[0], "{family:?} {args:?}");
+        for j in 0..width {
             for o in 0..3 {
                 assert!(
-                    close(tensor[o].to_c64(), out[j][o], 1e-13),
-                    "B tensor {j} at ({p2}, {m0:?}, {m1:?}) order {o}: {:?} vs {:?}",
-                    tensor[o].to_c64(),
+                    close(dout[j][o].to_c64(), out[j][o], 1e-11),
+                    "{family:?} {args:?} [{j}][{o}]: {:?} vs {:?}",
+                    dout[j][o].to_c64(),
                     out[j][o]
                 );
             }
         }
+    }
+    let mut dout = vec![[Cd::ZERO; 3]; 5];
+    let row = [Cd::real(Dd::from(1e5)), Cd::ZERO, Cd::ZERO, Cd::from_c64(mu2)];
+    assert!(!masters.evaluate_rescue(FastMaster::BubbleRank4, &row, &mut dout, &mut [false])?);
+    Ok(())
+}
+
+/// The box level: loop-induced `g g > a a g` pentagon lanes 1e-9 rad out of
+/// the planar configuration, which the binary64 box mu-expansion screen
+/// refuses, are re-reduced in double-double (boxes included) and served within
+/// 1e-9 of the fixture's references.
+#[test]
+fn box_mu_screened_lanes_are_cured() -> Result<(), Error> {
+    let text = std::fs::read_to_string(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../validation/conditioning/box-mu/gg_aag-planar-1e-9.json"
+    ))?;
+    let f = parse_fixture(&text)?;
+    let off = fast(&f, without_rescue())?;
+    let on = fast(&f, FastOptions::default())?;
+    for (lane, (a, b)) in off.iter().zip(&on).enumerate() {
+        assert!(!a.success, "lane {lane}: the binary64 screen no longer refuses it");
+        let r = f.references[lane].as_ref().expect("reference");
+        let reference = C64::new(r[0].parse()?, r[1].parse()?);
+        let served = b.laurent.expect("served")[0];
+        let error = (served - reference).abs() / reference.abs();
+        assert!(error < 1e-9, "lane {lane}: {served:?} against {reference:?} ({error:e})");
     }
     Ok(())
 }
@@ -233,5 +237,33 @@ fn the_target_accuracy_decides_and_misses_are_typed() -> Result<(), Error> {
             .any(|(lane, i)| *lane == 0 && i.test == InstabilityTest::CancellationRescue),
         "{instabilities:?}"
     );
+    Ok(())
+}
+
+/// Beyond double-double: lanes whose box is too degenerate for the
+/// re-reduction (`validation/conditioning/box-gram`, collinear final state
+/// tilted by 1e-6, rank n+1), which binary64 serves 1e15 off as successes,
+/// are refused, typed, so that a caller's own rescue can act.
+#[test]
+fn lanes_beyond_double_double_are_refused_typed() -> Result<(), Error> {
+    use ninjars::fast::{InstabilityTest, take_instabilities};
+    let text = std::fs::read_to_string(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../validation/conditioning/box-gram/collinear-ext-n4-r5-m0-t1e-6.json"
+    ))?;
+    let f = parse_fixture(&text)?;
+    let off = fast(&f, without_rescue())?;
+    assert!(off.iter().all(|o| o.success));
+    let on = fast(&f, FastOptions::default())?;
+    let records = take_instabilities();
+    for (lane, o) in on.iter().enumerate() {
+        assert!(!o.success, "lane {lane}: {}", o.status);
+        assert!(
+            records
+                .iter()
+                .any(|(l, i)| *l == lane && i.test == InstabilityTest::CancellationRescue),
+            "{records:?}"
+        );
+    }
     Ok(())
 }

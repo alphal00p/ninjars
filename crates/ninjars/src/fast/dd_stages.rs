@@ -11,7 +11,8 @@
 
 use super::dd::{Cd as C64, CMomD as CMom, Dd, RMomD as RMom, mp_cc, mp_cr, mp_rr};
 use super::dd_driver::{
-    DdStages, FastInput, Stability, difference_scale, euclidean_or, fail, gram_scale, taxicab_sum,
+    DdStages, FastInput, Stability, den_scale, difference_scale, dot_scale, euclidean_or, fail,
+    gram_scale, taxicab_sum,
 };
 use super::numerator::{t2_len_le3, t3_len};
 use super::tensor_layout::{block_offset, ncoeff_homogeneous};
@@ -2365,6 +2366,55 @@ fn splits(d: usize) -> (usize, usize, usize) {
     (d, d * (d + 1) / 2, ncoeff_homogeneous(d - 1))
 }
 
+/// Scalar Horner evaluation of `N(q)` (all blocks) or of `N_R(q)` (top block).
+#[inline]
+pub(super) fn horner_scalar(
+    c: &[C64],
+    rank: usize,
+    q: &CMom,
+    all_blocks: bool,
+    work: &mut [C64],
+) -> C64 {
+    if rank == 0 {
+        return c[0];
+    }
+    let level = ncoeff_homogeneous(rank - 1);
+    let (buf_a, buf_b) = work.split_at_mut(level);
+    let (mut cur, mut nxt) = (buf_a, &mut buf_b[..level]);
+    let mut d = rank;
+    loop {
+        let (r1, r2, r3) = splits(d);
+        let next = &mut nxt[..r3];
+        let g: &[C64] = if d == rank {
+            let off = block_offset(d);
+            &c[off..off + ncoeff_homogeneous(d)]
+        } else {
+            &cur[..ncoeff_homogeneous(d)]
+        };
+        for i in 0..r3 {
+            next[i] = g[1 + r1 + r2 + i] * q[3];
+        }
+        for i in 0..r2 {
+            next[i] += g[1 + r1 + i] * q[2];
+        }
+        for i in 0..r1 {
+            next[i] += g[1 + i] * q[1];
+        }
+        next[0] += g[0] * q[0];
+        if all_blocks {
+            let low = &c[block_offset(d - 1)..block_offset(d - 1) + r3];
+            for i in 0..r3 {
+                next[i] += low[i];
+            }
+        }
+        std::mem::swap(&mut cur, &mut nxt);
+        if d == 1 {
+            return cur[0];
+        }
+        d -= 1;
+    }
+}
+
 /// Component index of `u^i s^j` in a T3 jet (Ninja's t3 layout).
 pub(super) const fn t3_len_const(i: usize) -> usize {
     // t3_len(i - 1) with t3_len(-1) = 0
@@ -2540,6 +2590,28 @@ pub(super) fn t2_output<const L: usize>(
 // ---- numerator.rs
 /// The expansions the double-double stages request (`FastNumerator`'s).
 pub(super) trait DdNumerator {
+    /// Direct evaluation `N(q, mu²)`; `out[i]` for row `i`.
+    fn evaluate(
+        &mut self,
+        cut: &[usize],
+        lanes: &[usize],
+        q: &[CMom],
+        mu_squared: &[C64],
+        out: &mut [C64],
+    ) -> Result<()>;
+
+    /// Ninja's `muExpansion`: `q = t v0 + v1`, `mu² = t² v0²`, returning the
+    /// leading coefficients in `t`. Without `v1` (rank ≤ n) one coefficient,
+    /// `t^r`, is returned per row; with `v1` (rank n+1) two, `t^r, t^(r-1)`.
+    fn mu_expansion(
+        &mut self,
+        cut: &[usize],
+        lanes: &[usize],
+        v0: &[CMom],
+        v1: Option<&[CMom]>,
+        out: &mut [C64],
+    ) -> Result<()>;
+
     /// Ninja's `t3Expansion`; `t3_len(mindeg)` outputs per row.
     #[allow(clippy::too_many_arguments)]
     fn t3_expansion(
@@ -2610,6 +2682,21 @@ pub(super) struct Uncut {
     pub(super) d1: C64,
     /// `(V_j - V_0)² + m0² - m_j²`.
     pub(super) f: C64,
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+pub(super) struct BoxRow {
+    lane: usize,
+    vort: CMom,
+    q: [CMom; 2],
+    mid: CMom,
+}
+
+/// `D = (q+V)² - m²` (Ninja's `Den` at `mu² = 0`).
+#[inline(always)]
+pub(super) fn den(q: &CMom, v: &RMom, m2: C64) -> C64 {
+    let s = [q[0] + v[0], q[1] + v[1], q[2] + v[2], q[3] + v[3]];
+    mp_cc(&s, &s) - m2
 }
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -2884,6 +2971,226 @@ fn tadpole_from_bubble(
 }
 
 impl DdStages {
+    pub(super) fn boxes<N: DdNumerator + ?Sized>(&mut self, input: &FastInput, num: &mut N) -> Result<()> {
+        let n = self.topo.n;
+        let lanes = self.lanes;
+        let eps = self.options.infrared_eps;
+        let check = Stability::new(&self.options);
+        let x1 = self.topo.x1();
+        let with_mu = self.topo.rank >= n;
+        for b in 0..self.topo.boxes.len() {
+            self.refresh_active();
+            if self.active.is_empty() {
+                return Ok(());
+            }
+            let p = self.topo.boxes[b];
+            let [c1, c2, c3, c4] = p;
+            self.box_rows.clear();
+            self.calls.clear();
+            for ai in 0..self.active.len() {
+                let lane = self.active[ai];
+                let v = &input.shifts[lane * n..(lane + 1) * n];
+                let m = &input.masses_squared[lane * n..(lane + 1) * n];
+                let k0 = sub(&v[c2], &v[c1]);
+                let k1 = sub(&v[c3], &v[c2]);
+                let k3 = sub(&v[c1], &v[c4]);
+                if !check.relative(gram_det(&k3, &k0).abs(), gram_scale(&k3, &k0)) {
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BoxGram,
+                    );
+                    continue;
+                }
+                let e = Basis::from_pair(&k3, &k0, eps);
+                let p1e4 = mp_cr(&e.e4, &k1);
+                let p1e3 = mp_cr(&e.e3, &k1);
+                let mut vort = [C64::ZERO; 4];
+                for mu in 0..4 {
+                    vort[mu] = p1e4 * e.e3[mu] - p1e3 * e.e4[mu];
+                }
+                // mp2(Vort) = -2 (p1.e3) (p1.e4) e3.e4 vanishes exactly when the box
+                // is degenerate (a light-like or vanishing normal): test the two
+                // factors relative to their own scales.
+                if !check.absolute(mp_cc(&vort, &vort).taxicab())
+                    || !check.relative(p1e3.taxicab(), dot_scale(&e.e3, &k1))
+                    || !check.relative(p1e4.taxicab(), dot_scale(&e.e4, &k1))
+                {
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        euclidean_or(InstabilityTest::BoxNormal, &e.e3, &k3, &k0),
+                    );
+                    continue;
+                }
+                let l = box_solutions(&k3, &k0, &k1, &e, m[c1], m[c2], m[c3], m[c4]);
+                let q = [sub_cr(&l[0], &v[c1]), sub_cr(&l[1], &v[c1])];
+                let norm = |x: &CMom| x.iter().map(|z| z.norm_sqr()).sum::<Dd>();
+                let scale = p
+                    .iter()
+                    .map(|&i| v[i].iter().map(|x| *x * *x).sum::<Dd>().max(m[i].abs()))
+                    .fold(Dd::ZERO, Dd::max);
+                self.box_lambda[b * lanes + lane] =
+                    ((norm(&l[0]) + norm(&l[1])) / (scale * 2.)).to_f64().log2();
+                let mut mid = [C64::ZERO; 4];
+                if x1 {
+                    for mu in 0..4 {
+                        mid[mu] = (l[0][mu] + l[1][mu]) * 0.5 - v[c1][mu];
+                    }
+                }
+                self.box_rows.push(BoxRow { lane, vort, q, mid });
+                for qq in q {
+                    self.calls.lanes.push(lane);
+                    self.calls.v0.push(qq);
+                    self.calls.scalar.push(C64::ZERO);
+                }
+            }
+            if self.box_rows.is_empty() {
+                continue;
+            }
+            self.calls.prepare_out(1);
+            num.evaluate(
+                &p,
+                &self.calls.lanes,
+                &self.calls.v0,
+                &self.calls.scalar,
+                &mut self.calls.out,
+            )?;
+            let cp = &self.topo.box_complements[b * (n - 4)..(b + 1) * (n - 4)];
+            let mut keep = 0;
+            for r in 0..self.box_rows.len() {
+                let row = self.box_rows[r];
+                let lane = row.lane;
+                let v = &input.shifts[lane * n..(lane + 1) * n];
+                let m = &input.masses_squared[lane * n..(lane + 1) * n];
+                let (vmax, mmax) = self.bounds[lane];
+                let mut values = [C64::ZERO; 2];
+                let mut stable = true;
+                for s in 0..2 {
+                    let mut d = C64::ONE;
+                    let mut singular = false;
+                    let bound = mmax
+                        + row.q[s]
+                            .iter()
+                            .map(|z| (z.taxicab() + vmax).powi(2))
+                            .sum::<Dd>();
+                    for &j in cp {
+                        let factor = den(&row.q[s], &v[j], m[j]);
+                        singular |= !check.relative_within(factor.taxicab(), bound, || {
+                            den_scale(&row.q[s], &v[j], m[j])
+                        });
+                        d *= factor;
+                    }
+                    if singular || !check.absolute(d.taxicab()) {
+                        stable = false;
+                        break;
+                    }
+                    values[s] = self.calls.out[2 * r + s] / d;
+                }
+                if !stable {
+                    fail(
+                        &mut self.alive,
+                        &mut self.lane_status,
+                        lane,
+                        InstabilityTest::BoxCutDenominator,
+                    );
+                    continue;
+                }
+                self.box_c[b * lanes + lane] = [(values[0] + values[1]) * 0.5, C64::ZERO];
+                self.box_rows[keep] = row;
+                keep += 1;
+            }
+            self.box_rows.truncate(keep);
+            if !with_mu || self.box_rows.is_empty() {
+                continue;
+            }
+            // Rational term from the mu-expansion.
+            self.calls.clear();
+            for row in &self.box_rows {
+                self.calls.lanes.push(row.lane);
+                self.calls.v0.push(row.vort);
+                if x1 {
+                    self.calls.v1.push(row.mid);
+                }
+            }
+            self.calls.prepare_out(if x1 { 2 } else { 1 });
+            num.mu_expansion(
+                &p,
+                &self.calls.lanes,
+                &self.calls.v0,
+                if x1 { Some(&self.calls.v1) } else { None },
+                &mut self.calls.out,
+            )?;
+            // Rows whose geometric loss (`crate::conditioning`; at rank n
+            // its cheap upper bound) exceeds the budget: (row, |n0|, |n1|,
+            // the exact geometry above rank n), decided in
+            // `box_mu_conditioning`.
+            for r in 0..self.box_rows.len() {
+                let row = self.box_rows[r];
+                let lane = row.lane;
+                let v = &input.shifts[lane * n..(lane + 1) * n];
+                let m = &input.masses_squared[lane * n..(lane + 1) * n];
+                let vort2 = mp_cc(&row.vort, &row.vort);
+                let bound = 4. * self.bounds[lane].0 * taxicab_sum(&row.vort);
+                if !x1 {
+                    let mut d = C64::ONE;
+                    let mut singular = false;
+                    for &j in cp {
+                        let factor = mp_cr(&row.vort, &sub(&v[j], &v[c1])) * 2.;
+                        singular |= !check.relative_within(factor.taxicab(), bound, || {
+                            difference_scale(&row.vort, &v[j], &v[c1])
+                        });
+                        d *= factor;
+                    }
+                    if singular || !check.absolute(d.taxicab()) {
+                        fail(
+                            &mut self.alive,
+                            &mut self.lane_status,
+                            lane,
+                            InstabilityTest::BoxMuDenominator,
+                        );
+                        continue;
+                    }
+                    self.box_c[b * lanes + lane][1] = self.calls.out[r] / d / (vort2 * vort2);
+                } else {
+                    let mut nmu = [self.calls.out[2 * r], self.calls.out[2 * r + 1]];
+                    let vsq = &self.vsq[lane * n..(lane + 1) * n];
+                    let mut stable = true;
+                    // Euclidean scale and the solutions' distance from the
+                    // center along the normal (`crate::conditioning`).
+                    for &j in cp {
+                        let kk = sub(&v[j], &v[c1]);
+                        let d0 = mp_cr(&row.vort, &kk) * 2.;
+                        if !check.relative_within(d0.taxicab(), bound, || {
+                            difference_scale(&row.vort, &v[j], &v[c1])
+                        }) {
+                            stable = false;
+                            break;
+                        }
+                        let d1 =
+                            C64::real(vsq[j] - vsq[c1]) - m[j] + m[c1] + mp_cr(&row.mid, &kk) * 2.;
+                        nmu[0] /= d0;
+                        nmu[1] -= d1 * nmu[0];
+                        nmu[1] /= d0;
+                    }
+                    if !stable {
+                        fail(
+                            &mut self.alive,
+                            &mut self.lane_status,
+                            lane,
+                            InstabilityTest::BoxMuExpansion,
+                        );
+                        continue;
+                    }
+                    self.box_c[b * lanes + lane][1] = nmu[1] / (vort2 * vort2);
+                }
+            }
+        }
+        Ok(())
+    }
+
     pub(super) fn triangles<N: DdNumerator + ?Sized>(
         &mut self,
         input: &FastInput,
@@ -2909,9 +3216,6 @@ impl DdStages {
             self.tri_rows.clear();
             for ai in 0..self.active.len() {
                 let lane = self.active[ai];
-                if !self.sel_tri[t * lanes + lane] {
-                    continue;
-                }
                 let v = &input.shifts[lane * n..(lane + 1) * n];
                 let m = &input.masses_squared[lane * n..(lane + 1) * n];
                 let k0 = sub(&v[c2], &v[c1]);
@@ -3120,9 +3424,6 @@ impl DdStages {
             self.calls.clear();
             for ai in 0..self.active.len() {
                 let lane = self.active[ai];
-                if !self.sel_bub[b * lanes + lane] {
-                    continue;
-                }
                 let v = &input.shifts[lane * n..(lane + 1) * n];
                 let m = &input.masses_squared[lane * n..(lane + 1) * n];
                 let s = self.smat[lane * n * n + c2 * n + c1];
@@ -3469,7 +3770,7 @@ impl DdStages {
             self.tad_rows.clear();
             for ai in 0..self.active.len() {
                 let lane = self.active[ai];
-                if is_zero(input.masses_squared[lane * n + a]) || !self.sel_tad[a * lanes + lane] {
+                if is_zero(input.masses_squared[lane * n + a]) {
                     continue;
                 }
                 let v = &input.shifts[lane * n..(lane + 1) * n];

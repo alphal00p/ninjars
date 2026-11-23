@@ -117,7 +117,8 @@ HEADER = '''//! The fast engine's triangle, bubble and tadpole stages in double-
 
 use super::dd::{Cd as C64, CMomD as CMom, Dd, RMomD as RMom, mp_cc, mp_cr, mp_rr};
 use super::dd_driver::{
-    DdStages, FastInput, Stability, difference_scale, euclidean_or, fail, gram_scale, taxicab_sum,
+    DdStages, FastInput, Stability, den_scale, difference_scale, dot_scale, euclidean_or, fail,
+    gram_scale, taxicab_sum,
 };
 use super::numerator::{t2_len_le3, t3_len};
 use super::tensor_layout::{block_offset, ncoeff_homogeneous};
@@ -189,6 +190,7 @@ def tensor():
     t = read("tensor.rs")
     parts = [
         item(t, "fn splits(d: usize) -> (usize, usize, usize) {"),
+        item(t, "pub(super) fn horner_scalar("),
         item(t, "pub(super) const fn t3_len_const(i: usize) -> usize {"),
         item(t, "pub(super) const fn t2_offset(i: usize) -> usize {"),
         item(t, "pub(super) fn horner_jet<P: Jet<L>, const L: usize>("),
@@ -203,6 +205,8 @@ ENGINE_ITEMS = [
     "struct BubbleData {",
     "pub(super) struct TadpoleData {",
     "pub(super) struct Uncut {",
+    "struct BoxRow {",
+    "pub(super) fn den(q: &CMom, v: &RMom, m2: C64) -> C64 {",
     "struct TriangleRow {",
     "struct BubbleRow {",
     "struct TadpoleRow {",
@@ -221,6 +225,7 @@ ENGINE_ITEMS = [
 ]
 
 STAGES = [
+    "    fn boxes<N: FastNumerator + ?Sized>(&mut self, input: &FastInput, num: &mut N) -> Result<()> {",
     "    fn triangles<N: FastNumerator + ?Sized>(",
     "    fn bubbles<N: FastNumerator + ?Sized>(&mut self, input: &FastInput, num: &mut N) -> Result<()> {",
     "    fn tadpoles<N: FastNumerator + ?Sized>(",
@@ -250,37 +255,52 @@ def engine():
     # Zero initialisers.
     text = edit(text, "                            e2k: 0.,", "                            e2k: Dd::ZERO,")
     text = edit(text, "pub(super) fn is_zero(z: C64) -> bool {\n    z.re == 0. && z.im == 0.\n}", "pub(super) fn is_zero(z: C64) -> bool {\n    z.is_zero()\n}")
-    # Only the selected (cut, lane) pairs are reduced (`DdStages::sel_*`); the
-    # others keep the promoted binary64 data the caller stored.
-    text = edit(text, """            for ai in 0..self.active.len() {
-                let lane = self.active[ai];
-                let v = &input.shifts[lane * n..(lane + 1) * n];
-                let m = &input.masses_squared[lane * n..(lane + 1) * n];
-                let k0 = sub(&v[c2], &v[c1]);""", """            for ai in 0..self.active.len() {
-                let lane = self.active[ai];
-                if !self.sel_tri[t * lanes + lane] {
-                    continue;
-                }
-                let v = &input.shifts[lane * n..(lane + 1) * n];
-                let m = &input.masses_squared[lane * n..(lane + 1) * n];
-                let k0 = sub(&v[c2], &v[c1]);""")
-    text = edit(text, """                let lane = self.active[ai];
-                let v = &input.shifts[lane * n..(lane + 1) * n];
-                let m = &input.masses_squared[lane * n..(lane + 1) * n];
-                let s = self.smat[lane * n * n + c2 * n + c1];""", """                let lane = self.active[ai];
-                if !self.sel_bub[b * lanes + lane] {
-                    continue;
-                }
-                let v = &input.shifts[lane * n..(lane + 1) * n];
-                let m = &input.masses_squared[lane * n..(lane + 1) * n];
-                let s = self.smat[lane * n * n + c2 * n + c1];""")
-    text = edit(text, """                let lane = self.active[ai];
-                if is_zero(input.masses_squared[lane * n + a]) {
-                    continue;
-                }""", """                let lane = self.active[ai];
-                if is_zero(input.masses_squared[lane * n + a]) || !self.sel_tad[a * lanes + lane] {
-                    continue;
-                }""")
+    # The box stage without the binary64 mu-expansion conditioning screen
+    # (`crate::conditioning`): the re-reduction's own estimate judges the
+    # double-double result.
+    for line in [
+        "            let mut suspects: Vec<(usize, [Dd; 2], Option<BoxMuConditioning>)> = Vec::new();\n",
+        "                let mut conditioning = BoxMuConditioning::ONE;\n",
+        "                        conditioning.line(BOX_MU_PRETEST * bound, factor.taxicab());\n",
+        "                    let vnorm = euclidean_norm(&row.vort);\n",
+        "                    let t = euclidean_norm(&sub_cc(&row.q[0], &row.mid)) / vnorm;\n",
+        "                        let length = kk.iter().map(|x| x * x).sum::<Dd>().sqrt();\n",
+        "                        conditioning.line(2. * vnorm * length, d0.abs());\n",
+        "                        conditioning.expansion(d1.abs(), d0.abs(), t);\n",
+    ]:
+        text = edit(text, line, "")
+    text = edit(text, """                    if conditioning.exceeds(0, 1., f64::MANTISSA_DIGITS) {
+                        suspects.push((r, [self.calls.out[r].taxicab(), 0.], None));
+                    }
+""", "")
+    text = edit(text, """                    if conditioning.exceeds(1, 1., f64::MANTISSA_DIGITS) {
+                        let numerator = [
+                            self.calls.out[2 * r].taxicab(),
+                            self.calls.out[2 * r + 1].taxicab(),
+                        ];
+                        suspects.push((r, numerator, Some(conditioning)));
+                    }
+""", "")
+    text = edit(text, """            if !suspects.is_empty() {
+                self.box_mu_conditioning(input, num, &p, b, &suspects, u32::from(x1))?;
+            }
+""", "")
+    # Record each box's conditioning `log2 λ²` (`crate::conditioning`, the
+    # box-Gram bound): λ² = (|l+|² + |l-|²) / (2 S²) for the two solutions
+    # (the parallelogram identity of |a|² + |t v|²), S² the largest squared
+    # shift or squared mass of the box's lines.
+    text = edit(text, """                // The box's conditioning, for the cancellation rescue's trigger.
+                self.box_lambda[b * lanes + lane] = box_lambda_bits(&l, v, m, &p);
+                let q = [sub_cr(&l[0], &v[c1]), sub_cr(&l[1], &v[c1])];""", """                let q = [sub_cr(&l[0], &v[c1]), sub_cr(&l[1], &v[c1])];
+                let norm = |x: &CMom| x.iter().map(|z| z.norm_sqr()).sum::<Dd>();
+                let scale = p
+                    .iter()
+                    .map(|&i| v[i].iter().map(|x| *x * *x).sum::<Dd>().max(m[i].abs()))
+                    .fold(Dd::ZERO, Dd::max);
+                self.box_lambda[b * lanes + lane] =
+                    ((norm(&l[0]) + norm(&l[1])) / (scale * 2.)).to_f64().log2();""")
+    text = text.replace("    fn boxes<", "    pub(super) fn boxes<")
+    text = edit(text, "\nstruct BoxRow {", "\npub(super) struct BoxRow {")
     # The stages are methods of the double-double workspace.
     text = text.replace("    fn triangles<", "    pub(super) fn triangles<")
     text = text.replace("    fn bubbles<", "    pub(super) fn bubbles<")
@@ -293,7 +313,9 @@ def numerator_trait():
     n = read("numerator.rs")
     t = item(n, "    fn t3_expansion(")
     b = item(n, "    fn t2_expansion(")
-    text = "/// The expansions the double-double stages request (`FastNumerator`'s).\npub(super) trait DdNumerator {\n" + t + "\n" + b + "}\n"
+    ev = item(n, "    fn evaluate(")
+    mu = item(n, "    fn mu_expansion(")
+    text = "/// The expansions the double-double stages request (`FastNumerator`'s).\npub(super) trait DdNumerator {\n" + ev + "\n" + mu + "\n" + t + "\n" + b + "}\n"
     return retype(text)
 
 

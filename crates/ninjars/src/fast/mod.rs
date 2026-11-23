@@ -38,8 +38,6 @@ mod box_x2;
 pub mod complex;
 pub mod dd;
 mod dd_driver;
-#[doc(hidden)]
-pub use dd_driver::{bubble_tensors, massless_b0, massless_c0};
 #[rustfmt::skip]
 mod dd_stages;
 mod declared_rank;
@@ -319,13 +317,41 @@ pub struct Rescue {
     /// The precision of the re-reduction in bits (106: double-double).
     pub precision_bits: u32,
     /// Its own relative error estimate: `2^-53` times the moduli of its terms
-    /// that keep a binary64 factor plus `2^-104` times the others, over
-    /// `|finite|`.
+    /// that keep a binary64 factor plus `2^-92` times the others
+    /// (double-double's `2^-104` with a measured margin), over `|finite|`,
+    /// plus `2^-53`; at least the box-Gram and box mu-expansion losses
+    /// (`docs/triangle-gram-conditioning.md`, section 4). NaN when the
+    /// re-reduction failed.
     pub estimate: f64,
-    /// Whether it met [`FastOptions::rescue_target`] and was served; if not,
-    /// the lane is [`FastStatus::Unstable`]
+    /// Its absolute error estimate (NaN for a refused lane).
+    pub absolute: f64,
+    /// Whether it was served (`Accepted` or `BelowResolution`); if not, the
+    /// lane is [`FastStatus::Unstable`]
     /// ([`InstabilityTest::CancellationRescue`]).
     pub served: bool,
+    /// How it was decided.
+    pub outcome: RescueOutcome,
+}
+
+/// The decision on a re-reduced lane, by the rule and with the names of the
+/// generic engine's cancellation ladder (`ninjars_symbolica`'s
+/// `LadderOutcome`). A served lane is also at most a sixteenth of the binary64
+/// lane's absolute estimate.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum RescueOutcome {
+    /// Its own relative estimate meets [`FastOptions::rescue_target`]: served.
+    Accepted,
+    /// It vanishes up to binary64's resolution of its own terms
+    /// (`|V'| <= 2^-53 M'`, `M'` the moduli of its terms) and its absolute
+    /// error estimate is at most the target times that resolution: served,
+    /// with no relative accuracy stated.
+    BelowResolution,
+    /// Neither: refused.
+    Missed,
+    /// The re-reduction failed (a degenerate or non-finite quantity, or a
+    /// projection that could not be solved): refused.
+    Failed,
 }
 
 /// Integrated contribution of one lane.

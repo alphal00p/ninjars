@@ -9,8 +9,9 @@
 use super::complex::C64;
 use super::dd::{Cd, Dd, RMomD};
 use super::dd_stages::{
-    Basis, BubbleData, Calls, DdNumerator, TadpoleData, TadpoleRow, TriangleData, TriangleRow,
-    Uncut, BubbleRow, horner_jet, t2_output, t3_output, tadpole_candidates,
+    Basis, BoxRow, BubbleData, BubbleRow, Calls, DdNumerator, TadpoleData, TadpoleRow,
+    TriangleData, TriangleRow, Uncut, horner_jet, horner_scalar, t2_output, t3_output,
+    tadpole_candidates,
 };
 use super::engine::{StageOptions, Topology};
 use super::numerator::{t2_len_le3, t3_len};
@@ -62,6 +63,12 @@ pub(super) fn gram_scale<A, B>(_: A, _: B) -> Dd {
 pub(super) fn taxicab_sum<A>(_: A) -> Dd {
     Dd::ZERO
 }
+pub(super) fn dot_scale<A, B>(_: A, _: B) -> Dd {
+    Dd::ZERO
+}
+pub(super) fn den_scale<A, B, C>(_: A, _: B, _: C) -> Dd {
+    Dd::ZERO
+}
 
 /// Workspace of the double-double stages: the binary64 engine's fields of
 /// the same names, in double-double.
@@ -76,6 +83,10 @@ pub(super) struct DdStages {
     pub(super) smat: Vec<Dd>,
     pub(super) vsq: Vec<Dd>,
     pub(super) bounds: Vec<(Dd, Dd)>,
+    pub(super) box_c: Vec<[Cd; 2]>,
+    /// Per (box, lane) the box's `log2 λ²` (`crate::conditioning`).
+    pub(super) box_lambda: Vec<f64>,
+    pub(super) box_rows: Vec<BoxRow>,
     pub(super) tri: Vec<TriangleData>,
     pub(super) bub: Vec<BubbleData>,
     pub(super) tad: Vec<TadpoleData>,
@@ -86,12 +97,6 @@ pub(super) struct DdStages {
     pub(super) second: Vec<usize>,
     pub(super) uncut: Vec<Uncut>,
     pub(super) pairs: Vec<[Cd; 4]>,
-    /// Per (cut, lane): reduce this cut of this lane in double-double. The
-    /// others keep the data the caller stored after [`Self::prepare`] (the
-    /// binary64 reduction's, promoted).
-    pub(super) sel_tri: Vec<bool>,
-    pub(super) sel_bub: Vec<bool>,
-    pub(super) sel_tad: Vec<bool>,
 }
 
 impl DdStages {
@@ -107,6 +112,9 @@ impl DdStages {
             smat: Vec::new(),
             vsq: Vec::new(),
             bounds: Vec::new(),
+            box_c: Vec::new(),
+            box_lambda: Vec::new(),
+            box_rows: Vec::new(),
             tri: Vec::new(),
             bub: Vec::new(),
             tad: Vec::new(),
@@ -117,12 +125,20 @@ impl DdStages {
             second: Vec::new(),
             uncut: vec![Uncut::default(); n],
             pairs: Vec::new(),
-            sel_tri: Vec::new(),
-            sel_bub: Vec::new(),
-            sel_tad: Vec::new(),
         }
     }
 
+    /// Follow the engine's options (the tadpole bases depend on
+    /// `infrared_eps`).
+    pub(super) fn set_options(&mut self, options: StageOptions) {
+        if options.infrared_eps != self.options.infrared_eps {
+            self.tadpole_bases = tadpole_candidates(options.infrared_eps);
+        }
+        self.options = options;
+    }
+    pub(super) fn any_box(&self) -> bool {
+        self.topo.n >= 4 && self.options.cut_stop <= 4
+    }
     pub(super) fn any_triangle(&self) -> bool {
         self.topo.n >= 3 && self.options.cut_stop <= 3 && self.topo.rmn() + 3 >= 0
     }
@@ -164,6 +180,10 @@ impl DdStages {
                 .fold(Dd::ZERO, |a, m| a.max(m.taxicab()));
             self.bounds.push((vmax, mmax));
         }
+        self.box_c.clear();
+        self.box_c.resize(self.topo.boxes.len() * lanes, [Cd::ZERO; 2]);
+        self.box_lambda.clear();
+        self.box_lambda.resize(self.topo.boxes.len() * lanes, f64::NEG_INFINITY);
         self.tri.clear();
         self.tri
             .resize(self.topo.triangles.len() * lanes, TriangleData::default());
@@ -172,20 +192,13 @@ impl DdStages {
             .resize(self.topo.bubbles.len() * lanes, BubbleData::default());
         self.tad.clear();
         self.tad.resize(n * lanes, TadpoleData::default());
-        for (sel, len) in [
-            (&mut self.sel_tri, self.topo.triangles.len() * lanes),
-            (&mut self.sel_bub, self.topo.bubbles.len() * lanes),
-            (&mut self.sel_tad, n * lanes),
-        ] {
-            sel.clear();
-            sel.resize(len, true);
-        }
     }
 }
 
 /// The light-like projection of one lane's shifts: every pair `(i, j)` whose
-/// invariant `(V_i - V_j)²` is given as exactly zero (an on-shell massless
-/// leg, or a sum of collinear ones) and whose binary64 shifts differ is made
+/// invariant `(V_i - V_j)²` the binary64 pass takes as zero (`|s| <
+/// infrared_eps`, the bubble skip's and the binary64 masters' predicate: an
+/// on-shell massless leg) and whose binary64 shifts differ is made
 /// exactly light-like in double-double by the minimal-norm Gauss-Newton step
 /// `x <- x - Jᵀ (J Jᵀ)⁻¹ g(x)` on the shift components, twice (the binary64
 /// residuals are of order `ε |V|²`, so the second step reaches the carrier's
@@ -194,11 +207,11 @@ impl DdStages {
 /// mass, which the degenerate triangles amplify as much as rounding
 /// (`docs/triangle-gram-conditioning.md`, section 2). Returns `false` when the
 /// constraints are degenerate (`J Jᵀ` singular), the shifts then unchanged.
-pub(super) fn project_light_like(v: &mut [RMomD], smat: &[f64], n: usize) -> bool {
+pub(super) fn project_light_like(v: &mut [RMomD], smat: &[f64], n: usize, eps: f64) -> bool {
     let mut pairs = Vec::new();
     for i in 0..n {
         for j in i + 1..n {
-            if smat[i * n + j] == 0. && (0..4).any(|mu| v[i][mu] != v[j][mu]) {
+            if smat[i * n + j].abs() < eps && (0..4).any(|mu| v[i][mu] != v[j][mu]) {
                 pairs.push((i, j));
             }
         }
@@ -353,6 +366,44 @@ impl DdTensor {
 }
 
 impl DdNumerator for DdTensor {
+    fn evaluate(
+        &mut self,
+        _cut: &[usize],
+        lanes: &[usize],
+        q: &[[Cd; 4]],
+        _mu_squared: &[Cd],
+        out: &mut [Cd],
+    ) -> Result<()> {
+        for (row, &lane) in lanes.iter().enumerate() {
+            let c = &self.coefficients[lane * self.ncoeff..(lane + 1) * self.ncoeff];
+            out[row] = horner_scalar(c, self.rank, &q[row], true, &mut self.work);
+        }
+        Ok(())
+    }
+
+    fn mu_expansion(
+        &mut self,
+        _cut: &[usize],
+        lanes: &[usize],
+        v0: &[[Cd; 4]],
+        v1: Option<&[[Cd; 4]]>,
+        out: &mut [Cd],
+    ) -> Result<()> {
+        use super::dd_stages::jets as j;
+        for (row, &lane) in lanes.iter().enumerate() {
+            let c = &self.coefficients[lane * self.ncoeff..(lane + 1) * self.ncoeff];
+            match v1 {
+                None => out[row] = horner_scalar(c, self.rank, &v0[row], false, &mut self.work),
+                Some(v1) => {
+                    let xv = [v0[row], v1[row], [Cd::ZERO; 4], [Cd::ZERO; 4]];
+                    let jet = horner_jet::<j::Mu, 2>(c, self.rank, &xv, &mut self.work);
+                    out[2 * row..2 * row + 2].copy_from_slice(&jet);
+                }
+            }
+        }
+        Ok(())
+    }
+
     fn t3_expansion(
         &mut self,
         _cut: &[usize],
@@ -406,94 +457,6 @@ impl DdNumerator for DdTensor {
     }
 }
 
-/// A Laurent triple `[finite, 1/eps, 1/eps²]` in double-double.
-pub type L3 = [Cd; 3];
-
-fn l3(x: &[C64; 3]) -> L3 {
-    [Cd::from_c64(x[0]), Cd::from_c64(x[1]), Cd::from_c64(x[2])]
-}
-
-/// `B1`, `B11`, `B111` at `(p², m0², m1²)` from `B0`, `A0(m0)` and `A0(m1)`
-/// (`p²` the invariant of the reduced geometry, the masters at the given
-/// one)
-/// by the Passarino-Veltman reduction of OneLOop's conventions
-/// (oneloopmaster `two_point.rs`: `b1_at_nonzero_momentum`, `b00`, `b11`,
-/// `b001`, `b111`), every Laurent order, in double-double. Used where the
-/// reduction is well conditioned, `|p²| >= |m0²| + |m1²|` (`None` otherwise):
-/// then the double-double bubble contraction keeps the exact relations
-/// between the tensor coefficients that its large coefficients cancel
-/// through, and only `B0` and `A0`'s own binary64 rounding remains.
-pub fn bubble_tensors(
-    p2: Dd,
-    m0: Cd,
-    m1: Cd,
-    b0: &[C64; 3],
-    a0m0: &[C64; 3],
-    a0m1: &[C64; 3],
-    b0dd: Option<L3>,
-) -> Option<[L3; 4]> {
-    if !(p2.abs().to_f64() >= (m0.taxicab() + m1.taxicab()).to_f64()) || p2.hi == 0. {
-        return None;
-    }
-    let p2 = Cd::real(p2);
-    let (b0, a0, a1) = (b0dd.unwrap_or_else(|| l3(b0)), l3(a0m0), l3(a0m1));
-    let kin = m1 - m0 - p2;
-    let inv2p = (p2 * 2.).inv();
-    // Orders: 0 finite, 1 simple pole, 2 double pole (zero for B_{1..}).
-    let b1: L3 = std::array::from_fn(|k| (a0[k] - a1[k] + kin * b0[k]) * inv2p);
-    // B00 = N/6 + N_pole/9 (finite), N_pole/6 (pole), N = A0(m1) + 2 m0² B0 - K B1.
-    let n00: L3 = std::array::from_fn(|k| a1[k] + m0 * b0[k] * 2. - kin * b1[k]);
-    let b00: L3 = [n00[0] / 6. + n00[1] / 9., n00[1] / 6., Cd::ZERO];
-    let b11: L3 = std::array::from_fn(|k| (a1[k] + kin * b1[k] - b00[k] * 2.) * inv2p);
-    // B001 = N/8 + N_pole/16, N_pole/8, N = 2 m0² B1 - A0(m1) - K B11.
-    let n001: L3 = std::array::from_fn(|k| m0 * b1[k] * 2. - a1[k] - kin * b11[k]);
-    let b001: L3 = [n001[0] / 8. + n001[1] / 16., n001[1] / 8., Cd::ZERO];
-    let b111: L3 = std::array::from_fn(|k| (-a1[k] + kin * b11[k] - b001[k] * 4.) * inv2p);
-    Some([b0, b1, b11, b111])
-}
-
-/// `ln(-s/mu² - i0)` in double-double (`s` real, nonzero).
-fn log_minus(s: Dd, mu2: f64) -> Cd {
-    let l = (s.abs() / mu2).ln();
-    if s > 0. {
-        Cd::new(l, -std::f64::consts::PI)
-    } else {
-        Cd::real(l)
-    }
-}
-
-/// The massless bubble `B0(p²; 0, 0)` (`p² != 0`) in OneLOop's normalisation,
-/// `[2 - ln(-p²/mu² - i0), 1, 0]`, in double-double.
-pub fn massless_b0(p2: Dd, mu2: f64) -> L3 {
-    [Cd::real(Dd::from(2.)) - log_minus(p2, mu2), Cd::ONE, Cd::ZERO]
-}
-
-/// The massless-line triangle `C0(p1², p2², p3²; 0, 0, 0)` in OneLOop's
-/// normalisation, in double-double, for one or two non-zero external
-/// invariants (`zero[i]`: `p_i²` is exactly zero); `None` with three (the
-/// binary64 master is used) or none (scaleless).
-///
-/// One mass `s`: `[L²/2, -L, 1] / s`; two masses `s, t`:
-/// `[(L_s² - L_t²)/2, -(L_s - L_t), 0] / (s - t)`, `L = ln(-p²/mu² - i0)`
-/// (Ellis-Zanderighi, QCDLoop, triangles 2 and 3). In double-double the
-/// difference quotient keeps about `32 - log10|s/(s - t)|` digits.
-pub fn massless_c0(p: [Dd; 3], zero: [bool; 3], mu2: f64) -> Option<L3> {
-    let massive: Vec<Dd> = (0..3).filter(|&i| !zero[i]).map(|i| p[i]).collect();
-    match massive.as_slice() {
-        [s] => {
-            let l = log_minus(*s, mu2);
-            let inv = Dd::ONE / *s;
-            Some([l * l * 0.5 * inv, -l * inv, Cd::real(inv)])
-        }
-        [s, t] => {
-            let (ls, lt) = (log_minus(*s, mu2), log_minus(*t, mu2));
-            let inv = Dd::ONE / (*s - *t);
-            Some([(ls * ls - lt * lt) * 0.5 * inv, -(ls - lt) * inv, Cd::ZERO])
-        }
-        _ => None,
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -535,7 +498,7 @@ mod tests {
             let d: [Dd; 4] = std::array::from_fn(|mu| v[1][mu] - v[2][mu]);
             super::super::dd::mp_rr(&d, &d)
         };
-        assert!(project_light_like(&mut v, &smat, 3));
+        assert!(project_light_like(&mut v, &smat, 3, 1e-9));
         let d: [Dd; 4] = std::array::from_fn(|mu| v[1][mu] - v[2][mu]);
         let g = super::super::dd::mp_rr(&d, &d);
         eprintln!("g0 {g0:?} g {g:?} v1 {:?} v2 {:?}", v[1], v[2]);
