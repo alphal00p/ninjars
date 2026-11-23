@@ -2845,12 +2845,19 @@ thread_local! {
 const BOX_GRAM_EXCESS_BITS: f64 = 11.3;
 
 /// The weight of a double-double term in a re-reduced lane's estimate,
-/// `2^-100`: double-double's `2^-104` (two bits under its `2^-106`) with four
-/// bits of margin; each double-double `C0` term is further divided by its
-/// triangle's normalised Källén function δ (the provider's `C0` loses
-/// `log2(1/δ)` bits, measured against MPFR). Measured: no served lane above
-/// the target on two independent sets of exactly consistent synthetic lanes
-/// (`docs/triangle-gram-conditioning.md`, section 5).
+/// `2^-100`. Where it comes from: double-double arithmetic rounds at
+/// `2^-104` (two bits under `2^-106`); the provider's double-double masters
+/// other than C0 and D0 are accurate to `2^-98.4` (B11/B111) or better
+/// against 200-bit MPFR (A0, B0: `2^-100` and better; the second audit's
+/// 1,638 masters); the estimate sums the moduli of all terms, which bounds the
+/// accumulated error from above. `2^-100` is the smallest weight for which no
+/// served lane exceeds its estimate on two independent sets of exactly
+/// consistent synthetic lanes (168 and 293 lanes, n = 3 to 6, massless,
+/// massive, complex and mixed lines; worst actual/estimate 1.01): an
+/// empirical weight, not a proof. C0 and D0 terms are further divided by the
+/// normalised Källén function δ of their (most degenerate sub-)triangle: they
+/// lose `log2(1/δ)` bits (measured: C0 `2^-104/δ`, D0 up to `2^-77` at a box
+/// with a degenerate sub-triangle).
 const DD_TERM_BITS: i32 = 100;
 
 /// The unit at which a re-reduced lane counts the box mu-expansion screen's
@@ -3343,6 +3350,16 @@ impl FastAmplitude {
                 missing |= !(given && rescue_ok[0]);
                 (given && rescue_ok[0]).then_some(rescue_out)
             };
+            // A triangle's normalised Källén function `sqrt|λ(a, b, c)| / max`
+            // of its external invariants: the provider's double-double C0
+            // loses log2(1/δ) bits there, and D0 that of its most degenerate
+            // sub-triangle (both measured against 200-bit MPFR).
+            let delta = |a: Cd, b: Cd, c: Cd| -> f64 {
+                let [a, b, c] = [a, b, c].map(|z| z.re.to_f64());
+                let big = a.abs().max(b.abs()).max(c.abs());
+                let kallen = (a * a + b * b + c * c - 2. * (a * b + b * c + c * a)).abs().sqrt();
+                if big > 0. { (kallen / big).clamp(f64::MIN_POSITIVE, 1.) } else { 1. }
+            };
             let mut res = [Cd::ZERO; 3];
             let mut rational = Cd::ZERO;
             // The moduli of the finite terms, split by the precision of their
@@ -3364,7 +3381,19 @@ impl FastAmplitude {
                         res[o] += c0 * integral[o];
                     }
                     rational += c4 * (-1. / 6.);
-                    if given.is_some() { mdd += size(c0 * integral[0]) } else { m64 += size(c0 * integral[0]) }
+                    if given.is_some() {
+                        let worst = [
+                            delta(inv(i2, i1), inv(i3, i2), inv(i3, i1)),
+                            delta(inv(i2, i1), inv(i4, i2), inv(i4, i1)),
+                            delta(inv(i3, i1), inv(i4, i3), inv(i4, i1)),
+                            delta(inv(i3, i2), inv(i4, i3), inv(i4, i2)),
+                        ]
+                        .into_iter()
+                        .fold(1f64, f64::min);
+                        mdd += size(c0 * integral[0]) / worst;
+                    } else {
+                        m64 += size(c0 * integral[0]);
+                    }
                     mdd += size(c4) / 6.;
                 }
             }
@@ -3395,14 +3424,7 @@ impl FastAmplitude {
                         rational += c[7] * 0.5;
                     }
                     if master_dd {
-                        // The provider's double-double C0 loses log2(1/δ) bits
-                        // at a nearly degenerate triangle (δ its normalised
-                        // Källén function; measured against 200-bit MPFR: 2^-104
-                        // / δ for massless, massive and complex lines).
-                        let [a, b, cc] = [inv(i2, i1), inv(i3, i2), inv(i1, i3)].map(|z| z.re.to_f64());
-                        let big = a.abs().max(b.abs()).max(cc.abs());
-                        let kallen = (a * a + b * b + cc * cc - 2. * (a * b + b * cc + cc * a)).abs().sqrt();
-                        let delta = if big > 0. { (kallen / big).clamp(f64::MIN_POSITIVE, 1.) } else { 1. };
+                        let delta = delta(inv(i2, i1), inv(i3, i2), inv(i1, i3));
                         mdd += size(c[0] * integral[0]) / delta;
                     } else {
                         m64 += size(c[0] * integral[0]);
