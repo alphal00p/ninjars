@@ -1,252 +1,254 @@
-# Degenerate triangle Gram determinants: double-double re-reduction
+# Cancelling lanes: whole-lane double-double re-reduction
 
-The fast engine re-reduces in double-double, from the triple cuts down, every
-lane whose binary64 reduction it measures to cancel beyond a target relative
-accuracy (`FastOptions::cancellation_rescue`, default on;
-`FastOptions::rescue_target`, default `DEFAULT_RESCUE_TARGET = 2^-30`; `crates/ninjars/src/fast/engine.rs`, `dd_driver.rs`, `dd.rs`, and
-the generated `dd_stages.rs`). Lanes it does not flag keep their binary64
-values bit for bit. This note records why, what the re-reduction has to
-get right besides precision, and its calibration. It covers the case that
-`docs/box-gram-conditioning.md` (section 4) lists as not covered: a degenerate
-triangle Gram determinant.
+The fast engine re-reduces in double-double every lane whose binary64
+reduction it measures to miss a target relative accuracy
+(`FastOptions::cancellation_rescue`, default on; `FastOptions::rescue_target`,
+default `DEFAULT_RESCUE_TARGET = 2^-30`). The flagged lane is reduced again
+WHOLE (box, triangle, bubble and tadpole stages, every master) at one
+kinematic point; only the numerator's coefficients stay binary64. Lanes it
+does not flag keep their binary64 values bit for bit; with the option off
+nothing of this runs. Code: `crates/ninjars/src/fast/engine.rs`
+(`rescue_after`, `rescue_cancelling_lanes`, `rescue_with`), `dd_driver.rs`,
+`dd.rs`, the generated `dd_stages.rs`. This note records why, what the
+re-reduction has to get right besides precision, how a lane is judged, and the
+domain.
 
 ## 1. The defect
 
 pyAmpliCol's profiling campaign (`g g > g g g`, leading colour, massless
-loops, `sqrt(s) = 1 TeV`, `pT > 25 GeV`, `ΔR > 0.7`, 10,000 points, pyAmpliCol
-v1.0.3 with NinjaRS a2546170) served 122 points below 5 true digits and 491
-below 8 in binary64, the worst at -4.9. TIRust on the same points: 7.3 digits
-at worst. Every bad point has a partition `{i}{jk}{lm}` of the five gluons with
-`x = |s_jk - s_lm| / s < 1.1e-3`: a triangle with one massless leg `p` and two
-massive legs `P`, `Q` whose Gram determinant `-(p.K)² ∝ (P² - Q²)²` nearly
-vanishes inside phase space. Original Ninja (MadLoop 3.7.0) loses the same
-digits.
+loops, `sqrt(s) = 1 TeV`, 10,000 points, pyAmpliCol v1.0.3) served 122 points
+below 5 true digits and 491 below 8 in binary64, the worst at -4.9 (TIRust:
+7.3 at worst). Every bad point has a triangle with one massless leg and two
+massive legs `P`, `Q` whose Gram determinant `∝ (P² - Q²)²` nearly vanishes
+inside phase space. Original Ninja (MadLoop 3.7.0) loses the same digits.
 
-Per lane (point 308, digits -2.3; the lanes dumped from pyAmpliCol, reduced
-here by the fast engine and by the generic engine at 200 bits):
+On point 308 (digits -2.3), lane 33 (value `25.44i`): the triangle's
+coefficients reach `2e13`, its spurious coefficients enter its bubbles'
+subtraction terms, and the bubble coefficients reach `1e15 .. 5e21`. Inside
+each bubble the tensor terms and the rational term cancel from `1.5e20` to
+`1e13`; between the cuts the bubbles (`±9.7e12`) and the triangle (`1.7e9`)
+cancel again, to 25. The binary64 error of every bad lane is 5 to 50 times
+`2^-53` times its largest coefficient. No parametrisation removes it (all
+points of the triple cut lie at distance `~1/δ`, `δ = (P² - Q²)/P²`), so the
+cure computes the coefficients, and their contraction, beyond binary64.
 
-- The triangle's coefficients are large (`c0 ~ 2e13` for a lane whose value
-  is 25) and its spurious coefficients enter the subtraction terms of its
-  bubbles through its `e3`, `e4`, which grow like `δ^(-1/2)`
-  (`δ = (P² - Q²)/P²`). The bubble coefficients reach `1e15 .. 5e21`.
-- Inside each bubble, the tensor-bubble terms `c0 B0 + c1 (k.e2) B1 +
-  c2 (k.e2)² B11` and the rational term `-(k/6) c9` cancel from `1.5e20` to
-  `1e13`: the bubble residue is large on the cut and its integral small.
-  Between the cuts, the two bubbles (`±9.7e12`) and the triangle (`1.7e9`)
-  cancel again, to 25: the scalar basis's spurious poles in `P² - Q²`.
-- The binary64 error of every bad lane is 5 to 50 times `2^-53` times its
-  largest bubble coefficient: the intra-bubble cancellation dominates; the
-  cross-cut floor `2^-53 Σ|cut|` is 5 to 6 orders lower.
-
-No parametrisation removes this: all points of the triple cut lie at a
-Euclidean distance `~ 1/δ` along `p` (`q.p = 0`, `q.K = -K²/2` force
-`q = α p + q⊥` with `α ~ 1/(p.K)`), and Ninja's own conditioned bubble
-references (`FastOptions::conditioned_cuts`) do not help (measured). The
-coefficients themselves are the issue, so the cure computes them, and their
-contraction, beyond binary64.
+The same mechanism, cancellation between the terms of a lane that binary64
+cannot resolve, occurs at nearly degenerate boxes (section 6).
 
 ## 2. What the re-reduction has to get right besides precision
 
-Double-double arithmetic alone is not enough. The large terms cancel only for
-a geometry in which every identity Ninja's formulas assume holds to the
-double-double rounding; three such identities hold only to binary64 rounding
-in the binary64 engine, and each one, left as it is, costs as many digits as
-the rounding (measured on point 308, lane 33, value `25.4386i`; generic engine
-at 200 bits):
+The large terms cancel only for a geometry in which every identity Ninja's
+formulas assume holds to the double-double rounding (measured on point 308,
+lane 33, generic engine at 200 bits):
 
 1. **Light-like legs.** pyAmpliCol gives the shifts as binary64 sums of
    on-shell momenta and the invariants of on-shell legs exactly
-   (`s_matrix = 0` for a massless leg). The shifts' own `p² = 1.5e-11`
-   (rounding of the components) is taken as massless by the cut basis
-   (`Basis::from_pair`, `|k²| < infrared_eps`) but not by the cut solution, so
-   the geometry is inconsistent at `ε`. Even at 200 bits the lane then comes
-   out at `-19958i`, `-50450i`, `-5452i` for three perturbations of the shifts
-   by `2e-16`; with the legs projected exactly light-like and the invariants
-   recomputed from the shifts it is `25.4386i` for all of them (to `1e-15`).
-   The re-reduction projects the shifts in double-double onto exact
-   light-likeness of every pair with an exactly zero invariant
-   (`dd_driver::project_light_like`: minimal-norm Gauss-Newton, two steps).
-2. **The bubble reference.** Ninja's `Basis(k)` reference
-   `(±1, ∓1/√3, ∓1/√3, ∓1/√3)` is light-like only to binary64 rounding, and the
-   basis takes it as light-like. In double-double its energy is the norm of
-   its spatial part (`generate_dd_stages.py`, `from_single`).
-3. **The invariants of the contraction.** The bubbles' rational terms
-   (`-(k/6) c9`, ...) multiply an invariant by a coefficient of order `1e15`;
-   with `k` from the input matrix rather than from the shifts the cancellation
-   of section 1 breaks at `2^-53 k c9 ≈ 2e4`. The re-reduction takes every
-   invariant of its rational terms and of the bubble tensors' reduction from
-   the projected shifts.
+   (`s_matrix = 0` for a massless leg). The shifts' own `p² = 1.5e-11` is taken
+   as massless by the cut basis but not by the cut solution. Even at 200 bits
+   the lane then comes out at `-19958i`, `-50450i`, `-5452i` for three
+   perturbations of the shifts by `2e-16`; projected exactly light-like (and
+   invariants from the shifts) it is `25.4386i` for all of them. Without a
+   caller refinement (section 8) the re-reduction projects the shifts in
+   double-double onto exact light-likeness of every pair with a zero invariant
+   (`dd_driver::project_light_like`: minimal-norm Gauss-Newton, all pairs
+   simultaneously, two steps).
+2. **The bubble reference.** Ninja's `Basis(k)` reference is light-like only
+   to binary64 rounding; in double-double its energy is the norm of its
+   spatial part (`generate_dd_stages.py`).
+3. **Invariants.** The rational terms multiply invariants by coefficients of
+   order `1e15`; every invariant of the re-reduction (rational terms, masters)
+   is that of its own point (the projected shifts', or the caller's refined
+   ones), except that an invariant the binary64 pass takes as exactly zero, or
+   as exactly a real squared mass of the lane, is exactly that.
+4. **One point.** Every master is evaluated at that point, in double-double,
+   by the provider (`FastMasters::evaluate_rescue`, section 4). Mixing a
+   binary64 master at the input point with double-double coefficients at the
+   projected point leaves the cross-cut floor `2^-53 Σ|cut|` (measured `2e-3`
+   on lane 33); with all masters at the point the dumped lanes agree with the
+   200-bit references to `3e-12 .. 3e-11` relative.
 
-After these, the re-reduction of lane 33 (double-double coefficients,
-binary64 masters) gives `25.4405i` (error `2e-3`, from `2e5`); the remaining
-error is the cross-cut floor of binary64 masters, `2^-53 Σ|cut|`
-(`2^-53 1.9e13`). Two more pieces remove it where it can be done exactly:
+An invariant strictly between zero and `infrared_eps` is zero by the engine's
+convention (cut bases, scaleless bubbles, on-shell masters) but not by the
+kinematics: such a lane is not re-reduced (typed `Failed`, section 5).
 
-4. **Bubble tensors.** `B1`, `B11`, `B111` are reduced to `B0` and `A0` by
-   OneLOop's own Passarino-Veltman relations in double-double
-   (`dd_driver::bubble_tensors`, every Laurent order; matches OneLOop to
-   `1e-15`), so the intra-bubble cancellation is exact and only `B0`'s
-   rounding is left. Applied where the reduction is well conditioned,
-   `|p²| >= |m0²| + |m1²|`; otherwise OneLOop's binary64 tensors.
-5. **Massless masters.** For massless internal lines, `B0(p²)` and the one-
-   and two-mass `C0` are closed forms (QCDLoop triangles 2 and 3), evaluated in
-   double-double at the projected geometry's invariants
-   (`dd_driver::massless_b0`, `massless_c0`). Their binary64 values at the
-   input invariants would leave the floor twice: by their own rounding and by
-   the `ε` difference between the input invariants and the geometry's.
+## 3. Trigger
 
-With all five the dumped lanes agree with the 200-bit references to
-`1e-10 .. 4e-9` (relative `3e-12 .. 3e-11`): lane 33 of point 308 `7e-11`
-(binary64: `2.2e5`), lane 47 `1e-10` (`4.5e4`), lane 28 of point 9117 `4e-9`
-(`1.9e8`).
+After `integrate`, per successful lane (and per lane the box mu-expansion
+screen refused, `BoxMuConditioning`), a binary64 estimate of its relative
+error, the largest of:
 
-## 3. Trigger and re-reduction
+- `2^-53 Σ|terms| / |finite|`, the moduli of the finite parts of every
+  integrated term (each coefficient times its master, each bubble tensor term
+  separately, each rational term; `term_moduli`);
+- the box-Gram model `2^((r+1)/2 log2 λ² + 11.3 - 53)` of each box (λ² the
+  box solutions' spread over the box's scale, `box_lambda_bits`,
+  `docs/box-gram-conditioning.md`), the loss inside the box coefficients that
+  the contraction does not show;
+- `2^-53 mu_error / |finite|`, the box mu-expansion screen's first-order
+  rounding estimate (`docs/box-mu-conditioning.md`), also invisible in the
+  contraction. Before this term the screen refused a lane only above `2^-17`;
+  between the target and `2^-17` binary64 served it unflagged (`g g > t t~ g`
+  point 1186, section 7).
 
-After `integrate`, a separate pass sums per lane the moduli of the finite
-parts of every integrated term (each coefficient times its master, each
-bubble tensor term separately, each rational term; `term_moduli`). A
-successful lane whose estimate `2^-53 Σ|terms| / |finite|` exceeds the target
-`FastOptions::rescue_target` is re-reduced (default `2^-30`, about four
-sevenths of binary64's bits: the measured binary64 error of the degenerate
-lanes is 5 to 50 times `2^-53` times their largest term, so a lane served
-within the target keeps about seven digits; a caller with an accuracy target
-of its own passes it, divided by its safety factor for a lane being one of
-several terms of its amplitude). The re-reduced lane is judged the same way:
-its own estimate counts `2^-53` for every term that keeps a binary64 factor
-(box terms, unselected cuts, binary64 masters) and `2^-104` for the others;
-above the target the lane is refused, typed (`FastStatus::Unstable`,
-`InstabilityTest::CancellationRescue`, with the estimate and the target),
-never served as a silent success. `take_rescues()` lists the evaluation's
-re-reduced lanes with their precision (106 bits), estimate and whether they
-were served; `take_rescued_lanes()` counts them per thread.
+A lane whose estimate exceeds `rescue_target` (a lane refused by the screen
+always) is re-reduced, if its numerator exposes its tensor
+(`FastNumerator::tensor_coefficients`; others keep today's behaviour). The
+default `2^-30` keeps about seven digits per lane; a caller with an accuracy
+target of its own passes it, divided by its safety factor for a lane being one
+of several terms of its point (pyAmpliCol: `reduction_target / 1000`).
 
-The masters of the selected cuts come in double-double from the provider when
-it offers them (`FastMasters::evaluate_rescue`, default not provided;
-`OneLoopNativeMasters` evaluates oneloopmaster's generated native masters in
-`DoubleFloat`, every sector, massive and complex masses included) at the
-geometry's invariants, input invariants given as exactly zero or exactly a
-real squared mass of the lane kept exactly; else the massless closed forms of
-section 2; else the binary64 masters (counted at `2^-53` in the estimate).
-The lane is re-reduced: the default stages and their machine code are unchanged, and
-unflagged lanes are not touched. The sum is a measure of the actual
-cancellation of the lane, not an a-priori bound: on the campaign's 10,000
-points it flags 1.3 % of the lanes, against the a-priori triangle screen of
-the earlier diagnosis that refused lanes at 40 % of the points.
+## 4. Re-reduction
 
-Inside a flagged lane only the cuts that carry the cancellation are
-recomputed (`select_cuts`): a bubble or triangle whose own term moduli exceed
-the lane's allowance `target 2^53 |finite|` divided by twice its number of
-cuts,
-every parent triangle of a selected bubble whose spurious terms
-`|c_k| (E |e3|)^p` (`E` the lane's largest shift and mass scale) exceed the
-same bound, and the tadpoles below a selected parent. Every other cut keeps
-its binary64 coefficients (promoted) and its binary64 contraction; their
-rounding then stays within half the target by construction. On a `g g > g g g`
-pentagon lane this recomputes one triangle and three bubbles of ten each
-(820 µs -> about 170 µs per re-reduced lane).
+The flagged lanes of one call are re-reduced together: shifts promoted (and
+projected, section 2) or taken from the caller's refinement; box, triangle,
+bubble and tadpole stages in double-double (`dd_stages.rs`, generated from
+the binary64 sources by `tools/fast/generate_dd_stages.py`: geometry,
+coefficient-level subtractions, the tensor numerator's jets, the four stages;
+binary64 scalars replaced, the stability checks reduced to finiteness and the
+box conditioning screens dropped, the box-Gram measure kept); the tensor
+coefficients promoted exactly (`FastNumerator::tensor_coefficients`,
+implemented by `TensorNumerator`). A test fails while the generated file is
+stale (`dd_driver::tests::dd_stages_are_generated_from_the_binary64_sources`).
 
-The flagged lanes of one call are re-reduced together: their shifts promoted
-and projected (section 2), the triangle, bubble and tadpole stages in
-double-double (`dd_stages.rs`, generated from the binary64 sources by
-`tools/fast/generate_dd_stages.py`: geometry, coefficient-level subtractions,
-the tensor numerator's jets, the three stages; binary64 scalars replaced, the
-stability checks reduced to finiteness, which the binary64 pass already
-tested), with the tensor coefficients promoted exactly
-(`FastNumerator::tensor_coefficients`, implemented by `TensorNumerator`).
-The contraction (`rescue_with`) takes the binary64 box coefficients and the
-binary64 masters of the evaluation's own provider calls (no master is
-evaluated again), except for sections 2.4 and 2.5. A lane whose
-re-reduction is not finite keeps its binary64 value.
+Masters: `FastMasters::evaluate_rescue` (default: not provided). 
+`ninjars_symbolica::OneLoopNativeMasters` serves, in `DoubleFloat`
+(oneloopmaster's generated native evaluators, every sector, real, massive and
+complex masses): `A0`, `BubbleRank2` (`B0, B1, B11`), `BubbleRank3`
+(`.., B111`), `C0`, `D0`; not `BubbleRank4` (rank n+2 bubbles, outside the
+rescue's domain). A master the provider does not serve at the point (not
+provided, or refused) is taken from the binary64 pass at the input point and
+counted at `2^-53` in the estimate; at a caller-refined point it refuses the
+lane instead (two points in one lane). A wrapper provider must forward
+`evaluate_rescue` (pyAmpliCol's `MasterCache` does).
 
-## 4. Results (pyAmpliCol v1.0.3 + this branch, plain binary64 `evaluate`)
+## 5. Estimate and decision
 
-Against the campaign's double-double references:
+The re-reduced lane's own absolute error estimate is the largest of
 
-| | points | below 5 digits | below 8 | worst | median | lanes re-reduced |
-|---|---|---|---|---|---|---|
-| `g g > g g g` LC, v1.0.3 | 10,000 | 122 | 491 | -4.9 | 13.4 | - |
-| `g g > g g g` LC, this branch | 10,000 | 0 | 0 | 8.01 | 13.47 | 10,070 (1.3 %) |
-| `g g > g g g g` LC, v1.0.3 | 300 | 13 | 48 | -2.34 | 11.04 | - |
-| `g g > g g g g` LC, this branch | 300 | 0 | 0 | 8.53 | 11.60 | 4,077 |
+- `2^-53 M64 + 2^-92 Mdd + 2^-53 |V'|`: `M64` the moduli of its terms with a
+  binary64 factor (a binary64 master), `Mdd` the others, `|V'|` the rounding
+  of the served binary64 value. `2^-92` is double-double's `2^-104` (two bits
+  under its `2^-106`) less a measured margin of twelve bits: on the audit's
+  exactly consistent synthetic lanes (massless, top-mass, complex-mass and
+  mixed lines, n = 3 to 5, ranks n to n+1) the served lanes' errors exceed
+  `2^-104 Mdd` by up to `2.7e3` (mixed massive and massless lines); with the
+  margin no served synthetic lane exceeds its estimate (worst ratio 1.01);
+- the box-Gram model at 106 bits times `M' = M64 + Mdd` (relative to `|V'|`
+  in the relative estimate, as calibrated);
+- `2^-104 mu_error`.
 
-Regression (first 500 campaign points each): `g g > g g` LC, `u u~ > e- e+ g`
-(complex-mass scheme) and `g g > h g` (top loop) flag no lane and are
-unchanged; `g g > t t~ g` re-reduces 54 lanes, its worst point goes from 8.46
-to 9.76 digits and two points move from 14.5 / 13.6 to 13.5 / 12.6 digits.
+Its relative estimate is the same over `|V'|`. Outcomes
+(`Rescue::outcome: RescueOutcome`, the names and rule of the generic engine's
+cancellation ladder):
 
-Time: see `REPORT.md` of the work folder (section "Cost").
+- `Accepted`: the relative estimate meets the target;
+- `BelowResolution`: `|V'| <= 2^-53 M'` (the lane is below binary64's
+  resolution of its own terms) and the absolute estimate is at most the target
+  times that resolution: served, with no relative accuracy stated (the dumped
+  `g g > g g g` lanes: value 25 against terms of `1e20`, relative estimate
+  `4e-8` against a measured `7e-11`);
+- `Missed`: neither; `Failed`: no re-reduction (a degenerate or non-finite
+  quantity, an unsolvable projection, an invariant below `infrared_eps`).
 
-## 5. Domain and limits
+A served lane (`Accepted` or `BelowResolution`) must also be clearly better
+than the binary64 lane: its absolute estimate at most a sixteenth of the
+binary64 lane's (the binary64 error ranges over about 0.03 to 1 times its
+estimate on the dumped lanes; four bits keep a served value from being worse).
+Served: status `Success`, the re-reduced value. Refused (`Missed`, `Failed`):
+status `Unstable` with `Instability { test: CancellationRescue, value, bound:
+target }`, never a silent success; the result slot holds the BEST AVAILABLE
+value, the re-reduced one when it is at one point and its absolute estimate is
+below the binary64 lane's, else the binary64 one; `Rescue::held_bits` (53 or
+106) and `held_estimate` (= the instability's `value`) say which and how good,
+for a caller serving it under a best-effort status. `take_rescues()` lists the
+call's re-reduced lanes (precision 106 bits, estimates, outcome, held value);
+`take_rescued_lanes()` counts served lanes per thread.
 
-- The option: `FastOptions::cancellation_rescue`, default `true` for
-  standalone users (a lane that loses all its digits otherwise comes back
-  with status success). With `false` neither the trigger's bookkeeping nor
-  the re-reduction runs and every value is the binary64 reduction's, bit for
-  bit. pyAmpliCol sets it from its reduction-check switch: on in the checked
-  mode, off in the UNCHECKED mode (`fast_options(unchecked)`).
+## 6. Boxes
 
-- Rank <= n+1 lanes of numerators that expose their tensor
-  (`FastNumerator::tensor_coefficients`): `TensorNumerator`, pyAmpliCol's.
-  Others, `MuTensorNumerator` and the rank n+2 engine keep binary64.
-- Massive or complex internal masses: the coefficients and the bubble
-  tensors' reduction are double-double, the masters binary64; the cross-cut
-  floor `2^-53 Σ|cut|` remains there (`g g > t t~ g` above). Three-mass
-  massless triangles (from six external legs) also keep the binary64 `C0`.
-- Only exactly zero invariants are projected. A massive external leg keeps
-  its binary64 shell residue; its masters are smooth there, so the residue
-  costs at the cross-cut floor, not more (no threshold branch of the basis
-  depends on it).
-- The trigger measures the final contraction, so it also flags lanes that
-  cancel for other reasons (e.g. a degenerate box); their re-reduction uses
-  the binary64 box coefficients and leaves the box part as it was.
-- Boxes stay binary64 (their coefficients are moderate on these lanes).
+The whole-lane re-reduction covers the box stage itself (double-double box
+solutions, coefficients and mu-expansion; double-double `D0`):
 
-## 6. Tests, fixtures, regeneration
+- **Nearly dependent momenta / nearly light-like box hyperplane (box Gram).**
+  The trigger's box-Gram term flags them; the re-reduced lane's estimate
+  carries the same model at 106 bits. Fixtures
+  `validation/conditioning/box-gram` (11): lanes within double-double's reach
+  are served; the collinear final state tilted by `1e-6` (rank n+1, binary64
+  `1e15` off as a success) is beyond it and refused typed
+  (`lanes_beyond_double_double_are_refused_typed`).
+- **Box mu-expansion (lanes the screen refuses).** Re-reduced and judged with
+  the screen's estimate at the double-double unit: `g g > a a g` planar point
+  at tilt `1e-9` and the synthetic tilts `1e-2 .. 1e-7` (rank 6) are served
+  within `2e-15 .. 6e-13` of exactly consistent references; the planar points
+  of `z z z, z z g, z g g, a g g, a a g, W+ W- g` at tilt `1e-12` (double-double
+  `1e-8 .. 6e-7` off) are refused typed (estimates `2e-9 .. 3e-6`).
+- **Massive box lanes the screen let through** (`g g > t t~ g` point 1186:
+  29 lanes `1e-13 .. 2.3e-5` off in binary64, unflagged before the mu term):
+  re-reduced to `<= 1.2e-10`, the point from 6.7 to 12.5 digits.
+- Mass configurations: every massless, real massive and complex-mass box the
+  provider's `D0` serves (all sectors of oneloopmaster). A configuration it
+  refuses falls back as section 4 (binary64 master counted at `2^-53`, so the
+  lane is refused unless that term is small; at a refined point refused).
 
-- `crates/ninjars-symbolica/tests/triangle_gram_rescue.rs` (feature
-  `native-masters`): the three dumped lanes of
-  `validation/conditioning/triangle-gram` are served within `1e-8` of their
-  references with exactly one re-reduction each, and the binary64 reduction
-  is more than `1e-2` off; the regular control lane is unchanged bit for bit;
-  the double-double `B0`, `C0` and bubble tensors agree with OneLOop.
-- `crates/ninjars/src/fast/dd.rs` and `dd_driver.rs` unit tests: the
-  double-double arithmetic, `exp`, `ln`, and the light-like projection.
-- `python3 tools/fast/generate_dd_stages.py` regenerates `dd_stages.rs`;
-  `--check` fails while it is stale (after changes to the binary64 stages,
-  geometry, subtractions or jets).
+## 7. Results
 
-## 7. Rescue-precision kinematics from the caller
+See `REPORT.md` of the work folder for the tables (pyAmpliCol v1.0.3 + this
+branch, campaign points against the campaign's double-double references).
+
+## 8. Rescue-precision kinematics from the caller
 
 `FastAmplitude::evaluate_refined(input, refinement, numerator, masters,
 results, statuses)` takes an optional `FastRefinement { shifts, s_matrix,
 masses_squared }`: the low parts of the rescue-precision kinematics, in the
-layouts of `FastInput` (`shifts[lane * n + i]` four components;
-`s_matrix[lane * n * n + i * n + j]`, only with an `s_matrix` in `FastInput`;
-`masses_squared[lane * n + i]`), so that each rescue-precision value is the
-`FastInput` value plus its low part (double-double for this binary64 engine).
-`evaluate(..)` is `evaluate_refined(.., None, ..)`. A lazy form,
-`evaluate_refined_with(input, Option<&dyn FastRefinementSource>, ..)`, asks
-the source only for the lanes the re-reduction takes up
+layouts of `FastInput`, so that each value is the `FastInput` value plus its
+low part (an exact double-double two-sum; low parts need not be normalised).
+`evaluate(..)` is `evaluate_refined(.., None, ..)`. The lazy form
+`evaluate_refined_with(input, Option<&dyn FastRefinementSource>, ..)` asks the
+source only for the lanes the re-reduction takes up
 (`FastRefinementSource::lane(lane, shifts_lo, s_matrix_lo, masses_lo) ->
-bool`, buffers zeroed on entry; `false` = repairs for that lane; a NaN
-invariant low part = that invariant from the refined shifts); `FastRefinement`
-implements it. Low parts need not be normalised against the `FastInput`
-values: the rescue forms each value by an exact double-double two-sum.
+bool`, buffers zeroed; `false` = the internal projection for that lane; a NaN
+invariant low part = that invariant from the refined shifts).
 
 - The binary64 pass reads `FastInput` only, bit for bit as without a
-  refinement (`refined_kinematics_drive_the_rescue`).
-- With a refinement, the re-reduction of a flagged lane builds its geometry,
-  Gram matrices, rational terms and double-double masters from it (invariants
-  from the refined `s_matrix`, else from the refined shifts) and applies no
-  repair of its own (section 2, items 1 and 3). Without one, those repairs are
-  the fallback.
-- The caller supplies the rescue-precision cure of the very binary64 point:
-  on-shell legs (a zero invariant keeps a zero low part), momentum
-  conservation, shifts that are exact sums of the refined momenta, invariants
-  consistent with them. An inconsistent refinement degrades the rescue to the
-  binary64 level (the test's all-zero refinement: the lanes stay `1e3`
-  off), it never touches the binary64 pass.
-- The rescue runs after each entry point has published its lanes
-  (`rescue_after`), with the refinement passed explicitly; it is read only for
-  flagged lanes. Lanes that the rank n+2 engine reduces at a lower rank are
-  renumbered and use the repairs.
+  refinement.
+- With a refinement the flagged lane is re-reduced whole at the refined point
+  (geometry, Gram matrices, rational terms and every master); no repair of its
+  own. Because the whole lane is recomputed there, the refined point may lie
+  any distance from the binary64 input that the caller's cure produces; what it
+  must be is exactly consistent to double-double: on-shell legs (exactly zero
+  invariants stay exactly zero, `lo = 0`), invariants those of the refined
+  shifts. The numerator stays at the binary64 point: a lane whose value is
+  sensitive to its kinematics (measured on `g g > a a g` lanes: `1e-10 ..
+  1e-8` under consistent `2e-16` perturbations) moves with the distance, as it
+  would with any binary64 input; the internal projection moves the point by
+  about one ulp (minimal norm), the refinement by the caller's cure.
+- Lanes that the rank n+2 engine reduces at a lower rank are renumbered and
+  use the projection.
+
+## 9. Domain and limits
+
+- Rank <= n+1 lanes of tensor numerators (`TensorNumerator`, pyAmpliCol's).
+  `MuTensorNumerator`, other numerators and rank n+2 lanes keep today's
+  behaviour (no trigger, no refusal by the rescue).
+- Losses inside a stage that neither the term moduli, the box-Gram model nor
+  the mu screen sees are not flagged (time-like synthetic pentagons, `4e-4`;
+  the audit's F3).
+- The estimate is measured, not proven: margins from the synthetic,
+  box-mu, box-gram and dumped lanes (sections 5, 6); `g g > a a g` pentagon
+  lanes with a vanishing shift come out `1e-14 .. 9e-14` off with relative
+  estimates `1.1e-16` (far within any target).
+- Masses' low parts: exact binary64 masses unless the caller refines them.
+
+## 10. Tests, fixtures, regeneration
+
+- `crates/ninjars-symbolica/tests/triangle_gram_rescue.rs` (feature
+  `native-masters`): the dumped degenerate lanes served within `1e-8`; the
+  regular control unchanged bit for bit; double-double masters against
+  OneLOop; box-mu-screened lanes cured; refined kinematics drive the rescue;
+  the target decides and misses are typed; lanes beyond double-double refused
+  typed with the best value in their slot; vanishing lanes served
+  `BelowResolution`.
+- `crates/ninjars/src/fast/dd.rs`, `dd_driver.rs` unit tests: arithmetic, the
+  light-like projection, the generated stages' currency.
+- `python3 tools/fast/generate_dd_stages.py` regenerates `dd_stages.rs`
+  (`--check`: exit 1 while stale).
