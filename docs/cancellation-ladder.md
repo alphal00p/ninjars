@@ -136,13 +136,33 @@ computed (a caller's "checks off").
   amplitude is judged too strictly (time only). A caller who knows the
   amplitude's scale can pass a looser `τ`.
 
+- A measured trigger sees only the loss the base pass can measure. When the
+  base inputs are inconsistent far beyond the base rounding (a binary64 lane
+  rounded from a consistent point: `p² = O(2^-53 E²)` amplified by `2^70`),
+  the base value can be noise as large as the terms themselves and the lane is
+  not flagged (observed on the test lanes in binary64). pyAmpliCol's binary64
+  lanes take the fast engine (CORE's rescue); only its rare routed lanes reach
+  the generic binary64 engine. In double-double, with inputs consistent to
+  their rounding (pyAmpliCol's cure), every degenerate lane of the benchmark
+  is flagged.
+- MPFR: numerica's `Float` rounds every intermediate to its tracked bits; the
+  estimate counts them (section 2), at the price of a climb from 128 to 192
+  bits for lanes losing about 64-67 bits from a double-double base.
+- A refused lane (`Missed`, `Failed`) keeps `LaneRescue::best`: the value with
+  the smallest estimate among the base pass and the rungs, with that estimate
+  and its carrier's bits, for the caller to hand on wrapped as refused. An
+  MPFR-served value carries the ladder's estimate as its tracked precision
+  (`LadderCarrier::limit_precision`).
+
 ## 6. Tests
 
 `crates/ninjars-symbolica/tests/cancellation_ladder.rs` (feature
 `native-masters`): the degenerate lanes of
 `validation/conditioning/triangle-gram`, made consistent at 512 bits, in
-double-double (one MPFR rung, within `1e-20` of the 512-bit reduction),
-binary64 (the first sufficient rung) and MPFR 200 bits (flagged only at a
-caller's `1e-50`, rung 256 bits); a loose target and the regular control lane
-are left alone. Unit tests of the rule and the projection in the module.
+double-double (MPFR rungs, within `1e-20` of the 512-bit reduction),
+every rung width the rule produces (first rungs 128, 192, 256 bits: every
+served value within `2^8` times its own estimate), binary64 (served lanes
+within target) and MPFR 200 bits (flagged only at a caller's `1e-50`, first
+rung 256 bits); a loose target serves the refused lane `WithinTarget`, and the
+regular control lane is left alone. Unit tests of the rule and the projection in the module.
 `examples/ladder_diag.rs`: the per-lane look of section 1 on any dumped lanes.
