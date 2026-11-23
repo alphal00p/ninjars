@@ -177,3 +177,31 @@ fn served_values_meet_their_estimates_at_every_rung_width() -> Result<(), Error>
     }
     Ok(())
 }
+
+/// A lane no allowed rung can serve is refused, typed, with no value, and
+/// carries its best value: here the first rung is sized without the MPFR
+/// tracking margin (256 bits) for a target of 1e-50 it cannot meet, and the
+/// next rung would exceed the cap, so the best is the confirmed 256/320-bit
+/// reduction, far better than the base pass.
+#[test]
+fn refused_lanes_carry_their_best_value() -> Result<(), Error> {
+    let name = DEGENERATE[0];
+    let lane = lane(name);
+    let reference = truth(&lane);
+    let rule = LadderRule {
+        target: Some(1e-50),
+        max_bits: Some(256),
+        mpfr_tracking: 0.,
+        ..LadderRule::default()
+    };
+    let out = run_rule(&lane, DoubleFloat::from(0.0), true, rule)?;
+    let rescued = out.ladder.expect("flagged");
+    assert_eq!(rescued.outcome, LadderOutcome::Missed, "{:?}", rescued.rungs);
+    assert!(rescued.value.re.is_nan(), "a refused lane serves no value");
+    let (best, estimate, bits) = rescued.best.expect("best value");
+    assert!(bits > 106, "the best value is a rung's ({bits} bits)");
+    let error = relative(best, reference);
+    assert!(error <= 256. * estimate + 1e-15, "best {error:e} vs its estimate {estimate:e}");
+    assert!(error < relative(out.value, reference).max(1e-15), "better than the base pass");
+    Ok(())
+}

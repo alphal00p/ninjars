@@ -123,6 +123,8 @@ pub struct Rescued {
     pub estimate: Option<f64>,
     pub projected: bool,
     pub outcome: LadderOutcome,
+    /// The best value's finite part, its estimate and carrier bits.
+    pub best: Option<(Complex<f64>, f64, u32)>,
 }
 
 /// One lane through the generic engine (stability test on) in a carrier.
@@ -237,6 +239,9 @@ where
                 estimate: r.rung_estimate,
                 projected: r.projected,
                 outcome: r.outcome,
+                best: r.best.as_ref().map(|b| {
+                    (Complex::new(b.value[0].re.to_f64(), b.value[0].im.to_f64()), b.estimate, b.bits)
+                }),
             }
         })
     } else {
