@@ -71,7 +71,8 @@ pub use adapters::{GenericMasters, GenericNumerator};
 pub use complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr, to_complex};
 pub use declared_rank::AtDeclaredRank;
 pub use engine::{
-    CANCELLATION_TARGET_BITS, FastAmplitude, FastOptions, take_instabilities, take_rescued_lanes,
+    DEFAULT_RESCUE_TARGET, FastAmplitude, FastOptions, take_instabilities, take_rescued_lanes,
+    take_rescues,
 };
 pub use masters::{FastMaster, FastMasters};
 pub use numerator::{FastNumerator, t2_len, t3_len};
@@ -226,6 +227,9 @@ pub enum InstabilityTest {
     /// triangle without uncut lines (n = 3) is named when its lane's result
     /// is not finite.
     EuclideanPlane,
+    /// A lane re-reduced by [`FastOptions::cancellation_rescue`] whose own
+    /// estimate still exceeds [`FastOptions::rescue_target`].
+    CancellationRescue,
 }
 
 impl InstabilityTest {
@@ -244,13 +248,17 @@ impl InstabilityTest {
             Self::TadpoleExpansion => "tadpole expansion",
             Self::BoxMuConditioning => "box mu-expansion conditioning",
             Self::EuclideanPlane => "Euclidean-plane cut",
+            Self::CancellationRescue => "cancellation rescue",
         }
     }
     /// Whether the test refuses a value above its bound
     /// ([`Self::BoxMuConditioning`], [`Self::EuclideanPlane`]) rather than
     /// one at or below it (the noise tests).
     pub fn refuses_above(self) -> bool {
-        matches!(self, Self::BoxMuConditioning | Self::EuclideanPlane)
+        matches!(
+            self,
+            Self::BoxMuConditioning | Self::EuclideanPlane | Self::CancellationRescue
+        )
     }
 }
 
@@ -287,6 +295,7 @@ impl std::fmt::Display for Instability {
         }
         let (quantity, requirement) = match self.test {
             InstabilityTest::BoxMuConditioning => ("predicted error", "allowed <="),
+            InstabilityTest::CancellationRescue => ("estimated error", "target <="),
             InstabilityTest::EuclideanPlane => ("Gram determinant", "required <="),
             _ => ("found", "required >"),
         };
@@ -300,6 +309,23 @@ impl std::fmt::Display for Instability {
         }
         .fmt(f)
     }
+}
+
+/// One lane's re-reduction by [`FastOptions::cancellation_rescue`]
+/// ([`take_rescues`]). Non-exhaustive: later versions may add fields.
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[non_exhaustive]
+pub struct Rescue {
+    /// The precision of the re-reduction in bits (106: double-double).
+    pub precision_bits: u32,
+    /// Its own relative error estimate: `2^-53` times the moduli of its terms
+    /// that keep a binary64 factor plus `2^-104` times the others, over
+    /// `|finite|`.
+    pub estimate: f64,
+    /// Whether it met [`FastOptions::rescue_target`] and was served; if not,
+    /// the lane is [`FastStatus::Unstable`]
+    /// ([`InstabilityTest::CancellationRescue`]).
+    pub served: bool,
 }
 
 /// Integrated contribution of one lane.

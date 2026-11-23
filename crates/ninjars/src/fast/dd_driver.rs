@@ -498,6 +498,24 @@ pub fn massless_c0(p: [Dd; 3], zero: [bool; 3], mu2: f64) -> Option<L3> {
 mod tests {
     use super::*;
 
+    /// `dd_stages.rs` is what `tools/fast/generate_dd_stages.py` makes of the
+    /// current binary64 sources (regenerate with
+    /// `python3 tools/fast/generate_dd_stages.py`).
+    #[test]
+    fn dd_stages_are_generated_from_the_binary64_sources() {
+        let root = concat!(env!("CARGO_MANIFEST_DIR"), "/../..");
+        let status = std::process::Command::new("python3")
+            .arg("tools/fast/generate_dd_stages.py")
+            .arg("--check")
+            .current_dir(root)
+            .status()
+            .expect("python3 (the development shell provides it)");
+        assert!(
+            status.success(),
+            "crates/ninjars/src/fast/dd_stages.rs is stale: run python3 tools/fast/generate_dd_stages.py"
+        );
+    }
+
     /// A light-like leg of binary64 shifts (a `g g > g g g` lane) becomes
     /// light-like to the double-double rounding.
     #[test]

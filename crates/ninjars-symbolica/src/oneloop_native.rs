@@ -13,7 +13,9 @@
 //! threshold is absolute, in the units of the inputs;
 //! [`OneLoopNativeMasters::with_onshell_threshold`] changes or disables it.
 
+use ninjars::fast::dd::{Cd, Dd};
 use ninjars::fast::{C64, FastMaster, FastMasters};
+use symbolica::domains::float::DoubleFloat;
 use ninjars::{
     BatchShape, Complex, Error, Laurent, MasterFailure, MasterIntegral, MasterProvider,
     MasterRequest, MasterStatus, Result,
@@ -79,6 +81,37 @@ pub struct OneLoopNativeMasters {
     output: [Complex<f64>; 15],
     batch_input: Vec<Complex<f64>>,
     batch_output: Vec<Complex<f64>>,
+    /// The double-double evaluators of [`FastMasters::evaluate_rescue`],
+    /// built on first use.
+    rescue: Option<Box<RescueMasters>>,
+}
+
+/// oneloopmaster's generated native masters in double-double (every sector;
+/// the hand-written binary64 kernels are binary64 only).
+struct RescueMasters {
+    a0: NativeEvaluator<DoubleFloat>,
+    b0: NativeEvaluator<DoubleFloat>,
+    c0: NativeEvaluator<DoubleFloat>,
+    d0: NativeEvaluator<DoubleFloat>,
+    b11: NativeTensorEvaluator<DoubleFloat>,
+    b111: NativeTensorEvaluator<DoubleFloat>,
+    input: Vec<Complex<DoubleFloat>>,
+    output: Vec<Complex<DoubleFloat>>,
+}
+
+fn dd_in(z: Cd) -> Complex<DoubleFloat> {
+    Complex::new(
+        DoubleFloat::from_compensated_sum(z.re.hi, z.re.lo),
+        DoubleFloat::from_compensated_sum(z.im.hi, z.im.lo),
+    )
+}
+
+fn dd_out(z: &Complex<DoubleFloat>) -> Cd {
+    let part = |x: &DoubleFloat| {
+        let d = x.into_inner();
+        Dd { hi: d.hi(), lo: d.lo() }
+    };
+    Cd { re: part(&z.re), im: part(&z.im) }
 }
 
 fn native_error(error: String) -> Error {
@@ -105,6 +138,7 @@ impl OneLoopNativeMasters {
             output: [Complex::new(0., 0.); 15],
             batch_input: Vec::new(),
             batch_output: Vec::new(),
+            rescue: None,
         })
     }
 
@@ -437,6 +471,83 @@ impl FastMasters for OneLoopNativeMasters {
             };
         }
         Ok(())
+    }
+
+    /// oneloopmaster's generated native masters in double-double, row by row,
+    /// at the given arguments (no on-shell threshold), in this provider's
+    /// pole selection. `BubbleRank4` is not provided (`Ok(false)`); a row
+    /// outside the native domain or with a non-finite value fails.
+    fn evaluate_rescue(
+        &mut self,
+        family: FastMaster,
+        args: &[Cd],
+        out: &mut [[Cd; 3]],
+        ok: &mut [bool],
+    ) -> Result<bool> {
+        if family == FastMaster::BubbleRank4 {
+            return Ok(false);
+        }
+        let rows = ok.len();
+        let (arity, width) = (family.arity(), family.outputs());
+        BatchShape { rows, columns: arity }.validate("rescue master arguments", args.len())?;
+        BatchShape { rows, columns: width }.validate("rescue master outputs", out.len())?;
+        if self.rescue.is_none() {
+            let _license = ninjars::licensing::unlock_for_ninjars_operation();
+            let mut r = RescueMasters {
+                a0: NativeEvaluator::new(ScalarIntegral::A0).map_err(native_error)?,
+                b0: NativeEvaluator::new(ScalarIntegral::B0).map_err(native_error)?,
+                c0: NativeEvaluator::new(ScalarIntegral::C0).map_err(native_error)?,
+                d0: NativeEvaluator::new(ScalarIntegral::D0).map_err(native_error)?,
+                b11: NativeTensorEvaluator::new(TensorIntegral::B11).map_err(native_error)?,
+                b111: NativeTensorEvaluator::new(TensorIntegral::B111).map_err(native_error)?,
+                input: Vec::with_capacity(11),
+                output: Vec::with_capacity(12),
+            };
+            let selection = self.pole_selection;
+            r.a0.set_pole_selection(selection);
+            r.b0.set_pole_selection(selection);
+            r.c0.set_pole_selection(selection);
+            r.d0.set_pole_selection(selection);
+            r.b11.set_pole_selection(selection);
+            r.b111.set_pole_selection(selection);
+            self.rescue = Some(Box::new(r));
+        }
+        let r = self.rescue.as_deref_mut().expect("built above");
+        let invariants = match family {
+            FastMaster::A0 => 0,
+            FastMaster::C0 => 3,
+            FastMaster::D0 => 6,
+            _ => 1,
+        };
+        for (row, (point, result)) in args.chunks_exact(arity).zip(out.chunks_exact_mut(width)).enumerate() {
+            let valid = point.iter().all(|z| z.is_finite())
+                && point[..invariants].iter().all(|z| z.im == 0.)
+                && point[invariants..arity - 1].iter().all(|z| !(z.im > 0.))
+                && point[arity - 1].im == 0.
+                && point[arity - 1].re > 0.;
+            if !valid {
+                ok[row] = false;
+                continue;
+            }
+            r.input.clear();
+            r.input.extend(point.iter().map(|&z| dd_in(z)));
+            r.output.clear();
+            r.output.resize(width * 3, dd_in(Cd::ZERO));
+            let done = match family {
+                FastMaster::A0 => r.a0.evaluate(&r.input, &mut r.output[..3]),
+                FastMaster::C0 => r.c0.evaluate(&r.input, &mut r.output[..3]),
+                FastMaster::D0 => r.d0.evaluate(&r.input, &mut r.output[..3]),
+                FastMaster::BubbleRank2 => r.b11.evaluate(&r.input, &mut r.output),
+                _ => r.b111.evaluate(&r.input, &mut r.output),
+            };
+            ok[row] = done.is_ok() && {
+                for (triple, values) in result.iter_mut().zip(r.output.as_chunks::<3>().0) {
+                    *triple = [dd_out(&values[0]), dd_out(&values[1]), dd_out(&values[2])];
+                }
+                result.iter().flatten().all(|z| z.is_finite())
+            };
+        }
+        Ok(true)
     }
 }
 

@@ -96,16 +96,26 @@ pub struct FastOptions {
     /// default engine's code does not depend on it.
     pub conditioned_cuts: bool,
     /// Re-reduce in double-double, from the triple cuts down, every lane
-    /// whose finite part the binary64 reduction predicts to cancel beyond
-    /// [`CANCELLATION_TARGET_BITS`] (default `true`;
-    /// `docs/triangle-gram-conditioning.md`): the moduli of its integrated
-    /// terms (each coefficient times its master, and each rational term)
-    /// exceed `2^(53 - CANCELLATION_TARGET_BITS)` times its finite part.
+    /// whose finite part the binary64 reduction measurably cancels beyond
+    /// [`Self::rescue_target`] (default `true`;
+    /// `docs/triangle-gram-conditioning.md`): `2^-53` times the moduli of its
+    /// integrated terms (each coefficient times its master, and each rational
+    /// term) exceeds the target times its finite part. `false` (a caller's
+    /// "reduction checks off"): no trigger bookkeeping, no re-reduction, every
+    /// value the binary64 reduction's bit for bit.
     /// Lanes of numerators without [`FastNumerator::tensor_coefficients`]
     /// keep their binary64 values. Rank <= n+1 (also lanes of a declared rank
     /// n+2 reduced at a lower rank, and with [`Self::conditioned_cuts`]); not
     /// the rank n+2 engine.
     pub cancellation_rescue: bool,
+    /// The target relative accuracy of [`Self::cancellation_rescue`]: a lane
+    /// is re-reduced when its measured estimate `2^-53 Σ|terms| / |finite|`
+    /// exceeds it, and a re-reduced lane whose own estimate still exceeds it
+    /// is refused ([`FastStatus::Unstable`],
+    /// [`super::InstabilityTest::CancellationRescue`]). `None`:
+    /// [`DEFAULT_RESCUE_TARGET`]. Callers with an accuracy target of their
+    /// own pass it here (see `docs/triangle-gram-conditioning.md`, section 3).
+    pub rescue_target: Option<f64>,
 }
 
 impl Default for FastOptions {
@@ -117,6 +127,7 @@ impl Default for FastOptions {
             relative_tolerance: 1024. * f64::EPSILON,
             conditioned_cuts: false,
             cancellation_rescue: true,
+            rescue_target: None,
         }
     }
 }
@@ -133,6 +144,8 @@ pub(super) struct StageOptions {
     pub(super) stability_threshold: f64,
     pub(super) relative_tolerance: f64,
     pub(super) cancellation_rescue: bool,
+    /// [`FastOptions::rescue_target`], resolved.
+    pub(super) rescue_target: f64,
 }
 
 impl StageOptions {
@@ -143,6 +156,7 @@ impl StageOptions {
             stability_threshold: options.stability_threshold,
             relative_tolerance: options.relative_tolerance,
             cancellation_rescue: options.cancellation_rescue,
+            rescue_target: options.rescue_target.unwrap_or(DEFAULT_RESCUE_TARGET),
         }
     }
 
@@ -155,6 +169,7 @@ impl StageOptions {
             relative_tolerance: self.relative_tolerance,
             conditioned_cuts,
             cancellation_rescue: self.cancellation_rescue,
+            rescue_target: Some(self.rescue_target),
         }
     }
 }
@@ -1185,6 +1200,7 @@ impl FastAmplitude {
         statuses: &mut [FastStatus],
     ) -> Result<()> {
         clear_instabilities();
+        RESCUES.with(|r| r.borrow_mut().clear());
         if masters.requires_scaleless_bubbles() {
             return Err(Error::Unsupported(
                 "separate UV/IR poles require scaleless-bubble coefficients; use the generic reduction engine".into(),
@@ -1201,12 +1217,12 @@ impl FastAmplitude {
                 }
                 Replacement::Conditioned(engine) => {
                     evaluate_conditioned(engine, input, numerator, masters, results, statuses)?;
-                    engine.amp.rescue_after(input, numerator, refinement, results)
+                    engine.amp.rescue_after(input, numerator, masters, refinement, results, statuses)
                 }
             };
         }
         self.evaluate_up_to_n1(input, numerator, masters, results, statuses)?;
-        self.rescue_after(input, numerator, refinement, results)
+        self.rescue_after(input, numerator, masters, refinement, results, statuses)
     }
 
     /// [`Self::evaluate`] for the rank <= n+1 engines that `declared_rank.rs`
@@ -1228,11 +1244,11 @@ impl FastAmplitude {
         match self.replacement.as_deref_mut() {
             None => {
                 self.evaluate_up_to_n1(input, numerator, masters, results, statuses)?;
-                self.rescue_after(input, numerator, None, results)
+                self.rescue_after(input, numerator, masters, None, results, statuses)
             }
             Some(Replacement::Conditioned(engine)) => {
                 evaluate_conditioned(engine, input, numerator, masters, results, statuses)?;
-                engine.amp.rescue_after(input, numerator, None, results)
+                engine.amp.rescue_after(input, numerator, masters, None, results, statuses)
             }
             Some(Replacement::RankN2 { .. }) => {
                 unreachable!("the lowered engines have rank <= n+1")
@@ -2746,14 +2762,15 @@ fn tadpole_from_bubble(
     divnum[(rmn + 1) as usize] -= value * 0.25 * (k.ie3k * k.ie3k);
 }
 
-/// The binary64 target of [`FastOptions::cancellation_rescue`], in bits: a
-/// lane whose term moduli times `2^-53` exceed `2^-CANCELLATION_TARGET_BITS`
-/// of its finite part is re-reduced in double-double. The moduli estimate
-/// the rounding of the final contraction (`docs/triangle-gram-conditioning.md`,
-/// section 3: the measured binary64 error of the degenerate lanes is 5 to 50
-/// times `2^-53` times the largest term); 30 bits keeps about nine digits
-/// of every served lane.
-pub const CANCELLATION_TARGET_BITS: i32 = 30;
+/// The default target relative accuracy of [`FastOptions::rescue_target`]:
+/// `2^-30`, about four sevenths of binary64's 53 bits (nine of its sixteen
+/// digits). The trigger's estimate `2^-53 Σ|terms| / |finite|` measures the
+/// rounding of the final contraction; the measured binary64 error of the
+/// degenerate lanes is 5 to 50 times `2^-53` times their largest term
+/// (`docs/triangle-gram-conditioning.md`, section 1), so a lane served below
+/// the target keeps about seven digits at worst, and the calibration of
+/// section 4 (`g g > g g g`, `g g > g g g g`: no point below 8 digits) holds.
+pub const DEFAULT_RESCUE_TARGET: f64 = 9.313225746154785e-10;
 
 thread_local! {
     /// The double-double workspaces of this thread, per `(n, rank)`, built on
@@ -2763,6 +2780,18 @@ thread_local! {
         const { RefCell::new(Vec::new()) };
     /// Lanes re-reduced in double-double since the last [`take_rescued_lanes`].
     static RESCUED: Cell<u64> = const { Cell::new(0) };
+}
+
+thread_local! {
+    /// The re-reductions of this thread's last evaluation ([`take_rescues`]).
+    static RESCUES: RefCell<Vec<(usize, super::Rescue)>> = const { RefCell::new(Vec::new()) };
+}
+
+/// The lanes this thread's last evaluation re-reduced
+/// ([`FastOptions::cancellation_rescue`]), with their precision and estimate
+/// ([`super::Rescue`]); cleared when the next evaluation starts.
+pub fn take_rescues() -> Vec<(usize, super::Rescue)> {
+    RESCUES.with(|r| std::mem::take(&mut *r.borrow_mut()))
 }
 
 /// The number of lanes this thread re-reduced in double-double
@@ -2820,8 +2849,8 @@ impl FastAmplitude {
 
     /// The cuts of one flagged lane that the double-double re-reduction
     /// recomputes: those whose own term moduli exceed the lane's allowance
-    /// `2^(53 - CANCELLATION_TARGET_BITS) |finite|` divided by its number of
-    /// cuts (the rounding of every other cut then stays within the target),
+    /// `rescue_target 2^53 |finite|` divided by twice its number of cuts (the
+    /// rounding of every other cut then stays within half the target),
     /// the triangles whose spurious terms are that large and feed a selected
     /// bubble (`|c_k| (E |e3|)^p`, `E` the lane's largest shift and mass
     /// scale), and the tadpoles below a selected parent.
@@ -2835,9 +2864,11 @@ impl FastAmplitude {
         let v = &input.shifts[lane * n..(lane + 1) * n];
         let mut cursor = cursor.0;
         let ncut = self.topo.boxes.len() + self.topo.triangles.len() + self.topo.bubbles.len() + n;
-        let limit = 2f64.powi(f64::MANTISSA_DIGITS as i32 - CANCELLATION_TARGET_BITS)
+        // Half the lane's allowance over its cuts: the unselected ones then
+        // keep the served lane within half the target.
+        let limit = self.options.rescue_target / 2f64.powi(-(f64::MANTISSA_DIGITS as i32))
             * self.staged[lane].laurent[0].abs()
-            / ncut as f64;
+            / (2 * ncut) as f64;
         let scale = v
             .iter()
             .map(|x| x.iter().map(|c| c * c).sum::<f64>().sqrt())
@@ -2991,18 +3022,24 @@ impl FastAmplitude {
     /// The rescue after an evaluation published its lanes: re-reduce the
     /// flagged ones and publish their new values (statuses unchanged).
     #[inline(never)]
-    fn rescue_after<N: FastNumerator + ?Sized>(
+    fn rescue_after<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
         &mut self,
         input: &FastInput,
         num: &N,
+        masters: &mut M,
         refinement: Option<&dyn FastRefinementSource>,
         results: &mut [FastResult],
+        statuses: &mut [FastStatus],
     ) -> Result<()> {
         if !self.options.cancellation_rescue {
             return Ok(());
         }
-        for lane in self.rescue_cancelling_lanes(input, num, refinement)? {
-            results[lane] = self.staged[lane];
+        for (lane, served) in self.rescue_cancelling_lanes(input, num, masters, refinement)? {
+            if served {
+                results[lane] = self.staged[lane];
+            } else {
+                statuses[lane] = FastStatus::Unstable;
+            }
         }
         Ok(())
     }
@@ -3014,16 +3051,18 @@ impl FastAmplitude {
     /// the re-reduction is finite.
     #[cold]
     #[inline(never)]
-    fn rescue_cancelling_lanes<N: FastNumerator + ?Sized>(
+    fn rescue_cancelling_lanes<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
         &mut self,
         input: &FastInput,
         num: &N,
+        masters: &mut M,
         refinement: Option<&dyn FastRefinementSource>,
-    ) -> Result<Vec<usize>> {
+    ) -> Result<Vec<(usize, bool)>> {
         if !self.any_triangle() {
             return Ok(Vec::new());
         }
-        let limit = 2f64.powi(f64::MANTISSA_DIGITS as i32 - CANCELLATION_TARGET_BITS);
+        let unit = 2f64.powi(-(f64::MANTISSA_DIGITS as i32));
+        let limit = self.options.rescue_target / unit;
         let cursors = self.master_cursors(input);
         let mut flagged = Vec::new();
         for &(lane, cursor) in &cursors {
@@ -3042,7 +3081,7 @@ impl FastAmplitude {
             return Ok(Vec::new());
         }
         let (n, rank) = (self.topo.n, self.topo.rank);
-        DD_STAGES.with(|cell| -> Result<Vec<usize>> {
+        DD_STAGES.with(|cell| -> Result<Vec<(usize, bool)>> {
             let mut list = cell.borrow_mut();
             let index = match list.iter().position(|(key, _)| *key == (n, rank)) {
                 Some(index) => index,
@@ -3056,18 +3095,19 @@ impl FastAmplitude {
             };
             let dd = &mut list[index].1;
             dd.options = self.options;
-            self.rescue_with(dd, input, num, refinement, &flagged)
+            self.rescue_with(dd, input, num, masters, refinement, &flagged)
         })
     }
 
-    fn rescue_with<N: FastNumerator + ?Sized>(
+    fn rescue_with<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
         &mut self,
         dd: &mut super::dd_driver::DdStages,
         input: &FastInput,
         num: &N,
+        masters: &mut M,
         refinement: Option<&dyn FastRefinementSource>,
         flagged: &[(usize, Cursor)],
-    ) -> Result<Vec<usize>> {
+    ) -> Result<Vec<(usize, bool)>> {
         use super::dd::{Cd, Dd, mp_rr as mp_rr_d};
         use super::dd_driver::{DdTensor, bubble_tensors, massless_b0, massless_c0, project_light_like};
         let n = self.topo.n;
@@ -3199,9 +3239,39 @@ impl FastAmplitude {
                 let d: [Dd; 4] = std::array::from_fn(|mu| vd[i][mu] - vd[j][mu]);
                 mp_rr_d(&d, &d)
             };
+            // The masters' invariants: the geometry's (or the refinement's),
+            // except that an input invariant given as exactly zero or exactly
+            // a real squared mass of the lane stays exactly that (on-shell
+            // legs: the masters' IR and threshold branches).
+            let inv = |i: usize, j: usize| -> Cd {
+                let given = s[i * n + j];
+                if refined_s[i * n + j].hi.is_nan() {
+                    if given == 0. {
+                        return Cd::ZERO;
+                    }
+                    if let Some(k) = (0..n).find(|&k| m[k].im == 0. && m[k].re == given) {
+                        return md[k];
+                    }
+                }
+                Cd::real(sd(i, j))
+            };
             let mu2 = input.scales_squared[lane];
+            let mu2c = Cd::real(Dd::from(mu2));
+            let mut rescue_out = [[Cd::ZERO; 3]; 4];
+            let mut rescue_ok = [false];
+            let mut rescue = |family: FastMaster, args: &[Cd], width: usize| -> Option<[[Cd; 3]; 4]> {
+                rescue_ok[0] = false;
+                let provided = masters
+                    .evaluate_rescue(family, args, &mut rescue_out[..width], &mut rescue_ok)
+                    .unwrap_or(false);
+                (provided && rescue_ok[0]).then_some(rescue_out)
+            };
             let mut res = [Cd::ZERO; 3];
             let mut rational = Cd::ZERO;
+            // The moduli of the finite terms, split by the precision of their
+            // least precise factor: the served lane's estimate.
+            let (mut m64, mut mdd) = (0f64, 0f64);
+            let size = |z: Cd| z.abs().to_f64();
             if self.any_box() {
                 for b in 0..self.topo.boxes.len() {
                     let [c0, c4] = self.box_c[b * lanes + lane];
@@ -3211,6 +3281,7 @@ impl FastAmplitude {
                         res[o] += Cd::from_c64(c0) * Cd::from_c64(integral[o]);
                     }
                     rational += Cd::from_c64(c4) * (-1. / 6.);
+                    m64 += (c0 * integral[0]).abs() + c4.abs() / 6.;
                 }
             }
             for (t, &[i1, i2, i3]) in self.topo.triangles.iter().enumerate() {
@@ -3222,7 +3293,16 @@ impl FastAmplitude {
                 let selected = dd.sel_tri[t * k + r];
                 let massless = selected && is_zero(m[i1]) && is_zero(m[i2]) && is_zero(m[i3]);
                 let pairs = [(i2, i1), (i3, i2), (i1, i3)];
-                let integral: [Cd; 3] = massless
+                let provided = selected
+                    .then(|| {
+                        rescue(
+                            FastMaster::C0,
+                            &[inv(i2, i1), inv(i3, i2), inv(i1, i3), md[i1], md[i2], md[i3], mu2c],
+                            1,
+                        )
+                    })
+                    .flatten();
+                let closed = (provided.is_none() && massless)
                     .then(|| {
                         massless_c0(
                             pairs.map(|(a, b)| sd(a, b)),
@@ -3230,12 +3310,19 @@ impl FastAmplitude {
                             mu2,
                         )
                     })
-                    .flatten()
+                    .flatten();
+                let master_dd = provided.is_some() || closed.is_some();
+                let integral: [Cd; 3] = provided
+                    .map(|out| out[0])
+                    .or(closed)
                     .unwrap_or_else(|| integral.map(Cd::from_c64));
                 let c = &dd.tri[t * k + r].c;
                 for o in 0..3 {
                     res[o] += c[0] * integral[o];
                 }
+                let rational_before = rational;
+                let term = size(c[0] * integral[0]);
+                if selected && master_dd { mdd += term } else { m64 += term }
                 if x1 {
                     let (pji, pjk, pki) = if selected {
                         (sd(i2, i1), sd(i3, i2), sd(i1, i3))
@@ -3250,6 +3337,8 @@ impl FastAmplitude {
                 } else {
                     rational += c[7] * 0.5;
                 }
+                let term = size(rational - rational_before);
+                if selected { mdd += term } else { m64 += term }
             }
             // The binary64 tadpole rows of this lane, per line (zero if massless).
             let a0_rows: Vec<[C64; 3]> = {
@@ -3298,9 +3387,24 @@ impl FastAmplitude {
                         out[0]
                     };
                     let b0dd = (is_zero(m[i1]) && is_zero(m[i2]) && kd.hi != 0.).then(|| massless_b0(kd, mu2));
-                    let tensors = selected
+                    let provided = selected
+                        .then(|| {
+                            rescue(
+                                if rank3 { FastMaster::BubbleRank3 } else { FastMaster::BubbleRank2 },
+                                &[inv(i2, i1), md[i1], md[i2], mu2c],
+                                width,
+                            )
+                        })
+                        .flatten();
+                    let reduced = (provided.is_none() && selected)
                         .then(|| bubble_tensors(kd, md[i1], md[i2], &b0, &a0_rows[i1], &a0_rows[i2], b0dd))
-                        .flatten()
+                        .flatten();
+                    // Double-double tensors: the provider's, or the reduction
+                    // of a double-double B0 without A0 terms (massless lines).
+                    let master_dd = provided.is_some()
+                        || (reduced.is_some() && b0dd.is_some());
+                    let tensors = provided
+                        .or(reduced)
                         .unwrap_or_else(|| {
                             let get = |w: usize| -> [Cd; 3] {
                                 if w < width {
@@ -3321,6 +3425,12 @@ impl FastAmplitude {
                             + c2 * tensors[2][o]
                             + c13 * tensors[3][o];
                     }
+                    let term = size(c[0] * tensors[0][0])
+                        + size(c1 * tensors[1][0])
+                        + size(c2 * tensors[2][0])
+                        + size(c13 * tensors[3][0]);
+                    if selected && master_dd { mdd += term } else { m64 += term }
+                    let rational_before = rational;
                     if x1 {
                         rational += b06 * c[9]
                             + (Cd::real(kd) - md[i1] * 2. - md[i2] * 4.)
@@ -3330,6 +3440,8 @@ impl FastAmplitude {
                     } else {
                         rational += b06 * c[9];
                     }
+                    let term = size(rational - rational_before);
+                    if selected { mdd += term } else { m64 += term }
                 }
             }
             if dd.any_tadpole() {
@@ -3337,8 +3449,13 @@ impl FastAmplitude {
                     if is_zero(m[i]) {
                         continue;
                     }
-                    let integral = a0_rows[i].map(Cd::from_c64);
                     let data = &dd.tad[i * k + r];
+                    let provided = dd.sel_tad[i * k + r]
+                        .then(|| rescue(FastMaster::A0, &[md[i], mu2c], 1))
+                        .flatten();
+                    let master_dd = provided.is_some();
+                    let integral = provided.map_or_else(|| a0_rows[i].map(Cd::from_c64), |out| out[0]);
+                    let (res_before, rational_before) = (res[0], rational);
                     let mi = md[i];
                     if x1 {
                         let c0 = data.c0 + mi * (data.e34 * 0.25) * data.c15;
@@ -3351,6 +3468,8 @@ impl FastAmplitude {
                             res[o] += data.c0 * integral[o];
                         }
                     }
+                    let term = size(res[0] - res_before) + size(rational - rational_before);
+                    if dd.sel_tad[i * k + r] && master_dd { mdd += term } else { m64 += term }
                 }
             }
             let result = FastResult {
@@ -3358,10 +3477,41 @@ impl FastAmplitude {
                 cut_constructible: res[0].to_c64(),
                 rational: rational.to_c64(),
             };
-            if result.laurent.iter().all(|z| z.is_finite()) && result.rational.is_finite() {
-                self.staged[lane] = result;
-                rescued.push(lane);
+            if !(result.laurent.iter().all(|z| z.is_finite()) && result.rational.is_finite()) {
+                continue;
             }
+            // The served lane's own estimate: binary64 terms at 2^-53, the
+            // double-double ones at 2^-104 (two bits of margin on 2^-106).
+            let finite = result.laurent[0].abs();
+            let estimate = (m64 * 2f64.powi(-53) + mdd * 2f64.powi(-104)) / finite;
+            let target = self.options.rescue_target;
+            let served = estimate <= target;
+            RESCUES.with(|list| {
+                list.borrow_mut().push((
+                    lane,
+                    super::Rescue {
+                        precision_bits: 106,
+                        estimate,
+                        served,
+                    },
+                ))
+            });
+            if served {
+                self.staged[lane] = result;
+            } else {
+                self.lane_status[lane] = FastStatus::Unstable;
+                INSTABILITIES.with(|list| {
+                    list.borrow_mut().push((
+                        lane,
+                        Instability {
+                            test: InstabilityTest::CancellationRescue,
+                            value: estimate,
+                            bound: target,
+                        },
+                    ))
+                });
+            }
+            rescued.push((lane, served));
         }
         RESCUED.with(|c| c.set(c.get() + rescued.len() as u64));
         Ok(rescued)

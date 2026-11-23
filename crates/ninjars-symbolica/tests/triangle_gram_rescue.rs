@@ -198,3 +198,40 @@ fn refined_kinematics_drive_the_rescue() -> Result<(), Error> {
     }
     Ok(())
 }
+
+/// The target accuracy (`FastOptions::rescue_target`) decides: at the default
+/// the dumped lane is re-reduced and served (one `Rescue` record, 106 bits,
+/// served, estimate within the target); a target the binary64 lane already
+/// meets (an infinite one) re-reduces nothing; a target the re-reduction cannot meet refuses
+/// the lane, typed (`Unstable`, `InstabilityTest::CancellationRescue`).
+#[test]
+fn the_target_accuracy_decides_and_misses_are_typed() -> Result<(), Error> {
+    use ninjars::fast::{DEFAULT_RESCUE_TARGET, InstabilityTest, take_instabilities, take_rescues};
+    let f = fixture("ggg-308-n3-r3");
+    let with = |target: Option<f64>| FastOptions {
+        rescue_target: target,
+        ..FastOptions::default()
+    };
+    let served = fast(&f, with(None))?;
+    let records = take_rescues();
+    assert!(served[0].success);
+    assert_eq!(records.len(), 1);
+    let (lane, rescue) = records[0];
+    assert_eq!((lane, rescue.precision_bits, rescue.served), (0, 106, true));
+    assert!(rescue.estimate <= DEFAULT_RESCUE_TARGET, "{rescue:?}");
+    fast(&f, with(Some(f64::INFINITY)))?;
+    assert!(take_rescues().is_empty());
+    let refused = fast(&f, with(Some(1e-30)))?;
+    assert!(!refused[0].success, "{}", refused[0].status);
+    let records = take_rescues();
+    assert_eq!(records.len(), 1);
+    assert!(!records[0].1.served);
+    let instabilities = take_instabilities();
+    assert!(
+        instabilities
+            .iter()
+            .any(|(lane, i)| *lane == 0 && i.test == InstabilityTest::CancellationRescue),
+        "{instabilities:?}"
+    );
+    Ok(())
+}

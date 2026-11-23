@@ -1,9 +1,9 @@
 # Degenerate triangle Gram determinants: double-double re-reduction
 
 The fast engine re-reduces in double-double, from the triple cuts down, every
-lane whose binary64 reduction it measures to cancel beyond
-`CANCELLATION_TARGET_BITS = 30` bits (`FastOptions::cancellation_rescue`,
-default on; `crates/ninjars/src/fast/engine.rs`, `dd_driver.rs`, `dd.rs`, and
+lane whose binary64 reduction it measures to cancel beyond a target relative
+accuracy (`FastOptions::cancellation_rescue`, default on;
+`FastOptions::rescue_target`, default `DEFAULT_RESCUE_TARGET = 2^-30`; `crates/ninjars/src/fast/engine.rs`, `dd_driver.rs`, `dd.rs`, and
 the generated `dd_stages.rs`). Lanes it does not flag keep their binary64
 values bit for bit. This note records why, what the re-reduction has to
 get right besides precision, and its calibration. It covers the case that
@@ -105,8 +105,29 @@ With all five the dumped lanes agree with the 200-bit references to
 After `integrate`, a separate pass sums per lane the moduli of the finite
 parts of every integrated term (each coefficient times its master, each
 bubble tensor term separately, each rational term; `term_moduli`). A
-successful lane whose sum times `2^-53` exceeds `2^-30` of its finite part is
-re-reduced: the default stages and their machine code are unchanged, and
+successful lane whose estimate `2^-53 Σ|terms| / |finite|` exceeds the target
+`FastOptions::rescue_target` is re-reduced (default `2^-30`, about four
+sevenths of binary64's bits: the measured binary64 error of the degenerate
+lanes is 5 to 50 times `2^-53` times their largest term, so a lane served
+within the target keeps about seven digits; a caller with an accuracy target
+of its own passes it, divided by its safety factor for a lane being one of
+several terms of its amplitude). The re-reduced lane is judged the same way:
+its own estimate counts `2^-53` for every term that keeps a binary64 factor
+(box terms, unselected cuts, binary64 masters) and `2^-104` for the others;
+above the target the lane is refused, typed (`FastStatus::Unstable`,
+`InstabilityTest::CancellationRescue`, with the estimate and the target),
+never served as a silent success. `take_rescues()` lists the evaluation's
+re-reduced lanes with their precision (106 bits), estimate and whether they
+were served; `take_rescued_lanes()` counts them per thread.
+
+The masters of the selected cuts come in double-double from the provider when
+it offers them (`FastMasters::evaluate_rescue`, default not provided;
+`OneLoopNativeMasters` evaluates oneloopmaster's generated native masters in
+`DoubleFloat`, every sector, massive and complex masses included) at the
+geometry's invariants, input invariants given as exactly zero or exactly a
+real squared mass of the lane kept exactly; else the massless closed forms of
+section 2; else the binary64 masters (counted at `2^-53` in the estimate).
+The lane is re-reduced: the default stages and their machine code are unchanged, and
 unflagged lanes are not touched. The sum is a measure of the actual
 cancellation of the lane, not an a-priori bound: on the campaign's 10,000
 points it flags 1.3 % of the lanes, against the a-priori triangle screen of
@@ -114,12 +135,13 @@ the earlier diagnosis that refused lanes at 40 % of the points.
 
 Inside a flagged lane only the cuts that carry the cancellation are
 recomputed (`select_cuts`): a bubble or triangle whose own term moduli exceed
-the lane's allowance `2^(53 - 30) |finite|` divided by its number of cuts,
+the lane's allowance `target 2^53 |finite|` divided by twice its number of
+cuts,
 every parent triangle of a selected bubble whose spurious terms
 `|c_k| (E |e3|)^p` (`E` the lane's largest shift and mass scale) exceed the
 same bound, and the tadpoles below a selected parent. Every other cut keeps
 its binary64 coefficients (promoted) and its binary64 contraction; their
-rounding then stays within the target by construction. On a `g g > g g g`
+rounding then stays within half the target by construction. On a `g g > g g g`
 pentagon lane this recomputes one triangle and three bubbles of ten each
 (820 µs -> about 170 µs per re-reduced lane).
 

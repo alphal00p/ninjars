@@ -6,6 +6,7 @@
 //! Laurent triple `[finite, 1/eps, 1/eps²]` in OneLOop normalization.
 
 use super::complex::C64;
+use super::dd::Cd;
 use crate::Result;
 
 /// Master families requested by the fast engine.
@@ -68,4 +69,22 @@ pub trait FastMasters {
         out: &mut [[C64; 3]],
         ok: &mut [bool],
     ) -> Result<()>;
+
+    /// The same families in the rescue precision of the binary64 engine
+    /// (double-double), for the re-reduction of lanes that cancel
+    /// ([`super::FastOptions::cancellation_rescue`]): arguments and outputs as
+    /// [`Self::evaluate`], every value a [`Cd`]. The arguments are the exact
+    /// values to use (no on-shell threshold). `Ok(false)` means not provided
+    /// (the default): the re-reduction then takes closed forms where it has
+    /// them and the binary64 masters elsewhere.
+    fn evaluate_rescue(
+        &mut self,
+        family: FastMaster,
+        args: &[Cd],
+        out: &mut [[Cd; 3]],
+        ok: &mut [bool],
+    ) -> Result<bool> {
+        let _ = (family, args, out, ok);
+        Ok(false)
+    }
 }

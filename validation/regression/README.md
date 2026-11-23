@@ -395,3 +395,12 @@ pass it bitwise.
   syn-n6-r6 lane 0 `6.9e-20` (unchanged), syn-n6-r7 lane 1 `4.0e-24`
   (`3.5e-24`; binary64 `1.5e-24`, a lane `1e-5.6` of its terms). Nothing else
   moved.
+- The target accuracy (`FastOptions::rescue_target`, default `2^-30`), the
+  re-reduction's own estimate and the provider's double-double masters
+  (`FastMasters::evaluate_rescue`) move the same three lanes once more:
+  syn-n6-r6 lane 0 error `1.0e-20` (was `6.9e-20`), syn-n6-r7 lane 1
+  `4.5e-24`; syn-gghhh-ggHHH lane 1 (five 173 GeV lines) is re-reduced but its
+  estimate still misses the target (its box terms stay binary64): it is now
+  `Unstable` (`cancellation rescue: estimated error ... target <= ...`), its
+  value the binary64 one (`1.9e-17` off, `1.6e-5` relative), instead of a
+  success. Nothing else moved; no other status changed.
