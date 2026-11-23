@@ -3086,21 +3086,26 @@ impl FastAmplitude {
             if !candidate {
                 continue;
             }
-            let mut estimate =
-                unit * self.term_moduli(input, lane, cursor) / self.staged[lane].laurent[0].abs();
+            // Relative to the lane's value; a lane without terms (exactly
+            // zero, e.g. a massless tadpole) has nothing to lose.
+            let finite = self.staged[lane].laurent[0].abs();
+            let relative = |x: f64| if x == 0. { 0. } else { x / finite };
+            let moduli = self.term_moduli(input, lane, cursor);
+            let mut estimate = relative(unit * moduli);
+            // The same in absolute terms, for the comparison with the
+            // re-reduction (the box-Gram loss taken of all terms).
+            let mut absolute = (unit * moduli).max(unit * self.mu_error[lane]);
             // The box coefficients' own loss at a nearly degenerate box Gram,
             // which the final contraction does not show.
             for b in 0..self.topo.boxes.len() {
-                estimate = estimate.max(box_gram_error(
-                    self.box_lambda[b * self.lanes + lane],
-                    self.topo.rank,
-                    f64::MANTISSA_DIGITS,
-                ));
+                let gram = box_gram_error(self.box_lambda[b * self.lanes + lane], self.topo.rank, f64::MANTISSA_DIGITS);
+                estimate = estimate.max(gram);
+                absolute = absolute.max(gram * moduli);
             }
             // The box mu-expansion screen's first-order rounding estimate
             // (`crate::conditioning`, units of the unit roundoff), which the
             // contraction does not show either.
-            estimate = estimate.max(unit * self.mu_error[lane] / self.staged[lane].laurent[0].abs());
+            estimate = estimate.max(relative(unit * self.mu_error[lane]));
             if estimate <= target && self.lane_status[lane] == FastStatus::Success {
                 continue;
             }
@@ -3109,7 +3114,7 @@ impl FastAmplitude {
                 // (`docs/triangle-gram-conditioning.md`, section 5).
                 continue;
             }
-            flagged.push((lane, cursor, estimate));
+            flagged.push((lane, cursor, estimate, absolute));
         }
         if flagged.is_empty() {
             return out;
@@ -3147,7 +3152,7 @@ impl FastAmplitude {
         num: &N,
         masters: &mut M,
         refinement: Option<&dyn FastRefinementSource>,
-        flagged: &[(usize, Cursor, f64)],
+        flagged: &[(usize, Cursor, f64, f64)],
     ) -> Vec<(usize, bool)> {
         use super::dd::{Cd, Dd, mp_rr as mp_rr_d};
         use super::dd_driver::{DdTensor, project_light_like};
@@ -3167,7 +3172,7 @@ impl FastAmplitude {
         let mut tensor = DdTensor::new(self.topo.rank);
         let (mut lo_v, mut lo_s, mut lo_m) =
             (vec![[0.; 4]; n], vec![0.; n * n], vec![C64::ZERO; n]);
-        for (r, &(lane, _, _)) in flagged.iter().enumerate() {
+        for (r, &(lane, _, _, _)) in flagged.iter().enumerate() {
             let s = &self.smat[lane * n * n..(lane + 1) * n * n];
             let hi = &input.shifts[lane * n..(lane + 1) * n];
             lo_v.fill([0.; 4]);
@@ -3238,7 +3243,7 @@ impl FastAmplitude {
             Ok(())
         })();
         let mut outcome = Vec::with_capacity(k);
-        for (r, &(lane, cursor, binary64_estimate)) in flagged.iter().enumerate() {
+        for (r, &(lane, cursor, binary64_estimate, binary64_absolute)) in flagged.iter().enumerate() {
             if stages.is_err() || !dd.alive[r] || !consistent[r] {
                 // A degenerate or non-finite quantity, or a projection that
                 // could not be solved: no estimate, a typed refusal.
@@ -3458,7 +3463,6 @@ impl FastAmplitude {
             // 0.03 to 1 times its estimate on the dumped lanes, the
             // re-reduced lane's at most its estimate: four bits keep a served
             // value from being worse).
-            let binary64_absolute = binary64_estimate * self.staged[lane].laurent[0].abs();
             let finite_ok = result.laurent.iter().all(|z| z.is_finite()) && result.rational.is_finite();
             // At a refined point a binary64 master (at the input point) would
             // mix two kinematic points in one lane: refused.

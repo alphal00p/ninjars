@@ -389,7 +389,13 @@ fn check_pool(pool: &Pool, at_declared_rank: bool, counts: &mut Counts) {
         pool.name
     );
     let mut reference_masters = OneLoopNativeMasters::new().unwrap();
-    let options = FastOptions::default();
+    // The lowering identity with the cancellation rescue off: lanes the rank
+    // n+2 engine lowers are outside the rescue's domain, while the own-rank
+    // engine re-reduces flagged lanes (`docs/triangle-gram-conditioning.md`).
+    let options = FastOptions {
+        cancellation_rescue: false,
+        ..FastOptions::default()
+    };
     let reference: Vec<(FastResult, FastStatus)> = pool
         .lanes
         .iter()
