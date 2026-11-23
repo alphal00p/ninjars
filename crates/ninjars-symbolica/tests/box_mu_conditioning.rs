@@ -220,7 +220,13 @@ fn zero_noise_thresholds_still_refuse() {
         let lanes: Vec<LaneRef<'_>> = (0..l.fixture.tensors.len())
             .map(|lane| (&l.fixture, lane))
             .collect();
-        for outcome in fast_lanes(&lanes, options("fast-unchecked")).unwrap() {
+        // The screen itself (the cancellation rescue, which may cure such a
+        // lane, off).
+        let screen = FastOptions {
+            cancellation_rescue: false,
+            ..options("fast-unchecked")
+        };
+        for outcome in fast_lanes(&lanes, screen).unwrap() {
             assert_eq!(outcome.status, "Unstable", "{}", l.fixture.name);
         }
     }

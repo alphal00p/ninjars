@@ -3012,40 +3012,45 @@ impl FastAmplitude {
                         .retain(|(l, i)| !(*l == lane && i.test == InstabilityTest::BoxMuConditioning))
                 });
             } else {
+                // Typed refusal; the slot carries the best available value
+                // (`Rescue::held_bits`, `held_estimate`).
+                results[lane] = self.staged[lane];
                 statuses[lane] = FastStatus::Unstable;
             }
         }
         Ok(())
     }
 
-    /// Record a lane's refusal by the rescue (value: its estimate, NaN when it
-    /// has none; bound: the target).
-    fn refuse_lane(&mut self, lane: usize, estimate: f64, reduced: bool) {
+    /// Record a lane's refusal by the rescue (`estimate`, `absolute`: the
+    /// re-reduction's own, NaN when it has none; `held`: the precision in
+    /// bits and the relative estimate of the value the lane's slot keeps,
+    /// the better of the binary64 and the re-reduced one).
+    fn refuse_lane(&mut self, lane: usize, estimate: f64, absolute: f64, held: (u32, f64)) {
         self.lane_status[lane] = FastStatus::Unstable;
-        if reduced {
-            RESCUES.with(|list| {
-                list.borrow_mut().push((
-                    lane,
-                    super::Rescue {
-                        precision_bits: 106,
-                        estimate,
-                        absolute: f64::NAN,
-                        served: false,
-                        outcome: if estimate.is_nan() {
-                            super::RescueOutcome::Failed
-                        } else {
-                            super::RescueOutcome::Missed
-                        },
+        RESCUES.with(|list| {
+            list.borrow_mut().push((
+                lane,
+                super::Rescue {
+                    precision_bits: 106,
+                    estimate,
+                    absolute,
+                    served: false,
+                    outcome: if estimate.is_nan() {
+                        super::RescueOutcome::Failed
+                    } else {
+                        super::RescueOutcome::Missed
                     },
-                ))
-            });
-        }
+                    held_bits: held.0,
+                    held_estimate: held.1,
+                },
+            ))
+        });
         INSTABILITIES.with(|list| {
             list.borrow_mut().push((
                 lane,
                 Instability {
                     test: InstabilityTest::CancellationRescue,
-                    value: estimate,
+                    value: held.1,
                     bound: self.options.rescue_target,
                 },
             ))
@@ -3183,6 +3188,14 @@ impl FastAmplitude {
                 consistent[r] = project_light_like(&mut v, s, n, eps);
                 shifts.extend(v);
             }
+            // An invariant strictly between zero and `infrared_eps` is zero by
+            // the engine's convention (cut bases, scaleless bubbles, on-shell
+            // masters) but not by the kinematics': the lane is not defined
+            // well enough for a re-reduction to certify it (typed `Failed`;
+            // its slot keeps the binary64 value).
+            if s.iter().any(|&x| x != 0. && x.abs() < eps) {
+                consistent[r] = false;
+            }
             let vd = &shifts[first..first + n];
             for i in 0..n {
                 for j in 0..n {
@@ -3229,7 +3242,7 @@ impl FastAmplitude {
             if stages.is_err() || !dd.alive[r] || !consistent[r] {
                 // A degenerate or non-finite quantity, or a projection that
                 // could not be solved: no estimate, a typed refusal.
-                self.refuse_lane(lane, f64::NAN, true);
+                self.refuse_lane(lane, f64::NAN, f64::NAN, (53, binary64_estimate));
                 outcome.push((lane, false));
                 continue;
             }
@@ -3481,11 +3494,24 @@ impl FastAmplitude {
                             absolute,
                             served: true,
                             outcome: outcome_of,
+                            held_bits: 106,
+                            held_estimate: estimate,
                         },
                     ))
                 });
+            } else if !finite_ok {
+                self.refuse_lane(lane, f64::NAN, f64::NAN, (53, binary64_estimate));
             } else {
-                self.refuse_lane(lane, if finite_ok { estimate } else { f64::NAN }, true);
+                // Refused, typed; the slot keeps the better value: the
+                // re-reduced one when it is at one point and its absolute
+                // estimate is below the binary64 lane's.
+                let held = if one_point && absolute < binary64_absolute {
+                    self.staged[lane] = result;
+                    (106, estimate)
+                } else {
+                    (53, binary64_estimate)
+                };
+                self.refuse_lane(lane, estimate, absolute, held);
             }
             outcome.push((lane, served));
         }

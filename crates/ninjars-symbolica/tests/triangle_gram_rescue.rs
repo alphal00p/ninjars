@@ -205,7 +205,7 @@ fn refined_kinematics_drive_the_rescue() -> Result<(), Error> {
 
 /// The target accuracy (`FastOptions::rescue_target`) decides: at the default
 /// the dumped lane is re-reduced and served (one `Rescue` record, 106 bits,
-/// served, estimate within the target); a target the binary64 lane already
+/// served: its estimate within the target, or `BelowResolution`); a target the binary64 lane already
 /// meets (an infinite one) re-reduces nothing; a target the re-reduction cannot meet refuses
 /// the lane, typed (`Unstable`, `InstabilityTest::CancellationRescue`).
 #[test]
@@ -222,7 +222,10 @@ fn the_target_accuracy_decides_and_misses_are_typed() -> Result<(), Error> {
     assert_eq!(records.len(), 1);
     let (lane, rescue) = records[0];
     assert_eq!((lane, rescue.precision_bits, rescue.served), (0, 106, true));
-    assert!(rescue.estimate <= DEFAULT_RESCUE_TARGET, "{rescue:?}");
+    assert!(
+        rescue.estimate <= DEFAULT_RESCUE_TARGET || rescue.outcome == ninjars::fast::RescueOutcome::BelowResolution,
+        "{rescue:?}"
+    );
     fast(&f, with(Some(f64::INFINITY)))?;
     assert!(take_rescues().is_empty());
     let refused = fast(&f, with(Some(1e-30)))?;
@@ -256,6 +259,7 @@ fn lanes_beyond_double_double_are_refused_typed() -> Result<(), Error> {
     assert!(off.iter().all(|o| o.success));
     let on = fast(&f, FastOptions::default())?;
     let records = take_instabilities();
+    let rescues = ninjars::fast::take_rescues();
     for (lane, o) in on.iter().enumerate() {
         assert!(!o.success, "lane {lane}: {}", o.status);
         assert!(
@@ -264,6 +268,63 @@ fn lanes_beyond_double_double_are_refused_typed() -> Result<(), Error> {
                 .any(|(l, i)| *l == lane && i.test == InstabilityTest::CancellationRescue),
             "{records:?}"
         );
+        // The refused lane's slot carries the best available value, the
+        // record says which carrier and its estimate.
+        let (_, r) = rescues.iter().find(|(l, _)| *l == lane).expect("record");
+        assert!(!r.served && r.outcome == ninjars::fast::RescueOutcome::Missed, "{r:?}");
+        assert!(r.held_bits == 53 || r.held_bits == 106, "{r:?}");
+        assert!(r.held_estimate.is_finite() && r.held_estimate > 0., "{r:?}");
+        let binary64 = off[lane].laurent.expect("served")[0];
+        if r.held_bits == 53 {
+            assert_eq!(o.slot[0], binary64, "lane {lane}");
+        } else {
+            assert!(r.held_estimate == r.estimate && r.absolute.is_finite(), "{r:?}");
+        }
+        assert!(o.slot.iter().all(|z| z.re.is_finite() && z.im.is_finite()) && o.slot[0] != C64::ZERO);
     }
+    Ok(())
+}
+
+/// A lane whose value lies below binary64's resolution of its own terms
+/// (`|V'| <= 2^-53 M'`; here the dumped lane 33 of point 308: value 25,
+/// bubble tensor terms of order 1e20) is served `BelowResolution` (the
+/// cancellation ladder's rule) when its re-reduction's absolute estimate is
+/// within the target times that resolution, although its relative estimate
+/// (4e-8, the double-double terms counted with their measured margin) misses
+/// the default target; at a target its absolute estimate cannot meet either
+/// it is refused, typed, and its slot keeps the re-reduced value, the better
+/// one, with that carrier and estimate in the record.
+#[test]
+fn vanishing_lanes_are_served_below_resolution() -> Result<(), Error> {
+    use ninjars::fast::{InstabilityTest, RescueOutcome, take_instabilities, take_rescues};
+    let f = fixture("ggg-308-n3-r3");
+    let reference = C64::new(
+        f.references[0].as_ref().expect("reference")[0].parse::<f64>()?,
+        f.references[0].as_ref().expect("reference")[1].parse::<f64>()?,
+    );
+    let off = fast(&f, without_rescue())?;
+    let on = fast(&f, FastOptions::default())?;
+    let (_, r) = take_rescues().into_iter().find(|(l, _)| *l == 0).expect("record");
+    assert_eq!(r.outcome, RescueOutcome::BelowResolution, "{r:?}");
+    assert!(r.served && on[0].success && r.estimate > ninjars::fast::DEFAULT_RESCUE_TARGET, "{r:?}");
+    let value = on[0].laurent.expect("served")[0];
+    assert!((value - reference).abs() < 1e-8 * reference.abs(), "{value:?} {reference:?}");
+    let strict = FastOptions {
+        rescue_target: Some(1e-12),
+        ..FastOptions::default()
+    };
+    let refused = fast(&f, strict)?;
+    let (_, r) = take_rescues().into_iter().find(|(l, _)| *l == 0).expect("record");
+    let records = take_instabilities();
+    assert!(!refused[0].success && r.outcome == RescueOutcome::Missed && !r.served, "{r:?}");
+    assert_eq!(r.held_bits, 106, "{r:?}");
+    assert_eq!(refused[0].slot[0], value, "the re-reduced value is kept");
+    let binary64 = off[0].laurent.expect("served")[0];
+    assert!((binary64 - reference).abs() > 1e-2 * reference.abs());
+    let record = records
+        .iter()
+        .find(|(l, i)| *l == 0 && i.test == InstabilityTest::CancellationRescue)
+        .expect("typed");
+    assert_eq!(record.1.value, r.held_estimate);
     Ok(())
 }
