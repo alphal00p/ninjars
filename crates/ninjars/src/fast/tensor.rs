@@ -780,6 +780,11 @@ impl FastNumerator for TensorNumerator {
         Ok(())
     }
 
+    fn tensor_coefficients(&self, lane: usize) -> Option<&[C64]> {
+        self.coefficients
+            .get(lane * self.ncoeff..(lane + 1) * self.ncoeff)
+    }
+
     fn t3_expansion(
         &mut self,
         _cut: &[usize],

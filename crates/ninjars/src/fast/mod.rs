@@ -36,6 +36,12 @@ pub mod adapters;
 mod bases_x2;
 mod box_x2;
 pub mod complex;
+pub mod dd;
+mod dd_driver;
+#[doc(hidden)]
+pub use dd_driver::{bubble_tensors, massless_b0, massless_c0};
+#[rustfmt::skip]
+mod dd_stages;
 mod declared_rank;
 mod engine;
 mod engine_x2;
@@ -64,7 +70,9 @@ mod tests_x2;
 pub use adapters::{GenericMasters, GenericNumerator};
 pub use complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr, to_complex};
 pub use declared_rank::AtDeclaredRank;
-pub use engine::{FastAmplitude, FastOptions, take_instabilities};
+pub use engine::{
+    CANCELLATION_TARGET_BITS, FastAmplitude, FastOptions, take_instabilities, take_rescued_lanes,
+};
 pub use masters::{FastMaster, FastMasters};
 pub use numerator::{FastNumerator, t2_len, t3_len};
 pub use replay::{RecordingMasters, RecordingNumerator, ReplayMasters, ReplayNumerator};

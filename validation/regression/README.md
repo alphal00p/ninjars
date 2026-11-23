@@ -373,3 +373,18 @@ pass it bitwise.
   - generic `Float(256)`: 90 of 170 decimal components (15 of 17 lanes), at
     most 7.3e-67 of the lane's largest component;
   - no lane status changed.
+- `FastOptions::cancellation_rescue` (`docs/triangle-gram-conditioning.md`,
+  default on) re-reduces in double-double the fast lanes whose term moduli
+  exceed `2^23` times their finite part. Three V0 lanes qualify, all
+  synthetic lanes whose finite part is a near-total cancellation; the fast
+  `TensorNumerator` section was re-blessed in place for them and nothing else
+  moved (4 entries: width 1 and their copy in the conditioning cases):
+  - syn-gghhh-ggHHH-n5-r5 lane 1 (`-1.129e-12`, five 173 GeV lines): error
+    against a 256-bit generic reduction `1.9e-17 -> 4.6e-18`; its spurious
+    `1/eps` part `6e-19 -> 5e-28`;
+  - syn-n6-r6 lane 0 (`-4.3e-17`, a lane of terms of order `4e-7`): `7.6e-19 ->
+    6.9e-20`;
+  - syn-n6-r7 lane 1 (`1.5e-16`, terms of order `6e-11`): `4.7e-25 -> 3.1e-24`
+    (both at the binary64 floor of the master contraction);
+  - every other fast lane, the generic sections and the explicit-`mu²`
+    numerators keep their bits, and no lane status changed.
