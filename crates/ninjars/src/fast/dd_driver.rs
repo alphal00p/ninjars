@@ -425,17 +425,17 @@ fn l3(x: &[C64; 3]) -> L3 {
 /// through, and only `B0` and `A0`'s own binary64 rounding remains.
 pub fn bubble_tensors(
     p2: Dd,
-    m0: C64,
-    m1: C64,
+    m0: Cd,
+    m1: Cd,
     b0: &[C64; 3],
     a0m0: &[C64; 3],
     a0m1: &[C64; 3],
     b0dd: Option<L3>,
 ) -> Option<[L3; 4]> {
-    if !(p2.abs().to_f64() >= m0.taxicab() + m1.taxicab()) || p2.hi == 0. {
+    if !(p2.abs().to_f64() >= (m0.taxicab() + m1.taxicab()).to_f64()) || p2.hi == 0. {
         return None;
     }
-    let (p2, m0, m1) = (Cd::real(p2), Cd::from_c64(m0), Cd::from_c64(m1));
+    let p2 = Cd::real(p2);
     let (b0, a0, a1) = (b0dd.unwrap_or_else(|| l3(b0)), l3(a0m0), l3(a0m1));
     let kin = m1 - m0 - p2;
     let inv2p = (p2 * 2.).inv();

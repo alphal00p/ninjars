@@ -32,7 +32,7 @@ use super::geometry::{
 use super::masters::{FastMaster, FastMasters};
 use super::numerator::{FastNumerator, t2_len_le3, t3_len};
 use super::subtractions as subs;
-use super::{FastInput, FastResult, FastStatus, Instability, InstabilityTest};
+use super::{FastInput, FastRefinement, FastResult, FastStatus, Instability, InstabilityTest};
 use crate::conditioning::{
     BoxMuConditioning, BoxMuPropagation, box_mu_numerator_ratio, box_mu_refused, box_mu_rounding,
 };
@@ -1118,6 +1118,56 @@ impl FastAmplitude {
         results: &mut [FastResult],
         statuses: &mut [FastStatus],
     ) -> Result<()> {
+        self.evaluate_refined(input, None, numerator, masters, results, statuses)
+    }
+
+    /// [`Self::evaluate`] with the optional rescue-precision kinematics of
+    /// `input` ([`FastRefinement`]): the re-reduction of flagged lanes
+    /// ([`FastOptions::cancellation_rescue`]) builds its geometry, Gram
+    /// matrices and invariants from them instead of repairing the binary64
+    /// ones. The binary64 pass reads `input` only, bit for bit as without
+    /// it. Rank <= n+1 lanes reduced at their declared rank (also with
+    /// [`FastOptions::conditioned_cuts`]); the lanes the rank n+2 engine lowers
+    /// use the internal repair.
+    pub fn evaluate_refined<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
+        &mut self,
+        input: &FastInput,
+        refinement: Option<&FastRefinement>,
+        numerator: &mut N,
+        masters: &mut M,
+        results: &mut [FastResult],
+        statuses: &mut [FastStatus],
+    ) -> Result<()> {
+        let n = self.topo.n;
+        if let Some(r) = refinement {
+            let lanes = input.lanes;
+            for (name, expected, actual) in [
+                ("fast refinement shifts", lanes * n, r.shifts.len()),
+                (
+                    "fast refinement masses",
+                    lanes * n,
+                    r.masses_squared.map_or(lanes * n, |m| m.len()),
+                ),
+                (
+                    "fast refinement S-matrix",
+                    if input.s_matrix.is_some() { lanes * n * n } else { 0 },
+                    r.s_matrix.map_or(if input.s_matrix.is_some() { lanes * n * n } else { 0 }, |s| s.len()),
+                ),
+            ] {
+                if expected != actual {
+                    return Err(Error::Shape {
+                        name,
+                        expected,
+                        actual,
+                    });
+                }
+            }
+        }
+        // The lanes the rank n+2 engine lowers are renumbered: no refinement.
+        let refinement = refinement.filter(|_| {
+            !matches!(self.replacement.as_deref(), Some(Replacement::RankN2 { .. }))
+        });
+        let _scope = RefinementScope::set(refinement);
         clear_instabilities();
         if masters.requires_scaleless_bubbles() {
             return Err(Error::Unsupported(
@@ -2694,6 +2744,58 @@ thread_local! {
     static RESCUED: Cell<u64> = const { Cell::new(0) };
 }
 
+thread_local! {
+    /// A copy of the refinement of the current [`FastAmplitude::evaluate_refined`]
+    /// call on this thread, present while its [`RefinementScope`] lives (the
+    /// buffers keep their capacity between calls).
+    static REFINEMENT: RefCell<OwnedRefinement> = const { RefCell::new(OwnedRefinement::new()) };
+}
+
+#[derive(Default)]
+struct OwnedRefinement {
+    present: bool,
+    shifts: Vec<RMom>,
+    s_matrix: Option<Vec<f64>>,
+    masses: Option<Vec<C64>>,
+}
+
+impl OwnedRefinement {
+    const fn new() -> Self {
+        Self {
+            present: false,
+            shifts: Vec::new(),
+            s_matrix: None,
+            masses: None,
+        }
+    }
+}
+
+/// Copies this thread's refinement for one evaluation and withdraws it on
+/// drop (also on an early return or a panic).
+struct RefinementScope;
+
+impl RefinementScope {
+    fn set(r: Option<&FastRefinement>) -> Self {
+        REFINEMENT.with(|c| {
+            let mut c = c.borrow_mut();
+            c.present = r.is_some();
+            if let Some(r) = r {
+                c.shifts.clear();
+                c.shifts.extend_from_slice(r.shifts);
+                c.s_matrix = r.s_matrix.map(|s| s.to_vec());
+                c.masses = r.masses_squared.map(|m| m.to_vec());
+            }
+        });
+        Self
+    }
+}
+
+impl Drop for RefinementScope {
+    fn drop(&mut self) {
+        REFINEMENT.with(|c| c.borrow_mut().present = false);
+    }
+}
+
 /// The number of lanes this thread re-reduced in double-double
 /// ([`FastOptions::cancellation_rescue`]) since the last call.
 pub fn take_rescued_lanes() -> u64 {
@@ -2987,22 +3089,45 @@ impl FastAmplitude {
         let mut masses = Vec::with_capacity(k * n);
         let mut smat = Vec::with_capacity(k * n * n);
         let mut tensor = DdTensor::new(self.topo.rank);
+        // Per flagged lane the refined invariants (n x n), if supplied.
+        let mut smat_dd: Vec<Dd> = Vec::new();
+        let owned = REFINEMENT.with(|c| c.take());
+        let refinement = owned.present.then(|| FastRefinement {
+            shifts: &owned.shifts,
+            s_matrix: owned.s_matrix.as_deref(),
+            masses_squared: owned.masses.as_deref(),
+        });
         for &(lane, _) in flagged {
             let s = &self.smat[lane * n * n..(lane + 1) * n * n];
-            let mut v: Vec<[Dd; 4]> = input.shifts[lane * n..(lane + 1) * n]
-                .iter()
-                .map(|x| x.map(Dd::from))
-                .collect();
-            project_light_like(&mut v, s, n);
-            shifts.extend(v);
-            masses.extend(
-                input.masses_squared[lane * n..(lane + 1) * n]
-                    .iter()
-                    .map(|&z| Cd::from_c64(z)),
-            );
+            let hi = &input.shifts[lane * n..(lane + 1) * n];
+            if let Some(r) = &refinement {
+                let lo = &r.shifts[lane * n..(lane + 1) * n];
+                shifts.extend(
+                    hi.iter()
+                        .zip(lo)
+                        .map(|(h, l)| std::array::from_fn(|mu| Dd::from(h[mu]) + l[mu])),
+                );
+                if let (Some(lo), Some(_)) = (r.s_matrix, input.s_matrix) {
+                    let lo = &lo[lane * n * n..(lane + 1) * n * n];
+                    smat_dd.extend(s.iter().zip(lo).map(|(&h, &l)| Dd::from(h) + l));
+                }
+            } else {
+                let mut v: Vec<[Dd; 4]> = hi.iter().map(|x| x.map(Dd::from)).collect();
+                project_light_like(&mut v, s, n);
+                shifts.extend(v);
+            }
+            let mlo = refinement.as_ref().and_then(|r| r.masses_squared);
+            masses.extend((0..n).map(|i| {
+                let h = Cd::from_c64(input.masses_squared[lane * n + i]);
+                match mlo {
+                    Some(lo) => h + Cd::from_c64(lo[lane * n + i]),
+                    None => h,
+                }
+            }));
             smat.extend_from_slice(s);
             tensor.push_lane(num.tensor_coefficients(lane).expect("checked"));
         }
+        REFINEMENT.with(|c| c.replace(owned));
         let ddin = super::dd_driver::FastInput {
             lanes: k,
             shifts: &shifts,
@@ -3061,12 +3186,18 @@ impl FastAmplitude {
             let s = &self.smat[lane * n * n..(lane + 1) * n * n];
             let v = &input.shifts[lane * n..(lane + 1) * n];
             let vd = &shifts[r * n..(r + 1) * n];
+            // The (refined) squared masses of the re-reduction.
+            let md = &masses[r * n..(r + 1) * n];
             // Invariants of the projected shifts: the rational terms and the
             // bubble tensors' reduction multiply them by the large
             // coefficients, which hold only for this geometry (the masters
             // keep the given invariants; their difference is of order
             // `2^-53` times these).
+            let refined_s = (!smat_dd.is_empty()).then(|| &smat_dd[r * n * n..(r + 1) * n * n]);
             let sd = |i: usize, j: usize| -> Dd {
+                if let Some(s) = refined_s {
+                    return s[i * n + j];
+                }
                 let d: [Dd; 4] = std::array::from_fn(|mu| vd[i][mu] - vd[j][mu]);
                 mp_rr_d(&d, &d)
             };
@@ -3114,9 +3245,9 @@ impl FastAmplitude {
                         (Dd::from(s[i2 * n + i1]), Dd::from(s[i3 * n + i2]), Dd::from(s[i1 * n + i3]))
                     };
                     let shape = Cd::real(pjk + pji + pki) * 0.25
-                        - Cd::from_c64(m[i1])
-                        - Cd::from_c64(m[i2])
-                        - Cd::from_c64(m[i3]);
+                        - md[i1]
+                        - md[i2]
+                        - md[i3];
                     rational += c[7] * 0.5 + c[14] * shape / 6.;
                 } else {
                     rational += c[7] * 0.5;
@@ -3170,7 +3301,7 @@ impl FastAmplitude {
                     };
                     let b0dd = (is_zero(m[i1]) && is_zero(m[i2]) && kd.hi != 0.).then(|| massless_b0(kd, mu2));
                     let tensors = selected
-                        .then(|| bubble_tensors(kd, m[i1], m[i2], &b0, &a0_rows[i1], &a0_rows[i2], b0dd))
+                        .then(|| bubble_tensors(kd, md[i1], md[i2], &b0, &a0_rows[i1], &a0_rows[i2], b0dd))
                         .flatten()
                         .unwrap_or_else(|| {
                             let get = |w: usize| -> [Cd; 3] {
@@ -3182,7 +3313,7 @@ impl FastAmplitude {
                             };
                             [get(0), get(1), get(2), get(3)]
                         });
-                    let b06 = -(Cd::real(kd) - (Cd::from_c64(m[i1]) + Cd::from_c64(m[i2])) * 3.) / 6.;
+                    let b06 = -(Cd::real(kd) - (md[i1] + md[i2]) * 3.) / 6.;
                     let c1 = c[1] * ke2;
                     let c2 = c[2] * ke2 * ke2;
                     let c13 = if rank3 { c[13] * ke2 * ke2 * ke2 } else { Cd::ZERO };
@@ -3194,7 +3325,7 @@ impl FastAmplitude {
                     }
                     if x1 {
                         rational += b06 * c[9]
-                            + (Cd::real(kd) - Cd::from_c64(m[i1]) * 2. - Cd::from_c64(m[i2]) * 4.)
+                            + (Cd::real(kd) - md[i1] * 2. - md[i2] * 4.)
                                 * ke2
                                 * c[10]
                                 / 12.;
@@ -3210,7 +3341,7 @@ impl FastAmplitude {
                     }
                     let integral = a0_rows[i].map(Cd::from_c64);
                     let data = &dd.tad[i * k + r];
-                    let mi = Cd::from_c64(m[i]);
+                    let mi = md[i];
                     if x1 {
                         let c0 = data.c0 + mi * (data.e34 * 0.25) * data.c15;
                         for o in 0..3 {

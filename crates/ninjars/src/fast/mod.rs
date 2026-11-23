@@ -98,6 +98,33 @@ pub struct FastInput<'a> {
     pub s_matrix: Option<&'a [f64]>,
 }
 
+/// Low parts of the rescue-precision kinematics of a [`FastInput`] (same
+/// lanes, same layouts): the rescue-precision value of every entry is the
+/// [`FastInput`] value plus its low part here (double-double for this binary64
+/// engine). Read only by [`FastAmplitude::evaluate_refined`]'s re-reduction of
+/// flagged lanes ([`FastOptions::cancellation_rescue`],
+/// `docs/triangle-gram-conditioning.md`, section 7); the binary64 pass never
+/// reads it.
+///
+/// The caller supplies the rescue-precision cure of the very binary64 point of
+/// the [`FastInput`]: on-shell external legs (an exactly zero invariant keeps
+/// a zero low part), momentum conservation, shifts that are the exact sums of
+/// the refined external momenta, invariants consistent with the refined
+/// shifts. NinjaRS then applies no repair of its own (no light-like
+/// projection); an inconsistent refinement degrades the rescue, never the
+/// binary64 pass.
+#[derive(Clone, Copy, Debug)]
+pub struct FastRefinement<'a> {
+    /// `shifts[lane * n + i]` low parts, as [`FastInput::shifts`].
+    pub shifts: &'a [RMom],
+    /// `(V_i - V_j)²` low parts, as [`FastInput::s_matrix`] (only with an
+    /// `s_matrix` there). `None`: the invariants are the refined shifts'.
+    pub s_matrix: Option<&'a [f64]>,
+    /// `m_i²` low parts, as [`FastInput::masses_squared`]. `None`: the squared
+    /// masses are exact in binary64.
+    pub masses_squared: Option<&'a [C64]>,
+}
+
 /// Per-lane outcome of a fast-path evaluation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum FastStatus {

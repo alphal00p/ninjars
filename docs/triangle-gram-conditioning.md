@@ -192,3 +192,31 @@ Time: see `REPORT.md` of the work folder (section "Cost").
 - `python3 tools/fast/generate_dd_stages.py` regenerates `dd_stages.rs`;
   `--check` fails while it is stale (after changes to the binary64 stages,
   geometry, subtractions or jets).
+
+## 7. Rescue-precision kinematics from the caller
+
+`FastAmplitude::evaluate_refined(input, refinement, numerator, masters,
+results, statuses)` takes an optional `FastRefinement { shifts, s_matrix,
+masses_squared }`: the low parts of the rescue-precision kinematics, in the
+layouts of `FastInput` (`shifts[lane * n + i]` four components;
+`s_matrix[lane * n * n + i * n + j]`, only with an `s_matrix` in `FastInput`;
+`masses_squared[lane * n + i]`), so that each rescue-precision value is the
+`FastInput` value plus its low part (double-double for this binary64 engine).
+`evaluate(..)` is `evaluate_refined(.., None, ..)`.
+
+- The binary64 pass reads `FastInput` only, bit for bit as without a
+  refinement (`refined_kinematics_drive_the_rescue`).
+- With a refinement, the re-reduction of a flagged lane builds its geometry,
+  Gram matrices, rational terms and double-double masters from it (invariants
+  from the refined `s_matrix`, else from the refined shifts) and applies no
+  repair of its own (section 2, items 1 and 3). Without one, those repairs are
+  the fallback.
+- The caller supplies the rescue-precision cure of the very binary64 point:
+  on-shell legs (a zero invariant keeps a zero low part), momentum
+  conservation, shifts that are exact sums of the refined momenta, invariants
+  consistent with them. An inconsistent refinement degrades the rescue to the
+  binary64 level (the test's all-zero refinement: the lanes stay `1e3`
+  off), it never touches the binary64 pass.
+- The refinement is copied per call into a thread-local buffer (no `unsafe`;
+  capacity kept) and read only for flagged lanes. Lanes that the rank n+2
+  engine reduces at a lower rank are renumbered and use the repairs.
