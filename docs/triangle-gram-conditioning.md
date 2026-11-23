@@ -170,8 +170,9 @@ cancellation ladder):
   `1e0 .. 1.5e7` off);
 - `Failed`: no re-reduction (a degenerate or non-finite quantity, an
   unsolvable projection, a caller-given invariant below `infrared_eps`);
-- `OutsideDomain`: not re-reduced (an on-shell massive leg without the
-  caller's refinement, section 9): binary64 value and status kept.
+- `OutsideDomain`: not re-reduced (a numerator without tensor coefficients,
+  or an on-shell massive leg without the caller's refinement, section 9):
+  `Unstable` (`RescueOutsideDomain`), the binary64 value in its slot.
 
 An `Accepted` lane must also be clearly better
 than the binary64 lane: its absolute estimate at most a sixteenth of the
@@ -264,9 +265,26 @@ invariant low part = that invariant from the refined shifts).
 
 ## 9. Domain and limits
 
-- Default off. Rank <= n+1 lanes of tensor numerators (`TensorNumerator`, pyAmpliCol's).
-  `MuTensorNumerator`, other numerators and rank n+2 lanes keep today's
-  behaviour (no trigger, no refusal by the rescue).
+- Default off in NinjaRS; pyAmpliCol's checked mode turns it on, its
+  UNCHECKED mode off (bit for bit the binary64 engine, no bookkeeping).
+- Rank <= n+1 lanes of tensor numerators (`TensorNumerator`, pyAmpliCol's).
+  With the rescue on, a lane the trigger measures above the target that the
+  rescue cannot take (a numerator without tensor coefficients, e.g.
+  `MuTensorNumerator`; an on-shell massive leg without refinement, below) is
+  NOT left a plain success: typed `Unstable`
+  (`InstabilityTest::RescueOutsideDomain`, `RescueOutcome::OutsideDomain`),
+  the binary64 value in its slot, for the caller's own rescue or best-effort
+  path. Rank n+2 lanes have no trigger and keep the binary64 engine's status.
+  Hence a lane's status can differ between its own rank (trigger and rescue)
+  and a declared rank n+2 (no trigger; lanes the rank n+2 engine lowers are
+  reduced through a numerator wrapper without tensor coefficients).
+- On-shell MASSIVE external legs need the caller's refined kinematics:
+  without a (consistent) refinement the projection makes only massless pairs
+  exact, so such a lane is not re-reduced (second audit N2: with the
+  two-point re-reduction such lanes were served `3e-8` off where binary64 had
+  `1e-9`). pyAmpliCol supplies a refinement for every flagged lane when the
+  integration carries API's source; through it the 22 flagged massive-loop
+  lanes of `g g > t t~ g` point 1186 are `Accepted` at `<= 1.8e-10`.
 - Losses inside a stage that neither the term moduli, the box-Gram model,
   the mu screen nor the triangle-Gram term sees are not flagged (time-like
   synthetic pentagons, `4e-4`; the first audit's F3). The second audit's
@@ -280,36 +298,22 @@ invariant low part = that invariant from the refined shifts).
 - "Never worse" is guarded, not proven (accepted for this landing as a
   documented limit): a served value's absolute estimate must be at most 1/16
   of the binary64 lane's estimate, and estimates are not errors. Measured by
-  the second audit against the v1.0.3 tag: 64 of 10,000 `g g > g g g` points
-  and 55 of 1,000 `u u~ > e- e+ g g g` points come out more than 0.3 digit
-  worse, none below 7.7 digits, far above the target; the catastrophic losses
-  the rescue exists for are removed.
-- On-shell MASSIVE external legs need the caller's refined kinematics:
-  without a (consistent) refinement the projection makes only massless pairs
-  exact, so such a lane is not re-reduced (`RescueOutcome::OutsideDomain`,
-  binary64 value and status kept; second audit N2: with the two-point
-  re-reduction such lanes were served `3e-8` off where binary64 had `1e-9`).
-  pyAmpliCol supplies a refinement for every flagged lane.
-- Default off. Rank <= n+1 lanes of tensor numerators (`TensorNumerator`, pyAmpliCol's).
-  `MuTensorNumerator`, other numerators and rank n+2 lanes keep today's
-  behaviour (no trigger, no refusal by the rescue).
-- Losses inside a stage that neither the term moduli, the box-Gram model nor
-  the mu screen sees are not flagged (time-like synthetic pentagons, `4e-4`;
-  the first audit's F3). The trigger divides by the computed value: a lane
-  whose binary64 value is dominated by such a stage-internal error can come
-  out unflagged (second audit B4: an `8e19` error unflagged at target `1e-8`
-  on a time-like rank n+1 synthetic lane with top lines). The rescue is
-  therefore not a replacement for a caller's own lane test: pyAmpliCol keeps
-  its lane test on in the checked mode.
-- "Never worse" is guarded, not proven: the served value's absolute estimate
-  must be at most 1/16 of the binary64 lane's ESTIMATE; on top-loop and
-  `u u~ > e- e+ g g g` lanes the binary64 value is often far better than its
-  estimate, and the second audit measured 1 to 5 % of points losing more than
-  0.3 digit against v1.0.3 (none below 7.7 digits; before the `C0` weight).
-- The estimate is measured, not proven: margins from the synthetic,
-  box-mu, box-gram and dumped lanes (sections 5, 6); `g g > a a g` pentagon
-  lanes with a vanishing shift come out `1e-14 .. 9e-14` off with relative
-  estimates `1.1e-16` (far within any target).
+  the second audit against the previous release on the integration's build:
+  64 of 10,000 `g g > g g g`, 55 of 1,000 `u u~ > e- e+ g g g` and 14 of 2,000
+  `g g > t t~ g` points come out more than 0.3 digit worse, none below 7.69
+  digits; the worst points go `-4.88 -> 6.87`, `-0.26 -> 6.49` and
+  `4.47 -> 9.11` digits.
+- The estimate is measured, not proven: the weights of section 5 come from
+  the synthetic, box-mu, box-gram and dumped lanes and from the masters
+  measured against MPFR. It is invariant under a power-of-two rescaling of
+  the numerator (moduli scaled before squaring; test
+  `the_estimate_is_invariant_under_numerator_scaling`, `2^±700`). `g g > a a
+  g` pentagon lanes with a vanishing shift come out `1e-14 .. 9e-14` off
+  with relative estimates `1.1e-16` (far within any target).
+- Constants: every rational constant of the double-double path is exact in
+  binary64 or applied as a double-double division (the box's `-1/6` was a
+  binary64 constant until the external review: a `2.1e-4` bias accepted at
+  `6e-15`; test `exact_box_rational_term_is_double_double`).
 - Masses' low parts: exact binary64 masses unless the caller refines them.
 
 ## 10. Tests, fixtures, regeneration
