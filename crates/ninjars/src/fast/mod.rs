@@ -331,6 +331,15 @@ pub struct Rescue {
     pub served: bool,
     /// How it was decided.
     pub outcome: RescueOutcome,
+    /// The precision in bits of the value the lane's result slot holds: 106
+    /// when served, else the better of the binary64 value (53) and the
+    /// re-reduced one (106), by their absolute estimates; the binary64 value
+    /// when the re-reduction failed. A refused lane's slot always holds that
+    /// value (status [`FastStatus::Unstable`]), for a best-effort caller.
+    pub held_bits: u32,
+    /// The relative error estimate of the held value (its own estimate, or
+    /// the binary64 trigger's).
+    pub held_estimate: f64,
 }
 
 /// The decision on a re-reduced lane, by the rule and with the names of the

@@ -147,6 +147,9 @@ pub struct Outcome {
     pub status: String,
     pub success: bool,
     pub laurent: Option<[C64; 3]>,
+    /// The lane's result slot whatever the status (a refused lane's best
+    /// available value; zero when the engine left it untouched).
+    pub slot: [C64; 3],
     /// `[cut-constructible, rational]` finite parts, rounded to binary64.
     pub parts: Option<[C64; 2]>,
     /// The finite part as a decimal string in the carrier's precision.
@@ -232,6 +235,7 @@ pub fn fast_lanes(lanes: &[LaneRef<'_>], options: FastOptions) -> Result<Vec<Out
                 status: format!("{:?}", statuses[lane]),
                 success,
                 laurent: success.then_some(r.laurent),
+                slot: r.laurent,
                 parts: success.then_some([r.cut_constructible, r.rational]),
                 finite_text: success.then(|| {
                     [
@@ -390,6 +394,7 @@ where
                 status: format!("{status:?}"),
                 success,
                 laurent: success.then(|| [c(&r[0]), c(&r[1]), c(&r[2])]),
+                slot: [c(&r[0]), c(&r[1]), c(&r[2])],
                 parts: success.then(|| [c(&r[3]), c(&r[4])]),
                 finite_text: success.then(|| {
                     [
