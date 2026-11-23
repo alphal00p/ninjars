@@ -12,6 +12,7 @@
 #[cfg(all(test, feature = "rust-codegen"))]
 mod algorithm_transpose_probe;
 mod amplitude;
+pub mod cancellation_ladder;
 mod box_kernels;
 mod bubble_kernels;
 mod contraction;
