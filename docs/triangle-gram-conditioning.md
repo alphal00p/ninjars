@@ -2,8 +2,9 @@
 
 The fast engine re-reduces in double-double every lane whose binary64
 reduction it measures to miss a target relative accuracy
-(`FastOptions::cancellation_rescue`, default on; `FastOptions::rescue_target`,
-default `DEFAULT_RESCUE_TARGET = 2^-30`). The flagged lane is reduced again
+(`FastOptions::cancellation_rescue`, default OFF: on for callers that keep a
+test of their own behind it, as pyAmpliCol's checked mode does;
+`FastOptions::rescue_target`, default `DEFAULT_RESCUE_TARGET = 2^-30`). The flagged lane is reduced again
 WHOLE (box, triangle, bubble and tadpole stages, every master) at one
 kinematic point; only the numerator's coefficients stay binary64. Lanes it
 does not flag keep their binary64 values bit for bit; with the option off
@@ -67,9 +68,11 @@ lane 33, generic engine at 200 bits):
    on lane 33); with all masters at the point the dumped lanes agree with the
    200-bit references to `3e-12 .. 3e-11` relative.
 
-An invariant strictly between zero and `infrared_eps` is zero by the engine's
-convention (cut bases, scaleless bubbles, on-shell masters) but not by the
-kinematics: such a lane is not re-reduced (typed `Failed`, section 5).
+A caller-given invariant strictly between zero and `infrared_eps` is zero by
+the engine's convention (cut bases, scaleless bubbles, on-shell masters) but
+not by the caller's kinematics: such a lane is not re-reduced (typed
+`Failed`, section 5). Invariants NinjaRS computes from the shifts (no matrix
+given) are projected instead.
 
 ## 3. Trigger
 
@@ -125,32 +128,39 @@ lane instead (two points in one lane). A wrapper provider must forward
 
 The re-reduced lane's own absolute error estimate is the largest of
 
-- `2^-53 M64 + 2^-92 Mdd + 2^-53 |V'|`: `M64` the moduli of its terms with a
-  binary64 factor (a binary64 master), `Mdd` the others, `|V'|` the rounding
-  of the served binary64 value. `2^-92` is double-double's `2^-104` (two bits
-  under its `2^-106`) less a measured margin of twelve bits: on the audit's
-  exactly consistent synthetic lanes (massless, top-mass, complex-mass and
-  mixed lines, n = 3 to 5, ranks n to n+1) the served lanes' errors exceed
-  `2^-104 Mdd` by up to `2.7e3` (mixed massive and massless lines); with the
-  margin no served synthetic lane exceeds its estimate (worst ratio 1.01);
+- `2^-53 M64 + 2^-100 Mdd + 2^-53 |V'|`: `M64` the moduli of its terms with a
+  binary64 factor (a binary64 master), `Mdd` the others, each double-double
+  `C0` term weighted by `1/δ` (δ the triangle's normalised Källén function
+  `sqrt|λ(p1², p2², p3²)| / max|pi²|`): the provider's double-double `C0`
+  loses `log2(1/δ)` bits at a nearly degenerate triangle (measured against
+  200-bit MPFR by the second audit: `8.6e-27 = 2^-104/δ` at `δ = 5e-6`, for
+  massless, massive and complex lines; A0, B0..B111 and D0 agree to `6e-31`).
+  `2^-100` is double-double's `2^-104` with four bits of margin;
+  `|V'| 2^-53` the rounding of the served binary64 value. Measured: on the
+  first audit's synthetic lanes (168) and on the second audit's independent
+  set (293; new seed, `δ` to `1e-9`, n = 3 to 6, massless, top, complex Z,
+  mixed, W and on-shell massive lines) no served lane exceeds the target;
+  the largest error over estimate is 1.01 (first set) and 182 at the `2^-53`
+  floor (second set: `2e-14` against `1.1e-16`);
 - the box-Gram model at 106 bits times `M' = M64 + Mdd` (relative to `|V'|`
   in the relative estimate, as calibrated);
 - `2^-104 mu_error`.
 
 Its relative estimate is the same over `|V'|`. Outcomes
-(`Rescue::outcome: RescueOutcome`, the names and rule of the generic engine's
+(`Rescue::outcome: RescueOutcome`, the names of the generic engine's
 cancellation ladder):
 
-- `Accepted`: the relative estimate meets the target;
-- `BelowResolution`: `|V'| <= 2^-53 M'` (the lane is below binary64's
-  resolution of its own terms) and the absolute estimate is at most the target
-  times that resolution: served, with no relative accuracy stated (the dumped
-  `g g > g g g` lanes: value 25 against terms of `1e20`, relative estimate
-  `4e-8` against a measured `7e-11`);
-- `Missed`: neither; `Failed`: no re-reduction (a degenerate or non-finite
-  quantity, an unsolvable projection, an invariant below `infrared_eps`).
+- `Accepted`: the relative estimate meets the target: served;
+- `Missed`: it does not: refused. A lane below binary64's resolution of its
+  own terms (`|V'| <= 2^-53 M'`) is NOT served on that ground
+  (`BelowResolution` is not produced by the fast engine): its value is an
+  ordinary part of the point the caller sums, and no absolute scale of the
+  point is known to NinjaRS (the second audit: such a rule served lanes
+  `1e0 .. 1.5e7` off);
+- `Failed`: no re-reduction (a degenerate or non-finite quantity, an
+  unsolvable projection, a caller-given invariant below `infrared_eps`).
 
-A served lane (`Accepted` or `BelowResolution`) must also be clearly better
+An `Accepted` lane must also be clearly better
 than the binary64 lane: its absolute estimate at most a sixteenth of the
 binary64 lane's (the binary64 error ranges over about 0.03 to 1 times its
 estimate on the dumped lanes; four bits keep a served value from being worse).
@@ -212,8 +222,13 @@ invariant low part = that invariant from the refined shifts).
 - The binary64 pass reads `FastInput` only, bit for bit as without a
   refinement.
 - With a refinement the flagged lane is re-reduced whole at the refined point
-  (geometry, Gram matrices, rational terms and every master); no repair of its
-  own. Because the whole lane is recomputed there, the refined point may lie
+  (geometry, Gram matrices, rational terms and every master), provided the
+  refinement is consistent to double-double: every pair the binary64 pass
+  takes as exactly zero, or as a real squared mass of the lane, and every
+  given invariant, within `2^-100` of the lane's scale `4 max|V|²` of its
+  refined shifts; otherwise the lane takes the internal projection (an
+  inconsistent refinement, e.g. zero low parts for binary64 momenta, is never
+  trusted). Because the whole lane is recomputed there, the refined point may lie
   any distance from the binary64 input that the caller's cure produces; what it
   must be is exactly consistent to double-double: on-shell legs (exactly zero
   invariants stay exactly zero, `lo = 0`), invariants those of the refined
@@ -227,12 +242,22 @@ invariant low part = that invariant from the refined shifts).
 
 ## 9. Domain and limits
 
-- Rank <= n+1 lanes of tensor numerators (`TensorNumerator`, pyAmpliCol's).
+- Default off. Rank <= n+1 lanes of tensor numerators (`TensorNumerator`, pyAmpliCol's).
   `MuTensorNumerator`, other numerators and rank n+2 lanes keep today's
   behaviour (no trigger, no refusal by the rescue).
 - Losses inside a stage that neither the term moduli, the box-Gram model nor
   the mu screen sees are not flagged (time-like synthetic pentagons, `4e-4`;
-  the audit's F3).
+  the first audit's F3). The trigger divides by the computed value: a lane
+  whose binary64 value is dominated by such a stage-internal error can come
+  out unflagged (second audit B4: an `8e19` error unflagged at target `1e-8`
+  on a time-like rank n+1 synthetic lane with top lines). The rescue is
+  therefore not a replacement for a caller's own lane test: pyAmpliCol keeps
+  its lane test on in the checked mode.
+- "Never worse" is guarded, not proven: the served value's absolute estimate
+  must be at most 1/16 of the binary64 lane's ESTIMATE; on top-loop and
+  `u u~ > e- e+ g g g` lanes the binary64 value is often far better than its
+  estimate, and the second audit measured 1 to 5 % of points losing more than
+  0.3 digit against v1.0.3 (none below 7.7 digits; before the `C0` weight).
 - The estimate is measured, not proven: margins from the synthetic,
   box-mu, box-gram and dumped lanes (sections 5, 6); `g g > a a g` pentagon
   lanes with a vanishing shift come out `1e-14 .. 9e-14` off with relative
@@ -244,10 +269,11 @@ invariant low part = that invariant from the refined shifts).
 - `crates/ninjars-symbolica/tests/triangle_gram_rescue.rs` (feature
   `native-masters`): the dumped degenerate lanes served within `1e-8`; the
   regular control unchanged bit for bit; double-double masters against
-  OneLOop; box-mu-screened lanes cured; refined kinematics drive the rescue;
-  the target decides and misses are typed; lanes beyond double-double refused
-  typed with the best value in their slot; vanishing lanes served
-  `BelowResolution`.
+  OneLOop; box-mu-screened lanes cured; refined kinematics drive the rescue,
+  an inconsistent refinement is not trusted, the projection serves callers
+  without an invariant matrix; the target decides and misses are typed; lanes
+  beyond double-double, and lanes whose estimate misses the target, refused
+  typed with the better value in their slot.
 - `crates/ninjars/src/fast/dd.rs`, `dd_driver.rs` unit tests: arithmetic, the
   light-like projection, the generated stages' currency.
 - `python3 tools/fast/generate_dd_stages.py` regenerates `dd_stages.rs`
