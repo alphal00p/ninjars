@@ -3133,6 +3133,25 @@ impl FastAmplitude {
             // (`crate::conditioning`, units of the unit roundoff), which the
             // contraction does not show either.
             estimate = estimate.max(relative(unit * self.mu_error[lane]));
+            // A measure that does not divide by the computed value (which a
+            // loss inside the stages can make as large as the error itself):
+            // each triangle's normalised Gram, `δ = sqrt|λ(p1², p2², p3²)| /
+            // max|pi²|` from the lane's invariants, at `2^-53 / δ²`. It only
+            // flags (the re-reduced lane's own estimate decides); regular
+            // lanes stay far below any target.
+            {
+                let n = self.topo.n;
+                let s = &self.smat[lane * n * n..(lane + 1) * n * n];
+                for &[i1, i2, i3] in &self.topo.triangles {
+                    let [a, b, c] = [s[i2 * n + i1], s[i3 * n + i2], s[i1 * n + i3]];
+                    let big = a.abs().max(b.abs()).max(c.abs());
+                    if big > 0. {
+                        let kallen = (a * a + b * b + c * c - 2. * (a * b + b * c + c * a)).abs().sqrt();
+                        let delta = (kallen / big).max(f64::MIN_POSITIVE);
+                        estimate = estimate.max(unit / (delta * delta));
+                    }
+                }
+            }
             if estimate <= target && self.lane_status[lane] == FastStatus::Success {
                 continue;
             }
