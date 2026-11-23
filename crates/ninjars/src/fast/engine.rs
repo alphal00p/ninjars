@@ -3094,6 +3094,37 @@ impl FastAmplitude {
         });
     }
 
+    /// A flagged lane outside the rescue's domain: not re-reduced, typed
+    /// `Unstable` (`RescueOutsideDomain`, value: the binary64 estimate), the
+    /// binary64 value in its slot.
+    fn outside_domain(&mut self, lane: usize, binary64_estimate: f64) {
+        self.lane_status[lane] = FastStatus::Unstable;
+        RESCUES.with(|list| {
+            list.borrow_mut().push((
+                lane,
+                super::Rescue {
+                    precision_bits: 106,
+                    estimate: f64::NAN,
+                    absolute: f64::NAN,
+                    served: false,
+                    outcome: super::RescueOutcome::OutsideDomain,
+                    held_bits: 53,
+                    held_estimate: binary64_estimate,
+                },
+            ))
+        });
+        INSTABILITIES.with(|list| {
+            list.borrow_mut().push((
+                lane,
+                Instability {
+                    test: InstabilityTest::RescueOutsideDomain,
+                    value: binary64_estimate,
+                    bound: self.options.rescue_target,
+                },
+            ))
+        });
+    }
+
     /// The trigger and the re-reduction; returns per handled lane whether its
     /// re-reduction was served.
     #[cold]
@@ -3162,8 +3193,10 @@ impl FastAmplitude {
                 continue;
             }
             if num.tensor_coefficients(lane).is_none() {
-                // No re-reduction for this numerator: today's behaviour
-                // (`docs/triangle-gram-conditioning.md`, section 5).
+                // No re-reduction for this numerator: a typed refusal with
+                // the binary64 value (`RescueOutsideDomain`).
+                self.outside_domain(lane, estimate);
+                out.push((lane, Some(false)));
                 continue;
             }
             flagged.push((lane, cursor, estimate, absolute));
@@ -3353,21 +3386,8 @@ impl FastAmplitude {
         let mut outcome = Vec::with_capacity(k);
         for (r, &(lane, cursor, binary64_estimate, binary64_absolute)) in flagged.iter().enumerate() {
             if outside[r] {
-                RESCUES.with(|list| {
-                    list.borrow_mut().push((
-                        lane,
-                        super::Rescue {
-                            precision_bits: 106,
-                            estimate: f64::NAN,
-                            absolute: f64::NAN,
-                            served: false,
-                            outcome: super::RescueOutcome::OutsideDomain,
-                            held_bits: 53,
-                            held_estimate: binary64_estimate,
-                        },
-                    ))
-                });
-                outcome.push((lane, None));
+                self.outside_domain(lane, binary64_estimate);
+                outcome.push((lane, Some(false)));
                 continue;
             }
             if stages.is_err() || !dd.alive[r] || !consistent[r] {

@@ -386,3 +386,97 @@ fn zero_thresholds_never_panic() -> Result<(), Error> {
     }
     Ok(())
 }
+
+/// External review, finding 1 (a): an exact-kinematics rank-four box whose
+/// rational term carries the box's -1/6 (a binary64 1/6 left a 2.1e-4 bias
+/// accepted at an estimate of 6e-15). Served values meet the target against
+/// a 260-bit reduction, or the lane is refused.
+#[test]
+fn exact_box_rational_term_is_double_double() -> Result<(), Error> {
+    use ninjars::Float;
+    let shifts: [[f64; 4]; 4] = [[0., 0., 0., 0.], [1., 0.25, 0., 0.], [2., 0.5, 0.25, 0.], [-2., 1., 1., 1.]];
+    let n = 4;
+    let mp = |a: &[f64; 4], b: &[f64; 4]| {
+        let d: Vec<f64> = (0..4).map(|m| a[m] - b[m]).collect();
+        d[0] * d[0] - d[1] * d[1] - d[2] * d[2] - d[3] * d[3]
+    };
+    let mut tensor = vec![["0".to_string(), "0".to_string()]; 70];
+    tensor[0][0] = "-129.52229449302200237070792354643344879150390625".into();
+    tensor[69][0] = "1".into();
+    let f = conditioning::Fixture {
+        name: "review-box".into(),
+        n,
+        rank: 4,
+        shifts: shifts.iter().map(|v| v.map(|x| format!("{x:e}"))).collect(),
+        masses_squared: vec![["100".into(), "0".into()]; n],
+        mu_squared: "100".into(),
+        s_matrix: (0..n * n).map(|k| format!("{:e}", mp(&shifts[k / n], &shifts[k % n]))).collect(),
+        tensors: vec![tensor],
+        references: vec![None],
+    };
+    let reference = conditioning::generic_lanes(&[(&f, 0)], Float::with_val(260, 0), 260)?[0].laurent.expect("reference")[0];
+    assert!((reference.re + 2.2188072474911126e-14).abs() < 1e-28, "{reference:?}");
+    let on = fast(&f, rescue())?;
+    if on[0].success {
+        let value = on[0].laurent.expect("served")[0];
+        let error = (value - reference).abs() / reference.abs();
+        assert!(error <= 1e-8, "served {value:?} {error:e} off");
+    }
+    Ok(())
+}
+
+/// External review, finding 1 (b): a power-of-two rescaling of the numerator
+/// (2^-700, 2^+700) changes neither the status nor the estimate (the squares
+/// of the term moduli underflowed: a 48.7 % error served at 1.1e-16).
+#[test]
+fn the_estimate_is_invariant_under_numerator_scaling() -> Result<(), Error> {
+    use ninjars::fast::take_rescues;
+    let base = fixture("audit2-n3-T-mixed-r4");
+    let unscaled = fast(&base, rescue())?;
+    let (_, rec0) = take_rescues().into_iter().find(|(l, _)| *l == 0).expect("flagged");
+    for e in [-700, 700] {
+        let mut f = base.clone();
+        let scale = |x: &String| format!("{:e}", x.parse::<f64>().unwrap() * 2f64.powi(e));
+        f.tensors = f.tensors.iter().map(|t| t.iter().map(|z| [scale(&z[0]), scale(&z[1])]).collect()).collect();
+        f.references = f.references.iter().map(|r| r.as_ref().map(|r| [scale(&r[0]), scale(&r[1])])).collect();
+        let scaled = fast(&f, rescue())?;
+        let (_, rec) = take_rescues().into_iter().find(|(l, _)| *l == 0).expect("flagged when scaled");
+        assert_eq!(scaled[0].success, unscaled[0].success, "2^{e}: {} vs {}", scaled[0].status, unscaled[0].status);
+        assert_eq!(rec.outcome, rec0.outcome, "2^{e}");
+        assert!((rec.held_estimate / rec0.held_estimate - 1.).abs() < 1e-6, "2^{e}: {rec:?} vs {rec0:?}");
+    }
+    Ok(())
+}
+
+/// Finding 1 (d): the relative estimate is the absolute one over the value.
+#[test]
+fn estimate_and_absolute_share_one_normalization() -> Result<(), Error> {
+    use ninjars::fast::take_rescues;
+    let f = fixture("ggg-308-n3-r3");
+    let on = fast(&f, rescue())?;
+    let (_, rec) = take_rescues().into_iter().find(|(l, _)| *l == 0).expect("record");
+    let value = on[0].laurent.expect("served")[0];
+    assert!((rec.absolute / value.abs() / rec.estimate - 1.).abs() < 1e-12, "{rec:?}");
+    Ok(())
+}
+
+/// A lane with an on-shell massive leg and no refined kinematics (audit2
+/// N2; `g g > t t~ g` point 1186, binary64 2.3e-5 off) is outside the
+/// rescue's domain: not re-reduced, typed `Unstable`
+/// (`RescueOutsideDomain`), its binary64 value in the slot; with the rescue
+/// off it is the binary64 success, bit for bit.
+#[test]
+fn massive_on_shell_lanes_without_refinement_are_typed_outside_the_domain() -> Result<(), Error> {
+    use ninjars::fast::{InstabilityTest, RescueOutcome, take_instabilities, take_rescues};
+    let f = fixture("ttxg-1186-n4-r3-onshell-top");
+    let off = fast(&f, without_rescue())?;
+    assert!(off[0].success);
+    let on = fast(&f, rescue())?;
+    let (_, rec) = take_rescues().into_iter().find(|(l, _)| *l == 0).expect("flagged");
+    let records = take_instabilities();
+    assert_eq!(rec.outcome, RescueOutcome::OutsideDomain, "{rec:?}");
+    assert!(!on[0].success && rec.held_bits == 53, "{rec:?}");
+    assert_eq!(on[0].slot, off[0].slot);
+    assert!(records.iter().any(|(l, i)| *l == 0 && i.test == InstabilityTest::RescueOutsideDomain), "{records:?}");
+    Ok(())
+}
