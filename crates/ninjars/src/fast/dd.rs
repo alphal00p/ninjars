@@ -335,9 +335,18 @@ impl Cd {
     pub fn norm_sqr(self) -> Dd {
         self.re * self.re + self.im * self.im
     }
-    #[inline(always)]
+    /// The modulus, scaled by an exact power of two before squaring so that it
+    /// neither underflows nor overflows for any finite parts.
+    #[inline]
     pub fn abs(self) -> Dd {
-        self.norm_sqr().sqrt()
+        let m = self.re.abs().max(self.im.abs());
+        if m.hi == 0. || !m.hi.is_finite() {
+            return m;
+        }
+        let e = (m.hi.log2().floor() as i32).clamp(-1000, 1000);
+        let (down, up) = (pow2(-e), pow2(e));
+        let (x, y) = (self.re * down, self.im * down);
+        (x * x + y * y).sqrt() * up
     }
     #[inline(always)]
     pub fn taxicab(self) -> Dd {
@@ -570,4 +579,28 @@ mod tests {
         assert!(((s * s) - z).abs().hi < 1e-30);
         assert!(((z * z.inv()) - Cd::ONE).abs().hi < 1e-31);
     }
+}
+
+/// `2^e` for `-1022 <= e <= 1023`, exactly.
+#[inline]
+pub(crate) fn pow2(e: i32) -> f64 {
+    f64::from_bits(((e + 1023) as u64) << 52)
+}
+
+/// A triangle's normalised Källén function `sqrt|λ(a, b, c)| / max(|a|, |b|,
+/// |c|)` (the square root of its Gram determinant over its scale), from
+/// `λ = (a - b)² - c (2 (a + b) - c)` with `c` the smallest in modulus and
+/// every value first divided by the largest: no cancellation of the expanded
+/// form (two-mass triangles: `|a - b| / max`), no underflow or overflow.
+/// 1 for a triangle without a scale.
+pub(crate) fn kallen_delta(a: Dd, b: Dd, c: Dd) -> f64 {
+    let mut v = [a, b, c];
+    v.sort_by(|x, y| y.abs().hi.total_cmp(&x.abs().hi));
+    let big = v[0].abs();
+    if big.hi == 0. || !big.hi.is_finite() {
+        return 1.;
+    }
+    let [a, b, c] = v.map(|x| x / big);
+    let lambda = (a - b) * (a - b) - c * ((a + b) * 2. - c);
+    lambda.abs().sqrt().to_f64().clamp(f64::MIN_POSITIVE, 1.)
 }
