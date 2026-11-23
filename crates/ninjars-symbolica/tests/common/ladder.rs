@@ -204,7 +204,7 @@ where
         amplitude.evaluate_batch_with_low_cuts(AmplitudeInput { ..input }, &mut numerator, &mut low, &mut masters)?;
     }
     let status = format!("{:?}", amplitude.statuses()[0]);
-    let (lost, _, sum) = lane_loss(&amplitude, 0).ok_or("nothing measured")?;
+    let (lost, _, sum) = lane_loss(&amplitude, 0, prototype.get_precision()).ok_or("nothing measured")?;
     let value = Complex::new(sum[0].re.to_f64(), sum[0].im.to_f64());
     // Largest term moduli per cut size.
     let cuts = amplitude.topology().cuts();

@@ -57,26 +57,39 @@ One number drives it: the target relative accuracy `τ` of a lane
   with `γ = 5 .. 50` measured on the degenerate binary64 lanes
   (`ceil(log2 50) = 6`), plus one bit for measuring `L` from the base value
   itself, plus one bit of slack.
-- **Re-measurement** (`LadderOutcome`): the rung's own estimate
-  `2^(L' - p')` is compared with `τ`, where for an MPFR rung `L'` is at least
-  `p' - t`, `t` the tracked precision of the result (`tracked_bits`):
-  numerica's `Float` tracks the significant bits of every intermediate and
-  rounds to them, so a reduction keeps fewer bits than `p' - L'` (measured: a
-  128-bit rung of a lane that loses 64 bits kept about 22 bits, not 64; its
-  value was `2.5e-7` off while `2^(L'-p')` claimed `7e-20`; the tracked
-  estimate sends it to the 192-bit rung, which serves it within `1e-26`). The
-  outcome is `Accepted` (served); `BelowResolution`
-  when the rung's value lies below the base carrier's resolution of the
-  lane's terms, `|V'| <= 2^-p M'`, with `p' >= p + log2(1/τ)` (a lane that
-  vanishes up to rounding: no relative accuracy exists, its absolute error
-  `2^-p' M'` is below `τ` times the base pass's; served and reported);
-  otherwise the next rung `L' + log2(1/τ) + m` (at most `max_rungs = 3`,
-  `p' <= max(4p, 512)`), after which the lane is `Missed`: no value, the
-  caller refuses it (`Unstable`). A rung that fails (a cut, a master, a
-  non-finite value) is `Failed`, likewise refused. Every rescued lane's
-  record (`LaneRescue`) states its base loss and estimate, the target, every
-  rung's precision and the outcome; `PolynomialLadder::take_counts` sums
-  them per precision.
+- **Measurement in MPFR** (base and rungs): numerica's `Float` tracks the
+  significant bits of every intermediate and rounds to them, so a reduction can
+  keep fewer bits than `p - L`. `L` is at least `p - t`, `t` the tracked
+  precision of the result (`tracked_bits`), for the trigger, `WithinTarget`
+  and every rung (audit B1: at a 128-bit base the degenerate lanes keep about 25
+  tracked bits while their moduli say 70 are lost). Since that tracked
+  estimate can itself be optimistic and a base value cannot be confirmed
+  without a rung, an MPFR base's estimate carries the margin `2^m`, and a lane
+  the engine refuses `Unstable` at an MPFR base is always re-reduced (never
+  `WithinTarget`). Fixed carriers (binary64, double-double) keep the plain
+  estimate (measured honest within a factor 5 in double-double).
+- **Acceptance** (`LadderOutcome`). A double-double rung (fixed precision) is
+  accepted when its estimate times `2^m` meets `τ`. An MPFR rung is reduced
+  twice, at `p'` and at `p' + 64`, and the wider value is served only when the
+  two agree within `τ` and the wider one's estimate times `2^m` meets `τ`; the
+  reported estimate is the larger of the two (numerica's tracked precision is
+  an estimate, not a bound: audit M1 measured it optimistic by up to `2^25` at
+  near-collinear points, which the agreement test catches). Outcomes:
+  `Accepted` (served); `BelowResolution` when the value lies below the base
+  carrier's resolution of the lane's terms, `|V'| <= 2^-p M'`, with the two
+  reductions agreeing and `p' >= p + log2(1/τ)` (a lane that vanishes up to
+  rounding: served and reported; an exactly zero sum is sized as a full loss);
+  otherwise the next rung, sized from the new `L'` and at least one limb above
+  the confirming reduction; a rung refused by its cuts, masters (their own
+  precision test) or stability test also climbs. After `max_rungs` or above
+  `max_bits` the lane is `Missed`: no value, refused `Unstable` for the
+  caller's rescue, its best value carried (`LaneRescue::best`). `Failed`: an
+  error inside a rung (contained to its lanes), or a geometry whose consistency
+  cannot be established (no invariant matrix, complex shifts, or a projection
+  that is singular or does not converge): no rung value is trusted, the best
+  value stays the base pass's. Every rescued lane's record (`LaneRescue`)
+  states its base loss and estimate, the target, every reduction's precision
+  and the outcome; `PolynomialLadder::take_counts` sums them per precision.
 
 ## 3. What the rescue needs besides precision
 
@@ -131,10 +144,16 @@ computed (a caller's "checks off").
   to a real squared mass of the lane; other on-shell legs (an external mass
   that is no internal mass) take the invariant of the projected shifts, a
   move of `O(2^-p)` at a smooth point of their masters.
-- Lanes refused before any value exists (box Gram `DegenerateGram`, box
-  mu-expansion `SingularParameter`, `docs/box-gram-conditioning.md`,
-  `docs/box-mu-conditioning.md`) are not touched: their bounds predict a loss
-  that the same rule could take as `L`, once they expose it per lane.
+- Losses the term moduli do not see are not measured (audit M2): the box
+  mu-expansion rounding and the box-Gram loss of a box that the generic
+  engine's a-priori bounds still accept. Measured: double-double lanes of
+  near-planar `g g > z g g`, `z z g`, `W+ W- g` (top loops) are `1e-9 .. 1e-7`
+  off with moduli estimates near `1e-20`, and are not flagged (as in v1.0.3;
+  the rung serves them at `1e-31` when forced). The fast engine adds both
+  predicted losses to its estimate; the generic engine's bounds do not expose
+  them per lane yet: follow-up. Lanes the bounds refuse before any value
+  exists (`DegenerateGram`, `SingularParameter`) are untouched (pyAmpliCol's
+  lane rescue, as today).
 - A lane is judged relative to itself: a lane that is small in its
   amplitude is judged too strictly (time only). A caller who knows the
   amplitude's scale can pass a looser `τ`.
@@ -149,8 +168,8 @@ computed (a caller's "checks off").
   their rounding (pyAmpliCol's cure), every degenerate lane of the benchmark
   is flagged.
 - MPFR: numerica's `Float` rounds every intermediate to its tracked bits; the
-  estimate counts them (section 2), at the price of a climb from 128 to 192
-  bits for lanes losing about 64-67 bits from a double-double base.
+  measurement counts them (section 2) and each MPFR rung costs two reductions
+  (the confirming one 64 bits wider).
 - A refused lane (`Missed`, `Failed`) keeps `LaneRescue::best`: the value with
   the smallest estimate among the base pass and the rungs, with that estimate
   and its carrier's bits, for the caller to hand on wrapped as refused. An
