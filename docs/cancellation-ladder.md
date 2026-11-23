@@ -71,25 +71,33 @@ One number drives it: the target relative accuracy `τ` of a lane
 - **Acceptance** (`LadderOutcome`). A double-double rung (fixed precision) is
   accepted when its estimate times `2^m` meets `τ`. An MPFR rung is reduced
   twice, at `p'` and at `p' + 64`, and the wider value is served only when the
-  two agree within `τ` and the wider one's estimate times `2^m` meets `τ`; the
-  reported estimate is the larger of the two (numerica's tracked precision is
-  an estimate, not a bound: audit M1 measured it optimistic by up to `2^25` at
-  near-collinear points, which the agreement test catches). Outcomes:
-  `Accepted` (served); `BelowResolution` when the value lies below the base
-  carrier's resolution of the lane's terms, `|V'| <= 2^-p M'`, with the two
-  reductions agreeing and `p' >= p + log2(1/τ)` (a lane that vanishes up to
-  rounding: served and reported; an exactly zero sum is sized as a full loss);
-  otherwise the next rung, sized from the new `L'` and at least one limb above
-  the confirming reduction; a rung refused by its cuts, masters (their own
-  precision test) or stability test also climbs. After `max_rungs` or above
-  `max_bits` the lane is `Missed`: no value, refused `Unstable` for the
-  caller's rescue, its best value carried (`LaneRescue::best`). `Failed`: an
-  error inside a rung (contained to its lanes), or a geometry whose consistency
-  cannot be established (no invariant matrix, complex shifts, or a projection
-  that is singular or does not converge): no rung value is trusted, the best
-  value stays the base pass's. Every rescued lane's record (`LaneRescue`)
-  states its base loss and estimate, the target, every reduction's precision
-  and the outcome; `PolynomialLadder::take_counts` sums them per precision.
+  two agree within `τ` on EVERY Laurent coefficient (finite part and poles)
+  and the wider one's estimate times `2^m` meets `τ` (numerica's tracked
+  precision is an estimate, not a bound: optimistic by up to `2^25` at
+  near-collinear points, audit M1). The estimate reported for a served lane
+  is that of the value actually returned: the rung's, the disagreement, and
+  what the narrowing to the base carrier did to each coefficient, never below
+  four units of the base carrier (a target below that floor is served at the
+  floor and reported so, audit m9). A rung is served only when its estimate
+  is below the base pass's (it never replaces a better base value, audit m5).
+  Outcomes: `Accepted` (served); `WithinTarget` (a lane the engine's own `p/2`
+  test refused, served at its base value: only in binary64 and double-double
+  and only when its estimate times `2^m` meets `τ`, audit m10; at an MPFR base
+  such a lane is always re-reduced); `BelowResolution` (the value lies below
+  the base carrier's resolution of the lane's terms, `|V'| <= 2^-p M'`: only an
+  absolute accuracy exists and the caller gave no absolute budget, so the
+  lane is REFUSED, typed, its rung value carried as the best one; the fast
+  engine does the same); otherwise the next rung, sized from the new `L'` and
+  at least one limb above the confirming reduction; a rung refused by its
+  cuts, masters (their own precision test) or stability test also climbs.
+  After `max_rungs` or above `max_bits` the lane is `Missed`. `Failed`: an
+  error inside a rung (contained to its lanes) or a geometry whose consistency
+  cannot be established (no invariant matrix, complex shifts, a singular or
+  non-converged projection). Refused lanes (`Missed`, `Failed`,
+  `BelowResolution`) carry `LaneRescue::best` (value, estimate, carrier bits).
+  Records (`LaneRescue`) state the base loss and estimate, the target, every
+  reduction's precision and the outcome; `PolynomialLadder::take_counts` sums
+  them per precision.
 
 ## 3. What the rescue needs besides precision
 
@@ -98,7 +106,8 @@ One number drives it: the target relative accuracy `τ` of a lane
   exactly zero invariant), which the lane amplifies like its rounding (the
   fast engine's section 2.1). The ladder projects the rung's shifts, in MPFR
   at the rung's bits, onto `(V_i - V_j)² = s_ij` for every pair whose
-  invariant is exactly zero or exactly a real squared mass of the lane
+  invariant is exactly zero or exactly the real part of a squared mass of the
+  lane (an on-shell leg of a complex-mass particle carries `Re m²`)
   (`project_shells`: minimal-norm Gauss-Newton), and takes every other
   invariant from the projected shifts. The point moves by `O(2^-p)` relative,
   below the base carrier's resolution of it. A caller with higher-precision
@@ -175,6 +184,36 @@ computed (a caller's "checks off").
   and its carrier's bits, for the caller to hand on wrapped as refused. An
   MPFR-served value carries the ladder's estimate as its tracked precision
   (`LadderCarrier::limit_precision`).
+
+- **Box mu-expansion and box-Gram losses are invisible to the measured
+  trigger** (audit M2, as in the previous release): the term moduli do not see
+  them. Measured by the audit: near-planar double-double lanes (`g g > z g g`,
+  `z z g`, `W+ W- g`, top loops, tilt 1e-12) come back `8.5e-9` and `9.4e-8`
+  off with estimates near `2e-20`; at an MPFR-200 base `2.3e-37` against a
+  target of `1e-40` (estimate times margin `1.5e-43`). They are not flagged
+  (forced, the rung serves them at `1e-31`). The fast engine adds both
+  predicted losses to its estimate; the generic engine's bounds do not expose
+  them per lane yet.
+- **Rungs of 1024 bits or more** (audit m8): the projection's tolerance
+  `2^-bits` underflowed binary64, so every such rung was `Failed`. Fixed
+  (tolerance in the logarithm; unit test at 1024 and 1100 bits). Rungs above
+  `max_bits` (default `max(4p, 512)`) are not tried: from a double-double base
+  the cap is 512 bits, so the fix matters only for MPFR bases from 256 bits.
+- Complex masses (audit m5): an on-shell leg of a complex-mass particle is a
+  shell pair when its invariant equals `Re m²` exactly; other complex-mass
+  configurations take their invariants from the projected shifts (the audit
+  measured a double-double rung serving `1.2e-12` against a binary64 base of
+  `1.6e-14` before the fix; the "never worse than the base" guard and the
+  shell match address it; not re-measured).
+- **No caller refinement on pyAmpliCol's generic path in this release**: the
+  ladder projects the rounded base input itself (section 3); caller-supplied
+  cured kinematics (`LadderRefinement`) are wired in pyAmpliCol for the fast
+  engine only (`FastRefinementSource`).
+- **pyAmpliCol's lane-rescue backends** run their own generic engines in the
+  checked mode, so a lane the ladder refused and pyAmpliCol re-reduces at its
+  default arbitrary precision gets a nested ladder (intended: the rescue's
+  reductions are themselves checked), at NinjaRS's default target unless the
+  integration forwards the lane target to those backends too (audit m7).
 
 ## 6. Tests
 
