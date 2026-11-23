@@ -2845,12 +2845,20 @@ thread_local! {
 const BOX_GRAM_EXCESS_BITS: f64 = 11.3;
 
 /// The weight of a double-double term in a re-reduced lane's estimate,
-/// `2^-100`: double-double's `2^-104` (two bits under its `2^-106`) with four
-/// bits of margin; each double-double `C0` term is further divided by its
-/// triangle's normalised Källén function δ (the provider's `C0` loses
-/// `log2(1/δ)` bits, measured against MPFR). Measured: no served lane above
-/// the target on two independent sets of exactly consistent synthetic lanes
-/// (`docs/triangle-gram-conditioning.md`, section 5).
+/// `2^-100`. Where it comes from: double-double arithmetic rounds at
+/// `2^-104` (two bits under `2^-106`); the provider's double-double masters
+/// other than C0 and D0 are accurate to `2^-98.4` (B11/B111) or better
+/// against 200-bit MPFR (A0, B0: `2^-100` and better; the second audit's
+/// 1,638 masters); the estimate sums the moduli of all terms, which bounds the
+/// accumulated error from above. `2^-100` is the smallest weight for which no
+/// served lane exceeds its estimate on two independent sets of exactly
+/// consistent synthetic lanes (168 and 293 lanes, n = 3 to 6, massless,
+/// massive, complex and mixed lines; worst actual/estimate 1.01): an
+/// empirical weight, not a proof. C0 and D0 terms are further divided by the
+/// normalised Källén function δ of their triangle (C0, `1/δ`) or by δ² of the
+/// most degenerate sub-triangle (D0, `1/δ²`): measured against 200-bit MPFR,
+/// C0 at `2^-104/δ`, D0 up to `2^-104/δ²` (`2^-77` at a box with a degenerate
+/// sub-triangle).
 const DD_TERM_BITS: i32 = 100;
 
 /// The unit at which a re-reduced lane counts the box mu-expansion screen's
@@ -3023,19 +3031,28 @@ impl FastAmplitude {
             return Ok(());
         }
         for (lane, served) in self.rescue_cancelling_lanes(input, num, masters, refinement) {
-            if served {
-                results[lane] = self.staged[lane];
-                statuses[lane] = FastStatus::Success;
-                // A box mu-expansion refusal the re-reduction cured.
-                INSTABILITIES.with(|list| {
-                    list.borrow_mut()
-                        .retain(|(l, i)| !(*l == lane && i.test == InstabilityTest::BoxMuConditioning))
-                });
-            } else {
-                // Typed refusal; the slot carries the best available value
-                // (`Rescue::held_bits`, `held_estimate`).
-                results[lane] = self.staged[lane];
-                statuses[lane] = FastStatus::Unstable;
+            match served {
+                Some(true) => {
+                    results[lane] = self.staged[lane];
+                    statuses[lane] = FastStatus::Success;
+                    // A box mu-expansion refusal the re-reduction cured.
+                    INSTABILITIES.with(|list| {
+                        list.borrow_mut()
+                            .retain(|(l, i)| !(*l == lane && i.test == InstabilityTest::BoxMuConditioning))
+                    });
+                }
+                Some(false) => {
+                    // Typed refusal; the slot carries the best available
+                    // value (`Rescue::held_bits`, `held_estimate`).
+                    results[lane] = self.staged[lane];
+                    statuses[lane] = FastStatus::Unstable;
+                }
+                None => {
+                    // Outside the rescue's domain: the binary64 value and
+                    // status stay (a refused binary64 lane's slot gets its
+                    // value).
+                    results[lane] = self.staged[lane];
+                }
             }
         }
         Ok(())
@@ -3087,7 +3104,7 @@ impl FastAmplitude {
         num: &N,
         masters: &mut M,
         refinement: Option<&dyn FastRefinementSource>,
-    ) -> Vec<(usize, bool)> {
+    ) -> Vec<(usize, Option<bool>)> {
         let unit = 2f64.powi(-(f64::MANTISSA_DIGITS as i32));
         let target = self.options.rescue_target;
         let screened: Vec<usize> = INSTABILITIES.with(|list| {
@@ -3126,6 +3143,25 @@ impl FastAmplitude {
             // (`crate::conditioning`, units of the unit roundoff), which the
             // contraction does not show either.
             estimate = estimate.max(relative(unit * self.mu_error[lane]));
+            // A measure that does not divide by the computed value (which a
+            // loss inside the stages can make as large as the error itself):
+            // each triangle's normalised Gram, `δ = sqrt|λ(p1², p2², p3²)| /
+            // max|pi²|` from the lane's invariants, at `2^-53 / δ²`. It only
+            // flags (the re-reduced lane's own estimate decides); regular
+            // lanes stay far below any target.
+            {
+                let n = self.topo.n;
+                let s = &self.smat[lane * n * n..(lane + 1) * n * n];
+                for &[i1, i2, i3] in &self.topo.triangles {
+                    let [a, b, c] = [s[i2 * n + i1], s[i3 * n + i2], s[i1 * n + i3]];
+                    let big = a.abs().max(b.abs()).max(c.abs());
+                    if big > 0. {
+                        let kallen = (a * a + b * b + c * c - 2. * (a * b + b * c + c * a)).abs().sqrt();
+                        let delta = (kallen / big).max(f64::MIN_POSITIVE);
+                        estimate = estimate.max(unit / (delta * delta));
+                    }
+                }
+            }
             if estimate <= target && self.lane_status[lane] == FastStatus::Success {
                 continue;
             }
@@ -3173,7 +3209,7 @@ impl FastAmplitude {
         masters: &mut M,
         refinement: Option<&dyn FastRefinementSource>,
         flagged: &[(usize, Cursor, f64, f64)],
-    ) -> Vec<(usize, bool)> {
+    ) -> Vec<(usize, Option<bool>)> {
         use super::dd::{Cd, Dd, mp_rr as mp_rr_d};
         use super::dd_driver::{DdTensor, project_light_like};
         let n = self.topo.n;
@@ -3189,6 +3225,7 @@ impl FastAmplitude {
         // Lanes at the caller's refined point: every master must then be the
         // provider's double-double one at that point (one point per lane).
         let mut at_refined = vec![false; k];
+        let mut outside = vec![false; k];
         let mut tensor = DdTensor::new(self.topo.rank);
         let (mut lo_v, mut lo_s, mut lo_m) =
             (vec![[0.; 4]; n], vec![0.; n * n], vec![C64::ZERO; n]);
@@ -3249,6 +3286,23 @@ impl FastAmplitude {
                 shifts.extend(v);
             }
             at_refined[r] = refined;
+            // Without a (consistent) refinement, a lane with an on-shell
+            // MASSIVE leg is outside the domain: the projection makes only
+            // massless pairs exact, so the masters (at the exact mass) and the
+            // cut geometry (at the binary64 shell residue) would sit at two
+            // points. Such lanes need the caller's refined kinematics.
+            if !refined {
+                outside[r] = (0..n).any(|i| {
+                    (0..i).any(|j| {
+                        let given = s[i * n + j];
+                        given.abs() >= eps
+                            && (0..n).any(|q| {
+                                let mq = input.masses_squared[lane * n + q];
+                                mq.im == 0. && mq.re != 0. && (given - mq.re).abs() < eps
+                            })
+                    })
+                });
+            }
             // A caller-given invariant strictly between zero and
             // `infrared_eps` is zero by the engine's convention (cut bases,
             // scaleless bubbles, on-shell masters) but not by the caller's
@@ -3302,11 +3356,29 @@ impl FastAmplitude {
         })();
         let mut outcome = Vec::with_capacity(k);
         for (r, &(lane, cursor, binary64_estimate, binary64_absolute)) in flagged.iter().enumerate() {
+            if outside[r] {
+                RESCUES.with(|list| {
+                    list.borrow_mut().push((
+                        lane,
+                        super::Rescue {
+                            precision_bits: 106,
+                            estimate: f64::NAN,
+                            absolute: f64::NAN,
+                            served: false,
+                            outcome: super::RescueOutcome::OutsideDomain,
+                            held_bits: 53,
+                            held_estimate: binary64_estimate,
+                        },
+                    ))
+                });
+                outcome.push((lane, None));
+                continue;
+            }
             if stages.is_err() || !dd.alive[r] || !consistent[r] {
                 // A degenerate or non-finite quantity, or a projection that
                 // could not be solved: no estimate, a typed refusal.
                 self.refuse_lane(lane, f64::NAN, f64::NAN, (53, binary64_estimate));
-                outcome.push((lane, false));
+                outcome.push((lane, Some(false)));
                 continue;
             }
             let mut cursor = cursor.0;
@@ -3343,6 +3415,17 @@ impl FastAmplitude {
                 missing |= !(given && rescue_ok[0]);
                 (given && rescue_ok[0]).then_some(rescue_out)
             };
+            // A triangle's normalised Källén function `sqrt|λ(a, b, c)| / max`
+            // of its external invariants: the provider's double-double C0
+            // loses log2(1/δ) bits there, and D0 2 log2(1/δ) of its most
+            // degenerate sub-triangle (both measured against 200-bit MPFR by
+            // the second audit: C0 at 2^-104/δ, D0 at up to 2^-104/δ²).
+            let delta = |a: Cd, b: Cd, c: Cd| -> f64 {
+                let [a, b, c] = [a, b, c].map(|z| z.re.to_f64());
+                let big = a.abs().max(b.abs()).max(c.abs());
+                let kallen = (a * a + b * b + c * c - 2. * (a * b + b * c + c * a)).abs().sqrt();
+                if big > 0. { (kallen / big).clamp(f64::MIN_POSITIVE, 1.) } else { 1. }
+            };
             let mut res = [Cd::ZERO; 3];
             let mut rational = Cd::ZERO;
             // The moduli of the finite terms, split by the precision of their
@@ -3364,7 +3447,19 @@ impl FastAmplitude {
                         res[o] += c0 * integral[o];
                     }
                     rational += c4 * (-1. / 6.);
-                    if given.is_some() { mdd += size(c0 * integral[0]) } else { m64 += size(c0 * integral[0]) }
+                    if given.is_some() {
+                        let worst = [
+                            delta(inv(i2, i1), inv(i3, i2), inv(i3, i1)),
+                            delta(inv(i2, i1), inv(i4, i2), inv(i4, i1)),
+                            delta(inv(i3, i1), inv(i4, i3), inv(i4, i1)),
+                            delta(inv(i3, i2), inv(i4, i3), inv(i4, i2)),
+                        ]
+                        .into_iter()
+                        .fold(1f64, f64::min);
+                        mdd += size(c0 * integral[0]) / (worst * worst);
+                    } else {
+                        m64 += size(c0 * integral[0]);
+                    }
                     mdd += size(c4) / 6.;
                 }
             }
@@ -3395,14 +3490,7 @@ impl FastAmplitude {
                         rational += c[7] * 0.5;
                     }
                     if master_dd {
-                        // The provider's double-double C0 loses log2(1/δ) bits
-                        // at a nearly degenerate triangle (δ its normalised
-                        // Källén function; measured against 200-bit MPFR: 2^-104
-                        // / δ for massless, massive and complex lines).
-                        let [a, b, cc] = [inv(i2, i1), inv(i3, i2), inv(i1, i3)].map(|z| z.re.to_f64());
-                        let big = a.abs().max(b.abs()).max(cc.abs());
-                        let kallen = (a * a + b * b + cc * cc - 2. * (a * b + b * cc + cc * a)).abs().sqrt();
-                        let delta = if big > 0. { (kallen / big).clamp(f64::MIN_POSITIVE, 1.) } else { 1. };
+                        let delta = delta(inv(i2, i1), inv(i3, i2), inv(i1, i3));
                         mdd += size(c[0] * integral[0]) / delta;
                     } else {
                         m64 += size(c[0] * integral[0]);
@@ -3574,7 +3662,7 @@ impl FastAmplitude {
                 // Refused, typed; the slot keeps the better value: the
                 // re-reduced one when it is at one point and its absolute
                 // estimate is below the binary64 lane's.
-                let held = if one_point && absolute < binary64_absolute {
+                let held = if one_point && absolute <= binary64_absolute / 16. {
                     self.staged[lane] = result;
                     (106, estimate)
                 } else {
@@ -3582,9 +3670,49 @@ impl FastAmplitude {
                 };
                 self.refuse_lane(lane, estimate, absolute, held);
             }
-            outcome.push((lane, served));
+            outcome.push((lane, Some(served)));
         }
-        RESCUED.with(|c| c.set(c.get() + outcome.iter().filter(|(_, s)| *s).count() as u64));
+        RESCUED.with(|c| c.set(c.get() + outcome.iter().filter(|(_, s)| *s == Some(true)).count() as u64));
         outcome
+    }
+}
+
+#[cfg(test)]
+mod rescue_record_tests {
+    use super::*;
+
+    fn record() -> super::super::Rescue {
+        super::super::Rescue {
+            precision_bits: 106,
+            estimate: 0.,
+            absolute: 0.,
+            served: true,
+            outcome: super::super::RescueOutcome::Accepted,
+            held_bits: 106,
+            held_estimate: 0.,
+        }
+    }
+
+    /// The records of a declared rank n+2 batch's lowered sub-batch name the
+    /// batch's lanes (`declared_rank.rs` remaps them like the instabilities);
+    /// records made before the sub-batch are left alone.
+    #[test]
+    fn sub_batch_rescue_records_name_the_batch_lanes() {
+        RESCUES.with(|list| {
+            let mut list = list.borrow_mut();
+            list.clear();
+            list.push((0, record()));
+            list.push((1, record()));
+        });
+        let from = rescues_len();
+        RESCUES.with(|list| {
+            let mut list = list.borrow_mut();
+            list.push((0, record()));
+            list.push((1, record()));
+        });
+        let batch_lanes = [5, 7];
+        remap_rescues(from, |lane| batch_lanes[lane]);
+        let lanes: Vec<usize> = take_rescues().into_iter().map(|(lane, _)| lane).collect();
+        assert_eq!(lanes, [0, 1, 5, 7]);
     }
 }

@@ -2,8 +2,9 @@
 
 The fast engine re-reduces in double-double every lane whose binary64
 reduction it measures to miss a target relative accuracy
-(`FastOptions::cancellation_rescue`, default OFF: on for callers that keep a
-test of their own behind it, as pyAmpliCol's checked mode does;
+(`FastOptions::cancellation_rescue`; **NinjaRS default OFF; the integration
+switches it ON explicitly in pyAmpliCol's checked mode** (`fast_options(false)`,
+behind pyAmpliCol's own lane test), OFF in its UNCHECKED mode;
 `FastOptions::rescue_target`, default `DEFAULT_RESCUE_TARGET = 2^-30`). The flagged lane is reduced again
 WHOLE (box, triangle, bubble and tadpole stages, every master) at one
 kinematic point; only the numerator's coefficients stay binary64. Lanes it
@@ -91,7 +92,13 @@ error, the largest of:
   rounding estimate (`docs/box-mu-conditioning.md`), also invisible in the
   contraction. Before this term the screen refused a lane only above `2^-17`;
   between the target and `2^-17` binary64 served it unflagged (`g g > t t~ g`
-  point 1186, section 7).
+  point 1186, section 6);
+- `2^-53 / δ²` for each triangle, `δ = sqrt|λ(p1², p2², p3²)| / max|pi²|`
+  its normalised Gram from the lane's invariants: a measure that does not
+  divide by the computed value, which a loss inside the stages can make as
+  large as the error itself (second audit B4: a rank n+1 lane `8e19` off,
+  unflagged at target `1e-8` by the other terms). It only flags; the
+  re-reduced lane's own estimate decides.
 
 A lane whose estimate exceeds `rescue_target` (a lane refused by the screen
 always) is re-reduced, if its numerator exposes its tensor
@@ -131,11 +138,15 @@ The re-reduced lane's own absolute error estimate is the largest of
 - `2^-53 M64 + 2^-100 Mdd + 2^-53 |V'|`: `M64` the moduli of its terms with a
   binary64 factor (a binary64 master), `Mdd` the others, each double-double
   `C0` term weighted by `1/δ` (δ the triangle's normalised Källén function
-  `sqrt|λ(p1², p2², p3²)| / max|pi²|`): the provider's double-double `C0`
-  loses `log2(1/δ)` bits at a nearly degenerate triangle (measured against
-  200-bit MPFR by the second audit: `8.6e-27 = 2^-104/δ` at `δ = 5e-6`, for
-  massless, massive and complex lines; A0, B0..B111 and D0 agree to `6e-31`).
-  `2^-100` is double-double's `2^-104` with four bits of margin;
+  `sqrt|λ(p1², p2², p3²)| / max|pi²|`) and each `D0` term by the `1/δ` of
+  its most degenerate sub-triangle squared (`1/δ²`): the provider's
+  double-double `C0` loses `log2(1/δ)` bits at a nearly degenerate triangle (measured against 200-bit
+  MPFR by the second audit: `8.6e-27 = 2^-104/δ` at `δ = 5e-6`, massless,
+  massive and complex lines), `D0` up to `2^-104/δ²` (`2^-77`) at a box with
+  a degenerate sub-triangle; A0 and B0 to `2^-100` and better, B11/B111 to `2^-98.4`.
+  `2^-100` is empirical: the smallest weight for which no served lane exceeds
+  its estimate on the two independent exact sets below (the estimate sums
+  moduli, an upper bound of the accumulated rounding);
   `|V'| 2^-53` the rounding of the served binary64 value. Measured: on the
   first audit's synthetic lanes (168) and on the second audit's independent
   set (293; new seed, `δ` to `1e-9`, n = 3 to 6, massless, top, complex Z,
@@ -158,7 +169,9 @@ cancellation ladder):
   point is known to NinjaRS (the second audit: such a rule served lanes
   `1e0 .. 1.5e7` off);
 - `Failed`: no re-reduction (a degenerate or non-finite quantity, an
-  unsolvable projection, a caller-given invariant below `infrared_eps`).
+  unsolvable projection, a caller-given invariant below `infrared_eps`);
+- `OutsideDomain`: not re-reduced (an on-shell massive leg without the
+  caller's refinement, section 9): binary64 value and status kept.
 
 An `Accepted` lane must also be clearly better
 than the binary64 lane: its absolute estimate at most a sixteenth of the
@@ -168,7 +181,8 @@ Served: status `Success`, the re-reduced value. Refused (`Missed`, `Failed`):
 status `Unstable` with `Instability { test: CancellationRescue, value, bound:
 target }`, never a silent success; the result slot holds the BEST AVAILABLE
 value, the re-reduced one when it is at one point and its absolute estimate is
-below the binary64 lane's, else the binary64 one; `Rescue::held_bits` (53 or
+at most a sixteenth of the binary64 lane's (the serving criterion), else the
+binary64 one; `Rescue::held_bits` (53 or
 106) and `held_estimate` (= the instability's `value`) say which and how good,
 for a caller serving it under a best-effort status. `take_rescues()` lists the
 call's re-reduced lanes (precision 106 bits, estimates, outcome, held value);
@@ -239,9 +253,43 @@ invariant low part = that invariant from the refined shifts).
   about one ulp (minimal norm), the refinement by the caller's cure.
 - Lanes that the rank n+2 engine reduces at a lower rank are renumbered and
   use the projection.
+- Without an invariant matrix every invariant NinjaRS computes below
+  `infrared_eps` is taken as exactly zero and projected (the binary64 pass's
+  and Ninja's convention, `INFRARED_EPS = 1e-9`): a caller whose kinematics
+  depend on such a tiny nonzero invariant must pass it in `s_matrix` (the
+  lane is then refused, `Failed`). Box-mu fixture
+  `synthetic-tilt-1e-8-f12-r5-formed` (`s04 = 3e-11`): with the matrix
+  refused, without it served at the convention's point (`1.0` off the
+  caller's).
 
 ## 9. Domain and limits
 
+- Default off. Rank <= n+1 lanes of tensor numerators (`TensorNumerator`, pyAmpliCol's).
+  `MuTensorNumerator`, other numerators and rank n+2 lanes keep today's
+  behaviour (no trigger, no refusal by the rescue).
+- Losses inside a stage that neither the term moduli, the box-Gram model,
+  the mu screen nor the triangle-Gram term sees are not flagged (time-like
+  synthetic pentagons, `4e-4`; the first audit's F3). The second audit's
+  garbage lanes (`8.1e19` and `1.15e17` off as binary64 successes, unflagged
+  by the term moduli at target `1e-8`, which divide by the garbage) are
+  flagged by the value-independent triangle-Gram term and refused typed
+  (test `garbage_lanes_are_flagged_by_the_value_independent_term`, fixture
+  `audit2-n3-T-mixed-r4`); on its set 5 rank <= n+1 lanes above `1e-8` stay
+  unflagged (worst `6.4e-8`). pyAmpliCol keeps its own lane test on in the
+  checked mode.
+- "Never worse" is guarded, not proven (accepted for this landing as a
+  documented limit): a served value's absolute estimate must be at most 1/16
+  of the binary64 lane's estimate, and estimates are not errors. Measured by
+  the second audit against the v1.0.3 tag: 64 of 10,000 `g g > g g g` points
+  and 55 of 1,000 `u u~ > e- e+ g g g` points come out more than 0.3 digit
+  worse, none below 7.7 digits, far above the target; the catastrophic losses
+  the rescue exists for are removed.
+- On-shell MASSIVE external legs need the caller's refined kinematics:
+  without a (consistent) refinement the projection makes only massless pairs
+  exact, so such a lane is not re-reduced (`RescueOutcome::OutsideDomain`,
+  binary64 value and status kept; second audit N2: with the two-point
+  re-reduction such lanes were served `3e-8` off where binary64 had `1e-9`).
+  pyAmpliCol supplies a refinement for every flagged lane.
 - Default off. Rank <= n+1 lanes of tensor numerators (`TensorNumerator`, pyAmpliCol's).
   `MuTensorNumerator`, other numerators and rank n+2 lanes keep today's
   behaviour (no trigger, no refusal by the rescue).

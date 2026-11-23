@@ -318,11 +318,11 @@ pub struct Rescue {
     pub precision_bits: u32,
     /// Its own relative error estimate: `2^-53` times the moduli of its terms
     /// that keep a binary64 factor plus `2^-100` times the others (each
-    /// double-double `C0` term over its triangle's normalised Källén
-    /// function), over `|finite|`,
-    /// plus `2^-53`; at least the box-Gram and box mu-expansion losses
-    /// (`docs/triangle-gram-conditioning.md`, section 4). NaN when the
-    /// re-reduction failed.
+    /// double-double `C0` term over its triangle's normalised Källén function
+    /// δ, each `D0` term over δ² of its most degenerate sub-triangle), over
+    /// `|finite|`, plus `2^-53`; at least the box-Gram and box mu-expansion
+    /// losses (`docs/triangle-gram-conditioning.md`, section 5). NaN when the
+    /// re-reduction failed or did not run.
     pub estimate: f64,
     /// Its absolute error estimate (NaN for a refused lane).
     pub absolute: f64,
@@ -363,6 +363,10 @@ pub enum RescueOutcome {
     /// The re-reduction failed (a degenerate or non-finite quantity, or a
     /// projection that could not be solved): refused.
     Failed,
+    /// Not re-reduced: outside the rescue's domain (an on-shell massive
+    /// external leg without the caller's refined kinematics). The binary64
+    /// value and status stay as they were.
+    OutsideDomain,
 }
 
 /// Integrated contribution of one lane.

@@ -336,3 +336,25 @@ fn lanes_missing_the_target_are_refused_with_the_better_value() -> Result<(), Er
     assert_eq!(record.1.value, rec.held_estimate);
     Ok(())
 }
+
+/// A lane whose binary64 value is garbage from inside the stages (audit2's
+/// `a2-n3-d1e-05-T-mixed-r4`: time-like, δ = 3e-5, top mass on alternate
+/// lines, rank n+1; binary64 8e19 off as a success): the term-moduli estimate
+/// divides by that garbage and stays small, the value-independent
+/// triangle-Gram term `2^-53/δ²` flags it at pyAmpliCol's target, and the
+/// re-reduction, beyond double-double here, refuses it typed.
+#[test]
+fn garbage_lanes_are_flagged_by_the_value_independent_term() -> Result<(), Error> {
+    use ninjars::fast::{RescueOutcome, take_rescues};
+    let f = fixture("audit2-n3-T-mixed-r4");
+    let r = f.references[0].as_ref().expect("reference");
+    let reference = C64::new(r[0].parse()?, r[1].parse()?);
+    let off = fast(&f, without_rescue())?;
+    let binary64 = off[0].laurent.expect("served")[0];
+    assert!((binary64 - reference).abs() > 1e10 * reference.abs(), "{binary64:?}");
+    let on = fast(&f, rescue())?;
+    let (_, rec) = take_rescues().into_iter().find(|(l, _)| *l == 0).expect("flagged");
+    assert!(!on[0].success, "{}", on[0].status);
+    assert!(!rec.served && matches!(rec.outcome, RescueOutcome::Missed | RescueOutcome::Failed), "{rec:?}");
+    Ok(())
+}
