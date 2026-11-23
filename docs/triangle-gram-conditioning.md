@@ -138,8 +138,10 @@ The re-reduced lane's own absolute error estimate is the largest of
 - `2^-53 M64 + 2^-100 Mdd + 2^-53 |V'|`: `M64` the moduli of its terms with a
   binary64 factor (a binary64 master), `Mdd` the others, each double-double
   `C0` term weighted by `1/δ` (δ the triangle's normalised Källén function
-  `sqrt|λ(p1², p2², p3²)| / max|pi²|`) and each `D0` term by the `1/δ` of
-  its most degenerate sub-triangle squared (`1/δ²`): the provider's
+  `sqrt|λ(p1², p2², p3²)| / max|pi²|`, computed in double-double as
+  `λ = (a - b)² - c (2(a + b) - c)` with `c` the smallest and the values over
+  the largest, without the expanded form's cancellation) and each `D0` term by the `1/δ²` of
+  its most degenerate sub-triangle: the provider's
   double-double `C0` loses `log2(1/δ)` bits at a nearly degenerate triangle (measured against 200-bit
   MPFR by the second audit: `8.6e-27 = 2^-104/δ` at `δ = 5e-6`, massless,
   massive and complex lines), `D0` up to `2^-104/δ²` (`2^-77`) at a box with
