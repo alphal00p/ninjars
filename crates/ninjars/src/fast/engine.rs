@@ -3136,9 +3136,9 @@ impl FastAmplitude {
             // which the final contraction does not show.
             for b in 0..self.topo.boxes.len() {
                 let gram = box_gram_error(self.box_lambda[b * self.lanes + lane], self.topo.rank, f64::MANTISSA_DIGITS);
-                estimate = estimate.max(gram);
                 absolute = absolute.max(gram * moduli);
             }
+            estimate = estimate.max(relative(absolute));
             // The box mu-expansion screen's first-order rounding estimate
             // (`crate::conditioning`, units of the unit roundoff), which the
             // contraction does not show either.
@@ -3153,13 +3153,9 @@ impl FastAmplitude {
                 let n = self.topo.n;
                 let s = &self.smat[lane * n * n..(lane + 1) * n * n];
                 for &[i1, i2, i3] in &self.topo.triangles {
-                    let [a, b, c] = [s[i2 * n + i1], s[i3 * n + i2], s[i1 * n + i3]];
-                    let big = a.abs().max(b.abs()).max(c.abs());
-                    if big > 0. {
-                        let kallen = (a * a + b * b + c * c - 2. * (a * b + b * c + c * a)).abs().sqrt();
-                        let delta = (kallen / big).max(f64::MIN_POSITIVE);
-                        estimate = estimate.max(unit / (delta * delta));
-                    }
+                    let [a, b, c] = [s[i2 * n + i1], s[i3 * n + i2], s[i1 * n + i3]].map(super::dd::Dd::from);
+                    let delta = super::dd::kallen_delta(a, b, c);
+                    estimate = estimate.max(unit / (delta * delta));
                 }
             }
             if estimate <= target && self.lane_status[lane] == FastStatus::Success {
@@ -3420,12 +3416,7 @@ impl FastAmplitude {
             // loses log2(1/δ) bits there, and D0 2 log2(1/δ) of its most
             // degenerate sub-triangle (both measured against 200-bit MPFR by
             // the second audit: C0 at 2^-104/δ, D0 at up to 2^-104/δ²).
-            let delta = |a: Cd, b: Cd, c: Cd| -> f64 {
-                let [a, b, c] = [a, b, c].map(|z| z.re.to_f64());
-                let big = a.abs().max(b.abs()).max(c.abs());
-                let kallen = (a * a + b * b + c * c - 2. * (a * b + b * c + c * a)).abs().sqrt();
-                if big > 0. { (kallen / big).clamp(f64::MIN_POSITIVE, 1.) } else { 1. }
-            };
+            let delta = |a: Cd, b: Cd, c: Cd| super::dd::kallen_delta(a.re, b.re, c.re);
             let mut res = [Cd::ZERO; 3];
             let mut rational = Cd::ZERO;
             // The moduli of the finite terms, split by the precision of their
@@ -3446,7 +3437,8 @@ impl FastAmplitude {
                     for o in 0..3 {
                         res[o] += c0 * integral[o];
                     }
-                    rational += c4 * (-1. / 6.);
+                    // -1/6 in double-double (a binary64 1/6 is 2^-55 off).
+                    rational -= c4 / 6.;
                     if given.is_some() {
                         let worst = [
                             delta(inv(i2, i1), inv(i3, i2), inv(i3, i1)),
@@ -3612,9 +3604,9 @@ impl FastAmplitude {
                 .fold(0f64, f64::max);
             let mu = self.mu_error[lane] * 2f64.powi(-DD_MU_BITS);
             let absolute = rounding.max(gram * moduli).max(mu);
-            // Its relative estimate (the box-Gram loss as calibrated: relative
-            // to the lane's value).
-            let estimate = (rounding / finite).max(gram).max(mu / finite);
+            // Its relative estimate: the same absolute estimate over the
+            // value (one normalization for acceptance and the record).
+            let estimate = absolute / finite;
             // The binary64 lane's absolute estimate, for the comparison: a
             // served value must be clearly better than the binary64 one, at
             // most 1/16 of its estimate (the binary64 error ranges over about
