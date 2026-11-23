@@ -136,8 +136,11 @@ impl FastAmplitude {
                     continue;
                 }
                 let l = box_solutions(&k3, &k0, &k1, &e, m[c1], m[c2], m[c3], m[c4]);
-                // The box's conditioning, for the cancellation rescue's trigger.
-                self.box_lambda[b * lanes + lane] = box_lambda_bits(&l, v, m, &p);
+                // The box's conditioning, for the cancellation rescue's trigger
+                // (no work when the rescue is off).
+                if self.options.cancellation_rescue {
+                    self.box_lambda[b * lanes + lane] = box_lambda_bits(&l, v, m, &p);
+                }
                 // The rank n+2 engine's geometry (box_x2.rs).
                 let Some(g) = box_geometry_x2(
                     &[v[c1], v[c2], v[c3], v[c4]],

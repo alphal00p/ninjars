@@ -1402,8 +1402,10 @@ impl FastAmplitude {
         self.box_c
             .resize(self.topo.boxes.len() * lanes, [C64::ZERO; 2]);
         self.box_lambda.clear();
-        self.box_lambda
-            .resize(self.topo.boxes.len() * lanes, f64::NEG_INFINITY);
+        if self.options.cancellation_rescue {
+            self.box_lambda
+                .resize(self.topo.boxes.len() * lanes, f64::NEG_INFINITY);
+        }
         self.tri
             .resize(self.topo.triangles.len() * lanes, TriangleData::default());
         self.bub
@@ -1468,8 +1470,11 @@ impl FastAmplitude {
                     continue;
                 }
                 let l = box_solutions(&k3, &k0, &k1, &e, m[c1], m[c2], m[c3], m[c4]);
-                // The box's conditioning, for the cancellation rescue's trigger.
-                self.box_lambda[b * lanes + lane] = box_lambda_bits(&l, v, m, &p);
+                // The box's conditioning, for the cancellation rescue's trigger
+                // (no work when the rescue is off).
+                if self.options.cancellation_rescue {
+                    self.box_lambda[b * lanes + lane] = box_lambda_bits(&l, v, m, &p);
+                }
                 let q = [sub_cr(&l[0], &v[c1]), sub_cr(&l[1], &v[c1])];
                 let mut mid = [C64::ZERO; 4];
                 if x1 {
@@ -2831,7 +2836,7 @@ const BOX_GRAM_EXCESS_BITS: f64 = 11.3;
 /// by up to `2.7e3`, on mixed massive and massless lines where the masters'
 /// own conditioning adds to the rounding; `2^12 = 4096` covers it
 /// (`docs/triangle-gram-conditioning.md`).
-const DD_TERM_BITS: i32 = 92;
+const DD_TERM_BITS: i32 = 100;
 
 /// The unit at which a re-reduced lane counts the box mu-expansion screen's
 /// rounding estimate (`crate::conditioning::box_mu_rounding`, in units of the
@@ -3178,27 +3183,65 @@ impl FastAmplitude {
             lo_v.fill([0.; 4]);
             lo_s.fill(0.);
             lo_m.fill(C64::ZERO);
-            let refined = refinement.is_some_and(|src| src.lane(lane, &mut lo_v, &mut lo_s, &mut lo_m));
-            at_refined[r] = refined;
+            let mut refined = refinement.is_some_and(|src| src.lane(lane, &mut lo_v, &mut lo_s, &mut lo_m));
             let first = shifts.len();
             if refined {
                 // Exact two-sums: the low parts need not be normalised.
-                shifts.extend(
-                    hi.iter()
-                        .zip(&lo_v)
-                        .map(|(h, l)| std::array::from_fn(|mu| Dd::from(h[mu]) + l[mu])),
-                );
-            } else {
+                let v: Vec<[Dd; 4]> = hi
+                    .iter()
+                    .zip(&lo_v)
+                    .map(|(h, l)| std::array::from_fn(|mu| Dd::from(h[mu]) + l[mu]))
+                    .collect();
+                // A refinement is used only when it is consistent to
+                // double-double: every pair the binary64 pass takes as exactly
+                // zero, or as a real squared mass of the lane, and (with an
+                // invariant matrix) every given invariant, within 2^-100 of the
+                // lane's scale of its own shifts; otherwise the projection.
+                let scale = v.iter().flatten().fold(Dd::ZERO, |a, x| a.max(x.abs()));
+                let tolerance = (scale * scale * 4.).to_f64() * 2f64.powi(-100);
+                let mut ok = true;
+                for i in 0..n {
+                    for j in 0..i {
+                        let d: [Dd; 4] = std::array::from_fn(|mu| v[i][mu] - v[j][mu]);
+                        let own = mp_rr_d(&d, &d);
+                        let given = s[i * n + j];
+                        let expected = if given.abs() < eps {
+                            Some(Dd::ZERO)
+                        } else if let Some(q) = (0..n).find(|&q| {
+                            let mq = input.masses_squared[lane * n + q];
+                            mq.im == 0. && (given - mq.re).abs() < eps
+                        }) {
+                            Some(Dd::from(input.masses_squared[lane * n + q].re) + lo_m[q].re)
+                        } else if input.s_matrix.is_some() && !lo_s[i * n + j].is_nan() {
+                            Some(Dd::from(given) + lo_s[i * n + j])
+                        } else {
+                            None
+                        };
+                        if let Some(x) = expected {
+                            ok &= (own - x).abs().to_f64() <= tolerance;
+                        }
+                    }
+                }
+                if ok {
+                    shifts.extend(v);
+                } else {
+                    refined = false;
+                }
+            }
+            if !refined {
                 let mut v: Vec<[Dd; 4]> = hi.iter().map(|x| x.map(Dd::from)).collect();
                 consistent[r] = project_light_like(&mut v, s, n, eps);
                 shifts.extend(v);
             }
-            // An invariant strictly between zero and `infrared_eps` is zero by
-            // the engine's convention (cut bases, scaleless bubbles, on-shell
-            // masters) but not by the kinematics': the lane is not defined
-            // well enough for a re-reduction to certify it (typed `Failed`;
-            // its slot keeps the binary64 value).
-            if s.iter().any(|&x| x != 0. && x.abs() < eps) {
+            at_refined[r] = refined;
+            // A caller-given invariant strictly between zero and
+            // `infrared_eps` is zero by the engine's convention (cut bases,
+            // scaleless bubbles, on-shell masters) but not by the caller's
+            // kinematics: the lane is not defined well enough for a
+            // re-reduction to certify it (typed `Failed`; its slot keeps the
+            // binary64 value). Invariants NinjaRS computed from the shifts
+            // (no matrix given) are projected instead.
+            if input.s_matrix.is_some() && s.iter().any(|&x| x != 0. && x.abs() < eps) {
                 consistent[r] = false;
             }
             let vd = &shifts[first..first + n];
@@ -3336,7 +3379,19 @@ impl FastAmplitude {
                     } else {
                         rational += c[7] * 0.5;
                     }
-                    if master_dd { mdd += size(c[0] * integral[0]) } else { m64 += size(c[0] * integral[0]) }
+                    if master_dd {
+                        // The provider's double-double C0 loses log2(1/δ) bits
+                        // at a nearly degenerate triangle (δ its normalised
+                        // Källén function; measured against 200-bit MPFR: 2^-104
+                        // / δ for massless, massive and complex lines).
+                        let [a, b, cc] = [inv(i2, i1), inv(i3, i2), inv(i1, i3)].map(|z| z.re.to_f64());
+                        let big = a.abs().max(b.abs()).max(cc.abs());
+                        let kallen = (a * a + b * b + cc * cc - 2. * (a * b + b * cc + cc * a)).abs().sqrt();
+                        let delta = if big > 0. { (kallen / big).clamp(f64::MIN_POSITIVE, 1.) } else { 1. };
+                        mdd += size(c[0] * integral[0]) / delta;
+                    } else {
+                        m64 += size(c[0] * integral[0]);
+                    }
                     mdd += size(rational - before);
                 }
             }
@@ -3468,20 +3523,15 @@ impl FastAmplitude {
             // mix two kinematic points in one lane: refused.
             let one_point = !(at_refined[r] && missing);
             let better = absolute <= binary64_absolute / 16.;
-            // Accepted: its own estimate meets the target. BelowResolution
-            // (the generic engine's cancellation ladder's rule): the lane
-            // vanishes up to binary64's resolution of its own terms,
-            // `|V'| <= 2^-53 M'`, and the re-reduction's absolute error is at
-            // most `target` times that resolution; no relative accuracy can
-            // be stated for such a lane, and none is needed: it is small
-            // against its own terms, hence against the point the caller sums.
-            let resolution = moduli * 2f64.powi(-53);
+            // Accepted: its own estimate meets the target; anything else is a
+            // typed refusal. (A lane below binary64's resolution of its own
+            // terms is NOT served on that ground: its value is an ordinary
+            // part of the point the caller sums, and no absolute scale of the
+            // point is known here.)
             let outcome_of = if !(finite_ok && one_point && better) {
                 super::RescueOutcome::Missed
             } else if estimate <= target {
                 super::RescueOutcome::Accepted
-            } else if finite <= resolution && absolute <= target * resolution {
-                super::RescueOutcome::BelowResolution
             } else {
                 super::RescueOutcome::Missed
             };

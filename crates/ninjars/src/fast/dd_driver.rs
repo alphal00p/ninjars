@@ -501,7 +501,6 @@ mod tests {
         assert!(project_light_like(&mut v, &smat, 3, 1e-9));
         let d: [Dd; 4] = std::array::from_fn(|mu| v[1][mu] - v[2][mu]);
         let g = super::super::dd::mp_rr(&d, &d);
-        eprintln!("g0 {g0:?} g {g:?} v1 {:?} v2 {:?}", v[1], v[2]);
         assert!(g.abs().hi < 1e-25, "{g:?}");
     }
 }

@@ -289,8 +289,11 @@ def engine():
     # box-Gram bound): λ² = (|l+|² + |l-|²) / (2 S²) for the two solutions
     # (the parallelogram identity of |a|² + |t v|²), S² the largest squared
     # shift or squared mass of the box's lines.
-    text = edit(text, """                // The box's conditioning, for the cancellation rescue's trigger.
-                self.box_lambda[b * lanes + lane] = box_lambda_bits(&l, v, m, &p);
+    text = edit(text, """                // The box's conditioning, for the cancellation rescue's trigger
+                // (no work when the rescue is off).
+                if self.options.cancellation_rescue {
+                    self.box_lambda[b * lanes + lane] = box_lambda_bits(&l, v, m, &p);
+                }
                 let q = [sub_cr(&l[0], &v[c1]), sub_cr(&l[1], &v[c1])];""", """                let q = [sub_cr(&l[0], &v[c1]), sub_cr(&l[1], &v[c1])];
                 let norm = |x: &CMom| x.iter().map(|z| z.norm_sqr()).sum::<Dd>();
                 let scale = p
