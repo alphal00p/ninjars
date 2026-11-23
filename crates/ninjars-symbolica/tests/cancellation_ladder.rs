@@ -45,9 +45,9 @@ fn double_double_lanes_climb_to_mpfr() -> Result<(), Error> {
         let out = run(&lane, DoubleFloat::from(0.0), true, None)?;
         let rescued = out.ladder.expect("flagged");
         assert_eq!(rescued.outcome, LadderOutcome::Accepted, "{name}");
-        // One rung, or two when the first (128 bits) keeps too few tracked
-        // bits; MPFR widths only.
-        assert!(rescued.rungs.len() <= 2, "{name}: {:?}", rescued.rungs);
+        // One MPFR rung and its confirming reduction (64 bits wider), or a
+        // second pair after a climb; MPFR widths only.
+        assert!(rescued.rungs.len() <= 4, "{name}: {:?}", rescued.rungs);
         assert!(rescued.rungs.iter().all(|&b| b > 106 && b % 64 == 0), "{name}");
         assert!(rescued.projected, "{name}");
         let before = relative(out.value, reference);
@@ -78,22 +78,43 @@ fn binary64_lanes_are_served_within_their_target() -> Result<(), Error> {
     Ok(())
 }
 
-/// MPFR base (200 bits): the lanes keep about 130 bits and are not flagged
-/// at the default target; a caller's target of 1e-50 flags them and the
-/// rule picks its first rung (`2 L + 166 + 8` bits).
+/// MPFR base (200 bits): the lanes keep about 100 bits (numerica's tracked
+/// precision, which the measurement counts); at a caller's target of 1e-50
+/// they are flagged, the rule picks its first rung from the measured loss,
+/// and the served value is confirmed by a reduction 64 bits wider.
 #[test]
 fn mpfr_base_follows_the_callers_target() -> Result<(), Error> {
     let name = DEGENERATE[0];
     let lane = lane(name);
     let reference = truth(&lane);
-    let quiet = run(&lane, Float::with_val(200, 0), true, None)?;
-    assert!(quiet.ladder.is_none(), "default target: not flagged");
     let out = run(&lane, Float::with_val(200, 0), true, Some(1e-50))?;
     let rescued = out.ladder.expect("flagged at 1e-50");
     assert_eq!(rescued.outcome, LadderOutcome::Accepted);
     let rule = LadderRule { target: Some(1e-50), ..LadderRule::default() };
     assert_eq!(Some(rescued.rungs[0]), rule.rung(200, out.lost_bits).map(|r| r.bits()), "{:?}", rescued.rungs);
+    assert_eq!(rescued.rungs[1], rescued.rungs[0] + 64);
     assert!(relative(rescued.value, reference) < 1e-15, "f64 comparison floor");
+    Ok(())
+}
+
+/// MPFR base at 128 bits (audit B1): the degenerate lanes keep only about 25
+/// tracked bits although their moduli say about 70 bits are lost; the
+/// measurement counts the tracked loss, so at a lane target of 1e-11 they are
+/// flagged and re-reduced, never served at their base value.
+#[test]
+fn mpfr_base_tracked_loss_is_measured() -> Result<(), Error> {
+    for name in DEGENERATE {
+        let lane = lane(name);
+        let reference = truth(&lane);
+        let out = run(&lane, Float::with_val(128, 0), true, Some(1e-11))?;
+        assert!(out.lost_bits > 128. - 60., "{name}: L {}", out.lost_bits);
+        let rescued = out.ladder.expect("flagged");
+        assert_ne!(rescued.outcome, LadderOutcome::WithinTarget, "{name}");
+        if rescued.outcome == LadderOutcome::Accepted {
+            let error = relative(rescued.value, reference);
+            assert!(error <= 1e-11 + 1e-15, "{name}: {error:e}");
+        }
+    }
     Ok(())
 }
 
