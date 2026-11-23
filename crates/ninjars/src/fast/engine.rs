@@ -771,6 +771,21 @@ pub(super) fn remap_instabilities(from: usize, map: impl Fn(usize) -> usize) {
     });
 }
 
+/// The number of rescue records on this thread and their remapping, as
+/// [`instabilities_len`] and [`remap_instabilities`] (the lanes of a declared
+/// rank n+2 batch's lowered sub-batches).
+pub(super) fn rescues_len() -> usize {
+    RESCUES.with(|list| list.borrow().len())
+}
+
+pub(super) fn remap_rescues(from: usize, map: impl Fn(usize) -> usize) {
+    RESCUES.with(|list| {
+        for entry in &mut list.borrow_mut()[from..] {
+            entry.0 = map(entry.0);
+        }
+    });
+}
+
 /// The instabilities of the calling thread's last
 /// [`FastAmplitude::evaluate`] call (each call starts by forgetting the
 /// previous one's), `(lane, Instability)` with `lane` the lane of its input,
