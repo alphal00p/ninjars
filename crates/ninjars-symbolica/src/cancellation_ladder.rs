@@ -101,6 +101,9 @@ pub struct LadderRule {
     pub max_rungs: usize,
     /// Highest rung precision (`None`: `max(4 p, 512)`).
     pub max_bits: Option<u32>,
+    /// Project the rung's shifts onto their exact shells (module docs).
+    /// `false` takes the given (or refined) kinematics as they are.
+    pub project: bool,
 }
 
 /// The default target of a base carrier of `bits` bits: half its bits,
@@ -124,6 +127,7 @@ impl Default for LadderRule {
             margin_bits: 8.,
             max_rungs: 3,
             max_bits: None,
+            project: true,
         }
     }
 }
@@ -176,10 +180,7 @@ pub fn lost_bits(value_modulus: f64, moduli: f64) -> f64 {
 }
 
 /// A base carrier of the ladder and its conversions through MPFR.
-pub trait LadderCarrier: NativeFloat
-where
-    Complex<Self>: Real + EvaluationDomain,
-{
+pub trait LadderCarrier: NativeFloat {
     /// This value exactly (a double-double's two parts summed at `bits`).
     fn to_float(&self, bits: u32) -> Float;
     /// `value` rounded to the carrier of `prototype`.
@@ -357,6 +358,8 @@ pub enum LadderOutcome {
 /// The ladder's record of one lane it re-reduced.
 pub struct LaneRescue<T> {
     pub lane: usize,
+    /// The base pass's Laurent coefficients (summed cut contributions).
+    pub base: Laurent<Complex<T>>,
     /// Bits the base pass lost (`L`) and its estimate `2^(L - p)`.
     pub lost_bits: f64,
     pub estimate: f64,
@@ -506,6 +509,7 @@ fn lane_inputs<T: LadderCarrier>(
     width: usize,
     refinement: Option<&dyn LadderRefinement<T>>,
     bits: u32,
+    project: bool,
 ) -> LaneInputs
 where
     Complex<T>: Real + EvaluationDomain,
@@ -549,7 +553,7 @@ where
     let mut projected = false;
     let mut shifts_r: Vec<[Float; 4]> = shifts_c.iter().map(|v| v.clone().map(|c| c.re)).collect();
     let mut keep = vec![false; n * n];
-    if real_shifts && !given.is_empty() {
+    if project && real_shifts && !given.is_empty() {
         // Shell pairs: an exactly zero invariant, or one exactly equal to a
         // real squared mass of the lane.
         let mut pairs = Vec::new();
@@ -625,7 +629,8 @@ where
     prototype: U,
 }
 
-/// Per lane of a rung: (status, Laurent sum, lost bits L', term moduli M').
+/// Per lane of a rung: (status, Laurent sum, lost bits L' (at least the
+/// bits the tracked precision of an MPFR result says are gone), term moduli M').
 type RungLane<U> = (EvaluationStatus, Laurent<Complex<U>>, f64, f64);
 
 impl<U: NativeFloat> Stage<U>
@@ -727,7 +732,14 @@ where
                     Some((lost, moduli, sum))
                         if matches!(status, EvaluationStatus::Success | EvaluationStatus::Unstable) =>
                     {
-                        (status, sum, lost, moduli)
+                        // MPFR (numerica's `Float`) tracks the significant
+                        // bits of every intermediate and rounds to them, so
+                        // the reduction can keep fewer bits than `p' - L'`:
+                        // the loss is at least what the tracked precision of
+                        // the result says (fixed carriers report their own).
+                        let bits = f64::from(self.prototype.get_precision());
+                        let tracked = crate::tracked_bits(&sum[0]).unwrap_or(bits);
+                        (status, sum, lost.max(bits - tracked), moduli)
                     }
                     _ => (status, std::array::from_fn(|_| zero.clone()), f64::INFINITY, 0.),
                 }
@@ -841,12 +853,13 @@ impl PolynomialLadder {
             if !matches!(status, EvaluationStatus::Success | EvaluationStatus::Unstable) {
                 continue;
             }
-            let Some((lost, _, _)) = lane_loss(amplitude, lane) else {
+            let Some((lost, _, sum)) = lane_loss(amplitude, lane) else {
                 continue;
             };
             if self.rule.flags(base, lost) {
                 pending.push(LaneRescue {
                     lane,
+                    base: sum,
                     lost_bits: lost,
                     estimate: estimate(base, lost),
                     target,
@@ -883,7 +896,7 @@ impl PolynomialLadder {
                 let bits = rung.bits().max(2 * MPFR_LIMB_BITS);
                 let inputs: Vec<LaneInputs> = members
                     .iter()
-                    .map(|&k| lane_inputs(n, pending[k].lane, input, parameters, width, refinement, bits))
+                    .map(|&k| lane_inputs(n, pending[k].lane, input, parameters, width, refinement, bits, self.rule.project))
                     .collect();
                 let outcomes = self.evaluate_rung(rung, &inputs)?;
                 *self.counts.reductions_by_bits.entry(rung.bits()).or_default() +=
