@@ -3188,6 +3188,14 @@ impl FastAmplitude {
                 consistent[r] = project_light_like(&mut v, s, n, eps);
                 shifts.extend(v);
             }
+            // An invariant strictly between zero and `infrared_eps` is zero by
+            // the engine's convention (cut bases, scaleless bubbles, on-shell
+            // masters) but not by the kinematics': the lane is not defined
+            // well enough for a re-reduction to certify it (typed `Failed`;
+            // its slot keeps the binary64 value).
+            if s.iter().any(|&x| x != 0. && x.abs() < eps) {
+                consistent[r] = false;
+            }
             let vd = &shifts[first..first + n];
             for i in 0..n {
                 for j in 0..n {
