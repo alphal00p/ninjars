@@ -97,7 +97,8 @@ pub struct FastOptions {
     pub conditioned_cuts: bool,
     /// Re-reduce in double-double, from the triple cuts down, every lane
     /// whose finite part the binary64 reduction measurably cancels beyond
-    /// [`Self::rescue_target`] (default `true`;
+    /// [`Self::rescue_target`] (default `false`: on for callers that keep a
+    /// test of their own behind it, as pyAmpliCol's checked mode does;
     /// `docs/triangle-gram-conditioning.md`): `2^-53` times the moduli of its
     /// integrated terms (each coefficient times its master, and each rational
     /// term) exceeds the target times its finite part. `false` (a caller's
@@ -126,7 +127,7 @@ impl Default for FastOptions {
             stability_threshold: 1.0e20 * f64::MIN_POSITIVE,
             relative_tolerance: 1024. * f64::EPSILON,
             conditioned_cuts: false,
-            cancellation_rescue: true,
+            cancellation_rescue: false,
             rescue_target: None,
         }
     }
