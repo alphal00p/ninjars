@@ -86,6 +86,12 @@ pub(super) struct DdStages {
     pub(super) second: Vec<usize>,
     pub(super) uncut: Vec<Uncut>,
     pub(super) pairs: Vec<[Cd; 4]>,
+    /// Per (cut, lane): reduce this cut of this lane in double-double. The
+    /// others keep the data the caller stored after [`Self::prepare`] (the
+    /// binary64 reduction's, promoted).
+    pub(super) sel_tri: Vec<bool>,
+    pub(super) sel_bub: Vec<bool>,
+    pub(super) sel_tad: Vec<bool>,
 }
 
 impl DdStages {
@@ -111,6 +117,9 @@ impl DdStages {
             second: Vec::new(),
             uncut: vec![Uncut::default(); n],
             pairs: Vec::new(),
+            sel_tri: Vec::new(),
+            sel_bub: Vec::new(),
+            sel_tad: Vec::new(),
         }
     }
 
@@ -163,6 +172,14 @@ impl DdStages {
             .resize(self.topo.bubbles.len() * lanes, BubbleData::default());
         self.tad.clear();
         self.tad.resize(n * lanes, TadpoleData::default());
+        for (sel, len) in [
+            (&mut self.sel_tri, self.topo.triangles.len() * lanes),
+            (&mut self.sel_bub, self.topo.bubbles.len() * lanes),
+            (&mut self.sel_tad, n * lanes),
+        ] {
+            sel.clear();
+            sel.resize(len, true);
+        }
     }
 }
 

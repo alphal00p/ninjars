@@ -250,6 +250,37 @@ def engine():
     # Zero initialisers.
     text = edit(text, "                            e2k: 0.,", "                            e2k: Dd::ZERO,")
     text = edit(text, "pub(super) fn is_zero(z: C64) -> bool {\n    z.re == 0. && z.im == 0.\n}", "pub(super) fn is_zero(z: C64) -> bool {\n    z.is_zero()\n}")
+    # Only the selected (cut, lane) pairs are reduced (`DdStages::sel_*`); the
+    # others keep the promoted binary64 data the caller stored.
+    text = edit(text, """            for ai in 0..self.active.len() {
+                let lane = self.active[ai];
+                let v = &input.shifts[lane * n..(lane + 1) * n];
+                let m = &input.masses_squared[lane * n..(lane + 1) * n];
+                let k0 = sub(&v[c2], &v[c1]);""", """            for ai in 0..self.active.len() {
+                let lane = self.active[ai];
+                if !self.sel_tri[t * lanes + lane] {
+                    continue;
+                }
+                let v = &input.shifts[lane * n..(lane + 1) * n];
+                let m = &input.masses_squared[lane * n..(lane + 1) * n];
+                let k0 = sub(&v[c2], &v[c1]);""")
+    text = edit(text, """                let lane = self.active[ai];
+                let v = &input.shifts[lane * n..(lane + 1) * n];
+                let m = &input.masses_squared[lane * n..(lane + 1) * n];
+                let s = self.smat[lane * n * n + c2 * n + c1];""", """                let lane = self.active[ai];
+                if !self.sel_bub[b * lanes + lane] {
+                    continue;
+                }
+                let v = &input.shifts[lane * n..(lane + 1) * n];
+                let m = &input.masses_squared[lane * n..(lane + 1) * n];
+                let s = self.smat[lane * n * n + c2 * n + c1];""")
+    text = edit(text, """                let lane = self.active[ai];
+                if is_zero(input.masses_squared[lane * n + a]) {
+                    continue;
+                }""", """                let lane = self.active[ai];
+                if is_zero(input.masses_squared[lane * n + a]) || !self.sel_tad[a * lanes + lane] {
+                    continue;
+                }""")
     # The stages are methods of the double-double workspace.
     text = text.replace("    fn triangles<", "    pub(super) fn triangles<")
     text = text.replace("    fn bubbles<", "    pub(super) fn bubbles<")

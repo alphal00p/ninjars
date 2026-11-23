@@ -2909,6 +2909,9 @@ impl DdStages {
             self.tri_rows.clear();
             for ai in 0..self.active.len() {
                 let lane = self.active[ai];
+                if !self.sel_tri[t * lanes + lane] {
+                    continue;
+                }
                 let v = &input.shifts[lane * n..(lane + 1) * n];
                 let m = &input.masses_squared[lane * n..(lane + 1) * n];
                 let k0 = sub(&v[c2], &v[c1]);
@@ -3117,6 +3120,9 @@ impl DdStages {
             self.calls.clear();
             for ai in 0..self.active.len() {
                 let lane = self.active[ai];
+                if !self.sel_bub[b * lanes + lane] {
+                    continue;
+                }
                 let v = &input.shifts[lane * n..(lane + 1) * n];
                 let m = &input.masses_squared[lane * n..(lane + 1) * n];
                 let s = self.smat[lane * n * n + c2 * n + c1];
@@ -3463,7 +3469,7 @@ impl DdStages {
             self.tad_rows.clear();
             for ai in 0..self.active.len() {
                 let lane = self.active[ai];
-                if is_zero(input.masses_squared[lane * n + a]) {
+                if is_zero(input.masses_squared[lane * n + a]) || !self.sel_tad[a * lanes + lane] {
                     continue;
                 }
                 let v = &input.shifts[lane * n..(lane + 1) * n];

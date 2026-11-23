@@ -112,6 +112,17 @@ cancellation of the lane, not an a-priori bound: on the campaign's 10,000
 points it flags 1.3 % of the lanes, against the a-priori triangle screen of
 the earlier diagnosis that refused lanes at 40 % of the points.
 
+Inside a flagged lane only the cuts that carry the cancellation are
+recomputed (`select_cuts`): a bubble or triangle whose own term moduli exceed
+the lane's allowance `2^(53 - 30) |finite|` divided by its number of cuts,
+every parent triangle of a selected bubble whose spurious terms
+`|c_k| (E |e3|)^p` (`E` the lane's largest shift and mass scale) exceed the
+same bound, and the tadpoles below a selected parent. Every other cut keeps
+its binary64 coefficients (promoted) and its binary64 contraction; their
+rounding then stays within the target by construction. On a `g g > g g g`
+pentagon lane this recomputes one triangle and three bubbles of ten each
+(820 µs -> about 170 µs per re-reduced lane).
+
 The flagged lanes of one call are re-reduced together: their shifts promoted
 and projected (section 2), the triangle, bubble and tadpole stages in
 double-double (`dd_stages.rs`, generated from the binary64 sources by
@@ -144,6 +155,13 @@ to 9.76 digits and two points move from 14.5 / 13.6 to 13.5 / 12.6 digits.
 Time: see `REPORT.md` of the work folder (section "Cost").
 
 ## 5. Domain and limits
+
+- The option: `FastOptions::cancellation_rescue`, default `true` for
+  standalone users (a lane that loses all its digits otherwise comes back
+  with status success). With `false` neither the trigger's bookkeeping nor
+  the re-reduction runs and every value is the binary64 reduction's, bit for
+  bit. pyAmpliCol sets it from its reduction-check switch: on in the checked
+  mode, off in the UNCHECKED mode (`fast_options(unchecked)`).
 
 - Rank <= n+1 lanes of numerators that expose their tensor
   (`FastNumerator::tensor_coefficients`): `TensorNumerator`, pyAmpliCol's.

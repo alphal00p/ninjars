@@ -2747,6 +2747,97 @@ impl FastAmplitude {
         out
     }
 
+    /// The cuts of one flagged lane that the double-double re-reduction
+    /// recomputes: those whose own term moduli exceed the lane's allowance
+    /// `2^(53 - CANCELLATION_TARGET_BITS) |finite|` divided by its number of
+    /// cuts (the rounding of every other cut then stays within the target),
+    /// the triangles whose spurious terms are that large and feed a selected
+    /// bubble (`|c_k| (E |e3|)^p`, `E` the lane's largest shift and mass
+    /// scale), and the tadpoles below a selected parent.
+    fn select_cuts(&self, input: &FastInput, lane: usize, cursor: Cursor) -> (Vec<bool>, Vec<bool>, Vec<bool>) {
+        let n = self.topo.n;
+        let lanes = self.lanes;
+        let x1 = self.topo.x1();
+        let eps = self.options.infrared_eps;
+        let m = &input.masses_squared[lane * n..(lane + 1) * n];
+        let s = &self.smat[lane * n * n..(lane + 1) * n * n];
+        let v = &input.shifts[lane * n..(lane + 1) * n];
+        let mut cursor = cursor.0;
+        let ncut = self.topo.boxes.len() + self.topo.triangles.len() + self.topo.bubbles.len() + n;
+        let limit = 2f64.powi(f64::MANTISSA_DIGITS as i32 - CANCELLATION_TARGET_BITS)
+            * self.staged[lane].laurent[0].abs()
+            / ncut as f64;
+        let scale = v
+            .iter()
+            .map(|x| x.iter().map(|c| c * c).sum::<f64>().sqrt())
+            .fold(0., f64::max)
+            + m.iter().map(|z| z.abs().sqrt()).fold(0., f64::max);
+        if self.any_box() {
+            cursor[0] += self.topo.boxes.len();
+        }
+        let mut tri = vec![false; self.topo.triangles.len()];
+        let mut spurious = vec![0.; self.topo.triangles.len()];
+        for (t, _) in self.topo.triangles.iter().enumerate() {
+            let data = &self.tri[t * lanes + lane];
+            let c = &data.c;
+            let own = (c[0] * self.masters[1].out[cursor[1]][0]).abs() + c[7].abs() * 0.5 + c[14].abs();
+            cursor[1] += 1;
+            let e = scale * euclidean_norm(&data.e3).max(euclidean_norm(&data.e4));
+            const POWERS: [(usize, i32); 12] = [
+                (1, 1), (4, 1), (2, 2), (5, 2), (3, 3), (6, 3),
+                (8, 1), (9, 1), (10, 2), (11, 2), (12, 4), (13, 4),
+            ];
+            spurious[t] = POWERS.iter().map(|&(k, p)| c[k].abs() * e.powi(p)).fold(0., f64::max);
+            tri[t] = !(own <= limit);
+        }
+        let mut bub = vec![false; self.topo.bubbles.len()];
+        for (b, &[i1, i2]) in self.topo.bubbles.iter().enumerate() {
+            let k = s[i2 * n + i1];
+            if is_zero(m[i1]) && is_zero(m[i2]) && k.abs() < eps {
+                continue;
+            }
+            let data = &self.bub[b * lanes + lane];
+            let c = &data.c;
+            let ke2 = mp_rr(&sub(&v[i2], &v[i1]), &data.e2);
+            let rank3 = x1 && self.rank3_bubble(b, lane, v);
+            let (family, width) = if rank3 { (3, 4) } else { (2, 3) };
+            let out = &self.masters[family].out[cursor[family] * width..(cursor[family] + 1) * width];
+            cursor[family] += 1;
+            let b06 = -(C64::real(k) - (m[i1] + m[i2]) * 3.) / 6.;
+            let mut own = (c[0] * out[0][0]).abs()
+                + (c[1] * ke2 * out[1][0]).abs()
+                + (c[2] * ke2 * ke2 * out[2][0]).abs()
+                + (b06 * c[9]).abs();
+            if rank3 {
+                own += (c[13] * ke2 * ke2 * ke2 * out[3][0]).abs();
+            }
+            if x1 {
+                own += ((C64::real(k) - m[i1] * 2. - m[i2] * 4.) * ke2 * c[10]).abs() / 12.;
+            }
+            if !(own <= limit) {
+                bub[b] = true;
+                for &(t, _) in &self.topo.bubble_parents[b] {
+                    if !(spurious[t] <= limit) {
+                        tri[t] = true;
+                    }
+                }
+            }
+        }
+        let mut tad = vec![false; n];
+        for a in 0..n {
+            if is_zero(m[a]) {
+                continue;
+            }
+            let data = &self.tad[a * lanes + lane];
+            let own = (data.c0 * self.masters[4].out[cursor[4]][0]).abs() + (data.c14.abs() + data.c15.abs()) * m[a].abs() * m[a].abs();
+            cursor[4] += 1;
+            tad[a] = !(own <= limit)
+                || self.topo.tadpole_triangle_parents[a].iter().any(|&(t, _)| tri[t])
+                || self.topo.tadpole_bubble_parents[a].iter().any(|&(b, _)| bub[b]);
+        }
+        (tri, bub, tad)
+    }
+
     /// The moduli of the finite parts of one lane's integrated terms, in
     /// `integrate`'s order: `|c M|` per coefficient and master, the bubble
     /// tensor terms one by one, and every rational term.
@@ -2918,6 +3009,41 @@ impl FastAmplitude {
             masses_squared: &masses,
         };
         dd.prepare(&ddin, &smat);
+        let ntri = self.topo.triangles.len();
+        let nbub = self.topo.bubbles.len();
+        for (r, &(lane, cursor)) in flagged.iter().enumerate() {
+            let (st, sb, sa) = self.select_cuts(input, lane, cursor);
+            let cd = |z: &C64| Cd::from_c64(*z);
+            for t in 0..ntri {
+                let f = &self.tri[t * lanes + lane];
+                dd.tri[t * k + r] = super::dd_stages::TriangleData {
+                    e3: f.e3.map(|z| cd(&z)),
+                    e4: f.e4.map(|z| cd(&z)),
+                    c: f.c.map(|z| cd(&z)),
+                };
+                dd.sel_tri[t * k + r] = st[t];
+            }
+            for b in 0..nbub {
+                let f = &self.bub[b * lanes + lane];
+                dd.bub[b * k + r] = super::dd_stages::BubbleData {
+                    e2: f.e2.map(Dd::from),
+                    e3: f.e3.map(|z| cd(&z)),
+                    e4: f.e4.map(|z| cd(&z)),
+                    c: f.c.map(|z| cd(&z)),
+                };
+                dd.sel_bub[b * k + r] = sb[b];
+            }
+            for a in 0..n {
+                let f = &self.tad[a * lanes + lane];
+                dd.tad[a * k + r] = super::dd_stages::TadpoleData {
+                    c0: cd(&f.c0),
+                    c14: cd(&f.c14),
+                    c15: cd(&f.c15),
+                    e34: Dd::from(f.e34),
+                };
+                dd.sel_tad[a * k + r] = sa[a];
+            }
+        }
         dd.triangles(&ddin, &mut tensor)?;
         if dd.any_bubble() {
             dd.bubbles(&ddin, &mut tensor)?;
@@ -2964,7 +3090,8 @@ impl FastAmplitude {
                 // Massless lines: the triangle at the geometry's invariants in
                 // double-double (its coefficient cancels against the bubbles'
                 // beyond binary64 at a degenerate Gram determinant).
-                let massless = is_zero(m[i1]) && is_zero(m[i2]) && is_zero(m[i3]);
+                let selected = dd.sel_tri[t * k + r];
+                let massless = selected && is_zero(m[i1]) && is_zero(m[i2]) && is_zero(m[i3]);
                 let pairs = [(i2, i1), (i3, i2), (i1, i3)];
                 let integral: [Cd; 3] = massless
                     .then(|| {
@@ -2981,7 +3108,11 @@ impl FastAmplitude {
                     res[o] += c[0] * integral[o];
                 }
                 if x1 {
-                    let (pji, pjk, pki) = (sd(i2, i1), sd(i3, i2), sd(i1, i3));
+                    let (pji, pjk, pki) = if selected {
+                        (sd(i2, i1), sd(i3, i2), sd(i1, i3))
+                    } else {
+                        (Dd::from(s[i2 * n + i1]), Dd::from(s[i3 * n + i2]), Dd::from(s[i1 * n + i3]))
+                    };
                     let shape = Cd::real(pjk + pji + pki) * 0.25
                         - Cd::from_c64(m[i1])
                         - Cd::from_c64(m[i2])
@@ -3015,14 +3146,21 @@ impl FastAmplitude {
                     }
                     let data = &dd.bub[b * k + r];
                     let c = &data.c;
-                    let kv: [Dd; 4] = std::array::from_fn(|mu| vd[i2][mu] - vd[i1][mu]);
+                    let selected = dd.sel_bub[b * k + r];
+                    // A selected bubble in the projected geometry; the others
+                    // as the binary64 contraction (their coefficients are its).
+                    let kv: [Dd; 4] = if selected {
+                        std::array::from_fn(|mu| vd[i2][mu] - vd[i1][mu])
+                    } else {
+                        std::array::from_fn(|mu| Dd::from(v[i2][mu] - v[i1][mu]))
+                    };
                     let ke2 = mp_rr_d(&kv, &data.e2);
                     let rank3 = x1 && self.rank3_bubble(b, lane, v);
                     let (family, width) = if rank3 { (3, 4) } else { (2, 3) };
                     let out = &self.masters[family].out
                         [cursor[family] * width..(cursor[family] + 1) * width];
                     cursor[family] += 1;
-                    let kd = sd(i2, i1);
+                    let kd = if selected { sd(i2, i1) } else { Dd::from(kk) };
                     // Massless lines: B0 at the geometry's invariant in
                     // double-double (as the triangle's C0).
                     let b0 = if is_zero(m[i1]) && is_zero(m[i2]) && kd.hi != 0. {
@@ -3031,7 +3169,9 @@ impl FastAmplitude {
                         out[0]
                     };
                     let b0dd = (is_zero(m[i1]) && is_zero(m[i2]) && kd.hi != 0.).then(|| massless_b0(kd, mu2));
-                    let tensors = bubble_tensors(kd, m[i1], m[i2], &b0, &a0_rows[i1], &a0_rows[i2], b0dd)
+                    let tensors = selected
+                        .then(|| bubble_tensors(kd, m[i1], m[i2], &b0, &a0_rows[i1], &a0_rows[i2], b0dd))
+                        .flatten()
                         .unwrap_or_else(|| {
                             let get = |w: usize| -> [Cd; 3] {
                                 if w < width {
