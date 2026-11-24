@@ -8,20 +8,23 @@
 mod conditioning;
 
 use conditioning::{Error, fast, parse_fixture};
-use ninjars::fast::dd::Dd;
 use ninjars::fast::dd::Cd;
+use ninjars::fast::dd::Dd;
 use ninjars::fast::{C64, FastMaster, FastMasters, FastOptions, take_rescued_lanes};
 use ninjars_symbolica::OneLoopNativeMasters;
 
-const DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../validation/conditioning/triangle-gram");
+const DIR: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/../../validation/conditioning/triangle-gram"
+);
 
 fn fixture(name: &str) -> conditioning::Fixture {
     let text = std::fs::read_to_string(format!("{DIR}/{name}.json")).expect("fixture");
     parse_fixture(&text).expect("fixture shape")
 }
 
-/// The rescue on (NinjaRS's default is off) at pyAmpliCol's lane target
-/// (`reduction_target / 1000` = 1e-8).
+/// The rescue on (NinjaRS's default is off) at a strict lane target of
+/// 1e-8.
 fn rescue() -> FastOptions {
     FastOptions {
         cancellation_rescue: true,
@@ -53,8 +56,14 @@ fn degenerate_triangle_lanes_are_rescued() -> Result<(), Error> {
         assert_eq!(take_rescued_lanes(), 0, "{name}");
         let error = (served - reference).abs() / reference.abs();
         let before = (binary64 - reference).abs() / reference.abs();
-        assert!(error < 1e-8, "{name}: served {served:?}, reference {reference:?}, error {error:e}");
-        assert!(before > 1e-2, "{name}: the binary64 reduction no longer fails ({before:e})");
+        assert!(
+            error < 1e-8,
+            "{name}: served {served:?}, reference {reference:?}, error {error:e}"
+        );
+        assert!(
+            before > 1e-2,
+            "{name}: the binary64 reduction no longer fails ({before:e})"
+        );
     }
     Ok(())
 }
@@ -89,21 +98,59 @@ fn double_double_masters_match_the_binary64_ones() -> Result<(), Error> {
     let rows: Vec<(FastMaster, Vec<C64>)> = vec![
         (FastMaster::A0, vec![t, mu2]),
         (FastMaster::A0, vec![w, mu2]),
-        (FastMaster::BubbleRank2, vec![r(-1.9342957622827255e5), z, z, mu2]),
+        (
+            FastMaster::BubbleRank2,
+            vec![r(-1.9342957622827255e5), z, z, mu2],
+        ),
         (FastMaster::BubbleRank3, vec![r(3.1e5), z, z, mu2]),
         (FastMaster::BubbleRank3, vec![r(4.0e5), t, t, mu2]),
         (FastMaster::BubbleRank3, vec![r(-2.0e5), t, z, mu2]),
         (FastMaster::BubbleRank3, vec![r(6000.8), z, t, mu2]),
         (FastMaster::BubbleRank3, vec![r(5.0e5), w, r(6400.), mu2]),
-        (FastMaster::C0, vec![z, r(-1.9342957622827255e5), r(-1.9340112758684525e5), z, z, z, mu2]),
+        (
+            FastMaster::C0,
+            vec![
+                z,
+                r(-1.9342957622827255e5),
+                r(-1.9340112758684525e5),
+                z,
+                z,
+                z,
+                mu2,
+            ],
+        ),
         (FastMaster::C0, vec![z, r(3.0e5), r(2.9e5), z, z, z, mu2]),
         (FastMaster::C0, vec![r(1.0e5), z, r(-3.0e4), z, z, z, mu2]),
         (FastMaster::C0, vec![z, r(6000.8), r(6066.3), z, t, z, mu2]),
         (FastMaster::C0, vec![r(-1.9e5), t, r(-1.8e5), z, t, z, mu2]),
-        (FastMaster::C0, vec![r(2.0e5), r(1.5e5), r(3.0e5), w, w, w, mu2]),
-        (FastMaster::D0, vec![z, z, z, z, r(4.0e5), r(-1.5e5), z, z, z, z, mu2]),
-        (FastMaster::D0, vec![z, z, t, t, r(5.0e5), r(-2.0e5), z, z, t, t, mu2]),
-        (FastMaster::D0, vec![z, z, r(1.6e4), r(1.6e4), r(4.5e5), r(-1.2e5), w, w, w, w, mu2]),
+        (
+            FastMaster::C0,
+            vec![r(2.0e5), r(1.5e5), r(3.0e5), w, w, w, mu2],
+        ),
+        (
+            FastMaster::D0,
+            vec![z, z, z, z, r(4.0e5), r(-1.5e5), z, z, z, z, mu2],
+        ),
+        (
+            FastMaster::D0,
+            vec![z, z, t, t, r(5.0e5), r(-2.0e5), z, z, t, t, mu2],
+        ),
+        (
+            FastMaster::D0,
+            vec![
+                z,
+                z,
+                r(1.6e4),
+                r(1.6e4),
+                r(4.5e5),
+                r(-1.2e5),
+                w,
+                w,
+                w,
+                w,
+                mu2,
+            ],
+        ),
     ];
     for (family, args) in rows {
         let width = family.outputs();
@@ -113,7 +160,10 @@ fn double_double_masters_match_the_binary64_ones() -> Result<(), Error> {
         let dargs: Vec<Cd> = args.iter().map(|&x| Cd::from_c64(x)).collect();
         let mut dout = vec![[Cd::ZERO; 3]; width];
         let mut dok = vec![false];
-        assert!(masters.evaluate_rescue(family, &dargs, &mut dout, &mut dok)?, "{family:?}");
+        assert!(
+            masters.evaluate_rescue(family, &dargs, &mut dout, &mut dok)?,
+            "{family:?}"
+        );
         assert!(ok[0] && dok[0], "{family:?} {args:?}");
         for j in 0..width {
             for o in 0..3 {
@@ -127,7 +177,12 @@ fn double_double_masters_match_the_binary64_ones() -> Result<(), Error> {
         }
     }
     let mut dout = vec![[Cd::ZERO; 3]; 5];
-    let row = [Cd::real(Dd::from(1e5)), Cd::ZERO, Cd::ZERO, Cd::from_c64(mu2)];
+    let row = [
+        Cd::real(Dd::from(1e5)),
+        Cd::ZERO,
+        Cd::ZERO,
+        Cd::from_c64(mu2),
+    ];
     assert!(!masters.evaluate_rescue(FastMaster::BubbleRank4, &row, &mut dout, &mut [false])?);
     Ok(())
 }
@@ -146,12 +201,18 @@ fn box_mu_screened_lanes_are_cured() -> Result<(), Error> {
     let off = fast(&f, without_rescue())?;
     let on = fast(&f, rescue())?;
     for (lane, (a, b)) in off.iter().zip(&on).enumerate() {
-        assert!(!a.success, "lane {lane}: the binary64 screen no longer refuses it");
+        assert!(
+            !a.success,
+            "lane {lane}: the binary64 screen no longer refuses it"
+        );
         let r = f.references[lane].as_ref().expect("reference");
         let reference = C64::new(r[0].parse()?, r[1].parse()?);
         let served = b.laurent.expect("served")[0];
         let error = (served - reference).abs() / reference.abs();
-        assert!(error < 1e-9, "lane {lane}: {served:?} against {reference:?} ({error:e})");
+        assert!(
+            error < 1e-9,
+            "lane {lane}: {served:?} against {reference:?} ({error:e})"
+        );
     }
     Ok(())
 }
@@ -175,53 +236,122 @@ fn refined_kinematics_drive_the_rescue() -> Result<(), Error> {
         let raw: serde_json::Value = serde_json::from_str(&text)?;
         let num = |v: &serde_json::Value| -> f64 { v.as_str().unwrap().parse().unwrap() };
         let n = f.n;
-        let shifts: Vec<RMom> = f.shifts.iter().map(|v| v.clone().map(|x| x.parse().unwrap())).collect();
-        let masses: Vec<C64> = f.masses_squared.iter().map(|m| C64::new(m[0].parse().unwrap(), m[1].parse().unwrap())).collect();
+        let shifts: Vec<RMom> = f
+            .shifts
+            .iter()
+            .map(|v| v.clone().map(|x| x.parse().unwrap()))
+            .collect();
+        let masses: Vec<C64> = f
+            .masses_squared
+            .iter()
+            .map(|m| C64::new(m[0].parse().unwrap(), m[1].parse().unwrap()))
+            .collect();
         let s_matrix: Vec<f64> = f.s_matrix.iter().map(|x| x.parse().unwrap()).collect();
-        let tensor: Vec<C64> = f.tensors[0].iter().map(|z| C64::new(z[0].parse().unwrap(), z[1].parse().unwrap())).collect();
-        let lo_shifts: Vec<RMom> = raw["refinement"]["shifts"].as_array().unwrap().iter()
-            .map(|v| std::array::from_fn(|mu| num(&v[mu]))).collect();
-        let lo_s: Vec<f64> = raw["refinement"]["s_matrix"].as_array().unwrap().iter()
-            .flat_map(|r| r.as_array().unwrap().iter().map(num).collect::<Vec<_>>()).collect();
+        let tensor: Vec<C64> = f.tensors[0]
+            .iter()
+            .map(|z| C64::new(z[0].parse().unwrap(), z[1].parse().unwrap()))
+            .collect();
+        let lo_shifts: Vec<RMom> = raw["refinement"]["shifts"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|v| std::array::from_fn(|mu| num(&v[mu])))
+            .collect();
+        let lo_s: Vec<f64> = raw["refinement"]["s_matrix"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .flat_map(|r| r.as_array().unwrap().iter().map(num).collect::<Vec<_>>())
+            .collect();
         let zeros_shifts = vec![[0.; 4]; n];
         let zeros_s = vec![0.; n * n];
         let r = f.references[0].as_ref().unwrap();
         let reference = C64::new(r[0].parse()?, r[1].parse()?);
         let scales = [f.mu_squared.parse::<f64>()?];
-        let input = FastInput { lanes: 1, shifts: &shifts, masses_squared: &masses, scales_squared: &scales, s_matrix: Some(&s_matrix) };
-        let run = |options: FastOptions, refinement: Option<&FastRefinement>| -> Result<C64, Error> {
-            let mut amp = FastAmplitude::new(n, f.rank, options)?;
-            let mut numerator = TensorNumerator::new(f.rank, 0);
-            numerator.set_coefficients(1, &tensor)?;
-            let mut masters = OneLoopNativeMasters::new()?;
-            let mut results = [FastResult::default()];
-            let mut statuses = [FastStatus::NotEvaluated];
-            amp.evaluate_refined(&input, refinement, &mut numerator, &mut masters, &mut results, &mut statuses)?;
-            assert_eq!(statuses[0], FastStatus::Success);
-            Ok(results[0].laurent[0])
+        let input = FastInput {
+            lanes: 1,
+            shifts: &shifts,
+            masses_squared: &masses,
+            scales_squared: &scales,
+            s_matrix: Some(&s_matrix),
         };
-        let consistent = FastRefinement { shifts: &lo_shifts, s_matrix: Some(&lo_s), masses_squared: None };
-        let zero = FastRefinement { shifts: &zeros_shifts, s_matrix: Some(&zeros_s), masses_squared: None };
+        let run =
+            |options: FastOptions, refinement: Option<&FastRefinement>| -> Result<C64, Error> {
+                let mut amp = FastAmplitude::new(n, f.rank, options)?;
+                let mut numerator = TensorNumerator::new(f.rank, 0);
+                numerator.set_coefficients(1, &tensor)?;
+                let mut masters = OneLoopNativeMasters::new()?;
+                let mut results = [FastResult::default()];
+                let mut statuses = [FastStatus::NotEvaluated];
+                amp.evaluate_refined(
+                    &input,
+                    refinement,
+                    &mut numerator,
+                    &mut masters,
+                    &mut results,
+                    &mut statuses,
+                )?;
+                assert_eq!(statuses[0], FastStatus::Success);
+                Ok(results[0].laurent[0])
+            };
+        let consistent = FastRefinement {
+            shifts: &lo_shifts,
+            s_matrix: Some(&lo_s),
+            masses_squared: None,
+        };
+        let zero = FastRefinement {
+            shifts: &zeros_shifts,
+            s_matrix: Some(&zeros_s),
+            masses_squared: None,
+        };
         let refined = run(rescue(), Some(&consistent))?;
         let unrepaired = run(rescue(), Some(&zero))?;
         let err = |v: C64| (v - reference).abs() / reference.abs();
-        assert!(err(refined) < 1e-8, "{name}: refined {refined:?} error {:e}", err(refined));
+        assert!(
+            err(refined) < 1e-8,
+            "{name}: refined {refined:?} error {:e}",
+            err(refined)
+        );
         // An inconsistent refinement (zero low parts for inexact binary64
         // momenta) is not trusted: the lane takes the projection.
-        assert!(err(unrepaired) < 1e-8, "{name}: an inconsistent refinement was trusted ({:e})", err(unrepaired));
+        assert!(
+            err(unrepaired) < 1e-8,
+            "{name}: an inconsistent refinement was trusted ({:e})",
+            err(unrepaired)
+        );
         // Without an invariant matrix the projection serves the lane too.
-        let nos = FastInput { s_matrix: None, ..input };
+        let nos = FastInput {
+            s_matrix: None,
+            ..input
+        };
         let mut amp = FastAmplitude::new(n, f.rank, rescue())?;
         let mut numerator = TensorNumerator::new(f.rank, 0);
         numerator.set_coefficients(1, &tensor)?;
         let mut masters = OneLoopNativeMasters::new()?;
         let mut results = [FastResult::default()];
         let mut statuses = [FastStatus::NotEvaluated];
-        amp.evaluate(&nos, &mut numerator, &mut masters, &mut results, &mut statuses)?;
+        amp.evaluate(
+            &nos,
+            &mut numerator,
+            &mut masters,
+            &mut results,
+            &mut statuses,
+        )?;
         assert_eq!(statuses[0], FastStatus::Success, "{name} without s_matrix");
-        assert!(err(results[0].laurent[0]) < 1e-8, "{name} without s_matrix: {:e}", err(results[0].laurent[0]));
-        let off = FastOptions { cancellation_rescue: false, ..rescue() };
-        assert_eq!(run(off, Some(&consistent))?, run(off, None)?, "{name}: the binary64 pass read the refinement");
+        assert!(
+            err(results[0].laurent[0]) < 1e-8,
+            "{name} without s_matrix: {:e}",
+            err(results[0].laurent[0])
+        );
+        let off = FastOptions {
+            cancellation_rescue: false,
+            ..rescue()
+        };
+        assert_eq!(
+            run(off, Some(&consistent))?,
+            run(off, None)?,
+            "{name}: the binary64 pass read the refinement"
+        );
     }
     Ok(())
 }
@@ -291,16 +421,24 @@ fn lanes_beyond_double_double_are_refused_typed() -> Result<(), Error> {
         // The refused lane's slot carries the best available value, the
         // record says which carrier and its estimate.
         let (_, r) = rescues.iter().find(|(l, _)| *l == lane).expect("record");
-        assert!(!r.served && r.outcome == ninjars::fast::RescueOutcome::Missed, "{r:?}");
+        assert!(
+            !r.served && r.outcome == ninjars::fast::RescueOutcome::Missed,
+            "{r:?}"
+        );
         assert!(r.held_bits == 53 || r.held_bits == 106, "{r:?}");
         assert!(r.held_estimate.is_finite() && r.held_estimate > 0., "{r:?}");
         let binary64 = off[lane].laurent.expect("served")[0];
         if r.held_bits == 53 {
             assert_eq!(o.slot[0], binary64, "lane {lane}");
         } else {
-            assert!(r.held_estimate == r.estimate && r.absolute.is_finite(), "{r:?}");
+            assert!(
+                r.held_estimate == r.estimate && r.absolute.is_finite(),
+                "{r:?}"
+            );
         }
-        assert!(o.slot.iter().all(|z| z.re.is_finite() && z.im.is_finite()) && o.slot[0] != C64::ZERO);
+        assert!(
+            o.slot.iter().all(|z| z.re.is_finite() && z.im.is_finite()) && o.slot[0] != C64::ZERO
+        );
     }
     Ok(())
 }
@@ -318,15 +456,30 @@ fn lanes_missing_the_target_are_refused_with_the_better_value() -> Result<(), Er
     let r = f.references[0].as_ref().expect("reference");
     let reference = C64::new(r[0].parse()?, r[1].parse()?);
     let off = fast(&f, without_rescue())?;
-    let strict = FastOptions { rescue_target: None, ..rescue() };
+    let strict = FastOptions {
+        rescue_target: None,
+        ..rescue()
+    };
     let refused = fast(&f, strict)?;
-    let (_, rec) = take_rescues().into_iter().find(|(l, _)| *l == 0).expect("record");
+    let (_, rec) = take_rescues()
+        .into_iter()
+        .find(|(l, _)| *l == 0)
+        .expect("record");
     let records = take_instabilities();
-    assert!(!refused[0].success && rec.outcome == RescueOutcome::Missed && !rec.served, "{rec:?}");
-    assert!(rec.estimate > ninjars::fast::DEFAULT_RESCUE_TARGET, "{rec:?}");
+    assert!(
+        !refused[0].success && rec.outcome == RescueOutcome::Missed && !rec.served,
+        "{rec:?}"
+    );
+    assert!(
+        rec.estimate > ninjars::fast::DEFAULT_RESCUE_TARGET,
+        "{rec:?}"
+    );
     assert_eq!(rec.held_bits, 106, "{rec:?}");
     let held = refused[0].slot[0];
-    assert!((held - reference).abs() < 1e-8 * reference.abs(), "{held:?}");
+    assert!(
+        (held - reference).abs() < 1e-8 * reference.abs(),
+        "{held:?}"
+    );
     let binary64 = off[0].laurent.expect("served")[0];
     assert!((binary64 - reference).abs() > 1e-2 * reference.abs());
     let record = records
@@ -337,8 +490,8 @@ fn lanes_missing_the_target_are_refused_with_the_better_value() -> Result<(), Er
     Ok(())
 }
 
-/// A lane whose binary64 value is garbage from inside the stages (audit2's
-/// `a2-n3-d1e-05-T-mixed-r4`: time-like, δ = 3e-5, top mass on alternate
+/// A lane whose binary64 value is garbage from inside the stages (the synthetic
+/// lane `a2-n3-d1e-05-T-mixed-r4`: time-like, δ = 3e-5, top mass on alternate
 /// lines, rank n+1; binary64 8e19 off as a success): the term-moduli estimate
 /// divides by that garbage and stays small, the value-independent
 /// triangle-Gram term `2^-53/δ²` flags it at pyAmpliCol's target, and the
@@ -346,16 +499,25 @@ fn lanes_missing_the_target_are_refused_with_the_better_value() -> Result<(), Er
 #[test]
 fn garbage_lanes_are_flagged_by_the_value_independent_term() -> Result<(), Error> {
     use ninjars::fast::{RescueOutcome, take_rescues};
-    let f = fixture("audit2-n3-T-mixed-r4");
+    let f = fixture("synthetic-n3-T-mixed-r4");
     let r = f.references[0].as_ref().expect("reference");
     let reference = C64::new(r[0].parse()?, r[1].parse()?);
     let off = fast(&f, without_rescue())?;
     let binary64 = off[0].laurent.expect("served")[0];
-    assert!((binary64 - reference).abs() > 1e10 * reference.abs(), "{binary64:?}");
+    assert!(
+        (binary64 - reference).abs() > 1e10 * reference.abs(),
+        "{binary64:?}"
+    );
     let on = fast(&f, rescue())?;
-    let (_, rec) = take_rescues().into_iter().find(|(l, _)| *l == 0).expect("flagged");
+    let (_, rec) = take_rescues()
+        .into_iter()
+        .find(|(l, _)| *l == 0)
+        .expect("flagged");
     assert!(!on[0].success, "{}", on[0].status);
-    assert!(!rec.served && matches!(rec.outcome, RescueOutcome::Missed | RescueOutcome::Failed), "{rec:?}");
+    assert!(
+        !rec.served && matches!(rec.outcome, RescueOutcome::Missed | RescueOutcome::Failed),
+        "{rec:?}"
+    );
     Ok(())
 }
 
@@ -380,21 +542,29 @@ fn zero_thresholds_never_panic() -> Result<(), Error> {
         let f = fixture(&name);
         for o in fast(&f, zero)? {
             if o.success {
-                assert!(o.slot.iter().all(|z| z.re.is_finite() && z.im.is_finite()), "{name}");
+                assert!(
+                    o.slot.iter().all(|z| z.re.is_finite() && z.im.is_finite()),
+                    "{name}"
+                );
             }
         }
     }
     Ok(())
 }
 
-/// External review, finding 1 (a): an exact-kinematics rank-four box whose
+/// An exact-kinematics rank-four box whose
 /// rational term carries the box's -1/6 (a binary64 1/6 left a 2.1e-4 bias
 /// accepted at an estimate of 6e-15). Served values meet the target against
 /// a 260-bit reduction, or the lane is refused.
 #[test]
 fn exact_box_rational_term_is_double_double() -> Result<(), Error> {
     use ninjars::Float;
-    let shifts: [[f64; 4]; 4] = [[0., 0., 0., 0.], [1., 0.25, 0., 0.], [2., 0.5, 0.25, 0.], [-2., 1., 1., 1.]];
+    let shifts: [[f64; 4]; 4] = [
+        [0., 0., 0., 0.],
+        [1., 0.25, 0., 0.],
+        [2., 0.5, 0.25, 0.],
+        [-2., 1., 1., 1.],
+    ];
     let n = 4;
     let mp = |a: &[f64; 4], b: &[f64; 4]| {
         let d: Vec<f64> = (0..4).map(|m| a[m] - b[m]).collect();
@@ -404,18 +574,25 @@ fn exact_box_rational_term_is_double_double() -> Result<(), Error> {
     tensor[0][0] = "-129.52229449302200237070792354643344879150390625".into();
     tensor[69][0] = "1".into();
     let f = conditioning::Fixture {
-        name: "review-box".into(),
+        name: "rank4-box-rational".into(),
         n,
         rank: 4,
         shifts: shifts.iter().map(|v| v.map(|x| format!("{x:e}"))).collect(),
         masses_squared: vec![["100".into(), "0".into()]; n],
         mu_squared: "100".into(),
-        s_matrix: (0..n * n).map(|k| format!("{:e}", mp(&shifts[k / n], &shifts[k % n]))).collect(),
+        s_matrix: (0..n * n)
+            .map(|k| format!("{:e}", mp(&shifts[k / n], &shifts[k % n])))
+            .collect(),
         tensors: vec![tensor],
         references: vec![None],
     };
-    let reference = conditioning::generic_lanes(&[(&f, 0)], Float::with_val(260, 0), 260)?[0].laurent.expect("reference")[0];
-    assert!((reference.re + 2.2188072474911126e-14).abs() < 1e-28, "{reference:?}");
+    let reference = conditioning::generic_lanes(&[(&f, 0)], Float::with_val(260, 0), 260)?[0]
+        .laurent
+        .expect("reference")[0];
+    assert!(
+        (reference.re + 2.2188072474911126e-14).abs() < 1e-28,
+        "{reference:?}"
+    );
     let on = fast(&f, rescue())?;
     if on[0].success {
         let value = on[0].laurent.expect("served")[0];
@@ -425,25 +602,46 @@ fn exact_box_rational_term_is_double_double() -> Result<(), Error> {
     Ok(())
 }
 
-/// External review, finding 1 (b): a power-of-two rescaling of the numerator
+/// A power-of-two rescaling of the numerator
 /// (2^-700, 2^+700) changes neither the status nor the estimate (the squares
 /// of the term moduli underflowed: a 48.7 % error served at 1.1e-16).
 #[test]
 fn the_estimate_is_invariant_under_numerator_scaling() -> Result<(), Error> {
     use ninjars::fast::take_rescues;
-    let base = fixture("audit2-n3-T-mixed-r4");
+    let base = fixture("synthetic-n3-T-mixed-r4");
     let unscaled = fast(&base, rescue())?;
-    let (_, rec0) = take_rescues().into_iter().find(|(l, _)| *l == 0).expect("flagged");
+    let (_, rec0) = take_rescues()
+        .into_iter()
+        .find(|(l, _)| *l == 0)
+        .expect("flagged");
     for e in [-700, 700] {
         let mut f = base.clone();
         let scale = |x: &String| format!("{:e}", x.parse::<f64>().unwrap() * 2f64.powi(e));
-        f.tensors = f.tensors.iter().map(|t| t.iter().map(|z| [scale(&z[0]), scale(&z[1])]).collect()).collect();
-        f.references = f.references.iter().map(|r| r.as_ref().map(|r| [scale(&r[0]), scale(&r[1])])).collect();
+        f.tensors = f
+            .tensors
+            .iter()
+            .map(|t| t.iter().map(|z| [scale(&z[0]), scale(&z[1])]).collect())
+            .collect();
+        f.references = f
+            .references
+            .iter()
+            .map(|r| r.as_ref().map(|r| [scale(&r[0]), scale(&r[1])]))
+            .collect();
         let scaled = fast(&f, rescue())?;
-        let (_, rec) = take_rescues().into_iter().find(|(l, _)| *l == 0).expect("flagged when scaled");
-        assert_eq!(scaled[0].success, unscaled[0].success, "2^{e}: {} vs {}", scaled[0].status, unscaled[0].status);
+        let (_, rec) = take_rescues()
+            .into_iter()
+            .find(|(l, _)| *l == 0)
+            .expect("flagged when scaled");
+        assert_eq!(
+            scaled[0].success, unscaled[0].success,
+            "2^{e}: {} vs {}",
+            scaled[0].status, unscaled[0].status
+        );
         assert_eq!(rec.outcome, rec0.outcome, "2^{e}");
-        assert!((rec.held_estimate / rec0.held_estimate - 1.).abs() < 1e-6, "2^{e}: {rec:?} vs {rec0:?}");
+        assert!(
+            (rec.held_estimate / rec0.held_estimate - 1.).abs() < 1e-6,
+            "2^{e}: {rec:?} vs {rec0:?}"
+        );
     }
     Ok(())
 }
@@ -454,14 +652,20 @@ fn estimate_and_absolute_share_one_normalization() -> Result<(), Error> {
     use ninjars::fast::take_rescues;
     let f = fixture("ggg-308-n3-r3");
     let on = fast(&f, rescue())?;
-    let (_, rec) = take_rescues().into_iter().find(|(l, _)| *l == 0).expect("record");
+    let (_, rec) = take_rescues()
+        .into_iter()
+        .find(|(l, _)| *l == 0)
+        .expect("record");
     let value = on[0].laurent.expect("served")[0];
-    assert!((rec.absolute / value.abs() / rec.estimate - 1.).abs() < 1e-12, "{rec:?}");
+    assert!(
+        (rec.absolute / value.abs() / rec.estimate - 1.).abs() < 1e-12,
+        "{rec:?}"
+    );
     Ok(())
 }
 
-/// A lane with an on-shell massive leg and no refined kinematics (audit2
-/// N2; `g g > t t~ g` point 1186, binary64 2.3e-5 off) is outside the
+/// A lane with an on-shell massive leg and no refined kinematics
+/// (`g g > t t~ g` point 1186, binary64 2.3e-5 off) is outside the
 /// rescue's domain: not re-reduced, typed `Unstable`
 /// (`RescueOutsideDomain`), its binary64 value in the slot; with the rescue
 /// off it is the binary64 success, bit for bit.
@@ -472,11 +676,19 @@ fn massive_on_shell_lanes_without_refinement_are_typed_outside_the_domain() -> R
     let off = fast(&f, without_rescue())?;
     assert!(off[0].success);
     let on = fast(&f, rescue())?;
-    let (_, rec) = take_rescues().into_iter().find(|(l, _)| *l == 0).expect("flagged");
+    let (_, rec) = take_rescues()
+        .into_iter()
+        .find(|(l, _)| *l == 0)
+        .expect("flagged");
     let records = take_instabilities();
     assert_eq!(rec.outcome, RescueOutcome::OutsideDomain, "{rec:?}");
     assert!(!on[0].success && rec.held_bits == 53, "{rec:?}");
     assert_eq!(on[0].slot, off[0].slot);
-    assert!(records.iter().any(|(l, i)| *l == 0 && i.test == InstabilityTest::RescueOutsideDomain), "{records:?}");
+    assert!(
+        records
+            .iter()
+            .any(|(l, i)| *l == 0 && i.test == InstabilityTest::RescueOutsideDomain),
+        "{records:?}"
+    );
     Ok(())
 }

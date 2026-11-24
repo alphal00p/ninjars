@@ -15,12 +15,12 @@
 
 use ninjars::fast::dd::{Cd, Dd};
 use ninjars::fast::{C64, FastMaster, FastMasters};
-use symbolica::domains::float::DoubleFloat;
 use ninjars::{
     BatchShape, Complex, Error, Laurent, MasterFailure, MasterIntegral, MasterProvider,
     MasterRequest, MasterStatus, Result,
 };
 use oneloop::{NativeEvaluator, NativeTensorEvaluator, ScalarIntegral, TensorIntegral};
+use symbolica::domains::float::DoubleFloat;
 
 type L3 = [C64; 3];
 
@@ -109,9 +109,15 @@ fn dd_in(z: Cd) -> Complex<DoubleFloat> {
 fn dd_out(z: &Complex<DoubleFloat>) -> Cd {
     let part = |x: &DoubleFloat| {
         let d = x.into_inner();
-        Dd { hi: d.hi(), lo: d.lo() }
+        Dd {
+            hi: d.hi(),
+            lo: d.lo(),
+        }
     };
-    Cd { re: part(&z.re), im: part(&z.im) }
+    Cd {
+        re: part(&z.re),
+        im: part(&z.im),
+    }
 }
 
 fn native_error(error: String) -> Error {
@@ -489,8 +495,16 @@ impl FastMasters for OneLoopNativeMasters {
         }
         let rows = ok.len();
         let (arity, width) = (family.arity(), family.outputs());
-        BatchShape { rows, columns: arity }.validate("rescue master arguments", args.len())?;
-        BatchShape { rows, columns: width }.validate("rescue master outputs", out.len())?;
+        BatchShape {
+            rows,
+            columns: arity,
+        }
+        .validate("rescue master arguments", args.len())?;
+        BatchShape {
+            rows,
+            columns: width,
+        }
+        .validate("rescue master outputs", out.len())?;
         if self.rescue.is_none() {
             let _license = ninjars::licensing::unlock_for_ninjars_operation();
             let mut r = RescueMasters {
@@ -519,7 +533,11 @@ impl FastMasters for OneLoopNativeMasters {
             FastMaster::D0 => 6,
             _ => 1,
         };
-        for (row, (point, result)) in args.chunks_exact(arity).zip(out.chunks_exact_mut(width)).enumerate() {
+        for (row, (point, result)) in args
+            .chunks_exact(arity)
+            .zip(out.chunks_exact_mut(width))
+            .enumerate()
+        {
             let valid = point.iter().all(|z| z.is_finite())
                 && point[..invariants].iter().all(|z| z.im == 0.)
                 && point[invariants..arity - 1].iter().all(|z| !(z.im > 0.))

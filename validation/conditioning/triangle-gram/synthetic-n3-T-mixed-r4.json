@@ -17,7 +17,7 @@
   "mu_squared": "8.31525134400000024470500648021697998046875000000000000000000000000000000000000000e3",
   "n": 3,
   "name": "a2-n3-d1e-05-T-mixed-r4",
-  "provenance": "audit2 synthetic set (synth2.json): exactly consistent lane, random rank tensor; reference: generic engine at 260 bits",
+  "provenance": "second synthetic set (n = 3 to 6, independent seed): exactly consistent lane, random rank tensor; reference: generic engine at 260 bits",
   "rank": 4,
   "references": [
     {

@@ -268,7 +268,6 @@ fn batch_input(
     common::ninja_reference::Batch::new(case, points)
 }
 
-
 /// The binary64 engine against original Ninja (replayed binary64 masters, no
 /// double-double ones): the cancellation rescue off.
 fn binary64_options() -> FastOptions {

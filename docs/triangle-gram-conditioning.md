@@ -2,8 +2,8 @@
 
 The fast engine re-reduces in double-double every lane whose binary64
 reduction it measures to miss a target relative accuracy
-(`FastOptions::cancellation_rescue`; **NinjaRS default OFF; the integration
-switches it ON explicitly in pyAmpliCol's checked mode** (`fast_options(false)`,
+(`FastOptions::cancellation_rescue`; **NinjaRS default OFF; pyAmpliCol
+switches it ON explicitly in its checked mode** (`fast_options(false)`,
 behind pyAmpliCol's own lane test), OFF in its UNCHECKED mode;
 `FastOptions::rescue_target`, default `DEFAULT_RESCUE_TARGET = 2^-30`). The flagged lane is reduced again
 WHOLE (box, triangle, bubble and tadpole stages, every master) at one
@@ -96,7 +96,7 @@ error, the largest of:
 - `2^-53 / δ²` for each triangle, `δ = sqrt|λ(p1², p2², p3²)| / max|pi²|`
   its normalised Gram from the lane's invariants: a measure that does not
   divide by the computed value, which a loss inside the stages can make as
-  large as the error itself (second audit B4: a rank n+1 lane `8e19` off,
+  large as the error itself (measured: a rank n+1 lane `8e19` off,
   unflagged at target `1e-8` by the other terms). It only flags; the
   re-reduced lane's own estimate decides.
 
@@ -105,7 +105,7 @@ always) is re-reduced, if its numerator exposes its tensor
 (`FastNumerator::tensor_coefficients`; others keep today's behaviour). The
 default `2^-30` keeps about seven digits per lane; a caller with an accuracy
 target of its own passes it, divided by its safety factor for a lane being one
-of several terms of its point (pyAmpliCol: `reduction_target / 1000`).
+of several terms of its point (pyAmpliCol: `reduction_target / 64`).
 
 ## 4. Re-reduction
 
@@ -143,14 +143,14 @@ The re-reduced lane's own absolute error estimate is the largest of
   the largest, without the expanded form's cancellation) and each `D0` term by the `1/δ²` of
   its most degenerate sub-triangle: the provider's
   double-double `C0` loses `log2(1/δ)` bits at a nearly degenerate triangle (measured against 200-bit
-  MPFR by the second audit: `8.6e-27 = 2^-104/δ` at `δ = 5e-6`, massless,
+  MPFR: `8.6e-27 = 2^-104/δ` at `δ = 5e-6`, massless,
   massive and complex lines), `D0` up to `2^-104/δ²` (`2^-77`) at a box with
   a degenerate sub-triangle; A0 and B0 to `2^-100` and better, B11/B111 to `2^-98.4`.
   `2^-100` is empirical: the smallest weight for which no served lane exceeds
   its estimate on the two independent exact sets below (the estimate sums
   moduli, an upper bound of the accumulated rounding);
-  `|V'| 2^-53` the rounding of the served binary64 value. Measured: on the
-  first audit's synthetic lanes (168) and on the second audit's independent
+  `|V'| 2^-53` the rounding of the served binary64 value. Measured: on a
+  first set of synthetic lanes (168) and on a second, independent
   set (293; new seed, `δ` to `1e-9`, n = 3 to 6, massless, top, complex Z,
   mixed, W and on-shell massive lines) no served lane exceeds the target;
   the largest error over estimate is 1.01 (first set) and 182 at the `2^-53`
@@ -168,7 +168,7 @@ cancellation ladder):
   own terms (`|V'| <= 2^-53 M'`) is NOT served on that ground
   (`BelowResolution` is not produced by the fast engine): its value is an
   ordinary part of the point the caller sums, and no absolute scale of the
-  point is known to NinjaRS (the second audit: such a rule served lanes
+  point is known to NinjaRS (measured: such a rule served lanes
   `1e0 .. 1.5e7` off);
 - `Failed`: no re-reduction (a degenerate or non-finite quantity, an
   unsolvable projection, a caller-given invariant below `infrared_eps`);
@@ -219,8 +219,21 @@ solutions, coefficients and mu-expansion; double-double `D0`):
 
 ## 7. Results
 
-See `REPORT.md` of the work folder for the tables (pyAmpliCol v1.0.3 + this
-branch, campaign points against the campaign's double-double references).
+pyAmpliCol v1.0.3 with this branch, checked mode at its default target `1e-5`
+(lane target `1e-5 / 64`), correct digits against double-double references
+of the same points:
+
+| Process (points) | worst | below 5 | below 8 | points re-reduced |
+|---|---|---|---|---|
+| `g g > g g g`, leading colour (10,000) | -4.88 -> 6.85 | 122 -> 0 | 491 -> 21 | 4,608 |
+| `g g > g g g g`, leading colour (300) | -2.34 -> 7.45 | 13 -> 0 | 48 -> 4 | 297 |
+| `u u~ > e- e+ g g g` (500) | -0.26 -> 7.44 | 3 -> 0 | 26 -> 1 | |
+| `g g > t t~ g` (2,000) | 4.47 -> 9.47 | 0 -> 0 | 5 -> 0 | 664 |
+
+Points without a re-reduced lane are bit for bit the previous release. Some
+re-reduced points lose digits against the previous release (`g g > g g g`:
+292 of 10,000 by more than 0.3 digit, the lowest result 8.14 digits), which
+is the "never worse" limit of section 9.
 
 ## 8. Rescue-precision kinematics from the caller
 
@@ -246,14 +259,14 @@ invariant low part = that invariant from the refined shifts).
   refined shifts; otherwise the lane takes the internal projection (an
   inconsistent refinement, e.g. zero low parts for binary64 momenta, is never
   trusted). Because the whole lane is recomputed there, the refined point may lie
-  any distance from the binary64 input that the caller's cure produces; what it
+  any distance from the binary64 input that the caller's refinement produces; what it
   must be is exactly consistent to double-double: on-shell legs (exactly zero
   invariants stay exactly zero, `lo = 0`), invariants those of the refined
   shifts. The numerator stays at the binary64 point: a lane whose value is
   sensitive to its kinematics (measured on `g g > a a g` lanes: `1e-10 ..
   1e-8` under consistent `2e-16` perturbations) moves with the distance, as it
   would with any binary64 input; the internal projection moves the point by
-  about one ulp (minimal norm), the refinement by the caller's cure.
+  about one ulp (minimal norm), the refinement by the caller's.
 - Lanes that the rank n+2 engine reduces at a lower rank are renumbered and
   use the projection.
 - Without an invariant matrix every invariant NinjaRS computes below
@@ -282,25 +295,25 @@ invariant low part = that invariant from the refined shifts).
   reduced through a numerator wrapper without tensor coefficients).
 - On-shell MASSIVE external legs need the caller's refined kinematics:
   without a (consistent) refinement the projection makes only massless pairs
-  exact, so such a lane is not re-reduced (second audit N2: with the
+  exact, so such a lane is not re-reduced (measured: with the
   two-point re-reduction such lanes were served `3e-8` off where binary64 had
-  `1e-9`). pyAmpliCol supplies a refinement for every flagged lane when the
-  integration carries API's source; through it the 22 flagged massive-loop
+  `1e-9`). pyAmpliCol supplies a refinement for every flagged lane in its
+  checked mode; through it the 22 flagged massive-loop
   lanes of `g g > t t~ g` point 1186 are `Accepted` at `<= 1.8e-10`.
 - Losses inside a stage that neither the term moduli, the box-Gram model,
   the mu screen nor the triangle-Gram term sees are not flagged (time-like
-  synthetic pentagons, `4e-4`; the first audit's F3). The second audit's
+  synthetic pentagons, `4e-4`). The synthetic
   garbage lanes (`8.1e19` and `1.15e17` off as binary64 successes, unflagged
   by the term moduli at target `1e-8`, which divide by the garbage) are
   flagged by the value-independent triangle-Gram term and refused typed
   (test `garbage_lanes_are_flagged_by_the_value_independent_term`, fixture
-  `audit2-n3-T-mixed-r4`); on its set 5 rank <= n+1 lanes above `1e-8` stay
+  `synthetic-n3-T-mixed-r4`); on that set 5 rank <= n+1 lanes above `1e-8` stay
   unflagged (worst `6.4e-8`). pyAmpliCol keeps its own lane test on in the
   checked mode.
 - "Never worse" is guarded, not proven (accepted for this landing as a
   documented limit): a served value's absolute estimate must be at most 1/16
-  of the binary64 lane's estimate, and estimates are not errors. Measured by
-  the second audit against the previous release on the integration's build:
+  of the binary64 lane's estimate, and estimates are not errors. Measured
+  against the previous release on a pyAmpliCol build of this branch:
   64 of 10,000 `g g > g g g`, 55 of 1,000 `u u~ > e- e+ g g g` and 14 of 2,000
   `g g > t t~ g` points come out more than 0.3 digit worse, none below 7.69
   digits; the worst points go `-4.88 -> 6.87`, `-0.26 -> 6.49` and
@@ -314,7 +327,7 @@ invariant low part = that invariant from the refined shifts).
   with relative estimates `1.1e-16` (far within any target).
 - Constants: every rational constant of the double-double path is exact in
   binary64 or applied as a double-double division (the box's `-1/6` was a
-  binary64 constant until the external review: a `2.1e-4` bias accepted at
+  binary64 constant before this change: a `2.1e-4` bias accepted at
   `6e-15`; test `exact_box_rational_term_is_double_double`).
 - Masses' low parts: exact binary64 masses unless the caller refines them.
 

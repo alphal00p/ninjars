@@ -70,7 +70,11 @@ pub fn consistent(f: &conditioning::Fixture, bits: u32) -> Lane {
     for i in 0..n {
         for j in i + 1..n {
             let s = &given[i * n + j];
-            if s.is_zero() || masses.iter().any(|m| m.im.is_zero() && !m.re.is_zero() && &m.re == s) {
+            if s.is_zero()
+                || masses
+                    .iter()
+                    .any(|m| m.im.is_zero() && !m.re.is_zero() && &m.re == s)
+            {
                 keep[i * n + j] = true;
                 keep[j * n + i] = true;
                 pairs.push((i, j, s.clone()));
@@ -155,7 +159,15 @@ pub fn run<T: LadderCarrier>(
 where
     Complex<T>: Real + EvaluationDomain,
 {
-    run_rule(lane, prototype, ladder, LadderRule { target, ..LadderRule::default() })
+    run_rule(
+        lane,
+        prototype,
+        ladder,
+        LadderRule {
+            target,
+            ..LadderRule::default()
+        },
+    )
 }
 
 /// [`run`] with a whole rule.
@@ -194,20 +206,30 @@ where
         }
         v
     };
-    let shifts: Vec<FourMomentum<Complex<T>>> =
-        lane.shifts.iter().map(|v| FourMomentum::from(v.clone().map(|x| coarse(&x)))).collect();
+    let shifts: Vec<FourMomentum<Complex<T>>> = lane
+        .shifts
+        .iter()
+        .map(|v| FourMomentum::from(v.clone().map(|x| coarse(&x))))
+        .collect();
     let masses: Vec<Complex<T>> = lane.masses.iter().map(cc).collect();
     let s_matrix: Vec<Complex<T>> = lane.s.iter().map(cc).collect();
     let scales = vec![cc(&lane.scale)];
     let coefficients: Vec<Complex<T>> = lane.coefficients.iter().map(cc).collect();
     let (expression, parameters) = template(lane.rank);
     let variables = ["q0", "q1", "q2", "q3", "mu2"].map(atom);
-    let mut numerator = PolynomialNumerator::new(expression, variables, parameters, prototype.clone())?;
+    let mut numerator =
+        PolynomialNumerator::new(expression, variables, parameters, prototype.clone())?;
     numerator.set_parameter_batch(&coefficients, 1)?;
     let mut sampling = vec![Complex::new(zero.clone(), zero.clone()); 1];
     if n >= 4 {
         let mut status = vec![SamplingScaleStatus::Selected(SamplingScaleSource::UnitFallback); 1];
-        SymbolicaSamplingScales::new(n, prototype.clone())?.evaluate_batch(&shifts, &masses, 1, &mut sampling, &mut status)?;
+        SymbolicaSamplingScales::new(n, prototype.clone())?.evaluate_batch(
+            &shifts,
+            &masses,
+            1,
+            &mut sampling,
+            &mut status,
+        )?;
     }
     let mut low = SymbolicaCuts::new(prototype.clone())?;
     let mut masters = SymbolicaMasters::new(prototype.clone()).with_onshell_threshold(None);
@@ -232,10 +254,16 @@ where
             &mut masters,
         )?;
     } else {
-        amplitude.evaluate_batch_with_low_cuts(AmplitudeInput { ..input }, &mut numerator, &mut low, &mut masters)?;
+        amplitude.evaluate_batch_with_low_cuts(
+            AmplitudeInput { ..input },
+            &mut numerator,
+            &mut low,
+            &mut masters,
+        )?;
     }
     let status = format!("{:?}", amplitude.statuses()[0]);
-    let (lost, _, sum) = lane_loss(&amplitude, 0, prototype.get_precision()).ok_or("nothing measured")?;
+    let (lost, _, sum) =
+        lane_loss(&amplitude, 0, prototype.get_precision()).ok_or("nothing measured")?;
     let value = Complex::new(sum[0].re.to_f64(), sum[0].im.to_f64());
     // Largest term moduli per cut size.
     let cuts = amplitude.topology().cuts();
@@ -245,7 +273,11 @@ where
         let size = cut.partition.len().min(5);
         by_size[size] = by_size[size].max(m);
     }
-    let by_size = by_size.into_iter().enumerate().filter(|(_, m)| *m > 0.).collect();
+    let by_size = by_size
+        .into_iter()
+        .enumerate()
+        .filter(|(_, m)| *m > 0.)
+        .collect();
     let rescued = if ladder {
         let mut ladder = PolynomialLadder::new(n, &numerator).with_rule(rule);
         let input = AmplitudeInput {
@@ -264,7 +296,9 @@ where
                 .unwrap_or(Complex::new(f64::NAN, f64::NAN));
             Rescued {
                 value: v,
-                laurent: r.value.as_ref().map(|l| std::array::from_fn(|k| Complex::new(l[k].re.to_f64(), l[k].im.to_f64()))),
+                laurent: r.value.as_ref().map(|l| {
+                    std::array::from_fn(|k| Complex::new(l[k].re.to_f64(), l[k].im.to_f64()))
+                }),
                 rungs: r.rungs,
                 estimate: r.rung_estimate,
                 projected: r.projected,
@@ -272,7 +306,11 @@ where
                 absolute_bound: r.absolute_bound,
                 term_moduli: r.term_moduli,
                 best: r.best.as_ref().map(|b| {
-                    (Complex::new(b.value[0].re.to_f64(), b.value[0].im.to_f64()), b.estimate, b.bits)
+                    (
+                        Complex::new(b.value[0].re.to_f64(), b.value[0].im.to_f64()),
+                        b.estimate,
+                        b.bits,
+                    )
                 }),
             }
         })
@@ -288,4 +326,3 @@ where
         ladder: rescued,
     })
 }
-

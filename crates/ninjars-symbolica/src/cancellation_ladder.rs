@@ -49,8 +49,9 @@
 use std::cmp::Ordering;
 
 use ninjars::{
-    Amplitude, AmplitudeInput, Complex, DoubleFloat, Float, FourMomentum, Laurent, Numerator, Real, Result,
-    SamplingScaleProvider, SamplingScaleSource, SamplingScaleStatus, EvaluationStatus,
+    Amplitude, AmplitudeInput, Complex, DoubleFloat, EvaluationStatus, Float, FourMomentum,
+    Laurent, Numerator, Real, Result, SamplingScaleProvider, SamplingScaleSource,
+    SamplingScaleStatus,
 };
 use oneloop::NativeFloat;
 use symbolica::{
@@ -316,7 +317,7 @@ where
 }
 
 /// Higher-precision kinematics of rescued lanes, as low parts in the base
-/// carrier (CONTRACT.md, LADDER): the refined value of every entry is the
+/// carrier: the refined value of every entry is the
 /// base input plus its low part, summed exactly in the rung's precision (no
 /// normalisation of the pair is assumed). Asked only for lanes the ladder
 /// rescues. The refined point must be the higher-precision cure of the base
@@ -462,7 +463,9 @@ pub fn project_shells(
     for step in 0..=6 {
         let d: Vec<[Float; 4]> = pairs
             .iter()
-            .map(|(i, j, _)| std::array::from_fn(|mu| exact(&(shifts[*i][mu].clone() - &shifts[*j][mu]), bits)))
+            .map(|(i, j, _)| {
+                std::array::from_fn(|mu| exact(&(shifts[*i][mu].clone() - &shifts[*j][mu]), bits))
+            })
             .collect();
         let g: Vec<Float> = d
             .iter()
@@ -608,7 +611,11 @@ where
         .map(|i| {
             let hi = input.shifts[lane * n + i].components();
             std::array::from_fn(|mu| {
-                if refined { sum(hi[mu], &lo_shifts[i][mu]) } else { lift(hi[mu]) }
+                if refined {
+                    sum(hi[mu], &lo_shifts[i][mu])
+                } else {
+                    lift(hi[mu])
+                }
             })
         })
         .collect();
@@ -634,7 +641,7 @@ where
     if project && real_shifts && !given.is_empty() {
         // Shell pairs: an exactly zero invariant, or one exactly equal to the
         // real part of a squared mass of the lane (an on-shell leg of a
-        // complex-mass particle carries `Re m²`, audit m5).
+        // complex-mass particle carries `Re m²`).
         let mut pairs = Vec::new();
         for i in 0..n {
             for j in i + 1..n {
@@ -642,8 +649,8 @@ where
                 if !s.im.is_zero() {
                     continue;
                 }
-                let shell = s.re.is_zero()
-                    || masses.iter().any(|m| !m.re.is_zero() && m.re == s.re);
+                let shell =
+                    s.re.is_zero() || masses.iter().any(|m| !m.re.is_zero() && m.re == s.re);
                 if shell {
                     keep[i * n + j] = true;
                     keep[j * n + i] = true;
@@ -689,7 +696,10 @@ where
         masses,
         scale: lift(&input.scales_squared[lane]),
         s_matrix,
-        parameters: parameters[lane * width..(lane + 1) * width].iter().map(lift).collect(),
+        parameters: parameters[lane * width..(lane + 1) * width]
+            .iter()
+            .map(lift)
+            .collect(),
         projected,
         consistent: !project || projected,
     }
@@ -763,16 +773,30 @@ where
         convert: impl Fn(&Float, &U) -> U,
     ) -> Result<Vec<RungLane<U>>> {
         let count = lanes.len();
-        let c = |v: &Complex<Float>| Complex::new(convert(&v.re, &self.prototype), convert(&v.im, &self.prototype));
+        let c = |v: &Complex<Float>| {
+            Complex::new(
+                convert(&v.re, &self.prototype),
+                convert(&v.im, &self.prototype),
+            )
+        };
         let shifts: Vec<FourMomentum<Complex<U>>> = lanes
             .iter()
-            .flat_map(|l| l.shifts.iter().map(|v| FourMomentum::from(v.components().map(c))))
+            .flat_map(|l| {
+                l.shifts
+                    .iter()
+                    .map(|v| FourMomentum::from(v.components().map(c)))
+            })
             .collect();
         let masses: Vec<Complex<U>> = lanes.iter().flat_map(|l| l.masses.iter().map(c)).collect();
         let scales: Vec<Complex<U>> = lanes.iter().map(|l| c(&l.scale)).collect();
-        let s_matrix: Vec<Complex<U>> = lanes.iter().flat_map(|l| l.s_matrix.iter().map(c)).collect();
-        let parameters: Vec<Complex<U>> =
-            lanes.iter().flat_map(|l| l.parameters.iter().map(c)).collect();
+        let s_matrix: Vec<Complex<U>> = lanes
+            .iter()
+            .flat_map(|l| l.s_matrix.iter().map(c))
+            .collect();
+        let parameters: Vec<Complex<U>> = lanes
+            .iter()
+            .flat_map(|l| l.parameters.iter().map(c))
+            .collect();
         let zero = Complex::new(self.prototype.zero(), self.prototype.zero());
         let mut sampling = vec![zero.clone(); count];
         if let Some(provider) = &mut self.sampling {
@@ -811,11 +835,19 @@ where
                 let status = self.amplitude.statuses()[lane];
                 match lane_loss(&self.amplitude, lane, self.prototype.get_precision()) {
                     Some((lost, moduli, sum))
-                        if matches!(status, EvaluationStatus::Success | EvaluationStatus::Unstable) =>
+                        if matches!(
+                            status,
+                            EvaluationStatus::Success | EvaluationStatus::Unstable
+                        ) =>
                     {
                         (status, sum, lost, moduli)
                     }
-                    _ => (status, std::array::from_fn(|_| zero.clone()), f64::INFINITY, [0.; 3]),
+                    _ => (
+                        status,
+                        std::array::from_fn(|_| zero.clone()),
+                        f64::INFINITY,
+                        [0.; 3],
+                    ),
                 }
             })
             .collect())
@@ -929,7 +961,12 @@ impl PolynomialLadder {
             .scales_squared
             .iter()
             .map(|v| v.re.get_precision())
-            .chain(input.shifts.iter().flat_map(|v| v.components().map(|c| c.re.get_precision())))
+            .chain(
+                input
+                    .shifts
+                    .iter()
+                    .flat_map(|v| v.components().map(|c| c.re.get_precision())),
+            )
             .max()
             .unwrap_or(prototype.get_precision());
         let width = self.parameters.len();
@@ -964,7 +1001,9 @@ impl PolynomialLadder {
             let scale = std::iter::once(&input.scales_squared[lane]);
             let s = input
                 .s_matrix
-                .map_or(&[][..], |s| &s[lane * n_lane * n_lane..(lane + 1) * n_lane * n_lane])
+                .map_or(&[][..], |s| {
+                    &s[lane * n_lane * n_lane..(lane + 1) * n_lane * n_lane]
+                })
                 .iter();
             known(&mut shifts.chain(masses).chain(scale).chain(s))
         };
@@ -979,7 +1018,10 @@ impl PolynomialLadder {
             .collect();
         for lane in 0..lanes {
             let status = amplitude.statuses()[lane];
-            if !matches!(status, EvaluationStatus::Success | EvaluationStatus::Unstable) {
+            if !matches!(
+                status,
+                EvaluationStatus::Success | EvaluationStatus::Unstable
+            ) {
                 continue;
             }
             if tracks && kinematic_bits(lane) < base {
@@ -989,15 +1031,16 @@ impl PolynomialLadder {
                 continue;
             };
             // An MPFR base's estimate is numerica's tracked precision, which
-            // can be optimistic (audit B1/M1): it carries the margin, and a
+            // can be optimistic (up to 2^25 measured): it carries the margin, and a
             // lane the engine refused is always re-reduced (its value can
             // only be served once a rung has confirmed it).
             let base_estimate = estimate(base, lost) * if tracks { margin } else { 1. };
             // A lane the engine refused is served unconfirmed only with the
-            // margin (audit m10: double-double estimates are honest within a
+            // margin (double-double estimates are measured honest within a
             // factor 5-7, not exact); at an MPFR base never.
             let refused = status == EvaluationStatus::Unstable;
-            let flagged = base_estimate > target || (refused && (tracks || base_estimate * margin > target));
+            let flagged =
+                base_estimate > target || (refused && (tracks || base_estimate * margin > target));
             if !flagged {
                 if status == EvaluationStatus::Unstable {
                     within.push(LaneRescue {
@@ -1040,7 +1083,13 @@ impl PolynomialLadder {
         }
         // An exactly vanishing sum of non-zero terms lost everything the base
         // carrier had: size its rung as such (BelowResolution then serves it).
-        let sizing = |lost: f64| if lost.is_finite() { lost } else { f64::from(base) };
+        let sizing = |lost: f64| {
+            if lost.is_finite() {
+                lost
+            } else {
+                f64::from(base)
+            }
+        };
         let mut next: Vec<Option<Rung>> = pending
             .iter()
             .map(|r| self.rule.rung(base, sizing(r.lost_bits)))
@@ -1082,7 +1131,18 @@ impl PolynomialLadder {
                     let bits = r.bits().max(2 * MPFR_LIMB_BITS);
                     let inputs: Vec<LaneInputs> = members
                         .iter()
-                        .map(|&k| lane_inputs(n, pending[k].lane, input, parameters, width, refinement, bits, self.rule.project))
+                        .map(|&k| {
+                            lane_inputs(
+                                n,
+                                pending[k].lane,
+                                input,
+                                parameters,
+                                width,
+                                refinement,
+                                bits,
+                                self.rule.project,
+                            )
+                        })
                         .collect();
                     // An error inside a rung fails its lanes, not the batch.
                     match self.evaluate_rung(r, &inputs) {
@@ -1106,8 +1166,10 @@ impl PolynomialLadder {
                         continue;
                     }
                     let usable = |(status, sum, _, moduli): &RungLane<Float>| {
-                        matches!(status, EvaluationStatus::Success | EvaluationStatus::Unstable)
-                            && sum.iter().all(|v| v.re.is_finite() && v.im.is_finite())
+                        matches!(
+                            status,
+                            EvaluationStatus::Success | EvaluationStatus::Unstable
+                        ) && sum.iter().all(|v| v.re.is_finite() && v.im.is_finite())
                             && moduli.iter().all(|m| m.is_finite())
                     };
                     let low = &outcomes[0].1[i];
@@ -1125,7 +1187,9 @@ impl PolynomialLadder {
                         record.outcome = LadderOutcome::Missed;
                         let wider = (rung.bits() + 2 * MPFR_LIMB_BITS).max(2 * MPFR_LIMB_BITS);
                         if wider <= cap {
-                            next[k] = Some(Rung::Arbitrary(wider.div_ceil(MPFR_LIMB_BITS) * MPFR_LIMB_BITS));
+                            next[k] = Some(Rung::Arbitrary(
+                                wider.div_ceil(MPFR_LIMB_BITS) * MPFR_LIMB_BITS,
+                            ));
                             still.push(k);
                         }
                         continue;
@@ -1141,7 +1205,13 @@ impl PolynomialLadder {
                     // coefficient (an exactly zero pair agrees).
                     let relative_to = |d: &Complex<Float>, v: &Complex<Float>| {
                         let (d, v) = (taxicab_f(d), taxicab_f(v));
-                        if d == 0. { 0. } else if v > 0. { d / v } else { f64::INFINITY }
+                        if d == 0. {
+                            0.
+                        } else if v > 0. {
+                            d / v
+                        } else {
+                            f64::INFINITY
+                        }
                     };
                     let disagreement = match high {
                         Some(_) => (0..3)
@@ -1161,7 +1231,7 @@ impl PolynomialLadder {
                     });
                     // The estimate of the value actually returned: the rung's,
                     // plus what the narrowing to the base carrier did to every
-                    // coefficient (never below a few base units, audit m9).
+                    // coefficient (never below a few base units).
                     let bits = served_rung.bits().max(2 * MPFR_LIMB_BITS);
                     let narrowing = (0..3)
                         .map(|j| {
@@ -1175,7 +1245,11 @@ impl PolynomialLadder {
                         .max(below_bits(1., input_bits[record.lane]));
                     // Never a non-finite estimate (a vanishing value has no
                     // relative accuracy: the largest finite one).
-                    let reported = if reported.is_finite() { reported } else { f64::MAX };
+                    let reported = if reported.is_finite() {
+                        reported
+                    } else {
+                        f64::MAX
+                    };
                     record.rung_estimate = Some(reported);
                     // The rung's resolution of its own terms, per coefficient:
                     // a finite absolute bound of its value, and the terms'
@@ -1193,7 +1267,7 @@ impl PolynomialLadder {
                     // Served (`Accepted`) only when the estimate REPORTED for
                     // the value returned (narrowing to the base carrier
                     // included) meets the REQUESTED target, and the rung is
-                    // clearly better than the base value (audit m5). A target
+                    // clearly better than the base value. A target
                     // below what the base carrier can represent is `Missed`.
                     if reported <= target && honest < record.estimate {
                         record.outcome = LadderOutcome::Accepted;
@@ -1215,7 +1289,9 @@ impl PolynomialLadder {
                     let sized = self.rule.rung(base, sizing(*lost)).map_or(0, |r| r.bits());
                     let wider = sized.max(floor_bits);
                     if wider <= cap {
-                        next[k] = Some(Rung::Arbitrary(wider.div_ceil(MPFR_LIMB_BITS) * MPFR_LIMB_BITS));
+                        next[k] = Some(Rung::Arbitrary(
+                            wider.div_ceil(MPFR_LIMB_BITS) * MPFR_LIMB_BITS,
+                        ));
                         still.push(k);
                     }
                 }
@@ -1274,7 +1350,14 @@ impl PolynomialLadder {
             AnyStage::DoubleDouble(stage) => stage
                 .evaluate(n, inputs, |v, _| v.to_double_float())?
                 .into_iter()
-                .map(|(status, sum, lost, moduli)| (status, sum.map(|v| complex_to_float(&v, 2 * MPFR_LIMB_BITS)), lost, moduli))
+                .map(|(status, sum, lost, moduli)| {
+                    (
+                        status,
+                        sum.map(|v| complex_to_float(&v, 2 * MPFR_LIMB_BITS)),
+                        lost,
+                        moduli,
+                    )
+                })
                 .collect(),
             AnyStage::Arbitrary(stage) => {
                 let bits = rung.bits();
@@ -1320,12 +1403,18 @@ mod tests {
         assert!(!rule.flags(106, 50.));
         assert_eq!(rule.rung(106, 60.), Some(Rung::Arbitrary(192)));
         assert_eq!(rule.rung(106, 75.), Some(Rung::Arbitrary(256)));
-        let untracked = LadderRule { mpfr_tracking: 0., ..rule };
+        let untracked = LadderRule {
+            mpfr_tracking: 0.,
+            ..rule
+        };
         assert_eq!(untracked.rung(106, 60.), Some(Rung::Arbitrary(128)));
         // MPFR p -> MPFR p'.
         assert_eq!(rule.rung(200, 120.), Some(Rung::Arbitrary(384)));
         // A caller's target: binary64 at 1e-5 flags beyond 36 bits lost.
-        let loose = LadderRule { target: Some(1e-5), ..rule };
+        let loose = LadderRule {
+            target: Some(1e-5),
+            ..rule
+        };
         assert!(!loose.flags(53, 36.));
         assert!(loose.flags(53, 37.));
         assert_eq!(loose.rung(106, 80.), Some(Rung::Arbitrary(192)));
@@ -1347,13 +1436,23 @@ mod tests {
         let mut shifts = vec![
             [f(0.), f(0.), f(0.), f(0.)],
             p.map(f),
-            [f(p[0] + k[0]), f(p[1] + k[1]), f(p[2] + k[2]), f(p[3] + k[3])],
+            [
+                f(p[0] + k[0]),
+                f(p[1] + k[1]),
+                f(p[2] + k[2]),
+                f(p[3] + k[3]),
+            ],
         ];
         let pairs = vec![(0, 1, f(0.)), (1, 2, f(0.))];
         assert!(project_shells(&mut shifts, &pairs, bits));
         for (i, j, _) in &pairs {
-            let d: Vec<Float> = (0..4).map(|mu| shifts[*i][mu].clone() - &shifts[*j][mu]).collect();
-            let s = d[0].clone() * &d[0] - &(d[1].clone() * &d[1]) - &(d[2].clone() * &d[2]) - &(d[3].clone() * &d[3]);
+            let d: Vec<Float> = (0..4)
+                .map(|mu| shifts[*i][mu].clone() - &shifts[*j][mu])
+                .collect();
+            let s = d[0].clone() * &d[0]
+                - &(d[1].clone() * &d[1])
+                - &(d[2].clone() * &d[2])
+                - &(d[3].clone() * &d[3]);
             assert!(s.to_f64().abs() < 1e-45, "{}", s.to_f64());
         }
         // The point moved by the binary64 rounding only.
@@ -1367,11 +1466,22 @@ mod tests {
             let f = |x: f64| Float::with_val(bits, x);
             let p = [500.0, 0.3, 0.4, (500.0f64 * 500.0 - 0.25).sqrt()];
             let mut shifts = vec![[f(0.), f(0.), f(0.), f(0.)], p.map(f)];
-            assert!(project_shells(&mut shifts, &[(0, 1, f(0.))], bits), "{bits}");
-            let d: Vec<Float> = (0..4).map(|mu| shifts[1][mu].clone() - &shifts[0][mu]).collect();
-            let s = d[0].clone() * &d[0] - &(d[1].clone() * &d[1]) - &(d[2].clone() * &d[2]) - &(d[3].clone() * &d[3]);
+            assert!(
+                project_shells(&mut shifts, &[(0, 1, f(0.))], bits),
+                "{bits}"
+            );
+            let d: Vec<Float> = (0..4)
+                .map(|mu| shifts[1][mu].clone() - &shifts[0][mu])
+                .collect();
+            let s = d[0].clone() * &d[0]
+                - &(d[1].clone() * &d[1])
+                - &(d[2].clone() * &d[2])
+                - &(d[3].clone() * &d[3]);
             assert!(s.to_f64().abs() < 1e-290, "{bits}: {:e}", s.to_f64());
         }
-        assert!(below_bits(1e30, 1100) > 0., "no underflow for the moduli of a lane");
+        assert!(
+            below_bits(1e30, 1100) > 0.,
+            "no underflow for the moduli of a lane"
+        );
     }
 }

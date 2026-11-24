@@ -1202,7 +1202,11 @@ impl FastAmplitude {
         let n = self.topo.n;
         if let Some(r) = refinement {
             let lanes = input.lanes;
-            let s_len = if input.s_matrix.is_some() { lanes * n * n } else { 0 };
+            let s_len = if input.s_matrix.is_some() {
+                lanes * n * n
+            } else {
+                0
+            };
             for (name, expected, actual) in [
                 ("fast refinement shifts", lanes * n, r.shifts.len()),
                 (
@@ -1210,7 +1214,11 @@ impl FastAmplitude {
                     lanes * n,
                     r.masses_squared.map_or(lanes * n, |m| m.len()),
                 ),
-                ("fast refinement S-matrix", s_len, r.s_matrix.map_or(s_len, |s| s.len())),
+                (
+                    "fast refinement S-matrix",
+                    s_len,
+                    r.s_matrix.map_or(s_len, |s| s.len()),
+                ),
             ] {
                 if expected != actual {
                     return Err(Error::Shape {
@@ -1260,7 +1268,9 @@ impl FastAmplitude {
                 }
                 Replacement::Conditioned(engine) => {
                     evaluate_conditioned(engine, input, numerator, masters, results, statuses)?;
-                    engine.amp.rescue_after(input, numerator, masters, refinement, results, statuses)
+                    engine
+                        .amp
+                        .rescue_after(input, numerator, masters, refinement, results, statuses)
                 }
             };
         }
@@ -1291,7 +1301,9 @@ impl FastAmplitude {
             }
             Some(Replacement::Conditioned(engine)) => {
                 evaluate_conditioned(engine, input, numerator, masters, results, statuses)?;
-                engine.amp.rescue_after(input, numerator, masters, None, results, statuses)
+                engine
+                    .amp
+                    .rescue_after(input, numerator, masters, None, results, statuses)
             }
             Some(Replacement::RankN2 { .. }) => {
                 unreachable!("the lowered engines have rank <= n+1")
@@ -2848,7 +2860,7 @@ const BOX_GRAM_EXCESS_BITS: f64 = 11.3;
 /// `2^-100`. Where it comes from: double-double arithmetic rounds at
 /// `2^-104` (two bits under `2^-106`); the provider's double-double masters
 /// other than C0 and D0 are accurate to `2^-98.4` (B11/B111) or better
-/// against 200-bit MPFR (A0, B0: `2^-100` and better; the second audit's
+/// against 200-bit MPFR (A0, B0: `2^-100` and better on a set of
 /// 1,638 masters); the estimate sums the moduli of all terms, which bounds the
 /// accumulated error from above. `2^-100` is the smallest weight for which no
 /// served lane exceeds its estimate on two independent sets of exactly
@@ -2920,7 +2932,11 @@ impl FastAmplitude {
                     if is_zero(m[i1]) && is_zero(m[i2]) && k.abs() < eps {
                         continue;
                     }
-                    let family = if x1 && self.rank3_bubble(b, lane, v) { 3 } else { 2 };
+                    let family = if x1 && self.rank3_bubble(b, lane, v) {
+                        3
+                    } else {
+                        2
+                    };
                     cursor[family] += 1;
                 }
             }
@@ -2975,7 +2991,8 @@ impl FastAmplitude {
                 let ke2 = mp_rr(&sub(&v[i2], &v[i1]), &data.e2);
                 let rank3 = x1 && self.rank3_bubble(b, lane, v);
                 let (family, width) = if rank3 { (3, 4) } else { (2, 3) };
-                let out = &self.masters[family].out[cursor[family] * width..(cursor[family] + 1) * width];
+                let out =
+                    &self.masters[family].out[cursor[family] * width..(cursor[family] + 1) * width];
                 cursor[family] += 1;
                 let b06 = -(C64::real(k) - (m[i1] + m[i2]) * 3.) / 6.;
                 sum += (c[0] * out[0][0]).abs()
@@ -3037,8 +3054,9 @@ impl FastAmplitude {
                     statuses[lane] = FastStatus::Success;
                     // A box mu-expansion refusal the re-reduction cured.
                     INSTABILITIES.with(|list| {
-                        list.borrow_mut()
-                            .retain(|(l, i)| !(*l == lane && i.test == InstabilityTest::BoxMuConditioning))
+                        list.borrow_mut().retain(|(l, i)| {
+                            !(*l == lane && i.test == InstabilityTest::BoxMuConditioning)
+                        })
                     });
                 }
                 Some(false) => {
@@ -3166,7 +3184,11 @@ impl FastAmplitude {
             // The box coefficients' own loss at a nearly degenerate box Gram,
             // which the final contraction does not show.
             for b in 0..self.topo.boxes.len() {
-                let gram = box_gram_error(self.box_lambda[b * self.lanes + lane], self.topo.rank, f64::MANTISSA_DIGITS);
+                let gram = box_gram_error(
+                    self.box_lambda[b * self.lanes + lane],
+                    self.topo.rank,
+                    f64::MANTISSA_DIGITS,
+                );
                 absolute = absolute.max(gram * moduli);
             }
             estimate = estimate.max(relative(absolute));
@@ -3184,7 +3206,8 @@ impl FastAmplitude {
                 let n = self.topo.n;
                 let s = &self.smat[lane * n * n..(lane + 1) * n * n];
                 for &[i1, i2, i3] in &self.topo.triangles {
-                    let [a, b, c] = [s[i2 * n + i1], s[i3 * n + i2], s[i1 * n + i3]].map(super::dd::Dd::from);
+                    let [a, b, c] =
+                        [s[i2 * n + i1], s[i3 * n + i2], s[i1 * n + i3]].map(super::dd::Dd::from);
                     let delta = super::dd::kallen_delta(a, b, c);
                     estimate = estimate.max(unit / (delta * delta));
                 }
@@ -3264,7 +3287,8 @@ impl FastAmplitude {
             lo_v.fill([0.; 4]);
             lo_s.fill(0.);
             lo_m.fill(C64::ZERO);
-            let mut refined = refinement.is_some_and(|src| src.lane(lane, &mut lo_v, &mut lo_s, &mut lo_m));
+            let mut refined =
+                refinement.is_some_and(|src| src.lane(lane, &mut lo_v, &mut lo_s, &mut lo_m));
             let first = shifts.len();
             if refined {
                 // Exact two-sums: the low parts need not be normalised.
@@ -3347,20 +3371,29 @@ impl FastAmplitude {
                 for j in 0..n {
                     // Refined: the source's invariant (NaN = the refined
                     // shifts'); else the projected geometry's.
-                    smat_dd.push(if refined && input.s_matrix.is_some() && !lo_s[i * n + j].is_nan() {
-                        Dd::from(s[i * n + j]) + lo_s[i * n + j]
-                    } else {
-                        let d: [Dd; 4] = std::array::from_fn(|mu| vd[i][mu] - vd[j][mu]);
-                        mp_rr_d(&d, &d)
-                    });
+                    smat_dd.push(
+                        if refined && input.s_matrix.is_some() && !lo_s[i * n + j].is_nan() {
+                            Dd::from(s[i * n + j]) + lo_s[i * n + j]
+                        } else {
+                            let d: [Dd; 4] = std::array::from_fn(|mu| vd[i][mu] - vd[j][mu]);
+                            mp_rr_d(&d, &d)
+                        },
+                    );
                 }
             }
             masses.extend((0..n).map(|i| {
                 let h = Cd::from_c64(input.masses_squared[lane * n + i]);
-                if refined { h + Cd::from_c64(lo_m[i]) } else { h }
+                if refined {
+                    h + Cd::from_c64(lo_m[i])
+                } else {
+                    h
+                }
             }));
             smat.extend_from_slice(s);
-            tensor.push_lane(num.tensor_coefficients(lane).expect("checked by the caller"));
+            tensor.push_lane(
+                num.tensor_coefficients(lane)
+                    .expect("checked by the caller"),
+            );
         }
         let ddin = super::dd_driver::FastInput {
             lanes: k,
@@ -3384,7 +3417,8 @@ impl FastAmplitude {
             Ok(())
         })();
         let mut outcome = Vec::with_capacity(k);
-        for (r, &(lane, cursor, binary64_estimate, binary64_absolute)) in flagged.iter().enumerate() {
+        for (r, &(lane, cursor, binary64_estimate, binary64_absolute)) in flagged.iter().enumerate()
+        {
             if outside[r] {
                 self.outside_domain(lane, binary64_estimate);
                 outcome.push((lane, Some(false)));
@@ -3423,19 +3457,20 @@ impl FastAmplitude {
             let mut rescue_out = [[Cd::ZERO; 3]; 4];
             let mut rescue_ok = [false];
             let mut missing = false;
-            let mut provided = |family: FastMaster, args: &[Cd], width: usize| -> Option<[[Cd; 3]; 4]> {
-                rescue_ok[0] = false;
-                let given = masters
-                    .evaluate_rescue(family, args, &mut rescue_out[..width], &mut rescue_ok)
-                    .unwrap_or(false);
-                missing |= !(given && rescue_ok[0]);
-                (given && rescue_ok[0]).then_some(rescue_out)
-            };
+            let mut provided =
+                |family: FastMaster, args: &[Cd], width: usize| -> Option<[[Cd; 3]; 4]> {
+                    rescue_ok[0] = false;
+                    let given = masters
+                        .evaluate_rescue(family, args, &mut rescue_out[..width], &mut rescue_ok)
+                        .unwrap_or(false);
+                    missing |= !(given && rescue_ok[0]);
+                    (given && rescue_ok[0]).then_some(rescue_out)
+                };
             // A triangle's normalised Källén function `sqrt|λ(a, b, c)| / max`
             // of its external invariants: the provider's double-double C0
             // loses log2(1/δ) bits there, and D0 2 log2(1/δ) of its most
-            // degenerate sub-triangle (both measured against 200-bit MPFR by
-            // the second audit: C0 at 2^-104/δ, D0 at up to 2^-104/δ²).
+            // degenerate sub-triangle (both measured against 200-bit MPFR:
+            // C0 at 2^-104/δ, D0 at up to 2^-104/δ²).
             let delta = |a: Cd, b: Cd, c: Cd| super::dd::kallen_delta(a.re, b.re, c.re);
             let mut res = [Cd::ZERO; 3];
             let mut rational = Cd::ZERO;
@@ -3449,8 +3484,17 @@ impl FastAmplitude {
                     cursor[0] += 1;
                     let [c0, c4] = dd.box_c[b * k + r];
                     let args = [
-                        inv(i2, i1), inv(i3, i2), inv(i4, i3), inv(i1, i4), inv(i3, i1), inv(i4, i2),
-                        md[i1], md[i2], md[i3], md[i4], mu2c,
+                        inv(i2, i1),
+                        inv(i3, i2),
+                        inv(i4, i3),
+                        inv(i1, i4),
+                        inv(i3, i1),
+                        inv(i4, i2),
+                        md[i1],
+                        md[i2],
+                        md[i3],
+                        md[i4],
+                        mu2c,
                     ];
                     let given = provided(FastMaster::D0, &args, 1);
                     let integral = given.map_or_else(|| binary64.map(Cd::from_c64), |o| o[0]);
@@ -3481,7 +3525,15 @@ impl FastAmplitude {
                     cursor[1] += 1;
                     let given = provided(
                         FastMaster::C0,
-                        &[inv(i2, i1), inv(i3, i2), inv(i1, i3), md[i1], md[i2], md[i3], mu2c],
+                        &[
+                            inv(i2, i1),
+                            inv(i3, i2),
+                            inv(i1, i3),
+                            md[i1],
+                            md[i2],
+                            md[i3],
+                            mu2c,
+                        ],
                         1,
                     )
                     .map(|o| o[0]);
@@ -3493,7 +3545,8 @@ impl FastAmplitude {
                     }
                     let before = rational;
                     if x1 {
-                        let shape = Cd::real(sd[i2 * n + i1] + sd[i3 * n + i2] + sd[i1 * n + i3]) * 0.25
+                        let shape = Cd::real(sd[i2 * n + i1] + sd[i3 * n + i2] + sd[i1 * n + i3])
+                            * 0.25
                             - md[i1]
                             - md[i2]
                             - md[i3];
@@ -3536,14 +3589,19 @@ impl FastAmplitude {
                     let c = &data.c;
                     let kv: [Dd; 4] = std::array::from_fn(|mu| vd[i2][mu] - vd[i1][mu]);
                     let ke2 = mp_rr_d(&kv, &data.e2);
-                    let rank3 = x1 && self.rank3_bubble(b, lane, &input.shifts[lane * n..(lane + 1) * n]);
+                    let rank3 =
+                        x1 && self.rank3_bubble(b, lane, &input.shifts[lane * n..(lane + 1) * n]);
                     let (family, width) = if rank3 { (3, 4) } else { (2, 3) };
                     let out = &self.masters[family].out
                         [cursor[family] * width..(cursor[family] + 1) * width];
                     cursor[family] += 1;
                     let kd = sd[i2 * n + i1];
                     let given = provided(
-                        if rank3 { FastMaster::BubbleRank3 } else { FastMaster::BubbleRank2 },
+                        if rank3 {
+                            FastMaster::BubbleRank3
+                        } else {
+                            FastMaster::BubbleRank2
+                        },
                         &[inv(i2, i1), md[i1], md[i2], mu2c],
                         width,
                     );
@@ -3551,11 +3609,21 @@ impl FastAmplitude {
                     // ones (in the estimate at 2^-53).
                     let master_dd = given.is_some();
                     let tensors = given.unwrap_or_else(|| {
-                        std::array::from_fn(|w| if w < width { out[w].map(Cd::from_c64) } else { [Cd::ZERO; 3] })
+                        std::array::from_fn(|w| {
+                            if w < width {
+                                out[w].map(Cd::from_c64)
+                            } else {
+                                [Cd::ZERO; 3]
+                            }
+                        })
                     });
                     let c1 = c[1] * ke2;
                     let c2 = c[2] * ke2 * ke2;
-                    let c13 = if rank3 { c[13] * ke2 * ke2 * ke2 } else { Cd::ZERO };
+                    let c13 = if rank3 {
+                        c[13] * ke2 * ke2 * ke2
+                    } else {
+                        Cd::ZERO
+                    };
                     for o in 0..3 {
                         res[o] += c[0] * tensors[0][o]
                             + c1 * tensors[1][o]
@@ -3566,7 +3634,11 @@ impl FastAmplitude {
                         + size(c1 * tensors[1][0])
                         + size(c2 * tensors[2][0])
                         + size(c13 * tensors[3][0]);
-                    if master_dd { mdd += term } else { m64 += term }
+                    if master_dd {
+                        mdd += term
+                    } else {
+                        m64 += term
+                    }
                     let before = rational;
                     let b06 = -(Cd::real(kd) - (md[i1] + md[i2]) * 3.) / 6.;
                     if x1 {
@@ -3599,12 +3671,20 @@ impl FastAmplitude {
                             res[o] += data.c0 * integral[o];
                         }
                     }
-                    if given.is_some() { mdd += size(res[0] - res_before) } else { m64 += size(res[0] - res_before) }
+                    if given.is_some() {
+                        mdd += size(res[0] - res_before)
+                    } else {
+                        m64 += size(res[0] - res_before)
+                    }
                     mdd += size(rational - rational_before);
                 }
             }
             let result = FastResult {
-                laurent: [(res[0] + rational).to_c64(), res[1].to_c64(), res[2].to_c64()],
+                laurent: [
+                    (res[0] + rational).to_c64(),
+                    res[1].to_c64(),
+                    res[2].to_c64(),
+                ],
                 cut_constructible: res[0].to_c64(),
                 rational: rational.to_c64(),
             };
@@ -3618,7 +3698,8 @@ impl FastAmplitude {
             // (a relative error of the box terms, taken of all terms); the box
             // mu-expansion screen's rounding estimate of the same boxes, at
             // the double-double unit.
-            let rounding = m64 * 2f64.powi(-53) + mdd * 2f64.powi(-DD_TERM_BITS) + finite * 2f64.powi(-53);
+            let rounding =
+                m64 * 2f64.powi(-53) + mdd * 2f64.powi(-DD_TERM_BITS) + finite * 2f64.powi(-53);
             let gram = (0..self.topo.boxes.len())
                 .map(|b| box_gram_error(dd.box_lambda[b * k + r], self.topo.rank, 106))
                 .fold(0f64, f64::max);
@@ -3633,7 +3714,8 @@ impl FastAmplitude {
             // 0.03 to 1 times its estimate on the dumped lanes, the
             // re-reduced lane's at most its estimate: four bits keep a served
             // value from being worse).
-            let finite_ok = result.laurent.iter().all(|z| z.is_finite()) && result.rational.is_finite();
+            let finite_ok =
+                result.laurent.iter().all(|z| z.is_finite()) && result.rational.is_finite();
             // At a refined point a binary64 master (at the input point) would
             // mix two kinematic points in one lane: refused.
             let one_point = !(at_refined[r] && missing);
@@ -3684,7 +3766,9 @@ impl FastAmplitude {
             }
             outcome.push((lane, Some(served)));
         }
-        RESCUED.with(|c| c.set(c.get() + outcome.iter().filter(|(_, s)| *s == Some(true)).count() as u64));
+        RESCUED.with(|c| {
+            c.set(c.get() + outcome.iter().filter(|(_, s)| *s == Some(true)).count() as u64)
+        });
         outcome
     }
 }

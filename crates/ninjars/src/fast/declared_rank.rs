@@ -58,7 +58,8 @@
 
 use super::complex::{C64, CMom, RMom};
 use super::engine::{
-    FastAmplitude, FastOptions, Replacement, instabilities_len, remap_instabilities, remap_rescues, rescues_len,
+    FastAmplitude, FastOptions, Replacement, instabilities_len, remap_instabilities, remap_rescues,
+    rescues_len,
 };
 use super::engine_x2::{DynMasters, DynNumerator};
 use super::masters::FastMasters;

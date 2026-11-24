@@ -75,7 +75,11 @@ impl Dd {
     }
     pub fn sqrt(self) -> Self {
         if self.hi <= 0. {
-            return if self.hi == 0. { Self::ZERO } else { Self::from_f64(f64::NAN) };
+            return if self.hi == 0. {
+                Self::ZERO
+            } else {
+                Self::from_f64(f64::NAN)
+            };
         }
         let q = self.hi.sqrt();
         let (p, e) = two_prod(q, q);
@@ -563,8 +567,8 @@ pub fn mp_rr(a: &RMomD, b: &RMomD) -> Dd {
 mod tests {
     use super::*;
 
-    /// The two-mass Källén difference without cancellation (external review:
-    /// the expanded binary64 form understated it by 1.4e14), equal masses
+    /// The two-mass Källén difference without cancellation (the
+    /// expanded binary64 form understated it by 1.4e14), equal masses
     /// exactly degenerate, and scale invariance of the modulus and of δ.
     #[test]
     fn kallen_delta_and_modulus_are_stable() {
@@ -572,9 +576,16 @@ mod tests {
         let want = (b - a) / b;
         let got = kallen_delta(Dd::from(a), Dd::from(b), Dd::ZERO);
         assert!((got - want).abs() <= 1e-12 * want, "{got:e} {want:e}");
-        assert_eq!(kallen_delta(Dd::from(1.), Dd::from(1.), Dd::ZERO), f64::MIN_POSITIVE);
+        assert_eq!(
+            kallen_delta(Dd::from(1.), Dd::from(1.), Dd::ZERO),
+            f64::MIN_POSITIVE
+        );
         let d = kallen_delta(Dd::from(3.), Dd::from(-2.), Dd::from(5.));
-        let s = kallen_delta(Dd::from(3. * pow2(-700)), Dd::from(-2. * pow2(-700)), Dd::from(5. * pow2(-700)));
+        let s = kallen_delta(
+            Dd::from(3. * pow2(-700)),
+            Dd::from(-2. * pow2(-700)),
+            Dd::from(5. * pow2(-700)),
+        );
         assert_eq!(d, s);
         let z = Cd::new(Dd::from(3.), Dd::from(4.));
         for e in [-700, 0, 700] {

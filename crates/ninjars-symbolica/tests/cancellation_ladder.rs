@@ -14,13 +14,19 @@ use ladder::{Lane, consistent, run, run_inputs, run_rule};
 use ninjars::{Complex, DoubleFloat, Float};
 use ninjars_symbolica::cancellation_ladder::{LadderOutcome, LadderRule};
 
-const DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../validation/conditioning/triangle-gram");
+const DIR: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/../../validation/conditioning/triangle-gram"
+);
 const REFERENCE_BITS: u32 = 512;
 const DEGENERATE: [&str; 3] = ["ggg-308-n3-r3", "ggg-308-n4-r4", "ggg-9117-n3-r3"];
 
 fn lane(name: &str) -> Lane {
     let text = std::fs::read_to_string(format!("{DIR}/{name}.json")).expect("fixture");
-    consistent(&parse_fixture(&text).expect("fixture shape"), REFERENCE_BITS)
+    consistent(
+        &parse_fixture(&text).expect("fixture shape"),
+        REFERENCE_BITS,
+    )
 }
 
 fn truth(lane: &Lane) -> Complex<f64> {
@@ -48,12 +54,18 @@ fn double_double_lanes_climb_to_mpfr() -> Result<(), Error> {
         // One MPFR rung and its confirming reduction (64 bits wider), or a
         // second pair after a climb; MPFR widths only.
         assert!(rescued.rungs.len() <= 4, "{name}: {:?}", rescued.rungs);
-        assert!(rescued.rungs.iter().all(|&b| b > 106 && b % 64 == 0), "{name}");
+        assert!(
+            rescued.rungs.iter().all(|&b| b > 106 && b % 64 == 0),
+            "{name}"
+        );
         assert!(rescued.projected, "{name}");
         let before = relative(out.value, reference);
         let after = relative(rescued.value, reference);
         assert!(after < 1e-20, "{name}: {after:e}");
-        assert!(before > 1e3 * after.max(1e-30), "{name}: {before:e} -> {after:e}");
+        assert!(
+            before > 1e3 * after.max(1e-30),
+            "{name}: {before:e} -> {after:e}"
+        );
     }
     Ok(())
 }
@@ -90,14 +102,25 @@ fn mpfr_base_follows_the_callers_target() -> Result<(), Error> {
     let out = run(&lane, Float::with_val(200, 0), true, Some(1e-50))?;
     let rescued = out.ladder.expect("flagged at 1e-50");
     assert_eq!(rescued.outcome, LadderOutcome::Accepted);
-    let rule = LadderRule { target: Some(1e-50), ..LadderRule::default() };
-    assert_eq!(Some(rescued.rungs[0]), rule.rung(200, out.lost_bits).map(|r| r.bits()), "{:?}", rescued.rungs);
+    let rule = LadderRule {
+        target: Some(1e-50),
+        ..LadderRule::default()
+    };
+    assert_eq!(
+        Some(rescued.rungs[0]),
+        rule.rung(200, out.lost_bits).map(|r| r.bits()),
+        "{:?}",
+        rescued.rungs
+    );
     assert_eq!(rescued.rungs[1], rescued.rungs[0] + 64);
-    assert!(relative(rescued.value, reference) < 1e-15, "f64 comparison floor");
+    assert!(
+        relative(rescued.value, reference) < 1e-15,
+        "f64 comparison floor"
+    );
     Ok(())
 }
 
-/// MPFR base at 128 bits (audit B1): the degenerate lanes keep only about 25
+/// MPFR base at 128 bits: the degenerate lanes keep only about 25
 /// tracked bits although their moduli say about 70 bits are lost; the
 /// measurement counts the tracked loss, so at a lane target of 1e-11 they are
 /// flagged and re-reduced, never served at their base value.
@@ -133,7 +156,11 @@ fn loose_targets_and_regular_lanes_are_left_alone() -> Result<(), Error> {
     assert_eq!(served.value, out.value);
     let control = lane("ggg-0-n5-r5-control");
     let out = run(&control, DoubleFloat::from(0.0), true, None)?;
-    assert!(out.ladder.is_none(), "regular lane flagged (L = {})", out.lost_bits);
+    assert!(
+        out.ladder.is_none(),
+        "regular lane flagged (L = {})",
+        out.lost_bits
+    );
     assert_eq!(out.status, "Success");
     Ok(())
 }
@@ -157,7 +184,10 @@ fn served_values_meet_their_estimates_at_every_rung_width() -> Result<(), Error>
         };
         let mut cases = vec![(untracked, 128)];
         for exponent in [-60, -100, -150] {
-            let rule = LadderRule { target: Some(2f64.powi(exponent)), ..LadderRule::default() };
+            let rule = LadderRule {
+                target: Some(2f64.powi(exponent)),
+                ..LadderRule::default()
+            };
             let first = rule.rung(106, lost).expect("rung").bits();
             cases.push((rule, first));
         }
@@ -170,24 +200,33 @@ fn served_values_meet_their_estimates_at_every_rung_width() -> Result<(), Error>
             if target < floor {
                 // A value returned in double-double cannot meet a target below
                 // four of its units: typed Missed, the best value carried
-                // with its clamped estimate (reviewer recheck B).
+                // with its clamped estimate.
                 assert_eq!(rescued.outcome, LadderOutcome::Missed, "{name} {target:e}");
                 let (best, estimate, _) = rescued.best.expect("best");
                 assert!(estimate >= floor, "{name} {target:e}: {estimate:e}");
                 assert!(relative(best, reference) <= 256. * estimate + 1e-15);
                 continue;
             }
-            assert_eq!(rescued.outcome, LadderOutcome::Accepted, "{name} {target:e}: {:?}", rescued.rungs);
+            assert_eq!(
+                rescued.outcome,
+                LadderOutcome::Accepted,
+                "{name} {target:e}: {:?}",
+                rescued.rungs
+            );
             let estimate = rescued.estimate.expect("measured");
             // The reported estimate is that of the value returned in
-            // double-double: never below four of its units (audit m9), and
+            // double-double: never below four of its units, and
             // within the requested target.
             assert!(estimate >= floor, "{name} {target:e}: {estimate:e}");
             assert!(estimate <= target, "{name} {target:e}: {estimate:e}");
             let error = relative(rescued.value, reference);
             // f64 comparison floor 1e-15; a factor 2^8 for the growth the
             // estimate leaves out.
-            assert!(error <= 256. * estimate + 1e-15, "{name} {target:e}: error {error:e}, estimate {estimate:e}, rungs {:?}", rescued.rungs);
+            assert!(
+                error <= 256. * estimate + 1e-15,
+                "{name} {target:e}: error {error:e}, estimate {estimate:e}, rungs {:?}",
+                rescued.rungs
+            );
         }
     }
     Ok(())
@@ -211,13 +250,24 @@ fn refused_lanes_carry_their_best_value() -> Result<(), Error> {
     };
     let out = run_rule(&lane, DoubleFloat::from(0.0), true, rule)?;
     let rescued = out.ladder.expect("flagged");
-    assert_eq!(rescued.outcome, LadderOutcome::Missed, "{:?}", rescued.rungs);
+    assert_eq!(
+        rescued.outcome,
+        LadderOutcome::Missed,
+        "{:?}",
+        rescued.rungs
+    );
     assert!(rescued.value.re.is_nan(), "a refused lane serves no value");
     let (best, estimate, bits) = rescued.best.expect("best value");
     assert!(bits > 106, "the best value is a rung's ({bits} bits)");
     let error = relative(best, reference);
-    assert!(error <= 256. * estimate + 1e-15, "best {error:e} vs its estimate {estimate:e}");
-    assert!(error < relative(out.value, reference).max(1e-15), "better than the base pass");
+    assert!(
+        error <= 256. * estimate + 1e-15,
+        "best {error:e} vs its estimate {estimate:e}"
+    );
+    assert!(
+        error < relative(out.value, reference).max(1e-15),
+        "better than the base pass"
+    );
     Ok(())
 }
 
@@ -233,14 +283,22 @@ fn refused_double_double_lanes_need_the_margin() -> Result<(), Error> {
     let out = run(&lane, DoubleFloat::from(0.0), true, Some(estimate * 16.))?;
     assert_eq!(out.status, "Unstable");
     let rescued = out.ladder.expect("flagged");
-    assert_eq!(rescued.outcome, LadderOutcome::Accepted, "{:?}", rescued.rungs);
+    assert_eq!(
+        rescued.outcome,
+        LadderOutcome::Accepted,
+        "{:?}",
+        rescued.rungs
+    );
     assert!(relative(rescued.value, reference) <= estimate * 16. + 1e-15);
     let loose = run(&lane, DoubleFloat::from(0.0), true, Some(estimate * 512.))?;
-    assert_eq!(loose.ladder.expect("record").outcome, LadderOutcome::WithinTarget);
+    assert_eq!(
+        loose.ladder.expect("record").outcome,
+        LadderOutcome::WithinTarget
+    );
     Ok(())
 }
 
-/// External review, finding 2: a served lane is within its reported estimate
+/// A served lane is within its reported estimate
 /// on EVERY Laurent coefficient (poles included), relative to the largest
 /// coefficient (f64 comparison floor).
 #[test]
@@ -253,10 +311,17 @@ fn served_poles_meet_the_estimate_too() -> Result<(), Error> {
         assert_eq!(rescued.outcome, LadderOutcome::Accepted, "{name}");
         let served = rescued.laurent.expect("served");
         let estimate = rescued.estimate.expect("estimate");
-        let scale = reference.iter().map(|z| z.re.hypot(z.im)).fold(0., f64::max);
+        let scale = reference
+            .iter()
+            .map(|z| z.re.hypot(z.im))
+            .fold(0., f64::max);
         for k in 0..3 {
-            let error = (served[k].re - reference[k].re).hypot(served[k].im - reference[k].im) / scale;
-            assert!(error <= 256. * estimate + 1e-15, "{name} order {k}: {error:e} vs {estimate:e}");
+            let error =
+                (served[k].re - reference[k].re).hypot(served[k].im - reference[k].im) / scale;
+            assert!(
+                error <= 256. * estimate + 1e-15,
+                "{name} order {k}: {error:e} vs {estimate:e}"
+            );
         }
     }
     Ok(())
@@ -269,7 +334,10 @@ fn served_poles_meet_the_estimate_too() -> Result<(), Error> {
 #[test]
 fn inputs_of_limited_precision_bound_the_ladder() -> Result<(), Error> {
     let lane = lane(DEGENERATE[0]);
-    let rule = LadderRule { target: Some(1e-60), ..LadderRule::default() };
+    let rule = LadderRule {
+        target: Some(1e-60),
+        ..LadderRule::default()
+    };
     let coarse = run_inputs(&lane, Float::with_val(256, 0), true, rule, Some(20))?;
     assert!(coarse.ladder.is_none(), "a 20-bit point is not rescued");
     let full = run_inputs(&lane, Float::with_val(256, 0), true, rule, None)?;
@@ -277,7 +345,7 @@ fn inputs_of_limited_precision_bound_the_ladder() -> Result<(), Error> {
     Ok(())
 }
 
-/// External review recheck A: an order-one lane whose terms are 2^360 times
+/// An order-one lane whose terms are 2^360 times
 /// larger (a two-line equal-mass bubble, numerator `2^360 (v² + 2 q.v) + i`:
 /// the real piece is odd under `q -> -q - v` and integrates to zero, the `i`
 /// piece is the scalar bubble, finite part `-1.24460560505 i`). It is never
@@ -311,18 +379,37 @@ fn huge_terms_climb_to_the_top_rung_or_are_refused_with_finite_bounds() -> Resul
         coefficients,
     };
     let truth = run(&lane, Float::with_val(bits, 0), false, None)?.value;
-    assert!((truth.im + 1.24460560505).abs() < 1e-9 && truth.re.abs() < 1e-9, "{truth:?}");
+    assert!(
+        (truth.im + 1.24460560505).abs() < 1e-9 && truth.re.abs() < 1e-9,
+        "{truth:?}"
+    );
     let out = run(&lane, DoubleFloat::from(0.0), true, Some(1e-8))?;
     let rescued = out.ladder.expect("flagged");
-    assert_eq!(rescued.outcome, LadderOutcome::Accepted, "{:?}", rescued.rungs);
+    assert_eq!(
+        rescued.outcome,
+        LadderOutcome::Accepted,
+        "{:?}",
+        rescued.rungs
+    );
     let estimate = rescued.estimate.expect("estimate");
     assert!(estimate <= 1e-8 && estimate.is_finite());
-    assert!(relative(rescued.value, truth) <= 256. * estimate + 1e-15, "{:?} vs {truth:?}", rescued.value);
-    let capped = LadderRule { target: Some(1e-8), max_bits: Some(320), ..LadderRule::default() };
+    assert!(
+        relative(rescued.value, truth) <= 256. * estimate + 1e-15,
+        "{:?} vs {truth:?}",
+        rescued.value
+    );
+    let capped = LadderRule {
+        target: Some(1e-8),
+        max_bits: Some(320),
+        ..LadderRule::default()
+    };
     let out = run_rule(&lane, DoubleFloat::from(0.0), true, capped)?;
     let rescued = out.ladder.expect("flagged");
     assert!(
-        matches!(rescued.outcome, LadderOutcome::BelowResolution | LadderOutcome::Missed),
+        matches!(
+            rescued.outcome,
+            LadderOutcome::BelowResolution | LadderOutcome::Missed
+        ),
         "{:?} {:?}",
         rescued.outcome,
         rescued.rungs
@@ -330,7 +417,13 @@ fn huge_terms_climb_to_the_top_rung_or_are_refused_with_finite_bounds() -> Resul
     assert!(rescued.value.re.is_nan(), "no value served");
     let bound = rescued.absolute_bound.expect("bound");
     let moduli = rescued.term_moduli.expect("moduli");
-    assert!(bound.iter().chain(&moduli).all(|x| x.is_finite() && *x >= 0.), "{bound:?} {moduli:?}");
+    assert!(
+        bound
+            .iter()
+            .chain(&moduli)
+            .all(|x| x.is_finite() && *x >= 0.),
+        "{bound:?} {moduli:?}"
+    );
     assert!(rescued.estimate.is_some_and(f64::is_finite));
     assert!(rescued.best.is_some_and(|(_, e, _)| e.is_finite()));
     Ok(())

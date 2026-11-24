@@ -61,7 +61,7 @@ One number drives it: the target relative accuracy `τ` of a lane
   significant bits of every intermediate and rounds to them, so a reduction can
   keep fewer bits than `p - L`. `L` is at least `p - t`, `t` the tracked
   precision of the result (`tracked_bits`), for the trigger, `WithinTarget`
-  and every rung (audit B1: at a 128-bit base the degenerate lanes keep about 25
+  and every rung (at a 128-bit base the degenerate lanes keep about 25
   tracked bits while their moduli say 70 are lost). Since that tracked
   estimate can itself be optimistic and a base value cannot be confirmed
   without a rung, an MPFR base's estimate carries the margin `2^m`, and a lane
@@ -74,19 +74,19 @@ One number drives it: the target relative accuracy `τ` of a lane
   two agree within `τ` on EVERY Laurent coefficient (finite part and poles)
   and the wider one's estimate times `2^m` meets `τ` (numerica's tracked
   precision is an estimate, not a bound: optimistic by up to `2^25` at
-  near-collinear points, audit M1). The estimate reported for a served lane
+  near-collinear points). The estimate reported for a served lane
   is that of the value actually returned: the rung's, the disagreement, and
   what the narrowing to the base carrier did to each coefficient, never below
   four units of the base carrier (a target below that floor is served at the
-  floor and reported so, audit m9). A rung is served only when its estimate
-  is below the base pass's (it never replaces a better base value, audit m5).
+  floor and reported so). A rung is served only when its estimate
+  is below the base pass's (it never replaces a better base value).
   Outcomes: `Accepted` (served) only when the estimate REPORTED for the
   value returned (narrowing included) meets the REQUESTED target and the rung
   is better than the base pass; a target below what the base carrier can
   represent (four of its units) is therefore `Missed`, with the best value and
   its clamped estimate. `WithinTarget` (a lane the engine's own `p/2` test
   refused, served at its base value: only in binary64 and double-double and
-  only when its estimate times `2^m` meets `τ`, audit m10; at an MPFR base such
+  only when its estimate times `2^m` meets `τ`; at an MPFR base such
   a lane is always re-reduced). A value below a rung's own resolution of its
   terms (`|V'| <= 2^-p' 2^m M'`) is noise at that rung: the lane climbs like
   any other. `BelowResolution` is reported only when that holds at the highest
@@ -98,7 +98,7 @@ One number drives it: the target relative accuracy `τ` of a lane
   bound per coefficient (`absolute_bound`, the top rung's resolution of its
   terms) and the term moduli, and no relative estimate better than none
   (estimates are never non-finite). NinjaRS refuses it, typed. pyAmpliCol
-  (integration commit `8b8adac11`) serves such a lane at its rung value and
+  serves such a lane at its rung value and
   records it as `BelowResolution`, because lanes that vanish by symmetry must
   not fail the generation of loop-induced processes: its relative accuracy is
   then NOT certified (only the absolute bound is). Otherwise the next rung,
@@ -179,7 +179,7 @@ computed (a caller's "checks off").
   to a real squared mass of the lane; other on-shell legs (an external mass
   that is no internal mass) take the invariant of the projected shifts, a
   move of `O(2^-p)` at a smooth point of their masters.
-- Losses the term moduli do not see are not measured (audit M2): the box
+- Losses the term moduli do not see are not measured: the box
   mu-expansion rounding and the box-Gram loss of a box that the generic
   engine's a-priori bounds still accept. Measured: double-double lanes of
   near-planar `g g > z g g`, `z z g`, `W+ W- g` (top loops) are `1e-9 .. 1e-7`
@@ -198,9 +198,9 @@ computed (a caller's "checks off").
   rounded from a consistent point: `p² = O(2^-53 E²)` amplified by `2^70`),
   the base value can be noise as large as the terms themselves and the lane is
   not flagged (observed on the test lanes in binary64). pyAmpliCol's binary64
-  lanes take the fast engine (CORE's rescue); only its rare routed lanes reach
+  lanes take the fast engine (and its own rescue); only its rare routed lanes reach
   the generic binary64 engine. In double-double, with inputs consistent to
-  their rounding (pyAmpliCol's cure), every degenerate lane of the benchmark
+  their rounding (pyAmpliCol's refined kinematics), every degenerate lane of the benchmark
   is flagged.
 - MPFR: numerica's `Float` rounds every intermediate to its tracked bits; the
   measurement counts them (section 2) and each MPFR rung costs two reductions
@@ -212,34 +212,34 @@ computed (a caller's "checks off").
   (`LadderCarrier::limit_precision`).
 
 - **Box mu-expansion and box-Gram losses are invisible to the measured
-  trigger** (audit M2, as in the previous release): the term moduli do not see
-  them. Measured by the audit: near-planar double-double lanes (`g g > z g g`,
+  trigger** (as in the previous release): the term moduli do not see
+  them. Measured: near-planar double-double lanes (`g g > z g g`,
   `z z g`, `W+ W- g`, top loops, tilt 1e-12) come back `8.5e-9` and `9.4e-8`
   off with estimates near `2e-20`; at an MPFR-200 base `2.3e-37` against a
   target of `1e-40` (estimate times margin `1.5e-43`). They are not flagged
   (forced, the rung serves them at `1e-31`). The fast engine adds both
   predicted losses to its estimate; the generic engine's bounds do not expose
   them per lane yet.
-- **Rungs of 1024 bits or more** (audit m8): the projection's tolerance
+- **Rungs of 1024 bits or more** : the projection's tolerance
   `2^-bits` underflowed binary64, so every such rung was `Failed`. Fixed
   (tolerance in the logarithm; unit test at 1024 and 1100 bits). Rungs above
   `max_bits` (default `max(4p, 512)`) are not tried: from a double-double base
   the cap is 512 bits, so the fix matters only for MPFR bases from 256 bits.
-- Complex masses (audit m5): an on-shell leg of a complex-mass particle is a
+- Complex masses: an on-shell leg of a complex-mass particle is a
   shell pair when its invariant equals `Re m²` exactly; other complex-mass
-  configurations take their invariants from the projected shifts (the audit
+  configurations take their invariants from the projected shifts (we
   measured a double-double rung serving `1.2e-12` against a binary64 base of
   `1.6e-14` before the fix; the "never worse than the base" guard and the
   shell match address it; not re-measured).
 - **No caller refinement on pyAmpliCol's generic path in this release**: the
   ladder projects the rounded base input itself (section 3); caller-supplied
-  cured kinematics (`LadderRefinement`) are wired in pyAmpliCol for the fast
+  refined kinematics (`LadderRefinement`) are wired in pyAmpliCol for the fast
   engine only (`FastRefinementSource`).
 - **pyAmpliCol's lane-rescue backends** run their own generic engines in the
   checked mode, so a lane the ladder refused and pyAmpliCol re-reduces at its
   default arbitrary precision gets a nested ladder (intended: the rescue's
   reductions are themselves checked), at NinjaRS's default target unless the
-  integration forwards the lane target to those backends too (audit m7).
+  caller forwards the lane target to those backends too.
 
 ## 6. Tests
 

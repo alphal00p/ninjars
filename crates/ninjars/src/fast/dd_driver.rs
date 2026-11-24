@@ -181,9 +181,11 @@ impl DdStages {
             self.bounds.push((vmax, mmax));
         }
         self.box_c.clear();
-        self.box_c.resize(self.topo.boxes.len() * lanes, [Cd::ZERO; 2]);
+        self.box_c
+            .resize(self.topo.boxes.len() * lanes, [Cd::ZERO; 2]);
         self.box_lambda.clear();
-        self.box_lambda.resize(self.topo.boxes.len() * lanes, f64::NEG_INFINITY);
+        self.box_lambda
+            .resize(self.topo.boxes.len() * lanes, f64::NEG_INFINITY);
         self.tri.clear();
         self.tri
             .resize(self.topo.triangles.len() * lanes, TriangleData::default());
@@ -252,7 +254,12 @@ pub(super) fn project_light_like(v: &mut [RMomD], smat: &[f64], n: usize, eps: f
         let mut y = g.clone();
         for col in 0..m {
             let piv = (col..m)
-                .max_by(|&p, &q| a[p * m + col].abs().partial_cmp(&a[q * m + col].abs()).unwrap())
+                .max_by(|&p, &q| {
+                    a[p * m + col]
+                        .abs()
+                        .partial_cmp(&a[q * m + col].abs())
+                        .unwrap()
+                })
                 .unwrap();
             if a[piv * m + col].hi == 0. || !a[piv * m + col].is_finite() {
                 return false;
@@ -484,14 +491,30 @@ mod tests {
     #[test]
     fn projection_makes_zero_invariants_light_like() {
         let f = [
-            [157.94081412791513, -108.02862942094583, 288.50491082781895, -351.3419417147604],
-            [442.0308107887862, 62.50590379162027, 419.0029296663757, 126.17763117438322],
+            [
+                157.94081412791513,
+                -108.02862942094583,
+                288.50491082781895,
+                -351.3419417147604,
+            ],
+            [
+                442.0308107887862,
+                62.50590379162027,
+                419.0029296663757,
+                126.17763117438322,
+            ],
             [-1.3e-13, 1.4e-14, -5e-14, 5e-15],
         ];
         let smat = [
-            0., -1.9342957622827255e5, -1.9340112758684525e5,
-            -1.9342957622827255e5, 0., 0.,
-            -1.9340112758684525e5, 0., 0.,
+            0.,
+            -1.9342957622827255e5,
+            -1.9340112758684525e5,
+            -1.9342957622827255e5,
+            0.,
+            0.,
+            -1.9340112758684525e5,
+            0.,
+            0.,
         ];
         let mut v: Vec<RMomD> = f.iter().map(|x| x.map(Dd::from)).collect();
         let g0 = {
