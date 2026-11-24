@@ -10,7 +10,7 @@ mod conditioning;
 mod ladder;
 
 use conditioning::{Error, parse_fixture};
-use ladder::{Lane, consistent, run, run_rule};
+use ladder::{Lane, consistent, run, run_inputs, run_rule};
 use ninjars::{Complex, DoubleFloat, Float};
 use ninjars_symbolica::cancellation_ladder::{LadderOutcome, LadderRule};
 
@@ -166,14 +166,24 @@ fn served_values_meet_their_estimates_at_every_rung_width() -> Result<(), Error>
             let out = run_rule(&lane, DoubleFloat::from(0.0), true, rule)?;
             let rescued = out.ladder.expect("flagged");
             assert_eq!(rescued.rungs[0], first, "{name} {target:e}: L {lost}");
+            let floor = 4. * 2f64.powi(-106);
+            if target < floor {
+                // A value returned in double-double cannot meet a target below
+                // four of its units: typed Missed, the best value carried
+                // with its clamped estimate (reviewer recheck B).
+                assert_eq!(rescued.outcome, LadderOutcome::Missed, "{name} {target:e}");
+                let (best, estimate, _) = rescued.best.expect("best");
+                assert!(estimate >= floor, "{name} {target:e}: {estimate:e}");
+                assert!(relative(best, reference) <= 256. * estimate + 1e-15);
+                continue;
+            }
             assert_eq!(rescued.outcome, LadderOutcome::Accepted, "{name} {target:e}: {:?}", rescued.rungs);
             let estimate = rescued.estimate.expect("measured");
             // The reported estimate is that of the value returned in
             // double-double: never below four of its units (audit m9), and
-            // within the target where the target is above that floor.
-            let floor = 4. * 2f64.powi(-106);
+            // within the requested target.
             assert!(estimate >= floor, "{name} {target:e}: {estimate:e}");
-            assert!(estimate <= target.max(floor), "{name} {target:e}: {estimate:e}");
+            assert!(estimate <= target, "{name} {target:e}: {estimate:e}");
             let error = relative(rescued.value, reference);
             // f64 comparison floor 1e-15; a factor 2^8 for the growth the
             // estimate leaves out.
@@ -249,5 +259,79 @@ fn served_poles_meet_the_estimate_too() -> Result<(), Error> {
             assert!(error <= 256. * estimate + 1e-15, "{name} order {k}: {error:e} vs {estimate:e}");
         }
     }
+    Ok(())
+}
+
+/// A rung cannot create digits its inputs do not have: an MPFR point known
+/// to only 20 bits is left to the base pass (value and tracked precision as
+/// without the ladder: no record), so a caller's tracked-precision test still
+/// refuses it; the same point at full precision is rescued (target 1e-60).
+#[test]
+fn inputs_of_limited_precision_bound_the_ladder() -> Result<(), Error> {
+    let lane = lane(DEGENERATE[0]);
+    let rule = LadderRule { target: Some(1e-60), ..LadderRule::default() };
+    let coarse = run_inputs(&lane, Float::with_val(256, 0), true, rule, Some(20))?;
+    assert!(coarse.ladder.is_none(), "a 20-bit point is not rescued");
+    let full = run_inputs(&lane, Float::with_val(256, 0), true, rule, None)?;
+    assert!(full.ladder.is_some(), "the full-precision point is");
+    Ok(())
+}
+
+/// External review recheck A: an order-one lane whose terms are 2^360 times
+/// larger (a two-line equal-mass bubble, numerator `2^360 (v² + 2 q.v) + i`:
+/// the real piece is odd under `q -> -q - v` and integrates to zero, the `i`
+/// piece is the scalar bubble, finite part `-1.24460560505 i`). It is never
+/// `BelowResolution` below the top rung: with the default cap (512 bits from
+/// a double-double base) it climbs until its 360-bit loss fits and comes back
+/// `Accepted` within its estimate; capped at 320 bits it comes back a typed
+/// refusal (no value) with a FINITE absolute bound and the term moduli.
+#[test]
+fn huge_terms_climb_to_the_top_rung_or_are_refused_with_finite_bounds() -> Result<(), Error> {
+    use ninjars::fast::tensor_layout::monomials;
+    let bits = 768;
+    let f = |x: f64| Float::with_val(bits, x);
+    let c = |x: Float| Complex::new(x, f(0.));
+    let big = f(2f64.powi(360));
+    let v = [2.0, 0.75, 0.25, -0.5];
+    let v2 = v[0] * v[0] - v[1] * v[1] - v[2] * v[2] - v[3] * v[3];
+    let coefficients = monomials(1)
+        .iter()
+        .map(|alpha| match alpha.iter().position(|&p| p == 1) {
+            None => Complex::new(big.clone() * &f(v2), f(1.)),
+            Some(mu) => c(big.clone() * &f(2. * if mu == 0 { v[0] } else { -v[mu] })),
+        })
+        .collect();
+    let lane = Lane {
+        n: 2,
+        rank: 1,
+        shifts: vec![[f(0.), f(0.), f(0.), f(0.)], v.map(f)],
+        masses: vec![c(f(4.)), c(f(4.))],
+        s: vec![c(f(0.)), c(f(v2)), c(f(v2)), c(f(0.))],
+        scale: c(f(1.)),
+        coefficients,
+    };
+    let truth = run(&lane, Float::with_val(bits, 0), false, None)?.value;
+    assert!((truth.im + 1.24460560505).abs() < 1e-9 && truth.re.abs() < 1e-9, "{truth:?}");
+    let out = run(&lane, DoubleFloat::from(0.0), true, Some(1e-8))?;
+    let rescued = out.ladder.expect("flagged");
+    assert_eq!(rescued.outcome, LadderOutcome::Accepted, "{:?}", rescued.rungs);
+    let estimate = rescued.estimate.expect("estimate");
+    assert!(estimate <= 1e-8 && estimate.is_finite());
+    assert!(relative(rescued.value, truth) <= 256. * estimate + 1e-15, "{:?} vs {truth:?}", rescued.value);
+    let capped = LadderRule { target: Some(1e-8), max_bits: Some(320), ..LadderRule::default() };
+    let out = run_rule(&lane, DoubleFloat::from(0.0), true, capped)?;
+    let rescued = out.ladder.expect("flagged");
+    assert!(
+        matches!(rescued.outcome, LadderOutcome::BelowResolution | LadderOutcome::Missed),
+        "{:?} {:?}",
+        rescued.outcome,
+        rescued.rungs
+    );
+    assert!(rescued.value.re.is_nan(), "no value served");
+    let bound = rescued.absolute_bound.expect("bound");
+    let moduli = rescued.term_moduli.expect("moduli");
+    assert!(bound.iter().chain(&moduli).all(|x| x.is_finite() && *x >= 0.), "{bound:?} {moduli:?}");
+    assert!(rescued.estimate.is_some_and(f64::is_finite));
+    assert!(rescued.best.is_some_and(|(_, e, _)| e.is_finite()));
     Ok(())
 }

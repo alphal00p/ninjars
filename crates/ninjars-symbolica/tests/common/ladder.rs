@@ -127,6 +127,9 @@ pub struct Rescued {
     pub outcome: LadderOutcome,
     /// The best value's finite part, its estimate and carrier bits.
     pub best: Option<(Complex<f64>, f64, u32)>,
+    /// The last rung's absolute bound per coefficient and term moduli.
+    pub absolute_bound: Option<[f64; 3]>,
+    pub term_moduli: Option<[f64; 3]>,
 }
 
 /// One lane through the generic engine (stability test on) in a carrier.
@@ -165,12 +168,34 @@ pub fn run_rule<T: LadderCarrier>(
 where
     Complex<T>: Real + EvaluationDomain,
 {
+    run_inputs(lane, prototype, ladder, rule, None)
+}
+
+/// [`run_rule`] with the shifts' (tracked) precision lowered to
+/// `shift_bits`: a point known to fewer bits than the carrier.
+pub fn run_inputs<T: LadderCarrier>(
+    lane: &Lane,
+    prototype: T,
+    ladder: bool,
+    rule: LadderRule,
+    shift_bits: Option<u32>,
+) -> Result<Run, Error>
+where
+    Complex<T>: Real + EvaluationDomain,
+{
     let n = lane.n;
     let zero = prototype.zero();
     let cr = |x: &Float| Complex::new(round(x, &prototype), zero.clone());
     let cc = |z: &Complex<Float>| Complex::new(round(&z.re, &prototype), round(&z.im, &prototype));
+    let coarse = |x: &Float| {
+        let mut v = cr(x);
+        if let Some(bits) = shift_bits {
+            v.re.set_precision(bits);
+        }
+        v
+    };
     let shifts: Vec<FourMomentum<Complex<T>>> =
-        lane.shifts.iter().map(|v| FourMomentum::from(v.clone().map(|x| cr(&x)))).collect();
+        lane.shifts.iter().map(|v| FourMomentum::from(v.clone().map(|x| coarse(&x)))).collect();
     let masses: Vec<Complex<T>> = lane.masses.iter().map(cc).collect();
     let s_matrix: Vec<Complex<T>> = lane.s.iter().map(cc).collect();
     let scales = vec![cc(&lane.scale)];
@@ -244,6 +269,8 @@ where
                 estimate: r.rung_estimate,
                 projected: r.projected,
                 outcome: r.outcome,
+                absolute_bound: r.absolute_bound,
+                term_moduli: r.term_moduli,
                 best: r.best.as_ref().map(|b| {
                     (Complex::new(b.value[0].re.to_f64(), b.value[0].im.to_f64()), b.estimate, b.bits)
                 }),

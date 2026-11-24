@@ -267,9 +267,9 @@ fn taxicab<T: NativeFloat>(value: &Complex<T>) -> f64 {
 }
 
 /// The measured loss of one lane of `amplitude` (built with
-/// [`SymbolicaAmplitudeKernels::with_stability_test`]): `(L, M_0, Σ c)` with
-/// `Σ c` the lane's Laurent coefficients summed over its cuts, `M_0` the
-/// finite part's term moduli and `L` the larger of the finite part's loss
+/// [`SymbolicaAmplitudeKernels::with_stability_test`]): `(L, M, Σ c)` with
+/// `Σ c` the lane's Laurent coefficients summed over its cuts, `M` the term
+/// moduli of each coefficient and `L` the larger of the finite part's loss
 /// and the loss over all Laurent orders (largest term moduli against the
 /// largest coefficient, the measure of [`ninjars::EvaluationStatus::Unstable`]),
 /// and at least the bits the tracked precision of an MPFR result says are
@@ -279,7 +279,7 @@ pub fn lane_loss<T: NativeFloat>(
     amplitude: &Amplitude<Complex<T>, SymbolicaAmplitudeKernels<T>>,
     lane: usize,
     working_bits: u32,
-) -> Option<(f64, f64, Laurent<Complex<T>>)>
+) -> Option<(f64, [f64; 3], Laurent<Complex<T>>)>
 where
     Complex<T>: Real + EvaluationDomain,
 {
@@ -312,7 +312,7 @@ where
     // intermediate and rounds to them: the result keeps at most its tracked
     // bits, whatever the moduli say (fixed carriers report their own bits).
     let tracked = crate::tracked_bits(&sum[0]).map_or(0., |t| f64::from(working_bits) - t);
-    Some((finite.max(orders).max(tracked), terms[0], sum))
+    Some((finite.max(orders).max(tracked), terms, sum))
 }
 
 /// Higher-precision kinematics of rescued lanes, as low parts in the base
@@ -382,11 +382,11 @@ pub enum LadderOutcome {
     WithinTarget,
     /// The last rung's own estimate meets the target; its value is served.
     Accepted,
-    /// The last rung's value lies below the base carrier's resolution of
-    /// the lane's terms (`|V'| <= 2^-p M'`): the lane vanishes up to rounding,
-    /// so only an absolute accuracy could be stated. Refused, typed (no
-    /// value; its rung value is [`LaneRescue::best`]): the caller gave no
-    /// absolute budget.
+    /// The value of the highest rung the ladder may try lies below that
+    /// rung's own resolution of the lane's terms (`|V'| <= 2^-p' 2^m M'`):
+    /// the lane vanishes up to rounding there, so only an absolute accuracy
+    /// can be stated ([`LaneRescue::absolute_bound`], finite). Refused, typed
+    /// (no value; the rung value is [`LaneRescue::best`]).
     BelowResolution,
     /// Every rung allowed missed the target: no value is served, the lane is
     /// refused `Unstable` for the caller's own rescue.
@@ -416,6 +416,13 @@ pub struct LaneRescue<T> {
     pub rung_estimate: Option<f64>,
     /// Whether the shifts were projected onto their exact shells.
     pub projected: bool,
+    /// The last rung's absolute bound of its value, per Laurent coefficient
+    /// (`2^-p' 2^m` times the coefficient's term moduli: its resolution of its
+    /// own terms), finite; with `term_moduli` the scale of those terms. For a
+    /// `BelowResolution` lane the caller can test it against an absolute
+    /// (point-level) budget.
+    pub absolute_bound: Option<[f64; 3]>,
+    pub term_moduli: Option<[f64; 3]>,
     pub outcome: LadderOutcome,
     /// The served Laurent coefficients rounded to the base carrier
     /// (`Accepted`, `WithinTarget`), else `None`.
@@ -703,8 +710,9 @@ where
 }
 
 /// Per lane of a rung: (status, Laurent sum, lost bits L' (at least the
-/// bits the tracked precision of an MPFR result says are gone), term moduli M').
-type RungLane<U> = (EvaluationStatus, Laurent<Complex<U>>, f64, f64);
+/// bits the tracked precision of an MPFR result says are gone), term moduli
+/// M' per coefficient).
+type RungLane<U> = (EvaluationStatus, Laurent<Complex<U>>, f64, [f64; 3]);
 
 impl<U: NativeFloat> Stage<U>
 where
@@ -807,7 +815,7 @@ where
                     {
                         (status, sum, lost, moduli)
                     }
-                    _ => (status, std::array::from_fn(|_| zero.clone()), f64::INFINITY, 0.),
+                    _ => (status, std::array::from_fn(|_| zero.clone()), f64::INFINITY, [0.; 3]),
                 }
             })
             .collect())
@@ -931,9 +939,50 @@ impl PolynomialLadder {
         let floor = below_bits(4., base);
         let mut pending: Vec<LaneRescue<T>> = Vec::new();
         let mut within: Vec<LaneRescue<T>> = Vec::new();
+        let tracks = T::tracks_precision();
+        // The precision the lane's INPUTS are known to (MPFR tracks it; exact
+        // zeros do not limit it). A rung cannot create digits its inputs do
+        // not have: a lane whose kinematics are known to fewer bits than the
+        // working precision is left to the base pass (value, status and
+        // tracked precision as without the ladder, so a caller's tracked-
+        // precision test refuses it as before), and every served value's
+        // tracked precision is capped by its inputs' (numerator included).
+        let known = |values: &mut dyn Iterator<Item = &Complex<T>>| {
+            values
+                .flat_map(|v| [&v.re, &v.im])
+                .filter(|x| !x.is_fully_zero())
+                .map(|x| x.get_precision())
+                .min()
+                .unwrap_or(u32::MAX)
+        };
+        let n_lane = self.n;
+        let kinematic_bits = |lane: usize| {
+            let shifts = input.shifts[lane * n_lane..(lane + 1) * n_lane]
+                .iter()
+                .flat_map(|v| v.components());
+            let masses = input.masses_squared[lane * n_lane..(lane + 1) * n_lane].iter();
+            let scale = std::iter::once(&input.scales_squared[lane]);
+            let s = input
+                .s_matrix
+                .map_or(&[][..], |s| &s[lane * n_lane * n_lane..(lane + 1) * n_lane * n_lane])
+                .iter();
+            known(&mut shifts.chain(masses).chain(scale).chain(s))
+        };
+        let input_bits: Vec<u32> = (0..lanes)
+            .map(|lane| {
+                if !tracks {
+                    return u32::MAX;
+                }
+                let numerator = known(&mut parameters[lane * width..(lane + 1) * width].iter());
+                kinematic_bits(lane).min(numerator)
+            })
+            .collect();
         for lane in 0..lanes {
             let status = amplitude.statuses()[lane];
             if !matches!(status, EvaluationStatus::Success | EvaluationStatus::Unstable) {
+                continue;
+            }
+            if tracks && kinematic_bits(lane) < base {
                 continue;
             }
             let Some((lost, _, sum)) = lane_loss(amplitude, lane, base) else {
@@ -943,7 +992,6 @@ impl PolynomialLadder {
             // can be optimistic (audit B1/M1): it carries the margin, and a
             // lane the engine refused is always re-reduced (its value can
             // only be served once a rung has confirmed it).
-            let tracks = T::tracks_precision();
             let base_estimate = estimate(base, lost) * if tracks { margin } else { 1. };
             // A lane the engine refused is served unconfirmed only with the
             // margin (audit m10: double-double estimates are honest within a
@@ -963,6 +1011,8 @@ impl PolynomialLadder {
                         rungs: Vec::new(),
                         rung_estimate: None,
                         projected: false,
+                        absolute_bound: None,
+                        term_moduli: None,
                         outcome: LadderOutcome::WithinTarget,
                     });
                 }
@@ -981,6 +1031,8 @@ impl PolynomialLadder {
                     rungs: Vec::new(),
                     rung_estimate: None,
                     projected: false,
+                    absolute_bound: None,
+                    term_moduli: None,
                     outcome: LadderOutcome::Failed,
                     value: None,
                 });
@@ -1056,7 +1108,7 @@ impl PolynomialLadder {
                     let usable = |(status, sum, _, moduli): &RungLane<Float>| {
                         matches!(status, EvaluationStatus::Success | EvaluationStatus::Unstable)
                             && sum.iter().all(|v| v.re.is_finite() && v.im.is_finite())
-                            && moduli.is_finite()
+                            && moduli.iter().all(|m| m.is_finite())
                     };
                     let low = &outcomes[0].1[i];
                     let high = outcomes.get(1).map(|o| &o.1[i]);
@@ -1098,7 +1150,8 @@ impl PolynomialLadder {
                         None => 0.,
                     };
                     let honest = (own * margin).max(disagreement);
-                    let accurate = (-honest.log2()).floor().clamp(1., f64::from(u32::MAX)) as u32;
+                    let accurate = ((-honest.log2()).floor().clamp(1., f64::from(u32::MAX)) as u32)
+                        .min(input_bits[record.lane]);
                     let rounded: Laurent<Complex<T>> = sum.clone().map(|v| {
                         let mut re = T::from_float(&v.re, &prototype);
                         let mut im = T::from_float(&v.im, &prototype);
@@ -1116,8 +1169,20 @@ impl PolynomialLadder {
                             relative_to(&(back - &sum[j]), &sum[j])
                         })
                         .fold(0., f64::max);
-                    let reported = honest.max(narrowing).max(floor);
+                    let reported = honest
+                        .max(narrowing)
+                        .max(floor)
+                        .max(below_bits(1., input_bits[record.lane]));
+                    // Never a non-finite estimate (a vanishing value has no
+                    // relative accuracy: the largest finite one).
+                    let reported = if reported.is_finite() { reported } else { f64::MAX };
                     record.rung_estimate = Some(reported);
+                    // The rung's resolution of its own terms, per coefficient:
+                    // a finite absolute bound of its value, and the terms'
+                    // scale, for a caller's point-level budget.
+                    let resolution = moduli.map(|m| below_bits(m * margin, served_rung.bits()));
+                    record.absolute_bound = Some(resolution);
+                    record.term_moduli = Some(*moduli);
                     if record.best.as_ref().is_none_or(|b| reported < b.estimate) {
                         record.best = Some(BestValue {
                             value: rounded.clone(),
@@ -1125,44 +1190,45 @@ impl PolynomialLadder {
                             bits: served_rung.bits(),
                         });
                     }
-                    // A vanishing lane meets only an absolute criterion: it is
-                    // reported `BelowResolution`, typed and refused (its value
-                    // carried as the best one), never served as a success.
-                    let below = taxicab_f(&sum[0]) <= below_bits(*moduli, base)
-                        && f64::from(served_rung.bits()) >= f64::from(base) - target.log2();
-                    // Served: the returned value's own estimate meets the
-                    // target (narrowing included) and the rung is clearly
-                    // better than the base value (audit m5).
-                    let served = if honest <= target
-                        && honest.max(narrowing) <= target.max(floor)
-                        && honest < record.estimate
-                    {
-                        Some(LadderOutcome::Accepted)
-                    } else {
-                        None
-                    };
-                    if below && served.is_none() {
-                        record.outcome = LadderOutcome::BelowResolution;
+                    // Served (`Accepted`) only when the estimate REPORTED for
+                    // the value returned (narrowing to the base carrier
+                    // included) meets the REQUESTED target, and the rung is
+                    // clearly better than the base value (audit m5). A target
+                    // below what the base carrier can represent is `Missed`.
+                    if reported <= target && honest < record.estimate {
+                        record.outcome = LadderOutcome::Accepted;
+                        record.value = Some(rounded);
                         continue;
                     }
-                    if let Some(outcome) = served {
-                        record.outcome = outcome;
-                        record.value = Some(rounded);
+                    // A value below this rung's own resolution of its terms
+                    // is noise: the lane climbs like any other; it is reported
+                    // `BelowResolution` only when no higher rung is allowed.
+                    let noise = taxicab_f(&sum[0]) <= resolution[0];
+                    record.outcome = if noise {
+                        LadderOutcome::BelowResolution
                     } else {
-                        record.outcome = LadderOutcome::Missed;
-                        // The next rung: sized from the measured loss, and at
-                        // least one limb above the confirming reduction.
-                        let floor = served_rung.bits() + MPFR_LIMB_BITS;
-                        let sized = self.rule.rung(base, sizing(*lost)).map_or(0, |r| r.bits());
-                        let wider = sized.max(floor);
-                        if wider <= cap {
-                            next[k] = Some(Rung::Arbitrary(wider.div_ceil(MPFR_LIMB_BITS) * MPFR_LIMB_BITS));
-                            still.push(k);
-                        }
+                        LadderOutcome::Missed
+                    };
+                    // The next rung: sized from the measured loss, and at
+                    // least one limb above the confirming reduction.
+                    let floor_bits = served_rung.bits() + MPFR_LIMB_BITS;
+                    let sized = self.rule.rung(base, sizing(*lost)).map_or(0, |r| r.bits());
+                    let wider = sized.max(floor_bits);
+                    if wider <= cap {
+                        next[k] = Some(Rung::Arbitrary(wider.div_ceil(MPFR_LIMB_BITS) * MPFR_LIMB_BITS));
+                        still.push(k);
                     }
                 }
             }
             open = still;
+        }
+        // `BelowResolution` stands only for a lane below the resolution of
+        // the highest rung allowed: one stopped by `max_rungs` while a wider
+        // rung was still allowed is `Missed`.
+        for (k, record) in pending.iter_mut().enumerate() {
+            if record.outcome == LadderOutcome::BelowResolution && next[k].is_some() {
+                record.outcome = LadderOutcome::Missed;
+            }
         }
         for record in &pending {
             match record.outcome {
