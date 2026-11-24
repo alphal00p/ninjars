@@ -108,14 +108,14 @@ fn noise(rank: usize, odd: &[RMom], options: FastOptions, test: InstabilityTest)
 fn threshold(stability_threshold: f64) -> FastOptions {
     FastOptions {
         stability_threshold,
-        ..FastOptions::default()
+        ..binary64_options()
     }
 }
 
 #[test]
 fn records_name_the_test_and_the_numbers_up_to_n1() {
     use InstabilityTest::*;
-    let default = FastOptions::default;
+    let default = binary64_options;
     // Box (0, 1, 2, 3): k3 = -V3 parallel to k0 = V1.
     let parallel = [ZERO, [1., 0., 0., 0.], B, [-2., 0., 0., 0.]];
     let record = noise(4, &parallel, default(), BoxGram);
@@ -175,12 +175,12 @@ fn records_name_the_test_and_the_numbers_up_to_n1() {
     ];
     let record = refused(5, &near, default(), BoxMuConditioning);
     assert!(record.value > record.bound && record.bound > 0., "{record}");
-    // The same with the thresholds zeroed (pyAmpliCol's unchecked mode):
-    // the screen stays.
+    // The same with the thresholds zeroed (pyAmpliCol's unchecked mode, in
+    // which pyAmpliCol also turns the rescue off): the screen stays.
     let unchecked = FastOptions {
         stability_threshold: 0.,
         relative_tolerance: 0.,
-        ..FastOptions::default()
+        ..binary64_options()
     };
     refused(5, &near, unchecked, BoxMuConditioning);
     // Euclidean planes: spatial shifts (every box basis), and a triangle
@@ -202,7 +202,7 @@ fn records_name_the_test_and_the_numbers_up_to_n1() {
 #[test]
 fn records_name_the_test_and_the_numbers_at_n2() {
     use InstabilityTest::*;
-    let default = FastOptions::default;
+    let default = binary64_options;
     let parallel = [ZERO, [1., 0., 0., 0.], B, [-2., 0., 0., 0.]];
     noise(6, &parallel, default(), BoxGram);
     let hyperplane = [ZERO, A, B, C, combination(0.5, 0.5, 0., 0., ZERO)];
@@ -245,7 +245,7 @@ fn records_of_lowered_and_rank_n2_lanes_name_the_callers_lanes() {
         parallel,
     ];
     // Lanes 0, 3 and 4 lowered to rank n+1; 1 and 2 at rank n+2.
-    let (statuses, mut records) = run_lanes(6, &lanes, &[0, 3, 4], FastOptions::default());
+    let (statuses, mut records) = run_lanes(6, &lanes, &[0, 3, 4], binary64_options());
     use FastStatus::{Success, Unstable};
     assert_eq!(statuses, [Success, Unstable, Success, Unstable, Unstable]);
     records.sort_by_key(|(lane, _)| *lane);
@@ -259,7 +259,7 @@ fn records_of_lowered_and_rank_n2_lanes_name_the_callers_lanes() {
 #[test]
 fn records_belong_to_the_last_evaluation() {
     let spatial = vec![ZERO, [0., 1., 0., 0.], [0., 0., 1., 0.], [0., 0., 0., 1.]];
-    let options = FastOptions::default();
+    let options = binary64_options();
     let mut amplitude = FastAmplitude::new(4, 4, options).unwrap();
     let masses = vec![C64::new(0.7, -0.05); 4];
     let mut results = vec![FastResult::default()];
@@ -300,7 +300,7 @@ fn euclidean_triangles_without_uncut_lines_are_named() {
         let record = refused(
             rank,
             &plane,
-            FastOptions::default(),
+            binary64_options(),
             InstabilityTest::EuclideanPlane,
         );
         assert_eq!((record.value, record.bound), (1., 0.), "rank {rank}");
@@ -335,4 +335,15 @@ fn records_display_found_and_required() {
         show(BoxGeometry, f64::NAN, f64::NAN),
         "box geometry: degenerate, no quantity to compare"
     );
+}
+
+/// The binary64 engine alone: these tests use synthetic master providers
+/// without rescue-precision masters, and test the binary64 stages (the
+/// cancellation rescue has its own tests with oneloopmaster's masters in
+/// `ninjars-symbolica`).
+fn binary64_options() -> FastOptions {
+    FastOptions {
+        cancellation_rescue: false,
+        ..FastOptions::default()
+    }
 }

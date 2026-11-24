@@ -14,6 +14,7 @@ mod algorithm_transpose_probe;
 mod amplitude;
 mod box_kernels;
 mod bubble_kernels;
+pub mod cancellation_ladder;
 mod contraction;
 mod cuts;
 mod denominators;
@@ -25,11 +26,11 @@ mod kinematics;
 mod laurent;
 mod masters;
 mod oneloop_native;
-pub use oneloop_native::OneLoopNativeMasters;
 pub use oneloop::PoleSelection;
-mod pole_selection;
+pub use oneloop_native::OneLoopNativeMasters;
 #[cfg(feature = "native-kernels")]
 mod native_kernels;
+mod pole_selection;
 #[cfg(feature = "native-kernels")]
 pub use native_kernels::{KernelBackend, KernelBackendSelection, KernelFamily};
 #[cfg(feature = "native-kernels")]

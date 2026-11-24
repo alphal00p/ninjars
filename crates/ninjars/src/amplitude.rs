@@ -289,6 +289,16 @@ impl<T: FloatLike, K: AmplitudeKernels<T>> Amplitude<T, K> {
     pub fn contribution_moduli(&self) -> &[crate::Laurent<T>] {
         &self.moduli
     }
+    /// Per cut and lane (cut-major, as [`Self::debug_contributions`]), the
+    /// summed moduli of the terms contracted into each Laurent coefficient
+    /// of the last evaluation ([`crate::ResidueIntegrator::term_moduli`]);
+    /// empty unless the kernels test cancellation
+    /// ([`AmplitudeKernels::tests_cancellation`]). With the contributions they
+    /// measure each lane's cancellation in bits, also for a lane refused
+    /// [`EvaluationStatus::Unstable`].
+    pub fn term_moduli(&self) -> &[crate::Laurent<T>] {
+        &self.term_moduli
+    }
     /// The moduli ([`AmplitudeKernels::modulus`]) of one lane's Laurent
     /// coefficients.
     pub fn result_moduli(&self, lane: usize) -> Option<crate::Laurent<T>> {

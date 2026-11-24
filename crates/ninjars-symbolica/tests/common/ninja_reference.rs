@@ -434,7 +434,16 @@ pub fn crosscheck(case: &Case, ninja: &[NinjaLane]) -> Result<CaseReport, Error>
         return Err("lane count mismatch".into());
     }
     let mut masters = NinjaMasters::new(ninja);
-    let mut amplitude = FastAmplitude::new(case.n, case.rank, FastOptions::default())?;
+    let mut amplitude = FastAmplitude::new(
+        case.n,
+        case.rank,
+        FastOptions {
+            // The binary64 engine against original Ninja (replayed binary64
+            // masters, no double-double ones): the cancellation rescue off.
+            cancellation_rescue: false,
+            ..FastOptions::default()
+        },
+    )?;
     let count = case.points.len();
     let mut single = Vec::new();
     let mut lanes = Vec::new();

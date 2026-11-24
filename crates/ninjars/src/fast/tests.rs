@@ -686,7 +686,7 @@ fn bases_near_the_z_axis_are_massless_and_orthogonal() {
         }
         worst
     };
-    let eps = FastOptions::default().infrared_eps;
+    let eps = binary64_options().infrared_eps;
     let mut rng = Rng(17);
     let mut failures = Vec::new();
     let mut check = |label: String, k: RMom, other: RMom| {
@@ -861,7 +861,7 @@ fn lane_statuses_isolate_failures_and_keep_previous_results() {
         scales_squared: &scales,
         s_matrix: None,
     };
-    let mut amplitude = FastAmplitude::new(n, rank, FastOptions::default()).unwrap();
+    let mut amplitude = FastAmplitude::new(n, rank, binary64_options()).unwrap();
     let sentinel = FastResult {
         laurent: [C64::real(42.); 3],
         cut_constructible: C64::real(42.),
@@ -974,7 +974,7 @@ fn replay_reproduces_recorded_evaluations_bitwise() {
             scales_squared: &scales,
             s_matrix: None,
         };
-        let mut amplitude = FastAmplitude::new(n, rank, FastOptions::default()).unwrap();
+        let mut amplitude = FastAmplitude::new(n, rank, binary64_options()).unwrap();
         let mut tensor = TensorNumerator::new(rank, lanes);
         for c in tensor.coefficients_mut() {
             *c = rng.c();
@@ -1019,7 +1019,7 @@ fn replay_reproduces_recorded_evaluations_bitwise() {
 fn conditioned_cuts_are_per_lane_and_ignored_at_rank_n2() {
     let conditioned = FastOptions {
         conditioned_cuts: true,
-        ..FastOptions::default()
+        ..binary64_options()
     };
     for (n, rank) in [(3, 4), (5, 5), (5, 6), (7, 8), (5, 7)] {
         let mut rng = Rng(200 + (n * 10 + rank) as u64);
@@ -1091,12 +1091,23 @@ fn conditioned_cuts_are_per_lane_and_ignored_at_rank_n2() {
                 "n={n} rank={rank} lane {lane}"
             );
         }
-        let default = run(FastOptions::default(), &all);
+        let default = run(binary64_options(), &all);
         if rank == n + 2 {
             assert_eq!(default, batch, "n={n} rank={rank}");
         } else {
             assert!(batch.1.iter().all(|&s| s == FastStatus::Success));
             assert_ne!(default.0, batch.0, "n={n} rank={rank}: no cut changed");
         }
+    }
+}
+
+/// The binary64 engine alone: these tests use synthetic master providers
+/// without rescue-precision masters, and test the binary64 stages (the
+/// cancellation rescue has its own tests with oneloopmaster's masters in
+/// `ninjars-symbolica`).
+fn binary64_options() -> FastOptions {
+    FastOptions {
+        cancellation_rescue: false,
+        ..FastOptions::default()
     }
 }

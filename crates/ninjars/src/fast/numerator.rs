@@ -211,6 +211,17 @@ pub trait FastNumerator {
     /// Undo [`Self::lower_rank`]: afterwards the numerator is exactly as it
     /// was before. Without a preceding [`Self::lower_rank`] it does nothing.
     fn restore_rank(&mut self) {}
+
+    /// Lane `lane`'s coefficients as a dense tensor of rank [`Self::rank`]
+    /// without `mu²` terms, in [`super::tensor_layout`] order, if this
+    /// numerator is one. The engine then re-reduces the lane in
+    /// double-double where its binary64 reduction cancels
+    /// ([`super::FastOptions::cancellation_rescue`]); the default `None`
+    /// keeps every lane in binary64.
+    fn tensor_coefficients(&self, lane: usize) -> Option<&[C64]> {
+        let _ = lane;
+        None
+    }
 }
 
 #[cfg(test)]

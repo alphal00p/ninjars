@@ -36,6 +36,10 @@ pub mod adapters;
 mod bases_x2;
 mod box_x2;
 pub mod complex;
+pub mod dd;
+mod dd_driver;
+#[rustfmt::skip]
+mod dd_stages;
 mod declared_rank;
 mod engine;
 mod engine_x2;
@@ -64,7 +68,10 @@ mod tests_x2;
 pub use adapters::{GenericMasters, GenericNumerator};
 pub use complex::{C64, CMom, RMom, mp_cc, mp_cr, mp_rr, to_complex};
 pub use declared_rank::AtDeclaredRank;
-pub use engine::{FastAmplitude, FastOptions, take_instabilities};
+pub use engine::{
+    DEFAULT_RESCUE_TARGET, FastAmplitude, FastOptions, take_instabilities, take_rescued_lanes,
+    take_rescues,
+};
 pub use masters::{FastMaster, FastMasters};
 pub use numerator::{FastNumerator, t2_len, t3_len};
 pub use replay::{RecordingMasters, RecordingNumerator, ReplayMasters, ReplayNumerator};
@@ -88,6 +95,73 @@ pub struct FastInput<'a> {
     pub masses_squared: &'a [C64],
     pub scales_squared: &'a [f64],
     pub s_matrix: Option<&'a [f64]>,
+}
+
+/// Low parts of the rescue-precision kinematics of a [`FastInput`] (same
+/// lanes, same layouts): the rescue-precision value of every entry is the
+/// [`FastInput`] value plus its low part here (double-double for this binary64
+/// engine). Read only by [`FastAmplitude::evaluate_refined`]'s re-reduction of
+/// flagged lanes ([`FastOptions::cancellation_rescue`],
+/// `docs/triangle-gram-conditioning.md`, section 7); the binary64 pass never
+/// reads it.
+///
+/// The caller supplies the rescue-precision cure of the very binary64 point of
+/// the [`FastInput`]: on-shell external legs (an exactly zero invariant keeps
+/// a zero low part), momentum conservation, shifts that are the exact sums of
+/// the refined external momenta, invariants consistent with the refined
+/// shifts. NinjaRS then applies no repair of its own (no light-like
+/// projection); an inconsistent refinement degrades the rescue, never the
+/// binary64 pass.
+#[derive(Clone, Copy, Debug)]
+pub struct FastRefinement<'a> {
+    /// `shifts[lane * n + i]` low parts, as [`FastInput::shifts`].
+    pub shifts: &'a [RMom],
+    /// `(V_i - V_j)²` low parts, as [`FastInput::s_matrix`] (only with an
+    /// `s_matrix` there). `None`: the invariants are the refined shifts'.
+    pub s_matrix: Option<&'a [f64]>,
+    /// `m_i²` low parts, as [`FastInput::masses_squared`]. `None`: the squared
+    /// masses are exact in binary64.
+    pub masses_squared: Option<&'a [C64]>,
+}
+
+/// A lazy source of rescue-precision kinematics ([`FastRefinement`]'s
+/// semantics), asked only for the lanes the re-reduction takes up
+/// ([`FastAmplitude::evaluate_refined_with`]).
+pub trait FastRefinementSource {
+    /// Fill lane `lane`'s low parts: `shifts` (`n`), `s_matrix` (`n * n`, as
+    /// `FastInput::s_matrix`; when `FastInput` has none it is ignored) and
+    /// `masses_squared` (`n`), all zero on entry. `false`: no refinement for
+    /// this lane (the internal repairs serve it).
+    fn lane(
+        &self,
+        lane: usize,
+        shifts: &mut [RMom],
+        s_matrix: &mut [f64],
+        masses_squared: &mut [C64],
+    ) -> bool;
+}
+
+impl FastRefinementSource for FastRefinement<'_> {
+    fn lane(
+        &self,
+        lane: usize,
+        shifts: &mut [RMom],
+        s_matrix: &mut [f64],
+        masses_squared: &mut [C64],
+    ) -> bool {
+        let n = shifts.len();
+        shifts.copy_from_slice(&self.shifts[lane * n..(lane + 1) * n]);
+        match self.s_matrix {
+            Some(s) => s_matrix.copy_from_slice(&s[lane * n * n..(lane + 1) * n * n]),
+            // The invariants of the refined shifts: flagged by NaN, which the
+            // re-reduction replaces by the refined shifts' own invariants.
+            None => s_matrix.fill(f64::NAN),
+        }
+        if let Some(m) = self.masses_squared {
+            masses_squared.copy_from_slice(&m[lane * n..(lane + 1) * n]);
+        }
+        true
+    }
 }
 
 /// Per-lane outcome of a fast-path evaluation.
@@ -151,6 +225,15 @@ pub enum InstabilityTest {
     /// triangle without uncut lines (n = 3) is named when its lane's result
     /// is not finite.
     EuclideanPlane,
+    /// A lane re-reduced by [`FastOptions::cancellation_rescue`] whose own
+    /// estimate still exceeds [`FastOptions::rescue_target`].
+    CancellationRescue,
+    /// A lane the trigger of [`FastOptions::cancellation_rescue`] measured
+    /// above [`FastOptions::rescue_target`] but outside the rescue's domain
+    /// (a numerator without tensor coefficients; an on-shell massive leg
+    /// without the caller's refined kinematics): not re-reduced, its binary64
+    /// value in the slot. Only with the rescue on.
+    RescueOutsideDomain,
 }
 
 impl InstabilityTest {
@@ -169,13 +252,21 @@ impl InstabilityTest {
             Self::TadpoleExpansion => "tadpole expansion",
             Self::BoxMuConditioning => "box mu-expansion conditioning",
             Self::EuclideanPlane => "Euclidean-plane cut",
+            Self::CancellationRescue => "cancellation rescue",
+            Self::RescueOutsideDomain => "cancellation rescue outside its domain",
         }
     }
     /// Whether the test refuses a value above its bound
     /// ([`Self::BoxMuConditioning`], [`Self::EuclideanPlane`]) rather than
     /// one at or below it (the noise tests).
     pub fn refuses_above(self) -> bool {
-        matches!(self, Self::BoxMuConditioning | Self::EuclideanPlane)
+        matches!(
+            self,
+            Self::BoxMuConditioning
+                | Self::EuclideanPlane
+                | Self::CancellationRescue
+                | Self::RescueOutsideDomain
+        )
     }
 }
 
@@ -212,6 +303,9 @@ impl std::fmt::Display for Instability {
         }
         let (quantity, requirement) = match self.test {
             InstabilityTest::BoxMuConditioning => ("predicted error", "allowed <="),
+            InstabilityTest::CancellationRescue | InstabilityTest::RescueOutsideDomain => {
+                ("estimated error", "target <=")
+            }
             InstabilityTest::EuclideanPlane => ("Gram determinant", "required <="),
             _ => ("found", "required >"),
         };
@@ -225,6 +319,68 @@ impl std::fmt::Display for Instability {
         }
         .fmt(f)
     }
+}
+
+/// One lane's re-reduction by [`FastOptions::cancellation_rescue`]
+/// ([`take_rescues`]). Non-exhaustive: later versions may add fields.
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[non_exhaustive]
+pub struct Rescue {
+    /// The precision of the re-reduction in bits (106: double-double).
+    pub precision_bits: u32,
+    /// Its own relative error estimate: `2^-53` times the moduli of its terms
+    /// that keep a binary64 factor plus `2^-100` times the others (each
+    /// double-double `C0` term over its triangle's normalised Källén function
+    /// δ, each `D0` term over δ² of its most degenerate sub-triangle), over
+    /// `|finite|`, plus `2^-53`; at least the box-Gram and box mu-expansion
+    /// losses (`docs/triangle-gram-conditioning.md`, section 5). NaN when the
+    /// re-reduction failed or did not run.
+    pub estimate: f64,
+    /// Its absolute error estimate (NaN for a refused lane).
+    pub absolute: f64,
+    /// Whether it was served (`Accepted`); if not, the
+    /// lane is [`FastStatus::Unstable`]
+    /// ([`InstabilityTest::CancellationRescue`]).
+    pub served: bool,
+    /// How it was decided.
+    pub outcome: RescueOutcome,
+    /// The precision in bits of the value the lane's result slot holds: 106
+    /// when served, else the better of the binary64 value (53) and the
+    /// re-reduced one (106), by their absolute estimates; the binary64 value
+    /// when the re-reduction failed. A refused lane's slot always holds that
+    /// value (status [`FastStatus::Unstable`]), for a best-effort caller.
+    pub held_bits: u32,
+    /// The relative error estimate of the held value (its own estimate, or
+    /// the binary64 trigger's).
+    pub held_estimate: f64,
+}
+
+/// The decision on a re-reduced lane, by the rule and with the names of the
+/// generic engine's cancellation ladder (`ninjars_symbolica`'s
+/// `LadderOutcome`). A served lane is also at most a sixteenth of the binary64
+/// lane's absolute estimate.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum RescueOutcome {
+    /// Its own relative estimate meets [`FastOptions::rescue_target`]: served.
+    Accepted,
+    /// Reserved (the generic engine's ladder serves a lane below its base
+    /// carrier's resolution of its own terms). NOT produced by the fast
+    /// engine: such a lane's value is an ordinary part of the caller's point,
+    /// and no absolute scale of the point is known here, so a lane whose
+    /// relative estimate misses the target is `Missed`.
+    BelowResolution,
+    /// Neither: refused.
+    Missed,
+    /// The re-reduction failed (a degenerate or non-finite quantity, or a
+    /// projection that could not be solved): refused.
+    Failed,
+    /// Not re-reduced: outside the rescue's domain (a numerator without
+    /// tensor coefficients; an on-shell massive external leg without the
+    /// caller's refined kinematics). Status `Unstable`
+    /// ([`InstabilityTest::RescueOutsideDomain`]), the binary64 value in the
+    /// slot.
+    OutsideDomain,
 }
 
 /// Integrated contribution of one lane.

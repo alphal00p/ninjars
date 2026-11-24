@@ -32,7 +32,10 @@ use super::geometry::{
 use super::masters::{FastMaster, FastMasters};
 use super::numerator::{FastNumerator, t2_len_le3, t3_len};
 use super::subtractions as subs;
-use super::{FastInput, FastResult, FastStatus, Instability, InstabilityTest};
+use super::{
+    FastInput, FastRefinement, FastRefinementSource, FastResult, FastStatus, Instability,
+    InstabilityTest,
+};
 use crate::conditioning::{
     BoxMuConditioning, BoxMuPropagation, box_mu_numerator_ratio, box_mu_refused, box_mu_rounding,
 };
@@ -92,6 +95,28 @@ pub struct FastOptions {
     /// which then chooses the separately compiled [`ConditionedEngine`]; the
     /// default engine's code does not depend on it.
     pub conditioned_cuts: bool,
+    /// Re-reduce in double-double, from the triple cuts down, every lane
+    /// whose finite part the binary64 reduction measurably cancels beyond
+    /// [`Self::rescue_target`] (default `false`: on for callers that keep a
+    /// test of their own behind it, as pyAmpliCol's checked mode does;
+    /// `docs/triangle-gram-conditioning.md`): `2^-53` times the moduli of its
+    /// integrated terms (each coefficient times its master, and each rational
+    /// term) exceeds the target times its finite part. `false` (a caller's
+    /// "reduction checks off"): no trigger bookkeeping, no re-reduction, every
+    /// value the binary64 reduction's bit for bit.
+    /// Lanes of numerators without [`FastNumerator::tensor_coefficients`]
+    /// keep their binary64 values. Rank <= n+1 (also lanes of a declared rank
+    /// n+2 reduced at a lower rank, and with [`Self::conditioned_cuts`]); not
+    /// the rank n+2 engine.
+    pub cancellation_rescue: bool,
+    /// The target relative accuracy of [`Self::cancellation_rescue`]: a lane
+    /// is re-reduced when its measured estimate `2^-53 Σ|terms| / |finite|`
+    /// exceeds it, and a re-reduced lane whose own estimate still exceeds it
+    /// is refused ([`FastStatus::Unstable`],
+    /// [`super::InstabilityTest::CancellationRescue`]). `None`:
+    /// [`DEFAULT_RESCUE_TARGET`]. Callers with an accuracy target of their
+    /// own pass it here (see `docs/triangle-gram-conditioning.md`, section 3).
+    pub rescue_target: Option<f64>,
 }
 
 impl Default for FastOptions {
@@ -102,6 +127,8 @@ impl Default for FastOptions {
             stability_threshold: 1.0e20 * f64::MIN_POSITIVE,
             relative_tolerance: 1024. * f64::EPSILON,
             conditioned_cuts: false,
+            cancellation_rescue: false,
+            rescue_target: None,
         }
     }
 }
@@ -117,6 +144,9 @@ pub(super) struct StageOptions {
     pub(super) infrared_eps: f64,
     pub(super) stability_threshold: f64,
     pub(super) relative_tolerance: f64,
+    pub(super) cancellation_rescue: bool,
+    /// [`FastOptions::rescue_target`], resolved.
+    pub(super) rescue_target: f64,
 }
 
 impl StageOptions {
@@ -126,6 +156,8 @@ impl StageOptions {
             infrared_eps: options.infrared_eps,
             stability_threshold: options.stability_threshold,
             relative_tolerance: options.relative_tolerance,
+            cancellation_rescue: options.cancellation_rescue,
+            rescue_target: options.rescue_target.unwrap_or(DEFAULT_RESCUE_TARGET),
         }
     }
 
@@ -137,6 +169,8 @@ impl StageOptions {
             stability_threshold: self.stability_threshold,
             relative_tolerance: self.relative_tolerance,
             conditioned_cuts,
+            cancellation_rescue: self.cancellation_rescue,
+            rescue_target: Some(self.rescue_target),
         }
     }
 }
@@ -297,7 +331,7 @@ fn complement(part: &[usize], n: usize, out: &mut Vec<usize>) {
 }
 
 impl Topology {
-    fn new(n: usize, rank: usize) -> Self {
+    pub(super) fn new(n: usize, rank: usize) -> Self {
         let mut boxes = Vec::new();
         let mut triangles = Vec::new();
         let mut bubbles = Vec::new();
@@ -403,10 +437,10 @@ impl Topology {
         }
     }
 
-    fn rmn(&self) -> isize {
+    pub(super) fn rmn(&self) -> isize {
         self.rank as isize - self.n as isize
     }
-    fn x1(&self) -> bool {
+    pub(super) fn x1(&self) -> bool {
         self.rank == self.n + 1
     }
 }
@@ -419,6 +453,29 @@ pub(super) fn sub_cr(a: &CMom, b: &RMom) -> CMom {
 #[inline(always)]
 pub(super) fn scale_c(a: &CMom, s: f64) -> CMom {
     [a[0] * s, a[1] * s, a[2] * s, a[3] * s]
+}
+
+/// `log2 λ²` of the box-Gram bound (`crate::conditioning`,
+/// `docs/box-gram-conditioning.md`) from a box's two solutions `l` (centred on
+/// its first line): `λ² = (|a|² + |t v|²) / S² = (|l+|² + |l-|²) / (2 S²)` (the
+/// parallelogram identity), `S²` the largest squared shift or squared mass of
+/// its lines, Euclidean norms of the components.
+pub(super) fn box_lambda_bits(l: &[CMom; 2], v: &[RMom], m: &[C64], p: &[usize; 4]) -> f64 {
+    let norm = |x: &CMom| x.iter().map(|z| z.norm_sqr()).sum::<f64>();
+    let scale = p
+        .iter()
+        .map(|&i| v[i].iter().map(|x| x * x).sum::<f64>().max(m[i].abs()))
+        .fold(0., f64::max);
+    ((norm(&l[0]) + norm(&l[1])) / (2. * scale)).log2()
+}
+
+/// The predicted relative error of a box cut's coefficients in a carrier of
+/// `bits` bits by the box-Gram model: `2^((r + 1)/2 log2 λ² + 11.3 - bits)`
+/// (`docs/box-gram-conditioning.md`, section 3: the slope, and the largest
+/// measured excess of the loss over it).
+pub(super) fn box_gram_error(lambda_bits: f64, rank: usize, bits: u32) -> f64 {
+    let (a, b) = crate::conditioning::box_gram_slope(rank);
+    2f64.powf(a as f64 / b as f64 * lambda_bits + BOX_GRAM_EXCESS_BITS - f64::from(bits))
 }
 
 /// `D = (q+V)² - m²` (Ninja's `Den` at `mu² = 0`).
@@ -714,6 +771,21 @@ pub(super) fn remap_instabilities(from: usize, map: impl Fn(usize) -> usize) {
     });
 }
 
+/// The number of rescue records on this thread and their remapping, as
+/// [`instabilities_len`] and [`remap_instabilities`] (the lanes of a declared
+/// rank n+2 batch's lowered sub-batches).
+pub(super) fn rescues_len() -> usize {
+    RESCUES.with(|list| list.borrow().len())
+}
+
+pub(super) fn remap_rescues(from: usize, map: impl Fn(usize) -> usize) {
+    RESCUES.with(|list| {
+        for entry in &mut list.borrow_mut()[from..] {
+            entry.0 = map(entry.0);
+        }
+    });
+}
+
 /// The instabilities of the calling thread's last
 /// [`FastAmplitude::evaluate`] call (each call starts by forgetting the
 /// previous one's), `(lane, Instability)` with `lane` the lane of its input,
@@ -878,6 +950,9 @@ pub struct FastAmplitude {
     /// in the precision-aware stability checks.
     bounds: Vec<(f64, f64)>,
     box_c: Vec<[C64; 2]>,
+    /// Per (box, lane) `log2 λ²` of the box-Gram bound (`crate::conditioning`),
+    /// for [`FastOptions::cancellation_rescue`]'s trigger.
+    box_lambda: Vec<f64>,
     tri: Vec<TriangleData>,
     bub: Vec<BubbleData>,
     tad: Vec<TadpoleData>,
@@ -1024,6 +1099,7 @@ impl FastAmplitude {
             vsq: Vec::new(),
             bounds: Vec::new(),
             box_c: Vec::new(),
+            box_lambda: Vec::new(),
             tri: Vec::new(),
             bub: Vec::new(),
             tad: Vec::new(),
@@ -1103,7 +1179,79 @@ impl FastAmplitude {
         results: &mut [FastResult],
         statuses: &mut [FastStatus],
     ) -> Result<()> {
+        self.evaluate_refined(input, None, numerator, masters, results, statuses)
+    }
+
+    /// [`Self::evaluate`] with the optional rescue-precision kinematics of
+    /// `input` ([`FastRefinement`]): the re-reduction of flagged lanes
+    /// ([`FastOptions::cancellation_rescue`]) builds its geometry, Gram
+    /// matrices and invariants from them instead of repairing the binary64
+    /// ones. The binary64 pass reads `input` only, bit for bit as without
+    /// it. Rank <= n+1 lanes reduced at their declared rank (also with
+    /// [`FastOptions::conditioned_cuts`]); the lanes the rank n+2 engine lowers
+    /// use the internal repair.
+    pub fn evaluate_refined<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
+        &mut self,
+        input: &FastInput,
+        refinement: Option<&FastRefinement>,
+        numerator: &mut N,
+        masters: &mut M,
+        results: &mut [FastResult],
+        statuses: &mut [FastStatus],
+    ) -> Result<()> {
+        let n = self.topo.n;
+        if let Some(r) = refinement {
+            let lanes = input.lanes;
+            let s_len = if input.s_matrix.is_some() {
+                lanes * n * n
+            } else {
+                0
+            };
+            for (name, expected, actual) in [
+                ("fast refinement shifts", lanes * n, r.shifts.len()),
+                (
+                    "fast refinement masses",
+                    lanes * n,
+                    r.masses_squared.map_or(lanes * n, |m| m.len()),
+                ),
+                (
+                    "fast refinement S-matrix",
+                    s_len,
+                    r.s_matrix.map_or(s_len, |s| s.len()),
+                ),
+            ] {
+                if expected != actual {
+                    return Err(Error::Shape {
+                        name,
+                        expected,
+                        actual,
+                    });
+                }
+            }
+        }
+        self.evaluate_refined_with(
+            input,
+            refinement.map(|r| r as &dyn FastRefinementSource),
+            numerator,
+            masters,
+            results,
+            statuses,
+        )
+    }
+
+    /// [`Self::evaluate_refined`] with a lazy [`FastRefinementSource`], asked
+    /// only for the lanes the re-reduction takes up.
+    pub fn evaluate_refined_with<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
+        &mut self,
+        input: &FastInput,
+        refinement: Option<&dyn FastRefinementSource>,
+        numerator: &mut N,
+        masters: &mut M,
+        results: &mut [FastResult],
+        statuses: &mut [FastStatus],
+    ) -> Result<()> {
         clear_instabilities();
+        RESCUES.with(|r| r.borrow_mut().clear());
         if masters.requires_scaleless_bubbles() {
             return Err(Error::Unsupported(
                 "separate UV/IR poles require scaleless-bubble coefficients; use the generic reduction engine".into(),
@@ -1113,15 +1261,21 @@ impl FastAmplitude {
         if let Some(replacement) = self.replacement.as_deref_mut() {
             // Both entries are cold and never inlined.
             return match replacement {
+                // The lowered lanes are renumbered: they take the rescue in
+                // `evaluate_lowered`, without the refinement.
                 Replacement::RankN2 { .. } => {
                     evaluate_declared_n2(self, input, numerator, masters, results, statuses)
                 }
                 Replacement::Conditioned(engine) => {
-                    evaluate_conditioned(engine, input, numerator, masters, results, statuses)
+                    evaluate_conditioned(engine, input, numerator, masters, results, statuses)?;
+                    engine
+                        .amp
+                        .rescue_after(input, numerator, masters, refinement, results, statuses)
                 }
             };
         }
-        self.evaluate_up_to_n1(input, numerator, masters, results, statuses)
+        self.evaluate_up_to_n1(input, numerator, masters, results, statuses)?;
+        self.rescue_after(input, numerator, masters, refinement, results, statuses)
     }
 
     /// [`Self::evaluate`] for the rank <= n+1 engines that `declared_rank.rs`
@@ -1141,9 +1295,15 @@ impl FastAmplitude {
         statuses: &mut [FastStatus],
     ) -> Result<()> {
         match self.replacement.as_deref_mut() {
-            None => self.evaluate_up_to_n1(input, numerator, masters, results, statuses),
+            None => {
+                self.evaluate_up_to_n1(input, numerator, masters, results, statuses)?;
+                self.rescue_after(input, numerator, masters, None, results, statuses)
+            }
             Some(Replacement::Conditioned(engine)) => {
-                evaluate_conditioned(engine, input, numerator, masters, results, statuses)
+                evaluate_conditioned(engine, input, numerator, masters, results, statuses)?;
+                engine
+                    .amp
+                    .rescue_after(input, numerator, masters, None, results, statuses)
             }
             Some(Replacement::RankN2 { .. }) => {
                 unreachable!("the lowered engines have rank <= n+1")
@@ -1269,6 +1429,11 @@ impl FastAmplitude {
         }
         self.box_c
             .resize(self.topo.boxes.len() * lanes, [C64::ZERO; 2]);
+        self.box_lambda.clear();
+        if self.options.cancellation_rescue {
+            self.box_lambda
+                .resize(self.topo.boxes.len() * lanes, f64::NEG_INFINITY);
+        }
         self.tri
             .resize(self.topo.triangles.len() * lanes, TriangleData::default());
         self.bub
@@ -1333,6 +1498,11 @@ impl FastAmplitude {
                     continue;
                 }
                 let l = box_solutions(&k3, &k0, &k1, &e, m[c1], m[c2], m[c3], m[c4]);
+                // The box's conditioning, for the cancellation rescue's trigger
+                // (no work when the rescue is off).
+                if self.options.cancellation_rescue {
+                    self.box_lambda[b * lanes + lane] = box_lambda_bits(&l, v, m, &p);
+                }
                 let q = [sub_cr(&l[0], &v[c1]), sub_cr(&l[1], &v[c1])];
                 let mut mid = [C64::ZERO; 4];
                 if x1 {
@@ -2565,6 +2735,9 @@ impl FastAmplitude {
             if flagged > 0.
                 && box_mu_refused(flagged, result.laurent[0].abs(), f64::MANTISSA_DIGITS)
             {
+                // Kept for the cancellation rescue, which may re-reduce it;
+                // a refused lane is never published.
+                self.staged[lane] = result;
                 self.lane_status[lane] = FastStatus::Unstable;
                 screen_refused(lane, flagged, result.laurent[0].abs());
                 continue;
@@ -2655,4 +2828,987 @@ fn tadpole_from_bubble(
         e3k * 2. * (b[1] * e3b2 + b[3] * e3b3 + b[5] * e3b4)
     };
     divnum[(rmn + 1) as usize] -= value * 0.25 * (k.ie3k * k.ie3k);
+}
+
+/// The default target relative accuracy of [`FastOptions::rescue_target`]:
+/// `2^-30`, about four sevenths of binary64's 53 bits (nine of its sixteen
+/// digits). The trigger's estimate `2^-53 Σ|terms| / |finite|` measures the
+/// rounding of the final contraction; the measured binary64 error of the
+/// degenerate lanes is 5 to 50 times `2^-53` times their largest term
+/// (`docs/triangle-gram-conditioning.md`, section 1), so a lane served below
+/// the target keeps about seven digits at worst, and the calibration of
+/// section 4 (`g g > g g g`, `g g > g g g g`: no point below 8 digits) holds.
+pub const DEFAULT_RESCUE_TARGET: f64 = 9.313225746154785e-10;
+
+thread_local! {
+    /// The double-double workspaces of this thread, per `(n, rank)`, built on
+    /// the first rescue (kept out of [`FastAmplitude`], whose layout the
+    /// default stages' machine code depends on).
+    static DD_STAGES: RefCell<Vec<((usize, usize), Box<super::dd_driver::DdStages>)>> =
+        const { RefCell::new(Vec::new()) };
+    /// Lanes re-reduced in double-double since the last [`take_rescued_lanes`].
+    static RESCUED: Cell<u64> = const { Cell::new(0) };
+}
+
+/// The largest measured excess of a box cut's loss over the box-Gram model
+/// `(r + 1)/2 log2 λ²`, in bits (`docs/box-gram-conditioning.md`, section 3:
+/// synthetic lanes, double-double and MPFR), added to the model in the
+/// re-reduced lane's estimate.
+const BOX_GRAM_EXCESS_BITS: f64 = 11.3;
+
+/// The weight of a double-double term in a re-reduced lane's estimate,
+/// `2^-100`. Where it comes from: double-double arithmetic rounds at
+/// `2^-104` (two bits under `2^-106`); the provider's double-double masters
+/// other than C0 and D0 are accurate to `2^-98.4` (B11/B111) or better
+/// against 200-bit MPFR (A0, B0: `2^-100` and better on a set of
+/// 1,638 masters); the estimate sums the moduli of all terms, which bounds the
+/// accumulated error from above. `2^-100` is the smallest weight for which no
+/// served lane exceeds its estimate on two independent sets of exactly
+/// consistent synthetic lanes (168 and 293 lanes, n = 3 to 6, massless,
+/// massive, complex and mixed lines; worst actual/estimate 1.01): an
+/// empirical weight, not a proof. C0 and D0 terms are further divided by the
+/// normalised Källén function δ of their triangle (C0, `1/δ`) or by δ² of the
+/// most degenerate sub-triangle (D0, `1/δ²`): measured against 200-bit MPFR,
+/// C0 at `2^-104/δ`, D0 up to `2^-104/δ²` (`2^-77` at a box with a degenerate
+/// sub-triangle).
+const DD_TERM_BITS: i32 = 100;
+
+/// The unit at which a re-reduced lane counts the box mu-expansion screen's
+/// rounding estimate (`crate::conditioning::box_mu_rounding`, in units of the
+/// unit roundoff): double-double's `2^-104`, two bits under its `2^-106`.
+const DD_MU_BITS: i32 = 104;
+
+thread_local! {
+    /// The re-reductions of this thread's last evaluation ([`take_rescues`]).
+    static RESCUES: RefCell<Vec<(usize, super::Rescue)>> = const { RefCell::new(Vec::new()) };
+}
+
+/// The lanes this thread's last evaluation re-reduced
+/// ([`FastOptions::cancellation_rescue`]), with their precision and estimate
+/// ([`super::Rescue`]); cleared when the next evaluation starts.
+pub fn take_rescues() -> Vec<(usize, super::Rescue)> {
+    RESCUES.with(|r| std::mem::take(&mut *r.borrow_mut()))
+}
+
+/// The number of lanes this thread re-reduced in double-double
+/// ([`FastOptions::cancellation_rescue`]) since the last call.
+pub fn take_rescued_lanes() -> u64 {
+    RESCUED.with(|r| r.replace(0))
+}
+
+/// Master rows of one lane in `integrate`'s collection order: the cursor of
+/// each of the five families at the lane's first row.
+#[derive(Clone, Copy, Default)]
+struct Cursor([usize; 5]);
+
+impl FastAmplitude {
+    /// The cursor of every active lane in `integrate`'s collection order.
+    fn master_cursors(&self, input: &FastInput) -> Vec<(usize, Cursor)> {
+        let n = self.topo.n;
+        let x1 = self.topo.x1();
+        let eps = self.options.infrared_eps;
+        let (any_box, any_tri, any_bub, any_tad) = (
+            self.any_box(),
+            self.any_triangle(),
+            self.any_bubble(),
+            self.any_tadpole(),
+        );
+        let mut cursor = [0usize; 5];
+        let mut out = Vec::with_capacity(self.active.len());
+        for &lane in &self.active {
+            out.push((lane, Cursor(cursor)));
+            let m = &input.masses_squared[lane * n..(lane + 1) * n];
+            let s = &self.smat[lane * n * n..(lane + 1) * n * n];
+            let v = &input.shifts[lane * n..(lane + 1) * n];
+            if any_box {
+                cursor[0] += self.topo.boxes.len();
+            }
+            if any_tri {
+                cursor[1] += self.topo.triangles.len();
+            }
+            if any_bub {
+                for (b, &[i1, i2]) in self.topo.bubbles.iter().enumerate() {
+                    let k = s[i2 * n + i1];
+                    if is_zero(m[i1]) && is_zero(m[i2]) && k.abs() < eps {
+                        continue;
+                    }
+                    let family = if x1 && self.rank3_bubble(b, lane, v) {
+                        3
+                    } else {
+                        2
+                    };
+                    cursor[family] += 1;
+                }
+            }
+            if any_tad {
+                cursor[4] += (0..n).filter(|&i| !is_zero(m[i])).count();
+            }
+        }
+        out
+    }
+
+    /// The moduli of the finite parts of one lane's integrated terms, in
+    /// `integrate`'s order: `|c M|` per coefficient and master, the bubble
+    /// tensor terms one by one, and every rational term.
+    fn term_moduli(&self, input: &FastInput, lane: usize, cursor: Cursor) -> f64 {
+        let n = self.topo.n;
+        let lanes = self.lanes;
+        let x1 = self.topo.x1();
+        let eps = self.options.infrared_eps;
+        let m = &input.masses_squared[lane * n..(lane + 1) * n];
+        let s = &self.smat[lane * n * n..(lane + 1) * n * n];
+        let v = &input.shifts[lane * n..(lane + 1) * n];
+        let mut cursor = cursor.0;
+        let mut sum = 0.;
+        if self.any_box() {
+            for b in 0..self.topo.boxes.len() {
+                let [c0, c4] = self.box_c[b * lanes + lane];
+                sum += (c0 * self.masters[0].out[cursor[0]][0]).abs() + c4.abs() / 6.;
+                cursor[0] += 1;
+            }
+        }
+        if self.any_triangle() {
+            for (t, &[i1, i2, i3]) in self.topo.triangles.iter().enumerate() {
+                let c = &self.tri[t * lanes + lane].c;
+                sum += (c[0] * self.masters[1].out[cursor[1]][0]).abs() + c[7].abs() * 0.5;
+                if x1 {
+                    let (pji, pjk, pki) = (s[i2 * n + i1], s[i3 * n + i2], s[i1 * n + i3]);
+                    sum += (c[14] * (C64::real(0.25 * (pjk + pji + pki)) - m[i1] - m[i2] - m[i3]))
+                        .abs()
+                        / 6.;
+                }
+                cursor[1] += 1;
+            }
+        }
+        if self.any_bubble() {
+            for (b, &[i1, i2]) in self.topo.bubbles.iter().enumerate() {
+                let k = s[i2 * n + i1];
+                if is_zero(m[i1]) && is_zero(m[i2]) && k.abs() < eps {
+                    continue;
+                }
+                let data = &self.bub[b * lanes + lane];
+                let c = &data.c;
+                let ke2 = mp_rr(&sub(&v[i2], &v[i1]), &data.e2);
+                let rank3 = x1 && self.rank3_bubble(b, lane, v);
+                let (family, width) = if rank3 { (3, 4) } else { (2, 3) };
+                let out =
+                    &self.masters[family].out[cursor[family] * width..(cursor[family] + 1) * width];
+                cursor[family] += 1;
+                let b06 = -(C64::real(k) - (m[i1] + m[i2]) * 3.) / 6.;
+                sum += (c[0] * out[0][0]).abs()
+                    + (c[1] * ke2 * out[1][0]).abs()
+                    + (c[2] * ke2 * ke2 * out[2][0]).abs()
+                    + (b06 * c[9]).abs();
+                if rank3 {
+                    sum += (c[13] * ke2 * ke2 * ke2 * out[3][0]).abs();
+                }
+                if x1 {
+                    sum += ((C64::real(k) - m[i1] * 2. - m[i2] * 4.) * ke2 * c[10]).abs() / 12.;
+                }
+            }
+        }
+        if self.any_tadpole() {
+            for i in 0..n {
+                if is_zero(m[i]) {
+                    continue;
+                }
+                let integral = &self.masters[4].out[cursor[4]];
+                cursor[4] += 1;
+                let data = &self.tad[i * lanes + lane];
+                if x1 {
+                    let c0 = data.c0 + m[i] * (data.e34 * 0.25) * data.c15;
+                    sum += (c0 * integral[0]).abs()
+                        + ((data.c14 + data.c15 * (data.e34 * 0.25)) * m[i] * m[i] * 0.5).abs();
+                } else {
+                    sum += (data.c0 * integral[0]).abs();
+                }
+            }
+        }
+        sum
+    }
+
+    /// The rescue after an evaluation published its lanes
+    /// ([`FastOptions::cancellation_rescue`]): measure every successful lane
+    /// (and every lane the box mu-expansion screen refused), re-reduce in
+    /// double-double those whose estimate misses the target, publish the
+    /// accepted re-reductions and refuse the others, typed. Nothing the rescue
+    /// meets is an error of the evaluation: a failure of its own stages
+    /// refuses its lanes.
+    #[inline(never)]
+    fn rescue_after<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
+        &mut self,
+        input: &FastInput,
+        num: &N,
+        masters: &mut M,
+        refinement: Option<&dyn FastRefinementSource>,
+        results: &mut [FastResult],
+        statuses: &mut [FastStatus],
+    ) -> Result<()> {
+        if !self.options.cancellation_rescue {
+            return Ok(());
+        }
+        for (lane, served) in self.rescue_cancelling_lanes(input, num, masters, refinement) {
+            match served {
+                Some(true) => {
+                    results[lane] = self.staged[lane];
+                    statuses[lane] = FastStatus::Success;
+                    // A box mu-expansion refusal the re-reduction cured.
+                    INSTABILITIES.with(|list| {
+                        list.borrow_mut().retain(|(l, i)| {
+                            !(*l == lane && i.test == InstabilityTest::BoxMuConditioning)
+                        })
+                    });
+                }
+                Some(false) => {
+                    // Typed refusal; the slot carries the best available
+                    // value (`Rescue::held_bits`, `held_estimate`).
+                    results[lane] = self.staged[lane];
+                    statuses[lane] = FastStatus::Unstable;
+                }
+                None => {
+                    // Outside the rescue's domain: the binary64 value and
+                    // status stay (a refused binary64 lane's slot gets its
+                    // value).
+                    results[lane] = self.staged[lane];
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// Record a lane's refusal by the rescue (`estimate`, `absolute`: the
+    /// re-reduction's own, NaN when it has none; `held`: the precision in
+    /// bits and the relative estimate of the value the lane's slot keeps,
+    /// the better of the binary64 and the re-reduced one).
+    fn refuse_lane(&mut self, lane: usize, estimate: f64, absolute: f64, held: (u32, f64)) {
+        self.lane_status[lane] = FastStatus::Unstable;
+        RESCUES.with(|list| {
+            list.borrow_mut().push((
+                lane,
+                super::Rescue {
+                    precision_bits: 106,
+                    estimate,
+                    absolute,
+                    served: false,
+                    outcome: if estimate.is_nan() {
+                        super::RescueOutcome::Failed
+                    } else {
+                        super::RescueOutcome::Missed
+                    },
+                    held_bits: held.0,
+                    held_estimate: held.1,
+                },
+            ))
+        });
+        INSTABILITIES.with(|list| {
+            list.borrow_mut().push((
+                lane,
+                Instability {
+                    test: InstabilityTest::CancellationRescue,
+                    value: held.1,
+                    bound: self.options.rescue_target,
+                },
+            ))
+        });
+    }
+
+    /// A flagged lane outside the rescue's domain: not re-reduced, typed
+    /// `Unstable` (`RescueOutsideDomain`, value: the binary64 estimate), the
+    /// binary64 value in its slot.
+    fn outside_domain(&mut self, lane: usize, binary64_estimate: f64) {
+        self.lane_status[lane] = FastStatus::Unstable;
+        RESCUES.with(|list| {
+            list.borrow_mut().push((
+                lane,
+                super::Rescue {
+                    precision_bits: 106,
+                    estimate: f64::NAN,
+                    absolute: f64::NAN,
+                    served: false,
+                    outcome: super::RescueOutcome::OutsideDomain,
+                    held_bits: 53,
+                    held_estimate: binary64_estimate,
+                },
+            ))
+        });
+        INSTABILITIES.with(|list| {
+            list.borrow_mut().push((
+                lane,
+                Instability {
+                    test: InstabilityTest::RescueOutsideDomain,
+                    value: binary64_estimate,
+                    bound: self.options.rescue_target,
+                },
+            ))
+        });
+    }
+
+    /// The trigger and the re-reduction; returns per handled lane whether its
+    /// re-reduction was served.
+    #[cold]
+    #[inline(never)]
+    fn rescue_cancelling_lanes<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
+        &mut self,
+        input: &FastInput,
+        num: &N,
+        masters: &mut M,
+        refinement: Option<&dyn FastRefinementSource>,
+    ) -> Vec<(usize, Option<bool>)> {
+        let unit = 2f64.powi(-(f64::MANTISSA_DIGITS as i32));
+        let target = self.options.rescue_target;
+        let screened: Vec<usize> = INSTABILITIES.with(|list| {
+            list.borrow()
+                .iter()
+                .filter(|(_, i)| i.test == InstabilityTest::BoxMuConditioning)
+                .map(|&(l, _)| l)
+                .collect()
+        });
+        let cursors = self.master_cursors(input);
+        let mut flagged = Vec::new();
+        let mut out = Vec::new();
+        for &(lane, cursor) in &cursors {
+            let candidate = self.lane_status[lane] == FastStatus::Success
+                || (self.lane_status[lane] == FastStatus::Unstable && screened.contains(&lane));
+            if !candidate {
+                continue;
+            }
+            // Relative to the lane's value; a lane without terms (exactly
+            // zero, e.g. a massless tadpole) has nothing to lose.
+            let finite = self.staged[lane].laurent[0].abs();
+            let relative = |x: f64| if x == 0. { 0. } else { x / finite };
+            let moduli = self.term_moduli(input, lane, cursor);
+            let mut estimate = relative(unit * moduli);
+            // The same in absolute terms, for the comparison with the
+            // re-reduction (the box-Gram loss taken of all terms).
+            let mut absolute = (unit * moduli).max(unit * self.mu_error[lane]);
+            // The box coefficients' own loss at a nearly degenerate box Gram,
+            // which the final contraction does not show.
+            for b in 0..self.topo.boxes.len() {
+                let gram = box_gram_error(
+                    self.box_lambda[b * self.lanes + lane],
+                    self.topo.rank,
+                    f64::MANTISSA_DIGITS,
+                );
+                absolute = absolute.max(gram * moduli);
+            }
+            estimate = estimate.max(relative(absolute));
+            // The box mu-expansion screen's first-order rounding estimate
+            // (`crate::conditioning`, units of the unit roundoff), which the
+            // contraction does not show either.
+            estimate = estimate.max(relative(unit * self.mu_error[lane]));
+            // A measure that does not divide by the computed value (which a
+            // loss inside the stages can make as large as the error itself):
+            // each triangle's normalised Gram, `δ = sqrt|λ(p1², p2², p3²)| /
+            // max|pi²|` from the lane's invariants, at `2^-53 / δ²`. It only
+            // flags (the re-reduced lane's own estimate decides); regular
+            // lanes stay far below any target.
+            {
+                let n = self.topo.n;
+                let s = &self.smat[lane * n * n..(lane + 1) * n * n];
+                for &[i1, i2, i3] in &self.topo.triangles {
+                    let [a, b, c] =
+                        [s[i2 * n + i1], s[i3 * n + i2], s[i1 * n + i3]].map(super::dd::Dd::from);
+                    let delta = super::dd::kallen_delta(a, b, c);
+                    estimate = estimate.max(unit / (delta * delta));
+                }
+            }
+            if estimate <= target && self.lane_status[lane] == FastStatus::Success {
+                continue;
+            }
+            if num.tensor_coefficients(lane).is_none() {
+                // No re-reduction for this numerator: a typed refusal with
+                // the binary64 value (`RescueOutsideDomain`).
+                self.outside_domain(lane, estimate);
+                out.push((lane, Some(false)));
+                continue;
+            }
+            flagged.push((lane, cursor, estimate, absolute));
+        }
+        if flagged.is_empty() {
+            return out;
+        }
+        let (n, rank) = (self.topo.n, self.topo.rank);
+        let rescued = DD_STAGES.with(|cell| {
+            let mut list = cell.borrow_mut();
+            let index = match list.iter().position(|(key, _)| *key == (n, rank)) {
+                Some(index) => index,
+                None => {
+                    list.push((
+                        (n, rank),
+                        Box::new(super::dd_driver::DdStages::new(n, rank, self.options)),
+                    ));
+                    list.len() - 1
+                }
+            };
+            let dd = &mut list[index].1;
+            dd.set_options(self.options);
+            self.rescue_with(dd, input, num, masters, refinement, &flagged)
+        });
+        out.extend(rescued);
+        out
+    }
+
+    /// The double-double re-reduction of the flagged lanes (whole lanes: every
+    /// stage and every master at one kinematic point, the refined one or the
+    /// projected one; only the numerator's coefficients are binary64) and
+    /// their acceptance: served when its own estimate meets the target and is
+    /// at most a sixteenth of the binary64 estimate, else refused.
+    fn rescue_with<N: FastNumerator + ?Sized, M: FastMasters + ?Sized>(
+        &mut self,
+        dd: &mut super::dd_driver::DdStages,
+        input: &FastInput,
+        num: &N,
+        masters: &mut M,
+        refinement: Option<&dyn FastRefinementSource>,
+        flagged: &[(usize, Cursor, f64, f64)],
+    ) -> Vec<(usize, Option<bool>)> {
+        use super::dd::{Cd, Dd, mp_rr as mp_rr_d};
+        use super::dd_driver::{DdTensor, project_light_like};
+        let n = self.topo.n;
+        let x1 = self.topo.x1();
+        let eps = self.options.infrared_eps;
+        let target = self.options.rescue_target;
+        let k = flagged.len();
+        let mut shifts = Vec::with_capacity(k * n);
+        let mut masses = Vec::with_capacity(k * n);
+        let mut smat = Vec::with_capacity(k * n * n);
+        let mut smat_dd: Vec<Dd> = Vec::with_capacity(k * n * n);
+        let mut consistent = vec![true; k];
+        // Lanes at the caller's refined point: every master must then be the
+        // provider's double-double one at that point (one point per lane).
+        let mut at_refined = vec![false; k];
+        let mut outside = vec![false; k];
+        let mut tensor = DdTensor::new(self.topo.rank);
+        let (mut lo_v, mut lo_s, mut lo_m) =
+            (vec![[0.; 4]; n], vec![0.; n * n], vec![C64::ZERO; n]);
+        for (r, &(lane, _, _, _)) in flagged.iter().enumerate() {
+            let s = &self.smat[lane * n * n..(lane + 1) * n * n];
+            let hi = &input.shifts[lane * n..(lane + 1) * n];
+            lo_v.fill([0.; 4]);
+            lo_s.fill(0.);
+            lo_m.fill(C64::ZERO);
+            let mut refined =
+                refinement.is_some_and(|src| src.lane(lane, &mut lo_v, &mut lo_s, &mut lo_m));
+            let first = shifts.len();
+            if refined {
+                // Exact two-sums: the low parts need not be normalised.
+                let v: Vec<[Dd; 4]> = hi
+                    .iter()
+                    .zip(&lo_v)
+                    .map(|(h, l)| std::array::from_fn(|mu| Dd::from(h[mu]) + l[mu]))
+                    .collect();
+                // A refinement is used only when it is consistent to
+                // double-double: every pair the binary64 pass takes as exactly
+                // zero, or as a real squared mass of the lane, and (with an
+                // invariant matrix) every given invariant, within 2^-100 of the
+                // lane's scale of its own shifts; otherwise the projection.
+                let scale = v.iter().flatten().fold(Dd::ZERO, |a, x| a.max(x.abs()));
+                let tolerance = (scale * scale * 4.).to_f64() * 2f64.powi(-100);
+                let mut ok = true;
+                for i in 0..n {
+                    for j in 0..i {
+                        let d: [Dd; 4] = std::array::from_fn(|mu| v[i][mu] - v[j][mu]);
+                        let own = mp_rr_d(&d, &d);
+                        let given = s[i * n + j];
+                        let expected = if given.abs() < eps {
+                            Some(Dd::ZERO)
+                        } else if let Some(q) = (0..n).find(|&q| {
+                            let mq = input.masses_squared[lane * n + q];
+                            mq.im == 0. && (given - mq.re).abs() < eps
+                        }) {
+                            Some(Dd::from(input.masses_squared[lane * n + q].re) + lo_m[q].re)
+                        } else if input.s_matrix.is_some() && !lo_s[i * n + j].is_nan() {
+                            Some(Dd::from(given) + lo_s[i * n + j])
+                        } else {
+                            None
+                        };
+                        if let Some(x) = expected {
+                            ok &= (own - x).abs().to_f64() <= tolerance;
+                        }
+                    }
+                }
+                if ok {
+                    shifts.extend(v);
+                } else {
+                    refined = false;
+                }
+            }
+            if !refined {
+                let mut v: Vec<[Dd; 4]> = hi.iter().map(|x| x.map(Dd::from)).collect();
+                consistent[r] = project_light_like(&mut v, s, n, eps);
+                shifts.extend(v);
+            }
+            at_refined[r] = refined;
+            // Without a (consistent) refinement, a lane with an on-shell
+            // MASSIVE leg is outside the domain: the projection makes only
+            // massless pairs exact, so the masters (at the exact mass) and the
+            // cut geometry (at the binary64 shell residue) would sit at two
+            // points. Such lanes need the caller's refined kinematics.
+            if !refined {
+                outside[r] = (0..n).any(|i| {
+                    (0..i).any(|j| {
+                        let given = s[i * n + j];
+                        given.abs() >= eps
+                            && (0..n).any(|q| {
+                                let mq = input.masses_squared[lane * n + q];
+                                mq.im == 0. && mq.re != 0. && (given - mq.re).abs() < eps
+                            })
+                    })
+                });
+            }
+            // A caller-given invariant strictly between zero and
+            // `infrared_eps` is zero by the engine's convention (cut bases,
+            // scaleless bubbles, on-shell masters) but not by the caller's
+            // kinematics: the lane is not defined well enough for a
+            // re-reduction to certify it (typed `Failed`; its slot keeps the
+            // binary64 value). Invariants NinjaRS computed from the shifts
+            // (no matrix given) are projected instead.
+            if input.s_matrix.is_some() && s.iter().any(|&x| x != 0. && x.abs() < eps) {
+                consistent[r] = false;
+            }
+            let vd = &shifts[first..first + n];
+            for i in 0..n {
+                for j in 0..n {
+                    // Refined: the source's invariant (NaN = the refined
+                    // shifts'); else the projected geometry's.
+                    smat_dd.push(
+                        if refined && input.s_matrix.is_some() && !lo_s[i * n + j].is_nan() {
+                            Dd::from(s[i * n + j]) + lo_s[i * n + j]
+                        } else {
+                            let d: [Dd; 4] = std::array::from_fn(|mu| vd[i][mu] - vd[j][mu]);
+                            mp_rr_d(&d, &d)
+                        },
+                    );
+                }
+            }
+            masses.extend((0..n).map(|i| {
+                let h = Cd::from_c64(input.masses_squared[lane * n + i]);
+                if refined {
+                    h + Cd::from_c64(lo_m[i])
+                } else {
+                    h
+                }
+            }));
+            smat.extend_from_slice(s);
+            tensor.push_lane(
+                num.tensor_coefficients(lane)
+                    .expect("checked by the caller"),
+            );
+        }
+        let ddin = super::dd_driver::FastInput {
+            lanes: k,
+            shifts: &shifts,
+            masses_squared: &masses,
+        };
+        dd.prepare(&ddin, &smat);
+        let stages = (|| -> Result<()> {
+            if dd.any_box() {
+                dd.boxes(&ddin, &mut tensor)?;
+            }
+            if dd.any_triangle() {
+                dd.triangles(&ddin, &mut tensor)?;
+            }
+            if dd.any_bubble() {
+                dd.bubbles(&ddin, &mut tensor)?;
+            }
+            if dd.any_tadpole() {
+                dd.tadpoles(&ddin, &mut tensor)?;
+            }
+            Ok(())
+        })();
+        let mut outcome = Vec::with_capacity(k);
+        for (r, &(lane, cursor, binary64_estimate, binary64_absolute)) in flagged.iter().enumerate()
+        {
+            if outside[r] {
+                self.outside_domain(lane, binary64_estimate);
+                outcome.push((lane, Some(false)));
+                continue;
+            }
+            if stages.is_err() || !dd.alive[r] || !consistent[r] {
+                // A degenerate or non-finite quantity, or a projection that
+                // could not be solved: no estimate, a typed refusal.
+                self.refuse_lane(lane, f64::NAN, f64::NAN, (53, binary64_estimate));
+                outcome.push((lane, Some(false)));
+                continue;
+            }
+            let mut cursor = cursor.0;
+            let m = &input.masses_squared[lane * n..(lane + 1) * n];
+            let s = &self.smat[lane * n * n..(lane + 1) * n * n];
+            let md = &masses[r * n..(r + 1) * n];
+            let vd = &shifts[r * n..(r + 1) * n];
+            let sd = &smat_dd[r * n * n..(r + 1) * n * n];
+            let zero = |x: f64| x.abs() < eps;
+            // The masters' invariants: the lane's point, except that an
+            // invariant the binary64 pass takes as zero, or as a real squared
+            // mass of the lane, is exactly that (the zero predicate of the
+            // bubble skip and of the binary64 masters' on-shell threshold).
+            let inv = |i: usize, j: usize| -> Cd {
+                let given = s[i * n + j];
+                if zero(given) {
+                    return Cd::ZERO;
+                }
+                if let Some(q) = (0..n).find(|&q| m[q].im == 0. && (given - m[q].re).abs() < eps) {
+                    return md[q];
+                }
+                Cd::real(sd[i * n + j])
+            };
+            let mu2 = input.scales_squared[lane];
+            let mu2c = Cd::real(Dd::from(mu2));
+            let mut rescue_out = [[Cd::ZERO; 3]; 4];
+            let mut rescue_ok = [false];
+            let mut missing = false;
+            let mut provided =
+                |family: FastMaster, args: &[Cd], width: usize| -> Option<[[Cd; 3]; 4]> {
+                    rescue_ok[0] = false;
+                    let given = masters
+                        .evaluate_rescue(family, args, &mut rescue_out[..width], &mut rescue_ok)
+                        .unwrap_or(false);
+                    missing |= !(given && rescue_ok[0]);
+                    (given && rescue_ok[0]).then_some(rescue_out)
+                };
+            // A triangle's normalised Källén function `sqrt|λ(a, b, c)| / max`
+            // of its external invariants: the provider's double-double C0
+            // loses log2(1/δ) bits there, and D0 2 log2(1/δ) of its most
+            // degenerate sub-triangle (both measured against 200-bit MPFR:
+            // C0 at 2^-104/δ, D0 at up to 2^-104/δ²).
+            let delta = |a: Cd, b: Cd, c: Cd| super::dd::kallen_delta(a.re, b.re, c.re);
+            let mut res = [Cd::ZERO; 3];
+            let mut rational = Cd::ZERO;
+            // The moduli of the finite terms, split by the precision of their
+            // least precise factor: the re-reduced lane's own estimate.
+            let (mut m64, mut mdd) = (0f64, 0f64);
+            let size = |z: Cd| z.abs().to_f64();
+            if self.any_box() {
+                for (b, &[i1, i2, i3, i4]) in self.topo.boxes.iter().enumerate() {
+                    let binary64 = self.masters[0].out[cursor[0]];
+                    cursor[0] += 1;
+                    let [c0, c4] = dd.box_c[b * k + r];
+                    let args = [
+                        inv(i2, i1),
+                        inv(i3, i2),
+                        inv(i4, i3),
+                        inv(i1, i4),
+                        inv(i3, i1),
+                        inv(i4, i2),
+                        md[i1],
+                        md[i2],
+                        md[i3],
+                        md[i4],
+                        mu2c,
+                    ];
+                    let given = provided(FastMaster::D0, &args, 1);
+                    let integral = given.map_or_else(|| binary64.map(Cd::from_c64), |o| o[0]);
+                    for o in 0..3 {
+                        res[o] += c0 * integral[o];
+                    }
+                    // -1/6 in double-double (a binary64 1/6 is 2^-55 off).
+                    rational -= c4 / 6.;
+                    if given.is_some() {
+                        let worst = [
+                            delta(inv(i2, i1), inv(i3, i2), inv(i3, i1)),
+                            delta(inv(i2, i1), inv(i4, i2), inv(i4, i1)),
+                            delta(inv(i3, i1), inv(i4, i3), inv(i4, i1)),
+                            delta(inv(i3, i2), inv(i4, i3), inv(i4, i2)),
+                        ]
+                        .into_iter()
+                        .fold(1f64, f64::min);
+                        mdd += size(c0 * integral[0]) / (worst * worst);
+                    } else {
+                        m64 += size(c0 * integral[0]);
+                    }
+                    mdd += size(c4) / 6.;
+                }
+            }
+            if self.any_triangle() {
+                for (t, &[i1, i2, i3]) in self.topo.triangles.iter().enumerate() {
+                    let binary64 = self.masters[1].out[cursor[1]];
+                    cursor[1] += 1;
+                    let given = provided(
+                        FastMaster::C0,
+                        &[
+                            inv(i2, i1),
+                            inv(i3, i2),
+                            inv(i1, i3),
+                            md[i1],
+                            md[i2],
+                            md[i3],
+                            mu2c,
+                        ],
+                        1,
+                    )
+                    .map(|o| o[0]);
+                    let master_dd = given.is_some();
+                    let integral = given.unwrap_or_else(|| binary64.map(Cd::from_c64));
+                    let c = &dd.tri[t * k + r].c;
+                    for o in 0..3 {
+                        res[o] += c[0] * integral[o];
+                    }
+                    let before = rational;
+                    if x1 {
+                        let shape = Cd::real(sd[i2 * n + i1] + sd[i3 * n + i2] + sd[i1 * n + i3])
+                            * 0.25
+                            - md[i1]
+                            - md[i2]
+                            - md[i3];
+                        rational += c[7] * 0.5 + c[14] * shape / 6.;
+                    } else {
+                        rational += c[7] * 0.5;
+                    }
+                    if master_dd {
+                        let delta = delta(inv(i2, i1), inv(i3, i2), inv(i1, i3));
+                        mdd += size(c[0] * integral[0]) / delta;
+                    } else {
+                        m64 += size(c[0] * integral[0]);
+                    }
+                    mdd += size(rational - before);
+                }
+            }
+            // The binary64 tadpole rows of this lane, per line (zero if massless).
+            let a0_rows: Vec<[C64; 3]> = if !self.any_tadpole() {
+                vec![[C64::ZERO; 3]; n]
+            } else {
+                let mut row = cursor[4];
+                (0..n)
+                    .map(|i| {
+                        if is_zero(m[i]) {
+                            [C64::ZERO; 3]
+                        } else {
+                            row += 1;
+                            self.masters[4].out[row - 1]
+                        }
+                    })
+                    .collect()
+            };
+            if self.any_bubble() {
+                for (b, &[i1, i2]) in self.topo.bubbles.iter().enumerate() {
+                    let kk = s[i2 * n + i1];
+                    if is_zero(m[i1]) && is_zero(m[i2]) && kk.abs() < eps {
+                        continue;
+                    }
+                    let data = &dd.bub[b * k + r];
+                    let c = &data.c;
+                    let kv: [Dd; 4] = std::array::from_fn(|mu| vd[i2][mu] - vd[i1][mu]);
+                    let ke2 = mp_rr_d(&kv, &data.e2);
+                    let rank3 =
+                        x1 && self.rank3_bubble(b, lane, &input.shifts[lane * n..(lane + 1) * n]);
+                    let (family, width) = if rank3 { (3, 4) } else { (2, 3) };
+                    let out = &self.masters[family].out
+                        [cursor[family] * width..(cursor[family] + 1) * width];
+                    cursor[family] += 1;
+                    let kd = sd[i2 * n + i1];
+                    let given = provided(
+                        if rank3 {
+                            FastMaster::BubbleRank3
+                        } else {
+                            FastMaster::BubbleRank2
+                        },
+                        &[inv(i2, i1), md[i1], md[i2], mu2c],
+                        width,
+                    );
+                    // Without the provider's double-double tensors: its binary64
+                    // ones (in the estimate at 2^-53).
+                    let master_dd = given.is_some();
+                    let tensors = given.unwrap_or_else(|| {
+                        std::array::from_fn(|w| {
+                            if w < width {
+                                out[w].map(Cd::from_c64)
+                            } else {
+                                [Cd::ZERO; 3]
+                            }
+                        })
+                    });
+                    let c1 = c[1] * ke2;
+                    let c2 = c[2] * ke2 * ke2;
+                    let c13 = if rank3 {
+                        c[13] * ke2 * ke2 * ke2
+                    } else {
+                        Cd::ZERO
+                    };
+                    for o in 0..3 {
+                        res[o] += c[0] * tensors[0][o]
+                            + c1 * tensors[1][o]
+                            + c2 * tensors[2][o]
+                            + c13 * tensors[3][o];
+                    }
+                    let term = size(c[0] * tensors[0][0])
+                        + size(c1 * tensors[1][0])
+                        + size(c2 * tensors[2][0])
+                        + size(c13 * tensors[3][0]);
+                    if master_dd {
+                        mdd += term
+                    } else {
+                        m64 += term
+                    }
+                    let before = rational;
+                    let b06 = -(Cd::real(kd) - (md[i1] + md[i2]) * 3.) / 6.;
+                    if x1 {
+                        rational += b06 * c[9]
+                            + (Cd::real(kd) - md[i1] * 2. - md[i2] * 4.) * ke2 * c[10] / 12.;
+                    } else {
+                        rational += b06 * c[9];
+                    }
+                    mdd += size(rational - before);
+                }
+            }
+            if self.any_tadpole() {
+                for i in 0..n {
+                    if is_zero(m[i]) {
+                        continue;
+                    }
+                    let data = &dd.tad[i * k + r];
+                    let given = provided(FastMaster::A0, &[md[i], mu2c], 1).map(|o| o[0]);
+                    let integral = given.unwrap_or_else(|| a0_rows[i].map(Cd::from_c64));
+                    let mi = md[i];
+                    let (res_before, rational_before) = (res[0], rational);
+                    if x1 {
+                        let c0 = data.c0 + mi * (data.e34 * 0.25) * data.c15;
+                        for o in 0..3 {
+                            res[o] += c0 * integral[o];
+                        }
+                        rational += (data.c14 + data.c15 * (data.e34 * 0.25)) * mi * mi * 0.5;
+                    } else {
+                        for o in 0..3 {
+                            res[o] += data.c0 * integral[o];
+                        }
+                    }
+                    if given.is_some() {
+                        mdd += size(res[0] - res_before)
+                    } else {
+                        m64 += size(res[0] - res_before)
+                    }
+                    mdd += size(rational - rational_before);
+                }
+            }
+            let result = FastResult {
+                laurent: [
+                    (res[0] + rational).to_c64(),
+                    res[1].to_c64(),
+                    res[2].to_c64(),
+                ],
+                cut_constructible: res[0].to_c64(),
+                rational: rational.to_c64(),
+            };
+            let finite = result.laurent[0].abs();
+            let moduli = m64 + mdd;
+            // The re-reduced lane's own absolute error estimate: terms with a
+            // binary64 factor at 2^-53, double-double terms at
+            // 2^-DD_TERM_BITS, and the rounding of the served binary64 value;
+            // inside the box stage the double-double coefficients themselves
+            // lose `(r + 1)/2 log2 λ²` bits at a nearly degenerate box Gram
+            // (a relative error of the box terms, taken of all terms); the box
+            // mu-expansion screen's rounding estimate of the same boxes, at
+            // the double-double unit.
+            let rounding =
+                m64 * 2f64.powi(-53) + mdd * 2f64.powi(-DD_TERM_BITS) + finite * 2f64.powi(-53);
+            let gram = (0..self.topo.boxes.len())
+                .map(|b| box_gram_error(dd.box_lambda[b * k + r], self.topo.rank, 106))
+                .fold(0f64, f64::max);
+            let mu = self.mu_error[lane] * 2f64.powi(-DD_MU_BITS);
+            let absolute = rounding.max(gram * moduli).max(mu);
+            // Its relative estimate: the same absolute estimate over the
+            // value (one normalization for acceptance and the record).
+            let estimate = absolute / finite;
+            // The binary64 lane's absolute estimate, for the comparison: a
+            // served value must be clearly better than the binary64 one, at
+            // most 1/16 of its estimate (the binary64 error ranges over about
+            // 0.03 to 1 times its estimate on the dumped lanes, the
+            // re-reduced lane's at most its estimate: four bits keep a served
+            // value from being worse).
+            let finite_ok =
+                result.laurent.iter().all(|z| z.is_finite()) && result.rational.is_finite();
+            // At a refined point a binary64 master (at the input point) would
+            // mix two kinematic points in one lane: refused.
+            let one_point = !(at_refined[r] && missing);
+            let better = absolute <= binary64_absolute / 16.;
+            // Accepted: its own estimate meets the target; anything else is a
+            // typed refusal. (A lane below binary64's resolution of its own
+            // terms is NOT served on that ground: its value is an ordinary
+            // part of the point the caller sums, and no absolute scale of the
+            // point is known here.)
+            let outcome_of = if !(finite_ok && one_point && better) {
+                super::RescueOutcome::Missed
+            } else if estimate <= target {
+                super::RescueOutcome::Accepted
+            } else {
+                super::RescueOutcome::Missed
+            };
+            let served = outcome_of != super::RescueOutcome::Missed;
+            if served {
+                self.staged[lane] = result;
+                self.lane_status[lane] = FastStatus::Success;
+                RESCUES.with(|list| {
+                    list.borrow_mut().push((
+                        lane,
+                        super::Rescue {
+                            precision_bits: 106,
+                            estimate,
+                            absolute,
+                            served: true,
+                            outcome: outcome_of,
+                            held_bits: 106,
+                            held_estimate: estimate,
+                        },
+                    ))
+                });
+            } else if !finite_ok {
+                self.refuse_lane(lane, f64::NAN, f64::NAN, (53, binary64_estimate));
+            } else {
+                // Refused, typed; the slot keeps the better value: the
+                // re-reduced one when it is at one point and its absolute
+                // estimate is below the binary64 lane's.
+                let held = if one_point && absolute <= binary64_absolute / 16. {
+                    self.staged[lane] = result;
+                    (106, estimate)
+                } else {
+                    (53, binary64_estimate)
+                };
+                self.refuse_lane(lane, estimate, absolute, held);
+            }
+            outcome.push((lane, Some(served)));
+        }
+        RESCUED.with(|c| {
+            c.set(c.get() + outcome.iter().filter(|(_, s)| *s == Some(true)).count() as u64)
+        });
+        outcome
+    }
+}
+
+#[cfg(test)]
+mod rescue_record_tests {
+    use super::*;
+
+    fn record() -> super::super::Rescue {
+        super::super::Rescue {
+            precision_bits: 106,
+            estimate: 0.,
+            absolute: 0.,
+            served: true,
+            outcome: super::super::RescueOutcome::Accepted,
+            held_bits: 106,
+            held_estimate: 0.,
+        }
+    }
+
+    /// The records of a declared rank n+2 batch's lowered sub-batch name the
+    /// batch's lanes (`declared_rank.rs` remaps them like the instabilities);
+    /// records made before the sub-batch are left alone.
+    #[test]
+    fn sub_batch_rescue_records_name_the_batch_lanes() {
+        RESCUES.with(|list| {
+            let mut list = list.borrow_mut();
+            list.clear();
+            list.push((0, record()));
+            list.push((1, record()));
+        });
+        let from = rescues_len();
+        RESCUES.with(|list| {
+            let mut list = list.borrow_mut();
+            list.push((0, record()));
+            list.push((1, record()));
+        });
+        let batch_lanes = [5, 7];
+        remap_rescues(from, |lane| batch_lanes[lane]);
+        let lanes: Vec<usize> = take_rescues().into_iter().map(|(lane, _)| lane).collect();
+        assert_eq!(lanes, [0, 1, 5, 7]);
+    }
 }

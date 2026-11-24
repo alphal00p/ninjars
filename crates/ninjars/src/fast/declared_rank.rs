@@ -58,7 +58,8 @@
 
 use super::complex::{C64, CMom, RMom};
 use super::engine::{
-    FastAmplitude, FastOptions, Replacement, instabilities_len, remap_instabilities,
+    FastAmplitude, FastOptions, Replacement, instabilities_len, remap_instabilities, remap_rescues,
+    rescues_len,
 };
 use super::engine_x2::{DynMasters, DynNumerator};
 use super::masters::FastMasters;
@@ -406,8 +407,10 @@ pub(super) fn evaluate_declared_n2<N: FastNumerator + ?Sized, M: FastMasters + ?
         numerator.lower_rank(lanes, rank)?;
         let lowered = Lowered(&mut *numerator);
         let recorded = instabilities_len();
+        let rescued = rescues_len();
         engine.evaluate_lowered(&part, &mut *lowered.0, masters, part_results, part_statuses)?;
         remap_instabilities(recorded, |lane| lanes[lane]);
+        remap_rescues(rescued, |lane| lanes[lane]);
     }
     let high = &mut parts[declared];
     if !high.lanes.is_empty() {

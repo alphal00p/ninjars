@@ -67,3 +67,7 @@ required-features = ["native-masters"]
 [[test]]
 name = "fast_native_masters"
 required-features = ["native-masters"]
+
+[[test]]
+name = "triangle_gram_rescue"
+required-features = ["native-masters"]

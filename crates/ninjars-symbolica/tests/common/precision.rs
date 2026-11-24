@@ -239,7 +239,16 @@ pub fn precision(
     let mut high = SymbolicaHighCuts::new(proto.clone())?;
     let mut amplitude =
         SymbolicaAmplitudeKernels::new(n, rank, proto.clone())?.into_amplitude(1)?;
-    let mut fast = FastAmplitude::new(n, rank, FastOptions::default())?;
+    let mut fast = FastAmplitude::new(
+        n,
+        rank,
+        FastOptions {
+            // The binary64 engine against original Ninja (replayed binary64
+            // masters, no double-double ones): the cancellation rescue off.
+            cancellation_rescue: false,
+            ..FastOptions::default()
+        },
+    )?;
     let mut out = Vec::new();
     for (index, point) in case.points.iter().enumerate() {
         if only.is_some_and(|o| !o.contains(&index)) {
