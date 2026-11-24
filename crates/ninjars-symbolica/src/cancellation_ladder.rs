@@ -263,8 +263,42 @@ where
     Complex::new(value.re.to_float(bits), value.im.to_float(bits))
 }
 
-fn taxicab<T: NativeFloat>(value: &Complex<T>) -> f64 {
-    value.re.to_f64().abs() + value.im.to_f64().abs()
+/// Bits of the MPFR numbers ratios are formed in: wide enough for every
+/// carrier's values exactly (double-double parts included).
+const RATIO_BITS: u32 = 256;
+
+/// `|Re z| + |Im z|` in MPFR (exact exponents: no binary64 under- or
+/// overflow of an absolute quantity).
+fn taxicab_float(value: &Complex<Float>) -> Float {
+    let (mut re, mut im) = (value.re.clone(), value.im.clone());
+    if re.is_negative() {
+        re = -re;
+    }
+    if im.is_negative() {
+        im = -im;
+    }
+    re + &im
+}
+
+/// `a / b` for non-negative MPFR `a`, `b`, converted to binary64 only as a
+/// ratio (scale invariant): 0 for `a = 0`, infinite for `b = 0 < a`.
+fn ratio(a: &Float, b: &Float) -> f64 {
+    if a.is_zero() {
+        0.
+    } else if b.is_zero() {
+        f64::INFINITY
+    } else {
+        let r = (a.clone() / b).to_f64();
+        if r.is_nan() { f64::INFINITY } else { r }
+    }
+}
+
+/// `log2(a / b)` for positive MPFR `a`, `b`, without forming `a / b` in
+/// binary64 (it may exceed its range).
+fn log2_ratio(a: &Float, b: &Float) -> f64 {
+    let q = a.clone() / b;
+    let ln = q.log().to_f64();
+    ln / std::f64::consts::LN_2
 }
 
 /// The measured loss of one lane of `amplitude` (built with
@@ -276,7 +310,7 @@ fn taxicab<T: NativeFloat>(value: &Complex<T>) -> f64 {
 /// and at least the bits the tracked precision of an MPFR result says are
 /// gone (`working_bits` minus [`crate::tracked_bits`]). `None` when nothing
 /// was measured.
-pub fn lane_loss<T: NativeFloat>(
+pub fn lane_loss<T: LadderCarrier>(
     amplitude: &Amplitude<Complex<T>, SymbolicaAmplitudeKernels<T>>,
     lane: usize,
     working_bits: u32,
@@ -293,27 +327,55 @@ where
     }
     let zero = contributions[lane][0].zero();
     let mut sum: Laurent<Complex<T>> = std::array::from_fn(|_| zero.clone());
-    let mut terms = [0.; 3];
+    // The term moduli are summed in MPFR: binary64 sums of absolute values
+    // under- or overflow for a numerator scaled by a large power of two.
+    let bits = RATIO_BITS.max(working_bits + 64);
+    let mut terms: [Float; 3] = std::array::from_fn(|_| Float::with_val(bits, 0));
     for cut in 0..cuts {
         let row = cut * lanes + lane;
         for (total, value) in sum.iter_mut().zip(&contributions[row]) {
             *total += value;
         }
         for (k, term) in terms.iter_mut().enumerate() {
-            *term += moduli[row][k].re.to_f64();
+            *term = term.clone() + &moduli[row][k].re.to_float(bits);
         }
     }
     // The finite part's loss, and the generic engine's own measure over the
     // Laurent orders (largest terms against the largest coefficient), which
-    // also sees a cancellation of the poles.
-    let finite = lost_bits(taxicab(&sum[0]), terms[0]);
-    let largest = sum.iter().map(taxicab).fold(0., f64::max);
-    let orders = lost_bits(largest, terms.iter().copied().fold(0., f64::max));
+    // also sees a cancellation of the poles. Every ratio is formed in MPFR
+    // (scale invariant; only the ratio is converted).
+    let values: Vec<Float> = sum
+        .iter()
+        .map(|v| taxicab_float(&complex_to_float(v, bits)))
+        .collect();
+    let lost = |value: &Float, moduli: &Float| {
+        if moduli.is_zero() {
+            0.
+        } else if value.is_zero() {
+            f64::INFINITY
+        } else {
+            log2_ratio(moduli, value).max(0.)
+        }
+    };
+    let finite = lost(&values[0], &terms[0]);
+    let largest = values.iter().fold(Float::with_val(bits, 0), |a, b| {
+        if b.clone() > a { b.clone() } else { a }
+    });
+    let most = terms.iter().fold(Float::with_val(bits, 0), |a, b| {
+        if b.clone() > a { b.clone() } else { a }
+    });
+    let orders = lost(&largest, &most);
     // MPFR (numerica's `Float`) tracks the significant bits of every
     // intermediate and rounds to them: the result keeps at most its tracked
     // bits, whatever the moduli say (fixed carriers report their own bits).
     let tracked = crate::tracked_bits(&sum[0]).map_or(0., |t| f64::from(working_bits) - t);
-    Some((finite.max(orders).max(tracked), terms, sum))
+    // Absolute moduli are reported in binary64 (they may under- or overflow
+    // there; no decision uses them).
+    Some((
+        finite.max(orders).max(tracked),
+        terms.map(|t| t.to_f64()),
+        sum,
+    ))
 }
 
 /// Higher-precision kinematics of rescued lanes, as low parts in the base
@@ -724,7 +786,7 @@ where
 /// M' per coefficient).
 type RungLane<U> = (EvaluationStatus, Laurent<Complex<U>>, f64, [f64; 3]);
 
-impl<U: NativeFloat> Stage<U>
+impl<U: LadderCarrier> Stage<U>
 where
     Complex<U>: Real + EvaluationDomain,
 {
@@ -1034,7 +1096,26 @@ impl PolynomialLadder {
             // can be optimistic (up to 2^25 measured): it carries the margin, and a
             // lane the engine refused is always re-reduced (its value can
             // only be served once a rung has confirmed it).
-            let base_estimate = estimate(base, lost) * if tracks { margin } else { 1. };
+            // A fixed carrier's spacing is not relative below its normal
+            // range: a subnormal coefficient `v` is resolved only to
+            // `2^-1074 / |v|` (binary64; a double-double's parts share that
+            // exponent range). Per coefficient, in MPFR (exact exponents).
+            let representable = if tracks {
+                0.
+            } else {
+                sum.iter()
+                    .map(|v| {
+                        let size = taxicab_float(&complex_to_float(v, RATIO_BITS));
+                        if size.is_zero() {
+                            0.
+                        } else {
+                            (-1074. - log2_ratio(&size, &Float::with_val(RATIO_BITS, 1))).exp2()
+                        }
+                    })
+                    .fold(0., f64::max)
+            };
+            let base_estimate =
+                (estimate(base, lost) * if tracks { margin } else { 1. }).max(representable);
             // A lane the engine refused is served unconfirmed only with the
             // margin (double-double estimates are measured honest within a
             // factor 5-7, not exact); at an MPFR base never.
@@ -1203,15 +1284,11 @@ impl PolynomialLadder {
                     // The agreement of the two reductions, for EVERY Laurent
                     // coefficient (poles included), relative to the served
                     // coefficient (an exactly zero pair agrees).
+                    // Formed in MPFR and converted only as a ratio (a
+                    // subnormal or overflowing absolute value must not drop
+                    // the error).
                     let relative_to = |d: &Complex<Float>, v: &Complex<Float>| {
-                        let (d, v) = (taxicab_f(d), taxicab_f(v));
-                        if d == 0. {
-                            0.
-                        } else if v > 0. {
-                            d / v
-                        } else {
-                            f64::INFINITY
-                        }
+                        ratio(&taxicab_float(d), &taxicab_float(v))
                     };
                     let disagreement = match high {
                         Some(_) => (0..3)
@@ -1219,7 +1296,25 @@ impl PolynomialLadder {
                             .fold(0., f64::max),
                         None => 0.,
                     };
-                    let honest = (own * margin).max(disagreement);
+                    // A double-double rung shares binary64's exponent range:
+                    // a subnormal coefficient is resolved only to
+                    // `2^-1074 / |v|` there (its value is already rounded).
+                    let spacing = if served_rung == Rung::DoubleDouble {
+                        sum.iter()
+                            .map(|v| {
+                                let size = taxicab_float(v);
+                                if size.is_zero() {
+                                    0.
+                                } else {
+                                    (-1074. - log2_ratio(&size, &Float::with_val(RATIO_BITS, 1)))
+                                        .exp2()
+                                }
+                            })
+                            .fold(0., f64::max)
+                    } else {
+                        0.
+                    };
+                    let honest = (own * margin).max(disagreement).max(spacing);
                     let accurate = ((-honest.log2()).floor().clamp(1., f64::from(u32::MAX)) as u32)
                         .min(input_bits[record.lane]);
                     let rounded: Laurent<Complex<T>> = sum.clone().map(|v| {
@@ -1277,7 +1372,9 @@ impl PolynomialLadder {
                     // A value below this rung's own resolution of its terms
                     // is noise: the lane climbs like any other; it is reported
                     // `BelowResolution` only when no higher rung is allowed.
-                    let noise = taxicab_f(&sum[0]) <= resolution[0];
+                    // (In the logarithm: `|V'| <= 2^-p' 2^m M'` is a loss of
+                    // at least `p' - m` bits; scale invariant.)
+                    let noise = *lost >= f64::from(served_rung.bits()) - self.rule.margin_bits;
                     record.outcome = if noise {
                         LadderOutcome::BelowResolution
                     } else {
@@ -1375,10 +1472,6 @@ fn below_bits(x: f64, bits: u32) -> f64 {
     } else {
         0.
     }
-}
-
-fn taxicab_f(value: &Complex<Float>) -> f64 {
-    value.re.to_f64().abs() + value.im.to_f64().abs()
 }
 
 #[cfg(test)]
