@@ -335,3 +335,74 @@ fn huge_terms_climb_to_the_top_rung_or_are_refused_with_finite_bounds() -> Resul
     assert!(rescued.best.is_some_and(|(_, e, _)| e.is_finite()));
     Ok(())
 }
+
+/// The reviewer's equal-mass bubble `N = 2^k (1 + 2 q0) + i` (shifts 0 and
+/// (1, 0, 0, 0), `m² = 4`, `μ² = 1`), the numerator scaled by `2^scale`.
+fn scaled_bubble(k: i32, scale: i32) -> Lane {
+    use ninjars::fast::tensor_layout::monomials;
+    let bits = 2048;
+    let f = |x: f64| Float::with_val(bits, x);
+    let c = |x: Float| Complex::new(x, f(0.));
+    let two = |e: i32| {
+        let mut x = f(1.);
+        for _ in 0..e.unsigned_abs() {
+            x = if e > 0 { x * &f(2.) } else { x / &f(2.) };
+        }
+        x
+    };
+    let (big, unit) = (two(k + scale), two(scale));
+    let coefficients = monomials(1)
+        .iter()
+        .map(|alpha| match alpha.iter().position(|&p| p == 1) {
+            None => Complex::new(big.clone(), unit.clone()),
+            Some(0) => c(big.clone() * &f(2.)),
+            Some(_) => c(f(0.)),
+        })
+        .collect();
+    Lane {
+        n: 2,
+        rank: 1,
+        shifts: vec![[f(0.), f(0.), f(0.), f(0.)], [f(1.), f(0.), f(0.), f(0.)]],
+        masses: vec![c(f(4.)), c(f(4.))],
+        s: vec![c(f(0.)), c(f(1.)), c(f(1.)), c(f(0.))],
+        scale: c(f(1.)),
+        coefficients,
+    }
+}
+
+/// External review (final): with the numerator scaled by 2^-1074 the
+/// binary64 value of the lane is subnormal (`-1.3435 i 2^-1074` cannot be
+/// represented within 1e-8): it must not be `Accepted` (it was, with
+/// estimate 4.4e-16 and a 25.6 % error); the narrowing error is formed as a
+/// ratio in MPFR, so the lane is a typed refusal. With k = 4 the lane does
+/// not cancel at all: the base trigger counts the subnormal spacing, so the
+/// lane is not served as a plain success either.
+#[test]
+fn subnormal_values_are_not_accepted() -> Result<(), Error> {
+    for k in [4, 80, 160] {
+        let lane = scaled_bubble(k, -1074);
+        let out = run(&lane, 0f64, true, Some(1e-8))?;
+        let rescued = out.ladder.expect("flagged");
+        assert_ne!(rescued.outcome, LadderOutcome::Accepted, "k = {k}: {:?}", rescued.rungs);
+        assert!(rescued.value.re.is_nan(), "k = {k}: no value served");
+        assert!(rescued.best.is_some_and(|(_, e, _)| e > 1e-8), "k = {k}: honest best estimate");
+    }
+    Ok(())
+}
+
+/// Scale invariance: the ladder's decisions (outcome, rungs) are unchanged
+/// when the numerator is multiplied by 2^1000 (nothing overflows in
+/// binary64: coefficients up to 2^1017), and the value scales with it.
+#[test]
+fn decisions_are_scale_invariant() -> Result<(), Error> {
+    let plain = run(&scaled_bubble(16, 0), 0f64, true, Some(1e-14))?;
+    let scaled = run(&scaled_bubble(16, 1000), 0f64, true, Some(1e-14))?;
+    let (a, b) = (plain.ladder.expect("flagged"), scaled.ladder.expect("flagged"));
+    assert_eq!(a.outcome, b.outcome);
+    assert_eq!(a.rungs, b.rungs);
+    assert_eq!(a.outcome, LadderOutcome::Accepted);
+    let back = Complex::new(b.value.re * 2f64.powi(-1000), b.value.im * 2f64.powi(-1000));
+    assert!(relative(back, a.value) <= 1e-14, "{back:?} vs {:?}", a.value);
+    assert!((plain.lost_bits - scaled.lost_bits).abs() < 1e-9);
+    Ok(())
+}
