@@ -80,21 +80,47 @@ One number drives it: the target relative accuracy `τ` of a lane
   four units of the base carrier (a target below that floor is served at the
   floor and reported so, audit m9). A rung is served only when its estimate
   is below the base pass's (it never replaces a better base value, audit m5).
-  Outcomes: `Accepted` (served); `WithinTarget` (a lane the engine's own `p/2`
-  test refused, served at its base value: only in binary64 and double-double
-  and only when its estimate times `2^m` meets `τ`, audit m10; at an MPFR base
-  such a lane is always re-reduced); `BelowResolution` (the value lies below
-  the base carrier's resolution of the lane's terms, `|V'| <= 2^-p M'`: only an
-  absolute accuracy exists and the caller gave no absolute budget, so the
-  lane is REFUSED, typed, its rung value carried as the best one; the fast
-  engine does the same); otherwise the next rung, sized from the new `L'` and
-  at least one limb above the confirming reduction; a rung refused by its
-  cuts, masters (their own precision test) or stability test also climbs.
-  After `max_rungs` or above `max_bits` the lane is `Missed`. `Failed`: an
-  error inside a rung (contained to its lanes) or a geometry whose consistency
-  cannot be established (no invariant matrix, complex shifts, a singular or
-  non-converged projection). Refused lanes (`Missed`, `Failed`,
-  `BelowResolution`) carry `LaneRescue::best` (value, estimate, carrier bits).
+  Outcomes: `Accepted` (served) only when the estimate REPORTED for the
+  value returned (narrowing included) meets the REQUESTED target and the rung
+  is better than the base pass; a target below what the base carrier can
+  represent (four of its units) is therefore `Missed`, with the best value and
+  its clamped estimate. `WithinTarget` (a lane the engine's own `p/2` test
+  refused, served at its base value: only in binary64 and double-double and
+  only when its estimate times `2^m` meets `τ`, audit m10; at an MPFR base such
+  a lane is always re-reduced). A value below a rung's own resolution of its
+  terms (`|V'| <= 2^-p' 2^m M'`) is noise at that rung: the lane climbs like
+  any other. `BelowResolution` is reported only when that holds at the highest
+  rung the ladder may try (`max_bits`, default `max(4p, 512)`): with the
+  confirming reduction 64 bits wider, the lane lost at least `p_top + 56`
+  bits measured at `p_top + 64` (tracked precision included): from a binary64
+  or double-double base more than about 568 bits, from an MPFR base of `p`
+  bits more than `max(4p, 512) + 56`. Its record carries a finite absolute
+  bound per coefficient (`absolute_bound`, the top rung's resolution of its
+  terms) and the term moduli, and no relative estimate better than none
+  (estimates are never non-finite). NinjaRS refuses it, typed. pyAmpliCol
+  (integration commit `8b8adac11`) serves such a lane at its rung value and
+  records it as `BelowResolution`, because lanes that vanish by symmetry must
+  not fail the generation of loop-induced processes: its relative accuracy is
+  then NOT certified (only the absolute bound is). Otherwise the next rung,
+  sized from the new `L'` and at least one limb above the confirming
+  reduction; a rung refused by its cuts, masters (their own precision test) or
+  stability test also climbs. After `max_rungs` or above `max_bits` the lane
+  is `Missed`. `Failed`: an error inside a rung (contained to its lanes) or a
+  geometry whose consistency cannot be established (no invariant matrix,
+  complex shifts, a singular or non-converged projection). Refused lanes
+  (`Missed`, `Failed`, `BelowResolution`) carry `LaneRescue::best` (value,
+  estimate, carrier bits).
+- **The inputs' precision bounds every rung.** A rung cannot create digits
+  its inputs do not have. An MPFR lane whose kinematic inputs (shifts,
+  masses, scale, invariants) are tracked below the working precision is left
+  to the base pass: value, status and tracked precision as without the
+  ladder, so a caller's tracked-precision test (pyAmpliCol's "NinjaRS tracked
+  precision") refuses it as before. Every served value's tracked precision and
+  reported estimate are capped by its inputs' precision, numerator
+  coefficients included. Fixed carriers (binary64, double-double) carry no
+  tracked precision: an input known to fewer bits than the carrier cannot be
+  detected from its value (as without the ladder; the caller's
+  responsibility).
   Records (`LaneRescue`) state the base loss and estimate, the target, every
   reduction's precision and the outcome; `PolynomialLadder::take_counts` sums
   them per precision.
