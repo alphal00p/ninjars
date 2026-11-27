@@ -68,7 +68,7 @@ Dependencies are pinned in `Cargo.toml` and recorded with their provenance in
 | Dependency | Repository | Revision |
 | --- | --- | --- |
 | FeynKit, Spenso, Idenso (gammaloop) | `https://github.com/ValentinHirschi/gammaloop` (branch `pyamplicol-community`) | `ea3faaae` |
-| oneloopmaster (`oneloop`) | `https://github.com/alphal00p/oneloopmaster` (main) | `cdbc912a` |
+| oneloopmaster (`oneloop`) | `https://github.com/alphal00p/oneloopmaster` (main) | `a4b16f70` |
 | Symbolica, Numerica, Graphica | `https://github.com/symbolica-dev/symbolica` (branch `community`) | `d0424f9e` |
 
 Symbolica is upstream's `community` branch, without local patches. The gammaloop
